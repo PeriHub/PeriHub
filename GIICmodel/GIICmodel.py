@@ -4,7 +4,7 @@ from scipy import interpolate
 from support.modelWriter import ModelWriter
 from support.geometry import Geometry
 class GIICmodel(object):
-    def __init__(self, xend = 1, yend = 1, dx=[0.1,0.1], filename = 'GIICmodel'):
+    def __init__(self, xend = 1, yend = 1, dx=[0.1,0.1], filename = 'GIICmodel', filetype = 'yaml'):
         '''
             definition der blocks
             k =
@@ -22,6 +22,7 @@ class GIICmodel(object):
 
         
         self.filename = filename
+        self.filetype = filetype
         self.scal = 4.01
         # anriss
         self.a = 20
@@ -102,7 +103,7 @@ class GIICmodel(object):
         writer = ModelWriter(filename = self.filename)
         writer.writeNodeSets(model,self.nsList)
         writer.writeMesh(model)
-        self.writeXML(writer = writer, model = model)
+        self.writeFILE(filetype = self.filetype, writer = writer, model = model)
         
         return model
     
@@ -113,12 +114,12 @@ class GIICmodel(object):
             blockDef['Horizon'][idx] = self.scal*max([self.dx[0],self.dx[1]])
 
         return blockDef
-    def writeXML(self, writer, model):
+    def writeFILE(self, filetype, writer, model):
         
         blockDef = self.createBlockdef(model, self.materialDict)
         
             
-        writer.createXML(self.bcDict, self.materialDict,blockDef,self.bondfilters)
+        writer.createFile(filetype, self.bcDict, self.materialDict,blockDef,self.bondfilters)
 
              
 
