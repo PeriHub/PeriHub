@@ -25,7 +25,7 @@ class ModelControl(object):
         nn = 21
         dx=[h/nn,h/nn]
         #print(dx)
-        gc = GIICmodel(xend = L, yend = 2*h, dx=[0.07,0.07])
+        gc = GIICmodel(xend = L, yend = 2*h, dx=[0.07,0.07], solvertype = 'NOXQuasiStatic')
         model = gc.createModel()
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
     def endRunOnError(self):

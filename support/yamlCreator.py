@@ -1,8 +1,9 @@
 import numpy as np
 
 class YAMLcreator(object):
-    def __init__(self, filename = 'mesh', nsName = '', bc = {}, materialDict = {},blockDef = {}, bondfilters = {}):
+    def __init__(self, filename = 'mesh', nsName = '', solvertype = 'Verlet', bc = {}, materialDict = {},blockDef = {}, bondfilters = {}):
         self.filename = filename
+        self.solvertype = solvertype
         self.materialDict = materialDict
         self.blockDef = blockDef
         self.bondfilters = bondfilters
@@ -70,14 +71,39 @@ class YAMLcreator(object):
             string += '            Hourglass Coefficient: 1.0\n'
             string += '            Stabilizaton Type: "Global Stiffness"\n'
         return string
-    def solver(self):
+    def solver(self, solvertype):
         string = '    Solver:\n'
         string += '        Verbose: false\n'
         string += '        Initial Time: 0.0\n'
         string += '        Final Time: 0.075\n'
-        string += '        Verlet:\n'
-        string += '            Safety Factor: 0.95\n'
-        string += '            Numerical Damping: 0.000005\n'
+        if(solvertype=='Verlet'):
+            string += '        Verlet:\n'
+            string += '            Safety Factor: 0.95\n'
+            string += '            Numerical Damping: 0.000005\n'
+        elif(solvertype=='NOXQuasiStatic'):
+            string += '        Peridigm Preconditioner: "None"\n'
+            string += '        NOXQuasiStatic:\n'
+            string += '            Nonlinear Solver: "Line Search Based"\n'
+            string += '            Number of Load Steps: 100\n'
+            string += '            Max Solver Iterations: 50\n'
+            string += '            Relative Tolerance: 1.0e-8\n'
+            string += '            Max Age Of Prec: 100\n'
+            string += '            Direction:\n'
+            string += '                 Method: "Newton"\n'
+            string += '                 Newton:\n'
+            string += '                      Linear Solver:\n'
+            string += '                           Jacobian Operator: "Matrix-Free"\n'
+            string += '                           Preconditioner: "None"\n'
+            string += '            Line Search:\n'
+            string += '                 Method: "Polynomial"\n'
+            string += '            Switch to Verlet:\n'
+            string += '                 Safety Factor: 0.95\n'
+            string += '                 Numerical Damping: 0.000005\n'
+            string += '                 Output Frequency: 7500\n'
+        else:
+            string += '        Verlet:\n'
+            string += '            Safety Factor: 0.95\n'
+            string += '            Numerical Damping: 0.000005\n'
         return string
     def boundaryCondition(self,nsName, bc):
         string = '    Boundary Conditions:\n'
@@ -102,7 +128,7 @@ class YAMLcreator(object):
             string += self.damage(self.materialDict)
         string += self.blocks(self.blockDef)
         string += self.boundaryCondition(self.nsfilename,self.bc)
-        string += self.solver()
+        string += self.solver(self.solvertype)
         '''
         string += '    Compute Class Parameters:\n'
         string += '        External Displacement:\n'

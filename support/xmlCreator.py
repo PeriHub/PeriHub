@@ -1,8 +1,9 @@
 import numpy as np
 
 class XMLcreator(object):
-    def __init__(self, filename = 'mesh', nsName = '', bc = {}, materialDict = {},blockDef = {}, bondfilters = {}):
+    def __init__(self, filename = 'mesh', nsName = '', solvertype = 'Verlet', bc = {}, materialDict = {},blockDef = {}, bondfilters = {}):
         self.filename = filename
+        self.solvertype = solvertype
         self.materialDict = materialDict
         self.blockDef = blockDef
         self.bondfilters = bondfilters
@@ -78,14 +79,44 @@ class XMLcreator(object):
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         return string
-    def solver(self):
+    def solver(self, solvertype):
         string = '    <ParameterList name="Solver">\n'
         string += '        <Parameter name="Verbose" type="bool" value="false"/>\n'
         string += '        <Parameter name="Initial Time" type="double" value="0.0"/>\n'
         string += '        <Parameter name="Final Time" type="double" value="0.075"/>\n'
-        string += '        <ParameterList name="Verlet">\n'
-        string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
-        string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
+        if(solvertype=='Verlet'):
+            string += '        <ParameterList name="Verlet">\n'
+            string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
+            string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
+        elif(solvertype=='NOXQuasiStatic'):
+            string += '        <Parameter name="Peridigm Preconditioner" type="string" value="None"/>\n'
+            string += '        <ParameterList name="NOXQuasiStatic">\n'
+            string += '            <Parameter name="Nonlinear Solver" type="string" value="Line Search Based"/>\n'
+            string += '            <Parameter name="Number of Load Steps" type="int" value="100"/>\n'
+            string += '            <Parameter name="Max Solver Iterations" type="int" value="50"/>\n'
+            string += '            <Parameter name="Relative Tolerance" type="double" value="1.0e-8"/>\n'
+            string += '            <Parameter name="Max Age Of Prec" type="int" value="100"/>\n'
+            string += '            <ParameterList name="Direction">\n'
+            string += '                 <Parameter name="Method" type="string" value="Newton"/>\n'
+            string += '                 <ParameterList name="Newton">\n'
+            string += '                      <ParameterList name="Linear Solver">\n'
+            string += '                           <Parameter name="Jacobian Operator" type="string" value="Matrix-Free"/>\n'
+            string += '                           <Parameter name="Preconditioner" type="string" value="None"/>\n'
+            string += '                      </ParameterList>\n'
+            string += '                 </ParameterList>\n'
+            string += '            </ParameterList>\n'
+            string += '            <ParameterList name="Line Search">\n'
+            string += '                 <Parameter name="Method" type="string" value="Polynomial"/>\n'
+            string += '            </ParameterList>\n'
+            string += '            <ParameterList name="Switch to Verlet">\n'
+            string += '                 <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
+            string += '                 <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
+            string += '                 <Parameter name="Output Frequency" type="int" value="7500"/>\n'
+            string += '            </ParameterList>\n'
+        else:
+            string += '        <ParameterList name="Verlet">\n'
+            string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
+            string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
         string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         return string
@@ -115,7 +146,7 @@ class XMLcreator(object):
             string += self.damage(self.materialDict)
         string += self.blocks(self.blockDef)
         string += self.boundaryCondition(self.nsfilename,self.bc)
-        string += self.solver()
+        string += self.solver(self.solvertype)
         '''
         string += '    <ParameterList name="Compute Class Parameters">\n'
         string += '        <ParameterList name="External Displacement">\n'
