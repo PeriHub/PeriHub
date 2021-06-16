@@ -4,7 +4,7 @@ from scipy import interpolate
 from support.modelWriter import ModelWriter
 from support.geometry import Geometry
 class GIICmodel(object):
-    def __init__(self, xend = 1, yend = 1, dx=[0.1,0.1], filename = 'GIICmodel', filetype = 'yaml'):
+    def __init__(self, xend = 1, yend = 1, dx=[0.1,0.1], filename = 'GIICmodel', filetype = 'xml'):
         '''
             definition der blocks
             k =
