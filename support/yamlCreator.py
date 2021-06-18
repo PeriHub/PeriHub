@@ -1,14 +1,18 @@
 import numpy as np
 
 class YAMLcreator(object):
-    def __init__(self, filename = 'mesh', nsName = '', solvertype = 'Verlet', bc = {}, materialDict = {},blockDef = {}, bondfilters = {}):
+    def __init__(self, filename = 'mesh', nsName = '', solvertype = 'Verlet', bc = {}, damageDict = {}, materialDict = {},blockDef = {}, bondfilters = {}, TwoD = False):
         self.filename = filename
-        self.solvertype = solvertype
         self.materialDict = materialDict
+        self.damageDict = damageDict
         self.blockDef = blockDef
         self.bondfilters = bondfilters
         self.bc = bc
         self.nsfilename = nsName
+        self.TwoDstring = 'false'
+        self.solvertype = solvertype
+        if TwoD:
+            self.TwoDstring = 'true'                   
     def loadMesh(self):
         string = '    Discretization:\n'
         string += '        Type: "Text File"\n'
@@ -16,8 +20,7 @@ class YAMLcreator(object):
         return string
     def createBondFilter(self,bondfilters):
         string = '        Bond Filters:\n'
-        
-        
+
         for idx in range(0, len(bondfilters['Name'])):
             string += '            ' + bondfilters['Name'][idx] +':\n'
             string += '                Type: "Rectangular_Plane"\n'
@@ -33,17 +36,16 @@ class YAMLcreator(object):
             string += '                Bottom_Length: ' + str(bondfilters['Bottom_Length'][idx]) + '\n'
             string += '                Side_Length: ' + str(bondfilters['Side_Length'][idx]) + '\n'
         return string
-    def material(self, mat):
+    def material(self, material):
         string = '    Materials:\n'
         
-        for idx in range(0,len(mat['MatName'])):
-            string += '        ' + mat['MatName'][idx] +':\n'
-            string += '            Material Model: "' + mat['MatType'][idx] + '"\n'
+        for mat in material:
+            string += '        ' + mat +':\n'
+            string += '            Material Model: "' + material[mat]['MatType'] + '"\n'
             string += '            Tension pressure separation for damage model: false\n'
-            string += '            Plane Stress: true\n'
-            string += '            Density: ' + str(mat['dens'][idx]) + '\n'
-            string += '            Young'+"'"+ 's Modulus: ' +str(mat['EMod'][idx]) +'\n'
-            string += '            Poisson' + "'" + 's Ratio: '+str(mat['nu'][idx]) + '\n'
+            string += '            Plane Stress: ' + self.TwoDstring + '\n'
+            for param in material[mat]['Parameter']:
+                string += '            ' + param + ': ' + str(material[mat]['Parameter'][param]) + '\n'
             string += '            Stabilizaton Type: "Global Stiffness"\n'
             string += '            Thickness: 10.0\n'
             string += '            Hourglass Coefficient: 1.0\n'
@@ -58,13 +60,14 @@ class YAMLcreator(object):
                 string += '            Damage Model: "' + blockDef['Damage'][idx] + '"\n'
             string += '            Horizon: ' + str(blockDef['Horizon'][idx]) + '\n'
         return string
-    def damage(self,dam):
+    def damage(self,damageDict):
         string = '    Damage Models:\n'
-        for idx in range(0,len(dam['DamName'])):
-            string += '        ' + dam['DamName'][idx] + ':\n'
+        for dam in damageDict:
+            string += '        ' + dam + ':\n'
             string += '            Damage Model: "Critical Energy Correspondence"\n'
-            string += '            Critical Energy: ' + str(dam['Energy'][idx]) + '\n'
-            string += '            Plane Stress: true\n'
+            string += '            Critical Energy: ' + str(damageDict[dam]['Energy']) + '\n'
+            string += '            Interblock damage energy: ' + str(damageDict[dam]['InferaceEnergy']) + '"/>\n'
+            string += '            Plane Stress: '+ self.TwoDstring +'\n'
             string += '            Only Tension: true\n'
             string += '            Detached Nodes Check: true\n'
             string += '            Thickness: 10.0\n'
@@ -124,8 +127,8 @@ class YAMLcreator(object):
         if len(self.bondfilters['Name'])>0:
             string += self.createBondFilter(self.bondfilters)
         string += self.material(self.materialDict)
-        if len(self.materialDict['DamName'])>0:
-            string += self.damage(self.materialDict)
+        if len(self.damageDict)>0:
+            string += self.damage(self.damageDict)
         string += self.blocks(self.blockDef)
         string += self.boundaryCondition(self.nsfilename,self.bc)
         string += self.solver(self.solvertype)
