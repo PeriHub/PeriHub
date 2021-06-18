@@ -1,176 +1,156 @@
 import numpy as np
 
-class XMLcreator(object):
-    def __init__(self, filename = 'mesh', nsName = '', solvertype = 'Verlet', bc = {}, materialDict = {},blockDef = {}, bondfilters = {}):
+class YAMLcreator(object):
+    def __init__(self, filename = 'mesh', nsName = '', solvertype = 'Verlet', bc = {}, damageDict = {}, materialDict = {},blockDef = {}, bondfilters = {}, TwoD = False):
         self.filename = filename
-        self.solvertype = solvertype
         self.materialDict = materialDict
+        self.damageDict = damageDict
         self.blockDef = blockDef
         self.bondfilters = bondfilters
         self.bc = bc
         self.nsfilename = nsName
+        self.TwoDstring = 'false'
+        self.solvertype = solvertype
+        if TwoD:
+            self.TwoDstring = 'true'                   
     def loadMesh(self):
-        string = '    <ParameterList name="Discretization">\n'
-        string += '        <Parameter name="Type" type="string" value="Text File" />\n'
-        string += '        <Parameter name="Input Mesh File" type="string" value="' + self.filename +'.txt"/>\n'    
+        string = '    Discretization:\n'
+        string += '        Type: "Text File"\n'
+        string += '        Input Mesh File: "' + self.filename +'.txt"\n'    
         return string
     def createBondFilter(self,bondfilters):
-        string = '        <ParameterList name="Bond Filters">\n'
-        
-        
+        string = '        Bond Filters:\n'
+
         for idx in range(0, len(bondfilters['Name'])):
-            string += '            <ParameterList name="' + bondfilters['Name'][idx] +'">\n'
-            string += '                <Parameter name="Type" type="string" value = "Rectangular_Plane"/>\n'
-            string += '                <Parameter name="Normal_X" type="double" value="' + str(bondfilters['Normal'][idx][0]) + '"/>\n'
-            string += '                <Parameter name="Normal_Y" type="double" value="' + str(bondfilters['Normal'][idx][1]) + '"/>\n'
-            string += '                <Parameter name="Normal_Z" type="double" value="' + str(bondfilters['Normal'][idx][2]) + '"/>\n'
-            string += '                <Parameter name="Lower_Left_Corner_X" type="double" value="' + str(bondfilters['Lower_Left_Corner'][idx][0]) + '"/>\n'
-            string += '                <Parameter name="Lower_Left_Corner_Y" type="double" value="' + str(bondfilters['Lower_Left_Corner'][idx][1]) + '"/>\n'
-            string += '                <Parameter name="Lower_Left_Corner_Z" type="double" value="' + str(bondfilters['Lower_Left_Corner'][idx][2]) + '"/>\n'
-            string += '                <Parameter name="Bottom_Unit_Vector_X" type="double" value="' + str(bondfilters['Bottom_Unit_Vector'][idx][0]) + '"/>\n'
-            string += '                <Parameter name="Bottom_Unit_Vector_Y" type="double" value="' + str(bondfilters['Bottom_Unit_Vector'][idx][1]) + '"/>\n'
-            string += '                <Parameter name="Bottom_Unit_Vector_Z" type="double" value="' + str(bondfilters['Bottom_Unit_Vector'][idx][2]) + '"/>\n'
-            string += '                <Parameter name="Bottom_Length" type="double" value="' + str(bondfilters['Bottom_Length'][idx]) + '"/>\n'
-            string += '                <Parameter name="Side_Length" type="double" value="' + str(bondfilters['Side_Length'][idx]) + '"/>\n'
-            string += '            </ParameterList>\n'
-        string += '        </ParameterList>\n'
+            string += '            ' + bondfilters['Name'][idx] +':\n'
+            string += '                Type: "Rectangular_Plane"\n'
+            string += '                Normal_X: ' + str(bondfilters['Normal'][idx][0]) + '\n'
+            string += '                Normal_Y: ' + str(bondfilters['Normal'][idx][1]) + '\n'
+            string += '                Normal_Z: ' + str(bondfilters['Normal'][idx][2]) + '\n'
+            string += '                Lower_Left_Corner_X: ' + str(bondfilters['Lower_Left_Corner'][idx][0]) + '\n'
+            string += '                Lower_Left_Corner_Y: ' + str(bondfilters['Lower_Left_Corner'][idx][1]) + '\n'
+            string += '                Lower_Left_Corner_Z: ' + str(bondfilters['Lower_Left_Corner'][idx][2]) + '\n'
+            string += '                Bottom_Unit_Vector_X: ' + str(bondfilters['Bottom_Unit_Vector'][idx][0]) + '\n'
+            string += '                Bottom_Unit_Vector_Y: ' + str(bondfilters['Bottom_Unit_Vector'][idx][1]) + '\n'
+            string += '                Bottom_Unit_Vector_Z: ' + str(bondfilters['Bottom_Unit_Vector'][idx][2]) + '\n'
+            string += '                Bottom_Length: ' + str(bondfilters['Bottom_Length'][idx]) + '\n'
+            string += '                Side_Length: ' + str(bondfilters['Side_Length'][idx]) + '\n'
         return string
-    def material(self, mat):
-        string = '    <ParameterList name="Materials">\n'
+    def material(self, material):
+        string = '    Materials:\n'
         
-        for idx in range(0,len(mat['MatName'])):
-            string += '        <ParameterList name="' + mat['MatName'][idx] +'">\n'
-            string += '            <Parameter name="Material Model" type="string" value="' + mat['MatType'][idx] + '"/>\n'
-            string += '            <Parameter name="Tension pressure separation for damage model" type="bool" value="false"/>\n'
-            string += '            <Parameter name="Plane Stress" type="bool" value="true"/>\n'
-            string += '            <Parameter name="Density" type="double" value="' + str(mat['dens'][idx]) + '"/>\n'
-            string += '            <Parameter name="Young'+"'"+ 's Modulus" type="double" value="' +str(mat['EMod'][idx]) +'"/>\n'
-            string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="'+str(mat['nu'][idx]) + '"/>\n'
-            string += '            <Parameter name="Stabilizaton Type" type="string" value="Global Stiffness"/>\n'
-            string += '            <Parameter name="Thickness" type="double" value="10.0"/>\n'
-            string += '            <Parameter name="Hourglass Coefficient" type="double" value="1.0"/>\n'
-            string += '        </ParameterList>\n'
-        string += '    </ParameterList>\n'  
+        for mat in material:
+            string += '        ' + mat +':\n'
+            string += '            Material Model: "' + material[mat]['MatType'] + '"\n'
+            string += '            Tension pressure separation for damage model: false\n'
+            string += '            Plane Stress: ' + self.TwoDstring + '\n'
+            for param in material[mat]['Parameter']:
+                string += '            ' + param + ': ' + str(material[mat]['Parameter'][param]) + '\n'
+            string += '            Stabilizaton Type: "Global Stiffness"\n'
+            string += '            Thickness: 10.0\n'
+            string += '            Hourglass Coefficient: 1.0\n'
         return string  
     def blocks(self,blockDef):
-        string = '    <ParameterList name="Blocks">\n'
+        string = '    Blocks:\n'
         for idx in range(0, len(blockDef['Material'])):
-            string += '        <ParameterList name="block_' + str(idx+1) + '">\n'
-            string += '            <Parameter name="Block Names" type="string" value="block_' + str(idx+1) + '"/>\n'
-            string += '            <Parameter name="Material" type="string" value="' + blockDef['Material'][idx] + '"/>\n'
+            string += '        block_' + str(idx+1) + ':\n'
+            string += '            Block Names: "block_' + str(idx+1) + '"\n'
+            string += '            Material: "' + blockDef['Material'][idx] + '"\n'
             if blockDef['Damage'][idx] != '':
-                string += '            <Parameter name="Damage Model" type="string" value="' + blockDef['Damage'][idx] + '"/>\n'
-            string += '            <Parameter name="Horizon" type="double" value="' + str(blockDef['Horizon'][idx]) + '"/>\n'
-            string += '        </ParameterList>\n'
-        string += '     </ParameterList>\n'
+                string += '            Damage Model: "' + blockDef['Damage'][idx] + '"\n'
+            string += '            Horizon: ' + str(blockDef['Horizon'][idx]) + '\n'
         return string
-    def damage(self,dam):
-        string = '    <ParameterList name="Damage Models">\n'
-        for idx in range(0,len(dam['DamName'])):
-            string += '        <ParameterList name="' + dam['DamName'][idx] + '">\n'
-            string += '            <Parameter name="Damage Model" type="string" value="Critical Energy Correspondence"/>\n'
-            string += '            <Parameter name="Critical Energy" type="double" value="' + str(dam['Energy'][idx]) + '"/>\n'
-            string += '            <Parameter name="Plane Stress" type="bool" value="true"/>\n'
-            string += '            <Parameter name="Only Tension" type="bool" value="true"/>\n'
-            string += '            <Parameter name="Detached Nodes Check" type="bool" value="true"/>\n'
-            string += '            <Parameter name="Thickness" type="double" value="10.0"/>\n'
-            string += '            <Parameter name="Hourglass Coefficient" type="double" value="1.0"/>\n'
-            string += '            <Parameter name="Stabilizaton Type" type="string" value="Global Stiffness"/>\n'
-            string += '        </ParameterList>\n'
-        string += '    </ParameterList>\n'
+    def damage(self,damageDict):
+        string = '    Damage Models:\n'
+        for dam in damageDict:
+            string += '        ' + dam + ':\n'
+            string += '            Damage Model: "Critical Energy Correspondence"\n'
+            string += '            Critical Energy: ' + str(damageDict[dam]['Energy']) + '\n'
+            string += '            Interblock damage energy: ' + str(damageDict[dam]['InferaceEnergy']) + '"/>\n'
+            string += '            Plane Stress: '+ self.TwoDstring +'\n'
+            string += '            Only Tension: true\n'
+            string += '            Detached Nodes Check: true\n'
+            string += '            Thickness: 10.0\n'
+            string += '            Hourglass Coefficient: 1.0\n'
+            string += '            Stabilizaton Type: "Global Stiffness"\n'
         return string
     def solver(self, solvertype):
-        string = '    <ParameterList name="Solver">\n'
-        string += '        <Parameter name="Verbose" type="bool" value="false"/>\n'
-        string += '        <Parameter name="Initial Time" type="double" value="0.0"/>\n'
-        string += '        <Parameter name="Final Time" type="double" value="0.075"/>\n'
+        string = '    Solver:\n'
+        string += '        Verbose: false\n'
+        string += '        Initial Time: 0.0\n'
+        string += '        Final Time: 0.075\n'
         if(solvertype=='Verlet'):
-            string += '        <ParameterList name="Verlet">\n'
-            string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
-            string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
+            string += '        Verlet:\n'
+            string += '            Safety Factor: 0.95\n'
+            string += '            Numerical Damping: 0.000005\n'
         elif(solvertype=='NOXQuasiStatic'):
-            string += '        <Parameter name="Peridigm Preconditioner" type="string" value="None"/>\n'
-            string += '        <ParameterList name="NOXQuasiStatic">\n'
-            string += '            <Parameter name="Nonlinear Solver" type="string" value="Line Search Based"/>\n'
-            string += '            <Parameter name="Number of Load Steps" type="int" value="100"/>\n'
-            string += '            <Parameter name="Max Solver Iterations" type="int" value="50"/>\n'
-            string += '            <Parameter name="Relative Tolerance" type="double" value="1.0e-8"/>\n'
-            string += '            <Parameter name="Max Age Of Prec" type="int" value="100"/>\n'
-            string += '            <ParameterList name="Direction">\n'
-            string += '                 <Parameter name="Method" type="string" value="Newton"/>\n'
-            string += '                 <ParameterList name="Newton">\n'
-            string += '                      <ParameterList name="Linear Solver">\n'
-            string += '                           <Parameter name="Jacobian Operator" type="string" value="Matrix-Free"/>\n'
-            string += '                           <Parameter name="Preconditioner" type="string" value="None"/>\n'
-            string += '                      </ParameterList>\n'
-            string += '                 </ParameterList>\n'
-            string += '            </ParameterList>\n'
-            string += '            <ParameterList name="Line Search">\n'
-            string += '                 <Parameter name="Method" type="string" value="Polynomial"/>\n'
-            string += '            </ParameterList>\n'
-            string += '            <ParameterList name="Switch to Verlet">\n'
-            string += '                 <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
-            string += '                 <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
-            string += '                 <Parameter name="Output Frequency" type="int" value="7500"/>\n'
-            string += '            </ParameterList>\n'
+            string += '        Peridigm Preconditioner: "None"\n'
+            string += '        NOXQuasiStatic:\n'
+            string += '            Nonlinear Solver: "Line Search Based"\n'
+            string += '            Number of Load Steps: 100\n'
+            string += '            Max Solver Iterations: 50\n'
+            string += '            Relative Tolerance: 1.0e-8\n'
+            string += '            Max Age Of Prec: 100\n'
+            string += '            Direction:\n'
+            string += '                 Method: "Newton"\n'
+            string += '                 Newton:\n'
+            string += '                      Linear Solver:\n'
+            string += '                           Jacobian Operator: "Matrix-Free"\n'
+            string += '                           Preconditioner: "None"\n'
+            string += '            Line Search:\n'
+            string += '                 Method: "Polynomial"\n'
+            string += '            Switch to Verlet:\n'
+            string += '                 Safety Factor: 0.95\n'
+            string += '                 Numerical Damping: 0.000005\n'
+            string += '                 Output Frequency: 7500\n'
         else:
-            string += '        <ParameterList name="Verlet">\n'
-            string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
-            string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
-        string += '        </ParameterList>\n'
-        string += '    </ParameterList>\n'
+            string += '        Verlet:\n'
+            string += '            Safety Factor: 0.95\n'
+            string += '            Numerical Damping: 0.000005\n'
         return string
     def boundaryCondition(self,nsName, bc):
-        string = '    <ParameterList name="Boundary Conditions">\n'
+        string = '    Boundary Conditions:\n'
         for idx in range(0, bc['NNodesets']):
-            string += '        <Parameter name="Node Set ' + str(idx+1) +'" type="string" value="' + nsName + '_' + str(idx+1) + '.txt' + '"/>\n'
+            string += '        Node Set ' + str(idx+1) +': "' + nsName + '_' + str(idx+1) + '.txt' + '"\n'
         bcDict = bc['BCDef']
         for idx in range(0, len(bcDict['NS'])):
-            string += '        <ParameterList name="BC_' + str(idx+1) + '">\n'
-            string += '            <Parameter name="Type" type="string" value="' + bcDict['Type'][idx] + '"/>\n'
-            string += '            <Parameter name="Node Set" type="string" value="Node Set ' + str(bcDict['NS'][idx]) + '"/>\n'
-            string += '            <Parameter name="Coordinate" type="string" value="' + bcDict['Direction'][idx] + '"/>\n'
-            string += '            <Parameter name="Value" type="string" value="' + str(bcDict['Value'][idx]) + '*t"/>\n'
-            string += '        </ParameterList>\n'
-        string += '    </ParameterList>\n'
+            string += '        BC_' + str(idx+1) + ':\n'
+            string += '            Type: "' + bcDict['Type'][idx] + '"\n'
+            string += '            Node Set: "Node Set ' + str(bcDict['NS'][idx]) + '"\n'
+            string += '            Coordinate: "' + bcDict['Direction'][idx] + '"\n'
+            string += '            Value: "' + str(bcDict['Value'][idx]) + '*t"\n'
         return string
-    def createXML(self):
-        string = '<ParameterList>\n'
+    def createYAML(self):
+        string = 'Peridigm:\n'
         string += self.loadMesh()
 
         if len(self.bondfilters['Name'])>0:
             string += self.createBondFilter(self.bondfilters)
-        string += '    </ParameterList>\n'
         string += self.material(self.materialDict)
-        if len(self.materialDict['DamName'])>0:
-            string += self.damage(self.materialDict)
+        if len(self.damageDict)>0:
+            string += self.damage(self.damageDict)
         string += self.blocks(self.blockDef)
         string += self.boundaryCondition(self.nsfilename,self.bc)
         string += self.solver(self.solvertype)
         '''
-        string += '    <ParameterList name="Compute Class Parameters">\n'
-        string += '        <ParameterList name="External Displacement">\n'
-        string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
-        string += '            <Parameter name="Calculation Type" type="string" value="Minimum"/>\n'
-        string += '            <Parameter name="Block" type="string" value="block_4"/>\n'
-        string += '            <Parameter name="Variable" type="string" value="Displacement"/>\n'
-        string += '            <Parameter name="Output Label" type="string" value="External_Displacement"/>\n'
-        string += '        </ParameterList>\n'
-        string += '    </ParameterList>\n'
+        string += '    Compute Class Parameters:\n'
+        string += '        External Displacement:\n'
+        string += '            Compute Class: "Block_Data"\n'
+        string += '            Calculation Type: "Minimum"\n'
+        string += '            Block: "block_4"\n'
+        string += '            Variable: "Displacement"\n'
+        string += '            Output Label: "External_Displacement"\n'
         '''
-        string += '    <ParameterList name="Output">\n'
-        string += '        <Parameter name="Output File Type" type="string" value="ExodusII"/>\n'
-        string += '        <Parameter name="Output Format" type="string" value="BINARY"/>\n'
-        string += '        <Parameter name="Output Filename" type="string" value="' + self.filename + '"/>\n'
-        string += '        <Parameter name="Output Frequency" type="int" value="7500"/>\n'
-        string += '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
-        string += '        <ParameterList name="Output Variables">\n'
-        string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
-        string += '            <Parameter name="Partial_Stress" type="bool" value="true"/>\n'
-        string += '            <Parameter name="Damage" type="bool" value="true"/>\n'
-        string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
-        string += '            <Parameter name="Force" type="bool" value="true"/>\n'
-        string += '        </ParameterList>\n'
-        string += '    </ParameterList>\n'
-        string += '</ParameterList>\n'
+        string += '    Output:\n'
+        string += '        Output File Type: "ExodusII"\n'
+        string += '        Output Format: "BINARY"\n'
+        string += '        Output Filename: "' + self.filename + '"\n'
+        string += '        Output Frequency: 7500\n'
+        string += '        Parallel Write: true\n'
+        string += '        Output Variables:\n'
+        string += '            Displacement: true\n'
+        string += '            Partial_Stress: true\n'
+        string += '            Damage: true\n'
+        string += '            Number_Of_Neighbors: true\n'
+        string += '            Force: true\n'
         return string
