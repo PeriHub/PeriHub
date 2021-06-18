@@ -21,11 +21,13 @@ class ModelControl(object):
         
         L = 152
         L = 52
-        h = 3.84/2
-        nn = 21
-        dx=[h/nn,h/nn]
-        #print(dx)
-        gc = GIICmodel(xend = L, yend = 2*h, dx=[0.07,0.07], solvertype = 'NOXQuasiStatic')
+        B = 25
+        h = 4.95/2
+        nn = 15
+        dx=[2*h/nn,2*h/nn,2*h/nn]
+        
+        print(dx, 1.92/dx[0])
+        gc = GIICmodel(xend = L, yend = 2*h, zend = B, dx=dx, solvertype = 'NOXQuasiStatic', TwoD = True, filetype = 'yml')
         model = gc.createModel()
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
     def endRunOnError(self):
