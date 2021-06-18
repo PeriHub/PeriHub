@@ -9,6 +9,8 @@ class ModelWriter(object):
         self.filename = filename
         self.nsName   = 'ns_' + filename
         self.path = 'Output/'+filename
+        if not os.path.exists('Output'):
+            os.mkdir('Output')   
     def writeNodeSets(self, model, nslist):
         for idx, k in enumerate(nslist):
             points = np.where(model['k'] == k)
@@ -29,7 +31,8 @@ class ModelWriter(object):
             string += str(model['x'][idx]) + " " + str(model['y'][idx])+ " " + "0" + " " + str(model['k'][idx]) + " " + str(model['vol'][idx]) + "\n"
         self.fileWriter(self.filename + '.txt', string)
         
-    def createFile(self, filetype, solvertype, bcDict, materialDict, blockDef, bondfilters):
+    def createFile(self, filetype, solvertype, bcDict,damageDict, materialDict, blockDef, bondfilters,TwoD):
+
         if filetype == 'yaml':
             yl = YAMLcreator(filename = self.filename, nsName = self.nsName, solvertype = solvertype, bc = bcDict, materialDict = materialDict, blockDef = blockDef, bondfilters = bondfilters)
             string = yl.createYAML()
