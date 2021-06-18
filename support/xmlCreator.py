@@ -1,13 +1,19 @@
 import numpy as np
 
 class XMLcreator(object):
-    def __init__(self, filename = 'mesh', nsName = '', bc = {}, materialDict = {},blockDef = {}, bondfilters = {}):
+    def __init__(self, filename = 'mesh', nsName = '', solvertype = 'Verlet', bc = {}, damageDict = {}, materialDict = {},blockDef = {}, bondfilters = {}, TwoD = False):
         self.filename = filename
         self.materialDict = materialDict
+        self.damageDict = damageDict
         self.blockDef = blockDef
         self.bondfilters = bondfilters
         self.bc = bc
         self.nsfilename = nsName
+        self.TwoDstring = 'false'
+        self.solvertype = solvertype
+        if TwoD:
+            self.TwoDstring = 'true'
+                    
     def loadMesh(self):
         string = '    <ParameterList name="Discretization">\n'
         string += '        <Parameter name="Type" type="string" value="Text File" />\n'
@@ -34,17 +40,18 @@ class XMLcreator(object):
             string += '            </ParameterList>\n'
         string += '        </ParameterList>\n'
         return string
-    def material(self, mat):
+    def material(self, material):
         string = '    <ParameterList name="Materials">\n'
         
-        for idx in range(0,len(mat['MatName'])):
-            string += '        <ParameterList name="' + mat['MatName'][idx] +'">\n'
-            string += '            <Parameter name="Material Model" type="string" value="' + mat['MatType'][idx] + '"/>\n'
+        for mat in material:
+            string += '        <ParameterList name="' + mat +'">\n'
+            string += '            <Parameter name="Material Model" type="string" value="' + material[mat]['MatType'] + '"/>\n'
             string += '            <Parameter name="Tension pressure separation for damage model" type="bool" value="false"/>\n'
-            string += '            <Parameter name="Plane Stress" type="bool" value="true"/>\n'
-            string += '            <Parameter name="Density" type="double" value="' + str(mat['dens'][idx]) + '"/>\n'
-            string += '            <Parameter name="Young'+"'"+ 's Modulus" type="double" value="' +str(mat['EMod'][idx]) +'"/>\n'
-            string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="'+str(mat['nu'][idx]) + '"/>\n'
+            string += '            <Parameter name="Plane Stress" type="bool" value="' + self.TwoDstring + '"/>\n'
+            #string += '            <Parameter name="Density" type="double" value="' + str(mat['dens'][idx]) + '"/>\n'
+            for param in material[mat]['Parameter']:
+                string += '            <Parameter name="'+ param +'" type="double" value="' +str(material[mat]['Parameter'][param]) +'"/>\n'
+            #string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="'+str(mat['nu'][idx]) + '"/>\n'
             string += '            <Parameter name="Stabilizaton Type" type="string" value="Global Stiffness"/>\n'
             string += '            <Parameter name="Thickness" type="double" value="10.0"/>\n'
             string += '            <Parameter name="Hourglass Coefficient" type="double" value="1.0"/>\n'
@@ -63,29 +70,60 @@ class XMLcreator(object):
             string += '        </ParameterList>\n'
         string += '     </ParameterList>\n'
         return string
-    def damage(self,dam):
+    def damage(self,damageDict):
         string = '    <ParameterList name="Damage Models">\n'
-        for idx in range(0,len(dam['DamName'])):
-            string += '        <ParameterList name="' + dam['DamName'][idx] + '">\n'
+        for dam in damageDict:
+            string += '        <ParameterList name="' + dam + '">\n'
             string += '            <Parameter name="Damage Model" type="string" value="Critical Energy Correspondence"/>\n'
-            string += '            <Parameter name="Critical Energy" type="double" value="' + str(dam['Energy'][idx]) + '"/>\n'
-            string += '            <Parameter name="Plane Stress" type="bool" value="true"/>\n'
+            string += '            <Parameter name="Critical Energy" type="double" value="' + str(damageDict[dam]['Energy']) + '"/>\n'
+            string += '            <Parameter name="Plane Stress" type="bool" value="'+ self.TwoDstring +'"/>\n'
             string += '            <Parameter name="Only Tension" type="bool" value="true"/>\n'
             string += '            <Parameter name="Detached Nodes Check" type="bool" value="true"/>\n'
             string += '            <Parameter name="Thickness" type="double" value="10.0"/>\n'
             string += '            <Parameter name="Hourglass Coefficient" type="double" value="1.0"/>\n'
             string += '            <Parameter name="Stabilizaton Type" type="string" value="Global Stiffness"/>\n'
+            string += '            <Parameter name="Interblock damage energy" type="double" value="' + str(damageDict[dam]['InferaceEnergy']) + '"/>\n'
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         return string
-    def solver(self):
+    def solver(self, solvertype):
         string = '    <ParameterList name="Solver">\n'
         string += '        <Parameter name="Verbose" type="bool" value="false"/>\n'
         string += '        <Parameter name="Initial Time" type="double" value="0.0"/>\n'
         string += '        <Parameter name="Final Time" type="double" value="0.075"/>\n'
-        string += '        <ParameterList name="Verlet">\n'
-        string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
-        string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
+        if(solvertype=='Verlet'):
+            string += '        <ParameterList name="Verlet">\n'
+            string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
+            string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
+        elif(solvertype=='NOXQuasiStatic'):
+            string += '        <Parameter name="Peridigm Preconditioner" type="string" value="None"/>\n'
+            string += '        <ParameterList name="NOXQuasiStatic">\n'
+            string += '            <Parameter name="Nonlinear Solver" type="string" value="Line Search Based"/>\n'
+            string += '            <Parameter name="Number of Load Steps" type="int" value="100"/>\n'
+            string += '            <Parameter name="Max Solver Iterations" type="int" value="50"/>\n'
+            string += '            <Parameter name="Relative Tolerance" type="double" value="1.0e-8"/>\n'
+            string += '            <Parameter name="Max Age Of Prec" type="int" value="100"/>\n'
+            string += '            <ParameterList name="Direction">\n'
+            string += '                 <Parameter name="Method" type="string" value="Newton"/>\n'
+            string += '                 <ParameterList name="Newton">\n'
+            string += '                      <ParameterList name="Linear Solver">\n'
+            string += '                           <Parameter name="Jacobian Operator" type="string" value="Matrix-Free"/>\n'
+            string += '                           <Parameter name="Preconditioner" type="string" value="None"/>\n'
+            string += '                      </ParameterList>\n'
+            string += '                 </ParameterList>\n'
+            string += '            </ParameterList>\n'
+            string += '            <ParameterList name="Line Search">\n'
+            string += '                 <Parameter name="Method" type="string" value="Polynomial"/>\n'
+            string += '            </ParameterList>\n'
+            string += '            <ParameterList name="Switch to Verlet">\n'
+            string += '                 <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
+            string += '                 <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
+            string += '                 <Parameter name="Output Frequency" type="int" value="7500"/>\n'
+            string += '            </ParameterList>\n'
+        else:
+            string += '        <ParameterList name="Verlet">\n'
+            string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
+            string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
         string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         return string
@@ -111,11 +149,11 @@ class XMLcreator(object):
             string += self.createBondFilter(self.bondfilters)
         string += '    </ParameterList>\n'
         string += self.material(self.materialDict)
-        if len(self.materialDict['DamName'])>0:
-            string += self.damage(self.materialDict)
+        if len(self.damageDict)>0:
+            string += self.damage(self.damageDict)
         string += self.blocks(self.blockDef)
         string += self.boundaryCondition(self.nsfilename,self.bc)
-        string += self.solver()
+        string += self.solver(self.solvertype)
         '''
         string += '    <ParameterList name="Compute Class Parameters">\n'
         string += '        <ParameterList name="External Displacement">\n'
