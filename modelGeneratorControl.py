@@ -21,14 +21,14 @@ class ModelControl(object):
         
         L = 152
         L = 52
-        B = 25
+        B = 15
         h = 4.95/2
         nn = 15
         dx=[2*h/nn,2*h/nn,2*h/nn]
         
         print(dx, 1.92/dx[0])
-        gc = GIICmodel(xend = L, yend = 2*h, zend = B, dx=dx, solvertype = 'NOXQuasiStatic', TwoD = True, filetype = 'xml')
-        model = gc.createModel()
+        gc = GIICmodel(xend = L, yend = 2*h, zend = B, dx=dx, solvertype = 'NOXQuasiStatic', TwoD = False, filetype = 'xml')
+        model = gc.createModel(rot=True)
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
     def endRunOnError(self):
         pass

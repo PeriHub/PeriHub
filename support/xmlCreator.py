@@ -42,7 +42,7 @@ class XMLcreator(object):
         return string
     def material(self, material):
         string = '    <ParameterList name="Materials">\n'
-        
+        aniso = False
         for mat in material:
             string += '        <ParameterList name="' + mat +'">\n'
             string += '            <Parameter name="Material Model" type="string" value="' + material[mat]['MatType'] + '"/>\n'
@@ -51,7 +51,13 @@ class XMLcreator(object):
             #string += '            <Parameter name="Density" type="double" value="' + str(mat['dens'][idx]) + '"/>\n'
             for param in material[mat]['Parameter']:
                 string += '            <Parameter name="'+ param +'" type="double" value="' +str(material[mat]['Parameter'][param]) +'"/>\n'
-            #string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="'+str(mat['nu'][idx]) + '"/>\n'
+                if param == 'C11':
+                    aniso = True
+            if aniso:
+                # needed for time step estimation
+                string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="210000.0"/>\n'
+                string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="0.3"/>\n'
+                string += '            <Parameter name="Material Symmetry" type="string" value = "Anisotropic"/>\n'   
             string += '            <Parameter name="Stabilizaton Type" type="string" value="Global Stiffness"/>\n'
             string += '            <Parameter name="Thickness" type="double" value="10.0"/>\n'
             string += '            <Parameter name="Hourglass Coefficient" type="double" value="1.0"/>\n'

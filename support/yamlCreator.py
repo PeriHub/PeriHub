@@ -38,7 +38,7 @@ class YAMLcreator(object):
         return string
     def material(self, material):
         string = '    Materials:\n'
-        
+        aniso = False
         for mat in material:
             string += '        ' + mat +':\n'
             string += '            Material Model: "' + material[mat]['MatType'] + '"\n'
@@ -46,6 +46,13 @@ class YAMLcreator(object):
             string += '            Plane Stress: ' + self.TwoDstring + '\n'
             for param in material[mat]['Parameter']:
                 string += '            ' + param + ': ' + str(material[mat]['Parameter'][param]) + '\n'
+                if param == 'C11':
+                    aniso = True
+            if aniso:
+                # needed for time step estimation
+                string += '            Young' + "'" + 's Modulus: 210000.0\n'
+                string += '            Poisson' + "'" + 's Ratio:" 0.3\n'
+                string += '            Material Symmetry: Anisotropic\n'   
             string += '            Stabilizaton Type: "Global Stiffness"\n'
             string += '            Thickness: 10.0\n'
             string += '            Hourglass Coefficient: 1.0\n'
