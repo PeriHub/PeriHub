@@ -23,7 +23,7 @@ class ModelControl(object):
         L = 52
         B = 15
         h = 4.95/2
-        nn = 15
+        nn = 10
         dx=[2*h/nn,2*h/nn,2*h/nn]
         
         print(dx, 1.92/dx[0])
