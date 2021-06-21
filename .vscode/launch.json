@@ -6,10 +6,10 @@
     "configurations": [
         
         {
-            "name": "Python: Aktuelle Datei",
+            "name": "Main",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal"
         }
     ]
