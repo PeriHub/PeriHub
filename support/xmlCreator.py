@@ -160,17 +160,24 @@ class XMLcreator(object):
         string += self.blocks(self.blockDef)
         string += self.boundaryCondition(self.nsfilename,self.bc)
         string += self.solver(self.solvertype)
-        '''
+        
         string += '    <ParameterList name="Compute Class Parameters">\n'
         string += '        <ParameterList name="External Displacement">\n'
         string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
         string += '            <Parameter name="Calculation Type" type="string" value="Minimum"/>\n'
-        string += '            <Parameter name="Block" type="string" value="block_4"/>\n'
+        string += '            <Parameter name="Block" type="string" value="block_7"/>\n'
         string += '            <Parameter name="Variable" type="string" value="Displacement"/>\n'
         string += '            <Parameter name="Output Label" type="string" value="External_Displacement"/>\n'
         string += '        </ParameterList>\n'
+        string += '        <ParameterList name="External Loads">\n'
+        string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
+        string += '            <Parameter name="Calculation Type" type="string" value="Sum"/>\n'
+        string += '            <Parameter name="Block" type="string" value="block_7"/>\n'
+        string += '            <Parameter name="Variable" type="string" value="Force"/>\n'
+        string += '            <Parameter name="Output Label" type="string" value="External_Force"/>\n'
+        string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
-        '''
+        
         string += '    <ParameterList name="Output">\n'
         string += '        <Parameter name="Output File Type" type="string" value="ExodusII"/>\n'
         string += '        <Parameter name="Output Format" type="string" value="BINARY"/>\n'
@@ -183,6 +190,8 @@ class XMLcreator(object):
         string += '            <Parameter name="Damage" type="bool" value="true"/>\n'
         string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
         string += '            <Parameter name="Force" type="bool" value="true"/>\n'
+        string += '            <Parameter name="External_Displacement" type="bool" value="true"/>\n'
+        string += '            <Parameter name="External_Force" type="bool" value="true"/>\n'
         string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         string += '</ParameterList>\n'

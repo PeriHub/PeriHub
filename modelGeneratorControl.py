@@ -20,10 +20,10 @@ class ModelControl(object):
         """doc"""
         
         L = 152
-        L = 52
-        B = 15
+        L = 62
+        B = 10
         h = 4.95/2
-        nn = 10
+        nn = 15
         dx=[2*h/nn,2*h/nn,2*h/nn]
         
         print(dx, 1.92/dx[0])

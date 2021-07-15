@@ -29,7 +29,7 @@ class GIICmodel(object):
         self.scal = 4.01
         self.TwoD = TwoD
         # anriss
-        self.a = 20
+        self.a = 20/151*xend
         self.nsList = [5,6,7,10]
         self.dx   = dx
         self.xend = xend
@@ -79,7 +79,7 @@ class GIICmodel(object):
         
 
         self.bondfilters = {'Name':['bf_1'], 'Normal':[[0,1,0]],'Lower_Left_Corner':[[0,self.yend/2,-0.1]],'Bottom_Unit_Vector':[[1,0,0]],'Bottom_Length':[self.a],'Side_Length':[zend + 0.5]}
-        self.bcDict = {'NNodesets': 4, 'BCDef': {'NS': [2,2,3,1,4], 'Type':['Prescribed Displacement','Prescribed Displacement','Body Force','Prescribed Displacement','Prescribed Displacement'], 'Direction':['x','y','y','y','y'], 'Value':[0,0,-500,0,0]}}    
+        self.bcDict = {'NNodesets': 4, 'BCDef': {'NS': [2,2,3,1,4], 'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 'Direction':['x','y','y','y','y'], 'Value':[0,0,-10,0,0]}}    
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[7] = 'PMMADamage'
         self.damBlock[8] = 'PMMADamage'
