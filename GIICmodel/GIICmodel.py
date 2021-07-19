@@ -30,7 +30,7 @@ class GIICmodel(object):
         self.TwoD = TwoD
         # anriss
         self.a = 20/151*xend
-        self.nsList = [5,6,7,10]
+        
         self.dx   = dx
         self.xend = xend
         self.yend = yend
@@ -72,14 +72,15 @@ class GIICmodel(object):
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
             else:
                 #[dens, C11, C12, C13,C14,C15, C16,C22,C23...]
-                self.angle = [30,-30]
-                params = [1.95e-09, 50015.64667098519,3281.01289023,41615.646671,0.0,39161.6179077,0.0,9217.15802212,3281.01289023,0.0,809.886614142,0.0,50015.646671,0.0,0.0,0.0,3780.0,0.0,420.0,41724.7471666,0.0,3780.0]
+                #self.angle = [30,30]
+                params = [1.95e-07, 50015.64667098519,3281.01289023,41615.646671,0.0,39161.6179077,0.0,9217.15802212,3281.01289023,0.0,809.886614142,0.0,50015.646671,0.0,0.0,0.0,3780.0,0.0,420.0,41724.7471666,0.0,3780.0]
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
         
         
 
         self.bondfilters = {'Name':['bf_1'], 'Normal':[[0,1,0]],'Lower_Left_Corner':[[0,self.yend/2,-0.1]],'Bottom_Unit_Vector':[[1,0,0]],'Bottom_Length':[self.a],'Side_Length':[zend + 0.5]}
-        self.bcDict = {'NNodesets': 4, 'BCDef': {'NS': [2,2,3,1,4], 'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 'Direction':['x','y','y','y','y'], 'Value':[0,0,-10,0,0]}}    
+        self.nsList = [5,6,7,10]
+        self.bcDict = {'NNodesets': 4, 'BCDef': {'NS': [2,2,3,1,4], 'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 'Direction':['x','y','y','y','y'], 'Value':[0,0,-1,0,0]}}    
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[7] = 'PMMADamage'
         self.damBlock[8] = 'PMMADamage'

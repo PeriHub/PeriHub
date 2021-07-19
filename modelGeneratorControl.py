@@ -28,7 +28,7 @@ class ModelControl(object):
         
         print(dx, 1.92/dx[0])
         
-        gc = GIICmodel(xend = L, yend = 2*h, zend = B, dx=dx, solvertype = 'NOXQuasiStatic', TwoD = False, filetype = 'xml')
+        gc = GIICmodel(xend = L, yend = 2*h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
         model = gc.createModel(rot=True)
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
     def endRunOnError(self):
