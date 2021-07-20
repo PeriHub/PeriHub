@@ -88,7 +88,13 @@ class XMLcreator(object):
             string += '            <Parameter name="Thickness" type="double" value="10.0"/>\n'
             string += '            <Parameter name="Hourglass Coefficient" type="double" value="1.0"/>\n'
             string += '            <Parameter name="Stabilizaton Type" type="string" value="Global Stiffness"/>\n'
-            string += '            <Parameter name="Interblock damage energy" type="double" value="' + str(damageDict[dam]['InferaceEnergy']) + '"/>\n'
+            if "Interface" in damageDict[dam]: 
+                interface = damageDict[dam]['Interface']
+                string += '            <Parameter name="Interblock damage energy" type="double" value="' + str(interface['InterfaceEnergy']) + '"/>\n'
+                val = interface['InterfaceBlockIDs']
+                for idx in range(0,len(val),2):       
+                    string += '            <Parameter name="Block_' + str(idx+1) + str(idx+2) + '" type="int" value="' + str(val[idx]) + '"/>\n'
+                    string += '            <Parameter name="Block_' + str(idx+2) + str(idx+1) + '" type="int" value="' + str(val[idx+1]) + '"/>\n'
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         return string
@@ -96,7 +102,7 @@ class XMLcreator(object):
         string = '    <ParameterList name="Solver">\n'
         string += '        <Parameter name="Verbose" type="bool" value="false"/>\n'
         string += '        <Parameter name="Initial Time" type="double" value="0.0"/>\n'
-        string += '        <Parameter name="Final Time" type="double" value="0.075"/>\n'
+        string += '        <Parameter name="Final Time" type="double" value="0.025"/>\n'
         if(solvertype=='Verlet'):
             string += '        <ParameterList name="Verlet">\n'
             string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
@@ -182,7 +188,7 @@ class XMLcreator(object):
         string += '        <Parameter name="Output File Type" type="string" value="ExodusII"/>\n'
         string += '        <Parameter name="Output Format" type="string" value="BINARY"/>\n'
         string += '        <Parameter name="Output Filename" type="string" value="' + self.filename + '"/>\n'
-        string += '        <Parameter name="Output Frequency" type="int" value="7500"/>\n'
+        string += '        <Parameter name="Output Frequency" type="int" value="1000"/>\n'
         string += '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
         string += '        <ParameterList name="Output Variables">\n'
         string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
