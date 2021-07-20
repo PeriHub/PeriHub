@@ -24,13 +24,13 @@ class ModelControl(object):
         L = 62
         B = 10
         h = 4.95/2
-        nn = 15
+        nn = 35
         dx=[2*h/nn,2*h/nn,2*h/nn]
         
         print(dx, 1.92/dx[0])
         
-        gc = DCBmodel(xend = L, yend = 2*h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = False, filetype = 'xml')
-        model = gc.createModel(rot=False)
+        gc = GIICmodel(xend = L, yend = 2*h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
+        model = gc.createModel(rot=True)
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
     def endRunOnError(self):
         pass

@@ -30,7 +30,7 @@ class GIICmodel(object):
         self.TwoD = TwoD
         # anriss
         self.a = 20/151*xend
-        self.nsList = [5,6,7,10]
+        
         self.dx   = dx
         self.xend = xend
         self.yend = yend
@@ -58,20 +58,21 @@ class GIICmodel(object):
         self.blockfuny = interpolate.interp1d(yblock,z, kind='linear')
         ''' Definition of model
         '''
-        mat = MaterialRoutines(angle = [30,-30])
+        
         isotropic = False
         matNameList = ['PMMA']
         self.materialDict = {}
         self.angle = [0,0]
-        self.damageDict = {'PMMADamage':{'Energy':5.1, 'InferaceEnergy':0.01}}
+        self.damageDict = {'PMMADamage':{'Energy':5.1, 'Interface':{'InterfaceEnergy':0.01, 'InterfaceBlockIDs':[8,9]}}}
         
         for material in matNameList:
             self.materialDict[material] = {'MatType':'Linear Elastic Correspondence'}
             if isotropic:
                 params =[5.2e-08, 3184.5476165501973,0.3824761153875444]
+                mat = MaterialRoutines()
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
             else:
-                self.angle = [30,-30]
+                self.angle = [0,0]
                 params = [1.95e-07, #dens
                 165863.6296530634,  #C11
                 4090.899504376252,  #C12
@@ -93,13 +94,14 @@ class GIICmodel(object):
                 0.0,                #C46
                 4200.0,             #C55
                 0.0,                #C56
-                4200.0]             #C66
+                4200.0]             #C66     
+                mat = MaterialRoutines(angle = self.angle)   
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
-        
-        
+
 
         self.bondfilters = {'Name':['bf_1'], 'Normal':[[0,1,0]],'Lower_Left_Corner':[[0,self.yend/2,-0.1]],'Bottom_Unit_Vector':[[1,0,0]],'Bottom_Length':[self.a],'Side_Length':[zend + 0.5]}
-        self.bcDict = {'NNodesets': 4, 'BCDef': {'NS': [2,2,3,1,4], 'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 'Direction':['x','y','y','y','y'], 'Value':[0,0,-10,0,0]}}    
+        self.nsList = [5,6,7,10]
+        self.bcDict = {'NNodesets': 4, 'BCDef': {'NS': [2,2,3,1,4], 'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 'Direction':['x','y','y','y','y'], 'Value':[0,0,-1,0,0]}}    
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[7] = 'PMMADamage'
         self.damBlock[8] = 'PMMADamage'
