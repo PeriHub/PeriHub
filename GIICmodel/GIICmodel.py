@@ -25,7 +25,7 @@ class GIICmodel(object):
         
         self.filename = filename
         self.filetype = filetype
-        self.frequency = 7500
+        self.frequency = 2500
         self.solvertype = solvertype
         self.scal = 4.01
         self.TwoD = TwoD
@@ -102,7 +102,7 @@ class GIICmodel(object):
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
 
 
-        self.bondfilters = {'Name':['bf_1'], 'Normal':[[0,1,0]],'Lower_Left_Corner':[[0,self.yend/2,-0.1]],'Bottom_Unit_Vector':[[1,0,0]],'Bottom_Length':[self.a],'Side_Length':[zend + 0.5]}
+        self.bondfilters = {'Name':['bf_1'], 'Normal':[[0.0,1.0,0.0]],'Lower_Left_Corner':[[0.0,self.yend/2,-0.1]],'Bottom_Unit_Vector':[[1.0,0.0,0.0]],'Bottom_Length':[self.a],'Side_Length':[zend + 0.5]}
         self.nsList = [5,6,7,10]
         self.bcDict = {'NNodesets': 4, 'BCDef': {'NS': [2,2,3,1,4], 'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 'Direction':['x','y','y','y','y'], 'Value':[0,0,-1,0,0]}}    
         self.damBlock = ['']*numberOfBlocks

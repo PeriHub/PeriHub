@@ -51,7 +51,7 @@ class YAMLcreator(object):
             if aniso:
                 # needed for time step estimation
                 string += '            Young' + "'" + 's Modulus: 210000.0\n'
-                string += '            Poisson' + "'" + 's Ratio:" 0.3\n'
+                string += '            Poisson' + "'" + 's Ratio: 0.3\n'
                 string += '            Material Symmetry: Anisotropic\n'   
             string += '            Stabilizaton Type: "Global Stiffness"\n'
             string += '            Thickness: 10.0\n'
