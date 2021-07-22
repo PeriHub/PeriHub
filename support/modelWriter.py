@@ -10,15 +10,18 @@ class ModelWriter(object):
         self.nsName = 'ns_' + modelClass.filename
         self.path = 'Output/'+ modelClass.filename
         self.filetype = modelClass.filetype
+        self.finalTime = modelClass.finalTime
         self.frequency = modelClass.frequency
         self.solvertype = modelClass.solvertype
         self.bcDict = modelClass.bcDict
         self.damageDict = modelClass.damageDict
         self.materialDict = modelClass.materialDict
+        self.outputDict = modelClass.outputDict
         self.bondfilters = modelClass.bondfilters
         self.nsList = modelClass.nsList
         self.TwoD = modelClass.TwoD
         self.onlyTension = modelClass.onlyTension
+        self.initStep = modelClass.initStep
         if not os.path.exists('Output'):
             os.mkdir('Output')   
     def writeNodeSets(self, model):
@@ -44,8 +47,8 @@ class ModelWriter(object):
         string = '# x y z block_id volume angle_x angle_y angle_z\n'
         for idx in range(0, len(model['x'])):
             string += str(model['x'][idx]) + " " + str(model['y'][idx])+ " " + str(model['z'][idx]) + " " + str(model['k'][idx]) + " " + str(model['vol'][idx]) + " " + str(model['angle_x'][idx]) +" " + str(model['angle_y'][idx]) +" " + str(model['angle_z'][idx]) +"\n"
-            if idx < 20:
-                print(string)
+            # if idx < 20:
+            #     print(string)
         self.fileWriter(self.filename + '.txt', string)       
     def createFile(self, blockDef):
         

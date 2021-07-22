@@ -3,8 +3,10 @@ import numpy as np
 class YAMLcreator(object):
     def __init__(self, modelWriter, blockDef = {}):
         self.filename = modelWriter.filename
+        self.finalTime = modelWriter.finalTime
         self.materialDict = modelWriter.materialDict
         self.damageDict = modelWriter.damageDict
+        self.outputDict = modelWriter.outputDict
         self.blockDef = blockDef
         self.bondfilters = modelWriter.bondfilters
         self.bc = modelWriter.bcDict
@@ -12,7 +14,8 @@ class YAMLcreator(object):
         self.TwoD = modelWriter.TwoD
         self.onlyTension = modelWriter.onlyTension
         self.solvertype = modelWriter.solvertype
-        self.frequency = modelWriter.frequency                 
+        self.frequency = modelWriter.frequency
+        self.initStep = modelWriter.initStep              
     def loadMesh(self):
         string = '    Discretization:\n'
         string += '        Type: "Text File"\n'
@@ -92,7 +95,7 @@ class YAMLcreator(object):
         string = '    Solver:\n'
         string += '        Verbose: false\n'
         string += '        Initial Time: 0.0\n'
-        string += '        Final Time: 0.075\n'
+        string += '        Final Time: '+ str(self.finalTime) +'\n'
         if(self.solvertype=='Verlet'):
             string += '        Verlet:\n'
             string += '            Safety Factor: 0.95\n'
@@ -134,6 +137,35 @@ class YAMLcreator(object):
             string += '            Coordinate: "' + bcDict['Direction'][idx] + '"\n'
             string += '            Value: "' + str(bcDict['Value'][idx]) + '*t"\n'
         return string
+    def output(self):
+        idx = 0
+        string=''
+        for out in self.outputDict:
+            string += '    ' + out + ':\n'
+            string += '        Output File Type: "ExodusII"\n'
+            string += '        Output Format: "BINARY"\n'
+            string += '        Output Filename: "' + self.filename +'_' + out +'"\n'
+            if self.initStep[idx] !=0: 
+                string += '        Initial Output Step: ' + str(self.initStep[idx]) + '\n'
+            string += '        Output Frequency: ' + str(self.frequency[idx]) + '\n'
+            string += '        Parallel Write: true\n'
+            string += '        Output Variables:\n'
+            if "Displacement" in self.outputDict[out]: 
+                string += '            Displacement: true\n'
+            if "Partial_Stress" in self.outputDict[out]: 
+                string += '            Partial_Stress: true\n'
+            if "Damage" in self.outputDict[out]: 
+                string += '            Damage: true\n'
+            if "Number_Of_Neighbors" in self.outputDict[out]: 
+                string += '            Number_Of_Neighbors: true\n'
+            if "Force" in self.outputDict[out]: 
+                string += '            Force: true\n'
+            if "External_Displacement" in self.outputDict[out]: 
+                string += '            External_Displacement: true\n'
+            if "External_Force" in self.outputDict[out]: 
+                string += '            External_Force: true\n'
+            idx +=1
+        return string
     def createYAML(self):
         string = 'Peridigm:\n'
         string += self.loadMesh()
@@ -146,25 +178,21 @@ class YAMLcreator(object):
         string += self.blocks()
         string += self.boundaryCondition()
         string += self.solver()
-        '''
+
         string += '    Compute Class Parameters:\n'
         string += '        External Displacement:\n'
         string += '            Compute Class: "Block_Data"\n'
         string += '            Calculation Type: "Minimum"\n'
-        string += '            Block: "block_4"\n'
+        string += '            Block: "block_7"\n'
         string += '            Variable: "Displacement"\n'
         string += '            Output Label: "External_Displacement"\n'
-        '''
-        string += '    Output:\n'
-        string += '        Output File Type: "ExodusII"\n'
-        string += '        Output Format: "BINARY"\n'
-        string += '        Output Filename: "' + self.filename + '"\n'
-        string += '        Output Frequency: ' + str(self.frequency) + '\n'
-        string += '        Parallel Write: true\n'
-        string += '        Output Variables:\n'
-        string += '            Displacement: true\n'
-        string += '            Partial_Stress: true\n'
-        string += '            Damage: true\n'
-        string += '            Number_Of_Neighbors: true\n'
-        string += '            Force: true\n'
+        string += '        External Loads:\n'
+        string += '            Compute Class: "Block_Data"\n'
+        string += '            Calculation Type: "Sum"\n'
+        string += '            Block: "block_7"\n'
+        string += '            Variable: "Force"\n'
+        string += '            Output Label: "External_Force"\n'
+
+        string += self.output()
+
         return string

@@ -21,17 +21,17 @@ class ModelControl(object):
         """doc"""
         
         L = 152
-        L = 62
+        L = 50
         B = 10
-        h = 4.95/2
-        nn = 35
-        dx=[2*h/nn,2*h/nn,2*h/nn]
+        h = 4.95
+        nn = 44
+        dx=[h/nn,h/nn,h/nn]
         
         print(dx, 1.92/dx[0])
         
         # dcb = DCBmodel()
         # model = dcb.createModel()
-        gc = GIICmodel(xend = L, yend = 2*h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = True, filetype = 'yaml', rot=False)
+        gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = False, filetype = 'yaml', rot=True)
         model = gc.createModel()
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
     def endRunOnError(self):

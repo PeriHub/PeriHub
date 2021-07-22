@@ -25,8 +25,8 @@ class GIICmodel(object):
         
         self.filename = filename
         self.filetype = filetype
-        self.frequency = 2500
         self.solvertype = solvertype
+        self.finalTime = 0.03
         self.scal = 4.01
         self.TwoD = TwoD
         self.onlyTension = False
@@ -68,6 +68,12 @@ class GIICmodel(object):
         self.angle = [0,0]
         self.damageDict = {'PMMADamage':{'Energy':5.1, 'Interface':{'InterfaceEnergy':0.01, 'InterfaceBlockIDs':[8,9]}}}
         
+        
+        self.outputDict = {'Output1':{'Displacement','Partial_Stress','Damage','Force'},
+        'Output2':{'Damage','External_Displacement','External_Force'}}
+        self.frequency = [500, 100]
+        self.initStep = [0, 0]
+
         for material in matNameList:
             self.materialDict[material] = {'MatType':'Linear Elastic Correspondence'}
             if isotropic:
@@ -75,7 +81,7 @@ class GIICmodel(object):
                 mat = MaterialRoutines()
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
             else:
-                self.angle = [0,0]
+                self.angle = [60,-60]
                 params = [1.95e-07, #dens
                 165863.6296530634,  #C11
                 4090.899504376252,  #C12
