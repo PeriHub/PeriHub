@@ -1,19 +1,18 @@
 import numpy as np
 
 class XMLcreator(object):
-    def __init__(self, filename = 'mesh', nsName = '', solvertype = 'Verlet', bc = {}, damageDict = {}, materialDict = {},blockDef = {}, bondfilters = {}, TwoD = False):
-        self.filename = filename
-        self.materialDict = materialDict
-        self.damageDict = damageDict
+    def __init__(self, modelWriter, blockDef = {}):
+        self.filename = modelWriter.filename
+        self.materialDict = modelWriter.materialDict
+        self.damageDict = modelWriter.damageDict
         self.blockDef = blockDef
-        self.bondfilters = bondfilters
-        self.bc = bc
-        self.nsfilename = nsName
-        self.TwoDstring = 'false'
-        self.solvertype = solvertype
-        if TwoD:
-            self.TwoDstring = 'true'
-                    
+        self.bondfilters = modelWriter.bondfilters
+        self.bc = modelWriter.bcDict
+        self.nsfilename = modelWriter.nsName
+        self.TwoD = modelWriter.TwoD
+        self.onlyTension = modelWriter.onlyTension
+        self.solvertype = modelWriter.solvertype
+        self.frequency = modelWriter.frequency
     def loadMesh(self):
         string = '    <ParameterList name="Discretization">\n'
         string += '        <Parameter name="Type" type="string" value="Text File" />\n'
@@ -47,10 +46,10 @@ class XMLcreator(object):
             string += '        <ParameterList name="' + mat +'">\n'
             string += '            <Parameter name="Material Model" type="string" value="' + material[mat]['MatType'] + '"/>\n'
             string += '            <Parameter name="Tension pressure separation for damage model" type="bool" value="false"/>\n'
-            string += '            <Parameter name="Plane Stress" type="bool" value="' + self.TwoDstring + '"/>\n'
+            string += '            <Parameter name="Plane Stress" type="bool" value="' + str(self.TwoD) + '"/>\n'
             #string += '            <Parameter name="Density" type="double" value="' + str(mat['dens'][idx]) + '"/>\n'
             for param in material[mat]['Parameter']:
-                string += '            <Parameter name="'+ param +'" type="double" value="' +str(material[mat]['Parameter'][param]) +'"/>\n'
+                string += '            <Parameter name="'+ param +'" type="double" value="' +str(np.format_float_scientific(material[mat]['Parameter'][param])) +'"/>\n'
                 if param == 'C11':
                     aniso = True
             if aniso:
@@ -82,8 +81,8 @@ class XMLcreator(object):
             string += '        <ParameterList name="' + dam + '">\n'
             string += '            <Parameter name="Damage Model" type="string" value="Critical Energy Correspondence"/>\n'
             string += '            <Parameter name="Critical Energy" type="double" value="' + str(damageDict[dam]['Energy']) + '"/>\n'
-            string += '            <Parameter name="Plane Stress" type="bool" value="'+ self.TwoDstring +'"/>\n'
-            string += '            <Parameter name="Only Tension" type="bool" value="true"/>\n'
+            string += '            <Parameter name="Plane Stress" type="bool" value="'+ str(self.TwoD) +'"/>\n'
+            string += '            <Parameter name="Only Tension" type="bool" value="'+ str(self.onlyTension) +'"/>\n'
             string += '            <Parameter name="Detached Nodes Check" type="bool" value="true"/>\n'
             string += '            <Parameter name="Thickness" type="double" value="10.0"/>\n'
             string += '            <Parameter name="Hourglass Coefficient" type="double" value="1.0"/>\n'
@@ -188,7 +187,7 @@ class XMLcreator(object):
         string += '        <Parameter name="Output File Type" type="string" value="ExodusII"/>\n'
         string += '        <Parameter name="Output Format" type="string" value="BINARY"/>\n'
         string += '        <Parameter name="Output Filename" type="string" value="' + self.filename + '"/>\n'
-        string += '        <Parameter name="Output Frequency" type="int" value="1000"/>\n'
+        string += '        <Parameter name="Output Frequency" type="int" value="' + str(self.frequency) + '"/>\n'
         string += '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
         string += '        <ParameterList name="Output Variables">\n'
         string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'

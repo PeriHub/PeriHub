@@ -12,12 +12,14 @@ class MaterialRoutines(object):
     
     def stiffnessMatrix(self,type, matParam = [0]):
         parameter = {'Density':matParam[0]}
-        if type == 'isotropic':parameter = self.isotropic(parameter, matParam[1],matParam[2])
+        if type == 'isotropic':parameter = self.isotropic(parameter, matParam[1], matParam[2], matParam[3], matParam[4])
         if type == 'anisotropic': parameter = self.anisotropic(parameter,matParam)
         return parameter
-    def isotropic(self, parameter, E, nu):
-        parameter["Young's Modulus"] = E
-        parameter["Poisson's Ratio"] = nu
+    def isotropic(self, parameter, E, nu, K, G):
+        if E !=0: parameter["Young's Modulus"] = E
+        if nu !=0: parameter["Poisson's Ratio"] = nu
+        if K !=0: parameter["Bulk Modulus"] = K
+        if G !=0: parameter["Shear Modulus"] = G
         return parameter
     def anisotropic(self, parameter, matParam):
         #CTensor = self.createStiffnessTensor()

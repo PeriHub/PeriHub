@@ -4,15 +4,25 @@ from support.xmlCreator  import XMLcreator
 from support.yamlCreator  import YAMLcreator
 
 class ModelWriter(object):
-    def __init__(self, filename = 'mesh'):
+    def __init__(self, modelClass):
         
-        self.filename = filename
-        self.nsName   = 'ns_' + filename
-        self.path = 'Output/'+filename
+        self.filename = modelClass.filename
+        self.nsName = 'ns_' + modelClass.filename
+        self.path = 'Output/'+ modelClass.filename
+        self.filetype = modelClass.filetype
+        self.frequency = modelClass.frequency
+        self.solvertype = modelClass.solvertype
+        self.bcDict = modelClass.bcDict
+        self.damageDict = modelClass.damageDict
+        self.materialDict = modelClass.materialDict
+        self.bondfilters = modelClass.bondfilters
+        self.nsList = modelClass.nsList
+        self.TwoD = modelClass.TwoD
+        self.onlyTension = modelClass.onlyTension
         if not os.path.exists('Output'):
             os.mkdir('Output')   
-    def writeNodeSets(self, model, nslist):
-        for idx, k in enumerate(nslist):
+    def writeNodeSets(self, model):
+        for idx, k in enumerate(self.nsList):
             points = np.where(model['k'] == k)
             string = ''
             for pt in points[0]:
@@ -37,18 +47,18 @@ class ModelWriter(object):
             if idx < 20:
                 print(string)
         self.fileWriter(self.filename + '.txt', string)       
-    def createFile(self, filetype, solvertype, bcDict,damageDict, materialDict, blockDef, bondfilters,TwoD):
+    def createFile(self, blockDef):
         
-        if filetype == 'yaml':
-            yl = YAMLcreator(filename = self.filename, nsName = self.nsName, solvertype = solvertype, bc = bcDict, damageDict = damageDict, materialDict = materialDict, blockDef = blockDef, bondfilters = bondfilters, TwoD = TwoD)
+        if self.filetype == 'yaml':
+            yl = YAMLcreator(self, blockDef = blockDef)
             string = yl.createYAML()
             self.fileWriter(self.filename + '.yaml', string)
             
-        elif filetype == 'xml':
-            xl = XMLcreator(filename = self.filename, nsName = self.nsName, solvertype = solvertype, bc = bcDict, damageDict = damageDict, materialDict = materialDict, blockDef = blockDef, bondfilters = bondfilters, TwoD = TwoD)
+        elif self.filetype == 'xml':
+            xl = XMLcreator(self, blockDef = blockDef)
             string = xl.createXML()
         else:
-            print('Not a supported filetye: ', filetype)    
-        self.fileWriter(self.filename + '.' + filetype, string)
+            print('Not a supported filetye: ', self.filetype)    
+        self.fileWriter(self.filename + '.' + self.filetype, string)
             
         

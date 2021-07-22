@@ -6,7 +6,7 @@ from support.material import MaterialRoutines
 from support.geometry import Geometry
 
 class DCBmodel(object):
-    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'DCBmodel', filetype = 'xml', solvertype = 'Verlet', TwoD = False):
+    def __init__(self):
         '''
             definition der blocks
             k =
@@ -18,9 +18,11 @@ class DCBmodel(object):
         
         self.filename = 'DCBmodel'
         self.filetype = 'yaml'
+        self.frequency = 1000
         self.solvertype = 'Verlet'
         self.scal = 4.01
         self.TwoD = False
+        self.onlyTension = True
         self.nsList = [2,3,4]
         self.dx   = [0.001, 0.001, 0.001]
         self.xbegin = -0.005
@@ -29,27 +31,28 @@ class DCBmodel(object):
         self.xend = 0.045
         self.yend = 0.01
         self.zend = 0.003
-        if TwoD:
+        self.rot = False
+        if self.TwoD:
             self.zend = 0
         numberOfBlocks = 4
-        xbound = [0, 4*dx[0],5*dx[0], xend-5*dx[0],xend-4*dx[0],xend + dx[0]]
-        ybound = [0, 4*dx[1],5*dx[1], yend + dx[1]]
+        # xbound = [0, 4*dx[0],5*dx[0], xend-5*dx[0],xend-4*dx[0],xend + dx[0]]
+        # ybound = [0, 4*dx[1],5*dx[1], yend + dx[1]]
 
-        z = [2,2,1,1,3,3]
-        self.boundfuncx = interpolate.interp1d(xbound,z, kind='linear')
-        z = [1,1,0,0]
-        self.boundfuncy = interpolate.interp1d(ybound,z, kind='linear')
-        xload = [0, xend/2-2*dx[0],xend/2+2*dx[0], xend + dx[0]]
-        z = [1,4,4,1]
-        self.loadfuncx = interpolate.interp1d(xload,z, kind='linear')
-        yload = [0, yend-5*dx[1],yend-4*dx[1], yend + dx[1]]
-        z = [1,1,4,4]
-        self.loadfuncy = interpolate.interp1d(yload,z, kind='linear')
+        # z = [2,2,1,1,3,3]
+        # self.boundfuncx = interpolate.interp1d(xbound,z, kind='linear')
+        # z = [1,1,0,0]
+        # self.boundfuncy = interpolate.interp1d(ybound,z, kind='linear')
+        # xload = [0, xend/2-2*dx[0],xend/2+2*dx[0], xend + dx[0]]
+        # z = [1,4,4,1]
+        # self.loadfuncx = interpolate.interp1d(xload,z, kind='linear')
+        # yload = [0, yend-5*dx[1],yend-4*dx[1], yend + dx[1]]
+        # z = [1,1,4,4]
+        # self.loadfuncy = interpolate.interp1d(yload,z, kind='linear')
         
-        z = [1,1,8,8,9,9,1,1]
-        yblock = [0,yend/2-5*dx[1],yend/2-4*dx[1],yend/2-dx[1]/4,yend/2+dx[1]/4, yend/2+4*dx[1],yend/2+5*dx[1], yend+dx[1]]
+        # z = [1,1,8,8,9,9,1,1]
+        # yblock = [0,yend/2-5*dx[1],yend/2-4*dx[1],yend/2-dx[1]/4,yend/2+dx[1]/4, yend/2+4*dx[1],yend/2+5*dx[1], yend+dx[1]]
 
-        self.blockfuny = interpolate.interp1d(yblock,z, kind='linear')
+        # self.blockfuny = interpolate.interp1d(yblock,z, kind='linear')
         ''' Definition of model
         '''
         mat = MaterialRoutines()
@@ -62,11 +65,15 @@ class DCBmodel(object):
         for material in matNameList:
             self.materialDict[material] = {'MatType':'Linear Elastic Correspondence'}
             if isotropic:
-                params =[2000.0, 1.7500e09, 8.08e8]
+                params =[2000.0,    #Density
+                0,                  #Young's Modulus
+                0,                  #Poisson's Ratio
+                1.7500e09,          #Bulk Modulus
+                8.08e8]             #Shear Modulus
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
             else:
                 self.angle = [30,-30]
-                params = [1.95e-07, #dens
+                params = [1.95e-07, #Density
                 165863.6296530634,  #C11
                 4090.899504376252,  #C12
                 2471.126276093059,  #C13
@@ -92,23 +99,32 @@ class DCBmodel(object):
         
         
 
-        self.bondfilters = {'Name':['bf_1'], 'Normal':[[0.0,1.0,0.0]],'Lower_Left_Corner':[[-16.0,0.0,-16.0]],'Bottom_Unit_Vector':[[1.0,0.0,0.0]],'Bottom_Length':[16.0],'Side_Length':[32.0]}
-        self.bcDict = {'NNodesets': 3, 'BCDef': {'NS': [1,2,3], 'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 'Direction':['z','y','y'], 'Value':[0,0.004,-0.004]}}    
+        self.bondfilters = {'Name':['bf_1'], 
+        'Normal':[[0.0,1.0,0.0]],
+        'Lower_Left_Corner':[[-16.0,0.0,-16.0]],
+        'Bottom_Unit_Vector':[[1.0,0.0,0.0]],
+        'Bottom_Length':[16.0],
+        'Side_Length':[32.0]}
+        self.bcDict = {'NNodesets': 3, 
+        'BCDef': {'NS': [1,2,3], 
+        'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 
+        'Direction':['z','y','y'], 
+        'Value':[0,0.004,-0.004]}}    
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[0] = 'PMMADamage'
         self.damBlock[1] = 'PMMADamage'
         self.damBlock[2] = 'PMMADamage'
         self.damBlock[3] = 'PMMADamage'
         self.matBlock = ['PMMA']*numberOfBlocks
-    def createLoadBlock(self,x,y,k):
-        if self.loadfuncx(x) == self.loadfuncy(y):
-            k = self.loadfuncx(x)
-        return k
-    def createBoundaryConditionBlock(self,x,y,k):
-        k = (self.boundfuncx(x)-1)*self.boundfuncy(y)+1
-        return k
+    # def createLoadBlock(self,x,y,k):
+    #     if self.loadfuncx(x) == self.loadfuncy(y):
+    #         k = self.loadfuncx(x)
+    #     return k
+    # def createBoundaryConditionBlock(self,x,y,k):
+    #     k = (self.boundfuncx(x)-1)*self.boundfuncy(y)+1
+    #     return k
     def createLoadIntroNode(self,x,y, k):
-        if x < self.xbegin+self.dx[0]*4:
+        if x < self.xbegin+self.dx[0]*3:
             if y > 0:
                 k = 3
             if y < 0:
@@ -118,29 +134,29 @@ class DCBmodel(object):
         if z==self.zend or z==self.zbegin:
             k = 2
         return k
-    def createBlock(self,y,k):
-        #k = self.blockfuny(y)
-        if  self.yend/2-5*self.dx[1] < y < self.yend/2:
-            k = 8
-        if  self.yend/2 <= y < self.yend/2+5*self.dx[1]:
-            k = 9  
-        return k
-    def createAngles(self,x,y,z):
-        '''tbd'''
-        angle_x = 0
-        if y<self.yend/2:
-            angle_y = self.angle[0]
-        else:
-            angle_y = self.angle[1]
-        angle_z = 0
+    # def createBlock(self,y,k):
+    #     #k = self.blockfuny(y)
+    #     if  self.yend/2-5*self.dx[1] < y < self.yend/2:
+    #         k = 8
+    #     if  self.yend/2 <= y < self.yend/2+5*self.dx[1]:
+    #         k = 9  
+    #     return k
+    # def createAngles(self,x,y,z):
+    #     '''tbd'''
+    #     angle_x = 0
+    #     if y<self.yend/2:
+    #         angle_y = self.angle[0]
+    #     else:
+    #         angle_y = self.angle[1]
+    #     angle_z = 0
 
-        return angle_x, angle_y, angle_z
-    def createModel(self, rot = False):
+    #     return angle_x, angle_y, angle_z
+    def createModel(self):
         geo = Geometry()
         x,y,z = geo.createPoints(coor = [self.xbegin, self.xend, self.ybegin, self.yend, self.zbegin, self.zend], dx = self.dx)
         vol = np.zeros(len(x))
         k = np.ones(len(x))
-        if rot:
+        if self.rot:
             angle_x = np.zeros(len(x))
             angle_y = np.zeros(len(x))
             angle_z = np.zeros(len(x))
@@ -157,28 +173,28 @@ class DCBmodel(object):
 
             vol[idx] = self.dx[0] * self.dx[1] * self.dx[2]
         
-        writer = ModelWriter(filename = self.filename)
+        writer = ModelWriter(modelClass = self)
         
-        if rot:
+        if self.rot:
             model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol, 'angle_x':angle_x, 'angle_y':angle_y, 'angle_z': angle_z}
             writer.writeMeshWithAngles(model)
         else:
             model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol}
             writer.writeMesh(model)
-        writer.writeNodeSets(model,self.nsList)
-        self.writeFILE(filetype = self.filetype, solvertype= self.solvertype, writer = writer, model = model)
+        writer.writeNodeSets(model)
+        self.writeFILE(writer = writer, model = model)
         
         return model
 
-    def createBlockdef(self,model, materialDict):
+    def createBlockdef(self,model):
         blockLen = int(max(model['k']))
         blockDef = {'Material':self.matBlock,'Damage':self.damBlock,'Horizon':np.zeros(blockLen)}
         for idx in range(0,blockLen):
             blockDef['Horizon'][idx] = self.scal*max([self.dx[0],self.dx[1]])
         # 3d tbd
         return blockDef
-    def writeFILE(self, filetype, solvertype, writer, model):
+    def writeFILE(self, writer, model):
         
-        blockDef = self.createBlockdef(model, self.materialDict)
+        blockDef = self.createBlockdef(model)
 
-        writer.createFile(filetype, solvertype, self.bcDict, self.damageDict, self.materialDict,blockDef,self.bondfilters, self.TwoD)
+        writer.createFile(blockDef)

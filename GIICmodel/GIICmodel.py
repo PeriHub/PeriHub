@@ -4,7 +4,7 @@ from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 class GIICmodel(object):
-    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'xml', solvertype = 'Verlet', TwoD = False):
+    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'xml', solvertype = 'Verlet', TwoD = False, rot = 'False'):
         '''
             definition der blocks
             k =
@@ -25,9 +25,11 @@ class GIICmodel(object):
         
         self.filename = filename
         self.filetype = filetype
+        self.frequency = 7500
         self.solvertype = solvertype
         self.scal = 4.01
         self.TwoD = TwoD
+        self.onlyTension = False
         # anriss
         self.a = 20/151*xend
         
@@ -35,6 +37,7 @@ class GIICmodel(object):
         self.xend = xend
         self.yend = yend
         self.zend = zend
+        self.rot = rot
         if TwoD:
             self.zend = 0
         numberOfBlocks = 10
@@ -143,17 +146,17 @@ class GIICmodel(object):
         angle_z = 0
 
         return angle_x, angle_y, angle_z
-    def createModel(self, rot = False):
+    def createModel(self):
         geo = Geometry()
         x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)
         vol = np.zeros(len(x))
         k = np.ones(len(x))
-        if rot:
+        if self.rot:
             angle_x = np.zeros(len(x))
             angle_y = np.zeros(len(x))
             angle_z = np.zeros(len(x))
         for idx in range(0, len(x)):
-            if rot:
+            if self.rot:
                 angle_x[idx], angle_y[idx], angle_z[idx] = self.createAngles(x[idx],y[idx], z[idx])
             if y[idx] >= self.yend/2:
                 k[idx] = self.createLoadBlock(x[idx],y[idx],k[idx])
@@ -165,29 +168,29 @@ class GIICmodel(object):
 
             vol[idx] = self.dx[0] * self.dx[1] * self.dx[2]
         
-        writer = ModelWriter(filename = self.filename)
+        writer = ModelWriter(modelClass = self)
         
-        if rot:
+        if self.rot:
             model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol, 'angle_x':angle_x, 'angle_y':angle_y, 'angle_z': angle_z}
             writer.writeMeshWithAngles(model)
         else:
             model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol}
             writer.writeMesh(model)
-        writer.writeNodeSets(model,self.nsList)
-        self.writeFILE(filetype = self.filetype, solvertype= self.solvertype, writer = writer, model = model)
+        writer.writeNodeSets(model)
+        self.writeFILE(writer = writer, model = model)
         
         return model
-    
-    def createBlockdef(self,model, materialDict):
+
+    def createBlockdef(self,model):
         blockLen = int(max(model['k']))
         blockDef = {'Material':self.matBlock,'Damage':self.damBlock,'Horizon':np.zeros(blockLen)}
         for idx in range(0,blockLen):
             blockDef['Horizon'][idx] = self.scal*max([self.dx[0],self.dx[1]])
         # 3d tbd
         return blockDef
-    def writeFILE(self, filetype, solvertype, writer, model):
+    def writeFILE(self, writer, model):
         
-        blockDef = self.createBlockdef(model, self.materialDict)
+        blockDef = self.createBlockdef(model)
 
-        writer.createFile(filetype, solvertype, self.bcDict, self.damageDict, self.materialDict,blockDef,self.bondfilters, self.TwoD)
+        writer.createFile(blockDef)
   
