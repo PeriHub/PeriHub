@@ -69,6 +69,8 @@ class YAMLcreator(object):
             if self.blockDef['Damage'][idx] != '':
                 string += '            Damage Model: "' + self.blockDef['Damage'][idx] + '"\n'
             string += '            Horizon: ' + str(self.blockDef['Horizon'][idx]) + '\n'
+            if self.blockDef['Interface'][idx] != -1:
+                string += '            Interface: ' + str(self.blockDef['Interface'][idx]) + '\n'
         return string
     def damage(self):
         string = '    Damage Models:\n'
@@ -76,14 +78,6 @@ class YAMLcreator(object):
             string += '        ' + dam + ':\n'
             string += '            Damage Model: "Critical Energy Correspondence"\n'
             string += '            Critical Energy: ' + str(self.damageDict[dam]['Energy']) + '\n'
-            if "Interface" in self.damageDict[dam]: 
-                interface = self.damageDict[dam]['Interface']
-                string += '            Interblock damage energy: ' + str(interface['InterfaceEnergy']) + '\n'
-                val = interface['InterfaceBlockIDs']
-                for idx in range(0,len(val),2):       
-                    string += '            Block_' + str(idx+1) + str(idx+2) + ': ' + str(val[idx]) + '\n'
-                    string += '            Block_' + str(idx+2) + str(idx+1) + ': ' + str(val[idx+1]) + '\n'
-
             string += '            Plane Stress: '+ str(self.TwoD) +'\n'
             string += '            Only Tension: '+ str(self.onlyTension) +'\n'
             string += '            Detached Nodes Check: true\n'

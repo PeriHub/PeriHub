@@ -71,7 +71,7 @@ class GIICmodel(object):
         
         self.outputDict = {'Output1':{'Displacement','Partial_Stress','Damage','Force'},
         'Output2':{'Damage','External_Displacement','External_Force'}}
-        self.frequency = [500, 100]
+        self.frequency = [5000, 100]
         self.initStep = [0, 0]
 
         for material in matNameList:
@@ -114,6 +114,9 @@ class GIICmodel(object):
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[7] = 'PMMADamage'
         self.damBlock[8] = 'PMMADamage'
+        self.intBlockId = [-1]*numberOfBlocks
+        self.intBlockId[7] = 9
+        self.intBlockId[8] = 8
         self.matBlock = ['PMMA']*numberOfBlocks
     def createLoadBlock(self,x,y,k):
         if self.loadfuncx(x) == self.loadfuncy(y):
@@ -189,7 +192,7 @@ class GIICmodel(object):
 
     def createBlockdef(self,model):
         blockLen = int(max(model['k']))
-        blockDef = {'Material':self.matBlock,'Damage':self.damBlock,'Horizon':np.zeros(blockLen)}
+        blockDef = {'Material':self.matBlock,'Damage':self.damBlock,'Horizon':np.zeros(blockLen),'Interface':self.intBlockId}
         for idx in range(0,blockLen):
             blockDef['Horizon'][idx] = self.scal*max([self.dx[0],self.dx[1]])
         # 3d tbd
