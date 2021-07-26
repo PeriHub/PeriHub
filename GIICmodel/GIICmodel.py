@@ -66,12 +66,12 @@ class GIICmodel(object):
         matNameList = ['PMMA']
         self.materialDict = {}
         self.angle = [0,0]
-        self.damageDict = {'PMMADamage':{'Energy':5.1, 'Interface':{'InterfaceEnergy':0.01, 'InterfaceBlockIDs':[8,9]}}}
+        self.damageDict = {'PMMADamage':{'Energy':5.1, 'InterfaceEnergy':0.01}}
         
         
         self.outputDict = {'Output1':{'Displacement','Partial_Stress','Damage','Force'},
         'Output2':{'Damage','External_Displacement','External_Force'}}
-        self.frequency = [5000, 100]
+        self.frequency = [5000, 200]
         self.initStep = [0, 0]
 
         for material in matNameList:

@@ -78,6 +78,8 @@ class YAMLcreator(object):
             string += '        ' + dam + ':\n'
             string += '            Damage Model: "Critical Energy Correspondence"\n'
             string += '            Critical Energy: ' + str(self.damageDict[dam]['Energy']) + '\n'
+            if "InterfaceEnergy" in self.damageDict[dam]:
+                string += '            Interblock damage energy: ' + str(self.damageDict[dam]['InterfaceEnergy']) + '\n'
             string += '            Plane Stress: '+ str(self.TwoD) +'\n'
             string += '            Only Tension: '+ str(self.onlyTension) +'\n'
             string += '            Detached Nodes Check: true\n'
