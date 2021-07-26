@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  api_modelgenerator:
+    build:
+      dockerfile: Dockerfile
+    container_name: modelgenerator
+    image: modelgenerator_image
+    ports:
+      - 8000:80
+    networks:
+      - backend
+  
+networks:
+  backend:
+    driver: bridge
