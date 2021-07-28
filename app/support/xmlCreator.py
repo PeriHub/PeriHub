@@ -76,7 +76,7 @@ class XMLcreator(object):
                 string += '            <Parameter name="Damage Model" type="string" value="' + self.blockDef['Damage'][idx] + '"/>\n'
             string += '            <Parameter name="Horizon" type="double" value="' + str(self.blockDef['Horizon'][idx]) + '"/>\n'
             if self.blockDef['Interface'][idx] != -1:
-                string += '            <Parameter name="Interface" type="int" value"' + str(self.blockDef['Interface'][idx]) + '"/>\n'
+                string += '            <Parameter name="Interface" type="int" value="' + str(self.blockDef['Interface'][idx]) + '"/>\n'
             string += '        </ParameterList>\n'
         string += '     </ParameterList>\n'
         return string
@@ -164,7 +164,7 @@ class XMLcreator(object):
                 string += '        <Parameter name="Initial Output Step" type="int" value="' + str(self.initStep[idx]) + '"/>\n'
             string += '        <Parameter name="Output Frequency" type="int" value="' + str(self.frequency[idx]) + '"/>\n'
             string += '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
-            string += '        <Parameter name="Output Variables">\n'
+            string += '        <ParameterList name="Output Variables">\n'
             if "Displacement" in self.outputDict[out]: 
                 string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
             if "Partial_Stress" in self.outputDict[out]: 

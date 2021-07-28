@@ -6,7 +6,7 @@ from support.material import MaterialRoutines
 from support.geometry import Geometry
 
 class DCBmodel(object):
-    def __init__(self):
+    def __init__(self, xend = 0.045, yend = 0.01, zend = 0.003, dx=[0.001,0.001,0.001], filename = 'DCBmodel', filetype = 'yaml', solvertype = 'Verlet', TwoD = False, rot = 'False'):
         '''
             definition der blocks
             k =
@@ -16,22 +16,23 @@ class DCBmodel(object):
             4 Min Y Down Node Set
         '''
         
-        self.filename = 'DCBmodel'
-        self.filetype = 'yaml'
+        self.filename = filename
+        self.filetype = filetype
         self.frequency = 1000
-        self.solvertype = 'Verlet'
+        self.solvertype = solvertype
+        self.finalTime = 0.075
         self.scal = 4.01
-        self.TwoD = False
+        self.TwoD = TwoD
         self.onlyTension = True
         self.nsList = [2,3,4]
-        self.dx   = [0.001, 0.001, 0.001]
+        self.dx   = dx
         self.xbegin = -0.005
         self.ybegin = -0.01
         self.zbegin = -0.003
-        self.xend = 0.045
-        self.yend = 0.01
-        self.zend = 0.003
-        self.rot = False
+        self.xend = xend
+        self.yend = yend
+        self.zend = zend
+        self.rot = rot
         if self.TwoD:
             self.zend = 0
         numberOfBlocks = 4
@@ -61,6 +62,11 @@ class DCBmodel(object):
         self.materialDict = {}
         self.angle = [0,0]
         self.damageDict = {'PMMADamage':{'Energy':5.1, 'InferaceEnergy':0.01}}
+        
+        self.outputDict = {'Output1':{'Displacement','Partial_Stress','Damage','Force'},
+        'Output2':{'Damage','External_Displacement','External_Force'}}
+        self.frequency = [5000, 200]
+        self.initStep = [0, 0]
         
         for material in matNameList:
             self.materialDict[material] = {'MatType':'Linear Elastic Correspondence'}
@@ -100,21 +106,22 @@ class DCBmodel(object):
         
 
         self.bondfilters = {'Name':['bf_1'], 
-        'Normal':[[0.0,1.0,0.0]],
-        'Lower_Left_Corner':[[-16.0,0.0,-16.0]],
-        'Bottom_Unit_Vector':[[1.0,0.0,0.0]],
-        'Bottom_Length':[16.0],
-        'Side_Length':[32.0]}
+                            'Normal':[[0.0,1.0,0.0]],
+                            'Lower_Left_Corner':[[-16.0,0.0,-16.0]],
+                            'Bottom_Unit_Vector':[[1.0,0.0,0.0]],
+                            'Bottom_Length':[16.0],
+                            'Side_Length':[32.0]}
         self.bcDict = {'NNodesets': 3, 
-        'BCDef': {'NS': [1,2,3], 
-        'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 
-        'Direction':['z','y','y'], 
-        'Value':[0,0.004,-0.004]}}    
+                        'BCDef': {'NS': [1,2,3], 
+                        'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 
+                        'Direction':['z','y','y'], 
+                        'Value':[0,0.004,-0.004]}}    
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[0] = 'PMMADamage'
         self.damBlock[1] = 'PMMADamage'
         self.damBlock[2] = 'PMMADamage'
         self.damBlock[3] = 'PMMADamage'
+        self.intBlockId = [-1]*numberOfBlocks
         self.matBlock = ['PMMA']*numberOfBlocks
     # def createLoadBlock(self,x,y,k):
     #     if self.loadfuncx(x) == self.loadfuncy(y):
@@ -188,7 +195,7 @@ class DCBmodel(object):
 
     def createBlockdef(self,model):
         blockLen = int(max(model['k']))
-        blockDef = {'Material':self.matBlock,'Damage':self.damBlock,'Horizon':np.zeros(blockLen)}
+        blockDef = {'Material':self.matBlock,'Damage':self.damBlock,'Horizon':np.zeros(blockLen),'Interface':self.intBlockId}
         for idx in range(0,blockLen):
             blockDef['Horizon'][idx] = self.scal*max([self.dx[0],self.dx[1]])
         # 3d tbd

@@ -4,7 +4,7 @@ from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 class GIICmodel(object):
-    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'xml', solvertype = 'Verlet', TwoD = False, rot = 'False'):
+    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', TwoD = False, rot = 'False'):
         '''
             definition der blocks
             k =
@@ -108,9 +108,22 @@ class GIICmodel(object):
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
 
 
-        self.bondfilters = {'Name':['bf_1'], 'Normal':[[0.0,1.0,0.0]],'Lower_Left_Corner':[[0.0,self.yend/2,-0.1]],'Bottom_Unit_Vector':[[1.0,0.0,0.0]],'Bottom_Length':[self.a],'Side_Length':[zend + 0.5]}
+        self.bondfilters = {'Name':['bf_1'], 
+                            'Normal':[[0.0,1.0,0.0]],
+                            'Lower_Left_Corner':[[0.0,self.yend/2,-0.1]],
+                            'Bottom_Unit_Vector':[[1.0,0.0,0.0]],
+                            'Bottom_Length':[self.a],
+                            'Side_Length':[zend + 0.5]}
         self.nsList = [5,6,7,10]
-        self.bcDict = {'NNodesets': 4, 'BCDef': {'NS': [2,2,3,1,4], 'Type':['Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement','Prescribed Displacement'], 'Direction':['x','y','y','y','y'], 'Value':[0,0,-1,0,0]}}    
+        self.bcDict = {'NNodesets': 4, 
+                        'BCDef': {'NS': [2,2,3,1,4], 
+                        'Type':['Prescribed Displacement',
+                        'Prescribed Displacement',
+                        'Prescribed Displacement',
+                        'Prescribed Displacement',
+                        'Prescribed Displacement'], 
+                        'Direction':['x','y','y','y','y'], 
+                        'Value':[0,0,-1,0,0]}}    
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[7] = 'PMMADamage'
         self.damBlock[8] = 'PMMADamage'
