@@ -5,10 +5,12 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 .idea/
+id_rsa_shared
 
 # Model Files
 Files/
 Output/
+
 #OutputFiltered/
 *.png
 **/ParaviewReader/Input/
