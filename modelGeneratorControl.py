@@ -20,15 +20,19 @@ class ModelControl(object):
         """doc"""
         
         L = 152
-        L = 62
+        L = 52
         B = 10
-        h = 4.95/2
-        nn = 35
-        dx=[2*h/nn,2*h/nn,2*h/nn]
+        h = 4.95
+        nn = 19
         
-        print(dx, 1.92/dx[0])
         
-        gc = GIICmodel(xend = L, yend = 2*h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
+        
+        nn = 2*int(nn/2)+1
+        dx=[h/nn,h/nn,h/nn]
+        
+        print(dx, 4.01*dx[0])
+        
+        gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
         model = gc.createModel(rot=True)
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
     def endRunOnError(self):

@@ -53,7 +53,7 @@ class GIICmodel(object):
         self.loadfuncy = interpolate.interp1d(yload,z, kind='linear')
         
         z = [1,1,8,8,9,9,1,1]
-        yblock = [0,yend/2-5*dx[1],yend/2-4*dx[1],yend/2-dx[1]/4,yend/2+dx[1]/4, yend/2+4*dx[1],yend/2+5*dx[1], yend+dx[1]]
+        yblock = [0,yend/2-7*dx[1],yend/2-6*dx[1],yend/2-dx[1]/4,yend/2+dx[1]/4, yend/2+6*dx[1],yend/2+7*dx[1], yend+dx[1]]
 
         self.blockfuny = interpolate.interp1d(yblock,z, kind='linear')
         ''' Definition of model
@@ -72,7 +72,6 @@ class GIICmodel(object):
                 mat = MaterialRoutines()
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
             else:
-                self.angle = [0,0]
                 params = [1.95e-07, #dens
                 165863.6296530634,  #C11
                 4090.899504376252,  #C12

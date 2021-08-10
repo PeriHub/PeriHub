@@ -34,8 +34,8 @@ class ModelWriter(object):
         string = '# x y z block_id volume angle_x angle_y angle_z\n'
         for idx in range(0, len(model['x'])):
             string += str(model['x'][idx]) + " " + str(model['y'][idx])+ " " + str(model['z'][idx]) + " " + str(model['k'][idx]) + " " + str(model['vol'][idx]) + " " + str(model['angle_x'][idx]) +" " + str(model['angle_y'][idx]) +" " + str(model['angle_z'][idx]) +"\n"
-            if idx < 20:
-                print(string)
+            #if idx < 20:
+            #    print(string)
         self.fileWriter(self.filename + '.txt', string)       
     def createFile(self, filetype, solvertype, bcDict,damageDict, materialDict, blockDef, bondfilters,TwoD):
         
