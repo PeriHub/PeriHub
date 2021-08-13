@@ -69,17 +69,17 @@ class DCBmodel(object):
         'Output2':{'Damage','External_Displacement','External_Force'}, 
         'Compute Class Parameters':[{'Name':'External_Displacement','Variable':'Displacement', 'Calculation Type':'Minimum','Block':'block_3'},
                                     {'Name':'External_Force','Variable':'Force', 'Calculation Type':'Sum','Block':'block_3'}]}
-        self.frequency = [50, 20]
+        self.frequency = [500, 200]
         self.initStep = [0, 0]
         
         for material in matNameList:
             self.materialDict[material] = {'MatType':'Linear Elastic Correspondence'}
             if isotropic:
-                params =[2000.0,    #Density
-                0,                  #Young's Modulus
-                0,                  #Poisson's Ratio
-                1.7500e09,          #Bulk Modulus
-                8.08e8]             #Shear Modulus
+                params =[200000.0,    #Density
+                1.5e9,                  #Young's Modulus
+                0.3,                  #Poisson's Ratio
+                0,          #Bulk Modulus
+                0]             #Shear Modulus
                 self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
             else:
                 self.angle = [30,-30]
@@ -111,10 +111,10 @@ class DCBmodel(object):
 
         self.bondfilters = {'Name':['bf_1'], 
                             'Normal':[[0.0,1.0,0.0]],
-                            'Lower_Left_Corner':[[-16.0,0.0,-16.0]],
+                            'Lower_Left_Corner':[[-0.06,0.0,-0.01]],
                             'Bottom_Unit_Vector':[[1.0,0.0,0.0]],
-                            'Bottom_Length':[16.0],
-                            'Side_Length':[32.0]}
+                            'Bottom_Length':[0.01],
+                            'Side_Length':[0.01]}
         self.bcDict = {'NNodesets': 2, 
                         'BCDef': {'NS': [1,2], 
                         'Type':['Prescribed Displacement','Prescribed Displacement'], 
