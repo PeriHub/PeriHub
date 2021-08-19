@@ -65,8 +65,8 @@ class DCBmodel(object):
         self.angle = [0,0]
         self.damageDict = {'PMMADamage':{'Energy':5.1, 'InferaceEnergy':0.01}}
         
-        self.outputDict = {'Output1':{'Displacement','Partial_Stress','Damage','Force'},
-        'Output2':{'Damage','External_Displacement','External_Force'}, 
+        self.outputDict = {'Output':[{'Name': 'Output1', 'Variables':{'Displacement','Partial_Stress','Damage','Force'}},
+                                    {'Name': 'Output2', 'Variables':{'Damage','External_Displacement','External_Force'}}], 
         'Compute Class Parameters':[{'Name':'External_Displacement','Variable':'Displacement', 'Calculation Type':'Minimum','Block':'block_3'},
                                     {'Name':'External_Force','Variable':'Force', 'Calculation Type':'Sum','Block':'block_3'}]}
         self.frequency = [500, 200]

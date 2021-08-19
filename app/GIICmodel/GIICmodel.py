@@ -1,10 +1,11 @@
 import numpy as np
+import ast
 from scipy import interpolate
 from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 class GIICmodel(object):
-    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', TwoD = False, rot = 'False'):
+    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', finalTime = 0.075, TwoD = False, rot = 'False', material = '', output = '', ):
         '''
             definition der blocks
             k =
@@ -26,7 +27,7 @@ class GIICmodel(object):
         self.filename = filename
         self.filetype = filetype
         self.solvertype = solvertype
-        self.finalTime = 0.075
+        self.finalTime = finalTime
         self.scal = 4.01
         self.TwoD = TwoD
         self.onlyTension = False
@@ -65,53 +66,61 @@ class GIICmodel(object):
         
         isotropic = False
         matNameList = ['PMMA']
-        self.materialDict = {}
+        self.materialDict = [{}]
+        self.outputDict = [{},{}]
         self.angle = [0,0]
         self.damageDict = {'PMMADamage':{'Energy':5.1, 'InterfaceEnergy':0.01}}
+        self.computeDict = {'Compute Class Parameters':[{'Name':'External_Displacement','Variable':'Displacement', 'Calculation Type':'Minimum','Block':'block_7'},
+                                                      {'Name':'External_Force','Variable':'Force', 'Calculation Type':'Sum','Block':'block_7'}]}
         
-        
-        self.outputDict = {'Output1':{'Displacement','Partial_Stress','Damage','Force'},
-        'Output2':{'Damage','External_Displacement','External_Force'},
-        'Compute Class Parameters':[{'Name':'External_Displacement','Variable':'Displacement', 'Calculation Type':'Minimum','Block':'block_7'},
-                                    {'Name':'External_Force','Variable':'Force', 'Calculation Type':'Sum','Block':'block_7'}]}
-
+        if output=='':
+            self.outputDict[0] = {'Name': 'Output1', 'Displacement': True, 'Force': True, 'Damage': True, 'Partial_Stress': False, 'External_Force': False, 'External_Displacement': False, 'Number_Of_Neighbors': False, 'Frequency': 5000, 'InitStep': 0}
+            self.outputDict[1] = {'Name': 'Output2', 'Displacement': False, 'Force': False, 'Damage': True, 'Partial_Stress': True, 'External_Force': True, 'External_Displacement': True, 'Number_Of_Neighbors': False, 'Frequency': 200, 'InitStep': 0}
+        else:
+            self.outputDict = output
         
         
         self.frequency = [5000, 200]
         self.initStep = [0, 0]
 
-        for material in matNameList:
-            self.materialDict[material] = {'MatType':'Linear Elastic Correspondence'}
-            if isotropic:
-                params =[5.2e-08, 3184.5476165501973,0.3824761153875444]
-                mat = MaterialRoutines()
-                self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
-            else:
-                self.angle = [60,-60]
-                params = [1.95e-07, #dens
-                165863.6296530634,  #C11
-                4090.899504376252,  #C12
-                2471.126276093059,  #C13
-                0.0,                #C14
-                0.0,                #C15
-                0.0,                #C16
-                9217.158022124806,  #C22
-                2471.126276093059,  #C23
-                0.0,                #C24
-                0.0,                #C25
-                0.0,                #C26
-                9217.158022124804,  #C33
-                0.0,                #C34
-                0.0,                #C35
-                0.0,                #C36
-                3360.0,             #C44
-                0.0,                #C45
-                0.0,                #C46
-                4200.0,             #C55
-                0.0,                #C56
-                4200.0]             #C66     
-                mat = MaterialRoutines(angle = self.angle)   
-                self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
+        if material=='':
+            i=0
+            for material in matNameList:
+                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
+                if isotropic:
+                    params =[5.2e-08, 3184.5476165501973,0.3824761153875444]
+                    mat = MaterialRoutines()
+                    self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
+                else:
+                    self.angle = [60,-60]
+                    params = [1.95e-07, #dens
+                    165863.6296530634,  #C11
+                    4090.899504376252,  #C12
+                    2471.126276093059,  #C13
+                    0.0,                #C14
+                    0.0,                #C15
+                    0.0,                #C16
+                    9217.158022124806,  #C22
+                    2471.126276093059,  #C23
+                    0.0,                #C24
+                    0.0,                #C25
+                    0.0,                #C26
+                    9217.158022124804,  #C33
+                    0.0,                #C34
+                    0.0,                #C35
+                    0.0,                #C36
+                    3360.0,             #C44
+                    0.0,                #C45
+                    0.0,                #C46
+                    4200.0,             #C55
+                    0.0,                #C56
+                    4200.0]             #C66     
+                    mat = MaterialRoutines(angle = self.angle)   
+                    self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
+                i+=1
+        else:
+            self.angle = [60,-60]
+            self.materialDict = material
 
 
         self.bondfilters = {'Name':['bf_1'], 

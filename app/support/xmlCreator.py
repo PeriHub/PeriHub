@@ -152,36 +152,48 @@ class XMLcreator(object):
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         return string
+    def compute(self):
+        string = '    <ParameterList name="Compute Class Parameters">\n'
+        for out in self.computeDict['Compute Class Parameters']:
+            string += '        <ParameterList name="' + out['Name'] + '">\n'
+            string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
+            string += '            <Parameter name="Calculation Type" type="string" value="' + out['Calculation Type'] + '"/>\n'
+            string += '            <Parameter name="Block" type="string" value="' + out['Block'] + '"/>\n'
+            string += '            <Parameter name="Variable" type="string" value="' + out['Variable'] + '"/>\n'
+            string += '            <Parameter name="Output Label" type="string" value="' + out['Name'] + '"/>\n'
+            string += '        </ParameterList>\n'
+            
+        string += '    </ParameterList>\n'
+        return string
     def output(self):
         idx = 0
         string=''
-        for out in self.outputDict:
-            if out != 'Compute Class Parameters':
-                string += '    <ParameterList name="' + out + '">\n'
-                string += '        <Parameter name="Output File Type" type="string" value="ExodusII"/>\n'
-                string += '        <Parameter name="Output Format" type="string" value="BINARY"/>\n'
-                string += '        <Parameter name="Output Filename" type="string" value="' + self.filename +'_' + out +'"/>\n'
-                if self.initStep[idx] !=0: 
-                    string += '        <Parameter name="Initial Output Step" type="int" value="' + str(self.initStep[idx]) + '"/>\n'
-                string += '        <Parameter name="Output Frequency" type="int" value="' + str(self.frequency[idx]) + '"/>\n'
-                string += '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
-                string += '        <ParameterList name="Output Variables">\n'
-                if "Displacement" in self.outputDict[out]: 
-                    string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
-                if "Partial_Stress" in self.outputDict[out]: 
-                    string += '            <Parameter name="Partial_Stress" type="bool" value="true"/>\n'
-                if "Damage" in self.outputDict[out]: 
-                    string += '            <Parameter name="Damage" type="bool" value="true"/>\n'
-                if "Number_Of_Neighbors" in self.outputDict[out]: 
-                    string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
-                if "Force" in self.outputDict[out]: 
-                    string += '            <Parameter name="Force" type="bool" value="true"/>\n'
-                if "External_Displacement" in self.outputDict[out]: 
-                    string += '            <Parameter name="External_Displacement" type="bool" value="true"/>\n'
-                if "External_Force" in self.outputDict[out]: 
-                    string += '            <Parameter name="External_Force" type="bool" value="true"/>\n'
-                string += '        </ParameterList>\n'
-                string += '    </ParameterList>\n'
+        for out in self.outputDict['Output']:
+            string += '    <ParameterList name="' + out['Name'] + '">\n'
+            string += '        <Parameter name="Output File Type" type="string" value="ExodusII"/>\n'
+            string += '        <Parameter name="Output Format" type="string" value="BINARY"/>\n'
+            string += '        <Parameter name="Output Filename" type="string" value="' + self.filename +'_' + out['Name'] +'"/>\n'
+            if self.initStep[idx] !=0: 
+                string += '        <Parameter name="Initial Output Step" type="int" value="' + str(self.initStep[idx]) + '"/>\n'
+            string += '        <Parameter name="Output Frequency" type="int" value="' + str(self.frequency[idx]) + '"/>\n'
+            string += '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
+            string += '        <ParameterList name="Output Variables">\n'
+            if "Displacement" in out['Variables']: 
+                string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
+            if "Partial_Stress" in out['Variables']: 
+                string += '            <Parameter name="Partial_Stress" type="bool" value="true"/>\n'
+            if "Damage" in out['Variables']: 
+                string += '            <Parameter name="Damage" type="bool" value="true"/>\n'
+            if "Number_Of_Neighbors" in out['Variables']: 
+                string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
+            if "Force" in out['Variables']: 
+                string += '            <Parameter name="Force" type="bool" value="true"/>\n'
+            if "External_Displacement" in out['Variables']: 
+                string += '            <Parameter name="External_Displacement" type="bool" value="true"/>\n'
+            if "External_Force" in out['Variables']: 
+                string += '            <Parameter name="External_Force" type="bool" value="true"/>\n'
+            string += '        </ParameterList>\n'
+            string += '    </ParameterList>\n'
             idx +=1
         return string
     def createXML(self):
@@ -197,19 +209,7 @@ class XMLcreator(object):
         string += self.blocks()
         string += self.boundaryCondition()
         string += self.solver()
-        self.outputDict
-        string += '    <ParameterList name="Compute Class Parameters">\n'
-        for out in self.outputDict['Compute Class Parameters']:
-            string += '        <ParameterList name="' + out['Name'] + '">\n'
-            string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
-            string += '            <Parameter name="Calculation Type" type="string" value="' + out['Calculation Type'] + '"/>\n'
-            string += '            <Parameter name="Block" type="string" value="' + out['Block'] + '"/>\n'
-            string += '            <Parameter name="Variable" type="string" value="' + out['Variable'] + '"/>\n'
-            string += '            <Parameter name="Output Label" type="string" value="' + out['Name'] + '"/>\n'
-            string += '        </ParameterList>\n'
-            
-        string += '    </ParameterList>\n'
-        
+        string += self.compute()
         string += self.output()
 
         string += '</ParameterList>\n'

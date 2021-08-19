@@ -11,7 +11,7 @@ class MaterialRoutines(object):
         self.angle = angle
     
     def stiffnessMatrix(self,type, matParam = [0]):
-        parameter = {'Density':matParam[0]}
+        parameter = {'Density': {'value': matParam[0]}}
         if type == 'isotropic':parameter = self.isotropic(parameter, matParam[1], matParam[2], matParam[3], matParam[4])
         if type == 'anisotropic': parameter = self.anisotropic(parameter,matParam)
         return parameter
@@ -25,27 +25,27 @@ class MaterialRoutines(object):
         #CTensor = self.createStiffnessTensor()
         #CTensor = self.rotateStiffnessTensor(self.alpha, self.beta, self.gamma)
         #parameter = self.obtainTensorComponents()
-        parameter["C11"] = matParam[1] 
-        parameter["C12"] = matParam[2]
-        parameter["C13"] = matParam[3]
-        parameter["C14"] = matParam[4]
-        parameter["C15"] = matParam[5]
-        parameter["C16"] = matParam[6]
-        parameter["C22"] = matParam[7]
-        parameter["C23"] = matParam[8]
-        parameter["C24"] = matParam[9]
-        parameter["C25"] = matParam[10]
-        parameter["C26"] = matParam[11]
-        parameter["C33"] = matParam[12]
-        parameter["C34"] = matParam[13]
-        parameter["C35"] = matParam[14]
-        parameter["C36"] = matParam[15]
-        parameter["C44"] = matParam[16]
-        parameter["C45"] = matParam[17]
-        parameter["C46"] = matParam[18]
-        parameter["C55"] = matParam[19]
-        parameter["C56"] = matParam[20]
-        parameter["C66"] = matParam[21]
+        parameter["C11"] = {'value': matParam[1]} 
+        parameter["C12"] = {'value': matParam[2]}
+        parameter["C13"] = {'value': matParam[3]}
+        parameter["C14"] = {'value': matParam[4]}
+        parameter["C15"] = {'value': matParam[5]}
+        parameter["C16"] = {'value': matParam[6]}
+        parameter["C22"] = {'value': matParam[7]}
+        parameter["C23"] = {'value': matParam[8]}
+        parameter["C24"] = {'value': matParam[9]}
+        parameter["C25"] = {'value': matParam[10]}
+        parameter["C26"] = {'value': matParam[11]}
+        parameter["C33"] = {'value': matParam[12]}
+        parameter["C34"] = {'value': matParam[13]}
+        parameter["C35"] = {'value': matParam[14]}
+        parameter["C36"] = {'value': matParam[15]}
+        parameter["C44"] = {'value': matParam[16]}
+        parameter["C45"] = {'value': matParam[17]}
+        parameter["C46"] = {'value': matParam[18]}
+        parameter["C55"] = {'value': matParam[19]}
+        parameter["C56"] = {'value': matParam[20]}
+        parameter["C66"] = {'value': matParam[21]}
         return parameter
 
     def getTransformationMatrixFromAngle(self,angle, transformationType = 'epsilon', rotationAxis = 'z'):

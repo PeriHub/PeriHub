@@ -1,9 +1,8 @@
 version: '3'
 
 services:
-  api_modelgenerator:
-    build:
-      dockerfile: Dockerfile
+  modelgenerator:
+    build: .
     container_name: modelgenerator
     image: modelgenerator_image
     ports:

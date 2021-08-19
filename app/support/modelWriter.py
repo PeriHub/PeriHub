@@ -16,6 +16,7 @@ class ModelWriter(object):
         self.bcDict = modelClass.bcDict
         self.damageDict = modelClass.damageDict
         self.materialDict = modelClass.materialDict
+        self.computeDict = modelClass.computeDict
         self.outputDict = modelClass.outputDict
         self.bondfilters = modelClass.bondfilters
         self.nsList = modelClass.nsList

@@ -6,6 +6,7 @@ class YAMLcreator(object):
         self.finalTime = modelWriter.finalTime
         self.materialDict = modelWriter.materialDict
         self.damageDict = modelWriter.damageDict
+        self.computeDict = modelWriter.computeDict
         self.outputDict = modelWriter.outputDict
         self.blockDef = blockDef
         self.bondfilters = modelWriter.bondfilters
@@ -43,22 +44,22 @@ class YAMLcreator(object):
         string = '    Materials:\n'
         aniso = False
         for mat in self.materialDict:
-            string += '        ' + mat +':\n'
-            string += '            Material Model: "' + self.materialDict[mat]['MatType'] + '"\n'
-            string += '            Tension pressure separation for damage model: false\n'
+            string += '        ' + mat['Name'] +':\n'
+            string += '            Material Model: "' + mat['MatType'] + '"\n'
+            string += '            Tension pressure separation for damage model: ' + str(mat['tensionSeparation']) + '\n'
             string += '            Plane Stress: ' + str(self.TwoD) + '\n'
-            for param in self.materialDict[mat]['Parameter']:
-                string += '            ' + param + ': ' + str(np.format_float_scientific(self.materialDict[mat]['Parameter'][param])) + '\n'
+            for param in mat['Parameter']:
+                string += '            ' + param + ': ' + str(np.format_float_scientific(mat['Parameter'][param]['value'])) + '\n'
                 if param == 'C11':
                     aniso = True
             if aniso:
                 # needed for time step estimation
-                string += '            Young' + "'" + 's Modulus: 210000.0\n'
-                string += '            Poisson' + "'" + 's Ratio: 0.3\n'
-                string += '            Material Symmetry: Anisotropic\n'   
-            string += '            Stabilizaton Type: "Global Stiffness"\n'
-            string += '            Thickness: 10.0\n'
-            string += '            Hourglass Coefficient: 1.0\n'
+                string += '            Young' + "'" + 's Modulus: ' + str(mat['youngsModulus']) + '\n'  
+                string += '            Poisson' + "'" + 's Ratio: ' + str(mat['poissonsRatio']) + '\n'  
+                string += '            Material Symmetry: "' + mat['materialSymmetry'] + '"\n'  
+            string += '            Stabilizaton Type: "' + mat['stabilizatonType'] + '"\n'
+            string += '            Thickness: ' + str(mat['thickness']) + '\n'
+            string += '            Hourglass Coefficient: ' + str(mat['hourglassCoefficient']) + '\n'
         return string  
     def blocks(self):
         string = '    Blocks:\n'
@@ -133,32 +134,42 @@ class YAMLcreator(object):
             string += '            Coordinate: "' + bcDict['Direction'][idx] + '"\n'
             string += '            Value: "' + str(bcDict['Value'][idx]) + '*t"\n'
         return string
+    def compute(self):
+        string = '    Compute Class Parameters:\n'
+        for out in self.computeDict['Compute Class Parameters']:
+            string += '        ' + out['Name'] + ':\n'
+            string += '            Compute Class: "Block_Data"\n'
+            string += '            Calculation Type: "' + out['Calculation Type'] + '"\n'
+            string += '            Block: "' + out['Block'] + '"\n'
+            string += '            Variable: "' + out['Variable'] + '"\n'
+            string += '            Output Label: "' + out['Name'] + '"\n'
+        return string
     def output(self):
         idx = 0
         string=''
         for out in self.outputDict:
-            string += '    ' + out + ':\n'
+            string += '    ' + out['Name'] + ':\n'
             string += '        Output File Type: "ExodusII"\n'
             string += '        Output Format: "BINARY"\n'
-            string += '        Output Filename: "' + self.filename +'_' + out +'"\n'
-            if self.initStep[idx] !=0: 
-                string += '        Initial Output Step: ' + str(self.initStep[idx]) + '\n'
-            string += '        Output Frequency: ' + str(self.frequency[idx]) + '\n'
+            string += '        Output Filename: "' + self.filename +'_' + out['Name'] +'"\n'
+            if out['InitStep'] !=0: 
+                string += '        Initial Output Step: ' + str(out['InitStep']) + '\n'
+            string += '        Output Frequency: ' + str(out['Frequency']) + '\n'
             string += '        Parallel Write: true\n'
             string += '        Output Variables:\n'
-            if "Displacement" in self.outputDict[out]: 
+            if out['Displacement']: 
                 string += '            Displacement: true\n'
-            if "Partial_Stress" in self.outputDict[out]: 
+            if out['Partial_Stress']: 
                 string += '            Partial_Stress: true\n'
-            if "Damage" in self.outputDict[out]: 
+            if out['Damage']: 
                 string += '            Damage: true\n'
-            if "Number_Of_Neighbors" in self.outputDict[out]: 
+            if out['Number_Of_Neighbors']: 
                 string += '            Number_Of_Neighbors: true\n'
-            if "Force" in self.outputDict[out]: 
+            if out['Force']: 
                 string += '            Force: true\n'
-            if "External_Displacement" in self.outputDict[out]: 
+            if out['External_Displacement']: 
                 string += '            External_Displacement: true\n'
-            if "External_Force" in self.outputDict[out]: 
+            if out['External_Force']: 
                 string += '            External_Force: true\n'
             idx +=1
         return string
@@ -174,21 +185,7 @@ class YAMLcreator(object):
         string += self.blocks()
         string += self.boundaryCondition()
         string += self.solver()
-
-        string += '    Compute Class Parameters:\n'
-        string += '        External Displacement:\n'
-        string += '            Compute Class: "Block_Data"\n'
-        string += '            Calculation Type: "Minimum"\n'
-        string += '            Block: "block_7"\n'
-        string += '            Variable: "Displacement"\n'
-        string += '            Output Label: "External_Displacement"\n'
-        string += '        External Loads:\n'
-        string += '            Compute Class: "Block_Data"\n'
-        string += '            Calculation Type: "Sum"\n'
-        string += '            Block: "block_7"\n'
-        string += '            Variable: "Force"\n'
-        string += '            Output Label: "External_Force"\n'
-
+        string += self.compute()
         string += self.output()
 
         return string

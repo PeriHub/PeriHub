@@ -1,6 +1,7 @@
 FROM python:3.7
 
-RUN pip install fastapi uvicorn matplotlib scipy numpy aiofiles pandas paramiko pysftp
+RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles
+# pysftp 
 
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh && \
