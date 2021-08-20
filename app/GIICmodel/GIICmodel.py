@@ -5,7 +5,7 @@ from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 class GIICmodel(object):
-    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', finalTime = 0.075, TwoD = False, rot = 'False', material = '', output = '', ):
+    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', finalTime = 0.075, TwoD = False, rot = 'False', material = '', output = '', solver = ''):
         '''
             definition der blocks
             k =
@@ -31,6 +31,7 @@ class GIICmodel(object):
         self.scal = 4.01
         self.TwoD = TwoD
         self.onlyTension = False
+        self.rot = rot
         # anriss
         self.a = 20/151*xend
         
@@ -119,7 +120,7 @@ class GIICmodel(object):
                     self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
                 i+=1
         else:
-            self.angle = [60,-60]
+            self.angle = [30,30]
             self.materialDict = material
 
 
@@ -183,17 +184,17 @@ class GIICmodel(object):
         angle_z = 0
 
         return angle_x, angle_y, angle_z
-    def createModel(self, rot = False):
+    def createModel(self):
         geo = Geometry()
         x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)
         vol = np.zeros(len(x))
         k = np.ones(len(x))
-        if rot:
+        if self.rot:
             angle_x = np.zeros(len(x))
             angle_y = np.zeros(len(x))
             angle_z = np.zeros(len(x))
         for idx in range(0, len(x)):
-            if rot:
+            if self.rot:
                 angle_x[idx], angle_y[idx], angle_z[idx] = self.createAngles(x[idx],y[idx], z[idx])
             if y[idx] >= self.yend/2:
                 k[idx] = self.createLoadBlock(x[idx],y[idx],k[idx])
@@ -207,7 +208,7 @@ class GIICmodel(object):
         
         writer = ModelWriter(modelClass = self)
         
-        if rot:
+        if self.rot:
             model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol, 'angle_x':angle_x, 'angle_y':angle_y, 'angle_z': angle_z}
             writer.writeMeshWithAngles(model)
         else:

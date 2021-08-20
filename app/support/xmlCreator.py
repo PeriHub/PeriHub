@@ -7,6 +7,7 @@ class XMLcreator(object):
         self.materialDict = modelWriter.materialDict
         self.damageDict = modelWriter.damageDict
         self.outputDict = modelWriter.outputDict
+        self.computeDict = modelWriter.computeDict
         self.blockDef = blockDef
         self.bondfilters = modelWriter.bondfilters
         self.bc = modelWriter.bcDict
@@ -46,23 +47,23 @@ class XMLcreator(object):
         string = '    <ParameterList name="Materials">\n'
         aniso = False
         for mat in self.materialDict:
-            string += '        <ParameterList name="' + mat +'">\n'
-            string += '            <Parameter name="Material Model" type="string" value="' + self.materialDict[mat]['MatType'] + '"/>\n'
-            string += '            <Parameter name="Tension pressure separation for damage model" type="bool" value="false"/>\n'
+            string += '        <ParameterList name="' + mat['Name'] +'">\n'
+            string += '            <Parameter name="Material Model" type="string" value="' + mat['MatType'] + '"/>\n'
+            string += '            <Parameter name="Tension pressure separation for damage model" type="bool" value="' + str(mat['tensionSeparation']) + '"/>\n'
             string += '            <Parameter name="Plane Stress" type="bool" value="' + str(self.TwoD) + '"/>\n'
             #string += '            <Parameter name="Density" type="double" value="' + str(mat['dens'][idx]) + '"/>\n'
-            for param in self.materialDict[mat]['Parameter']:
-                string += '            <Parameter name="'+ param +'" type="double" value="' +str(np.format_float_scientific(self.materialDict[mat]['Parameter'][param])) +'"/>\n'
+            for param in mat['Parameter']:
+                string += '            <Parameter name="'+ param +'" type="double" value="' +str(np.format_float_scientific(mat['Parameter'][param]['value'])) +'"/>\n'
                 if param == 'C11':
                     aniso = True
             if aniso:
                 # needed for time step estimation
-                string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="210000.0"/>\n'
-                string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="0.3"/>\n'
-                string += '            <Parameter name="Material Symmetry" type="string" value = "Anisotropic"/>\n'   
-            string += '            <Parameter name="Stabilizaton Type" type="string" value="Global Stiffness"/>\n'
-            string += '            <Parameter name="Thickness" type="double" value="10.0"/>\n'
-            string += '            <Parameter name="Hourglass Coefficient" type="double" value="1.0"/>\n'
+                string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="' + str(mat['youngsModulus']) + '"/>\n'
+                string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="' + str(mat['poissonsRatio']) + '"/>\n'
+                string += '            <Parameter name="Material Symmetry" type="string" value = "' + str(mat['materialSymmetry']) + '"/>\n'
+            string += '            <Parameter name="Stabilizaton Type" type="string" value="' + str(mat['stabilizatonType']) + '"/>\n'
+            string += '            <Parameter name="Thickness" type="double" value="' + str(mat['thickness']) + '"/>\n'
+            string += '            <Parameter name="Hourglass Coefficient" type="double" value="' + str(mat['hourglassCoefficient']) + '"/>\n'
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'  
         return string  
@@ -168,29 +169,29 @@ class XMLcreator(object):
     def output(self):
         idx = 0
         string=''
-        for out in self.outputDict['Output']:
+        for out in self.outputDict:
             string += '    <ParameterList name="' + out['Name'] + '">\n'
             string += '        <Parameter name="Output File Type" type="string" value="ExodusII"/>\n'
             string += '        <Parameter name="Output Format" type="string" value="BINARY"/>\n'
             string += '        <Parameter name="Output Filename" type="string" value="' + self.filename +'_' + out['Name'] +'"/>\n'
-            if self.initStep[idx] !=0: 
-                string += '        <Parameter name="Initial Output Step" type="int" value="' + str(self.initStep[idx]) + '"/>\n'
-            string += '        <Parameter name="Output Frequency" type="int" value="' + str(self.frequency[idx]) + '"/>\n'
+            if out['InitStep'] !=0:
+                string += '        <Parameter name="Initial Output Step" type="int" value="' + str(out['InitStep']) + '"/>\n'
+            string += '        <Parameter name="Output Frequency" type="int" value="' + str(out['Frequency']) + '"/>\n'
             string += '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
             string += '        <ParameterList name="Output Variables">\n'
-            if "Displacement" in out['Variables']: 
+            if out['Displacement']:
                 string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
-            if "Partial_Stress" in out['Variables']: 
+            if out['Partial_Stress']:
                 string += '            <Parameter name="Partial_Stress" type="bool" value="true"/>\n'
-            if "Damage" in out['Variables']: 
+            if out['Damage']:
                 string += '            <Parameter name="Damage" type="bool" value="true"/>\n'
-            if "Number_Of_Neighbors" in out['Variables']: 
+            if out['Number_Of_Neighbors']:
                 string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
-            if "Force" in out['Variables']: 
+            if out['Force']: 
                 string += '            <Parameter name="Force" type="bool" value="true"/>\n'
-            if "External_Displacement" in out['Variables']: 
+            if out['External_Displacement']:
                 string += '            <Parameter name="External_Displacement" type="bool" value="true"/>\n'
-            if "External_Force" in out['Variables']: 
+            if out['External_Force']:
                 string += '            <Parameter name="External_Force" type="bool" value="true"/>\n'
             string += '        </ParameterList>\n'
             string += '    </ParameterList>\n'
