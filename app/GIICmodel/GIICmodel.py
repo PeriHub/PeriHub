@@ -5,7 +5,7 @@ from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 class GIICmodel(object):
-    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', finalTime = 0.075, TwoD = False, rot = 'False', material = '', output = '', solver = ''):
+    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', finalTime = 0.075, TwoD = False, rot = 'False', angle = [0,0], material = '', damage = '', block = '', output = '', solver = ''):
         '''
             definition der blocks
             k =
@@ -30,10 +30,10 @@ class GIICmodel(object):
         self.finalTime = finalTime
         self.scal = 4.01
         self.TwoD = TwoD
-        self.onlyTension = False
         self.rot = rot
         # anriss
         self.a = 20/151*xend
+        self.blockDef = block
         
         self.dx   = dx
         self.xend = xend
@@ -70,7 +70,11 @@ class GIICmodel(object):
         self.materialDict = [{}]
         self.outputDict = [{},{}]
         self.angle = [0,0]
-        self.damageDict = {'PMMADamage':{'Energy':5.1, 'InterfaceEnergy':0.01}}
+        if damage=='':
+            self.damageDict[0] = {'Name': 'PMMADamage', 'damageModel': 'Critical Energy Correspondence', 'criticalEnergy':5.1, 'interblockdamageEnergy':0.01, 'onlyTension': True, 'detachedNodesCheck': True, 'thickness': 10, 'hourglassCoefficient': 1.0, 'stabilizatonType': 'Global Stiffness'}
+        else:
+            self.damageDict = damage
+
         self.computeDict = {'Compute Class Parameters':[{'Name':'External_Displacement','Variable':'Displacement', 'Calculation Type':'Minimum','Block':'block_7'},
                                                       {'Name':'External_Force','Variable':'Force', 'Calculation Type':'Sum','Block':'block_7'}]}
         
@@ -120,7 +124,7 @@ class GIICmodel(object):
                     self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
                 i+=1
         else:
-            self.angle = [30,30]
+            self.angle = angle
             self.materialDict = material
 
 
@@ -139,11 +143,11 @@ class GIICmodel(object):
                         'Prescribed Displacement',
                         'Prescribed Displacement'], 
                         'Direction':['x','y','y','y','y'], 
-                        'Value':[0,0,-1,0,0]}}    
+                        'Value':[0,0,-10,0,0]}}    
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[7] = 'PMMADamage'
         self.damBlock[8] = 'PMMADamage'
-        self.intBlockId = [-1]*numberOfBlocks
+        self.intBlockId = ['']*numberOfBlocks
         self.intBlockId[7] = 9
         self.intBlockId[8] = 8
         self.matBlock = ['PMMA']*numberOfBlocks
@@ -221,14 +225,21 @@ class GIICmodel(object):
 
     def createBlockdef(self,model):
         blockLen = int(max(model['k']))
-        blockDef = {'Material':self.matBlock,'Damage':self.damBlock,'Horizon':np.zeros(blockLen),'Interface':self.intBlockId}
+        blockDef=[{}]*blockLen
         for idx in range(0,blockLen):
-            blockDef['Horizon'][idx] = self.scal*max([self.dx[0],self.dx[1]])
+            blockDef[idx] = {'Name': 'block_' + str(idx+1), 'material':self.matBlock[idx], 'damageModel':self.damBlock[idx], 'horizon': self.scal*max([self.dx[0],self.dx[1]]),'interface':self.intBlockId[idx]}
         # 3d tbd
         return blockDef
+        
     def writeFILE(self, writer, model):
         
         blockDef = self.createBlockdef(model)
+        if self.blockDef=='':
+            blockDef = self.createBlockdef(model)
+        else:
+            for idx in range(0,len(self.blockDef)):
+                self.blockDef[idx]['horizon']= self.scal*max([self.dx[0],self.dx[1]])
+        blockDef = self.blockDef
 
         writer.createFile(blockDef)
   

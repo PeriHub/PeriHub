@@ -21,7 +21,6 @@ class ModelWriter(object):
         self.bondfilters = modelClass.bondfilters
         self.nsList = modelClass.nsList
         self.TwoD = modelClass.TwoD
-        self.onlyTension = modelClass.onlyTension
         self.initStep = modelClass.initStep
         if not os.path.exists('Output'):
             os.mkdir('Output')   

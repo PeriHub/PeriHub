@@ -90,7 +90,7 @@ class ModelControl(object):
 
 
     @app.post("/generateModel")
-    def generateModel(ModelName: ModelName, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Param: dict):#Material: dict, Output: dict):
+    def generateModel(ModelName: ModelName, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict):#Material: dict, Output: dict):
         # L = 152
         # L = 50
         # W = 10
@@ -104,7 +104,7 @@ class ModelControl(object):
         dx=[h/nn,h/nn,h/nn]
 
         if ModelName==ModelName.GIICmodel:
-            gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, solvertype = Param['Param']['Solver']['solvertype'], finalTime = Param['Param']['Solver']['finalTime'], TwoD = TwoDimensional, filetype = Param['Param']['Solver']['filetype'], rot=RotatedAngles, material=Param['Param']['Material'], output=Param['Param']['Output'], solver=Param['Param']['Solver'])
+            gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, solvertype = Param['Param']['Solver']['solvertype'], finalTime = Param['Param']['Solver']['finalTime'], TwoD = TwoDimensional, filetype = Param['Param']['Solver']['filetype'], rot=RotatedAngles, angle=[Angle0,Angle1], material=Param['Param']['Material'], damage=Param['Param']['Damage'], block=Param['Param']['Block'], output=Param['Param']['Output'], solver=Param['Param']['Solver'])
             model = gc.createModel()
 
         if ModelName==ModelName.DCBmodel:
@@ -303,7 +303,7 @@ class ModelControl(object):
         else:
             return {Cluster: Param['Param']['Job']['cluster'] + "unknown"}
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)    
+    # uvicorn.run(app, host="0.0.0.0", port=8000)    
     # pointString=''
     # firstRow=True  
     # with open('./Output/' + "GIICmodel" + '/'  + "GIICmodel" + '.txt', 'r') as f:
@@ -317,25 +317,40 @@ class ModelControl(object):
                 
     # pointString=pointString.rstrip(pointString[-1])
 
-    # sb = SbatchCreator(Param['Param']['Output'], Param['Param']['Job'])
-    # sbatchString = sb.createSbatch()
-    # print(sbatchString)
-    # username='hess_ja'
-    # server='129.247.54.37'
-    # keypath = 'id_rsa_cara'
-    # remotepath = './PeridigmJobs/apiModels/' + ModelName
-    # ssh = paramiko.SSHClient() 
-    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    # ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-    # sftp = ssh.open_sftp()
-    # file=sftp.file(ModelName + '.sbatch', "a", -1)
-    # file.write(sbatchString)
-    # file.flush()
-    # sftp.close()
+    # from pyevtk.hl import pointsToVTK
+    # import meshio
+    # import numpy as np 
+    # npoints = 100 
+    # x = np.random.rand(npoints) 
+    # y = np.random.rand(npoints) 
+    # z = np.random.rand(npoints) 
+    # pressure = np.random.rand(npoints) 
+    # temp = np.random.rand(npoints) 
+    # test = pointsToVTK("./points", x, y, z, data = {"temp" : temp, "pressure" : pressure})
+    # mesh = meshio.read("./points.vtu")
+    # points = [
+    # [0.0, 0.0],
+    # [1.0, 0.0],
+    # [0.0, 1.0],
+    # [1.0, 1.0],
+    # [2.0, 0.0],
+    # [2.0, 1.0],
+    # ]
+    # cells = [
+    #     ("triangle", [[0, 1, 2], [1, 3, 2]]),
+    #     ("quad", [[1, 4, 5, 3]]),
+    # ]
 
-    # # command = 'cd ' + remotepath + ' \n sbatch '+ ModelName + '.sbatch'
-    # # ssh.exec_command(command)
-    # ssh.close()
+    # mesh = meshio.Mesh(
+    #     points,
+    #     cells,
+    #     # Optionally provide extra data on points, cells, etc.
+    #     point_data={"T": [0.3, -1.2, 0.5, 0.7, 0.0, -3.0]},
+    #     # Each item in cell data must match the cells array
+    #     cell_data={"a": [[0.1, 0.2], [0.4]]},
+    # )
+    # mesh.write("./foo.stl")
+    # print(mesh)
         
 
         

@@ -13,7 +13,6 @@ class YAMLcreator(object):
         self.bc = modelWriter.bcDict
         self.nsName = modelWriter.nsName
         self.TwoD = modelWriter.TwoD
-        self.onlyTension = modelWriter.onlyTension
         self.solvertype = modelWriter.solvertype
         self.frequency = modelWriter.frequency
         self.initStep = modelWriter.initStep              
@@ -54,39 +53,42 @@ class YAMLcreator(object):
                     aniso = True
             if aniso:
                 # needed for time step estimation
-                string += '            Young' + "'" + 's Modulus: ' + str(mat['youngsModulus']) + '\n'  
-                string += '            Poisson' + "'" + 's Ratio: ' + str(mat['poissonsRatio']) + '\n'  
+                string += '            Young' + "'" + 's Modulus: ' + str(float(mat['youngsModulus'])) + '\n'  
+                string += '            Poisson' + "'" + 's Ratio: ' + str(float(mat['poissonsRatio'])) + '\n'  
                 string += '            Material Symmetry: "' + mat['materialSymmetry'] + '"\n'  
             string += '            Stabilizaton Type: "' + mat['stabilizatonType'] + '"\n'
-            string += '            Thickness: ' + str(mat['thickness']) + '\n'
-            string += '            Hourglass Coefficient: ' + str(mat['hourglassCoefficient']) + '\n'
+            string += '            Thickness: ' + str(float(mat['thickness'])) + '\n'
+            string += '            Hourglass Coefficient: ' + str(float(mat['hourglassCoefficient'])) + '\n'
         return string  
     def blocks(self):
         string = '    Blocks:\n'
-        for idx in range(0, len(self.blockDef['Material'])):
-            string += '        block_' + str(idx+1) + ':\n'
-            string += '            Block Names: "block_' + str(idx+1) + '"\n'
-            string += '            Material: "' + self.blockDef['Material'][idx] + '"\n'
-            if self.blockDef['Damage'][idx] != '':
-                string += '            Damage Model: "' + self.blockDef['Damage'][idx] + '"\n'
-            string += '            Horizon: ' + str(self.blockDef['Horizon'][idx]) + '\n'
-            if self.blockDef['Interface'][idx] != -1:
-                string += '            Interface: ' + str(self.blockDef['Interface'][idx]) + '\n'
+        for block in self.blockDef:
+            string += '        ' + block['Name'] + ':\n'
+            string += '            Block Names: "' + block['Name'] + '"\n'
+            string += '            Material: "' + block['material'] + '"\n'
+            if block['damageModel'] != '':
+                string += '            Damage Model: "' + block['damageModel'] + '"\n'
+            string += '            Horizon: ' + str(block['horizon']) + '\n'
+            if block['interface'] != '':
+                string += '            Interface: ' + str(block['interface']) + '\n'
         return string
     def damage(self):
         string = '    Damage Models:\n'
         for dam in self.damageDict:
-            string += '        ' + dam + ':\n'
-            string += '            Damage Model: "Critical Energy Correspondence"\n'
-            string += '            Critical Energy: ' + str(self.damageDict[dam]['Energy']) + '\n'
-            if "InterfaceEnergy" in self.damageDict[dam]:
-                string += '            Interblock damage energy: ' + str(self.damageDict[dam]['InterfaceEnergy']) + '\n'
+            string += '        ' + dam['Name'] + ':\n'
+            string += '            Damage Model: "' + str(dam['damageModel']) + '"\n'
+            if dam['damageModel'] =='Critical Energy Correspondence':
+                string += '            Critical Energy: ' + str(float(dam['criticalEnergy'])) + '\n'
+                if "interblockdamageEnergy" in dam:
+                    string += '            Interblock damage energy: ' + str(float(dam['interblockdamageEnergy'])) + '\n'
+            else:
+                string += '            Critical Stretch: ' + str(float(dam['criticalStretch'])) + '\n'
             string += '            Plane Stress: '+ str(self.TwoD) +'\n'
-            string += '            Only Tension: '+ str(self.onlyTension) +'\n'
-            string += '            Detached Nodes Check: true\n'
-            string += '            Thickness: 10.0\n'
-            string += '            Hourglass Coefficient: 1.0\n'
-            string += '            Stabilizaton Type: "Global Stiffness"\n'
+            string += '            Only Tension: '+ str(dam['onlyTension']) +'\n'
+            string += '            Detached Nodes Check: '+ str(dam['detachedNodesCheck']) +'\n'
+            string += '            Thickness: ' + str(float(dam['thickness'])) + '\n'
+            string += '            Hourglass Coefficient: ' + str(float(dam['hourglassCoefficient'])) + '\n'
+            string += '            Stabilizaton Type: "' + str(dam['stabilizatonType']) + '"\n'
         return string
     def solver(self):
         string = '    Solver:\n'
