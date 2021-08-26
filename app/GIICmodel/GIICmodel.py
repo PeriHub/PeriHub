@@ -5,7 +5,7 @@ from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 class GIICmodel(object):
-    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', finalTime = 0.075, TwoD = False, rot = 'False', angle = [0,0], material = '', damage = '', block = '', output = '', solver = ''):
+    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', finalTime = 0.075, TwoD = False, rot = 'False', angle = [0,0], material = '', damage = '', block = '', bc = '', output = '', solver = ''):
         '''
             definition der blocks
             k =
@@ -68,6 +68,7 @@ class GIICmodel(object):
         isotropic = False
         matNameList = ['PMMA']
         self.materialDict = [{}]
+        self.damageDict = [{}]
         self.outputDict = [{},{}]
         self.angle = [0,0]
         if damage=='':
@@ -134,16 +135,24 @@ class GIICmodel(object):
                             'Bottom_Unit_Vector':[[1.0,0.0,0.0]],
                             'Bottom_Length':[self.a],
                             'Side_Length':[zend + 0.5]}
-        self.nsList = [5,6,7,10]
-        self.bcDict = {'NNodesets': 4, 
-                        'BCDef': {'NS': [2,2,3,1,4], 
-                        'Type':['Prescribed Displacement',
-                        'Prescribed Displacement',
-                        'Prescribed Displacement',
-                        'Prescribed Displacement',
-                        'Prescribed Displacement'], 
-                        'Direction':['x','y','y','y','y'], 
-                        'Value':[0,0,-10,0,0]}}    
+
+        if(bc==''):               
+            self.bcDict = [{'Name': 'BC_1', 'boundarytype': 'Prescribed Displacement', 'blockId': 5, 'coordinate': 'y', 'value': '0*t'},
+                        {'Name': 'BC_2', 'boundarytype': 'Prescribed Displacement', 'blockId': 6, 'coordinate': 'y', 'value': '0*t'},
+                        {'Name': 'BC_3', 'boundarytype': 'Prescribed Displacement', 'blockId': 7, 'coordinate': 'y', 'value': '-10*t'},]
+        else:
+            self.bcDict = bc
+
+        # self.nsList = [5,6,7,10]
+        # self.bcDict = {'NNodesets': 4, 
+        #                 'BCDef': {'NS': [2,2,3,1,4], 
+        #                 'Type':['Prescribed Displacement',
+        #                 'Prescribed Displacement',
+        #                 'Prescribed Displacement',
+        #                 'Prescribed Displacement',
+        #                 'Prescribed Displacement'], 
+        #                 'Direction':['x','y','y','y','y'], 
+        #                 'Value':[0,0,-10,0,0]}}    
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[7] = 'PMMADamage'
         self.damBlock[8] = 'PMMADamage'
@@ -233,13 +242,12 @@ class GIICmodel(object):
         
     def writeFILE(self, writer, model):
         
-        blockDef = self.createBlockdef(model)
         if self.blockDef=='':
             blockDef = self.createBlockdef(model)
         else:
             for idx in range(0,len(self.blockDef)):
                 self.blockDef[idx]['horizon']= self.scal*max([self.dx[0],self.dx[1]])
-        blockDef = self.blockDef
+            blockDef = self.blockDef
 
         writer.createFile(blockDef)
   

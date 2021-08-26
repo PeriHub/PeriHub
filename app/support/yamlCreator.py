@@ -12,6 +12,7 @@ class YAMLcreator(object):
         self.bondfilters = modelWriter.bondfilters
         self.bc = modelWriter.bcDict
         self.nsName = modelWriter.nsName
+        self.nsList = modelWriter.nsList
         self.TwoD = modelWriter.TwoD
         self.solvertype = modelWriter.solvertype
         self.frequency = modelWriter.frequency
@@ -126,15 +127,15 @@ class YAMLcreator(object):
         return string
     def boundaryCondition(self):
         string = '    Boundary Conditions:\n'
-        for idx in range(0, self.bc['NNodesets']):
+        for idx in range(0, len(self.nsList)):
             string += '        Node Set ' + str(idx+1) +': "' + self.nsName + '_' + str(idx+1) + '.txt' + '"\n'
-        bcDict = self.bc['BCDef']
-        for idx in range(0, len(bcDict['NS'])):
-            string += '        BC_' + str(idx+1) + ':\n'
-            string += '            Type: "' + bcDict['Type'][idx] + '"\n'
-            string += '            Node Set: "Node Set ' + str(bcDict['NS'][idx]) + '"\n'
-            string += '            Coordinate: "' + bcDict['Direction'][idx] + '"\n'
-            string += '            Value: "' + str(bcDict['Value'][idx]) + '*t"\n'
+        for bc in self.bc:
+            nodeSetId = self.nsList.index(bc['blockId'])
+            string += '        ' + bc['Name'] + ':\n'
+            string += '            Type: "' + bc['boundarytype'] + '"\n'
+            string += '            Node Set: "Node Set ' + str(nodeSetId+1) + '"\n'
+            string += '            Coordinate: "' + bc['coordinate'] + '"\n'
+            string += '            Value: "' + str(bc['value']) + '"\n'
         return string
     def compute(self):
         string = '    Compute Class Parameters:\n'

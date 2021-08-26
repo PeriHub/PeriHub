@@ -19,11 +19,19 @@ class ModelWriter(object):
         self.computeDict = modelClass.computeDict
         self.outputDict = modelClass.outputDict
         self.bondfilters = modelClass.bondfilters
-        self.nsList = modelClass.nsList
         self.TwoD = modelClass.TwoD
         self.initStep = modelClass.initStep
         if not os.path.exists('Output'):
             os.mkdir('Output')   
+            
+        numberOfNs = 0
+        nodeSetIds = []
+        for bc in self.bcDict:
+            if(bc['blockId'] not in nodeSetIds):
+                numberOfNs += 1
+                nodeSetIds.append(bc['blockId'])
+        self.nsList = nodeSetIds
+
     def writeNodeSets(self, model):
         for idx, k in enumerate(self.nsList):
             points = np.where(model['k'] == k)

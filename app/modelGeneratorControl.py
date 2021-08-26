@@ -104,7 +104,7 @@ class ModelControl(object):
         dx=[h/nn,h/nn,h/nn]
 
         if ModelName==ModelName.GIICmodel:
-            gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, solvertype = Param['Param']['Solver']['solvertype'], finalTime = Param['Param']['Solver']['finalTime'], TwoD = TwoDimensional, filetype = Param['Param']['Solver']['filetype'], rot=RotatedAngles, angle=[Angle0,Angle1], material=Param['Param']['Material'], damage=Param['Param']['Damage'], block=Param['Param']['Block'], output=Param['Param']['Output'], solver=Param['Param']['Solver'])
+            gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, solvertype = Param['Param']['Solver']['solvertype'], finalTime = Param['Param']['Solver']['finalTime'], TwoD = TwoDimensional, filetype = Param['Param']['Solver']['filetype'], rot=RotatedAngles, angle=[Angle0,Angle1], material=Param['Param']['Material'], damage=Param['Param']['Damage'], block=Param['Param']['Block'], bc=Param['Param']['BoundaryConditions'], output=Param['Param']['Output'], solver=Param['Param']['Solver'])
             model = gc.createModel()
 
         if ModelName==ModelName.DCBmodel:
