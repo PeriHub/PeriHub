@@ -44,14 +44,14 @@ class GIICmodel(object):
             self.zend = 0
             self.dx[2] = 1
         numberOfBlocks = 10
-        xbound = [0, 4*dx[0],5*dx[0], xend-5*dx[0],xend-4*dx[0],xend + dx[0]]
+        xbound = [0, 4*dx[0],5*dx[0], xend-4*dx[0],xend-3*dx[0],xend + dx[0]]
         ybound = [0, 4*dx[1],5*dx[1], yend + dx[1]]
 
         z = [2,2,1,1,3,3]
         self.boundfuncx = interpolate.interp1d(xbound,z, kind='linear')
         z = [1,1,0,0]
         self.boundfuncy = interpolate.interp1d(ybound,z, kind='linear')
-        xload = [0, xend/2-2*dx[0],xend/2+2*dx[0], xend + dx[0]]
+        xload = [0, xend/2-2*dx[0],xend/2+3*dx[0], xend + dx[0]]
         z = [1,4,4,1]
         self.loadfuncx = interpolate.interp1d(xload,z, kind='linear')
         yload = [0, yend-5*dx[1],yend-4*dx[1], yend + dx[1]]
@@ -139,7 +139,8 @@ class GIICmodel(object):
         if(bc==''):               
             self.bcDict = [{'Name': 'BC_1', 'boundarytype': 'Prescribed Displacement', 'blockId': 5, 'coordinate': 'y', 'value': '0*t'},
                         {'Name': 'BC_2', 'boundarytype': 'Prescribed Displacement', 'blockId': 6, 'coordinate': 'y', 'value': '0*t'},
-                        {'Name': 'BC_3', 'boundarytype': 'Prescribed Displacement', 'blockId': 7, 'coordinate': 'y', 'value': '-10*t'},]
+                        {'Name': 'BC_3', 'boundarytype': 'Prescribed Displacement', 'blockId': 7, 'coordinate': 'y', 'value': '-10*t'},
+                        {'Name': 'BC_4', 'boundarytype': 'Prescribed Displacement', 'blockId': 10, 'coordinate': 'y', 'value': '0*t'},]
         else:
             self.bcDict = bc
 
@@ -173,7 +174,7 @@ class GIICmodel(object):
                 k = 7
         return k
     def createBCNode(self,x,y, k):
-        if x == 0 and y == 0:
+        if x <= 0 + self.dx[0]  and y == 0:
             k = 5
         if x > self.xend - self.dx[0]/3 and y == 0:
             k = 6

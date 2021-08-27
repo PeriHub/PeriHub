@@ -12,8 +12,8 @@ class XMLcreator(object):
         self.bondfilters = modelWriter.bondfilters
         self.bc = modelWriter.bcDict
         self.nsName = modelWriter.nsName
+        self.nsList = modelWriter.nsList
         self.TwoD = modelWriter.TwoD
-        self.onlyTension = modelWriter.onlyTension
         self.solvertype = modelWriter.solvertype
         self.frequency = modelWriter.frequency
         self.initStep = modelWriter.initStep 
@@ -58,43 +58,46 @@ class XMLcreator(object):
                     aniso = True
             if aniso:
                 # needed for time step estimation
-                string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="' + str(mat['youngsModulus']) + '"/>\n'
-                string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="' + str(mat['poissonsRatio']) + '"/>\n'
-                string += '            <Parameter name="Material Symmetry" type="string" value = "' + str(mat['materialSymmetry']) + '"/>\n'
-            string += '            <Parameter name="Stabilizaton Type" type="string" value="' + str(mat['stabilizatonType']) + '"/>\n'
-            string += '            <Parameter name="Thickness" type="double" value="' + str(mat['thickness']) + '"/>\n'
-            string += '            <Parameter name="Hourglass Coefficient" type="double" value="' + str(mat['hourglassCoefficient']) + '"/>\n'
+                string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="' + str(float(mat['youngsModulus'])) + '"/>\n'
+                string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="' + str(float(mat['poissonsRatio'])) + '"/>\n'
+                string += '            <Parameter name="Material Symmetry" type="string" value = "' + mat['materialSymmetry'] + '"/>\n'
+            string += '            <Parameter name="Stabilizaton Type" type="string" value="' + mat['stabilizatonType'] + '"/>\n'
+            string += '            <Parameter name="Thickness" type="double" value="' + str(float(mat['thickness'])) + '"/>\n'
+            string += '            <Parameter name="Hourglass Coefficient" type="double" value="' + str(float(mat['hourglassCoefficient'])) + '"/>\n'
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'  
         return string  
     def blocks(self):
         string = '    <ParameterList name="Blocks">\n'
-        for idx in range(0, len(self.blockDef['Material'])):
-            string += '        <ParameterList name="block_' + str(idx+1) + '">\n'
-            string += '            <Parameter name="Block Names" type="string" value="block_' + str(idx+1) + '"/>\n'
-            string += '            <Parameter name="Material" type="string" value="' + self.blockDef['Material'][idx] + '"/>\n'
-            if self.blockDef['Damage'][idx] != '':
-                string += '            <Parameter name="Damage Model" type="string" value="' + self.blockDef['Damage'][idx] + '"/>\n'
-            string += '            <Parameter name="Horizon" type="double" value="' + str(self.blockDef['Horizon'][idx]) + '"/>\n'
-            if self.blockDef['Interface'][idx] != -1:
-                string += '            <Parameter name="Interface" type="int" value="' + str(self.blockDef['Interface'][idx]) + '"/>\n'
+        for block in self.blockDef:
+            string += '        <ParameterList name="' + block['Name'] + '">\n'
+            string += '            <Parameter name="Block Names" type="string" value="' + block['Name'] + '"/>\n'
+            string += '            <Parameter name="Material" type="string" value="' + block['material'] + '"/>\n'
+            if block['damageModel'] != '':
+                string += '            <Parameter name="Damage Model" type="string" value="' + block['damageModel'] + '"/>\n'
+            string += '            <Parameter name="Horizon" type="double" value="' + str(block['horizon']) + '"/>\n'
+            if block['interface'] != '':
+                string += '            <Parameter name="Interface" type="int" value="' + str(block['interface']) + '"/>\n'
             string += '        </ParameterList>\n'
         string += '     </ParameterList>\n'
         return string
     def damage(self):
         string = '    <ParameterList name="Damage Models">\n'
         for dam in self.damageDict:
-            string += '        <ParameterList name="' + dam + '">\n'
-            string += '            <Parameter name="Damage Model" type="string" value="Critical Energy Correspondence"/>\n'
-            string += '            <Parameter name="Critical Energy" type="double" value="' + str(self.damageDict[dam]['Energy']) + '"/>\n'
-            if "InterfaceEnergy" in self.damageDict[dam]:
-                string += '            <Parameter name="Interblock damage energy" type="double" value="' + str(self.damageDict[dam]['InterfaceEnergy']) + '"/>\n'
+            string += '        <ParameterList name="' + dam['Name'] + '">\n'
+            string += '            <Parameter name="Damage Model" type="string" value="' + str(dam['damageModel']) + '"/>\n'
+            if dam['damageModel'] =='Critical Energy Correspondence':
+                string += '            <Parameter name="Critical Energy" type="double" value="' + str(float(dam['criticalEnergy'])) + '"/>\n'
+                if "interblockdamageEnergy" in dam:
+                    string += '            <Parameter name="Interblock damage energy" type="double" value="' + str(float(dam['interblockdamageEnergy'])) + '"/>\n'
+            else:
+                string += '            <Parameter name="Critical Stretch" type="double" value="'+ str(float(dam['criticalStretch'])) +'"/>\n'
             string += '            <Parameter name="Plane Stress" type="bool" value="'+ str(self.TwoD) +'"/>\n'
-            string += '            <Parameter name="Only Tension" type="bool" value="'+ str(self.onlyTension) +'"/>\n'
-            string += '            <Parameter name="Detached Nodes Check" type="bool" value="true"/>\n'
-            string += '            <Parameter name="Thickness" type="double" value="10.0"/>\n'
-            string += '            <Parameter name="Hourglass Coefficient" type="double" value="1.0"/>\n'
-            string += '            <Parameter name="Stabilizaton Type" type="string" value="Global Stiffness"/>\n'
+            string += '            <Parameter name="Only Tension" type="bool" value="'+ str(dam['onlyTension']) +'"/>\n'
+            string += '            <Parameter name="Detached Nodes Check" type="bool" value="'+ str(dam['detachedNodesCheck']) +'"/>\n'
+            string += '            <Parameter name="Thickness" type="double" value="'+ str(float(dam['thickness'])) +'"/>\n'
+            string += '            <Parameter name="Hourglass Coefficient" type="double" value="'+ str(float(dam['hourglassCoefficient'])) +'"/>\n'
+            string += '            <Parameter name="Stabilizaton Type" type="string" value="'+ str(dam['stabilizatonType']) +'"/>\n'
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         return string
@@ -141,15 +144,15 @@ class XMLcreator(object):
         return string
     def boundaryCondition(self):
         string = '    <ParameterList name="Boundary Conditions">\n'
-        for idx in range(0, self.bc['NNodesets']):
+        for idx in range(0, len(self.nsList)):
             string += '        <Parameter name="Node Set ' + str(idx+1) +'" type="string" value="' + self.nsName + '_' + str(idx+1) + '.txt' + '"/>\n'
-        bcDict = self.bc['BCDef']
-        for idx in range(0, len(bcDict['NS'])):
-            string += '        <ParameterList name="BC_' + str(idx+1) + '">\n'
-            string += '            <Parameter name="Type" type="string" value="' + bcDict['Type'][idx] + '"/>\n'
-            string += '            <Parameter name="Node Set" type="string" value="Node Set ' + str(bcDict['NS'][idx]) + '"/>\n'
-            string += '            <Parameter name="Coordinate" type="string" value="' + bcDict['Direction'][idx] + '"/>\n'
-            string += '            <Parameter name="Value" type="string" value="' + str(bcDict['Value'][idx]) + '*t"/>\n'
+        for bc in self.bc:
+            nodeSetId = self.nsList.index(bc['blockId'])
+            string += '        <ParameterList name="' + bc['Name'] + '">\n'
+            string += '            <Parameter name="Type" type="string" value="' + bc['boundarytype'] + '"/>\n'
+            string += '            <Parameter name="Node Set" type="string" value="Node Set ' + str(nodeSetId+1) + '"/>\n'
+            string += '            <Parameter name="Coordinate" type="string" value="' + bc['coordinate'] + '"/>\n'
+            string += '            <Parameter name="Value" type="string" value="' + str(bc['value']) + '"/>\n'
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         return string

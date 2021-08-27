@@ -272,7 +272,7 @@ class ModelControl(object):
             ssh = paramiko.SSHClient() 
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-            command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + str(Param['Param']['Job']['Tasks']) + ' -O tgz -J ' + ModelName +' -E /home/hess_ja/PeridigmInstall/build/bin/Peridigm '+ ModelName + '.' + FileType
+            command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + str(Param['Param']['Job']['tasks']) + ' -O tgz -J ' + ModelName +' -E /home/hess_ja/PeridigmInstall/build/bin/Peridigm '+ ModelName + '.' + FileType
             ssh.exec_command(command)
             ssh.close()
 
@@ -351,7 +351,17 @@ class ModelControl(object):
     # )
     # mesh.write("./foo.stl")
     # print(mesh)
-        
+    
+    # username='hess_ja'
+    # server='129.247.54.37'
+    # keypath = 'id_rsa_cluster'
+    # remotepath = './Peridigm/apiModels/GIICmodel'
+    # ssh = paramiko.SSHClient() 
+    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+    # command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + '32' + ' -O tgz -J ' + 'GIICmodel' +' -E /home/hess_ja/PeridigmInstall/build/bin/Peridigm '+ 'GIICmodel' + '.' + 'xml'
+    # ssh.exec_command(command)
+    # ssh.close()
 
         
         

@@ -44,6 +44,7 @@ class SbatchCreator(object):
             string += 'python /home/' + self.user + '/peridigm/src/scripts/MergeFiles.py ' + out['Name'] + ' ' + str(self.tasks) + '\n'
 
         string += 'rm *.e.' + str(self.tasks) + '.*' + '\n'
+        string += 'rm Output*.log' + '\n'
 
         return string
 

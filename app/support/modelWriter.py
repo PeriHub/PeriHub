@@ -63,13 +63,13 @@ class ModelWriter(object):
         if self.filetype == 'yaml':
             yl = YAMLcreator(self, blockDef = blockDef)
             string = yl.createYAML()
-            self.fileWriter(self.filename + '.yaml', string)
             
         elif self.filetype == 'xml':
             xl = XMLcreator(self, blockDef = blockDef)
             string = xl.createXML()
         else:
-            print('Not a supported filetye: ', self.filetype)    
+            print('Not a supported filetye: ', self.filetype)   
+             
         self.fileWriter(self.filename + '.' + self.filetype, string)
             
         
