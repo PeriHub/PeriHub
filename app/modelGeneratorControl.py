@@ -104,11 +104,35 @@ class ModelControl(object):
         dx=[h/nn,h/nn,h/nn]
 
         if ModelName==ModelName.GIICmodel:
-            gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, solvertype = Param['Param']['Solver']['solvertype'], finalTime = Param['Param']['Solver']['finalTime'], TwoD = TwoDimensional, filetype = Param['Param']['Solver']['filetype'], rot=RotatedAngles, angle=[Angle0,Angle1], material=Param['Param']['Material'], damage=Param['Param']['Damage'], block=Param['Param']['Block'], bc=Param['Param']['BoundaryConditions'], output=Param['Param']['Output'], solver=Param['Param']['Solver'])
+            gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, 
+            solvertype = Param['Param']['Solver']['solvertype'], 
+            finalTime = Param['Param']['Solver']['finalTime'], 
+            TwoD = TwoDimensional, 
+            filetype = Param['Param']['Solver']['filetype'], 
+            rot=RotatedAngles, angle=[Angle0,Angle1], 
+            material=Param['Param']['Material'], 
+            damage=Param['Param']['Damage'], 
+            block=Param['Param']['Block'], 
+            bc=Param['Param']['BoundaryConditions'],
+            compute=Param['Param']['Compute'],  
+            output=Param['Param']['Output'], 
+            solver=Param['Param']['Solver'])
             model = gc.createModel()
 
         if ModelName==ModelName.DCBmodel:
-            dcb = DCBmodel(xend = L, yend = h, zend = W, dx=dx, solvertype = Solvertype, TwoD = TwoDimensional, filetype = Filetype, rot=RotatedAngles)
+            dcb = DCBmodel(xend = L, yend = h, zend = W, dx=dx, 
+            solvertype = Param['Param']['Solver']['solvertype'], 
+            finalTime = Param['Param']['Solver']['finalTime'], 
+            TwoD = TwoDimensional, 
+            filetype = Param['Param']['Solver']['filetype'], 
+            rot=RotatedAngles, angle=[Angle0,Angle1], 
+            material=Param['Param']['Material'], 
+            damage=Param['Param']['Damage'], 
+            block=Param['Param']['Block'], 
+            bc=Param['Param']['BoundaryConditions'], 
+            compute=Param['Param']['Compute'],  
+            output=Param['Param']['Output'], 
+            solver=Param['Param']['Solver'])
             model = dcb.createModel()
 
         return {ModelName: ModelName + "-Model has been created", 'dx': dx}
@@ -195,7 +219,7 @@ class ModelControl(object):
         pointString=''
         blockIdString=''
         firstRow=True  
-        with open('./Output/' + "GIICmodel" + '/'  + "GIICmodel" + '.txt', 'r') as f:
+        with open('./Output/' + ModelName + '/'  + ModelName + '.txt', 'r') as f:
                 reader = csv.reader(f)
                 for row in reader:
                     if firstRow==False:

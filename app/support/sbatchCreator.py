@@ -47,9 +47,3 @@ class SbatchCreator(object):
         string += 'rm Output*.log' + '\n'
 
         return string
-
-        if not os.path.exists(self.path):
-            os.mkdir(self.path)
-        fid = open(self.path+'/'+filename,'w')
-        fid.write(string)
-        fid.close()

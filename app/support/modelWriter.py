@@ -11,7 +11,6 @@ class ModelWriter(object):
         self.path = 'Output/'+ modelClass.filename
         self.filetype = modelClass.filetype
         self.finalTime = modelClass.finalTime
-        self.frequency = modelClass.frequency
         self.solvertype = modelClass.solvertype
         self.bcDict = modelClass.bcDict
         self.damageDict = modelClass.damageDict
@@ -20,7 +19,6 @@ class ModelWriter(object):
         self.outputDict = modelClass.outputDict
         self.bondfilters = modelClass.bondfilters
         self.TwoD = modelClass.TwoD
-        self.initStep = modelClass.initStep
         if not os.path.exists('Output'):
             os.mkdir('Output')   
             
@@ -69,7 +67,7 @@ class ModelWriter(object):
             string = xl.createXML()
         else:
             print('Not a supported filetye: ', self.filetype)   
-             
+
         self.fileWriter(self.filename + '.' + self.filetype, string)
             
         

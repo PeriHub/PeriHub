@@ -5,7 +5,10 @@ from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 class GIICmodel(object):
-    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', finalTime = 0.075, TwoD = False, rot = 'False', angle = [0,0], material = '', damage = '', block = '', bc = '', output = '', solver = ''):
+    def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], 
+    filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', 
+    finalTime = 0.075, TwoD = False, rot = 'False', angle = [0,0], 
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = ''):
         '''
             definition der blocks
             k =
@@ -21,8 +24,6 @@ class GIICmodel(object):
             10 RB Node links oben
             11 RB links oben - fehlt noch
         '''
-        
-
         
         self.filename = filename
         self.filetype = filetype
@@ -76,18 +77,17 @@ class GIICmodel(object):
         else:
             self.damageDict = damage
 
-        self.computeDict = {'Compute Class Parameters':[{'Name':'External_Displacement','Variable':'Displacement', 'Calculation Type':'Minimum','Block':'block_7'},
-                                                      {'Name':'External_Force','Variable':'Force', 'Calculation Type':'Sum','Block':'block_7'}]}
-        
+        if compute=='':
+            self.computeDict = {'Compute Class Parameters':[{'Name':'External_Displacement','Variable':'Displacement', 'Calculation Type':'Minimum','Block':'block_7'},
+                                                            {'Name':'External_Force','Variable':'Force', 'Calculation Type':'Sum','Block':'block_7'}]}
+        else:
+            self.computeDict = compute
+
         if output=='':
             self.outputDict[0] = {'Name': 'Output1', 'Displacement': True, 'Force': True, 'Damage': True, 'Partial_Stress': False, 'External_Force': False, 'External_Displacement': False, 'Number_Of_Neighbors': False, 'Frequency': 5000, 'InitStep': 0}
             self.outputDict[1] = {'Name': 'Output2', 'Displacement': False, 'Force': False, 'Damage': True, 'Partial_Stress': True, 'External_Force': True, 'External_Displacement': True, 'Number_Of_Neighbors': False, 'Frequency': 200, 'InitStep': 0}
         else:
             self.outputDict = output
-        
-        
-        self.frequency = [5000, 200]
-        self.initStep = [0, 0]
 
         if material=='':
             i=0
@@ -144,16 +144,6 @@ class GIICmodel(object):
         else:
             self.bcDict = bc
 
-        # self.nsList = [5,6,7,10]
-        # self.bcDict = {'NNodesets': 4, 
-        #                 'BCDef': {'NS': [2,2,3,1,4], 
-        #                 'Type':['Prescribed Displacement',
-        #                 'Prescribed Displacement',
-        #                 'Prescribed Displacement',
-        #                 'Prescribed Displacement',
-        #                 'Prescribed Displacement'], 
-        #                 'Direction':['x','y','y','y','y'], 
-        #                 'Value':[0,0,-10,0,0]}}    
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[7] = 'PMMADamage'
         self.damBlock[8] = 'PMMADamage'

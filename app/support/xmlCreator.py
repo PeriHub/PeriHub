@@ -15,8 +15,6 @@ class XMLcreator(object):
         self.nsList = modelWriter.nsList
         self.TwoD = modelWriter.TwoD
         self.solvertype = modelWriter.solvertype
-        self.frequency = modelWriter.frequency
-        self.initStep = modelWriter.initStep 
     def loadMesh(self):
         string = '    <ParameterList name="Discretization">\n'
         string += '        <Parameter name="Type" type="string" value="Text File" />\n'
@@ -73,10 +71,10 @@ class XMLcreator(object):
             string += '        <ParameterList name="' + block['Name'] + '">\n'
             string += '            <Parameter name="Block Names" type="string" value="' + block['Name'] + '"/>\n'
             string += '            <Parameter name="Material" type="string" value="' + block['material'] + '"/>\n'
-            if block['damageModel'] != '':
+            if block['damageModel'] != '' and block['damageModel'] != None:
                 string += '            <Parameter name="Damage Model" type="string" value="' + block['damageModel'] + '"/>\n'
             string += '            <Parameter name="Horizon" type="double" value="' + str(block['horizon']) + '"/>\n'
-            if block['interface'] != '':
+            if block['interface'] != '' and block['interface'] != None:
                 string += '            <Parameter name="Interface" type="int" value="' + str(block['interface']) + '"/>\n'
             string += '        </ParameterList>\n'
         string += '     </ParameterList>\n'
@@ -158,12 +156,12 @@ class XMLcreator(object):
         return string
     def compute(self):
         string = '    <ParameterList name="Compute Class Parameters">\n'
-        for out in self.computeDict['Compute Class Parameters']:
+        for out in self.computeDict:
             string += '        <ParameterList name="' + out['Name'] + '">\n'
             string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
-            string += '            <Parameter name="Calculation Type" type="string" value="' + out['Calculation Type'] + '"/>\n'
-            string += '            <Parameter name="Block" type="string" value="' + out['Block'] + '"/>\n'
-            string += '            <Parameter name="Variable" type="string" value="' + out['Variable'] + '"/>\n'
+            string += '            <Parameter name="Calculation Type" type="string" value="' + out['calculationType'] + '"/>\n'
+            string += '            <Parameter name="Block" type="string" value="' + out['blockName'] + '"/>\n'
+            string += '            <Parameter name="Variable" type="string" value="' + out['variable'] + '"/>\n'
             string += '            <Parameter name="Output Label" type="string" value="' + out['Name'] + '"/>\n'
             string += '        </ParameterList>\n'
             

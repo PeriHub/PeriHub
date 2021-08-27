@@ -14,9 +14,7 @@ class YAMLcreator(object):
         self.nsName = modelWriter.nsName
         self.nsList = modelWriter.nsList
         self.TwoD = modelWriter.TwoD
-        self.solvertype = modelWriter.solvertype
-        self.frequency = modelWriter.frequency
-        self.initStep = modelWriter.initStep              
+        self.solvertype = modelWriter.solvertype           
     def loadMesh(self):
         string = '    Discretization:\n'
         string += '        Type: "Text File"\n'
@@ -67,10 +65,10 @@ class YAMLcreator(object):
             string += '        ' + block['Name'] + ':\n'
             string += '            Block Names: "' + block['Name'] + '"\n'
             string += '            Material: "' + block['material'] + '"\n'
-            if block['damageModel'] != '':
+            if block['damageModel'] != '' and block['damageModel'] != None:
                 string += '            Damage Model: "' + block['damageModel'] + '"\n'
             string += '            Horizon: ' + str(block['horizon']) + '\n'
-            if block['interface'] != '':
+            if block['interface'] != '' and block['interface'] != None:
                 string += '            Interface: ' + str(block['interface']) + '\n'
         return string
     def damage(self):
@@ -139,12 +137,12 @@ class YAMLcreator(object):
         return string
     def compute(self):
         string = '    Compute Class Parameters:\n'
-        for out in self.computeDict['Compute Class Parameters']:
+        for out in self.computeDict:
             string += '        ' + out['Name'] + ':\n'
             string += '            Compute Class: "Block_Data"\n'
-            string += '            Calculation Type: "' + out['Calculation Type'] + '"\n'
-            string += '            Block: "' + out['Block'] + '"\n'
-            string += '            Variable: "' + out['Variable'] + '"\n'
+            string += '            Calculation Type: "' + out['calculationType'] + '"\n'
+            string += '            Block: "' + out['blockName'] + '"\n'
+            string += '            Variable: "' + out['variable'] + '"\n'
             string += '            Output Label: "' + out['Name'] + '"\n'
         return string
     def output(self):
