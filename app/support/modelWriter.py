@@ -9,14 +9,12 @@ class ModelWriter(object):
         self.filename = modelClass.filename
         self.nsName = 'ns_' + modelClass.filename
         self.path = 'Output/'+ modelClass.filename
-        self.filetype = modelClass.filetype
-        self.finalTime = modelClass.finalTime
-        self.solvertype = modelClass.solvertype
         self.bcDict = modelClass.bcDict
         self.damageDict = modelClass.damageDict
         self.materialDict = modelClass.materialDict
         self.computeDict = modelClass.computeDict
         self.outputDict = modelClass.outputDict
+        self.solverDict = modelClass.solverDict
         self.bondfilters = modelClass.bondfilters
         self.TwoD = modelClass.TwoD
         if not os.path.exists('Output'):
@@ -58,16 +56,16 @@ class ModelWriter(object):
         self.fileWriter(self.filename + '.txt', string)       
     def createFile(self, blockDef):
         
-        if self.filetype == 'yaml':
+        if self.solverDict['filetype'] == 'yaml':
             yl = YAMLcreator(self, blockDef = blockDef)
             string = yl.createYAML()
             
-        elif self.filetype == 'xml':
+        elif self.solverDict['filetype'] == 'xml':
             xl = XMLcreator(self, blockDef = blockDef)
             string = xl.createXML()
         else:
-            print('Not a supported filetye: ', self.filetype)   
+            print('Not a supported filetye: ', self.solverDict['filetype'])   
 
-        self.fileWriter(self.filename + '.' + self.filetype, string)
+        self.fileWriter(self.filename + '.' + self.solverDict['filetype'], string)
             
         

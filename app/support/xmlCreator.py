@@ -3,18 +3,17 @@ import numpy as np
 class XMLcreator(object):
     def __init__(self, modelWriter, blockDef = {}):
         self.filename = modelWriter.filename
-        self.finalTime = modelWriter.finalTime
         self.materialDict = modelWriter.materialDict
         self.damageDict = modelWriter.damageDict
-        self.outputDict = modelWriter.outputDict
         self.computeDict = modelWriter.computeDict
+        self.outputDict = modelWriter.outputDict
+        self.solverDict = modelWriter.solverDict  
         self.blockDef = blockDef
         self.bondfilters = modelWriter.bondfilters
         self.bc = modelWriter.bcDict
         self.nsName = modelWriter.nsName
         self.nsList = modelWriter.nsList
         self.TwoD = modelWriter.TwoD
-        self.solvertype = modelWriter.solvertype
     def loadMesh(self):
         string = '    <ParameterList name="Discretization">\n'
         string += '        <Parameter name="Type" type="string" value="Text File" />\n'
@@ -101,14 +100,14 @@ class XMLcreator(object):
         return string
     def solver(self):
         string = '    <ParameterList name="Solver">\n'
-        string += '        <Parameter name="Verbose" type="bool" value="false"/>\n'
-        string += '        <Parameter name="Initial Time" type="double" value="0.0"/>\n'
-        string += '        <Parameter name="Final Time" type="double" value="'+ str(self.finalTime) +'"/>\n'
-        if(self.solvertype=='Verlet'):
+        string += '        <Parameter name="Verbose" type="bool" value="'+ str(self.solverDict['verbose']) +'"/>\n'
+        string += '        <Parameter name="Initial Time" type="double" value="'+ str(float(self.solverDict['initialTime'])) +'"/>\n'
+        string += '        <Parameter name="Final Time" type="double" value="'+ str(float(self.solverDict['finalTime'])) +'"/>\n'
+        if(self.solverDict['solvertype']=='Verlet'):
             string += '        <ParameterList name="Verlet">\n'
-            string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
-            string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
-        elif(self.solvertype=='NOXQuasiStatic'):
+            string += '            <Parameter name="Safety Factor" type="double" value="'+ str(float(self.solverDict['safetyFactor'])) +'"/>\n'
+            string += '            <Parameter name="Numerical Damping" type="double" value="'+ str(float(self.solverDict['numericalDamping'])) +'"/>\n'
+        elif(self.solverDict['solvertype']=='NOXQuasiStatic'):
             string += '        <Parameter name="Peridigm Preconditioner" type="string" value="None"/>\n'
             string += '        <ParameterList name="NOXQuasiStatic">\n'
             string += '            <Parameter name="Nonlinear Solver" type="string" value="Line Search Based"/>\n'

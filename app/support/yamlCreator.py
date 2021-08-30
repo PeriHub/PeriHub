@@ -3,18 +3,17 @@ import numpy as np
 class YAMLcreator(object):
     def __init__(self, modelWriter, blockDef = {}):
         self.filename = modelWriter.filename
-        self.finalTime = modelWriter.finalTime
         self.materialDict = modelWriter.materialDict
         self.damageDict = modelWriter.damageDict
         self.computeDict = modelWriter.computeDict
         self.outputDict = modelWriter.outputDict
+        self.solverDict = modelWriter.solverDict     
         self.blockDef = blockDef
         self.bondfilters = modelWriter.bondfilters
         self.bc = modelWriter.bcDict
         self.nsName = modelWriter.nsName
         self.nsList = modelWriter.nsList
-        self.TwoD = modelWriter.TwoD
-        self.solvertype = modelWriter.solvertype           
+        self.TwoD = modelWriter.TwoD      
     def loadMesh(self):
         string = '    Discretization:\n'
         string += '        Type: "Text File"\n'
@@ -91,14 +90,14 @@ class YAMLcreator(object):
         return string
     def solver(self):
         string = '    Solver:\n'
-        string += '        Verbose: false\n'
-        string += '        Initial Time: 0.0\n'
-        string += '        Final Time: '+ str(self.finalTime) +'\n'
-        if(self.solvertype=='Verlet'):
+        string += '        Verbose: '+ str(self.solverDict['verbose']) +'\n'
+        string += '        Initial Time: '+ str(float(self.solverDict['initialTime'])) +'\n'
+        string += '        Final Time: '+ str(float(self.solverDict['finalTime'])) +'\n'
+        if(self.solverDict['solvertype']=='Verlet'):
             string += '        Verlet:\n'
-            string += '            Safety Factor: 0.95\n'
-            string += '            Numerical Damping: 0.000005\n'
-        elif(self.solvertype=='NOXQuasiStatic'):
+            string += '            Safety Factor: '+ str(float(self.solverDict['safetyFactor'])) +'\n'
+            string += '            Numerical Damping: '+ str(float(self.solverDict['numericalDamping'])) +'\n'
+        elif(self.solverDict['solvertype']=='NOXQuasiStatic'):
             string += '        Peridigm Preconditioner: "None"\n'
             string += '        NOXQuasiStatic:\n'
             string += '            Nonlinear Solver: "Line Search Based"\n'

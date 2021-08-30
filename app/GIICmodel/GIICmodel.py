@@ -6,8 +6,7 @@ from support.material import MaterialRoutines
 from support.geometry import Geometry
 class GIICmodel(object):
     def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], 
-    filename = 'GIICmodel', filetype = 'yaml', solvertype = 'Verlet', 
-    finalTime = 0.075, TwoD = False, rot = 'False', angle = [0,0], 
+    filename = 'GIICmodel', TwoD = False, rot = 'False', angle = [0,0], 
     material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = ''):
         '''
             definition der blocks
@@ -26,9 +25,6 @@ class GIICmodel(object):
         '''
         
         self.filename = filename
-        self.filetype = filetype
-        self.solvertype = solvertype
-        self.finalTime = finalTime
         self.scal = 4.01
         self.TwoD = TwoD
         self.rot = rot
@@ -143,6 +139,11 @@ class GIICmodel(object):
                         {'Name': 'BC_4', 'boundarytype': 'Prescribed Displacement', 'blockId': 10, 'coordinate': 'y', 'value': '0*t'},]
         else:
             self.bcDict = bc
+
+        if(solver==''):               
+            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.03, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'yaml'},
+        else:
+            self.solverDict = solver
 
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[7] = 'PMMADamage'

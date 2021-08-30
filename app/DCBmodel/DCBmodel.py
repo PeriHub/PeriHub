@@ -7,8 +7,7 @@ from support.geometry import Geometry
 
 class DCBmodel(object):
     def __init__(self, xend = 0.045, yend = 0.01, zend = 0.003, dx=[0.001,0.001,0.001], 
-    filename = 'DCBmodel', filetype = 'yaml', solvertype = 'Verlet', 
-    finalTime = 0.075, TwoD = False, rot = 'False', angle = [0,0], 
+    filename = 'DCBmodel', TwoD = False, rot = 'False', angle = [0,0], 
     material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = ''):
         '''
             definition der blocks
@@ -20,9 +19,6 @@ class DCBmodel(object):
         '''
         
         self.filename = filename
-        self.filetype = filetype
-        self.solvertype = solvertype
-        self.finalTime = finalTime
         self.scal = 4.01
         self.TwoD = TwoD
         self.nsList = [3,4]
@@ -138,6 +134,11 @@ class DCBmodel(object):
                            {'Name': 'BC_4', 'boundarytype': 'Prescribed Displacement', 'blockId': 2, 'coordinate': 'z', 'value': '0*t'},]   
         else:
             self.bcDict = bc
+
+        if(solver==''):               
+            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.075, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'yaml'},
+        else:
+            self.solverDict = solver
 
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[0] = 'PMMADamage'

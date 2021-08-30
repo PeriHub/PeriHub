@@ -2,6 +2,7 @@
 
 
 from ntpath import join
+from fastapi import responses
 from numpy import string_
 from numpy.lib.shape_base import split
 from GIICmodel.GIICmodel import GIICmodel
@@ -28,15 +29,12 @@ import shutil
 import paramiko
 import os
 import csv
+from re import match
 
 
 class ModelName(str, Enum):
     GIICmodel = "GIICmodel"
     DCBmodel = "DCBmodel"
-class SolverType(str, Enum):
-    Verlet = "Verlet"
-    NOXQuasiStatic = "NOXQuasiStatic"
-
 class FileType(str, Enum):
     yaml = "yaml"
     xml = "xml"
@@ -76,9 +74,9 @@ class ModelControl(object):
         print(dx, 4.01*dx[0])
         
         # dx=[0.001,0.001,0.001]
-        # db = DCBmodel(dx = dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
+        # db = DCBmodel(dx = dx, TwoD = True, filetype = 'xml')
         # model = db.createModel()
-        gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, solvertype = 'Verlet', TwoD = False, filetype = 'yaml', rot=False)
+        gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, TwoD = False, rot=False)
         model = gc.createModel()
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
 
@@ -100,15 +98,12 @@ class ModelControl(object):
         L = Length
         W = Width
         h = Height
-        nn = Discretization
+        nn = 2*int(Discretization/2)+1
         dx=[h/nn,h/nn,h/nn]
 
         if ModelName==ModelName.GIICmodel:
-            gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, 
-            solvertype = Param['Param']['Solver']['solvertype'], 
-            finalTime = Param['Param']['Solver']['finalTime'], 
-            TwoD = TwoDimensional, 
-            filetype = Param['Param']['Solver']['filetype'], 
+            gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx,
+            TwoD = TwoDimensional,
             rot=RotatedAngles, angle=[Angle0,Angle1], 
             material=Param['Param']['Material'], 
             damage=Param['Param']['Damage'], 
@@ -120,11 +115,8 @@ class ModelControl(object):
             model = gc.createModel()
 
         if ModelName==ModelName.DCBmodel:
-            dcb = DCBmodel(xend = L, yend = h, zend = W, dx=dx, 
-            solvertype = Param['Param']['Solver']['solvertype'], 
-            finalTime = Param['Param']['Solver']['finalTime'], 
+            dcb = DCBmodel(xend = L, yend = h, zend = W, dx=dx,
             TwoD = TwoDimensional, 
-            filetype = Param['Param']['Solver']['filetype'], 
             rot=RotatedAngles, angle=[Angle0,Angle1], 
             material=Param['Param']['Material'], 
             damage=Param['Param']['Damage'], 
@@ -161,6 +153,52 @@ class ModelControl(object):
         response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
         # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
         return response
+
+        
+    @app.get("/getLogFile")
+    def getLogFile(ModelName: ModelName, Cluster: str):
+
+        if Cluster=='FA-Cluster':
+            username='hess_ja'
+            server='129.247.54.37'
+            keypath = 'id_rsa_cluster'
+            remotepath = './Peridigm/apiModels/' + ModelName
+            ssh = paramiko.SSHClient() 
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+            sftp = ssh.open_sftp()
+            outputFiles = sftp.listdir(remotepath)
+            filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
+            sftp.chdir(remotepath)
+            logfile = sftp.file(filtered_values[-1],'r')
+            response = logfile.read()
+            sftp.close()
+            ssh.close()
+
+            return response
+        
+        elif Cluster=='Cara':
+            username='hess_ja'
+            server='cara.dlr.de'
+            keypath = 'id_rsa_cara'
+            remotepath = './PeridigmJobs/apiModels/' + ModelName
+            ssh = paramiko.SSHClient() 
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+            sftp = ssh.open_sftp()
+            outputFiles = sftp.listdir(remotepath)
+            filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
+            sftp.chdir(remotepath)
+            logfile = sftp.file(filtered_values[-1],'r')
+            response = logfile.read()
+            sftp.close()
+            ssh.close()
+
+            return response
+
+        else:
+            return {Cluster: Cluster + "unknown"}
+
 
     @app.get("/getResults")
     def getResults(ModelName: ModelName, Cluster: str):
@@ -379,12 +417,20 @@ class ModelControl(object):
     # username='hess_ja'
     # server='129.247.54.37'
     # keypath = 'id_rsa_cluster'
-    # remotepath = './Peridigm/apiModels/GIICmodel'
+    # remotepath = './Peridigm/apiModels/' + 'GIICmodel'
+    # logfileName = 'cluster.r242150.log'
     # ssh = paramiko.SSHClient() 
     # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     # ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-    # command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + '32' + ' -O tgz -J ' + 'GIICmodel' +' -E /home/hess_ja/PeridigmInstall/build/bin/Peridigm '+ 'GIICmodel' + '.' + 'xml'
-    # ssh.exec_command(command)
+    # sftp = ssh.open_sftp()
+    # outputFiles = sftp.listdir(remotepath)
+    # filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
+    # sftp.chdir(remotepath)
+    # logfile = sftp.file(filtered_values[0],'r')
+    # print(logfile.read())
+
+
+    # sftp.close()
     # ssh.close()
 
         
