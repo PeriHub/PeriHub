@@ -45,12 +45,12 @@ class ModelWriter(object):
     def writeMesh(self, model):    
         string = '# x y z block_id volume\n'
         for idx in range(0, len(model['x'])):
-            string += str(model['x'][idx]) + " " + str(model['y'][idx])+ " " + str(model['z'][idx]) + " " + str(int(model['k'][idx])) + " " + str(model['vol'][idx]) + "\n"
+            string += f"{str(model['x'][idx])} {str(model['y'][idx])} { str(model['z'][idx])} {str(int(model['k'][idx]))} {str(model['vol'][idx])} \n"
         self.fileWriter(self.filename + '.txt', string)
     def writeMeshWithAngles(self, model):    
         string = '# x y z block_id volume angle_x angle_y angle_z\n'
         for idx in range(0, len(model['x'])):
-            string += str(model['x'][idx]) + " " + str(model['y'][idx])+ " " + str(model['z'][idx]) + " " + str(int(model['k'][idx])) + " " + str(model['vol'][idx]) + " " + str(model['angle_x'][idx]) +" " + str(model['angle_y'][idx]) +" " + str(model['angle_z'][idx]) +"\n"
+            string += f"{str(model['x'][idx])} {str(model['y'][idx])} {str(model['z'][idx])} {str(int(model['k'][idx]))} {str(model['vol'][idx])} {str(model['angle_x'][idx])} {str(model['angle_y'][idx])} {str(model['angle_z'][idx])} \n"
             # if idx < 20:
             #     print(string)
         self.fileWriter(self.filename + '.txt', string)       

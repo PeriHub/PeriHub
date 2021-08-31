@@ -66,6 +66,7 @@ class GIICmodel(object):
         matNameList = ['PMMA']
         self.materialDict = [{}]
         self.damageDict = [{}]
+        self.computeDict = [{},{}]
         self.outputDict = [{},{}]
         self.angle = [0,0]
         if damage=='':
@@ -74,8 +75,8 @@ class GIICmodel(object):
             self.damageDict = damage
 
         if compute=='':
-            self.computeDict = {'Compute Class Parameters':[{'Name':'External_Displacement','Variable':'Displacement', 'Calculation Type':'Minimum','Block':'block_7'},
-                                                            {'Name':'External_Force','Variable':'Force', 'Calculation Type':'Sum','Block':'block_7'}]}
+            self.computeDict[0] = {'Name':'External_Displacement','variable':'Displacement', 'calculationType':'Minimum','blockName':'block_7'}
+            self.computeDict[1] = {'Name':'External_Force','variable':'Force', 'calculationType':'Sum','blockName':'block_7'}
         else:
             self.computeDict = compute
 
@@ -141,7 +142,7 @@ class GIICmodel(object):
             self.bcDict = bc
 
         if(solver==''):               
-            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.03, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'yaml'},
+            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.03, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'yaml'}
         else:
             self.solverDict = solver
 
