@@ -57,9 +57,9 @@ class YAMLcreator(object):
             string += '            Stabilizaton Type: "' + mat['stabilizatonType'] + '"\n'
             string += '            Thickness: ' + str(float(mat['thickness'])) + '\n'
             string += '            Hourglass Coefficient: ' + str(float(mat['hourglassCoefficient'])) + '\n'
-            if mat['actualHorizon'] != '':
+            if 'actualHorizon' in mat and mat['actualHorizon']!='':
                 string += '            Actual Horizon: ' + str(float(mat['actualHorizon'])) + '\n'
-            if mat['yieldStress'] != '':
+            if 'yieldStress' in mat and mat['yieldStress']!='':
                 string += '            Yield Stress: ' + str(float(mat['yieldStress'])) + '\n'
         return string  
     def blocks(self):
@@ -101,7 +101,7 @@ class YAMLcreator(object):
             string += '        Verlet:\n'
             string += '            Safety Factor: '+ str(float(self.solverDict['safetyFactor'])) +'\n'
             string += '            Numerical Damping: '+ str(float(self.solverDict['numericalDamping'])) +'\n'
-            if(self.solverDict['adaptivetimeStepping']):
+            if('adaptivetimeStepping' in self.solverDict):
                 string += '            Adaptive Time Stepping: true\n'
                 string += '            Stable Step Difference: '+ str(self.solverDict['adapt']['stableStepDifference']) +'\n'
                 string += '            Maximum Bond Difference: '+ str(self.solverDict['adapt']['maximumBondDifference']) +'\n'
