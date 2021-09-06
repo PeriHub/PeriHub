@@ -131,8 +131,10 @@ class ModelControl(object):
         
     @app.get("/viewInputFile")
     def viewInputFile(ModelName: ModelName, FileType: FileType):
-
-        return FileResponse('./Output/' + ModelName + '/'  + ModelName + '.' + FileType)
+        try:
+            return FileResponse('./Output/' + ModelName + '/'  + ModelName + '.' + FileType)
+        except:
+            return 'Inputfile can\'t be found'
 
     @app.post("/writeInputFile")
     def writeInputFile(ModelName: ModelName, InputString: str, FileType: FileType):
@@ -146,12 +148,16 @@ class ModelControl(object):
     @app.get("/getModel")
     def getModel(ModelName: ModelName):
 
-        shutil.make_archive(ModelName, "zip", './Output/' + ModelName)
+        try:
+            shutil.make_archive(ModelName, "zip", './Output/' + ModelName)
 
-        response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
-        response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
-        # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
-        return response
+            response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
+            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
+            # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+            return response
+        except:
+            return 'Modelfiles can\'t be found'
+
 
         
     @app.get("/getLogFile")
@@ -231,12 +237,15 @@ class ModelControl(object):
         sftp.close()
         ssh.close()
         
-        shutil.make_archive(ModelName, "zip", './Results/' + ModelName)
+        try:
+            shutil.make_archive(ModelName, "zip", './Results/' + ModelName)
 
-        response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
-        response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
-        # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
-        return response
+            response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
+            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
+            # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+            return response
+        except:
+            return 'Resultfiles can\'t be found'
             
 
     @app.get("/getPointData")
@@ -245,18 +254,21 @@ class ModelControl(object):
         pointString=''
         blockIdString=''
         firstRow=True  
-        with open('./Output/' + ModelName + '/'  + ModelName + '.txt', 'r') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    if firstRow==False:
-                        str1 = ''.join(row)
-                        parts = str1.split(" ")
-                        pointString+=parts[0]+','+parts[1]+','+parts[2]+','
-                        blockIdString+=str(int(parts[3])/10)+','
-                    firstRow=False
-                    
-        response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
-        return response
+        try:
+            with open('./Output/' + ModelName + '/'  + ModelName + '.txt', 'r') as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        if firstRow==False:
+                            str1 = ''.join(row)
+                            parts = str1.split(" ")
+                            pointString+=parts[0]+','+parts[1]+','+parts[2]+','
+                            blockIdString+=str(int(parts[3])/10)+','
+                        firstRow=False
+                        
+            response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
+            return response
+        except:
+            return 'Meshfile can\'t be found'
 
     @app.get("/copyModelToCluster")
     def copyModelToCluster(ModelName: ModelName, Cluster: str):

@@ -6,7 +6,7 @@
     <v-subheader>
       
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="saveData">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveData">
                 <i class="fas fa-save"></i>
             </v-btn>
           </template>
@@ -14,7 +14,7 @@
           </v-tooltip>
 
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="readData">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="readData">
                 <i class="fas fa-upload"></i>
             </v-btn>
           </template>
@@ -28,7 +28,7 @@
             @change="onFilePicked"/>
 
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="resetData">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="resetData">
                 <i class="fas fa-undo"></i>
             </v-btn>
           </template>
@@ -36,7 +36,7 @@
           </v-tooltip>
 
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="generateModel">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="generateModel">
                 <i class="fas fa-cogs"></i>
             </v-btn>
           </template>
@@ -44,7 +44,7 @@
           </v-tooltip>
 
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="saveModel">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveModel">
                 <i class="fas fa-download"></i>
             </v-btn>
           </template>
@@ -67,33 +67,39 @@
                 <h2>Model</h2>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-              <v-select
+              <v-select 
+                class="textfield-col"
                 :items="modelName"
                 v-model="modelNameSelected"
                 @change="showModelImg"
                 label="ModelName"
                 outlined></v-select>
               <v-text-field 
+                class="textfield-col"
                 value=50
                 v-model="Length"
                 label="Length"
                 outlined></v-text-field>
               <v-text-field 
+                class="textfield-col"
                 value=10
                 v-model="width"
                 label="Width"
                 outlined></v-text-field>
               <v-text-field 
+                class="textfield-col"
                 value=4.95
                 v-model="height"
                 label="Height"
                 outlined></v-text-field>
               <v-text-field 
+                class="textfield-col"
                 value=11
                 v-model="discretization"
                 label="Discretization"
                 outlined></v-text-field>
                 <v-switch
+                  class="checkbox-col"
                   v-model="twoDimensional"
                   label="Two Dimensional"
                 ></v-switch>
@@ -102,13 +108,13 @@
                   label="Rotated Angles"
                 ></v-switch>
                 <v-row v-show="rotatedAngles">
-                  <v-col>
+                  <v-col class="textfield-col">
                     <v-text-field 
                       v-model=angles[0]
                       label="Angle 0"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col>
+                  <v-col class="textfield-col">
                     <v-text-field 
                       v-model=angles[1]
                       label="Angle 1"
@@ -125,10 +131,23 @@
               <v-expansion-panel-content>
                 <v-list v-for="material, index in materials" :key="material.id">
                   <h4>Material {{material.id}}</h4>
-                  <v-text-field
-                    v-model=material.Name
-                    label="Material Name"
-                    outlined></v-text-field>
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                        v-model=material.Name
+                        label="Material Name"
+                        outlined></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeMaterial(index)">
+                            <i class="fas fa-trash-alt"></i>
+                        </v-btn>
+                        </template>
+                          <span>Remove Material</span>
+                      </v-tooltip>
+                    </v-col>
+                  </v-row>
                   <v-select
                     :items="materialModelName"
                     v-model=material.MatType
@@ -196,17 +215,10 @@
                     v-model=material.yieldStress
                     label="Yield Stress"
                     outlined></v-text-field>
-                  <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" @click="removeMaterial(index)">
-                        <i class="fas fa-minus"></i>
-                    </v-btn>
-                    </template>
-                      <span>Remove Material</span>
-                  </v-tooltip>
                   <v-divider></v-divider>
                 </v-list>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" @click="addMaterial">
+                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addMaterial">
                         <i class="fas fa-plus"></i>
                     </v-btn>
                   </template>
@@ -222,10 +234,23 @@
               <v-expansion-panel-content>
                 <v-list v-for="damage, index in damages" :key="damage.id">
                   <h4>Damage Model{{damage.id}}</h4>
-                  <v-text-field
-                    v-model=damage.Name
-                    label="Damage Name"
-                    outlined></v-text-field>
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                        v-model=damage.Name
+                        label="Damage Name"
+                        outlined></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeDamage(index)">
+                            <i class="fas fa-trash-alt"></i>
+                        </v-btn>
+                        </template>
+                          <span>Remove Damage Model</span>
+                      </v-tooltip>
+                    </v-col>
+                  </v-row>
                   <v-select
                     :items="damageModelName"
                     v-model=damage.damageModel
@@ -272,17 +297,10 @@
                     v-model=damage.hourglassCoefficient
                     label="Hourglass Coefficient"
                     outlined></v-text-field>
-                  <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" @click="removeDamage(index)">
-                        <i class="fas fa-minus"></i>
-                    </v-btn>
-                    </template>
-                      <span>Remove Damage Model</span>
-                  </v-tooltip>
                   <v-divider></v-divider>
                 </v-list>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" @click="addDamage">
+                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addDamage">
                         <i class="fas fa-plus"></i>
                     </v-btn>
                   </template>
@@ -358,8 +376,8 @@
                       cols="12"
                       sm="1">
                       <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                        <v-btn v-bind="attrs" v-on="on" @click="removeBlock(index)">
-                            <i class="fas fa-minus"></i>
+                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeBlock(index)">
+                            <i class="fas fa-trash-alt"></i>
                         </v-btn>
                         </template>
                           <span>Remove Block</span>
@@ -369,7 +387,7 @@
                   <v-divider></v-divider>
                 </v-list>
                 <!-- <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" @click="addBlock">
+                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addBlock">
                         <i class="fas fa-plus"></i>
                     </v-btn>
                   </template>
@@ -443,8 +461,8 @@
                       cols="12"
                       sm="1">
                       <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                        <v-btn v-bind="attrs" v-on="on" @click="removeCondition(index)">
-                            <i class="fas fa-minus"></i>
+                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeCondition(index)">
+                            <i class="fas fa-trash-alt"></i>
                         </v-btn>
                         </template>
                           <span>Remove Condition</span>
@@ -454,7 +472,7 @@
                   <v-divider></v-divider>
                 </v-list>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" @click="addCondition">
+                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addCondition">
                         <i class="fas fa-plus"></i>
                     </v-btn>
                   </template>
@@ -517,8 +535,8 @@
                       cols="12"
                       sm="1">
                       <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                        <v-btn v-bind="attrs" v-on="on" @click="removeCompute(index)">
-                            <i class="fas fa-minus"></i>
+                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeCompute(index)">
+                            <i class="fas fa-trash-alt"></i>
                         </v-btn>
                         </template>
                           <span>Remove Compute</span>
@@ -528,7 +546,7 @@
                   <v-divider></v-divider>
                 </v-list>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" @click="addCompute">
+                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addCompute">
                         <i class="fas fa-plus"></i>
                     </v-btn>
                   </template>
@@ -537,12 +555,27 @@
                 <v-divider></v-divider>
                 <v-list v-for="output, index in outputs" :key="output.id">
                   <h4>Output {{output.id}}</h4>
-                  <v-text-field
-                    v-model=output.Name
-                    label="Name"
-                    outlined></v-text-field>
                   <v-row>
                     <v-col
+                    class="textfield-col">
+                      <v-text-field
+                        v-model=output.Name
+                        label="Name"
+                        outlined></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeOutput(index)">
+                            <i class="fas fa-trash-alt"></i>
+                        </v-btn>
+                        </template>
+                          <span>Remove Output</span>
+                      </v-tooltip>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col
+                    class="checkbox-col"
                     cols="15"
                     sm="5"
                     md="5">
@@ -551,6 +584,7 @@
                         label="Displacement"></v-checkbox>
                     </v-col>
                     <v-col
+                    class="checkbox-col"
                     cols="15"
                     sm="5"
                     md="5">
@@ -561,6 +595,7 @@
                   </v-row>
                   <v-row>
                     <v-col
+                    class="checkbox-col"
                     cols="15"
                     sm="5"
                     md="5">
@@ -569,6 +604,7 @@
                         label="Damage"></v-checkbox>
                     </v-col>
                     <v-col
+                    class="checkbox-col"
                     cols="15"
                     sm="5"
                     md="5">
@@ -579,6 +615,7 @@
                   </v-row>
                   <v-row>
                     <v-col
+                    class="checkbox-col"
                     cols="15"
                     sm="5"
                     md="5">
@@ -587,6 +624,7 @@
                         label="External_Force"></v-checkbox>
                     </v-col>
                     <v-col
+                    class="checkbox-col"
                     cols="15"
                     sm="5"
                     md="5">
@@ -621,17 +659,10 @@
                   v-model=output.InitStep
                   label="Initial Output Step"
                   outlined></v-text-field>
-                  <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" @click="removeOutput(index)">
-                        <i class="fas fa-minus"></i>
-                    </v-btn>
-                    </template>
-                      <span>Remove Output</span>
-                  </v-tooltip>
                   <v-divider></v-divider>
                 </v-list>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn v-bind="attrs" v-on="on" @click="addOutput">
+                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addOutput">
                         <i class="fas fa-plus"></i>
                     </v-btn>
                   </template>
@@ -957,7 +988,7 @@
         
         <v-subheader>
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="copyModelToCluster">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="copyModelToCluster">
                 <i class="fas fa-share"></i>
             </v-btn>
           </template>
@@ -965,7 +996,7 @@
           </v-tooltip>
 
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="runModel">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="runModel">
                 <i class="fas fa-play"></i>
             </v-btn>
           </template>
@@ -973,7 +1004,7 @@
           </v-tooltip>
 
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="cancelJob">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="cancelJob">
                 <i class="fas fa-times"></i>
             </v-btn>
           </template>
@@ -981,7 +1012,7 @@
           </v-tooltip>
 
             <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" 
+              <v-btn class="my-btn" v-bind="attrs" v-on="on" 
                       @click="dialog = true"
                       :loading="resultsLoading"
                       :disabled="resultsLoading">
@@ -1029,7 +1060,7 @@
           </v-dialog>
 
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="showResults">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="showResults">
                 <i class="fas fa-external-link-alt"></i>
             </v-btn>
           </template>
@@ -1050,8 +1081,8 @@
         <v-card-title class="my-title" style="padding-top: 0px">
            
 
-          <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="viewPointData">
+          <v-tooltip bottom class="my-btn"><template v-slot:activator="{ on, attrs }">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewPointData">
                 <i class="fas fa-sync-alt"></i>
             </v-btn>
           </template>
@@ -1059,7 +1090,7 @@
           </v-tooltip>
 
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="$refs.view.resetCamera()">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="$refs.view.resetCamera()">
                 <i class="fas fa-expand"></i>
             </v-btn>
           </template>
@@ -1068,21 +1099,21 @@
 
           <v-slider
             v-model="radius"
-            hint="Radius"
+            label="Radius:"
             max="0.5"
             min="0.01"
             step="0.01"
-            style="max-width: 150px"
+            style="max-width: 200px"
             @change="updatePoints"
           ></v-slider>
 
           <v-slider
             v-model="resolution"
-            hint="Resolution"
+            label="Resolution:"
             max="20"
             min="3"
             step="1"
-            style="max-width: 150px"
+            style="max-width: 200px"
           ></v-slider>
         </v-card-title>
           <template slot="progress">
@@ -1144,7 +1175,7 @@
         <v-container>
         <v-subheader>
             <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" @click="viewInputFile">
+              <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewInputFile">
                   <i class="fas fa-sync-alt"></i>
               </v-btn>
             </template>
@@ -1152,7 +1183,7 @@
             </v-tooltip>
 
             <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" @click="getLogFile">
+              <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getLogFile">
                   <i class="fas fa-file"></i>
               </v-btn>
             </template>
@@ -1160,7 +1191,7 @@
             </v-tooltip>
 
             <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-              <v-btn v-bind="attrs" v-on="on" @click="writeInputFile">
+              <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="writeInputFile">
                   <i class="fas fa-save"></i>
               </v-btn>
             </template>
@@ -1811,6 +1842,15 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
       removeCondition(index) {
         this.boundaryConditions.splice(index, 1)
       },
+      addCompute() {
+        this.computes.push({
+          id: this.nextComputeId++,
+          Name: "Compute"+(this.nextComputeId-1)
+        })
+      },
+      removeCompute(index) {
+        this.computes.splice(index, 1)
+      },
       addOutput() {
         this.outputs.push({
           id: this.nextOutputId++,
@@ -1857,11 +1897,19 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
   outline: none;
 }
 
+.textfield-col {
+  height: 70px;
+}
+
+.checkbox-col {
+  height: 30px;
+}
+
 .my-title {
   height: 50px;
   justify-content: flex-end;
+  margin: 0 30px;
 }
-
 /* .splitpanes {background-color: #f8f8f8;} */
 
 .splitpanes__splitter {background-color: #ccc;position: relative;}
