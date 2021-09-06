@@ -198,7 +198,7 @@
                     label="Stabilizaton Type"
                     outlined></v-select>
                   <v-text-field 
-                    :value="material.thickness|number"
+                    v-model=material.thickness
                     label="Thickness"
                     outlined></v-text-field>
                   <v-text-field 
