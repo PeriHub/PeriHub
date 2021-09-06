@@ -24,4 +24,4 @@ EXPOSE 80
 
 COPY ./app /app
 
-CMD ["uvicorn", "modelGeneratorControl:app", "--host", "0.0.0.0", "--port", "80", "--reload", "--reload-dir", "/app"]
+CMD ["uvicorn", "modelGeneratorControl:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app"]

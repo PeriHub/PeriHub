@@ -217,7 +217,7 @@
           <v-divider></v-divider>
           <v-expansion-panel>
               <v-expansion-panel-header>
-                <h2>Damage Models!</h2>
+                <h2>Damage Models</h2>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <v-list v-for="damage, index in damages" :key="damage.id">
@@ -980,13 +980,53 @@
             <span>Cancel Job</span>
           </v-tooltip>
 
-          <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on" @click="saveResults">
-                <i class="fas fa-download"></i>
-            </v-btn>
-          </template>
-            <span>Download Results</span>
-          </v-tooltip>
+            <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+              <v-btn v-bind="attrs" v-on="on" 
+                      @click="dialog = true"
+                      :loading="resultsLoading"
+                      :disabled="resultsLoading">
+                  <i class="fas fa-download"></i>
+              </v-btn>
+              </template>
+              <span>Download Results</span>
+            </v-tooltip>
+
+          <v-dialog
+            v-model="dialog"
+            persistent
+            max-width="400"
+          >
+              <v-card>
+                <v-card-title class="text-h5">
+                  Download Results
+                </v-card-title>
+                <v-card-text>Do you want to retrieve all modelfiles, including the inputfiles and logdata or only the exodus results?</v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="saveResults(true)"
+                  >
+                    All data
+                  </v-btn>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="saveResults(false)"
+                  >
+                    Only the results
+                  </v-btn>
+                  <v-btn
+                    color="red darken-1"
+                    text
+                    @click="dialog = false"
+                  >
+                    Cancel
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+          </v-dialog>
 
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
             <v-btn v-bind="attrs" v-on="on" @click="showResults">
@@ -1079,6 +1119,7 @@
             </vtk-glyph-representation>
           </vtk-view>
           <v-img
+            v-if="!showVtk"
             alt="DLR Logo"
             class="shrink mr-2"
             contain
@@ -1388,11 +1429,13 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         snackbar: false,
         message: 'Messsages',
         loading: false,
+        resultsLoading: false,
         dataJson: '',
         colors: '',
         showVtk: false,
         modelImg: GIICmodelImage,
         jsonFIle: GIICmodelFile,
+        dialog: false,
         rules: {
           required: value => !!value || 'Required.',
           number: value => {
@@ -1582,8 +1625,12 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         this.loading = false
       },
       updatePoints() {
-        if (this.radius<0.2){
-          this.multiplier=20
+        if (this.radius<=0.2){
+          this.multiplier=(1-(this.radius/0.5))*30
+          this.filterPointData()
+        }
+        else{
+          this.multiplier=1
           this.filterPointData()
         }
       },
@@ -1642,7 +1689,9 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
       },
       saveModel() {
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'X-Forwarded-Email': 'jan-timo.hesse@dlr.de',
+        'X-Forwarded-Preferred-Username': 'hess_ja'
         }
 
         let reqOptions = {
@@ -1663,7 +1712,10 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
 
         });
       },
-      saveResults() {
+      async saveResults(allData) {
+        this.resultsLoading = true;
+        this.dialog = false;
+
         let headersList = {
         'Cache-Control': 'no-cache'
         }
@@ -1671,13 +1723,14 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         let reqOptions = {
           url: "http://localhost:8000/getResults",
           params: {ModelName: this.modelNameSelected,
-                  Cluster: this.job.cluster},
+                  Cluster: this.job.cluster,
+                  allData: allData},
           method: "GET",
           responseType: 'blob',
           headers: headersList,
           }
-
-        axios.request(reqOptions).then((response) => {
+          
+        await axios.request(reqOptions).then((response) => {
             var fileURL = window.URL.createObjectURL(new Blob([response.data]));
             var fileLink = document.createElement('a');
             fileLink.href = fileURL;
@@ -1686,6 +1739,7 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
             fileLink.click();
 
         });
+        this.resultsLoading = false;
       },
       showResults() {
         window.open("http://localhost:8081/", "_blank");

@@ -11,8 +11,8 @@ from support.sbatchCreator  import SbatchCreator
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
 # import matplotlib.pyplot as plt
 # import pandas as pd
-
-from fastapi import FastAPI
+# from typing import List, Optional
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 # from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -193,9 +193,50 @@ class ModelControl(object):
 
 
     @app.get("/getResults")
-    def getResults(ModelName: ModelName, Cluster: str):
+    def getResults(ModelName: ModelName, Cluster: str, allData: bool, request: Request):
+        
+        print(request)
+        headers = request.headers
+        email = request.headers.get('X-Forwarded-Email')
+        print(headers)
+        print(email)
 
-        return Cluster + ' unknown'
+        if Cluster=='FA-Cluster':
+            username='hess_ja'
+            server='129.247.54.37'
+            keypath = 'id_rsa_cluster'
+            remotepath = './Peridigm/apiModels/' + ModelName
+        
+        elif Cluster=='Cara':
+            username='hess_ja'
+            server='cara.dlr.de'
+            keypath = 'id_rsa_cara'
+            remotepath = './PeridigmJobs/apiModels/' + ModelName
+
+        else:
+            return Cluster + ' unknown'
+        
+        localpath = './Results/' + ModelName
+        if not os.path.exists('./Results'):
+            os.mkdir('./Results')
+        if not os.path.exists('./Results/' + ModelName):
+            os.mkdir('./Results/' + ModelName)
+        ssh = paramiko.SSHClient() 
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+        sftp = ssh.open_sftp()
+        for filename in sftp.listdir(remotepath):
+            if(allData or '.e' in filename):
+                sftp.get(os.path.join(remotepath, filename), os.path.join(localpath, filename))
+        sftp.close()
+        ssh.close()
+        
+        shutil.make_archive(ModelName, "zip", './Results/' + ModelName)
+
+        response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
+        response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
+        # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+        return response
             
 
     @app.get("/getPointData")
