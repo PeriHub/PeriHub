@@ -1,13 +1,21 @@
 version: '3'
 
 services:
-  api_modelgenerator:
-    build:
-      dockerfile: Dockerfile
-    container_name: modelgenerator
-    image: modelgenerator_image
+  modelgeneratorApi:
+    build: api/.
+    container_name: modelgeneratorApi
+    image: modelgenerator_api_image
     ports:
       - 8000:80
+    networks:
+      - backend
+
+  modelgeneratorGui:
+    build: gui/.
+    container_name: modelgeneratorGui
+    image: modelgenerator_gui_image
+    ports:
+      - 8080:80
     networks:
       - backend
   

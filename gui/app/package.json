@@ -1,0 +1,70 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@certifaction/vue-pdf-viewer": "^1.2.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.35",
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@fortawesome/vue-fontawesome": "^2.0.2",
+    "@growthbunker/vuedarkmode": "^0.5.56",
+    "axios": "^0.21.1",
+    "colormap": "^2.3.2",
+    "core-js": "^3.6.5",
+    "json-loader": "^0.5.7",
+    "numeral": "^2.0.6",
+    "prismjs": "^1.24.1",
+    "pvw-visualizer": "^3.2.1",
+    "s": "^1.0.0",
+    "splitpanes": "^2.3.8",
+    "vue": "^2.6.11",
+    "vue-json-editor": "^1.4.3",
+    "vue-json-pretty": "^1.8.1",
+    "vue-numeral-filter": "^2.0.0",
+    "vue-numerals": "^4.0.6",
+    "vue-pdf": "^4.3.0",
+    "vue-prism-editor": "^1.2.2",
+    "vue-remote-component": "^1.4.0",
+    "vue-vtk-js": "^1.1.4",
+    "vuescroll": "^4.17.3",
+    "vuetify": "^2.4.0",
+    "yaml-loader": "^0.6.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.14.0",
+    "sass": "~1.32.0",
+    "sass-loader": "^10.0.0",
+    "vue-cli-plugin-vuetify": "~2.4.1",
+    "vue-template-compiler": "^2.6.11",
+    "vuetify-loader": "^1.7.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

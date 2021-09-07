@@ -6,7 +6,9 @@ from support.material import MaterialRoutines
 from support.geometry import Geometry
 
 class DCBmodel(object):
-    def __init__(self, xend = 0.045, yend = 0.01, zend = 0.003, dx=[0.001,0.001,0.001], filename = 'DCBmodel', filetype = 'yaml', solvertype = 'Verlet', TwoD = False, rot = 'False'):
+    def __init__(self, xend = 0.045, yend = 0.01, zend = 0.003, dx=[0.001,0.001,0.001], 
+    filename = 'DCBmodel', TwoD = False, rot = 'False', angle = [0,0], 
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = ''):
         '''
             definition der blocks
             k =
@@ -17,22 +19,18 @@ class DCBmodel(object):
         '''
         
         self.filename = filename
-        self.filetype = filetype
-        self.frequency = 1000
-        self.solvertype = solvertype
-        self.finalTime = 0.075
         self.scal = 4.01
         self.TwoD = TwoD
-        self.onlyTension = True
         self.nsList = [3,4]
         self.dx   = dx
         self.xbegin = -0.005
-        self.ybegin = -0.01
-        self.zbegin = -0.003
+        self.ybegin = -yend
+        self.zbegin = -zend
         self.xend = xend + dx[0]
         self.yend = yend + dx[1]
         self.zend = zend + dx[2]
         self.rot = rot
+        self.blockDef = block
         if self.TwoD:
             self.zbegin = 0
             self.zend = 0
@@ -61,52 +59,66 @@ class DCBmodel(object):
         mat = MaterialRoutines()
         isotropic = True
         matNameList = ['PMMA']
-        self.materialDict = {}
+        self.materialDict = [{}]
+        self.damageDict = [{}]
+        self.computeDict = [{},{}]
+        self.outputDict = [{},{}]
         self.angle = [0,0]
-        self.damageDict = {'PMMADamage':{'Energy':5.1, 'InferaceEnergy':0.01}}
+        if damage=='':
+            self.damageDict = {'PMMADamage':{'Energy':5.1, 'InferaceEnergy':0.01}}
+        else:
+            self.damageDict = damage
         
-        self.outputDict = {'Output1':{'Displacement','Partial_Stress','Damage','Force'},
-        'Output2':{'Damage','External_Displacement','External_Force'}, 
-        'Compute Class Parameters':[{'Name':'External_Displacement','Variable':'Displacement', 'Calculation Type':'Minimum','Block':'block_3'},
-                                    {'Name':'External_Force','Variable':'Force', 'Calculation Type':'Sum','Block':'block_3'}]}
-        self.frequency = [500, 200]
-        self.initStep = [0, 0]
+        if compute=='':
+            self.computeDict[0] = {'Name':'External_Displacement','variable':'Displacement', 'calculationType':'Minimum','blockName':'block_3'},
+            self.computeDict[1] = {'Name':'External_Force','variable':'Force', 'calculationType':'Sum','blockName':'block_3'}
+        else:
+            self.computeDict = compute
+       
+        if output=='':
+            self.outputDict[0] = {'Name': 'Output1', 'Displacement': True, 'Force': True, 'Damage': True, 'Partial_Stress': False, 'External_Force': False, 'External_Displacement': False, 'Number_Of_Neighbors': False, 'Frequency': 500, 'InitStep': 0}
+            self.outputDict[1] = {'Name': 'Output2', 'Displacement': False, 'Force': False, 'Damage': True, 'Partial_Stress': True, 'External_Force': True, 'External_Displacement': True, 'Number_Of_Neighbors': False, 'Frequency': 200, 'InitStep': 0}
+        else:
+            self.outputDict = output
         
-        for material in matNameList:
-            self.materialDict[material] = {'MatType':'Linear Elastic Correspondence'}
-            if isotropic:
-                params =[200000.0,    #Density
-                1.5e9,                  #Young's Modulus
-                0.3,                  #Poisson's Ratio
-                0,          #Bulk Modulus
-                0]             #Shear Modulus
-                self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
-            else:
-                self.angle = [30,-30]
-                params = [1.95e-07, #Density
-                165863.6296530634,  #C11
-                4090.899504376252,  #C12
-                2471.126276093059,  #C13
-                0.0,                #C14
-                0.0,                #C15
-                0.0,                #C16
-                9217.158022124806,  #C22
-                2471.126276093059,  #C23
-                0.0,                #C24
-                0.0,                #C25
-                0.0,                #C26
-                9217.158022124804,  #C33
-                0.0,                #C34
-                0.0,                #C35
-                0.0,                #C36
-                3360.0,             #C44
-                0.0,                #C45
-                0.0,                #C46
-                4200.0,             #C55
-                0.0,                #C56
-                4200.0]             #C66
-                self.materialDict[material]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
-        
+        if material=='':
+            i=0
+            for material in matNameList:
+                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
+                if isotropic:
+                    params =[5.2e-08, 3184.5476165501973,0.3824761153875444]
+                    mat = MaterialRoutines()
+                    self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
+                else:
+                    self.angle = [60,-60]
+                    params = [1.95e-07, #dens
+                    165863.6296530634,  #C11
+                    4090.899504376252,  #C12
+                    2471.126276093059,  #C13
+                    0.0,                #C14
+                    0.0,                #C15
+                    0.0,                #C16
+                    9217.158022124806,  #C22
+                    2471.126276093059,  #C23
+                    0.0,                #C24
+                    0.0,                #C25
+                    0.0,                #C26
+                    9217.158022124804,  #C33
+                    0.0,                #C34
+                    0.0,                #C35
+                    0.0,                #C36
+                    3360.0,             #C44
+                    0.0,                #C45
+                    0.0,                #C46
+                    4200.0,             #C55
+                    0.0,                #C56
+                    4200.0]             #C66     
+                    mat = MaterialRoutines(angle = self.angle)   
+                    self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
+                i+=1
+        else:
+            self.angle = angle
+            self.materialDict = material
         
 
         self.bondfilters = {'Name':['bf_1'], 
@@ -115,11 +127,19 @@ class DCBmodel(object):
                             'Bottom_Unit_Vector':[[1.0,0.0,0.0]],
                             'Bottom_Length':[0.01],
                             'Side_Length':[0.01]}
-        self.bcDict = {'NNodesets': 2, 
-                        'BCDef': {'NS': [1,2], 
-                        'Type':['Prescribed Displacement','Prescribed Displacement'], 
-                        'Direction':['y','y'], 
-                        'Value':[0.004,-0.004]}}    
+        if(bc==''):
+            self.bcDict = [{'Name': 'BC_1', 'boundarytype': 'Prescribed Displacement', 'blockId': 3, 'coordinate': 'y', 'value': '0.004*t'},
+                           {'Name': 'BC_2', 'boundarytype': 'Prescribed Displacement', 'blockId': 4, 'coordinate': 'y', 'value': '-0.004*t'},
+                           {'Name': 'BC_3', 'boundarytype': 'Prescribed Displacement', 'blockId': 1, 'coordinate': 'z', 'value': '0*t'},
+                           {'Name': 'BC_4', 'boundarytype': 'Prescribed Displacement', 'blockId': 2, 'coordinate': 'z', 'value': '0*t'},]   
+        else:
+            self.bcDict = bc
+
+        if(solver==''):               
+            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.075, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'yaml'}
+        else:
+            self.solverDict = solver
+
         self.damBlock = ['']*numberOfBlocks
         self.damBlock[0] = 'PMMADamage'
         self.damBlock[1] = 'PMMADamage'
@@ -196,13 +216,18 @@ class DCBmodel(object):
 
     def createBlockdef(self,model):
         blockLen = int(max(model['k']))
-        blockDef = {'Material':self.matBlock,'Damage':self.damBlock,'Horizon':np.zeros(blockLen),'Interface':self.intBlockId}
+        blockDef=[{}]*blockLen
         for idx in range(0,blockLen):
-            blockDef['Horizon'][idx] = self.scal*max([self.dx[0],self.dx[1]])
+            blockDef[idx] = {'Name': 'block_' + str(idx+1), 'material':self.matBlock[idx], 'damageModel':self.damBlock[idx], 'horizon': self.scal*max([self.dx[0],self.dx[1]]),'interface':self.intBlockId[idx]}
         # 3d tbd
         return blockDef
     def writeFILE(self, writer, model):
         
-        blockDef = self.createBlockdef(model)
+        if self.blockDef=='':
+            blockDef = self.createBlockdef(model)
+        else:
+            for idx in range(0,len(self.blockDef)):
+                self.blockDef[idx]['horizon']= self.scal*max([self.dx[0],self.dx[1]])
+            blockDef = self.blockDef
 
         writer.createFile(blockDef)

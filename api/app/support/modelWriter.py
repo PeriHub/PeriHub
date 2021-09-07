@@ -9,21 +9,25 @@ class ModelWriter(object):
         self.filename = modelClass.filename
         self.nsName = 'ns_' + modelClass.filename
         self.path = 'Output/'+ modelClass.filename
-        self.filetype = modelClass.filetype
-        self.finalTime = modelClass.finalTime
-        self.frequency = modelClass.frequency
-        self.solvertype = modelClass.solvertype
         self.bcDict = modelClass.bcDict
         self.damageDict = modelClass.damageDict
         self.materialDict = modelClass.materialDict
+        self.computeDict = modelClass.computeDict
         self.outputDict = modelClass.outputDict
+        self.solverDict = modelClass.solverDict
         self.bondfilters = modelClass.bondfilters
-        self.nsList = modelClass.nsList
         self.TwoD = modelClass.TwoD
-        self.onlyTension = modelClass.onlyTension
-        self.initStep = modelClass.initStep
         if not os.path.exists('Output'):
             os.mkdir('Output')   
+            
+        numberOfNs = 0
+        nodeSetIds = []
+        for bc in self.bcDict:
+            if(bc['blockId'] not in nodeSetIds):
+                numberOfNs += 1
+                nodeSetIds.append(bc['blockId'])
+        self.nsList = nodeSetIds
+
     def writeNodeSets(self, model):
         for idx, k in enumerate(self.nsList):
             points = np.where(model['k'] == k)
@@ -41,27 +45,27 @@ class ModelWriter(object):
     def writeMesh(self, model):    
         string = '# x y z block_id volume\n'
         for idx in range(0, len(model['x'])):
-            string += str(model['x'][idx]) + " " + str(model['y'][idx])+ " " + str(model['z'][idx]) + " " + str(int(model['k'][idx])) + " " + str(model['vol'][idx]) + "\n"
+            string += f"{str(model['x'][idx])} {str(model['y'][idx])} { str(model['z'][idx])} {str(int(model['k'][idx]))} {str(model['vol'][idx])} \n"
         self.fileWriter(self.filename + '.txt', string)
     def writeMeshWithAngles(self, model):    
         string = '# x y z block_id volume angle_x angle_y angle_z\n'
         for idx in range(0, len(model['x'])):
-            string += str(model['x'][idx]) + " " + str(model['y'][idx])+ " " + str(model['z'][idx]) + " " + str(int(model['k'][idx])) + " " + str(model['vol'][idx]) + " " + str(model['angle_x'][idx]) +" " + str(model['angle_y'][idx]) +" " + str(model['angle_z'][idx]) +"\n"
+            string += f"{str(model['x'][idx])} {str(model['y'][idx])} {str(model['z'][idx])} {str(int(model['k'][idx]))} {str(model['vol'][idx])} {str(model['angle_x'][idx])} {str(model['angle_y'][idx])} {str(model['angle_z'][idx])} \n"
             # if idx < 20:
             #     print(string)
         self.fileWriter(self.filename + '.txt', string)       
     def createFile(self, blockDef):
         
-        if self.filetype == 'yaml':
+        if self.solverDict['filetype'] == 'yaml':
             yl = YAMLcreator(self, blockDef = blockDef)
             string = yl.createYAML()
-            self.fileWriter(self.filename + '.yaml', string)
             
-        elif self.filetype == 'xml':
+        elif self.solverDict['filetype'] == 'xml':
             xl = XMLcreator(self, blockDef = blockDef)
             string = xl.createXML()
         else:
-            print('Not a supported filetye: ', self.filetype)    
-        self.fileWriter(self.filename + '.' + self.filetype, string)
+            print('Not a supported filetye: ', self.solverDict['filetype'])   
+
+        self.fileWriter(self.filename + '.' + self.solverDict['filetype'], string)
             
         
