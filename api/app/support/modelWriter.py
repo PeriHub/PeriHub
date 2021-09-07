@@ -1,7 +1,7 @@
 import numpy as np
 import os
-from support.xmlCreator  import XMLcreator
-from support.yamlCreator  import YAMLcreator
+from api.app.support.xmlCreator  import XMLcreator
+from api.app.support.yamlCreator  import YAMLcreator
 
 class ModelWriter(object):
     def __init__(self, modelClass):

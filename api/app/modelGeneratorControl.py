@@ -51,38 +51,6 @@ app.add_middleware(
 )
 class ModelControl(object):
 
-    def __init__(self,**kwargs):
-        """doc"""
-        self.returnDir = None
-
-    def run(self,**kwargs):
-        """doc"""
-        
-        L = 152
-        L = 50
-        W = 10
-        h = 4.95
-        nn = 11
-
-        nn = 2*int(nn/2)+1
-        dx=[h/nn,h/nn,h/nn]
-        
-        print(dx, 4.01*dx[0])
-        
-        # dx=[0.001,0.001,0.001]
-        # db = DCBmodel(dx = dx, TwoD = True, filetype = 'xml')
-        # model = db.createModel()
-        gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, TwoD = False, rot=False)
-        model = gc.createModel()
-        #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
-
-    def endRunOnError(self):
-        pass
-        
-    def endRun(self, returnDir = None, feFilename = None, runDir = None):
-       pass
-
-
     @app.post("/generateModel")
     def generateModel(ModelName: ModelName, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict):#Material: dict, Output: dict):
         # L = 152

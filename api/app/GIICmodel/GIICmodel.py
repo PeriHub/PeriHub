@@ -1,9 +1,9 @@
 import numpy as np
 # import ast
 from scipy import interpolate
-from support.modelWriter import ModelWriter
-from support.material import MaterialRoutines
-from support.geometry import Geometry
+from api.app.support.modelWriter import ModelWriter
+from api.app.support.material import MaterialRoutines
+from api.app.support.geometry import Geometry
 class GIICmodel(object):
     def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], 
     filename = 'GIICmodel', TwoD = False, rot = 'False', angle = [0,0], 
@@ -91,7 +91,7 @@ class GIICmodel(object):
             for material in matNameList:
                 self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
                 if isotropic:
-                    params =[5.2e-08, 3184.5476165501973,0.3824761153875444]
+                    params =[5.2e-08, 3184.5476165501973,0.3824761153875444, 0 ,0]
                     mat = MaterialRoutines()
                     self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
                 else:
@@ -142,7 +142,7 @@ class GIICmodel(object):
             self.bcDict = bc
 
         if(solver==''):               
-            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.03, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'yaml'}
+            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.03, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'xml'}
         else:
             self.solverDict = solver
 

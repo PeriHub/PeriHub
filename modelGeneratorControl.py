@@ -1,8 +1,8 @@
 # Copyright (C) 2021 Deutsches Zentrum fuer Luft- und Raumfahrt(DLR, German Aerospace Center) <www.dlr.de>
 
 
-from app.GIICmodel.GIICmodel import GIICmodel
-from app.DCBmodel.DCBmodel import DCBmodel
+from api.app.GIICmodel.GIICmodel import GIICmodel
+from api.app.DCBmodel.DCBmodel import DCBmodel
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
 import matplotlib.pyplot as plt
 
@@ -33,11 +33,11 @@ class ModelControl(object):
         
         print(dx, 4.01*dx[0])
         
-        #gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
-        #model = gc.createModel(rot=True)
+        # gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, TwoD = True)
+        # model = gc.createModel()
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
         dx=[0.0005,0.0005,0.0005]
-        db = DCBmodel(dx = dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
+        db = DCBmodel(dx = dx, TwoD = True)
         model = db.createModel()
     def endRunOnError(self):
         pass

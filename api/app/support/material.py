@@ -16,10 +16,10 @@ class MaterialRoutines(object):
         if type == 'anisotropic': parameter = self.anisotropic(parameter,matParam)
         return parameter
     def isotropic(self, parameter, E, nu, K, G):
-        if E !=0: parameter["Young's Modulus"] = E
-        if nu !=0: parameter["Poisson's Ratio"] = nu
-        if K !=0: parameter["Bulk Modulus"] = K
-        if G !=0: parameter["Shear Modulus"] = G
+        if E !=0: parameter["Young's Modulus"] = {'value': E}
+        if nu !=0: parameter["Poisson's Ratio"] = {'value': nu}
+        if K !=0: parameter["Bulk Modulus"] = {'value': K}
+        if G !=0: parameter["Shear Modulus"] = {'value': G}
         return parameter
     def anisotropic(self, parameter, matParam):
         #CTensor = self.createStiffnessTensor()
