@@ -18,6 +18,15 @@ services:
       - 8080:80
     networks:
       - backend
+
+  modelgeneratorEngineframe:
+    build: engineframe/.
+    container_name: modelgeneratorEngineframe
+    image: modelgenerator_engineframe_image
+    ports:
+      - 8090:80
+    networks:
+      - backend
   
 networks:
   backend:

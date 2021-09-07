@@ -1,8 +1,8 @@
 <template>
 
-<v-container fluid>
-<splitpanes >
-  <pane min-size="15">
+<v-container fluid style="height: 94vh;">
+<splitpanes>
+  <pane min-size="15" style="height: 94vh">
     <v-subheader>
       
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -77,7 +77,8 @@
               <v-text-field 
                 class="textfield-col"
                 value=50
-                v-model="Length"
+                v-model="length"
+                :rules="[rules.required, rules.number]"
                 label="Length"
                 outlined></v-text-field>
               <v-text-field 
@@ -129,92 +130,99 @@
                 <h2>Material</h2>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <v-list v-for="material, index in materials" :key="material.id">
-                  <h4>Material {{material.id}}</h4>
-                  <v-row>
-                    <v-col>
-                      <v-text-field
-                        v-model=material.Name
-                        label="Material Name"
-                        outlined></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeMaterial(index)">
-                            <i class="fas fa-trash-alt"></i>
-                        </v-btn>
-                        </template>
-                          <span>Remove Material</span>
-                      </v-tooltip>
-                    </v-col>
-                  </v-row>
-                  <v-select
-                    :items="materialModelName"
-                    v-model=material.MatType
-                    label="Material Model Name"
-                    outlined></v-select>
-                  <v-row>
-                    <v-col>
-                      <v-text-field 
-                        v-model=material.bulkModulus
-                        label="Bulk Modulus"
-                        outlined></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-text-field 
-                        v-model=material.youngsModulus
-                        label="Young's Modulus"
-                        outlined></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-text-field 
-                        v-model=material.poissonsRatio
-                        label="Poisson's Ratio"
-                        outlined></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-switch
-                    v-model=material.tensionSeparation
-                    :label="`Tension Separation`"
-                  ></v-switch>
-                  <v-select
-                    :items="materialSymmetry"
-                    v-model=material.materialSymmetry
-                    v-show="material.MatType=='Linear Elastic Correspondence'"
-                    label="Material Model Name"
-                    outlined></v-select>
+                <v-list v-for="material, index in materials" :key="material.id"
+                style="padding: 0px">
+                  <v-container v-bind:style="(material.id % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+                    <h4>Material {{material.id}}</h4>
                     <v-row>
-                      <li v-for="(params, name) in material.Parameter" :key="params.index">
-                        <v-text-field style="padding-right: 10px"
-                          v-model="params.value"
-                          :label="name"
-                          :rules="[rules.required, rules.number]"
+                      <v-col class="textfieldlist-col">
+                        <v-text-field
+                          v-model=material.Name
+                          :rules="[rules.required, rules.name]"
+                          label="Material Name"
                           outlined></v-text-field>
-                      </li>
-                      </v-row>
-                  <v-select
-                    :items="stabilizatonType"
-                    v-model=material.stabilizatonType
-                    label="Stabilizaton Type"
-                    outlined></v-select>
-                  <v-text-field 
-                    v-model=material.thickness
-                    label="Thickness"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    v-model=material.hourglassCoefficient
-                    label="Hourglass Coefficient"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    v-show="material.MatType=='Elastic Plastic Hypoelastic Correspondence'"
-                    v-model=material.actualHorizon
-                    label="Actual Horizon"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    v-show="material.MatType=='Elastic Plastic Hypoelastic Correspondence'"
-                    v-model=material.yieldStress
-                    label="Yield Stress"
-                    outlined></v-text-field>
+                      </v-col>
+                      <v-col class="textfieldlist-col">
+                        <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                          <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeMaterial(index)">
+                              <i class="fas fa-trash-alt"></i>
+                          </v-btn>
+                          </template>
+                            <span>Remove Material</span>
+                        </v-tooltip>
+                      </v-col>
+                    </v-row>
+                    <v-select class="textfield-col"
+                      :items="materialModelName"
+                      v-model=material.MatType
+                      label="Material Model Name"
+                      outlined></v-select>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-text-field 
+                          v-model=material.bulkModulus
+                          label="Bulk Modulus"
+                          outlined></v-text-field>
+                      </v-col>
+                      <v-col class="textfield-col">
+                        <v-text-field 
+                          v-model=material.youngsModulus
+                          label="Young's Modulus"
+                          outlined></v-text-field>
+                      </v-col>
+                      <v-col class="textfield-col">
+                        <v-text-field 
+                          v-model=material.poissonsRatio
+                          label="Poisson's Ratio"
+                          outlined></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-switch
+                      v-model=material.tensionSeparation
+                      :label="`Tension Separation`"
+                    ></v-switch>
+                    <v-select
+                      :items="materialSymmetry"
+                      v-model=material.materialSymmetry
+                      v-show="material.MatType=='Linear Elastic Correspondence'"
+                      label="Material Model Name"
+                      outlined></v-select>
+                      <v-container>
+                        <v-row>
+                          <li v-for="(params, name) in material.Parameter" :key="params.index">
+                            <v-text-field  class="textfield-col"
+                              style="padding-right: 10px"
+                              v-model="params.value"
+                              :label="name"
+                              :rules="[rules.required, rules.number]"
+                              outlined></v-text-field>
+                          </li>
+                        </v-row>
+                      </v-container>
+                    <v-select class="textfield-col"
+                      :items="stabilizatonType"
+                      v-model=material.stabilizatonType
+                      label="Stabilizaton Type"
+                      outlined></v-select>
+                    <v-text-field class="textfield-col"
+                      v-model=material.thickness
+                      label="Thickness"
+                      outlined></v-text-field>
+                    <v-text-field class="textfield-col"
+                      v-model=material.hourglassCoefficient
+                      label="Hourglass Coefficient"
+                      outlined></v-text-field>
+                    <v-text-field class="textfield-col"
+                      v-show="material.MatType=='Elastic Plastic Hypoelastic Correspondence'"
+                      v-model=material.actualHorizon
+                      label="Actual Horizon"
+                      outlined></v-text-field>
+                    <v-text-field class="textfield-col"
+                      v-show="material.MatType=='Elastic Plastic Hypoelastic Correspondence'"
+                      v-model=material.yieldStress
+                      label="Yield Stress"
+                      outlined></v-text-field>
+                  </v-container>
                   <v-divider></v-divider>
                 </v-list>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -232,71 +240,76 @@
                 <h2>Damage Models</h2>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <v-list v-for="damage, index in damages" :key="damage.id">
-                  <h4>Damage Model{{damage.id}}</h4>
-                  <v-row>
-                    <v-col>
-                      <v-text-field
-                        v-model=damage.Name
-                        label="Damage Name"
-                        outlined></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeDamage(index)">
-                            <i class="fas fa-trash-alt"></i>
-                        </v-btn>
-                        </template>
-                          <span>Remove Damage Model</span>
-                      </v-tooltip>
-                    </v-col>
-                  </v-row>
-                  <v-select
-                    :items="damageModelName"
-                    v-model=damage.damageModel
-                    label="Damage Model Name"
-                    outlined></v-select>
-                  <v-row>
-                    <v-col>
-                      <v-text-field 
-                        v-model=damage.criticalStretch
-                        label="Critical Stretch"
-                        outlined></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-text-field 
-                        v-model=damage.criticalEnergy
-                        label="Critical Energy"
-                        outlined></v-text-field>
-                    </v-col>
-                    <v-col>
-                      <v-text-field 
-                        v-model=damage.interblockdamageEnergy
-                        label="Interblock Damage Energy"
-                        outlined></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-switch
-                    v-model=damage.onlyTension
-                    label="Only Tension"
-                  ></v-switch>
-                  <v-select
-                    :items="stabilizatonType"
-                    v-model=damage.stabilizatonType
-                    label="Stabilizaton Type"
-                    outlined></v-select>
-                  <v-switch
-                    v-model=damage.detachedNodesCheck
-                    label="Detached Nodes Check"
-                  ></v-switch>
-                  <v-text-field 
-                    v-model=damage.thickness
-                    label="Thickness"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    v-model=damage.hourglassCoefficient
-                    label="Hourglass Coefficient"
-                    outlined></v-text-field>
+                <v-list v-for="damage, index in damages" :key="damage.id"
+                style="padding: 0px">
+                  <v-container v-bind:style="(damage.id % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+                    <v-row>
+                      <h4>Damage Model{{damage.id}}</h4>
+                    </v-row>
+                    <v-row>
+                      <v-col class="textfieldlist-col">
+                        <v-text-field
+                          v-model=damage.Name
+                          label="Damage Name"
+                          outlined></v-text-field>
+                      </v-col>
+                      <v-col class="textfieldlist-col">
+                        <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                          <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeDamage(index)">
+                              <i class="fas fa-trash-alt"></i>
+                          </v-btn>
+                          </template>
+                            <span>Remove Damage Model</span>
+                        </v-tooltip>
+                      </v-col>
+                    </v-row>
+                    <v-select class="textfield-col"
+                      :items="damageModelName"
+                      v-model=damage.damageModel
+                      label="Damage Model Name"
+                      outlined></v-select>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-text-field 
+                          v-model=damage.criticalStretch
+                          label="Critical Stretch"
+                          outlined></v-text-field>
+                      </v-col>
+                      <v-col class="textfield-col">
+                        <v-text-field 
+                          v-model=damage.criticalEnergy
+                          label="Critical Energy"
+                          outlined></v-text-field>
+                      </v-col>
+                      <v-col class="textfield-col">
+                        <v-text-field 
+                          v-model=damage.interblockdamageEnergy
+                          label="Interblock Damage Energy"
+                          outlined></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-switch
+                      v-model=damage.onlyTension
+                      label="Only Tension"
+                    ></v-switch>
+                    <v-select class="textfield-col"
+                      :items="stabilizatonType"
+                      v-model=damage.stabilizatonType
+                      label="Stabilizaton Type"
+                      outlined></v-select>
+                    <v-switch
+                      v-model=damage.detachedNodesCheck
+                      label="Detached Nodes Check"
+                    ></v-switch>
+                    <v-text-field class="textfield-col"
+                      v-model=damage.thickness
+                      label="Thickness"
+                      outlined></v-text-field>
+                    <v-text-field class="textfield-col"
+                      v-model=damage.hourglassCoefficient
+                      label="Hourglass Coefficient"
+                      outlined></v-text-field>
+                  </v-container>
                   <v-divider></v-divider>
                 </v-list>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -316,9 +329,8 @@
               <v-expansion-panel-content>
                 <v-list v-for="block in blocks" :key="block.id">
                   <!-- <h4>block_{{block.id}}</h4> -->
-                  <v-row>
-                    <v-col 
-                      class="d-flex"
+                  <v-row >
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="2">
                       <v-text-field
@@ -326,8 +338,7 @@
                         label="Block Name"
                         outlined></v-text-field>
                     </v-col>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="2">
                       <v-select
@@ -337,8 +348,7 @@
                         label="Material"
                         outlined></v-select>
                     </v-col>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="3">
                       <v-select
@@ -349,8 +359,7 @@
                         clearable
                         outlined></v-select>
                     </v-col>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="2">
                       <v-select
@@ -361,8 +370,7 @@
                         clearable
                         outlined></v-select>
                     </v-col>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="2">
                       <v-checkbox
@@ -371,8 +379,7 @@
                         @change="filterPointData"
                         outlined></v-checkbox>
                     </v-col>
-                    <!-- <v-col 
-                      class="d-flex"
+                    <!-- <v-col class="textfieldlist-col"
                       cols="12"
                       sm="1">
                       <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -404,8 +411,7 @@
                 <v-list v-for="boundaryCondition, index in boundaryConditions" :key="boundaryCondition.id">
                   <!-- <h4>block_{{block.id}}</h4> -->
                   <v-row>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="2">
                       <v-text-field
@@ -413,8 +419,7 @@
                         label="Name"
                         outlined></v-text-field>
                     </v-col>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="3">
                       <v-select
@@ -424,8 +429,7 @@
                         label="Type"
                         outlined></v-select>
                     </v-col>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="2">
                       <v-select
@@ -436,8 +440,7 @@
                         clearable
                         outlined></v-select>
                     </v-col>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="2">
                       <v-select
@@ -447,8 +450,7 @@
                         clearable
                         outlined></v-select>
                     </v-col>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="2">
                       <v-text-field
@@ -456,8 +458,7 @@
                         label="Value"
                         outlined></v-text-field>
                     </v-col>
-                    <v-col 
-                      class="d-flex"
+                    <v-col class="textfieldlist-col"
                       cols="12"
                       sm="1">
                       <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -486,75 +487,82 @@
                 <h2>Output</h2>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <h2>Compute Parameters</h2>
-                <v-list v-for="compute, index in computes" :key="compute.id">
-                  <v-row>
-                    <v-col 
-                      class="d-flex"
-                      cols="12"
-                      sm="3">
-                      <v-text-field
-                        v-model=compute.Name
-                        label="Name"
-                        outlined></v-text-field>
-                    </v-col>
-                    <v-col 
-                      class="d-flex"
-                      cols="12"
-                      sm="2">
-                      <v-select
-                        :items=variables
-                        v-model=compute.variable
-                        label="Variable"
-                        outlined></v-select>
-                    </v-col>
-                    <v-col 
-                      class="d-flex"
-                      cols="12"
-                      sm="2">
-                      <v-select
-                        :items=calculationType
-                        v-model=compute.calculationType
-                        label="Calculation Type"
-                        outlined></v-select>
-                    </v-col>
-                    <v-col 
-                      class="d-flex"
-                      cols="12"
-                      sm="2">
-                      <v-select
-                        :items=blocks
-                        item-text="Name"
-                        v-model=compute.blockName
-                        label="Block Id"
-                        clearable
-                        outlined></v-select>
-                    </v-col>
-                    <v-col 
-                      class="d-flex"
-                      cols="12"
-                      sm="1">
-                      <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeCompute(index)">
-                            <i class="fas fa-trash-alt"></i>
+                <v-row>
+                  <h4>Compute Parameters</h4>
+                </v-row>
+                <v-container>
+                  <v-list v-for="compute, index in computes" :key="compute.id">
+                    <v-row>
+                      <v-col class="textfieldlist-col"
+                        cols="12"
+                        sm="3">
+                        <v-text-field
+                          v-model=compute.Name
+                          label="Name"
+                          outlined></v-text-field>
+                      </v-col>
+                      <v-col class="textfieldlist-col"
+                        cols="12"
+                        sm="2">
+                        <v-select
+                          :items=variables
+                          v-model=compute.variable
+                          label="Variable"
+                          outlined></v-select>
+                      </v-col>
+                      <v-col class="textfieldlist-col"
+                        cols="12"
+                        sm="2">
+                        <v-select
+                          :items=calculationType
+                          v-model=compute.calculationType
+                          label="Calculation Type"
+                          outlined></v-select>
+                      </v-col>
+                      <v-col class="textfieldlist-col"
+                        cols="12"
+                        sm="2">
+                        <v-select
+                          :items=blocks
+                          item-text="Name"
+                          v-model=compute.blockName
+                          label="Block Id"
+                          clearable
+                          outlined></v-select>
+                      </v-col>
+                      <v-col class="textfieldlist-col"
+                        cols="12"
+                        sm="1">
+                        <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                          <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeCompute(index)">
+                              <i class="fas fa-trash-alt"></i>
+                          </v-btn>
+                          </template>
+                            <span>Remove Compute</span>
+                        </v-tooltip>
+                      </v-col>
+                    </v-row>
+                    <v-divider></v-divider>
+                  </v-list>
+                </v-container>
+                <v-row>
+                  <v-col
+                  class="textfield-col">
+                    <v-tooltip bottom  class="textfield-col"><template v-slot:activator="{ on, attrs }">
+                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addCompute">
+                            <i class="fas fa-plus"></i>
                         </v-btn>
-                        </template>
-                          <span>Remove Compute</span>
-                      </v-tooltip>
-                    </v-col>
+                      </template>
+                        <span>Add Compute</span>
+                    </v-tooltip>
+                  </v-col>
+                </v-row>                <v-divider></v-divider>
+                <v-list v-for="output, index in outputs" :key="output.id"
+                style="padding: 0px">
+                  <v-container v-bind:style="(output.id % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+                  <v-row>
+                    <h4>Output {{output.id}}</h4>
                   </v-row>
-                  <v-divider></v-divider>
-                </v-list>
-                <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addCompute">
-                        <i class="fas fa-plus"></i>
-                    </v-btn>
-                  </template>
-                    <span>Add Compute</span>
-                </v-tooltip>
-                <v-divider></v-divider>
-                <v-list v-for="output, index in outputs" :key="output.id">
-                  <h4>Output {{output.id}}</h4>
                   <v-row>
                     <v-col
                     class="textfield-col">
@@ -563,7 +571,7 @@
                         label="Name"
                         outlined></v-text-field>
                     </v-col>
-                    <v-col>
+                    <v-col class="textfield-col">
                       <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                         <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeOutput(index)">
                             <i class="fas fa-trash-alt"></i>
@@ -651,14 +659,15 @@
                         label="External_Displacement"></v-checkbox>
                     </v-col> -->
                   </v-row>
-                  <v-text-field 
+                  <v-text-field class="textfield-col"
                   v-model=output.Frequency
                   label="Output Frequency"
                   outlined></v-text-field>
-                  <v-text-field
+                  <v-text-field class="textfield-col"
                   v-model=output.InitStep
                   label="Initial Output Step"
                   outlined></v-text-field>
+                  </v-container>
                   <v-divider></v-divider>
                 </v-list>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -677,8 +686,7 @@
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <v-row>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -686,8 +694,7 @@
                       label="Initial Time"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -695,19 +702,17 @@
                       label="Final Time"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
-                    <v-checkbox 
+                    <v-checkbox
                       v-model="solver.verbose"
                       label="Verbose"
                       outlined></v-checkbox>
                   </v-col>
                 </v-row>
                 <v-row>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-select
@@ -716,8 +721,7 @@
                       label="Solvertype"
                       outlined></v-select>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -725,8 +729,7 @@
                       label="Safety Factor"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -736,8 +739,7 @@
                   </v-col>
                 </v-row>
                 <v-row v-show="solver.solvertype=='NOXQuasiStatic'">
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-select
@@ -746,8 +748,7 @@
                       label="Peridgim Preconditioner"
                       outlined></v-select>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-select
@@ -756,8 +757,7 @@
                       label="Nonlinear Solver"
                       outlined></v-select>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -765,8 +765,7 @@
                       label="Number of Load Steps"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -774,8 +773,7 @@
                       label="Max Solver Iterations"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -783,8 +781,7 @@
                       label="Relative Tolerance"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -792,8 +789,7 @@
                       label="Max Age Of Prec"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-select
@@ -804,8 +800,7 @@
                   </v-col>
                 </v-row>
                 <v-row v-show="solver.solvertype=='NOXQuasiStatic'">
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-select
@@ -814,8 +809,7 @@
                       label="Jacobian Operator"
                       outlined></v-select>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-select
@@ -826,8 +820,7 @@
                   </v-col>
                 </v-row>
                 <v-row v-show="solver.solvertype=='NOXQuasiStatic'">
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-select
@@ -836,8 +829,7 @@
                       label="Line Search Method"
                       outlined></v-select>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-checkbox
@@ -847,8 +839,7 @@
                   </v-col>
                 </v-row>
                 <v-row v-show="solver.verletSwitch & solver.solvertype=='NOXQuasiStatic'">
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -856,8 +847,7 @@
                       label="Safety Factor"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -865,8 +855,7 @@
                       label="Numerical Damping"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -876,8 +865,7 @@
                   </v-col>
                 </v-row>
                 <v-row v-show="solver.solvertype=='Verlet'">
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-checkbox
@@ -885,8 +873,7 @@
                       label="Adaptive Time Stepping"
                       outlined></v-checkbox>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-checkbox
@@ -894,8 +881,7 @@
                       label="Stop after damage initiation"
                       outlined></v-checkbox>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-checkbox
@@ -905,8 +891,7 @@
                   </v-col>
                 </v-row>
                 <v-row v-show="solver.solvertype=='Verlet' & solver.adaptivetimeStepping">
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -914,8 +899,7 @@
                       label="Stable Step Difference"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -923,8 +907,7 @@
                       label="Maximum Bond Difference"
                       outlined></v-text-field>
                   </v-col>
-                  <v-col 
-                    class="d-flex"
+                  <v-col class="textfield-col"
                     cols="12"
                     sm="3">
                     <v-text-field 
@@ -933,12 +916,18 @@
                       outlined></v-text-field>
                   </v-col>
                 </v-row>
-                <v-select
-                  :items="filetype"
-                  v-model="solver.filetype"
-                  v-show="job.cluster=='Cara'"
-                  label="Filetype"
-                  outlined></v-select>
+                <v-row>
+                  <v-col class="textfield-col"
+                    cols="12"
+                    sm="12">
+                  <v-select
+                    :items="filetype"
+                    v-model="solver.filetype"
+                    v-show="job.cluster=='Cara'"
+                    label="Filetype"
+                    outlined></v-select>
+                  </v-col>
+                </v-row>
               </v-expansion-panel-content>
             </v-expansion-panel>
             <v-expansion-panel>
@@ -946,29 +935,29 @@
                 <h2>Job</h2>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <v-select
+                <v-select class="textfield-col"
                   :items="cluster"
                   v-model="job.cluster"
                   @change="changeToXml"
                   label="Cluster"
                   outlined></v-select>
-                <v-text-field 
+                <v-text-field class="textfield-col"
                   v-model="job.tasks"
                   label="Tasks"
                   outlined></v-text-field>
-                <v-text-field 
+                <v-text-field class="textfield-col"
                   v-model="job.time"
                   label="Time"
                   outlined></v-text-field>
-                <v-text-field 
+                <v-text-field class="textfield-col"
                   v-model="job.user"
                   label="User"
                   outlined></v-text-field>
-                <v-text-field 
+                <v-text-field class="textfield-col"
                   v-model="job.account"
                   label="Account"
                   outlined></v-text-field>
-                <v-text-field 
+                <v-text-field class="textfield-col"
                   v-model="job.mail"
                   label="Mail"
                   outlined></v-text-field>
@@ -1250,7 +1239,8 @@
     <v-snackbar
         v-model="snackbar"
       >
-        {{ message }}
+        <!-- <pre>{{message}}</pre> -->
+        {{message}}
   
         <template v-slot:action="{ attrs }">
           <v-btn
@@ -1304,7 +1294,7 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         // Model
         modelName: ['GIICmodel', 'DCBmodel'],
         modelNameSelected: 'GIICmodel',
-        Length: 50,
+        length: 50,
         width: 10,
         height: 4.95,
         discretization: 11,
@@ -1467,11 +1457,17 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         modelImg: GIICmodelImage,
         jsonFIle: GIICmodelFile,
         dialog: false,
+        errors: [],
         rules: {
           required: value => !!value || 'Required.',
+          name: value => {
+            const pattern = /^[A-Za-z0-9_]{1,15}/
+            return pattern.test(value) || 'Invalid name.'
+          },
           number: value => {
             // const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            const pattern = /^-?[\d.]+e(-|\+)\d{1,2}/
+            // const pattern = /^-?[\d.]+e(-|\+)\d{1,2}/
+            const pattern = /^[0-9.e-]{1,15}/
             return pattern.test(value) || 'Invalid number.'
           },
         },
@@ -1509,42 +1505,44 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         // this.message = JSON.parse("{\"Param\":" + "{\"Material\": " + JSON.stringify(this.materials)+",\n" +
         //                                     "\"Solver\": " + JSON.stringify(this.solver)+",\n" +
         //                                     "\"Output\": " + JSON.stringify(this.outputs) + "}}")
-        let headersList = {
-        'Cache-Control': 'no-cache'
-        }
+        if(this.checkInputs()){
+          let headersList = {
+          'Cache-Control': 'no-cache'
+          }
 
-        let reqOptions = {
-          url: "http://localhost:8000/generateModel",
-          params: {ModelName: this.modelNameSelected,
-                  Length: this.Length,
-                  Width: this.width,
-                  Height: this.height,
-                  Discretization: this.discretization,
-                  TwoDimensional: this.twoDimensional,
-                  RotatedAngles: this.rotatedAngles,
-                  Angle0: this.angles[0],
-                  Angle1: this.angles[1],
-                  Solvertype: this.solvertypeSelected,},
-          data: JSON.parse("{\"Param\":" + "{\"Material\": " + JSON.stringify(this.materials)+",\n" +
-                                            "\"Damage\": " + JSON.stringify(this.damages)+",\n" +
-                                            "\"Block\": " + JSON.stringify(this.blocks)+",\n" +
-                                            "\"BoundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
-                                            "\"Compute\": " + JSON.stringify(this.computes)+",\n" +
-                                            "\"Output\": " + JSON.stringify(this.outputs)+",\n" +
-                                            "\"Solver\": " + JSON.stringify(this.solver) + "}}"),
-          method: "POST",
-          headers: headersList,
+          let reqOptions = {
+            url: "http://localhost:8000/generateModel",
+            params: {ModelName: this.modelNameSelected,
+                    Length: this.length,
+                    Width: this.width,
+                    Height: this.height,
+                    Discretization: this.discretization,
+                    TwoDimensional: this.twoDimensional,
+                    RotatedAngles: this.rotatedAngles,
+                    Angle0: this.angles[0],
+                    Angle1: this.angles[1],
+                    Solvertype: this.solvertypeSelected,},
+            data: JSON.parse("{\"Param\":" + "{\"Material\": " + JSON.stringify(this.materials)+",\n" +
+                                              "\"Damage\": " + JSON.stringify(this.damages)+",\n" +
+                                              "\"Block\": " + JSON.stringify(this.blocks)+",\n" +
+                                              "\"BoundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
+                                              "\"Compute\": " + JSON.stringify(this.computes)+",\n" +
+                                              "\"Output\": " + JSON.stringify(this.outputs)+",\n" +
+                                              "\"Solver\": " + JSON.stringify(this.solver) + "}}"),
+            method: "POST",
+            headers: headersList,
+          }
+          this.loading = true
+          await axios.request(reqOptions).then(response => (this.message = response.data))
+          this.snackbar=true
+          this.viewInputFile()
+          this.viewPointData()
+          this.loading = false
         }
-        this.loading = true
-        await axios.request(reqOptions).then(response => (this.message = response.data))
-        this.snackbar=true
-        this.viewInputFile()
-        this.viewPointData()
-        this.loading = false
       },
       saveData() {
         const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
-                      "\"Length\":" + this.Length + ",\n" +
+                      "\"Length\":" + this.length + ",\n" +
                       "\"width\":" + this.width + ",\n" +
                       "\"height\":" + this.height + ",\n" +
                       "\"discretization\":" + this.discretization + ",\n" +
@@ -1773,7 +1771,7 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         this.resultsLoading = false;
       },
       showResults() {
-        window.open("http://localhost:8081/", "_blank");
+        window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");
       },
       async getLogFile() {
         let headersList = {
@@ -1874,6 +1872,26 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
       changeToXml() {
         this.solver.filetype = 'xml'
       },
+      checkInputs() {
+        if (this.length && this.width) {
+          return true;
+        }
+
+        this.errors = [];
+
+        if (!this.length) {
+          this.errors.push('Length required');
+        }
+        if (!this.width) {
+          this.errors.push('Width required');
+        }
+
+        this.message=this.errors.join('\n')
+
+        this.snackbar=true
+
+        return false;
+      },
     },
   }
 </script>
@@ -1898,11 +1916,19 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
 }
 
 .textfield-col {
-  height: 70px;
+  height: 80px;
+}
+
+.textfieldlist-col {
+  height: 110px;
 }
 
 .checkbox-col {
   height: 30px;
+}
+
+#v-list {
+  padding-top: 0px;
 }
 
 .my-title {
