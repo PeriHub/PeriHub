@@ -36,7 +36,7 @@ class ModelControl(object):
         #gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
         #model = gc.createModel(rot=True)
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
-        dx=[0.001,0.001,0.001]
+        dx=[0.0005,0.0005,0.0005]
         db = DCBmodel(dx = dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
         model = db.createModel()
     def endRunOnError(self):
