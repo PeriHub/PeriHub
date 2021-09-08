@@ -971,9 +971,9 @@
     <!-- </v-container> -->
   </pane>
   <pane min-size="40">
-    <splitpanes horizontal style="height: 93vh">
+    <splitpanes horizontal style="height: 94vh">
       <pane size="55">
-         <v-container>
+         <!-- <v-container> -->
         
         <v-subheader>
           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -1058,11 +1058,12 @@
 
           <v-spacer/>
         </v-subheader>
-        <v-card
+        <v-card class="my-card"
         title='ModelView'
-        elevation="5"
-        height=40vh
+        elevation="0"
+        height=88%
         width=100%
+        margin=10px
         :loading="loading"
         color="#808080"
         >
@@ -1158,10 +1159,10 @@
 
         </v-card>
 
-        </v-container>
+        <!-- </v-container> -->
       </pane>
       <pane size="45">
-        <v-container>
+        <!-- <v-container> -->
         <v-subheader>
             <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
               <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewInputFile">
@@ -1188,10 +1189,10 @@
             </v-tooltip>
         </v-subheader>
         <!-- class="overflow-y-auto" -->
-        <v-card
+        <v-card class="my-card"
         title='YamlOutput'
-        elevation="5"
-        height=35vh
+        elevation="0"
+        height=85%
         width=100%
         :loading="loading"
         flex
@@ -1217,7 +1218,7 @@
             auto-grow
           ></v-textarea> -->
         </v-card>
-        </v-container>
+        <!-- </v-container> -->
       </pane>
     </splitpanes>
   </pane>
@@ -1935,6 +1936,10 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
   height: 50px;
   justify-content: flex-end;
   margin: 0 30px;
+}
+
+.my-card {
+  margin: 10px;
 }
 /* .splitpanes {background-color: #f8f8f8;} */
 
