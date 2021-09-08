@@ -1,9 +1,9 @@
 import numpy as np
 # import ast
 from scipy import interpolate
-from api.app.support.modelWriter import ModelWriter
-from api.app.support.material import MaterialRoutines
-from api.app.support.geometry import Geometry
+from support.modelWriter import ModelWriter
+from support.material import MaterialRoutines
+from support.geometry import Geometry
 class GIICmodel(object):
     def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], 
     filename = 'GIICmodel', TwoD = False, rot = 'False', angle = [0,0], 

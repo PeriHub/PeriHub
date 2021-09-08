@@ -1,9 +1,9 @@
 import sys
 import numpy as np
 from scipy import interpolate
-from api.app.support.modelWriter import ModelWriter
-from api.app.support.material import MaterialRoutines
-from api.app.support.geometry import Geometry
+from support.modelWriter import ModelWriter
+from support.material import MaterialRoutines
+from support.geometry import Geometry
 
 class DCBmodel(object):
     def __init__(self, xend = 0.045, yend = 0.01, zend = 0.003, dx=[0.001,0.001,0.001], 
