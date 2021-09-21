@@ -188,7 +188,7 @@ class YAMLcreator(object):
         string = 'Peridigm:\n'
         string += self.loadMesh()
 
-        if len(self.bondfilters['Name'])>0:
+        if len(self.bondfilters)>0:
             string += self.createBondFilter()
         string += self.material()
         if len(self.damageDict)>0:

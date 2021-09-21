@@ -4,6 +4,7 @@
 from api.app.GIICmodel.GIICmodel import GIICmodel
 from api.app.DCBmodel.DCBmodel import DCBmodel
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
+from api.app.Dogbone.Dogbone import Dogbone
 import matplotlib.pyplot as plt
 
 import matplotlib.pyplot as plt
@@ -37,7 +38,9 @@ class ModelControl(object):
         # model = gc.createModel()
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
         dx=[0.0005,0.0005,0.0005]
-        db = DCBmodel(dx = dx, TwoD = True)
+        # db = DCBmodel(dx = dx, TwoD = True)
+        # model = db.createModel()
+        db = Dogbone(dx = dx, TwoD = True)
         model = db.createModel()
     def endRunOnError(self):
         pass

@@ -7,11 +7,12 @@
 # from numpy.lib.shape_base import split
 from GIICmodel.GIICmodel import GIICmodel
 from DCBmodel.DCBmodel import DCBmodel
+from Dogbone.Dogbone import Dogbone
 from support.sbatchCreator  import SbatchCreator
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
 # import matplotlib.pyplot as plt
 # import pandas as pd
-# from typing import List, Optional
+from typing import Optional
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 # from fastapi.responses import StreamingResponse
@@ -26,9 +27,11 @@ import os
 import csv
 from re import match
 import time
+import subprocess
 
 
 class ModelName(str, Enum):
+    Dogbone = "Dogbone"
     GIICmodel = "GIICmodel"
     DCBmodel = "DCBmodel"
 class FileType(str, Enum):
@@ -52,7 +55,7 @@ app.add_middleware(
 class ModelControl(object):
 
     @app.post("/generateModel")
-    def generateModel(ModelName: ModelName, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict):#Material: dict, Output: dict):
+    def generateModel(ModelName: ModelName, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, Height2: Optional[float] = None):#Material: dict, Output: dict):
         # L = 152
         # L = 50
         # W = 10
@@ -92,6 +95,19 @@ class ModelControl(object):
             output=Param['Param']['Output'], 
             solver=Param['Param']['Solver'])
             model = dcb.createModel()
+
+        if ModelName==ModelName.Dogbone:
+            db = Dogbone(xend = L, h1 = h, h2 = Height2, zend = W, dx=dx,
+            TwoD = TwoDimensional, 
+            rot=RotatedAngles, angle=[Angle0,Angle1], 
+            material=Param['Param']['Material'], 
+            damage=Param['Param']['Damage'], 
+            block=Param['Param']['Block'], 
+            bc=Param['Param']['BoundaryConditions'], 
+            compute=Param['Param']['Compute'],  
+            output=Param['Param']['Output'], 
+            solver=Param['Param']['Solver'])
+            model = db.createModel()
 
         print()
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
@@ -165,9 +181,8 @@ class ModelControl(object):
 
         return response
 
-
-    @app.get("/getResults")
-    def getResults(ModelName: ModelName, Cluster: str, allData: bool, request: Request):
+    @app.get("/copyResults")
+    def copyResults(ModelName: ModelName, Cluster: str, allData: bool, request: Request):
         
         print(request)
         headers = request.headers
@@ -204,7 +219,10 @@ class ModelControl(object):
                 sftp.get(os.path.join(remotepath, filename), os.path.join(localpath, filename))
         sftp.close()
         ssh.close()
-        
+
+    @app.get("/getResults")
+    def getResults(ModelName: ModelName):
+
         try:
             shutil.make_archive(ModelName, "zip", './Results/' + ModelName)
 
@@ -215,6 +233,29 @@ class ModelControl(object):
         except:
             return 'Resultfiles can\'t be found'
             
+    @app.get("/getPlot")
+    def getPlot(ModelName: ModelName):
+
+        # subprocess.run(['./api/app/support/read.sh'], shell=True)
+        process = subprocess.Popen(["./api/app/support/read.sh"], shell=True)
+        process.wait()
+
+        timeString=''
+        forceString=''
+        firstRow=True  
+        try:
+            with open('./Output/' + ModelName + '/'  + 'dat.csv', 'r') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    # print(row)
+                    if firstRow==False:
+                        timeString+=row[5]+','
+                        forceString+=row[4]+','
+                    firstRow=False    
+            response=[timeString.rstrip(timeString[-1]),forceString.rstrip(forceString[-1])]  
+            return response
+        except:
+            return 'Resultfile can\'t be found'
 
     @app.get("/getPointData")
     def getPointData(ModelName: ModelName):
@@ -431,8 +472,36 @@ class ModelControl(object):
     # import cadquery
     # cadquery.Workplane('XY').box(1,2,3).toSvg()
 
-        
-        
+    # subprocess.run(['api\\app\\support\\ParaView-5.9.1-Windows-Python3.8-msvc2017-64bit\\bin\\pvpython.exe .\\api\\app\\support\\exodusReader.py'], shell=True)
+    # p = subprocess.Popen(['./api/app/support/ParaView-5.9.1-Windows-Python3.8-msvc2017-64bit/bin/pvpython.exe api/app/support/exodusReader.py'],
+    #                 stdin=subprocess.PIPE,
+    #                 stdout=subprocess.PIPE,
+    #                 )
+    # p.stdin.write("a\n")
+    # p.stdin.write("b\n")
+    # ...
+    # p.stdin.close()
+    # p.wait()
+
+    
+    # subprocess.run(['api\\app\\support\\read.bat'], shell=True)
+
+    # timeString=''
+    # forceString=''
+    # firstRow=True  
+
+    # with open('./Output/' + 'GIICmodel' + '/'  + 'dat.csv', 'r') as f:
+    #         reader = csv.reader(f)
+    #         for row in reader:
+    #             # print(row)
+    #             if firstRow==False:
+    #                 timeString+=row[5]+','
+    #                 forceString+=row[4]+','
+    #             firstRow=False
+       
+    # print(timeString)  
+    # print(forceString)        
+    # response=[timeString.rstrip(timeString[-1]),forceString.rstrip(forceString[-1])]  
         
         
         

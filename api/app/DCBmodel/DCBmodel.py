@@ -148,7 +148,7 @@ class DCBmodel(object):
         self.damBlock[0] = 'PMMADamage'
         self.damBlock[1] = 'PMMADamage'
 
-        self.intBlockId = [-1]*numberOfBlocks
+        self.intBlockId = ['']*numberOfBlocks
         self.matBlock = ['PMMA']*numberOfBlocks
     # def createLoadBlock(self,x,y,k):
     #     if self.loadfuncx(x) == self.loadfuncy(y):

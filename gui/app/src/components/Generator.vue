@@ -94,6 +94,13 @@
                 label="Height"
                 outlined></v-text-field>
               <v-text-field 
+                v-show="modelNameSelected=='Dogbone'"
+                class="textfield-col"
+                value=4.95
+                v-model="height2"
+                label="Height2"
+                outlined></v-text-field>
+              <v-text-field 
                 class="textfield-col"
                 value=11
                 v-model="discretization"
@@ -1056,6 +1063,14 @@
             <span>Show Results</span>
           </v-tooltip>
 
+          <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getPlot">
+                <i class="fas fa-external-link-alt"></i>
+            </v-btn>
+          </template>
+            <span>Get Plot</span>
+          </v-tooltip>
+
           <v-spacer/>
         </v-subheader>
         <v-card class="my-card"
@@ -1117,8 +1132,17 @@
           <!-- </v-toolbar>
           <v-divider class="mx-4"></v-divider> -->
           
+          <v-img
+            v-if="viewId==0"
+            alt="DLR Logo"
+            class="shrink mr-2"
+            contain
+            :src="modelImg"
+            transition="scale-transition"
+            width="100%"
+          />
           <vtk-view
-            v-if="showVtk"
+            v-if="viewId==1"
             ref="view"
             :background="[0.5, 0.5, 0.5]">
             <vtk-glyph-representation >
@@ -1139,15 +1163,8 @@
               />
             </vtk-glyph-representation>
           </vtk-view>
-          <v-img
-            v-if="!showVtk"
-            alt="DLR Logo"
-            class="shrink mr-2"
-            contain
-            :src="modelImg"
-            transition="scale-transition"
-            width="100%"
-          />
+          <Plotly v-if="viewId==2" :data="plot" :layout="layout" :display-mode-bar="true"></Plotly>
+
           <!-- <pdf v-if="!showVtk" :src="pdfPath" :background="[0.5, 0.5, 0.5]"
            style="display: inline-block; width: 100%; height=10%;"></pdf> -->
           <!-- <remote-component
@@ -1280,6 +1297,9 @@ import GIICmodelImage from '../assets/GIICmodel/GIICmodel.jpg'
 import GIICmodelFile from '../assets/GIICmodel/GIICmodel.json'
 import DCBmodelImage from '../assets/DCBmodel/DCBmodel.jpg'
 import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
+import DogboneImage from '../assets/Dogbone/Dogbone.jpg'
+import DogboneFile from '../assets/Dogbone/Dogbone.json'
+import { Plotly } from 'vue-plotly'
 
   export default {
     name: 'ModelGenerator',
@@ -1287,17 +1307,19 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
       PrismEditor,
       Splitpanes,
       Pane,
+      Plotly,
       // pdf
       // RemoteComponent
     },
     data () {
       return {
         // Model
-        modelName: ['GIICmodel', 'DCBmodel'],
+        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],
         modelNameSelected: 'GIICmodel',
         length: 50,
         width: 10,
         height: 4.95,
+        height2: 4.95,
         discretization: 11,
         twoDimensional: true,
         rotatedAngles: true,
@@ -1454,11 +1476,19 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         resultsLoading: false,
         dataJson: '',
         colors: '',
-        showVtk: false,
         modelImg: GIICmodelImage,
         jsonFIle: GIICmodelFile,
         dialog: false,
         errors: [],
+        plot:[{
+        x: [1,2,3,4],
+        y: [10,15,13,17],
+        type:"scatter"
+        }],
+        layout:{
+          title: "My graph"
+        },
+        viewId: 2,
         rules: {
           required: value => !!value || 'Required.',
           name: value => {
@@ -1517,6 +1547,7 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
                     Length: this.length,
                     Width: this.width,
                     Height: this.height,
+                    Height2: this.height2,
                     Discretization: this.discretization,
                     TwoDimensional: this.twoDimensional,
                     RotatedAngles: this.rotatedAngles,
@@ -1543,9 +1574,10 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
       },
       saveData() {
         const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
-                      "\"Length\":" + this.length + ",\n" +
+                      "\"length\":" + this.length + ",\n" +
                       "\"width\":" + this.width + ",\n" +
                       "\"height\":" + this.height + ",\n" +
+                      "\"height2\":" + this.height2 + ",\n" +
                       "\"discretization\":" + this.discretization + ",\n" +
                       "\"twoDimensional\":" + this.twoDimensional + ",\n" +
                       "\"rotatedAngles\":" + this.rotatedAngles + ",\n" +
@@ -1601,6 +1633,9 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         case 'DCBmodel':  
           this.jsonFile = DCBmodelFile;
           break;
+        case 'Dogbone':  
+          this.jsonFile = DogboneFile;
+          break;
         }
 
         for(var i = 0; i < Object.keys(this.jsonFile).length; i++) {
@@ -1634,7 +1669,7 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
           this.pointString = response.data[0].split(','),
           this.blockIdString = response.data[1].split(',')))
         this.filterPointData()
-        this.showVtk = true
+        this.viewId = 1
         this.$refs.view.resetCamera()
         this.loading = false
       },
@@ -1751,16 +1786,26 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/getResults",
+          url: "http://localhost:8000/copyResults",
           params: {ModelName: this.modelNameSelected,
                   Cluster: this.job.cluster,
                   allData: allData},
+          method: "POST",
+          headers: headersList,
+          }
+          
+        axios.request(reqOptions).then(response => (this.message = response.data))
+        this.snackbar=true
+
+        reqOptions = {
+          url: "http://localhost:8000/getResults",
+          params: {ModelName: this.modelNameSelected},
           method: "GET",
           responseType: 'blob',
           headers: headersList,
           }
           
-        await axios.request(reqOptions).then((response) => {
+        axios.request(reqOptions).then((response) => {
             var fileURL = window.URL.createObjectURL(new Blob([response.data]));
             var fileLink = document.createElement('a');
             fileLink.href = fileURL;
@@ -1769,7 +1814,29 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
             fileLink.click();
 
         });
+
         this.resultsLoading = false;
+      },
+      async getPlot() {
+        let headersList = {
+        'Cache-Control': 'no-cache'
+        }
+
+        let reqOptions = {
+          url: "http://localhost:8000/getPlot",
+          params: {ModelName: this.modelNameSelected},
+          method: "GET",
+          headers: headersList,
+          }
+
+        this.loading = true
+        await axios.request(reqOptions).then(response => (
+        this.message = response.data[1].split(','),
+          this.plot[0].x = response.data[0].split(','),
+          this.plot[0].y = response.data[1].split(',')))
+        this.snackbar = true
+        this.viewId = 2
+        this.loading = false
       },
       showResults() {
         window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");
@@ -1867,8 +1934,11 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
         case 'DCBmodel':  
           this.modelImg = DCBmodelImage;
           break;
+        case 'Dogbone':  
+          this.modelImg = DogboneImage;
+          break;
         }
-        this.showVtk = false
+        this.viewId = 0
       },
       changeToXml() {
         this.solver.filetype = 'xml'

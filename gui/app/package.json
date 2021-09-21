@@ -28,6 +28,7 @@
     "vue-numeral-filter": "^2.0.0",
     "vue-numerals": "^4.0.6",
     "vue-pdf": "^4.3.0",
+    "vue-plotly": "^1.1.0",
     "vue-prism-editor": "^1.2.2",
     "vue-remote-component": "^1.4.0",
     "vue-vtk-js": "^1.1.4",

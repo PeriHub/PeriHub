@@ -201,7 +201,7 @@ class XMLcreator(object):
         string = '<ParameterList>\n'
         string += self.loadMesh()
 
-        if len(self.bondfilters['Name'])>0:
+        if len(self.bondfilters)>0:
             string += self.createBondFilter()
         string += '    </ParameterList>\n'
         string += self.material()
