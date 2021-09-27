@@ -8,7 +8,7 @@ from support.geometry import Geometry
 class DCBmodel(object):
     def __init__(self, xend = 0.045, yend = 0.01, zend = 0.003, dx=[0.001,0.001,0.001], 
     filename = 'DCBmodel', TwoD = False, rot = 'False', angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = ''):
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = ''):
         '''
             definition der blocks
             k =
@@ -31,6 +31,7 @@ class DCBmodel(object):
         self.zend = zend + dx[2]
         self.rot = rot
         self.blockDef = block
+        self.username = username
         if self.TwoD:
             self.zbegin = 0
             self.zend = 0

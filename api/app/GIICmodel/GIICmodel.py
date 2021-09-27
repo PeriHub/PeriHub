@@ -7,7 +7,7 @@ from support.geometry import Geometry
 class GIICmodel(object):
     def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], 
     filename = 'GIICmodel', TwoD = False, rot = 'False', angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = ''):
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = ''):
         '''
             definition der blocks
             k =
@@ -37,6 +37,7 @@ class GIICmodel(object):
         self.yend = yend
         self.zend = zend
         self.rot = rot
+        self.username = username
         if TwoD:
             self.zend = 0
             self.dx[2] = 1

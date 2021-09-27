@@ -1,5 +1,10 @@
 FROM trilinos 
 
+ARG GITLAB_USER
+ENV GITLAB_USER $GITLAB_USER
+ARG GITLAB_TOKEN
+ENV GITLAB_TOKEN $GITLAB_TOKEN
+
 ENV HOME /root
 
 WORKDIR /
@@ -9,8 +14,7 @@ RUN apt-get -yq install git
 RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
-
-RUN git clone https://{GITLAB_USER}:{GITLAB_TOKEN}@gitlab.dlr.de/AG-SATT/peridigmDev.git peridigm
+RUN git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/AG-SATT/peridigmDev.git peridigm
 
 # #Build Peridigm
 # RUN mkdir peridigm
@@ -42,5 +46,11 @@ ENV PATH /usr/local/peridigm/bin:$PATH
 ENV PATH /usr/local/trilinos/bin:$PATH
 
 RUN mkdir /var/run/sshd
+
+RUN  echo 'root:root' | chpasswd
+RUN service ssh start
+
+WORKDIR /app/
+
 EXPOSE 22
 CMD    ["/usr/sbin/sshd", "-D"]
