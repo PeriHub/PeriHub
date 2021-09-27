@@ -18,6 +18,17 @@ services:
       - 8080:80
     networks:
       - backend
+
+  peridigm:
+    build: peridigm/.
+    container_name: peridigm
+    image: peridigm_image
+    env_file:
+      - /.env
+    ports:
+      - 8090:80
+    networks:
+      - backend
   
 networks:
   backend:

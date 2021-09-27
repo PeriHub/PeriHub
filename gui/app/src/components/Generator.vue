@@ -225,7 +225,7 @@
                       label="Actual Horizon"
                       outlined></v-text-field>
                     <v-text-field class="textfield-col"
-                      v-show="material.MatType=='Elastic Plastic Hypoelastic Correspondence'"
+                      v-show="material.MatType.includes('Plastic')"
                       v-model=material.yieldStress
                       label="Yield Stress"
                       outlined></v-text-field>

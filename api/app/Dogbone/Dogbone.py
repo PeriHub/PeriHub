@@ -83,7 +83,7 @@ class Dogbone(object):
         if material=='':
             i=0
             for material in matNameList:
-                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
+                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0, 'yieldStress': 200}
                 if isotropic:
                     params =[200000.0,    #Density
                     1.5e9,                #Young's Modulus
@@ -127,10 +127,7 @@ class Dogbone(object):
         self.bondfilters = {}
         if(bc==''):
             self.bcDict = [{'Name': 'BC_1', 'boundarytype': 'Prescribed Displacement', 'blockId': 1, 'coordinate': 'x', 'value': '0*t'},
-                           {'Name': 'BC_2', 'boundarytype': 'Prescribed Displacement', 'blockId': 1, 'coordinate': 'y', 'value': '0*t'},
-                           {'Name': 'BC_3', 'boundarytype': 'Prescribed Displacement', 'blockId': 3, 'coordinate': 'z', 'value': '0*t'},
-                           {'Name': 'BC_4', 'boundarytype': 'Prescribed Displacement', 'blockId': 5, 'coordinate': 'y', 'value': '0*t'},
-                           {'Name': 'BC_5', 'boundarytype': 'Prescribed Displacement', 'blockId': 5, 'coordinate': 'x', 'value': '10*t'},]   
+                           {'Name': 'BC_2', 'boundarytype': 'Prescribed Displacement', 'blockId': 5, 'coordinate': 'x', 'value': '10*t'},]   
         else:
             self.bcDict = bc
 
