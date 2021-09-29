@@ -1072,6 +1072,82 @@
             <span>Get Plot</span>
           </v-tooltip>
 
+          <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteModel = true">
+                <i class="fas fa-times"></i>
+            </v-btn>
+          </template>
+            <span>Delete Model</span>
+          </v-tooltip>
+
+          <v-dialog
+            v-model="dialogDeleteModel"
+            persistent
+            max-width="400"
+          >
+              <v-card>
+                <v-card-title class="text-h5">
+                  Delete Model
+                </v-card-title>
+                <v-card-text>Are you sure, you want to delete the Model?</v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="deleteModel"
+                  >
+                    Yes
+                  </v-btn>
+                  <v-btn
+                    color="red darken-1"
+                    text
+                    @click="dialogDeleteModel = false"
+                  >
+                    No
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+          </v-dialog>
+
+          <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteUserData = true">
+                <i class="fas fa-times"></i>
+            </v-btn>
+          </template>
+            <span>Delete User Data</span>
+          </v-tooltip>
+
+          <v-dialog
+            v-model="dialogDeleteUserData"
+            persistent
+            max-width="400"
+          >
+              <v-card>
+                <v-card-title class="text-h5">
+                  Delete User Data
+                </v-card-title>
+                <v-card-text>Are you sure, you want to delete the User Data?</v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="deleteUserData"
+                  >
+                    Yes
+                  </v-btn>
+                  <v-btn
+                    color="red darken-1"
+                    text
+                    @click="dialogDeleteUserData = false"
+                  >
+                    No
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+          </v-dialog>
+
           <v-spacer/>
         </v-subheader>
         <v-card class="my-card"
@@ -1480,6 +1556,8 @@ import { Plotly } from 'vue-plotly'
         modelImg: GIICmodelImage,
         jsonFIle: GIICmodelFile,
         dialog: false,
+        dialogDeleteModel: false,
+        dialogDeleteUserData: false,
         errors: [],
         plot:[{
         x: [1,2,3,4],
@@ -1794,32 +1872,33 @@ import { Plotly } from 'vue-plotly'
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/copyResults",
+          url: "http://localhost:8000/getResults",
           params: {ModelName: this.modelNameSelected,
                   UserName: this.job.user,
                   Cluster: this.job.cluster,
                   allData: allData},
-          method: "POST",
-          headers: headersList,
-          }
-          
-        axios.request(reqOptions).then(response => (this.message = response.data))
-        this.snackbar=true
-
-        reqOptions = {
-          url: "http://localhost:8000/getResults",
-          params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user},
           method: "GET",
           responseType: 'blob',
           headers: headersList,
           }
           
+        // await axios.request(reqOptions).then(response => (this.message = response.data))
+        // // this.snackbar=true
+
+        // reqOptions = {
+        //   url: "http://localhost:8000/getResults",
+        //   params: {ModelName: this.modelNameSelected,
+        //           UserName: this.job.user},
+        //   method: "GET",
+        //   responseType: 'blob',
+        //   headers: headersList,
+        //   }
+          
         axios.request(reqOptions).then((response) => {
             var fileURL = window.URL.createObjectURL(new Blob([response.data]));
             var fileLink = document.createElement('a');
             fileLink.href = fileURL;
-            fileLink.setAttribute('download', 'results.zip');
+            fileLink.setAttribute('download', this.modelNameSelected + '.zip');
             document.body.appendChild(fileLink);
             fileLink.click();
 
@@ -1882,6 +1961,61 @@ import { Plotly } from 'vue-plotly'
           }
 
         axios.request(reqOptions).then(response => (this.message = response.data))
+      },
+      deleteModel() {
+        this.dialogDeleteModel = false;
+        
+        let headersList = {
+        'Cache-Control': 'no-cache'
+        }
+
+        let reqOptions = {
+          url: "http://localhost:8000/deleteModel",
+          params: {ModelName: this.modelNameSelected,
+                  UserName: this.job.user},
+          method: "POST",
+          headers: headersList,
+          }
+          
+        axios.request(reqOptions).then(response => (this.message = response.data))
+
+        reqOptions = {
+          url: "http://localhost:8000/deleteModelFromCluster",
+          params: {ModelName: this.modelNameSelected,
+                  UserName: this.job.user,
+                  Cluster: this.job.cluster},
+          method: "POST",
+          headers: headersList,
+          }
+          
+        axios.request(reqOptions).then(response => (this.message = response.data))
+        this.snackbar=true
+      },
+      deleteUserData() {
+        this.dialogDeleteUserData = false;
+        
+        let headersList = {
+        'Cache-Control': 'no-cache'
+        }
+
+        let reqOptions = {
+          url: "http://localhost:8000/deleteUserData",
+          params: {UserName: this.job.user},
+          method: "POST",
+          headers: headersList,
+          }
+          
+        axios.request(reqOptions).then(response => (this.message = response.data))
+        reqOptions = {
+          url: "http://localhost:8000/deleteUserDataFromCluster",
+          params: {UserName: this.job.user,
+                  Cluster: this.job.cluster},
+          method: "POST",
+          headers: headersList,
+          }
+          
+        axios.request(reqOptions).then(response => (this.message = response.data))
+        this.snackbar=true
       },
       addMaterial() {
         this.materials.push({
