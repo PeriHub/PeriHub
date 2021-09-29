@@ -188,39 +188,54 @@ class ModelControl(object):
     @app.get("/copyResults")
     def copyResults(ModelName: ModelName, UserName: str, Cluster: str, allData: bool, request: Request):
         
-        print(request)
-        headers = request.headers
-        email = request.headers.get('X-Forwarded-Email')
-        print(headers)
-        print(email)
+        # print(request)
+        # headers = request.headers
+        # email = request.headers.get('X-Forwarded-Email')
+        # print(headers)
+        # print(email)
 
-        if Cluster=='FA-Cluster':
-            username='hess_ja'
-            server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
-            remotepath = './Peridigm/apiModels/' + os.path.join(UserName, ModelName)
-        
-        elif Cluster=='Cara':
-            username='hess_ja'
-            server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
-            remotepath = './PeridigmJobs/apiModels/' + os.path.join(UserName, ModelName)
-
-        else:
-            return Cluster + ' unknown'
-        
         localpath = './Results/' + os.path.join(UserName, ModelName)
         if not os.path.exists(localpath):
             os.makedirs(localpath)
-        ssh = paramiko.SSHClient() 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-        sftp = ssh.open_sftp()
-        for filename in sftp.listdir(remotepath):
-            if(allData or '.e' in filename):
-                sftp.get(os.path.join(remotepath, filename), os.path.join(localpath, filename))
-        sftp.close()
-        ssh.close()
+
+        if Cluster=='None':
+            remotepath = './peridigmJobs/' + os.path.join(UserName, ModelName)
+            for files in os.walk(remotepath):
+                if len(files)==0:
+                    return ModelName + ' has not been created yet'
+
+                for name in files:
+                    if(allData or '.e' in name):
+                        shutil.copy(os.path.join(remotepath, name), os.path.join(localpath,name))
+                    # os.chmod(os.path.join(remotepath,name), 0o0777)
+                    # os.chown(os.path.join(remotepath,name), 'test')
+            return ModelName + ' has been copied'
+
+        else:
+            if Cluster=='FA-Cluster':
+                username='hess_ja'
+                server='129.247.54.37'
+                keypath = 'id_rsa_cluster'
+                remotepath = './Peridigm/apiModels/' + os.path.join(UserName, ModelName)
+            
+            elif Cluster=='Cara':
+                username='hess_ja'
+                server='cara.dlr.de'
+                keypath = 'id_rsa_cara'
+                remotepath = './PeridigmJobs/apiModels/' + os.path.join(UserName, ModelName)
+
+            else:
+                return Cluster + ' unknown'
+            
+            ssh = paramiko.SSHClient() 
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+            sftp = ssh.open_sftp()
+            for filename in sftp.listdir(remotepath):
+                if(allData or '.e' in filename):
+                    sftp.get(os.path.join(remotepath, filename), os.path.join(localpath, filename))
+            sftp.close()
+            ssh.close()
 
     @app.get("/getResults")
     def getResults(ModelName: ModelName, UserName: str):
@@ -295,11 +310,17 @@ class ModelControl(object):
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(UserName, ModelName)
         
         elif Cluster=='None':
+            localpath = './Output/' + os.path.join(UserName, ModelName)
             remotepath = './peridigmJobs/' + os.path.join(UserName, ModelName)
             if not os.path.exists(remotepath):
                 os.makedirs(remotepath)
                 # os.chown(remotepath, 'test')
-            for root, dirs, files in os.walk('./Output/' + os.path.join(UserName, ModelName)):
+            if not os.path.exists(localpath):
+                return ModelName + ' has not been created yet'
+            for root, dirs, files in os.walk(localpath):
+                if len(files)==0:
+                    return ModelName + ' has not been created yet'
+
                 for name in files:
                     shutil.copy(os.path.join(root,name), os.path.join(remotepath,name))
                     # os.chmod(os.path.join(remotepath,name), 0o0777)
@@ -319,6 +340,8 @@ class ModelControl(object):
             sftp.mkdir(remotepath)  # Create remote_path
             sftp.chdir(remotepath)
         for root, dirs, files in os.walk('./Output/' + os.path.join(UserName, ModelName)):
+            if len(files)==0:
+                return ModelName + ' has not been created yet'
             for name in files:
                 sftp.put(os.path.join(root,name), name)
 
@@ -366,15 +389,24 @@ class ModelControl(object):
 
         elif Param['Param']['Job']['cluster']=='None':
             server='peridigm'
-            remotepath = '/app/peridigmJobs/' + os.path.join(UserName, ModelName)
+            remotepath = '/peridigmJobs/' + os.path.join(UserName, ModelName)
+            sh = SbatchCreator(filename=ModelName, filetype= FileType, remotepath=remotepath, output=Param['Param']['Output'], job=Param['Param']['Job'])
+            shString = sh.createSh()
+            f = open(os.path.join('.' + remotepath,"runPeridigm.sh"), "w")
+            f.write(shString)
+            f.close()
+            os.chmod(os.path.join('.' + remotepath,"runPeridigm.sh"), 0o0755)
             ssh = paramiko.SSHClient() 
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(server, username='root', allow_agent=False, password='root')
-            command = '/peridigm/build/src/Peridigm ' + os.path.join(remotepath, ModelName + '.' + FileType)
-            ssh.exec_command(command)
+            command = 'cd /app' + remotepath + ' \n sh /app' + remotepath + '/runPeridigm.sh >> ' + ModelName + '.log &'
+            stdin, stdout, stderr  = ssh.exec_command(command)
+            #stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
+            # stdout=stdout.readlines()
+            # stderr=stderr.readlines()
             ssh.close()
 
-            return command
+            # return stdout + stderr
             return ModelName + ' has been submitted'
 
         else:

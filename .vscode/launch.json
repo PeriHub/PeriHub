@@ -5,10 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "modelGeneratorControl",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/app/modelGeneratorControl.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "apiMain",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/api/app/apiMain.py",
             "console": "integratedTerminal"
         },
         {
