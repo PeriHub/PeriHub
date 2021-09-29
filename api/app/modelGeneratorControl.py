@@ -7,6 +7,7 @@
 # from numpy.lib.shape_base import split
 from GIICmodel.GIICmodel import GIICmodel
 from DCBmodel.DCBmodel import DCBmodel
+from Verification.verificationModels import VerificationModels
 from support.sbatchCreator  import SbatchCreator
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
 # import matplotlib.pyplot as plt
@@ -50,7 +51,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 class ModelControl(object):
-
     def __init__(self,**kwargs):
         """doc"""
         self.returnDir = None
@@ -59,25 +59,30 @@ class ModelControl(object):
         """doc"""
         
         L = 152
-        L = 50
-        W = 10
+        L = 52
+        B = 10
         h = 4.95
-        nn = 11
-
+        nn = 19
+        
+        
+        
         nn = 2*int(nn/2)+1
         dx=[h/nn,h/nn,h/nn]
         
         print(dx, 4.01*dx[0])
         
-        # dx=[0.001,0.001,0.001]
-        # db = DCBmodel(dx = dx, TwoD = True, filetype = 'xml')
-        # model = db.createModel()
-        gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx, TwoD = False, rot=False)
-        model = gc.createModel()
+        #gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
+        #model = gc.createModel(rot=True)
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
-
+        dx=[0.00005,0.00005,0.00005]
+        #db = DCBmodel()
+        #model = db.createModel()
+        #print('verifcation models')
+        veri = VerificationModels()
+        veri.createVerificationModels()
     def endRunOnError(self):
         pass
+        
         
     def endRun(self, returnDir = None, feFilename = None, runDir = None):
        pass
@@ -131,10 +136,8 @@ class ModelControl(object):
         
     @app.get("/viewInputFile")
     def viewInputFile(ModelName: ModelName, FileType: FileType):
-        try:
-            return FileResponse('./Output/' + ModelName + '/'  + ModelName + '.' + FileType)
-        except:
-            return 'Inputfile can\'t be found'
+
+        return FileResponse('./Output/' + ModelName + '/'  + ModelName + '.' + FileType)
 
     @app.post("/writeInputFile")
     def writeInputFile(ModelName: ModelName, InputString: str, FileType: FileType):
@@ -148,16 +151,12 @@ class ModelControl(object):
     @app.get("/getModel")
     def getModel(ModelName: ModelName):
 
-        try:
-            shutil.make_archive(ModelName, "zip", './Output/' + ModelName)
+        shutil.make_archive(ModelName, "zip", './Output/' + ModelName)
 
-            response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
-            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
-            # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
-            return response
-        except:
-            return 'Modelfiles can\'t be found'
-
+        response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
+        response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
+        # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+        return response
 
         
     @app.get("/getLogFile")
@@ -237,15 +236,12 @@ class ModelControl(object):
         sftp.close()
         ssh.close()
         
-        try:
-            shutil.make_archive(ModelName, "zip", './Results/' + ModelName)
+        shutil.make_archive(ModelName, "zip", './Results/' + ModelName)
 
-            response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
-            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
-            # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
-            return response
-        except:
-            return 'Resultfiles can\'t be found'
+        response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
+        response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
+        # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+        return response
             
 
     @app.get("/getPointData")
@@ -254,21 +250,18 @@ class ModelControl(object):
         pointString=''
         blockIdString=''
         firstRow=True  
-        try:
-            with open('./Output/' + ModelName + '/'  + ModelName + '.txt', 'r') as f:
-                    reader = csv.reader(f)
-                    for row in reader:
-                        if firstRow==False:
-                            str1 = ''.join(row)
-                            parts = str1.split(" ")
-                            pointString+=parts[0]+','+parts[1]+','+parts[2]+','
-                            blockIdString+=str(int(parts[3])/10)+','
-                        firstRow=False
-                        
-            response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
-            return response
-        except:
-            return 'Meshfile can\'t be found'
+        with open('./Output/' + ModelName + '/'  + ModelName + '.txt', 'r') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    if firstRow==False:
+                        str1 = ''.join(row)
+                        parts = str1.split(" ")
+                        pointString+=parts[0]+','+parts[1]+','+parts[2]+','
+                        blockIdString+=str(int(parts[3])/10)+','
+                    firstRow=False
+                    
+        response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
+        return response
 
     @app.get("/copyModelToCluster")
     def copyModelToCluster(ModelName: ModelName, Cluster: str):

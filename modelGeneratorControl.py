@@ -1,8 +1,9 @@
 # Copyright (C) 2021 Deutsches Zentrum fuer Luft- und Raumfahrt(DLR, German Aerospace Center) <www.dlr.de>
 
 
-from app.GIICmodel.GIICmodel import GIICmodel
-from app.DCBmodel.DCBmodel import DCBmodel
+from api.app.GIICmodel.GIICmodel import GIICmodel
+from api.app.DCBmodel.DCBmodel import DCBmodel
+from api.app.Verification.verificationModels import VerificationModels
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
 import matplotlib.pyplot as plt
 
@@ -37,8 +38,11 @@ class ModelControl(object):
         #model = gc.createModel(rot=True)
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
         dx=[0.0005,0.0005,0.0005]
-        db = DCBmodel(dx = dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
-        model = db.createModel()
+        #db = DCBmodel(dx = dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
+        #model = db.createModel()
+        print('verifcation models')
+        veri = VerificationModels()
+        veri.createVerificationModels()
     def endRunOnError(self):
         pass
         

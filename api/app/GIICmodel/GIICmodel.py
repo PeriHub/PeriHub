@@ -180,16 +180,16 @@ class GIICmodel(object):
         if  self.yend/2 <= y < self.yend/2+5*self.dx[1]:
             k = 9  
         return k
-    def createAngles(self,x,y,z):
-        '''tbd'''
-        angle_x = 0
-        if y<self.yend/2:
-            angle_y = self.angle[0]
-        else:
-            angle_y = self.angle[1]
-        angle_z = 0
+    #def createAngles(self,x,y,z):
+    #     '''tbd'''
+    #     angle_x = 0
+    #     if y<self.yend/2:
+    #         angle_y = self.angle[0]
+    #     else:
+    #         angle_y = self.angle[1]
+    #     angle_z = 0
 
-        return angle_x, angle_y, angle_z
+    #     return angle_x, angle_y, angle_z
     def createModel(self):
         geo = Geometry()
         x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)

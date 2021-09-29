@@ -7,6 +7,7 @@ class ModelWriter(object):
     def __init__(self, modelClass):
         
         self.filename = modelClass.filename
+        print(self.filename)
         self.nsName = 'ns_' + modelClass.filename
         self.path = 'Output/'+ modelClass.filename
         self.bcDict = modelClass.bcDict
@@ -55,16 +56,18 @@ class ModelWriter(object):
             #     print(string)
         self.fileWriter(self.filename + '.txt', string)       
     def createFile(self, blockDef):
-        
+
+            #string = yl.createYAML(string)
+            
+        #if self.solverDict['filetype'] == 'xml':
+        xl = XMLcreator(self, blockDef = blockDef)
+        string = xl.createXML()
         if self.solverDict['filetype'] == 'yaml':
             yl = YAMLcreator(self, blockDef = blockDef)
-            string = yl.createYAML()
-            
-        elif self.solverDict['filetype'] == 'xml':
-            xl = XMLcreator(self, blockDef = blockDef)
-            string = xl.createXML()
-        else:
-            print('Not a supported filetye: ', self.solverDict['filetype'])   
+        
+            string = yl.translateXMLtoYAML(string)
+        #else:
+        #    print('Not a supported filetye: ', self.solverDict['filetype'])   
 
         self.fileWriter(self.filename + '.' + self.solverDict['filetype'], string)
             
