@@ -956,19 +956,19 @@
                   v-model="job.time"
                   label="Time"
                   outlined></v-text-field>
-                <v-text-field class="textfield-col"
+                <!-- <v-text-field class="textfield-col"
                   v-model="job.user"
                   label="User"
-                  outlined></v-text-field>
+                  outlined></v-text-field> -->
                 <v-text-field class="textfield-col"
                   v-model="job.account"
                   v-show="job.cluster=='Cara'"
                   label="Account"
                   outlined></v-text-field>
-                <v-text-field class="textfield-col"
+                <!-- <v-text-field class="textfield-col"
                   v-model="job.mail"
                   label="Mail"
-                  outlined></v-text-field>
+                  outlined></v-text-field> -->
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -1532,9 +1532,9 @@ import { Plotly } from 'vue-plotly'
           cluster: 'Cara',
           tasks: 1280,
           time: '40:00:00',
-          user: 'hess_ja',
+          // user: 'hess_ja',
           account: '2263032',
-          mail: 'jan-timo.hesse@dlr.de',
+          // mail: 'jan-timo.hesse@dlr.de',
         },
         cluster: ['Cara', 'FA-Cluster', 'None'],
 
@@ -1603,7 +1603,6 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "http://localhost:8000/viewInputFile",
           params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,
                   FileType: this.solver.filetype},
           method: "GET",
           headers: headersList,
@@ -1624,7 +1623,6 @@ import { Plotly } from 'vue-plotly'
           let reqOptions = {
             url: "http://localhost:8000/generateModel",
             params: {ModelName: this.modelNameSelected,
-                    UserName: this.job.user,
                     Length: this.length,
                     Width: this.width,
                     Height: this.height,
@@ -1740,8 +1738,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: "http://localhost:8000/getPointData",
-          params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,},
+          params: {ModelName: this.modelNameSelected},
           method: "GET",
           headers: headersList,
           }
@@ -1789,7 +1786,6 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "http://localhost:8000/copyModelToCluster",
           params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,
                   Cluster: this.job.cluster},
           method: "GET",
           headers: headersList,
@@ -1809,7 +1805,6 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "http://localhost:8000/runModel",
           params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,
                   FileType: this.solver.filetype,},
           data: JSON.parse("{\"Param\":" + "{\"Job\": " + JSON.stringify(this.job)+",\n" +
                                             "\"Output\": " + JSON.stringify(this.outputs) + "}}"),
@@ -1828,7 +1823,6 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "http://localhost:8000/cancelJob",
           params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,
                   Cluster: this.job.cluster,},
           method: "POST",
           headers: headersList,
@@ -1846,8 +1840,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: "http://localhost:8000/getModel",
-          params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,},
+          params: {ModelName: this.modelNameSelected},
           method: "GET",
           responseType: 'blob',
           headers: headersList,
@@ -1874,7 +1867,6 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "http://localhost:8000/getResults",
           params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,
                   Cluster: this.job.cluster,
                   allData: allData},
           method: "GET",
@@ -1887,8 +1879,7 @@ import { Plotly } from 'vue-plotly'
 
         // reqOptions = {
         //   url: "http://localhost:8000/getResults",
-        //   params: {ModelName: this.modelNameSelected,
-        //           UserName: this.job.user},
+        //   params: {ModelName: this.modelNameSelected},
         //   method: "GET",
         //   responseType: 'blob',
         //   headers: headersList,
@@ -1913,8 +1904,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: "http://localhost:8000/getPlot",
-          params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user},
+          params: {ModelName: this.modelNameSelected},
           method: "GET",
           headers: headersList,
           }
@@ -1939,7 +1929,6 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "http://localhost:8000/getLogFile",
           params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,
                   Cluster: this.job.cluster},
           method: "GET",
           headers: headersList,
@@ -1954,7 +1943,6 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "http://localhost:8000/writeInputFile",
           params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,
                   InputString: this.yamlOutput,
                   FileType: this.solver.filetype},
           method: "POST",
@@ -1971,8 +1959,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: "http://localhost:8000/deleteModel",
-          params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user},
+          params: {ModelName: this.modelNameSelected},
           method: "POST",
           headers: headersList,
           }
@@ -1982,7 +1969,6 @@ import { Plotly } from 'vue-plotly'
         reqOptions = {
           url: "http://localhost:8000/deleteModelFromCluster",
           params: {ModelName: this.modelNameSelected,
-                  UserName: this.job.user,
                   Cluster: this.job.cluster},
           method: "POST",
           headers: headersList,
@@ -2000,7 +1986,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: "http://localhost:8000/deleteUserData",
-          params: {UserName: this.job.user},
+          // params: {},
           method: "POST",
           headers: headersList,
           }
@@ -2008,8 +1994,7 @@ import { Plotly } from 'vue-plotly'
         axios.request(reqOptions).then(response => (this.message = response.data))
         reqOptions = {
           url: "http://localhost:8000/deleteUserDataFromCluster",
-          params: {UserName: this.job.user,
-                  Cluster: this.job.cluster},
+          params: {Cluster: this.job.cluster},
           method: "POST",
           headers: headersList,
           }

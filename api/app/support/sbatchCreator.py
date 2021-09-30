@@ -2,14 +2,14 @@ import numpy as np
 import os
 
 class SbatchCreator(object):
-    def __init__(self, filename='Model', filetype = 'yaml', remotepath = '', output = '', job = ''):
+    def __init__(self, filename='Model', filetype = 'yaml', remotepath = '', output = '', job = '', username = '', usermail = ''):
         self.tasks = job['tasks']
         self.time = job['time']
         self.filename = filename
         self.filetype = filetype
-        self.user = job['user']
+        self.user = username
         self.account = job['account']
-        self.mail = job['mail'] 
+        self.mail = usermail
         self.outputDict = output
         self.remotepath = remotepath
 
@@ -53,7 +53,8 @@ class SbatchCreator(object):
     def createSh(self):
         nodes = (-(-int(self.tasks)//64))
         string='#!/bin/sh' + '\n'
-        string += '/peridigm/build/src/Peridigm ' + self.filename + '.' + self.filetype + '\n'
+        string += '/peridigm/build/src/Peridigm ' + self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
+        string += 'rm pid.txt \n'
 
         # for out in self.outputDict:
         #     string += 'python /home/' + self.user + '/peridigm/src/scripts/MergeFiles.py ' + out['Name'] + ' ' + str(self.tasks) + '\n'

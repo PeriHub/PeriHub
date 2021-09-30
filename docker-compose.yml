@@ -29,24 +29,24 @@ services:
         GITLAB_TOKEN: ${GITLAB_TOKEN}
     container_name: peridigm
     image: peridigm_image
-    # environment:
-    #   GITLAB_USER: ${GITLAB_USER}
-    #   GITLAB_TOKEN: ${GITLAB_TOKEN}
-    # env_file:
-    #   - .env
-    # hostname: ernie
-    # stdin_open: true
-    # tty: true
     ports:
       - 2222:22
     networks:
       - backend
     volumes:
       - model_generator_volume:/app/peridigmJobs
-      # - ./volumes/lib:/var/lib/slurmd
-      # - ./volumes/spool:/var/spool/slurmd
-      # - ./volumes/log:/var/log/slurm
-      # - ./volumes/db:/var/lib/mysql
+
+  paraview:
+    build: 
+      context: paraview/.
+    container_name: paraview
+    image: paraview_image
+    ports:
+      - 5555:55
+    networks:
+      - backend
+    volumes:
+      - model_generator_volume:/app/peridigmJobs
   
 networks:
   backend:
