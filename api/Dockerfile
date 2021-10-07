@@ -17,7 +17,6 @@ RUN chmod 600 /app/id_rsa_cluster
 RUN echo "Host 129.247.54.37\n\tStrictHostKeyChecking no\n" > /root/.ssh/config
 RUN echo "Host cara.dlr.de\n\tStrictHostKeyChecking no\n" > /root/.ssh/config
 
-
 WORKDIR /app/
 
 EXPOSE 80

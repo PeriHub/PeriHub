@@ -215,10 +215,6 @@ class ModelControl(object):
     @app.get("/getResults")
     def getResults(ModelName: ModelName, Cluster: str, allData: bool, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
- 
-        print(header)
-        # email = header.get('X-Forwarded-Email')
-        # print(email)
 
         resultpath = './Results/' + os.path.join(username, ModelName)
         if not os.path.exists(resultpath):
@@ -387,14 +383,14 @@ class ModelControl(object):
         username = request.headers.get('x-forwarded-preferred-username')
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(["./api/app/support/read.sh"], shell=True)
+        process = subprocess.Popen(["./support/read.sh"], shell=True)
         process.wait()
 
         timeString=''
         forceString=''
         firstRow=True  
         try:
-            with open('./Output/' + os.path.join(username, ModelName) + '/'  + 'dat.csv', 'r') as f:
+            with open('./Results/' + os.path.join(username, ModelName) + '/'  + 'dat.csv', 'r') as f:
                 reader = csv.reader(f)
                 for row in reader:
                     # print(row)

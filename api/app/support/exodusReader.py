@@ -4,7 +4,7 @@
 from os import write
 from paraview.simple import *
 
-path = './Output/GIICmodel/'
+path = './Results/hess_ja/GIICmodel/'
 # class Geometry(object):
 #     def __init__(self):
 #         pass

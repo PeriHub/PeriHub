@@ -10,7 +10,8 @@ services:
     networks:
       - backend
     volumes:
-      - model_generator_volume:/app/peridigmJobs
+      - peridigm_volume:/app/peridigmJobs
+      - paraView_volume:/app/paraView
 
   modelgeneratorGui:
     build: gui/.
@@ -30,27 +31,24 @@ services:
     container_name: peridigm
     image: peridigm_image
     ports:
-      - 2222:22
+      - 2222:80
     networks:
       - backend
     volumes:
-      - model_generator_volume:/app/peridigmJobs
+      - peridigm_volume:/app/peridigmJobs
 
   paraview:
     build: 
       context: paraview/.
     container_name: paraview
     image: paraview_image
-    ports:
-      - 5555:55
-    networks:
-      - backend
     volumes:
-      - model_generator_volume:/app/peridigmJobs
+      - paraView_volume:/app/paraView
   
 networks:
   backend:
     driver: bridge
 
 volumes:
-  model_generator_volume:
+  peridigm_volume:
+  paraView_volume:
