@@ -9,6 +9,7 @@ from GIICmodel.GIICmodel import GIICmodel
 from DCBmodel.DCBmodel import DCBmodel
 from Dogbone.Dogbone import Dogbone
 from support.sbatchCreator  import SbatchCreator
+from support.fileHandler  import fileHandler
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
 # import matplotlib.pyplot as plt
 # import pandas as pd
@@ -19,10 +20,10 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import shutil
+import filecmp
 
 from enum import Enum
 
-import shutil
 import paramiko
 import os
 import csv
@@ -117,8 +118,7 @@ class ModelControl(object):
 
         print()
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
-        
-        
+   
     @app.get("/viewInputFile")
     def viewInputFile(ModelName: ModelName, FileType: FileType, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
@@ -179,24 +179,16 @@ class ModelControl(object):
 
         else:
             if Cluster=='FA-Cluster':
-                username='hess_ja'
-                server='129.247.54.37'
-                keypath = 'id_rsa_cluster'
                 remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
             
             elif Cluster=='Cara':
-                username='hess_ja'
-                server='cara.dlr.de'
-                keypath = 'id_rsa_cara'
                 remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
 
             else:
                 return Cluster + ' unknown'
 
-            ssh = paramiko.SSHClient() 
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-            sftp = ssh.open_sftp()
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, 'hess_ja')
+
             try:
                 outputFiles = sftp.listdir(remotepath)
                 filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
@@ -216,49 +208,7 @@ class ModelControl(object):
     def getResults(ModelName: ModelName, Cluster: str, allData: bool, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
-        resultpath = './Results/' + os.path.join(username, ModelName)
-        if not os.path.exists(resultpath):
-            os.makedirs(resultpath)
-
-        if Cluster=='None':
-            remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
-            for root, dirs, files in os.walk(remotepath):
-                if len(files)==0:
-                    return ModelName + ' has not been created yet'
-
-                for name in files:
-                    if(allData or '.e' in name):
-                        shutil.copy(os.path.join(remotepath, name), os.path.join(resultpath,name))
-                    # os.chmod(os.path.join(remotepath,name), 0o0777)
-                    # os.chown(os.path.join(remotepath,name), 'test')
-            # return ModelName + ' has been copied'
-
-        else:
-            if Cluster=='FA-Cluster':
-                username='hess_ja'
-                server='129.247.54.37'
-                keypath = 'id_rsa_cluster'
-                remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
-            
-            elif Cluster=='Cara':
-                username='hess_ja'
-                server='cara.dlr.de'
-                keypath = 'id_rsa_cara'
-                remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
-
-            else:
-                return Cluster + ' unknown'
-            
-            ssh = paramiko.SSHClient() 
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-            sftp = ssh.open_sftp()
-            for filename in sftp.listdir(remotepath):
-                if(allData or '.e' in filename):
-                    sftp.get(os.path.join(remotepath, filename), os.path.join(resultpath, filename))
-            sftp.close()
-            ssh.close()
-            # return ModelName + ' has been copied'
+        fileHandler.copyResultsFromCluster(username, ModelName, Cluster, allData)
 
         # resultpath = './Results/' + os.path.join(username, ModelName)
         userpath = './Results/' + username
@@ -307,24 +257,16 @@ class ModelControl(object):
 
         else:
             if Cluster=='FA-Cluster':
-                username='hess_ja'
-                server='129.247.54.37'
-                keypath = 'id_rsa_cluster'
                 remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
             
             elif Cluster=='Cara':
-                username='hess_ja'
-                server='cara.dlr.de'
-                keypath = 'id_rsa_cara'
                 remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
 
             else:
                 return Cluster + ' unknown'
-            
-            ssh = paramiko.SSHClient() 
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-            sftp = ssh.open_sftp()
+
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+
             for filename in sftp.listdir(remotepath):
                 sftp.remove(os.path.join(remotepath, filename))
             sftp.rmdir(remotepath)
@@ -350,25 +292,10 @@ class ModelControl(object):
             return 'Data of ' + username + ' has been deleted'
 
         else:
-            if Cluster=='FA-Cluster':
-                username='hess_ja'
-                server='129.247.54.37'
-                keypath = 'id_rsa_cluster'
-                remotepath = './Peridigm/apiModels/' + username
+            remotepath = fileHandler.getRemoteUserPath(Cluster, username)
             
-            elif Cluster=='Cara':
-                username='hess_ja'
-                server='cara.dlr.de'
-                keypath = 'id_rsa_cara'
-                remotepath = './PeridigmJobs/apiModels/' + username
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
 
-            else:
-                return Cluster + ' unknown'
-            
-            ssh = paramiko.SSHClient() 
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-            sftp = ssh.open_sftp()
             for filename in sftp.listdir(remotepath):
                 for subfilename in sftp.listdir(os.path.join(remotepath, filename)):
                     sftp.remove(os.path.join(remotepath, subfilename))
@@ -379,14 +306,17 @@ class ModelControl(object):
             return 'Data of ' + username + ' has been deleted'
 
     @app.get("/getPlot")
-    def getPlot(ModelName: ModelName, request: Request):
+    def getPlot(ModelName: ModelName, Cluster: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
+        fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
+
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(["./support/read.sh"], shell=True)
+        process = subprocess.Popen(['./support/read.sh ' + username + ' ' + ModelName], shell=True)
         process.wait()
 
         timeString=''
+        displacementString=''
         forceString=''
         firstRow=True  
         try:
@@ -395,11 +325,27 @@ class ModelControl(object):
                 for row in reader:
                     # print(row)
                     if firstRow==False:
-                        timeString+=row[5]+','
-                        forceString+=row[4]+','
-                    firstRow=False    
-            response=[timeString.rstrip(timeString[-1]),forceString.rstrip(forceString[-1])]  
+                        timeString+=row[-1]+','
+                        displacementString+=row[4]+','
+                        forceString+=row[8]+','
+                    firstRow=False
+            response=[timeString.rstrip(timeString[-1]),displacementString.rstrip(displacementString[-1]),forceString.rstrip(forceString[-1])]  
             return response
+        except:
+            return 'Resultfile can\'t be found'
+
+    @app.get("/getImage")
+    def getImage(ModelName: ModelName, Cluster: str, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
+
+        # subprocess.run(['./api/app/support/read.sh'], shell=True)
+        process = subprocess.Popen(['./support/read.sh ' + username + ' ' + ModelName], shell=True)
+        process.wait()
+
+        try:
+            return FileResponse('./Results/' + os.path.join(username, ModelName) + '/'  + 'displ.jpg')
         except:
             return 'Resultfile can\'t be found'
 
@@ -429,20 +375,8 @@ class ModelControl(object):
     @app.get("/copyModelToCluster")
     def copyModelToCluster(ModelName: ModelName, Cluster: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
-
-        if Cluster=='FA-Cluster':
-            server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
-            userpath = './Peridigm/apiModels/' + username
-            remotepath = os.path.join(userpath, ModelName)
         
-        elif Cluster=='Cara':
-            server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
-            userpath = './PeridigmJobs/apiModels/' + username
-            remotepath = os.path.join(userpath, ModelName)
-        
-        elif Cluster=='None':
+        if Cluster=='None':
             localpath = './Output/' + os.path.join(username, ModelName)
             remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
             if not os.path.exists(remotepath):
@@ -460,29 +394,28 @@ class ModelControl(object):
                     # os.chown(os.path.join(remotepath,name), 'test')
             return ModelName + ' has been copied'
 
-        else:
-            return Cluster + ' unknown'
-        
-        ssh = paramiko.SSHClient() 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-        sftp = ssh.open_sftp()
-        try:
-            sftp.chdir(remotepath)  # Test if remote_path exists
-        except IOError:
-            sftp.mkdir(userpath)
-            sftp.mkdir(remotepath)  # Create remote_path
-            sftp.chdir(remotepath)
-        for root, dirs, files in os.walk('./Output/' + os.path.join(username, ModelName)):
-            if len(files)==0:
-                return ModelName + ' has not been created yet'
-            for name in files:
-                sftp.put(os.path.join(root,name), name)
+        else:       
+            
+            remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
+            userpath = fileHandler.getUserPath(Cluster, username, ModelName) 
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
 
-        sftp.close()
-        ssh.close()
-        
-        return ModelName + ' has been copied to Cluster'
+            try:
+                sftp.chdir(remotepath)  # Test if remote_path exists
+            except IOError:
+                sftp.mkdir(userpath)
+                sftp.mkdir(remotepath)  # Create remote_path
+                sftp.chdir(remotepath)
+            for root, dirs, files in os.walk('./Output/' + os.path.join(username, ModelName)):
+                if len(files)==0:
+                    return ModelName + ' has not been created yet'
+                for name in files:
+                    sftp.put(os.path.join(root,name), name)
+
+            sftp.close()
+            ssh.close()
+            
+            return ModelName + ' has been copied to Cluster'
 
     @app.post("/runModel")
     def runModel(ModelName: ModelName, FileType: FileType, Param: dict, request: Request):
@@ -490,12 +423,8 @@ class ModelControl(object):
         usermail = request.headers.get('x-forwarded-email')
 
         if Param['Param']['Job']['cluster']=='FA-Cluster':
-            server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
             remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
-            ssh = paramiko.SSHClient() 
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+            ssh = fileHandler.sshToCluster('FA-Cluster', username)
             command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + str(Param['Param']['Job']['tasks']) + ' -O tgz -J ' + ModelName +' -E /home/hess_ja/PeridigmInstall/build/bin/Peridigm '+ ModelName + '.' + FileType
             ssh.exec_command(command)
             ssh.close()
@@ -505,13 +434,8 @@ class ModelControl(object):
         elif Param['Param']['Job']['cluster']=='Cara':
             sb = SbatchCreator(filename=ModelName, output=Param['Param']['Output'], job=Param['Param']['Job'], username=username, usermail=usermail)
             sbatchString = sb.createSbatch()
-            server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
-            ssh = paramiko.SSHClient() 
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-            sftp = ssh.open_sftp()
+            ssh, sftp = fileHandler.sftpToCluster('Cara', username)
             file=sftp.file(remotepath + '/' + ModelName + '.sbatch', "a", -1)
             file.write(sbatchString)
             file.flush()
@@ -554,17 +478,7 @@ class ModelControl(object):
     def cancelJob(ModelName: ModelName, Cluster: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
-        if Cluster=='FA-Cluster':
-            server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
-            remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
-
-        elif Cluster=='Cara':
-            server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
-            remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
-
-        elif Cluster=='None':
+        if Cluster=='None':
             server='peridigm'
             remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
             ssh = paramiko.SSHClient() 
@@ -577,27 +491,23 @@ class ModelControl(object):
             ssh.close()
             return stdout + stderr
 
-        else:
-            return Cluster + ' unknown'
-        
-        ssh = paramiko.SSHClient() 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-        sftp = ssh.open_sftp()
-        try:
-            outputFiles = sftp.listdir(remotepath)
-            filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
-        except:
-            print( 'LogFile can\'t be found')
-        if(len(filtered_values)==0):
-            print(  'LogFile can\'t be found')
-        
-        jobId = filtered_values[-1].split("-")[-1][:-4]
-        command = 'scancel ' + jobId
-        ssh.exec_command(command)
-        ssh.close()
+        else:     
+            remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            try:
+                outputFiles = sftp.listdir(remotepath)
+                filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
+            except:
+                print( 'LogFile can\'t be found')
+            if(len(filtered_values)==0):
+                print(  'LogFile can\'t be found')
+            
+            jobId = filtered_values[-1].split("-")[-1][:-4]
+            command = 'scancel ' + jobId
+            ssh.exec_command(command)
+            ssh.close()
 
-        return 'Job: ' + jobId + ' has been canceled'
+            return 'Job: ' + jobId + ' has been canceled'
 
     # uvicorn.run(app, host="0.0.0.0", port=80)    
     # pointString=''

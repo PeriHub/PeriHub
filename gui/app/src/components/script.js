@@ -206,15 +206,54 @@ import { Plotly } from 'vue-plotly'
         dialogDeleteModel: false,
         dialogDeleteUserData: false,
         errors: [],
-        plot:[{
-        x: [1,2,3,4],
-        y: [10,15,13,17],
-        type:"scatter"
-        }],
-        layout:{
-          title: "My graph"
+        plotData:[{
+          name: 'Displacement',
+          x: [1,2,3,4],
+          y: [10,15,20,17],
+          type:"scatter"},{
+          name: 'Force',
+          x: [1,2,3,4],
+          y: [10,15,5,17],
+          type:"scatter"}],
+        plotLayout:{
+          // title: 'this.modelNameSelected',
+          showlegend: true,
+          // margin: { t: 50 },
+          hovermode: "compare",
+          bargap: 0,
+          xaxis: {
+            showgrid: true,
+            zeroline: true,
+            color: "white"
+          },
+          yaxis: {
+            showgrid: true,
+            zeroline: true,
+            color: "white"
+          },
+          xaxis2: {
+            showgrid: false,
+            zeroline: false
+          },
+          yaxis2: {
+            showgrid: true,
+            zeroline: false
+          },
+          plot_bgcolor: "#2D2D2D",
+          paper_bgcolor: "#2D2D2D",
+          font: {
+            color: "white"
+          },
+          modebar: {
+            color: "white"
+            // color: "#6E6E6E"
+          },
         },
-        viewId: 0,
+        plotOptions:{
+          scrollZoom: true,
+          setBackground: 'black'
+        },
+        viewId: 2,
         rules: {
           required: value => !!value || value == 0 || 'Required',
           name: value => {
@@ -553,18 +592,41 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: "http://localhost:8000/getPlot",
-          params: {ModelName: this.modelNameSelected},
+          params: {ModelName: this.modelNameSelected,
+                   Cluster: this.job.cluster},
           method: "GET",
           headers: headersList,
           }
 
         this.loading = true
         await axios.request(reqOptions).then(response => (
-        this.message = response.data[1].split(','),
-          this.plot[0].x = response.data[0].split(','),
-          this.plot[0].y = response.data[1].split(',')))
-        this.snackbar = true
+        this.message = response.data,
+        this.snackbar = true,
+          this.plotData[0].x = response.data[0].split(','),
+          this.plotData[0].y = response.data[1].split(','),
+          this.plotData[1].x = response.data[0].split(','),
+          this.plotData[1].y = response.data[2].split(',')))
         this.viewId = 2
+        this.loading = false
+      },
+      async getImage() {
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Content-type': 'image/jpeg'
+        }
+
+        let reqOptions = {
+          url: "http://localhost:8000/getImage",
+          params: {ModelName: this.modelNameSelected,
+                   Cluster: this.job.cluster},
+          method: "GET",
+          headers: headersList,
+          }
+
+        this.loading = true
+        await axios.request(reqOptions).then(response => (
+          this.modelImg = response.data))
+        this.viewId = 0
         this.loading = false
       },
       showResults() {

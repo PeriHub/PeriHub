@@ -58,3 +58,8 @@
   .splitpanes__splitter:hover:before {opacity: 1;}
   .splitpanes--vertical > .splitpanes__splitter:before {left: -10px;right: -10px;height: 100%;}
   .splitpanes--horizontal > .splitpanes__splitter:before {top: -10px;bottom: -10px;width: 100%;}
+
+  .white_label label{
+    color: white !important;
+    max-width: 200px;
+  }
