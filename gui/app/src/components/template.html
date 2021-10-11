@@ -3,13 +3,6 @@
       <pane min-size="15" style="height: 94vh">
         <v-subheader>
           
-              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveData">
-                    <i class="fas fa-save"></i>
-                </v-btn>
-              </template>
-                <span>Save as JSON</span>
-              </v-tooltip>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="readData">
@@ -24,6 +17,14 @@
                 ref="fileInput"
                 accept="application/json"
                 @change="onFilePicked"/>
+                
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveData">
+                    <i class="fas fa-save"></i>
+                </v-btn>
+              </template>
+                <span>Save as JSON</span>
+              </v-tooltip>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="resetData">
@@ -990,13 +991,13 @@
              <!-- <v-container> -->
             
             <v-subheader>
-              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+              <!-- <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="copyModelToCluster">
                     <i class="fas fa-share"></i>
                 </v-btn>
               </template>
                 <span>Copy Model to Cluster</span>
-              </v-tooltip>
+              </v-tooltip> -->
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="runModel">
@@ -1071,28 +1072,153 @@
               </v-tooltip>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getPlot">
-                    <i class="fas fa-external-link-alt"></i>
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetPlot = true">
+                    <i class="fas fa-chart-line"></i>
                 </v-btn>
               </template>
                 <span>Get Plot</span>
               </v-tooltip>
+
+              <v-dialog
+                v-model="dialogGetPlot"
+                persistent
+                max-width="800"
+              >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Get Image
+                    </v-card-title>
+                    <v-card-text>Variable?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getPlot('Time')"
+                      >
+                        Time
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getPlot('Displacement')"
+                      >
+                      Displacement
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogGetPlot = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getImage">
-                    <i class="fas fa-external-link-alt"></i>
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetImage = true">
+                    <i class="fas fa-image"></i>
                 </v-btn>
               </template>
                 <span>Get Image</span>
               </v-tooltip>
+
+              <v-dialog
+                v-model="dialogGetImage"
+                persistent
+                max-width="800"
+              >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Get Image
+                    </v-card-title>
+                    <v-card-text>Variable?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getImage('Displacement')"
+                      >
+                        Displacement
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getImage('Damage')"
+                      >
+                        Damage
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getImage('Partial_StressX')"
+                      >
+                        Partial_StressX
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getImage('Force')"
+                      >
+                        Force
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogGetImage = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteModel = true">
-                    <i class="fas fa-times"></i>
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteData = true">
+                    <i class="fas fa-trash"></i>
                 </v-btn>
               </template>
-                <span>Delete Model</span>
+                <span>Delete Data</span>
               </v-tooltip>
+    
+              <v-dialog
+                v-model="dialogDeleteData"
+                persistent
+                max-width="400"
+              >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Delete Data
+                    </v-card-title>
+                    <v-card-text>Do you want to delete the selected Model data or all User data?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="dialogDeleteData = false, dialogDeleteModel = true"
+                      >
+                        Model data
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="dialogDeleteData = false, dialogDeleteUserData = true"
+                      >
+                        User data
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogDeleteData = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
     
               <v-dialog
                 v-model="dialogDeleteModel"
@@ -1124,13 +1250,13 @@
                   </v-card>
               </v-dialog>
     
-              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+              <!-- <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteUserData = true">
                     <i class="fas fa-times"></i>
                 </v-btn>
               </template>
                 <span>Delete User Data</span>
-              </v-tooltip>
+              </v-tooltip> -->
     
               <v-dialog
                 v-model="dialogDeleteUserData"
@@ -1209,7 +1335,7 @@
                 max="20"
                 min="3"
                 step="1"
-                style="max-width: 200px"
+                class="white_label"
               ></v-slider>
             </v-card-title>
               <template slot="progress">
@@ -1286,20 +1412,38 @@
                 </v-tooltip>
     
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getLogFile">
-                      <i class="fas fa-file"></i>
-                  </v-btn>
-                </template>
-                  <span>Show LogFile</span>
-                </v-tooltip>
-    
-                <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                   <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="writeInputFile">
                       <i class="fas fa-save"></i>
                   </v-btn>
                 </template>
                   <span>Save Inputfile</span>
                 </v-tooltip>
+
+                <v-spacer></v-spacer>
+    
+                <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getLogFile">
+                      <i class="fas fa-sync-alt"></i>
+                  </v-btn>
+                </template>
+                  <span>Reload LogFile</span>
+                </v-tooltip>
+
+                <i class="fas fa-eye"></i>
+                <v-switch
+                  v-model="monitorToggle"
+                  @change="monitorLogFile"
+                ></v-switch>
+
+                <!-- <v-btn-toggle v-model="monitorToggle">
+                  <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="monitorLogFile">
+                        <i class="fas fa-eye"></i>
+                    </v-btn>
+                  </template>
+                    <span>Monitor LogFile</span>
+                  </v-tooltip>
+                </v-btn-toggle> -->
             </v-subheader>
             <!-- class="overflow-y-auto" -->
             <v-card class="my-card"

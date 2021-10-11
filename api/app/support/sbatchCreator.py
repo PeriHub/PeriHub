@@ -54,7 +54,9 @@ class SbatchCreator(object):
         nodes = (-(-int(self.tasks)//64))
         string='#!/bin/sh' + '\n'
         string += '/peridigm/build/src/Peridigm ' + self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
-        # string += 'rm pid.txt \n'
+        string += 'pid=`cat pid.txt` \n'
+        string += 'tail --pid=$pid -f /dev/null \n'
+        string += 'rm pid.txt \n'
 
         # for out in self.outputDict:
         #     string += 'python /home/' + self.user + '/peridigm/src/scripts/MergeFiles.py ' + out['Name'] + ' ' + str(self.tasks) + '\n'

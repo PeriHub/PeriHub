@@ -151,9 +151,7 @@ class ModelControl(object):
             return response
         except:
             return 'Modelfiles can\'t be found'
-
-
-        
+     
     @app.get("/getLogFile")
     def getLogFile(ModelName: ModelName, Cluster: str, request: Request):
 
@@ -312,7 +310,7 @@ class ModelControl(object):
         fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(['./support/read.sh ' + username + ' ' + ModelName], shell=True)
+        process = subprocess.Popen(['./support/read.sh globalData ' + username + ' ' + ModelName], shell=True)
         process.wait()
 
         timeString=''
@@ -335,17 +333,17 @@ class ModelControl(object):
             return 'Resultfile can\'t be found'
 
     @app.get("/getImage")
-    def getImage(ModelName: ModelName, Cluster: str, request: Request):
+    def getImage(ModelName: ModelName, Cluster: str, Variable: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(['./support/read.sh ' + username + ' ' + ModelName], shell=True)
+        process = subprocess.Popen(['./support/read.sh image ' + username + ' ' + ModelName + ' ' + Variable], shell=True)
         process.wait()
 
         try:
-            return FileResponse('./Results/' + os.path.join(username, ModelName) + '/'  + 'displ.jpg')
+            return FileResponse('./Results/' + os.path.join(username, ModelName) + '/'  + Variable + '.jpg')
         except:
             return 'Resultfile can\'t be found'
 
@@ -372,57 +370,15 @@ class ModelControl(object):
         except:
             return 'Meshfile can\'t be found'
 
-    @app.get("/copyModelToCluster")
-    def copyModelToCluster(ModelName: ModelName, Cluster: str, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        
-        if Cluster=='None':
-            localpath = './Output/' + os.path.join(username, ModelName)
-            remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
-            if not os.path.exists(remotepath):
-                os.makedirs(remotepath)
-                # os.chown(remotepath, 'test')
-            if not os.path.exists(localpath):
-                return ModelName + ' has not been created yet'
-            for root, dirs, files in os.walk(localpath):
-                if len(files)==0:
-                    return ModelName + ' has not been created yet'
-
-                for name in files:
-                    shutil.copy(os.path.join(root,name), os.path.join(remotepath,name))
-                    # os.chmod(os.path.join(remotepath,name), 0o0777)
-                    # os.chown(os.path.join(remotepath,name), 'test')
-            return ModelName + ' has been copied'
-
-        else:       
-            
-            remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
-            userpath = fileHandler.getUserPath(Cluster, username, ModelName) 
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
-
-            try:
-                sftp.chdir(remotepath)  # Test if remote_path exists
-            except IOError:
-                sftp.mkdir(userpath)
-                sftp.mkdir(remotepath)  # Create remote_path
-                sftp.chdir(remotepath)
-            for root, dirs, files in os.walk('./Output/' + os.path.join(username, ModelName)):
-                if len(files)==0:
-                    return ModelName + ' has not been created yet'
-                for name in files:
-                    sftp.put(os.path.join(root,name), name)
-
-            sftp.close()
-            ssh.close()
-            
-            return ModelName + ' has been copied to Cluster'
-
     @app.post("/runModel")
     def runModel(ModelName: ModelName, FileType: FileType, Param: dict, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
         usermail = request.headers.get('x-forwarded-email')
 
-        if Param['Param']['Job']['cluster']=='FA-Cluster':
+        Cluster =  Param['Param']['Job']['cluster']
+        fileHandler.copyModelToCluster(username, ModelName, Cluster)
+
+        if Cluster=='FA-Cluster':
             remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
             ssh = fileHandler.sshToCluster('FA-Cluster', username)
             command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + str(Param['Param']['Job']['tasks']) + ' -O tgz -J ' + ModelName +' -E /home/hess_ja/PeridigmInstall/build/bin/Peridigm '+ ModelName + '.' + FileType
@@ -431,7 +387,7 @@ class ModelControl(object):
 
             return ModelName + ' has been submitted'
 
-        elif Param['Param']['Job']['cluster']=='Cara':
+        elif Cluster=='Cara':
             sb = SbatchCreator(filename=ModelName, output=Param['Param']['Output'], job=Param['Param']['Job'], username=username, usermail=usermail)
             sbatchString = sb.createSbatch()
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
@@ -447,7 +403,7 @@ class ModelControl(object):
 
             return ModelName + ' has been submitted'
 
-        elif Param['Param']['Job']['cluster']=='None':
+        elif Cluster=='None':
             server='peridigm'
             remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
             if os.path.exists(os.path.join('.' + remotepath,'pid.txt')):
@@ -472,7 +428,7 @@ class ModelControl(object):
             return ModelName + ' has been submitted'
 
         else:
-            return Param['Param']['Job']['cluster'] + ' unknown'
+            return Cluster + ' unknown'
 
     @app.post("/cancelJob")
     def cancelJob(ModelName: ModelName, Cluster: str, request: Request):
@@ -489,7 +445,8 @@ class ModelControl(object):
             stdout=stdout.readlines()
             stderr=stderr.readlines()
             ssh.close()
-            return stdout + stderr
+
+            return 'Job has been canceled'
 
         else:     
             remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)

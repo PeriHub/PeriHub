@@ -203,9 +203,13 @@ import { Plotly } from 'vue-plotly'
         modelImg: GIICmodelImage,
         jsonFIle: GIICmodelFile,
         dialog: false,
+        dialogGetImage: false,
+        dialogGetPlot: false,
+        dialogDeleteData: false,
         dialogDeleteModel: false,
         dialogDeleteUserData: false,
         errors: [],
+        plotRawData: '',
         plotData:[{
           name: 'Displacement',
           x: [1,2,3,4],
@@ -253,6 +257,8 @@ import { Plotly } from 'vue-plotly'
           scrollZoom: true,
           setBackground: 'black'
         },
+        interval: null,
+        monitorToggle: false,
         viewId: 2,
         rules: {
           required: value => !!value || value == 0 || 'Required',
@@ -466,24 +472,24 @@ import { Plotly } from 'vue-plotly'
           this.filterPointData()
         }
       },
-      async copyModelToCluster() {
-        let headersList = {
-        'Cache-Control': 'no-cache'
-        }
+      // async copyModelToCluster() {
+      //   let headersList = {
+      //   'Cache-Control': 'no-cache'
+      //   }
 
-        let reqOptions = {
-          url: "http://localhost:8000/copyModelToCluster",
-          params: {ModelName: this.modelNameSelected,
-                  Cluster: this.job.cluster},
-          method: "GET",
-          headers: headersList,
-        }
-        this.loading = true
-        await axios.request(reqOptions).then(response => (this.message = response.data))
-        this.loading = false
-        this.snackbar=true
-      },
-      runModel() {
+      //   let reqOptions = {
+      //     url: "http://localhost:8000/copyModelToCluster",
+      //     params: {ModelName: this.modelNameSelected,
+      //             Cluster: this.job.cluster},
+      //     method: "GET",
+      //     headers: headersList,
+      //   }
+      //   this.loading = true
+      //   await axios.request(reqOptions).then(response => (this.message = response.data))
+      //   this.loading = false
+      //   this.snackbar=true
+      // },
+      async runModel() {
         // this.snackbar=true
         // this.message = JSON.parse("{\"Job\": " + JSON.stringify(this.job)+"}")
         let headersList = {
@@ -500,7 +506,8 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
         }
 
-        axios.request(reqOptions).then(response => (this.message = response.data))
+        await axios.request(reqOptions).then(response => (this.message = response.data))
+        this.getLogFile()
         this.snackbar=true
       },
       cancelJob() {
@@ -521,9 +528,7 @@ import { Plotly } from 'vue-plotly'
       },
       saveModel() {
         let headersList = {
-        'Cache-Control': 'no-cache',
-        'X-Forwarded-Email': 'jan-timo.hesse@dlr.de',
-        'X-Forwarded-Preferred-Username': 'hess_ja'
+        'Cache-Control': 'no-cache'
         }
 
         let reqOptions = {
@@ -585,7 +590,8 @@ import { Plotly } from 'vue-plotly'
 
         this.resultsLoading = false;
       },
-      async getPlot() {
+      async getPlot(Variable) {
+        this.dialogGetPlot = false
         let headersList = {
         'Cache-Control': 'no-cache'
         }
@@ -600,37 +606,55 @@ import { Plotly } from 'vue-plotly'
 
         this.loading = true
         await axios.request(reqOptions).then(response => (
-        this.message = response.data,
-        this.snackbar = true,
-          this.plotData[0].x = response.data[0].split(','),
-          this.plotData[0].y = response.data[1].split(','),
-          this.plotData[1].x = response.data[0].split(','),
-          this.plotData[1].y = response.data[2].split(',')))
+          this.plotRawData = response.data))
+        
+        if(Variable=='Time'){
+          this.plotData[0].x =  this.plotRawData[0].split(',')
+          this.plotData[1].x =  this.plotRawData[0].split(',')
+        }
+        else if(Variable=='Displacement'){
+          this.plotData[0].x =  this.plotRawData[1].split(',')
+          this.plotData[1].x =  this.plotRawData[1].split(',')
+        }
+        this.plotData[0].y =  this.plotRawData[1].split(',')
+        this.plotData[1].y =  this.plotRawData[2].split(',')
         this.viewId = 2
         this.loading = false
       },
-      async getImage() {
+      async getImage(Variable) {
+        this.dialogGetImage = false
         let headersList = {
-        'Cache-Control': 'no-cache',
-        'Content-type': 'image/jpeg'
+        'Cache-Control': 'no-cache'
         }
 
         let reqOptions = {
           url: "http://localhost:8000/getImage",
           params: {ModelName: this.modelNameSelected,
-                   Cluster: this.job.cluster},
+                   Cluster: this.job.cluster,
+                   Variable: Variable},
           method: "GET",
+          responseType: 'blob',
           headers: headersList,
           }
 
         this.loading = true
         await axios.request(reqOptions).then(response => (
-          this.modelImg = response.data))
+          this.modelImg = window.URL.createObjectURL(new Blob([response.data]))))
         this.viewId = 0
         this.loading = false
       },
       showResults() {
         window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");
+      },
+      monitorLogFile() {
+        if(this.monitorToggle){
+          this.interval = setInterval(() => {
+            this.getLogFile()
+          }, 30000)
+        }
+        else{
+          clearInterval(this.interval)
+        }
       },
       async getLogFile() {
         let headersList = {
@@ -811,5 +835,9 @@ import { Plotly } from 'vue-plotly'
 
         return false;
       },
+    },
+    beforeDestroy() {
+      // Don't forget to remove the interval before destroying the component
+      clearInterval(this.interval)
     },
   }
