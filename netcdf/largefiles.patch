@@ -1,0 +1,30 @@
+From d4491ec5a5de92e160899dbc3813f183577093eb Mon Sep 17 00:00:00 2001
+From: "John T. Foster" <johntfosterjr@gmail.com>
+Date: Wed, 11 Nov 2020 10:23:59 -0600
+Subject: [PATCH] Add largefiles patch commit
+
+---
+ include/netcdf.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/netcdf.h b/include/netcdf.h
+index 67a8d618..92582d66 100644
+--- a/include/netcdf.h
++++ b/include/netcdf.h
+@@ -269,11 +269,11 @@ NOTE: The NC_MAX_DIMS, NC_MAX_ATTRS, and NC_MAX_VARS limits
+       are *not* enforced after version 4.5.0
+ */
+ /**@{*/
+-#define NC_MAX_DIMS     1024 /* not enforced after 4.5.0 */
++#define NC_MAX_DIMS     65536 /* not enforced after 4.5.0 */
+ #define NC_MAX_ATTRS    8192 /* not enforced after 4.5.0 */
+-#define NC_MAX_VARS     8192 /* not enforced after 4.5.0 */
++#define NC_MAX_VARS     524288 /* not enforced after 4.5.0 */
+ #define NC_MAX_NAME     256
+-#define NC_MAX_VAR_DIMS 1024 /**< max per variable dimensions */
++#define NC_MAX_VAR_DIMS 8 /**< max per variable dimensions */
+ /**@}*/
+ 
+ /** The max size of an SD dataset name in HDF4 (from HDF4
+-- 
+2.23.0

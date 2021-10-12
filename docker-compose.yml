@@ -9,6 +9,8 @@ services:
       - 8000:80
     networks:
       - backend
+    volumes:
+      - model_generator_volume:/app/peridigmJobs
 
   modelgeneratorGui:
     build: gui/.
@@ -18,7 +20,30 @@ services:
       - 8080:80
     networks:
       - backend
+
+  peridigm:
+    build: 
+      context: peridigm/.
+      args: 
+        GITLAB_USER: ${GITLAB_USER}
+        GITLAB_TOKEN: ${GITLAB_TOKEN}
+    container_name: peridigm
+    image: peridigm_image
+    # environment:
+    #   GITLAB_USER: ${GITLAB_USER}
+    #   GITLAB_TOKEN: ${GITLAB_TOKEN}
+    # env_file:
+    #   - .env
+    ports:
+      - 2222:22
+    networks:
+      - backend
+    volumes:
+      - model_generator_volume:/app/peridigmJobs
   
 networks:
   backend:
     driver: bridge
+
+volumes:
+  model_generator_volume:

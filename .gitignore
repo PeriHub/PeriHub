@@ -5,15 +5,18 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 .idea/
-id_rsa_shared
+id_rsa_*
+*.dcv
 
 # Model Files
 Files/
 Output/
-
 #OutputFiltered/
 *.png
 **/ParaviewReader/Input/
+
+#ParaView
+ParaView-5.9.1*
 
 # Vagrant
 .vagrant/

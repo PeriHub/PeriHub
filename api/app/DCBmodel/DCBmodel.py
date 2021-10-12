@@ -8,7 +8,7 @@ from support.geometry import Geometry
 class DCBmodel(object):
     def __init__(self, xend = 0.045, yend = 0.01, zend = 0.003, dx=[0.001,0.001,0.001], 
     filename = 'DCBmodel', TwoD = False, rot = 'False', angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = ''):
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = ''):
         '''
             definition der blocks
             k =
@@ -31,6 +31,7 @@ class DCBmodel(object):
         self.zend = zend + dx[2]
         self.rot = rot
         self.blockDef = block
+        self.username = username
         if self.TwoD:
             self.zbegin = 0
             self.zend = 0
@@ -65,12 +66,12 @@ class DCBmodel(object):
         self.outputDict = [{},{}]
         self.angle = [0,0]
         if damage=='':
-            self.damageDict = {'PMMADamage':{'Energy':5.1, 'InferaceEnergy':0.01}}
+            self.damageDict[0] = {'Name': 'PMMADamage', 'damageModel': 'Critical Energy Correspondence', 'criticalEnergy':5.1, 'interblockdamageEnergy':0.01, 'onlyTension': True, 'detachedNodesCheck': True, 'thickness': 10, 'hourglassCoefficient': 1.0, 'stabilizatonType': 'Global Stiffness'}
         else:
             self.damageDict = damage
         
         if compute=='':
-            self.computeDict[0] = {'Name':'External_Displacement','variable':'Displacement', 'calculationType':'Minimum','blockName':'block_3'},
+            self.computeDict[0] = {'Name':'External_Displacement','variable':'Displacement', 'calculationType':'Minimum','blockName':'block_3'}
             self.computeDict[1] = {'Name':'External_Force','variable':'Force', 'calculationType':'Sum','blockName':'block_3'}
         else:
             self.computeDict = compute
@@ -86,7 +87,11 @@ class DCBmodel(object):
             for material in matNameList:
                 self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
                 if isotropic:
-                    params =[5.2e-08, 3184.5476165501973,0.3824761153875444]
+                    params =[200000.0,    #Density
+                    1.5e9,                #Young's Modulus
+                    0.3,                  #Poisson's Ratio
+                    0,                    #Bulk Modulus
+                    0]                    #Shear Modulus
                     mat = MaterialRoutines()
                     self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
                 else:
@@ -136,7 +141,7 @@ class DCBmodel(object):
             self.bcDict = bc
 
         if(solver==''):               
-            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.075, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'yaml'}
+            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.075, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'xml'}
         else:
             self.solverDict = solver
 
@@ -144,7 +149,7 @@ class DCBmodel(object):
         self.damBlock[0] = 'PMMADamage'
         self.damBlock[1] = 'PMMADamage'
 
-        self.intBlockId = [-1]*numberOfBlocks
+        self.intBlockId = ['']*numberOfBlocks
         self.matBlock = ['PMMA']*numberOfBlocks
     # def createLoadBlock(self,x,y,k):
     #     if self.loadfuncx(x) == self.loadfuncy(y):

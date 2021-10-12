@@ -5,6 +5,7 @@ from api.app.GIICmodel.GIICmodel import GIICmodel
 from api.app.DCBmodel.DCBmodel import DCBmodel
 from api.app.Verification.verificationModels import VerificationModels
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
+from api.app.Dogbone.Dogbone import Dogbone
 import matplotlib.pyplot as plt
 
 import matplotlib.pyplot as plt
@@ -34,15 +35,16 @@ class ModelControl(object):
         
         print(dx, 4.01*dx[0])
         
-        #gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
-        #model = gc.createModel(rot=True)
+        # gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, TwoD = True)
+        # model = gc.createModel()
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
-        dx=[0.0005,0.0005,0.0005]
-        #db = DCBmodel(dx = dx, solvertype = 'Verlet', TwoD = True, filetype = 'xml')
-        #model = db.createModel()
-        print('verifcation models')
-        veri = VerificationModels()
-        veri.createVerificationModels()
+        dx=[0.00025,0.00025,0.00025]
+        # db = DCBmodel(dx = dx, TwoD = True)
+        # model = db.createModel()
+        db = Dogbone(dx = dx, TwoD = True)
+        model = db.createModel()
+        #veri = VerificationModels()
+        #veri.createVerificationModels()
     def endRunOnError(self):
         pass
         

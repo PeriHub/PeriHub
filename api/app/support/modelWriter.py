@@ -9,7 +9,7 @@ class ModelWriter(object):
         self.filename = modelClass.filename
         print(self.filename)
         self.nsName = 'ns_' + modelClass.filename
-        self.path = 'Output/'+ modelClass.filename
+        self.path = 'Output/'+ os.path.join(modelClass.username, modelClass.filename)
         self.bcDict = modelClass.bcDict
         self.damageDict = modelClass.damageDict
         self.materialDict = modelClass.materialDict
@@ -39,7 +39,7 @@ class ModelWriter(object):
 
     def fileWriter(self, filename, string):
         if not os.path.exists(self.path):
-            os.mkdir(self.path)
+            os.makedirs(self.path)
         fid = open(self.path+'/'+filename,'w')
         fid.write(string)
         fid.close()

@@ -17,7 +17,6 @@ class YAMLcreator(object):
         
         
     def translateXMLtoYAML(self,string):
-        print(string)
         stringYAML = ''
         splitString = string.split('\n')
         for spl in splitString:
@@ -35,8 +34,7 @@ class YAMLcreator(object):
                 else:
                     if len(partString)!=1:
                         stringYAML += spaces[0] + partString[1] + ': \n'
-        print(string)
-        print(stringYAML)
+
         return stringYAML   
     def loadMesh(self):
         string = '    Discretization:\n'
@@ -212,7 +210,7 @@ class YAMLcreator(object):
         string = 'Peridigm:\n'
         string += self.loadMesh()
 
-        if len(self.bondfilters['Name'])>0:
+        if len(self.bondfilters)>0:
             string += self.createBondFilter()
         string += self.material()
         if len(self.damageDict)>0:

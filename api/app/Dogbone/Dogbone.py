@@ -1,14 +1,15 @@
 import sys
 import numpy as np
+from numpy.core import numeric
 from scipy import interpolate
 from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 
 class Dogbone(object):
-    def __init__(self, xend = 18, yend = 2, zend = 0.4, dx=[0.2,0.2,0.2], 
-    filename = 'Dogbone', TwoD = False, rot = 'False', angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = ''):
+    def __init__(self, xend = 0.115, h1 = 0.019, h2 = 0.013, zend = 0.003, dx=[0.0005,0.0005,0.0005], 
+    filename = 'Dogbone', TwoD = False, rot = False, angle = [0,0], 
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = ''):
         '''
             definition der blocks
             k =
@@ -17,28 +18,24 @@ class Dogbone(object):
             3 Min Y Up Node Set
             4 Min Y Down Node Set
         '''
-        self.a
-        self.b
-        self.c
-        self.length = 2*a+c
+        
         self.filename = filename
         self.scal = 4.01
         self.TwoD = TwoD
         self.nsList = [3,4]
         self.dx   = dx
-        self.xbegin = -xend/2 - dx[0]
-        self.ybegin = -yend/2 - dx[1]
-        self.zbegin = -zend/2 - dx[2]
-        self.xend = xend/2 + dx[0]
-        self.yend = yend/2 + dx[1]
-        self.zend = zend/2 + dx[2]
+        self.xend = xend
+        self.h1 = h1
+        self.h2 = h2
+        self.zend = zend + dx[2]
         self.rot = rot
         self.blockDef = block
+        self.username = username
         if self.TwoD:
             self.zbegin = 0
             self.zend = 0
             self.dx[2] = 1
-        numberOfBlocks = 4
+        numberOfBlocks = 5
         # xbound = [0, 4*dx[0],5*dx[0], xend-5*dx[0],xend-4*dx[0],xend + dx[0]]
         # ybound = [0, 4*dx[1],5*dx[1], yend + dx[1]]
 
@@ -68,12 +65,12 @@ class Dogbone(object):
         self.outputDict = [{},{}]
         self.angle = [0,0]
         if damage=='':
-            self.damageDict = {'PMMADamage':{'Energy':5.1, 'InferaceEnergy':0.01}}
+            self.damageDict[0] = {'Name': 'PMMADamage', 'damageModel': 'Critical Energy Correspondence', 'criticalEnergy':5.1, 'interblockdamageEnergy':0.01, 'onlyTension': True, 'detachedNodesCheck': True, 'thickness': 10, 'hourglassCoefficient': 1.0, 'stabilizatonType': 'Global Stiffness'}
         else:
             self.damageDict = damage
         
         if compute=='':
-            self.computeDict[0] = {'Name':'External_Displacement','variable':'Displacement', 'calculationType':'Minimum','blockName':'block_3'},
+            self.computeDict[0] = {'Name':'External_Displacement','variable':'Displacement', 'calculationType':'Minimum','blockName':'block_3'}
             self.computeDict[1] = {'Name':'External_Force','variable':'Force', 'calculationType':'Sum','blockName':'block_3'}
         else:
             self.computeDict = compute
@@ -87,9 +84,13 @@ class Dogbone(object):
         if material=='':
             i=0
             for material in matNameList:
-                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
+                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0, 'yieldStress': 200}
                 if isotropic:
-                    params =[5.2e-08, 3184.5476165501973,0.3824761153875444]
+                    params =[200000.0,    #Density
+                    1.5e9,                #Young's Modulus
+                    0.3,                  #Poisson's Ratio
+                    0,                    #Bulk Modulus
+                    0]                    #Shear Modulus
                     mat = MaterialRoutines()
                     self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
                 else:
@@ -124,30 +125,22 @@ class Dogbone(object):
             self.materialDict = material
         
 
-        self.bondfilters = {'Name':['bf_1'], 
-                            'Normal':[[0.0,1.0,0.0]],
-                            'Lower_Left_Corner':[[-0.06,0.0,-0.01]],
-                            'Bottom_Unit_Vector':[[1.0,0.0,0.0]],
-                            'Bottom_Length':[0.01],
-                            'Side_Length':[0.01]}
+        self.bondfilters = {}
         if(bc==''):
-            self.bcDict = [{'Name': 'BC_1', 'boundarytype': 'Prescribed Displacement', 'blockId': 3, 'coordinate': 'y', 'value': '0.004*t'},
-                           {'Name': 'BC_2', 'boundarytype': 'Prescribed Displacement', 'blockId': 4, 'coordinate': 'y', 'value': '-0.004*t'},
-                           {'Name': 'BC_3', 'boundarytype': 'Prescribed Displacement', 'blockId': 1, 'coordinate': 'z', 'value': '0*t'},
-                           {'Name': 'BC_4', 'boundarytype': 'Prescribed Displacement', 'blockId': 2, 'coordinate': 'z', 'value': '0*t'},]   
+            self.bcDict = [{'Name': 'BC_1', 'boundarytype': 'Prescribed Displacement', 'blockId': 1, 'coordinate': 'x', 'value': '0*t'},
+                           {'Name': 'BC_2', 'boundarytype': 'Prescribed Displacement', 'blockId': 5, 'coordinate': 'x', 'value': '10*t'},]   
         else:
             self.bcDict = bc
 
         if(solver==''):               
-            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.075, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'yaml'}
+            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.075, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'xml'}
         else:
             self.solverDict = solver
 
         self.damBlock = ['']*numberOfBlocks
-        self.damBlock[0] = 'PMMADamage'
-        self.damBlock[1] = 'PMMADamage'
+        self.damBlock[2] = 'PMMADamage'
 
-        self.intBlockId = [-1]*numberOfBlocks
+        self.intBlockId = ['']*numberOfBlocks
         self.matBlock = ['PMMA']*numberOfBlocks
     # def createLoadBlock(self,x,y,k):
     #     if self.loadfuncx(x) == self.loadfuncy(y):
@@ -182,27 +175,100 @@ class Dogbone(object):
 
     #     return angle_x, angle_y, angle_z
     def createModel(self):
+        # dx = 0.001
+        t = self.dx[0]
+        # Lges = 0.115
+        #print(dx)
+        #self.dx[0] = self.xend/int(self.xend/self.dx[0])
+        
+        # h1=0.019; h2=0.013
+        #dy = self.h1/int(self.h1/self.dx[0])
+        
+        #print(self.dx[0],self.dx[1])
+        bc = 0.002
+        R = 0.076; l2 = 0.057
+        dl = np.sqrt(R*R-(R-(self.h1-self.h2)/2)**2)
+        
+        l1 = (self.xend - 2*dl - l2)/2;
+        dh =  (self.h1-self.h2)/2
+        alpha = np.arccos((R-dh)/R)*180/np.pi
+
         geo = Geometry()
         
-        x,y,z = geo.createPoints(coor = [self.xbegin, self.xend, self.ybegin, self.yend, self.zbegin, self.zend], dx = self.dx)
-        vol = np.zeros(len(x))
-        k = np.ones(len(x))
+        topSurf, bottomSurf = geo.createBoundaryCurve(h = self.h1, l1 = l1, R = R, l2 = l2, alphaMax = alpha, dl = dl, dh = dh)
+        blockDef = np.array([0, bc, l1, l1+2*dl+l2, self.xend - bc])
+        x0 = np.arange(0,self.xend+self.dx[0], self.dx[0])
+        y0 = np.arange(0,self.h1+self.dx[1], self.dx[1])
+        z0 = np.arange(0,t, self.dx[0])
+        num = len(x0)*len(y0)*len(z0)
+        x = []
+        y = []
+        z = []
+        k = []
+        vol = np.full((num), self.dx[0]*self.dx[0])
+        matNum = 0
+        xList = []
+        yList = []
+        #vol = dx*dx #*dx
+        stringLeft = ''
+        stringRight = ''
+        string = '# x y z block_id volume\n'
+        num = 0
+        bccount = 0
+        for xval in x0:
+            for yval in y0:
+                for zval in z0:
+                    if geo.checkValGreater(yval,bottomSurf(xval)) and geo.checkValLower(yval,topSurf(xval)):
+                        num += 1
+                        for idx,val in enumerate(blockDef): 
+                            if geo.checkValGreater(xval,val): matNum = idx + 1
+                        if geo.checkValLower(xval,blockDef[0]):
+                            stringLeft += str(num) + '\n'
+                            bccount += 1
+                        if geo.checkValGreater(xval,blockDef[-1]):
+                            stringRight += str(num) + '\n'
+                            bccount += 1
+                        x.append(xval)
+                        y.append(yval)
+                        z.append(zval)
+                        k.append(matNum)
+                        # x[num-1] = xval
+                        # y[num-1] = yval
+                        # z[num-1] = zval
+                        # k[num-1] = matNum
+                        # string += str(xval) + ' ' + str(yval) + ' ' +  str(zval)  + ' ' + str(matNum) + ' ' + str(vol) + '\n'  
+                        xList.append(xval);                yList.append(yval)
+        
+        #for zval in z0: 
+            #string += str(l1+dl) + ' ' + str(0.5*(self.h1-self.h2)) + ' ' +  str(zval)  + ' ' + str(3) + ' ' + str(vol) + '\n' 
+            
+            # x[num-1] = l1+dl
+            # y[num-1] = 0.5*(self.h1-self.h2)
+            # z[num-1] = zval
+            # k[num-1] = 3
+            #x.append(l1+dl)
+            #y.append(0.5*(self.h1-self.h2))
+            #z.append(zval)
+            #k.append(3)
+        #xList.append(l1+dl);                yList.append(0.5*(self.h1-self.h2))
+
+        #vol = np.(dx*dx)
         if self.rot:
             angle_x = np.zeros(len(x))
             angle_y = np.zeros(len(x))
             angle_z = np.zeros(len(x))
-        for idx in range(0, len(x)):
+        #for idx in range(0, len(x)):
             # if rot:
             #     angle_x[idx], angle_y[idx], angle_z[idx] = self.createAngles(x[idx],y[idx], z[idx])
             # if y[idx] >= self.yend/2:
             #     k[idx] = self.createLoadBlock(x[idx],y[idx],k[idx])
             # else:
             #     k[idx] = self.createBoundaryConditionBlock(x[idx],y[idx],k[idx])
-            k[idx] = int(self.createBlock(y[idx],k[idx]))
-            k[idx] = int(self.createLoadIntroNode(x[idx], y[idx], k[idx]))
+            #k[idx] = int(self.createBlock(y[idx],k[idx]))
+            #k[idx] = int(self.createLoadIntroNode(x[idx], y[idx], k[idx]))
             
 
-            vol[idx] = self.dx[0] * self.dx[1] * self.dx[2]
+            #vol[idx] = self.dx[0] * self.dx[1] * self.dx[2]
         
         writer = ModelWriter(modelClass = self)
         
@@ -210,7 +276,7 @@ class Dogbone(object):
             model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol, 'angle_x':angle_x, 'angle_y':angle_y, 'angle_z': angle_z}
             writer.writeMeshWithAngles(model)
         else:
-            model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol}
+            model = {'x':x, 'y':y, 'z': z, 'k':np.array(k), 'vol':vol}
             writer.writeMesh(model)
         writer.writeNodeSets(model)
         self.writeFILE(writer = writer, model = model)

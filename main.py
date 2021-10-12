@@ -1,11 +1,9 @@
 import os, sys
-#insert smetana sorce folder to path
-sys.path.insert(1, os.path.join(os.path.dirname(os.path.abspath(__file__)),'app'))
+sys.path.insert(1, os.path.join(os.path.dirname(os.path.abspath(__file__)),'api\\app'))
 
 from modelGeneratorControl import ModelControl
 
 if __name__ == '__main__':
-    
     kwargs = {}
     mycontrol = ModelControl()
     try:        

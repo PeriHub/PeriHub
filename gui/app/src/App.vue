@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="overflow-hidden">
     <v-app-bar 
       app
       color="#464646"
@@ -60,5 +60,9 @@ export default {
 <style>
 .my-btn {
   margin-right: 5px;
+}
+.v-app {
+  height: 600px;
+  width: 100%;
 }
 </style>
