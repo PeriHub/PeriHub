@@ -15,9 +15,8 @@ class YAMLcreator(object):
         self.nsList = modelWriter.nsList
         self.TwoD = modelWriter.TwoD   
         
-        
     def translateXMLtoYAML(self,string):
-        stringYAML = ''
+        stringYAML = 'Peridigm:\n'
         splitString = string.split('\n')
         for spl in splitString:
             if "</ParameterList>" not in spl and '<ParameterList>' not in spl:
@@ -152,8 +151,8 @@ class YAMLcreator(object):
                 string += '                 Output Frequency: '+ str(self.solverDict['verlet']['outputFrequency']) +'\n'
         else:
             string += '        Verlet:\n'
-            string += '            Safety Factor: 0.95\n'
-            string += '            Numerical Damping: 0.000005\n'
+            string += '            Safety Factor: '+ str(float(self.solverDict['safetyFactor'])) +'\n'
+            string += '            Numerical Damping: '+ str(float(self.solverDict['numericalDamping'])) +'\n'
         return string
     def boundaryCondition(self):
         string = '    Boundary Conditions:\n'

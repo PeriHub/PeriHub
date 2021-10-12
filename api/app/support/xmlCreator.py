@@ -14,6 +14,7 @@ class XMLcreator(object):
         self.nsName = modelWriter.nsName
         self.nsList = modelWriter.nsList
         self.TwoD = modelWriter.TwoD
+        
     def loadMesh(self):
         string = '    <ParameterList name="Discretization">\n'
         string += '        <Parameter name="Type" type="string" value="Text File" />\n'
@@ -42,25 +43,30 @@ class XMLcreator(object):
         return string
     def material(self):
         string = '    <ParameterList name="Materials">\n'
-        aniso = False
         for mat in self.materialDict:
             string += '        <ParameterList name="' + mat['Name'] +'">\n'
             string += '            <Parameter name="Material Model" type="string" value="' + mat['MatType'] + '"/>\n'
-            string += '            <Parameter name="Tension pressure separation for damage model" type="bool" value="' + str(mat['tensionSeparation']) + '"/>\n'
             string += '            <Parameter name="Plane Stress" type="bool" value="' + str(self.TwoD) + '"/>\n'
-            #string += '            <Parameter name="Density" type="double" value="' + str(mat['dens'][idx]) + '"/>\n'
-            for param in mat['Parameter']:
-                string += '            <Parameter name="'+ param +'" type="double" value="' +str(np.format_float_scientific(mat['Parameter'][param]['value'])) +'"/>\n'
-                if param == 'C11':
-                    aniso = True
-            if aniso:
-                # needed for time step estimation
-                string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="' + str(float(mat['youngsModulus'])) + '"/>\n'
-                string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="' + str(float(mat['poissonsRatio'])) + '"/>\n'
+            string += '            <Parameter name="Density" type="double" value="' + str(np.format_float_scientific(float(mat['density']))) + '"/>\n'
+            if mat['materialSymmetry'] == 'Anisotropic':
                 string += '            <Parameter name="Material Symmetry" type="string" value = "' + mat['materialSymmetry'] + '"/>\n'
+                for param in mat['Parameter']:
+                    string += '            <Parameter name="'+ param +'" type="double" value="' +str(np.format_float_scientific(float(mat['Parameter'][param]['value']))) +'"/>\n'
+
+                # needed for time step estimation
+            string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['youngsModulus']))) + '"/>\n'
+            string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="' + str(np.format_float_scientific(float(mat['poissonsRatio']))) + '"/>\n'
             string += '            <Parameter name="Stabilizaton Type" type="string" value="' + mat['stabilizatonType'] + '"/>\n'
             string += '            <Parameter name="Thickness" type="double" value="' + str(float(mat['thickness'])) + '"/>\n'
             string += '            <Parameter name="Hourglass Coefficient" type="double" value="' + str(float(mat['hourglassCoefficient'])) + '"/>\n'
+            if mat['tensionSeparation']:
+                string += '            <Parameter name="Tension pressure separation for damage model" type="bool" value="' + str(mat['tensionSeparation']) + '"/>\n'
+            if 'actualHorizon' in mat and mat['actualHorizon']!='':
+                string += '            <Parameter name="Actual Horizon" type="double" value="' + str(float(mat['actualHorizon'])) + '"/>\n'
+            if 'yieldStress' in mat and mat['yieldStress']!='':
+                string += '            <Parameter name="Yield Stress" type="double" value="' + str(float(mat['yieldStress'])) + '"/>\n'
+            if 'nonLinear' in mat and mat['nonLinear']!='':
+                string += '            <Parameter name="Non linear" type="double" value="' + mat['nonLinear'] + '"/>\n'
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'  
         return string  
@@ -107,35 +113,42 @@ class XMLcreator(object):
             string += '        <ParameterList name="Verlet">\n'
             string += '            <Parameter name="Safety Factor" type="double" value="'+ str(float(self.solverDict['safetyFactor'])) +'"/>\n'
             string += '            <Parameter name="Numerical Damping" type="double" value="'+ str(float(self.solverDict['numericalDamping'])) +'"/>\n'
+            if('adaptivetimeStepping' in self.solverDict):
+                string += '            <Parameter name="Adaptive Time Stepping" type="bool" value="true"/>\n'
+                string += '            <Parameter name="Stable Step Difference" type="int" value="'+ str(self.solverDict['adapt']['stableStepDifference']) +'"/>\n'
+                string += '            <Parameter name="Maximum Bond Difference" type="int" value="'+ str(self.solverDict['adapt']['maximumBondDifference']) +'"/>\n'
+                string += '            <Parameter name="Stable Bond Difference" type="int" value="'+ str(self.solverDict['adapt']['stableBondDifference']) +'"/>\n'
         elif(self.solverDict['solvertype']=='NOXQuasiStatic'):
-            string += '        <Parameter name="Peridigm Preconditioner" type="string" value="None"/>\n'
+            string += '        <Parameter name="Peridigm Preconditioner" type="string" value="'+ str(self.solverDict['peridgimPreconditioner']) +'"/>\n'
             string += '        <ParameterList name="NOXQuasiStatic">\n'
-            string += '            <Parameter name="Nonlinear Solver" type="string" value="Line Search Based"/>\n'
+            string += '            <Parameter name="Nonlinear Solver" type="string" value="'+ str(self.solverDict['nonlinearSolver']) +'"/>\n'
             string += '            <Parameter name="Number of Load Steps" type="int" value="'+ str(float(self.solverDict['NumberOfLoadSteps'])) +'"/>\n'
-            string += '            <Parameter name="Max Solver Iterations" type="int" value="50"/>\n'
+            string += '            <Parameter name="Max Solver Iterations" type="int" value="'+ str(self.solverDict['maxSolverIterations']) +'"/>\n'
             string += '            <Parameter name="Relative Tolerance" type="double" value="'+ str(float(self.solverDict['Tolerance'])) +'"/>\n'
-            string += '            <Parameter name="Max Age Of Prec" type="int" value="100"/>\n'
+            string += '            <Parameter name="Max Age Of Prec" type="int" value="'+ str(self.solverDict['maxAgeOfPrec']) +'"/>\n'
             string += '            <ParameterList name="Direction">\n'
-            string += '                 <Parameter name="Method" type="string" value="Newton"/>\n'
-            string += '                 <ParameterList name="Newton">\n'
-            string += '                      <ParameterList name="Linear Solver">\n'
-            string += '                           <Parameter name="Jacobian Operator" type="string" value="Matrix-Free"/>\n'
-            string += '                           <Parameter name="Preconditioner" type="string" value="None"/>\n'
-            string += '                      </ParameterList>\n'
-            string += '                 </ParameterList>\n'
+            string += '                 <Parameter name="Method" type="string" value="'+ str(self.solverDict['directionMethod']) +'"/>\n'
+            if(self.solverDict['directionMethod']=='Newton'):
+                string += '                 <ParameterList name="Newton">\n'
+                string += '                      <ParameterList name="Linear Solver">\n'
+                string += '                           <Parameter name="Jacobian Operator" type="string" value="'+ str(self.solverDict['newton']['jacobianOperator']) +'"/>\n'
+                string += '                           <Parameter name="Preconditioner" type="string" value="'+ str(self.solverDict['newton']['preconditioner']) +'"/>\n'
+                string += '                      </ParameterList>\n'
+                string += '                 </ParameterList>\n'
             string += '            </ParameterList>\n'
             string += '            <ParameterList name="Line Search">\n'
-            string += '                 <Parameter name="Method" type="string" value="Polynomial"/>\n'
+            string += '                 <Parameter name="Method" type="string" value="'+ str(self.solverDict['lineSearchMethod']) +'"/>\n'
             string += '            </ParameterList>\n'
-            string += '            <ParameterList name="Switch to Verlet">\n'
-            string += '                 <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
-            string += '                 <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
-            string += '                 <Parameter name="Output Frequency" type="int" value="1000"/>\n'
-            string += '            </ParameterList>\n'
+            if(self.solverDict['verletSwitch']):
+                string += '            <ParameterList name="Switch to Verlet">\n'
+                string += '                 <Parameter name="Safety Factor" type="double" value="'+ str(float(self.solverDict['verlet']['safetyFactor'])) +'"/>\n'
+                string += '                 <Parameter name="Numerical Damping" type="double" value="'+ str(float(self.solverDict['verlet']['numericalDamping'])) +'"/>\n'
+                string += '                 <Parameter name="Output Frequency" type="int" value="'+ str(self.solverDict['verlet']['outputFrequency']) +'"/>\n'
+                string += '            </ParameterList>\n'
         else:
             string += '        <ParameterList name="Verlet">\n'
-            string += '            <Parameter name="Safety Factor" type="double" value="0.95"/>\n'
-            string += '            <Parameter name="Numerical Damping" type="double" value="0.000005"/>\n'
+            string += '            <Parameter name="Safety Factor" type="double" value="'+ str(float(self.solverDict['safetyFactor'])) +'"/>\n'
+            string += '            <Parameter name="Numerical Damping" type="double" value="'+ str(float(self.solverDict['numericalDamping'])) +'"/>\n'
         string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'
         return string

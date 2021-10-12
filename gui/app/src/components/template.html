@@ -2,7 +2,6 @@
     <splitpanes>
       <pane min-size="15" style="height: 94vh">
         <v-subheader>
-          
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="readData">
@@ -165,10 +164,16 @@
                         <v-row>
                           <v-col class="textfield-col">
                             <v-text-field 
+                              v-model=material.density
+                              label="Density"
+                              outlined></v-text-field>
+                          </v-col>
+                          <!-- <v-col class="textfield-col">
+                            <v-text-field 
                               v-model=material.bulkModulus
                               label="Bulk Modulus"
                               outlined></v-text-field>
-                          </v-col>
+                          </v-col> -->
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=material.youngsModulus
@@ -182,17 +187,27 @@
                               outlined></v-text-field>
                           </v-col>
                         </v-row>
-                        <v-switch
-                          v-model=material.tensionSeparation
-                          :label="`Tension Separation`"
-                        ></v-switch>
+                        <v-row>
+                          <v-col class="textfield-col">
+                            <v-switch
+                              v-model=material.tensionSeparation
+                              :label="`Tension Separation`"
+                            ></v-switch>
+                          </v-col>
+                          <v-col class="textfield-col">
+                            <v-switch
+                              v-model=material.nonLinear
+                              :label="`Non linear`"
+                            ></v-switch>
+                          </v-col>
+                        </v-row>
                         <v-select
                           :items="materialSymmetry"
                           v-model=material.materialSymmetry
                           v-show="material.MatType=='Linear Elastic Correspondence'"
-                          label="Material Model Name"
+                          label="Material Symmetry"
                           outlined></v-select>
-                          <v-container>
+                          <v-container v-show="material.materialSymmetry=='Anisotropic' & material.MatType=='Linear Elastic Correspondence'">
                             <v-row>
                               <li v-for="(params, name) in material.Parameter" :key="params.index">
                                 <v-text-field  class="textfield-col"
@@ -1068,7 +1083,7 @@
                     <i class="fas fa-external-link-alt"></i>
                 </v-btn>
               </template>
-                <span>Show Results</span>
+                <span>CARA Enginframe</span>
               </v-tooltip>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -1076,19 +1091,19 @@
                     <i class="fas fa-chart-line"></i>
                 </v-btn>
               </template>
-                <span>Get Plot</span>
+                <span>Show Plot</span>
               </v-tooltip>
 
               <v-dialog
                 v-model="dialogGetPlot"
                 persistent
-                max-width="800"
+                max-width="400"
               >
                   <v-card>
                     <v-card-title class="text-h5">
-                      Get Image
+                      Show Plot
                     </v-card-title>
-                    <v-card-text>Variable?</v-card-text>
+                    <v-card-text>Which variable do you want to use for the x-axis?</v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn
@@ -1103,7 +1118,7 @@
                         text
                         @click="getPlot('Displacement')"
                       >
-                      Displacement
+                        Displacement
                       </v-btn>
                       <v-btn
                         color="red darken-1"
@@ -1121,19 +1136,19 @@
                     <i class="fas fa-image"></i>
                 </v-btn>
               </template>
-                <span>Get Image</span>
+                <span>Show Image</span>
               </v-tooltip>
 
               <v-dialog
                 v-model="dialogGetImage"
                 persistent
-                max-width="800"
+                max-width="600"
               >
                   <v-card>
                     <v-card-title class="text-h5">
-                      Get Image
+                      Show Image
                     </v-card-title>
-                    <v-card-text>Variable?</v-card-text>
+                    <v-card-text>Which variable do you want to display ?</v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn
@@ -1296,7 +1311,7 @@
             height=88%
             width=100%
             margin=10px
-            :loading="loading"
+            :loading="modelLoading"
             color="#2D2D2D"
             >
             
@@ -1395,7 +1410,6 @@
                 :extract="library => library.Plotly" /> -->
               <!-- <remote-component url="http://localhost:8081/"
                 :extract="extract" /> -->
-    
             </v-card>
     
             <!-- </v-container> -->
@@ -1447,11 +1461,11 @@
             </v-subheader>
             <!-- class="overflow-y-auto" -->
             <v-card class="my-card"
-            title='YamlOutput'
+            title='Editor'
             elevation="0"
             height=85%
             width=100%
-            :loading="loading"
+            :loading="textLoading"
             flex
             >
               <template slot="progress">
@@ -1466,7 +1480,7 @@
               <v-divider class="mx-4"></v-divider> -->
                 <prism-editor
                   class="my-editor"
-                  v-model="yamlOutput"
+                  v-model="textOutput"
                   :highlight="highlighter"
                   line-numbers
                 ></prism-editor>
@@ -1485,13 +1499,11 @@
             class="d-flex"
             cols="12"
             sm="4">
-            
           </v-col>
           <v-col
             class="d-flex"
             cols="12"
             sm="8">
-           
           </v-col>
         </v-row> -->
     <v-snackbar

@@ -17,7 +17,7 @@ import "vuescroll/dist/vuescroll.css";
 Vue.use(vuescroll);
 Vue.use(VueVtkJs);
 Vue.use(vueNumeralFilterInstaller, { locale: 'en-gb' });
-Vue.component('font-awesome-icon', FontAwesomeIcon);
+Vue.component('FontAwesomeIcon', FontAwesomeIcon);
 Vue.component('PrismEditor', PrismEditor);
 
 Vue.config.productionTip = false

@@ -1,8 +1,5 @@
-<template src="./template.html">
-</template>
+<template src="./template.html" />
 
-<script src="./script.js">
-</script>
+<script src="./script.js" />
 
-<style src="./style.css">
-</style>
+<style src="./style.css" />

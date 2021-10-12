@@ -84,18 +84,18 @@ class Dogbone(object):
         if material=='':
             i=0
             for material in matNameList:
-                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0, 'yieldStress': 200}
-                if isotropic:
-                    params =[200000.0,    #Density
-                    1.5e9,                #Young's Modulus
-                    0.3,                  #Poisson's Ratio
-                    0,                    #Bulk Modulus
-                    0]                    #Shear Modulus
-                    mat = MaterialRoutines()
-                    self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
-                else:
+                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 200000.0, 'youngsModulus': 1.5e9, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Isotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0, 'yieldStress': 31.3e4, 'nonLinear': False}#, 'adaptHourStiff': False}
+                # if isotropic:
+                    # params =[200000.0,    #Density
+                    # 1.5e9,                #Young's Modulus
+                    # 0.3,                  #Poisson's Ratio
+                    # 0,                    #Bulk Modulus
+                    # 0]                    #Shear Modulus
+                    # mat = MaterialRoutines()
+                    # self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
+                if self.materialDict[i]['materialSymmetry'] == 'Anisotropic':
                     self.angle = [60,-60]
-                    params = [1.95e-07, #dens
+                    params = [
                     165863.6296530634,  #C11
                     4090.899504376252,  #C12
                     2471.126276093059,  #C13

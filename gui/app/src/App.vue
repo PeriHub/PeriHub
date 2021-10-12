@@ -10,33 +10,58 @@
           alt="DLR Logo"
           class="shrink mr-2"
           contain
-          src="./assets/DLR_Signet_schwarz.png"
+          src="./assets/DLR_Signet_weiss.png"
           transition="scale-transition"
           width="40"
         />
         <h1> PeriHub </h1>
       </div>
 
-      <v-spacer></v-spacer>
-      <v-switch hide-details v-model="$vuetify.theme.dark" />
-        <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-          <v-btn class="my-btn" v-bind="attrs" v-on="on" href="https://gitlab.dlr.de/AG-SATT/modelgenerator" target="_blank" color="primary">
-              <i class="fab fa-gitlab" size="2x"></i>
+      <v-spacer />
+      <v-switch
+        v-model="$vuetify.theme.dark"
+        hide-details
+      />
+      <v-tooltip bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            class="my-btn"
+            v-bind="attrs"
+            href="https://gitlab.dlr.de/AG-SATT/modelgenerator"
+            target="_blank"
+            color="primary"
+            v-on="on"
+          >
+            <i
+              class="fab fa-gitlab"
+              size="2x"
+            />
           </v-btn>
         </template>
-          <span>GitLab</span>
-        </v-tooltip>
-      <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-        <v-btn class="my-btn" v-bind="attrs" v-on="on" href="https://github.com/PeriDoX/PeriDoX" target="_blank" color="primary">
-            <i class="fab fa-github" size="2x"></i>
-        </v-btn>
-      </template>
+        <span>GitLab</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            class="my-btn"
+            v-bind="attrs"
+            href="https://github.com/PeriDoX/PeriDoX"
+            target="_blank"
+            color="primary"
+            v-on="on"
+          >
+            <i
+              class="fab fa-github"
+              size="2x"
+            />
+          </v-btn>
+        </template>
         <span>PeriDoX</span>
       </v-tooltip>
     </v-app-bar>
 
     <v-main>
-      <Generator/>
+      <Generator />
     </v-main>
   </v-app>
 </template>

@@ -55,10 +55,12 @@ import { Plotly } from 'vue-plotly'
         materials: [
           { id: 1, Name: 'PMMA', 
             MatType: 'Linear Elastic Correspondence', 
+            density: 1.95e-07, 
             bulkModulus: 630000.0,
             youngsModulus: 210000.0,
             poissonsRatio: 0.3,
             tensionSeparation: false,
+            nonLinear: false,
             planeStress: true,
             materialSymmetry: 'Anisotropic',
             stabilizatonType: 'Global Stiffness',
@@ -67,7 +69,6 @@ import { Plotly } from 'vue-plotly'
             actualHorizon: '',
             yieldStress: '',
             Parameter: {
-              Density: {'value': 1.95e-07}, 
               C11: {'value': 165863.6296530634},
               C12: {'value': 4090.899504376252},
               C13: {'value': 2471.126276093059},
@@ -186,7 +187,7 @@ import { Plotly } from 'vue-plotly'
         cluster: ['Cara', 'FA-Cluster', 'None'],
 
 
-        yamlOutput: '',
+        textOutput: '',
         pointString: [1,0,0],
         filteredPointString: [1,0,0],
         blockIdString: [1],
@@ -196,7 +197,8 @@ import { Plotly } from 'vue-plotly'
         multiplier: 1,
         snackbar: false,
         message: 'Messsages',
-        loading: false,
+        modelLoading: false,
+        textLoading: false,
         resultsLoading: false,
         dataJson: '',
         colors: '',
@@ -302,7 +304,7 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
 
-        axios.request(reqOptions).then(response => (this.yamlOutput = response.data))
+        axios.request(reqOptions).then(response => (this.textOutput = response.data))
       },
       async generateModel() {
         // this.snackbar=true
@@ -337,12 +339,14 @@ import { Plotly } from 'vue-plotly'
             method: "POST",
             headers: headersList,
           }
-          this.loading = true
+          this.modelLoading = true
+          this.textLoading = true
           await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true
           this.viewInputFile()
           this.viewPointData()
-          this.loading = false
+          this.modelLoading = false
+          this.textLoading = false
         }
       },
       saveData() {
@@ -437,17 +441,16 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
 
-        this.loading = true
+        this.modelLoading = true
         await axios.request(reqOptions).then(response => (
           this.pointString = response.data[0].split(','),
           this.blockIdString = response.data[1].split(',')))
         this.filterPointData()
         this.viewId = 1
         this.$refs.view.resetCamera()
-        this.loading = false
+        this.modelLoading = false
       },
       filterPointData() {
-        this.loading = true
         var idx = 0
         this.filteredBlockIdString = []
         this.filteredPointString = []
@@ -460,9 +463,9 @@ import { Plotly } from 'vue-plotly'
             idx +=1 
           }
         }
-        this.loading = false
       },
       updatePoints() {
+        this.modelLoading = true
         if (this.radius<=0.2){
           this.multiplier=(1-(this.radius/0.5))*30
           this.filterPointData()
@@ -471,12 +474,12 @@ import { Plotly } from 'vue-plotly'
           this.multiplier=1
           this.filterPointData()
         }
+        this.modelLoading = false
       },
       // async copyModelToCluster() {
       //   let headersList = {
       //   'Cache-Control': 'no-cache'
       //   }
-
       //   let reqOptions = {
       //     url: "http://localhost:8000/copyModelToCluster",
       //     params: {ModelName: this.modelNameSelected,
@@ -604,7 +607,7 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
 
-        this.loading = true
+        this.modelLoading = true
         await axios.request(reqOptions).then(response => (
           this.plotRawData = response.data))
         
@@ -619,7 +622,7 @@ import { Plotly } from 'vue-plotly'
         this.plotData[0].y =  this.plotRawData[1].split(',')
         this.plotData[1].y =  this.plotRawData[2].split(',')
         this.viewId = 2
-        this.loading = false
+        this.modelLoading = false
       },
       async getImage(Variable) {
         this.dialogGetImage = false
@@ -637,11 +640,11 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
 
-        this.loading = true
+        this.modelLoading = true
         await axios.request(reqOptions).then(response => (
           this.modelImg = window.URL.createObjectURL(new Blob([response.data]))))
         this.viewId = 0
-        this.loading = false
+        this.modelLoading = false
       },
       showResults() {
         window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");
@@ -669,16 +672,16 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
 
-        this.loading = true
+        this.textLoading = true
         await axios.request(reqOptions).then(response => (
-          this.yamlOutput = response.data))
-        this.loading = false
+          this.textOutput = response.data))
+        this.textLoading = false
       },
       writeInputFile() {
         let reqOptions = {
           url: "http://localhost:8000/writeInputFile",
           params: {ModelName: this.modelNameSelected,
-                  InputString: this.yamlOutput,
+                  InputString: this.textOutput,
                   FileType: this.solver.filetype},
           method: "POST",
           }
