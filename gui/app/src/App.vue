@@ -14,7 +14,7 @@
           transition="scale-transition"
           width="40"
         />
-        <h1> Peridynamic Model Generator </h1>
+        <h1> PeriHub </h1>
       </div>
 
       <v-spacer></v-spacer>

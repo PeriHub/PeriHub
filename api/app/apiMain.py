@@ -10,20 +10,21 @@ from DCBmodel.DCBmodel import DCBmodel
 from Verification.verificationModels import VerificationModels
 from Dogbone.Dogbone import Dogbone
 from support.sbatchCreator  import SbatchCreator
+from support.fileHandler  import fileHandler
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
 # import matplotlib.pyplot as plt
 # import pandas as pd
 from typing import Optional
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Header, Request
 from fastapi.responses import FileResponse
 # from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import shutil
+import filecmp
 
 from enum import Enum
 
-import shutil
 import paramiko
 import os
 import csv
@@ -93,8 +94,10 @@ class ModelControl(object):
 
 
     @app.post("/generateModel")
-    def generateModel(ModelName: ModelName, UserName: str, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, Height2: Optional[float] = None):#Material: dict, Output: dict):
-        # L = 152
+    def generateModel(ModelName: ModelName, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
+       
+        username = request.headers.get('x-forwarded-preferred-username')
+         # L = 152
         # L = 50
         # W = 10
         # h = 4.95
@@ -119,7 +122,7 @@ class ModelControl(object):
             compute=Param['Param']['Compute'],  
             output=Param['Param']['Output'], 
             solver=Param['Param']['Solver'],
-            username = UserName)
+            username = username)
             model = gc.createModel()
 
         if ModelName==ModelName.DCBmodel:
@@ -133,7 +136,7 @@ class ModelControl(object):
             compute=Param['Param']['Compute'],  
             output=Param['Param']['Output'], 
             solver=Param['Param']['Solver'],
-            username = UserName)
+            username = username)
             model = dcb.createModel()
 
         if ModelName==ModelName.Dogbone:
@@ -147,160 +150,251 @@ class ModelControl(object):
             compute=Param['Param']['Compute'],  
             output=Param['Param']['Output'], 
             solver=Param['Param']['Solver'],
-            username = UserName)
+            username = username)
             model = db.createModel()
 
         print()
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
-        
-        
+   
     @app.get("/viewInputFile")
-    def viewInputFile(ModelName: ModelName, UserName: str, FileType: FileType):
+    def viewInputFile(ModelName: ModelName, FileType: FileType, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+
         try:
-            return FileResponse('./Output/' + os.path.join(UserName, ModelName) + '/'  + ModelName + '.' + FileType)
+            return FileResponse('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType)
         except:
             return 'Inputfile can\'t be found'
 
         return FileResponse('./Output/' + ModelName + '/'  + ModelName + '.' + FileType)
 
     @app.post("/writeInputFile")
-    def writeInputFile(ModelName: ModelName, UserName: str, InputString: str, FileType: FileType):
+    def writeInputFile(ModelName: ModelName, InputString: str, FileType: FileType, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
 
-        fid = open('./Output/' + os.path.join(UserName, ModelName) + '/'  + ModelName + '.' + FileType ,'w')
+        fid = open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType ,'w')
         fid.write(InputString)
         fid.close()
 
         return ModelName + '-InputFile has been saved'
 
     @app.get("/getModel")
-    def getModel(ModelName: ModelName, UserName: str):
+    def getModel(ModelName: ModelName, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
 
         try:
-            shutil.make_archive(ModelName, "zip", './Output/' + os.path.join(UserName, ModelName))
+            shutil.make_archive(ModelName, "zip", './Output/' + os.path.join(username, ModelName))
 
-        response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
-        response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
-        # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
-        return response
-
-        
-    @app.get("/getLogFile")
-    def getLogFile(ModelName: ModelName, UserName: str, Cluster: str):
-
-        if Cluster=='FA-Cluster':
-            username='hess_ja'
-            server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
-            remotepath = './Peridigm/apiModels/' + os.path.join(UserName, ModelName)
-        
-        elif Cluster=='Cara':
-            username='hess_ja'
-            server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
-            remotepath = './PeridigmJobs/apiModels/' + os.path.join(UserName, ModelName)
-
-        else:
-            return Cluster + ' unknown'
-
-        ssh = paramiko.SSHClient() 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-        sftp = ssh.open_sftp()
-        try:
-            outputFiles = sftp.listdir(remotepath)
-            filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
+            response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
+            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
+            # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+            return response
         except:
-            return 'LogFile can\'t be found'
-        if(len(filtered_values)==0):
-            return 'LogFile can\'t be found'
-        sftp.chdir(remotepath)
-        logfile = sftp.file(filtered_values[-1],'r')
-        response = logfile.read()
-        sftp.close()
-        ssh.close()
+            return 'Modelfiles can\'t be found'
+     
+    @app.get("/getLogFile")
+    def getLogFile(ModelName: ModelName, Cluster: str, request: Request):
 
-        return response
+        username = request.headers.get('x-forwarded-preferred-username')
+        usermail = request.headers.get('x-forwarded-email')
 
-    @app.get("/copyResults")
-    def copyResults(ModelName: ModelName, UserName: str, Cluster: str, allData: bool, request: Request):
-        
-        print(request)
-        headers = request.headers
-        email = request.headers.get('X-Forwarded-Email')
-        print(headers)
-        print(email)
+        if Cluster=='None':
+            
+            remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
+            try:
+                outputFiles = os.listdir(remotepath)
+                filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
+            except:
+                return 'LogFile can\'t be found'
+            if(len(filtered_values)==0):
+                return 'LogFile can\'t be found'
 
-        if Cluster=='FA-Cluster':
-            username='hess_ja'
-            server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
-            remotepath = './Peridigm/apiModels/' + os.path.join(UserName, ModelName)
-        
-        elif Cluster=='Cara':
-            username='hess_ja'
-            server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
-            remotepath = './PeridigmJobs/apiModels/' + os.path.join(UserName, ModelName)
+            f = open(os.path.join(remotepath, filtered_values[-1]), 'r')
+            response = f.read()
+            f.close()
+
+            return response
 
         else:
-            return Cluster + ' unknown'
-        
-        localpath = './Results/' + os.path.join(UserName, ModelName)
-        if not os.path.exists(localpath):
-            os.makedirs(localpath)
-        ssh = paramiko.SSHClient() 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
-        sftp = ssh.open_sftp()
-        for filename in sftp.listdir(remotepath):
-            if(allData or '.e' in filename):
-                sftp.get(os.path.join(remotepath, filename), os.path.join(localpath, filename))
-        sftp.close()
-        ssh.close()
+            if Cluster=='FA-Cluster':
+                remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
+            
+            elif Cluster=='Cara':
+                remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
+
+            else:
+                return Cluster + ' unknown'
+
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, 'hess_ja')
+
+            try:
+                outputFiles = sftp.listdir(remotepath)
+                filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
+            except:
+                return 'LogFile can\'t be found'
+            if(len(filtered_values)==0):
+                return 'LogFile can\'t be found'
+            sftp.chdir(remotepath)
+            logfile = sftp.file(filtered_values[-1],'r')
+            response = logfile.read()
+            sftp.close()
+            ssh.close()
+
+            return response
 
     @app.get("/getResults")
-    def getResults(ModelName: ModelName, UserName: str):
+    def getResults(ModelName: ModelName, Cluster: str, allData: bool, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
 
+        fileHandler.copyResultsFromCluster(username, ModelName, Cluster, allData)
+
+        # resultpath = './Results/' + os.path.join(username, ModelName)
+        userpath = './Results/' + username
         try:
-            shutil.make_archive(ModelName, "zip", './Results/' + os.path.join(UserName, ModelName))
+            shutil.make_archive(os.path.join(userpath, ModelName), "zip", userpath, ModelName)
 
-        response = FileResponse(ModelName + ".zip", media_type="application/x-zip-compressed")
-        response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
-        # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
-        return response
+            response = FileResponse(os.path.join(userpath, ModelName) + ".zip", media_type="application/x-zip-compressed")
+            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
+            # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+            return response
+        except:
+            return 'Resultfiles can\'t be found'
+
+    # @app.get("/getResults")
+    # def getResults(ModelName: ModelName, username: str):
+
+    #     resultpath = './Results/' + os.path.join(username, ModelName)
+    #     userpath = './Results/' + username
+    #     try:
+    #         shutil.make_archive(ModelName, "zip", userpath, resultpath)
+
+    #         response = FileResponse(os.path.join(userpath, ModelName) + ".zip", media_type="application/x-zip-compressed")
+    #         response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
+    #         # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+    #         return response
+    #     except:
+    #         return 'Resultfiles can\'t be found'
             
+    @app.post("/deleteModel")
+    def deleteModel(ModelName: ModelName, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        localpath = './Output/' + os.path.join(username, ModelName)
+        shutil.rmtree(localpath)
+        return ModelName + ' has been deleted'
+
+
+    @app.post("/deleteModelFromCluster")
+    def deleteModelFromCluster(ModelName: ModelName, Cluster: str, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        if Cluster=='None':
+            remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
+            shutil.rmtree(remotepath)
+            return ModelName + ' has been deleted'
+
+        else:
+            if Cluster=='FA-Cluster':
+                remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
+            
+            elif Cluster=='Cara':
+                remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
+
+            else:
+                return Cluster + ' unknown'
+
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+
+            for filename in sftp.listdir(remotepath):
+                sftp.remove(os.path.join(remotepath, filename))
+            sftp.rmdir(remotepath)
+            sftp.close()
+            ssh.close()
+            return ModelName + ' has been deleted'
+
+    @app.post("/deleteUserData")
+    def deleteUserData(request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        localpath = './Output/' + username
+        shutil.rmtree(localpath)
+        return 'Data of ' + username + ' has been deleted'
+
+    @app.post("/deleteUserDataFromCluster")
+    def deleteUserDataFromCluster(Cluster: str, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        if Cluster=='None':
+            remotepath = './peridigmJobs/' + username
+            shutil.rmtree(remotepath)
+            return 'Data of ' + username + ' has been deleted'
+
+        else:
+            remotepath = fileHandler.getRemoteUserPath(Cluster, username)
+            
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+
+            for filename in sftp.listdir(remotepath):
+                for subfilename in sftp.listdir(os.path.join(remotepath, filename)):
+                    sftp.remove(os.path.join(remotepath, subfilename))
+                sftp.remove(os.path.join(remotepath, filename))
+            sftp.rmdir(remotepath)
+            sftp.close()
+            ssh.close()
+            return 'Data of ' + username + ' has been deleted'
+
     @app.get("/getPlot")
-    def getPlot(ModelName: ModelName, UserName: str):
+    def getPlot(ModelName: ModelName, Cluster: str, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(["./api/app/support/read.sh"], shell=True)
+        process = subprocess.Popen(['./support/read.sh globalData ' + username + ' ' + ModelName], shell=True)
         process.wait()
 
         timeString=''
+        displacementString=''
         forceString=''
         firstRow=True  
         try:
-            with open('./Output/' + os.path.join(UserName, ModelName) + '/'  + 'dat.csv', 'r') as f:
+            with open('./Results/' + os.path.join(username, ModelName) + '/'  + 'dat.csv', 'r') as f:
                 reader = csv.reader(f)
                 for row in reader:
                     # print(row)
                     if firstRow==False:
-                        timeString+=row[5]+','
-                        forceString+=row[4]+','
-                    firstRow=False    
-            response=[timeString.rstrip(timeString[-1]),forceString.rstrip(forceString[-1])]  
+                        timeString+=row[-1]+','
+                        displacementString+=row[4]+','
+                        forceString+=row[8]+','
+                    firstRow=False
+            response=[timeString.rstrip(timeString[-1]),displacementString.rstrip(displacementString[-1]),forceString.rstrip(forceString[-1])]  
             return response
         except:
             return 'Resultfile can\'t be found'
 
+    @app.get("/getImage")
+    def getImage(ModelName: ModelName, Cluster: str, Variable: str, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
+
+        # subprocess.run(['./api/app/support/read.sh'], shell=True)
+        process = subprocess.Popen(['./support/read.sh image ' + username + ' ' + ModelName + ' ' + Variable], shell=True)
+        process.wait()
+
+        try:
+            return FileResponse('./Results/' + os.path.join(username, ModelName) + '/'  + Variable + '.jpg')
+        except:
+            return 'Resultfile can\'t be found'
+
     @app.get("/getPointData")
-    def getPointData(ModelName: ModelName, UserName: str):
+    def getPointData(ModelName: ModelName, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
 
         pointString=''
         blockIdString=''
         firstRow=True  
         try:
-            with open('./Output/' + os.path.join(UserName, ModelName) + '/'  + ModelName + '.txt', 'r') as f:
+            with open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.txt', 'r') as f:
                     reader = csv.reader(f)
                     for row in reader:
                         if firstRow==False:
@@ -315,78 +409,28 @@ class ModelControl(object):
         except:
             return 'Meshfile can\'t be found'
 
-    @app.get("/copyModelToCluster")
-    def copyModelToCluster(ModelName: ModelName, UserName: str, Cluster: str):
+    @app.post("/runModel")
+    def runModel(ModelName: ModelName, FileType: FileType, Param: dict, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+        usermail = request.headers.get('x-forwarded-email')
+
+        Cluster =  Param['Param']['Job']['cluster']
+        fileHandler.copyModelToCluster(username, ModelName, Cluster)
 
         if Cluster=='FA-Cluster':
-            server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
-            remotepath = './Peridigm/apiModels/' + os.path.join(UserName, ModelName)
-        
-        elif Cluster=='Cara':
-            server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
-            remotepath = './PeridigmJobs/apiModels/' + os.path.join(UserName, ModelName)
-        
-        elif Cluster=='None':
-            remotepath = './peridigmJobs/' + os.path.join(UserName, ModelName)
-            if not os.path.exists(remotepath):
-                os.makedirs(remotepath)
-                # os.chown(remotepath, 'test')
-            for root, dirs, files in os.walk('./Output/' + os.path.join(UserName, ModelName)):
-                for name in files:
-                    shutil.copy(os.path.join(root,name), os.path.join(remotepath,name))
-                    # os.chmod(os.path.join(remotepath,name), 0o0777)
-                    # os.chown(os.path.join(remotepath,name), 'test')
-            return ModelName + ' has been copied'
-
-        else:
-            return Cluster + ' unknown'
-        
-        ssh = paramiko.SSHClient() 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username=UserName, allow_agent=False, key_filename=keypath)
-        sftp = ssh.open_sftp()
-        try:
-            sftp.chdir(remotepath)  # Test if remote_path exists
-        except IOError:
-            sftp.mkdir(remotepath)  # Create remote_path
-            sftp.chdir(remotepath)
-        for root, dirs, files in os.walk('./Output/' + os.path.join(UserName, ModelName)):
-            for name in files:
-                sftp.put(os.path.join(root,name), name)
-
-        sftp.close()
-        ssh.close()
-        
-        return ModelName + ' has been copied to Cluster'
-
-    @app.post("/runModel")
-    def runModel(ModelName: ModelName, UserName: str, FileType: FileType, Param: dict):
-
-        if Param['Param']['Job']['cluster']=='FA-Cluster':
-            server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
-            remotepath = './Peridigm/apiModels/' + os.path.join(UserName, ModelName)
-            ssh = paramiko.SSHClient() 
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username=UserName, allow_agent=False, key_filename=keypath)
+            remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
+            ssh = fileHandler.sshToCluster('FA-Cluster', username)
             command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + str(Param['Param']['Job']['tasks']) + ' -O tgz -J ' + ModelName +' -E /home/hess_ja/PeridigmInstall/build/bin/Peridigm '+ ModelName + '.' + FileType
             ssh.exec_command(command)
             ssh.close()
 
             return ModelName + ' has been submitted'
 
-        elif Param['Param']['Job']['cluster']=='Cara':
-            sb = SbatchCreator(filename=ModelName, output=Param['Param']['Output'], job=Param['Param']['Job'])
+        elif Cluster=='Cara':
+            sb = SbatchCreator(filename=ModelName, output=Param['Param']['Output'], job=Param['Param']['Job'], username=username, usermail=usermail)
             sbatchString = sb.createSbatch()
-            server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
-            remotepath = './PeridigmJobs/apiModels/' + os.path.join(UserName, ModelName)
-            ssh = paramiko.SSHClient() 
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username=UserName, allow_agent=False, key_filename=keypath)
-            sftp = ssh.open_sftp()
+            remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
+            ssh, sftp = fileHandler.sftpToCluster('Cara', username)
             file=sftp.file(remotepath + '/' + ModelName + '.sbatch', "a", -1)
             file.write(sbatchString)
             file.flush()
@@ -398,58 +442,70 @@ class ModelControl(object):
 
             return ModelName + ' has been submitted'
 
-        elif Param['Param']['Job']['cluster']=='None':
+        elif Cluster=='None':
             server='peridigm'
-            remotepath = '/app/peridigmJobs/' + os.path.join(UserName, ModelName)
+            remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
+            if os.path.exists(os.path.join('.' + remotepath,'pid.txt')):
+                return ModelName + ' already submitted'
+            sh = SbatchCreator(filename=ModelName, filetype= FileType, remotepath=remotepath, output=Param['Param']['Output'], job=Param['Param']['Job'], username=username, usermail=usermail)
+            shString = sh.createSh()
+            f = open(os.path.join('.' + remotepath,"runPeridigm.sh"), "w")
+            f.write(shString)
+            f.close()
+            os.chmod(os.path.join('.' + remotepath,"runPeridigm.sh"), 0o0755)
             ssh = paramiko.SSHClient() 
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(server, username='root', allow_agent=False, password='root')
-            command = '/peridigm/build/src/Peridigm ' + os.path.join(remotepath, ModelName + '.' + FileType)
-            ssh.exec_command(command)
+            command = 'cd /app' + remotepath + ' \n rm ' + ModelName + '.log \n sh /app' + remotepath + '/runPeridigm.sh >> ' + ModelName + '.log &'
+            stdin, stdout, stderr  = ssh.exec_command(command)
+            #stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
+            # stdout=stdout.readlines()
+            # stderr=stderr.readlines()
             ssh.close()
 
-            return command
+            # return stdout + stderr
             return ModelName + ' has been submitted'
 
         else:
-            return Param['Param']['Job']['cluster'] + ' unknown'
+            return Cluster + ' unknown'
 
     @app.post("/cancelJob")
-    def cancelJob(ModelName: ModelName, UserName: str, Cluster: str):
+    def cancelJob(ModelName: ModelName, Cluster: str, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
 
-        if Cluster=='FA-Cluster':
-            server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
-            remotepath = './Peridigm/apiModels/' + os.path.join(UserName, ModelName)
+        if Cluster=='None':
+            server='peridigm'
+            remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
+            ssh = paramiko.SSHClient() 
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(server, username='root', allow_agent=False, password='root')
+            command = 'kill -9 `cat /app' + os.path.join(remotepath, 'pid.txt') + '` \n rm /app' + os.path.join(remotepath, 'pid.txt')
+            stdin, stdout, stderr  = ssh.exec_command(command)
+            stdout=stdout.readlines()
+            stderr=stderr.readlines()
+            ssh.close()
 
-        elif Cluster=='Cara':
-            server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
-            remotepath = './PeridigmJobs/apiModels/' + os.path.join(UserName, ModelName)
+            return 'Job has been canceled'
 
-        else:
-            return Cluster + ' unknown'
-        
-        ssh = paramiko.SSHClient() 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username=UserName, allow_agent=False, key_filename=keypath)
-        sftp = ssh.open_sftp()
-        try:
-            outputFiles = sftp.listdir(remotepath)
-            filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
-        except:
-            print( 'LogFile can\'t be found')
-        if(len(filtered_values)==0):
-            print(  'LogFile can\'t be found')
-        
-        jobId = filtered_values[-1].split("-")[-1][:-4]
-        command = 'scancel ' + jobId
-        ssh.exec_command(command)
-        ssh.close()
+        else:     
+            remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            try:
+                outputFiles = sftp.listdir(remotepath)
+                filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
+            except:
+                print( 'LogFile can\'t be found')
+            if(len(filtered_values)==0):
+                print(  'LogFile can\'t be found')
+            
+            jobId = filtered_values[-1].split("-")[-1][:-4]
+            command = 'scancel ' + jobId
+            ssh.exec_command(command)
+            ssh.close()
 
-        return 'Job: ' + jobId + ' has been canceled'
+            return 'Job: ' + jobId + ' has been canceled'
 
-    # uvicorn.run(app, host="0.0.0.0", port=8000)    
+    # uvicorn.run(app, host="0.0.0.0", port=80)    
     # pointString=''
     # firstRow=True  
     # with open('./Output/' + "GIICmodel" + '/'  + "GIICmodel" + '.txt', 'r') as f:
@@ -558,11 +614,11 @@ class ModelControl(object):
     # print(forceString)        
     # response=[timeString.rstrip(timeString[-1]),forceString.rstrip(forceString[-1])]  
     
-    # UserName='hess_ja'
+    # username='hess_ja'
     # ModelName='GIICmodel'
     # FileType='yaml'
     # server='peridigm'
-    # remotepath = '/app/PeridigmJobs/' + os.path.join(UserName, ModelName)
+    # remotepath = '/app/PeridigmJobs/' + os.path.join(username, ModelName)
     # command = '/peridigm/build/src/Peridigm ' + os.path.join(remotepath, ModelName + '.' + FileType)
     # print(command)
         

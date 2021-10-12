@@ -68,7 +68,7 @@ class YAMLcreator(object):
             string += '            Tension pressure separation for damage model: ' + str(mat['tensionSeparation']) + '\n'
             string += '            Plane Stress: ' + str(self.TwoD) + '\n'
             for param in mat['Parameter']:
-                string += '            ' + param + ': ' + str(np.format_float_scientific(mat['Parameter'][param]['value'])) + '\n'
+                string += '            ' + param + ': ' + str(np.format_float_scientific(float(mat['Parameter'][param]['value']))) + '\n'
                 if param == 'C11':
                     aniso = True
             if aniso:
