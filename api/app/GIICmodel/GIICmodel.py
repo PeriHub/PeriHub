@@ -90,14 +90,14 @@ class GIICmodel(object):
         if material=='':
             i=0
             for material in matNameList:
-                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
-                if isotropic:
-                    params =[5.2e-08, 3184.5476165501973,0.3824761153875444, 0 ,0]
-                    mat = MaterialRoutines()
-                    self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
-                else:
+                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 1.95e-07, 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
+                # if isotropic:
+                #     params =[5.2e-08, 3184.5476165501973,0.3824761153875444, 0 ,0]
+                #     mat = MaterialRoutines()
+                #     self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
+                if self.materialDict[i]['materialSymmetry'] == 'Anisotropic':
                     self.angle = [60,-60]
-                    params = [1.95e-07, #dens
+                    params = [
                     165863.6296530634,  #C11
                     4090.899504376252,  #C12
                     2471.126276093059,  #C13
