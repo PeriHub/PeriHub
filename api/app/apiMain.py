@@ -216,7 +216,7 @@ class ModelControl(object):
 
         else:
             if Cluster=='FA-Cluster':
-                remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
+                remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
             
             elif Cluster=='Cara':
                 remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
@@ -224,7 +224,7 @@ class ModelControl(object):
             else:
                 return Cluster + ' unknown'
 
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, 'hess_ja')
+            ssh, sftp = fileHandler.sftpToCluster(Cluster, 'f_peridi')
 
             try:
                 outputFiles = sftp.listdir(remotepath)
@@ -294,7 +294,7 @@ class ModelControl(object):
 
         else:
             if Cluster=='FA-Cluster':
-                remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
+                remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
             
             elif Cluster=='Cara':
                 remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
@@ -418,9 +418,9 @@ class ModelControl(object):
         fileHandler.copyModelToCluster(username, ModelName, Cluster)
 
         if Cluster=='FA-Cluster':
-            remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
+            remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
             ssh = fileHandler.sshToCluster('FA-Cluster', username)
-            command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + str(Param['Param']['Job']['tasks']) + ' -O tgz -J ' + ModelName +' -E /home/hess_ja/PeridigmInstall/build/bin/Peridigm '+ ModelName + '.' + FileType
+            command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + str(Param['Param']['Job']['tasks']) + ' -O tgz -J ' + ModelName +' -E /home/f_peridi/Peridigm/build/bin/Peridigm '+ ModelName + '.' + FileType
             ssh.exec_command(command)
             ssh.close()
 

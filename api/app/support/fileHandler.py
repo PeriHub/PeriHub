@@ -8,7 +8,7 @@ class fileHandler(object):
     def getRemoteModelPath(Cluster, username, ModelName):
         
         if Cluster=='FA-Cluster':
-            remotepath = './Peridigm/apiModels/' + os.path.join(username, ModelName)
+            remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
         
         elif Cluster=='Cara':
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
@@ -17,7 +17,7 @@ class fileHandler(object):
     def getRemoteUserPath(Cluster, username):
         
         if Cluster=='FA-Cluster':
-            remotepath = './Peridigm/apiModels/' + username
+            remotepath = './PeridigmJobs/apiModels/' + username
         
         elif Cluster=='Cara':
             remotepath = './PeridigmJobs/apiModels/' + username
@@ -26,7 +26,7 @@ class fileHandler(object):
     def getUserPath(Cluster, username, ModelName):
         
         if Cluster=='FA-Cluster':
-            userpath = './Peridigm/apiModels/' + username
+            userpath = './PeridigmJobs/apiModels/' + username
         
         elif Cluster=='Cara':
             userpath = './PeridigmJobs/apiModels/' + username
@@ -121,7 +121,7 @@ class fileHandler(object):
     def sftpToCluster(Cluster, username):
         
         if Cluster=='FA-Cluster':
-            username='hess_ja'
+            username='f_peridi'
             server='129.247.54.37'
             keypath = 'id_rsa_cluster'
         
@@ -139,7 +139,7 @@ class fileHandler(object):
     def sshToCluster(Cluster, username):
         
         if Cluster=='FA-Cluster':
-            username='hess_ja'
+            username='f_peridi'
             server='129.247.54.37'
             keypath = 'id_rsa_cluster'
         
