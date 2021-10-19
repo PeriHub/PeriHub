@@ -177,7 +177,7 @@ import { Plotly } from 'vue-plotly'
         filetype: ['yaml', 'xml'],
         // Job
         job: {
-          cluster: 'Cara',
+          cluster: 'None',
           tasks: 1280,
           time: '40:00:00',
           // user: 'hess_ja',
@@ -345,6 +345,9 @@ import { Plotly } from 'vue-plotly'
           this.snackbar=true
           this.viewInputFile()
           this.viewPointData()
+          // let dx = this.height/(2*parseInt(this.Discretization/2)+1)
+          // this.radius = Math.round(dx * 100) / 100
+          // this.updatePoints()
           this.modelLoading = false
           this.textLoading = false
         }
@@ -447,8 +450,8 @@ import { Plotly } from 'vue-plotly'
           this.blockIdString = response.data[1].split(',')))
         this.filterPointData()
         this.viewId = 1
-        this.$refs.view.resetCamera()
         this.modelLoading = false
+        this.$refs.view.resetCamera()
       },
       filterPointData() {
         var idx = 0
@@ -634,7 +637,9 @@ import { Plotly } from 'vue-plotly'
           url: "http://localhost:8000/getImage",
           params: {ModelName: this.modelNameSelected,
                    Cluster: this.job.cluster,
-                   Variable: Variable},
+                   Variable: Variable,
+                   Height: this.height,
+                   Discretization: this.discretization},
           method: "GET",
           responseType: 'blob',
           headers: headersList,
@@ -744,6 +749,9 @@ import { Plotly } from 'vue-plotly'
         this.materials.push({
           id: this.nextMaterialId++,
           Name: "Material"+(this.nextMaterialId-1),
+          MatType: 'Elastic',
+          tensionSeparation: false,
+          nonLinear: false,
           Parameter: {}
         })
       },
@@ -790,7 +798,14 @@ import { Plotly } from 'vue-plotly'
       addOutput() {
         this.outputs.push({
           id: this.nextOutputId++,
-          Name: "Output"+(this.nextOutputId-1)
+          Name: "Output"+(this.nextOutputId-1),
+          Displacement: false,
+          Force: false,
+          Damage: false,
+          Partial_Stress: false,
+          External_Force: false,
+          External_Displacement: false,
+          Number_Of_Neighbors: false
         })
       },
       removeOutput(index) {

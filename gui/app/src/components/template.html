@@ -1191,6 +1191,14 @@
               </v-dialog>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewPointData">
+                    <i class="fas fa-chess-board"></i>
+                </v-btn>
+              </template>
+                <span>Show Model</span>
+              </v-tooltip>
+    
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteData = true">
                     <i class="fas fa-trash"></i>
                 </v-btn>

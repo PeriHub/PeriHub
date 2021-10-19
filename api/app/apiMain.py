@@ -372,13 +372,16 @@ class ModelControl(object):
             return 'Resultfile can\'t be found'
 
     @app.get("/getImage")
-    def getImage(ModelName: ModelName, Cluster: str, Variable: str, request: Request):
+    def getImage(ModelName: ModelName, Cluster: str, Variable: str, Height: float, Discretization: float, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
+        
+        nn = 2*int(Discretization/2)+1
+        dx = Height/nn
 
         fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(['./support/read.sh image ' + username + ' ' + ModelName + ' ' + Variable], shell=True)
+        process = subprocess.Popen(['./support/read.sh image ' + username + ' ' + ModelName + ' ' + Variable + ' ' + str(dx)], shell=True)
         process.wait()
 
         try:

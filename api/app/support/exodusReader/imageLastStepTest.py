@@ -10,6 +10,7 @@ from paraview.simple import *
 UserName = sys.argv[1]
 ModelName = sys.argv[2]
 Variable = sys.argv[3]
+dx = sys.argv[4]
 filePath = path.join('Output', ModelName)
 # class Geometry(object):
 #     def __init__(self):
@@ -19,6 +20,8 @@ filePath = path.join('Output', ModelName)
 paraview.simple._DisableFirstRenderCameraReset()
 
 gIICmodel_Output1e = ExodusIIReader(FileName=[path.join(filePath, ModelName + '_Output1.e')])
+
+gIICmodel_Output1e.ApplyDisplacements = 0
 
 # get animation scene
 animationScene1 = GetAnimationScene()
@@ -97,7 +100,8 @@ glyph1.ScaleArray = ['POINTS', 'No scale array']
 glyph1.GlyphMode = 'All Points'
 
 # Properties modified on glyph1
-glyph1.ScaleFactor = 0.753243688903749
+# glyph1.ScaleFactor = 0.753243688903749
+glyph1.ScaleFactor = float(dx)
 
 # rescale color and/or opacity maps used to exactly fit the current data range
 glyph1Display.RescaleTransferFunctionToDataRange(False, True)

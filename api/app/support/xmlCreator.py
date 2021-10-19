@@ -66,7 +66,7 @@ class XMLcreator(object):
             if 'yieldStress' in mat and mat['yieldStress']!='':
                 string += '            <Parameter name="Yield Stress" type="double" value="' + str(float(mat['yieldStress'])) + '"/>\n'
             if 'nonLinear' in mat and mat['nonLinear']!='':
-                string += '            <Parameter name="Non linear" type="double" value="' + mat['nonLinear'] + '"/>\n'
+                string += '            <Parameter name="Non linear" type="double" value="' + str(mat['nonLinear']) + '"/>\n'
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'  
         return string  
