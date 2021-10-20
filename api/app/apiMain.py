@@ -343,13 +343,22 @@ class ModelControl(object):
             return 'Data of ' + username + ' has been deleted'
 
     @app.get("/getPlot")
-    def getPlot(ModelName: ModelName, Cluster: str, request: Request):
+    def getPlot(ModelName: ModelName, Cluster: str, Outputs: dict, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
+
+        Outputs =  Outputs['Outputs']
+
+        OutputName = ''
+
+        for Output in Outputs:
+            if(Output['External_Force'] or Output['External_Displacement']):
+                OutputName = Output['Name']
+                break
 
         fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(['./support/read.sh globalData ' + username + ' ' + ModelName], shell=True)
+        process = subprocess.Popen(['./support/read.sh globalData ' + username + ' ' + ModelName + ' ' + OutputName], shell=True)
         process.wait()
 
         timeString=''
@@ -418,7 +427,10 @@ class ModelControl(object):
         usermail = request.headers.get('x-forwarded-email')
 
         Cluster =  Param['Param']['Job']['cluster']
-        fileHandler.copyModelToCluster(username, ModelName, Cluster)
+        returnString = fileHandler.copyModelToCluster(username, ModelName, Cluster)
+
+        if returnString!='Success':
+            return returnString
 
         if Cluster=='FA-Cluster':
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
@@ -625,7 +637,7 @@ class ModelControl(object):
     # command = '/peridigm/build/src/Peridigm ' + os.path.join(remotepath, ModelName + '.' + FileType)
     # print(command)
         
-        
+    # fileHandler.copyModelToCluster('hess_ja', 'Dogbone', 'Cara')
         
         
         

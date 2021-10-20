@@ -605,7 +605,8 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "http://localhost:8000/getPlot",
           params: {ModelName: this.modelNameSelected,
-                   Cluster: this.job.cluster},
+                   Cluster: this.job.cluster,
+                   Outputs: JSON.parse("{\"Outputs\": " + JSON.stringify(this.outputs) + "}")},
           method: "GET",
           headers: headersList,
           }

@@ -7,30 +7,15 @@ class fileHandler(object):
     
     def getRemoteModelPath(Cluster, username, ModelName):
         
-        if Cluster=='FA-Cluster':
-            remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
-        
-        elif Cluster=='Cara':
-            remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
-        return remotepath
+        return './PeridigmJobs/apiModels/' + username + '/' + ModelName
 
     def getRemoteUserPath(Cluster, username):
         
-        if Cluster=='FA-Cluster':
-            remotepath = './PeridigmJobs/apiModels/' + username
-        
-        elif Cluster=='Cara':
-            remotepath = './PeridigmJobs/apiModels/' + username
-        return remotepath
+        return './PeridigmJobs/apiModels/' + username
 
     def getUserPath(Cluster, username, ModelName):
         
-        if Cluster=='FA-Cluster':
-            userpath = './PeridigmJobs/apiModels/' + username
-        
-        elif Cluster=='Cara':
-            userpath = './PeridigmJobs/apiModels/' + username
-        return userpath
+        return './PeridigmJobs/apiModels/' + username
 
     def copyModelToCluster(username, ModelName, Cluster):
         
@@ -50,21 +35,29 @@ class fileHandler(object):
                     shutil.copy(os.path.join(root,name), os.path.join(remotepath,name))
                     # os.chmod(os.path.join(remotepath,name), 0o0777)
                     # os.chown(os.path.join(remotepath,name), 'test')
-            return ModelName + ' has been copied'
+            return 'Success'
 
         else:       
             
+            localpath = './Output/' + os.path.join(username, ModelName)
             remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
             userpath = fileHandler.getUserPath(Cluster, username, ModelName) 
             ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
 
             try:
-                sftp.chdir(remotepath)  # Test if remote_path exists
-            except IOError:
+                sftp.chdir(userpath) 
+            except FileNotFoundError:
                 sftp.mkdir(userpath)
-                sftp.mkdir(remotepath)  # Create remote_path
-                sftp.chdir(remotepath)
-            for root, dirs, files in os.walk('./Output/' + os.path.join(username, ModelName)):
+                sftp.chdir(userpath)
+
+            try:
+                sftp.chdir(ModelName)  # Test if remote_path exists
+            except FileNotFoundError:
+                sftp.mkdir(ModelName)  # Create remote_path
+                sftp.chdir(ModelName)
+            if not os.path.exists(localpath):
+                return ModelName + ' has not been created yet'
+            for root, dirs, files in os.walk(localpath):
                 if len(files)==0:
                     return ModelName + ' has not been created yet'
                 for name in files:
@@ -73,7 +66,7 @@ class fileHandler(object):
             sftp.close()
             ssh.close()
             
-            return ModelName + ' has been copied to Cluster'
+            return 'Success'
 
     def copyResultsFromCluster(username, ModelName, Cluster, allData):
         resultpath = './Results/' + os.path.join(username, ModelName)
@@ -126,7 +119,7 @@ class fileHandler(object):
             keypath = 'id_rsa_cluster'
         
         elif Cluster=='Cara':
-            username='hess_ja'
+            username='f_peridi'
             server='cara.dlr.de'
             keypath = 'id_rsa_cara'
 
@@ -144,7 +137,7 @@ class fileHandler(object):
             keypath = 'id_rsa_cluster'
         
         elif Cluster=='Cara':
-            username='hess_ja'
+            username='f_peridi'
             server='cara.dlr.de'
             keypath = 'id_rsa_cara'
 

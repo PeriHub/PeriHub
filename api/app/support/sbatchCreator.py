@@ -7,7 +7,7 @@ class SbatchCreator(object):
         self.time = job['time']
         self.filename = filename
         self.filetype = filetype
-        self.user = username
+        self.user = 'f_peridi'
         self.account = job['account']
         self.mail = usermail
         self.outputDict = output
