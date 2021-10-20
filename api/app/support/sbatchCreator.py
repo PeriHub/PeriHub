@@ -51,17 +51,22 @@ class SbatchCreator(object):
         return string
 
     def createSh(self):
-        nodes = (-(-int(self.tasks)//64))
+        # if(self.tasks==1):
         string='#!/bin/sh' + '\n'
         string += '/peridigm/build/src/Peridigm ' + self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
         string += 'pid=`cat pid.txt` \n'
         string += 'tail --pid=$pid -f /dev/null \n'
         string += 'rm pid.txt \n'
-
-        # for out in self.outputDict:
-        #     string += 'python /home/' + self.user + '/peridigm/src/scripts/MergeFiles.py ' + out['Name'] + ' ' + str(self.tasks) + '\n'
-
-        # string += 'rm *.e.' + str(self.tasks) + '.*' + '\n'
-        # string += 'rm Output*.log' + '\n'
+        # else:
+        #     string='#!/bin/sh' + '\n'
+        #     string += 'export PATH=$PATH:/usr/local/trilinos/bin \n'
+        #     string += 'mpirun --allow-run-as-root -np ' + self.tasks + ' /peridigm/build/src/Peridigm ' + self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
+        #     string += 'pid=`cat pid.txt` \n'
+        #     string += 'tail --pid=$pid -f /dev/null \n'
+        #     for out in self.outputDict:
+        #         string += 'python /peridigm/scripts/MergeFiles.py ' + out['Name'] + ' ' + str(self.tasks) + '\n'
+        #     string += 'rm *.e.' + str(self.tasks) + '.*' +  '\n'
+        #     string += 'rm Output*.log \n'
+        #     string += 'rm pid.txt \n'
 
         return string
