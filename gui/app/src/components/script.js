@@ -39,14 +39,14 @@ import { Plotly } from 'vue-plotly'
       return {
         // Model
         modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],
-        modelNameSelected: 'GIICmodel',
-        length: 50,
-        width: 10,
-        height: 4.95,
-        height2: 4.95,
-        discretization: 11,
+        modelNameSelected: 'Dogbone',
+        length: 0.115,
+        width: 0.003,
+        height: 0.019,
+        height2: 0.013,
+        discretization: 21,
         twoDimensional: true,
-        rotatedAngles: true,
+        rotatedAngles: false,
         angles: [0, 0],
         // Material
         materialModelName: ['Elastic', 'Multiphysics Elastic', 'Elastic Plastic', 'Elastic Plastic Hardening', 'Viscoelastic', 'Elastic Plastic Correspondence', 'Elastic Correspondence', 'Viscoplastic Needleman Correspondence', 'Isotropic Hardening Correspondence', 'Elastic Hypoelastic Correspondence', 'Elastic Plastic Hypoelastic Correspondence', 'Isotropic Hardening Hypoelastic Correspondence', 'LCM', 'Elastic Bond Based', 'Vector Poisson', 'Diffusion', 'Pals', 'Linear LPS Partial Volume', 'Linear Elastic Correspondence', 'Elastic Partial Volume', 'Elastic Correspondence Partial Stress', 'Pressure Dependent Elastic Plastic'],
@@ -55,16 +55,16 @@ import { Plotly } from 'vue-plotly'
         materials: [
           { id: 1, Name: 'PMMA', 
             MatType: 'Linear Elastic Correspondence', 
-            density: 1.95e-07, 
+            density: 1.4e5, 
             bulkModulus: 630000.0,
-            youngsModulus: 210000.0,
+            youngsModulus: 2.997e9,
             poissonsRatio: 0.3,
             tensionSeparation: false,
-            nonLinear: false,
+            nonLinear: true,
             planeStress: true,
-            materialSymmetry: 'Anisotropic',
+            materialSymmetry: 'Isotropic',
             stabilizatonType: 'Global Stiffness',
-            thickness: 10.0,
+            thickness: 0.01,
             hourglassCoefficient: 1.0,
             actualHorizon: '',
             yieldStress: '',
@@ -89,18 +89,55 @@ import { Plotly } from 'vue-plotly'
               C46: {'value': 0.0},              
               C55: {'value': 4200.0},           
               C56: {'value': 0.0},              
-              C66: {'value': 4200.0}}}],
-        nextMaterialId: 2,
+              C66: {'value': 4200.0}}},
+          { id: 2, Name: 'PMMAElast', 
+          MatType: 'Linear Elastic Correspondence', 
+          density: 1.4e5, 
+          bulkModulus: 630000.0,
+          youngsModulus: 2.997e9,
+          poissonsRatio: 0.3,
+          tensionSeparation: false,
+          nonLinear: false,
+          planeStress: true,
+          materialSymmetry: 'Isotropic',
+          stabilizatonType: 'Global Stiffness',
+          thickness: 0.01,
+          hourglassCoefficient: 1.0,
+          actualHorizon: '',
+          yieldStress: '',
+          Parameter: {
+            C11: {'value': 165863.6296530634},
+            C12: {'value': 4090.899504376252},
+            C13: {'value': 2471.126276093059},
+            C14: {'value': 0.0},              
+            C15: {'value': 0.0},              
+            C16: {'value': 0.0},              
+            C22: {'value': 9217.158022124806},
+            C23: {'value': 2471.126276093059},
+            C24: {'value': 0.0},              
+            C25: {'value': 0.0},              
+            C26: {'value': 0.0},              
+            C33: {'value': 9217.158022124804},
+            C34: {'value': 0.0},              
+            C35: {'value': 0.0},              
+            C36: {'value': 0.0},              
+            C44: {'value': 3360.0},           
+            C45: {'value': 0.0},              
+            C46: {'value': 0.0},              
+            C55: {'value': 4200.0},           
+            C56: {'value': 0.0},              
+            C66: {'value': 4200.0}}}],
+        nextMaterialId: 3,
         // Damage
         damageModelName: ['Critical Stretch', 'Interface Aware', 'Time Dependent Critical Stretch', 'Critical Energy', 'Initial Damage', 'Time Dependent Critical Stretch', 'Critical Energy Correspondence'],
         damages: [
           { id: 1, Name: 'PMMADamage', 
             damageModel: 'Critical Energy Correspondence',
             criticalStretch: 10,
-            criticalEnergy: 5.1,
+            criticalEnergy: 10.1,
             interblockdamageEnergy: 0.01,
             planeStress: true,
-            onlyTension: true,
+            onlyTension: false,
             detachedNodesCheck: true,
             thickness: 10.0,
             hourglassCoefficient: 1.0,
@@ -108,48 +145,40 @@ import { Plotly } from 'vue-plotly'
         nextdamageId: 2,
         // Blocks 
         blocks: [
-          { id: 1, Name: 'block_1', material: 'PMMA', damageModel: '', interface: '', show: true},
-          { id: 2, Name: 'block_2', material: 'PMMA', damageModel: '', interface: '', show: true},
-          { id: 3, Name: 'block_3', material: 'PMMA', damageModel: '', interface: '', show: true},
-          { id: 4, Name: 'block_4', material: 'PMMA', damageModel: '', interface: '', show: true},
-          { id: 5, Name: 'block_5', material: 'PMMA', damageModel: '', interface: '', show: true},
-          { id: 6, Name: 'block_6', material: 'PMMA', damageModel: '', interface: '', show: true},
-          { id: 7, Name: 'block_7', material: 'PMMA', damageModel: '', interface: '', show: true},
-          { id: 8, Name: 'block_8', material: 'PMMA', damageModel: 'PMMADamage', interface: 9, show: true},
-          { id: 9, Name: 'block_9', material: 'PMMA', damageModel: 'PMMADamage', interface: 8, show: true},
-          { id: 10, Name: 'block_10', material: 'PMMA', damageModel: '', interface: '', show: true},
+          { id: 1, Name: 'block_1', material: 'PMMAElast', damageModel: '', interface: '', show: true},
+          { id: 2, Name: 'block_2', material: 'PMMAElast', damageModel: '', interface: '', show: true},
+          { id: 3, Name: 'block_3', material: 'PMMA', damageModel: 'PMMADamage', interface: '', show: true},
+          { id: 4, Name: 'block_4', material: 'PMMAElast', damageModel: '', interface: '', show: true},
+          { id: 5, Name: 'block_5', material: 'PMMAElast', damageModel: '', interface: '', show: true},
           ],
-        nextBlockId: 11,
+        nextBlockId: 6,
         //  boundaryConditions
         boundarytype: ['Initial Displacement', 'Initial Velocity', 'Prescribed Displacement', 'Prescribed Fluid Pressure U', 'Initial Fluid Pressure U', 'Initial Temperature', 'Prescribed Temperature', 'Thermal Flux', 'Body Force'],
         coordinate: ['x', 'y', 'z'],
         boundaryConditions: [
-          { id: 1, Name: 'BC_1', boundarytype: 'Prescribed Displacement',  blockId: 5, coordinate: 'y', value: '0*t'},
-          { id: 2, Name: 'BC_2', boundarytype: 'Prescribed Displacement',  blockId: 6, coordinate: 'y', value: '0*t'},
-          { id: 3, Name: 'BC_3', boundarytype: 'Prescribed Displacement',  blockId: 7, coordinate: 'y', value: '-10*t'},
-          { id: 4, Name: 'BC_4', boundarytype: 'Prescribed Displacement',  blockId: 10, coordinate: 'y', value: '0*t'},
+          { id: 1, Name: 'BC_1', boundarytype: 'Prescribed Displacement',  blockId: 1, coordinate: 'x', value: '0*t'},
+          { id: 2, Name: 'BC_2', boundarytype: 'Prescribed Displacement',  blockId: 5, coordinate: 'x', value: '0.05*t'},
           ],
-        nextBoundaryConditionId: 4,
+        nextBoundaryConditionId: 3,
         // Compute 
         calculationType: ['Sum', 'Maximum', 'Minimum'],
         variables: ['Force', 'Displacement', 'Damage'],
         computes: [
-          { id: 1, Name: 'External_Displacement', variable: 'Displacement', calculationType: 'Minimum', blockName: 'block_7'},
-          { id: 2, Name: 'External_Force', variable: 'Force', calculationType: 'Sum', blockName: 'block_7'}],
+          { id: 1, Name: 'External_Displacement', variable: 'Displacement', calculationType: 'Maximum', blockName: 'block_5'},
+          { id: 2, Name: 'External_Force', variable: 'Force', calculationType: 'Sum', blockName: 'block_5'}],
         nextComputeId: 3,
         // Output 
         outputs: [
-          { id: 1, Name: 'Output1', Displacement: true, Force: true, Damage: true, Partial_Stress: true, External_Force: false, External_Displacement: false, Number_Of_Neighbors: false, Frequency: 4000, InitStep: 0},
-          { id: 2, Name: 'Output2', Displacement: false, Force: false, Damage: true, Partial_Stress: false, External_Force: true, External_Displacement: true, Number_Of_Neighbors: false, Frequency: 200, InitStep: 0}],
+          { id: 1, Name: 'Output1', Displacement: true, Force: true, Damage: true, Partial_Stress: true, External_Force: true, External_Displacement: true, Number_Of_Neighbors: false, Frequency: 100, InitStep: 0}],
         nextOutputId: 3,
         // Solver
         solver: {
           verbose: false,
           initialTime: 0.0,
-          finalTime: 0.03,
+          finalTime: 0.0075,
           solvertype: 'Verlet',
-          safetyFactor: 0.95,
-          numericalDamping: 0.000005,
+          safetyFactor: 0.9,
+          numericalDamping: 0.0005,
           peridgimPreconditioner: 'None',
           nonlinearSolver: 'Line Search Based',
           numberofLoadSteps: 100,
@@ -178,7 +207,7 @@ import { Plotly } from 'vue-plotly'
         // Job
         job: {
           cluster: 'None',
-          tasks: 1280,
+          tasks: 1,
           time: '40:00:00',
           // user: 'hess_ja',
           account: '2263032',
@@ -202,8 +231,8 @@ import { Plotly } from 'vue-plotly'
         resultsLoading: false,
         dataJson: '',
         colors: '',
-        modelImg: GIICmodelImage,
-        jsonFIle: GIICmodelFile,
+        modelImg: DogboneImage,
+        jsonFIle: DogboneFile,
         dialog: false,
         dialogGetImage: false,
         dialogGetPlot: false,
@@ -261,7 +290,8 @@ import { Plotly } from 'vue-plotly'
         },
         interval: null,
         monitorToggle: false,
-        viewId: 2,
+        viewId: 0,
+        panel: [0],
         rules: {
           required: value => !!value || value == 0 || 'Required',
           name: value => {
@@ -345,9 +375,6 @@ import { Plotly } from 'vue-plotly'
           this.snackbar=true
           this.viewInputFile()
           this.viewPointData()
-          // let dx = this.height/(2*parseInt(this.Discretization/2)+1)
-          // this.radius = Math.round(dx * 100) / 100
-          // this.updatePoints()
           this.modelLoading = false
           this.textLoading = false
         }
@@ -448,7 +475,10 @@ import { Plotly } from 'vue-plotly'
         await axios.request(reqOptions).then(response => (
           this.pointString = response.data[0].split(','),
           this.blockIdString = response.data[1].split(',')))
-        this.filterPointData()
+          
+        let dx = this.height/(2*parseInt(this.discretization/2)+1)
+        this.radius = dx.toFixed(2);
+        this.updatePoints()
         this.viewId = 1
         this.modelLoading = false
         this.$refs.view.resetCamera()
@@ -832,6 +862,16 @@ import { Plotly } from 'vue-plotly'
         }
         else{
           this.solver.filetype = 'yaml'
+        }
+      },
+      changeNumberOfTasks() {
+        if(this.job.cluster=='FA-Cluster'){
+          if(this.job.tasks > 32){
+            this.job.tasks = 32
+          }
+        }
+        else if(this.job.cluster=='None'){
+          this.job.tasks = 1
         }
       },
       checkInputs() {

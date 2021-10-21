@@ -59,7 +59,7 @@
       <!-- <v-list-item-group> -->
         <!-- <v-list-item> -->
         <v-card>
-              <v-expansion-panels height=45vh>
+              <v-expansion-panels height=45vh v-model="panel" multiple>
                 <v-expansion-panel>
                   <v-expansion-panel-header>
                     <h2>Model</h2>
@@ -69,7 +69,7 @@
                     class="textfield-col"
                     :items="modelName"
                     v-model="modelNameSelected"
-                    @change="showModelImg"
+                    @change="showModelImg(); resetData();"
                     label="ModelName"
                     outlined></v-select>
                   <v-text-field 
@@ -967,15 +967,17 @@
                     <v-select class="textfield-col"
                       :items="cluster"
                       v-model="job.cluster"
-                      @change="changeToXml"
+                      @change="changeToXml(); changeNumberOfTasks();"
                       label="Cluster"
                       outlined></v-select>
                     <v-text-field class="textfield-col"
                       v-model="job.tasks"
+                      :disabled="job.cluster=='None'"
                       label="Tasks"
                       outlined></v-text-field>
                     <v-text-field class="textfield-col"
                       v-model="job.time"
+                      v-show="job.cluster=='Cara'"
                       label="Time"
                       outlined></v-text-field>
                     <!-- <v-text-field class="textfield-col"
