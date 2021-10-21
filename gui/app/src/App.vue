@@ -20,6 +20,7 @@
       <v-spacer />
       <v-switch
         v-model="$vuetify.theme.dark"
+        @change="saveDarkMode"
         hide-details
       />
       <v-tooltip bottom>
@@ -79,6 +80,17 @@ export default {
   data: () => ({
     //
   }),
+  methods: {
+    saveDarkMode() {
+      this.$cookie.set('darkMode', this.$vuetify.theme.dark, Infinity, '/app');
+    },
+    getDarkMode() {
+      this.$vuetify.theme.dark = this.$cookie.get('darkMode');
+    }
+  },
+  beforeMount(){
+    this.getDarkMode()
+  },
 };
 </script>
 

@@ -377,6 +377,7 @@ import { Plotly } from 'vue-plotly'
           this.viewPointData()
           this.modelLoading = false
           this.textLoading = false
+          this.saveCurrentData()
         }
       },
       saveData() {
@@ -457,6 +458,74 @@ import { Plotly } from 'vue-plotly'
               this[paramName] = this.jsonFile['Param'][paramName];
             }
           }
+        }
+      },
+      saveCurrentData() {
+        const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
+                      "\"length\":" + this.length + ",\n" +
+                      "\"width\":" + this.width + ",\n" +
+                      "\"height\":" + this.height + ",\n" +
+                      "\"height2\":" + this.height2 + ",\n" +
+                      "\"discretization\":" + this.discretization + ",\n" +
+                      "\"twoDimensional\":" + this.twoDimensional + ",\n" +
+                      "\"rotatedAngles\":" + this.rotatedAngles + ",\n" +
+                      "\"angles\":[" + this.angles + "]}";
+        this.$cookie.set('data', data, Infinity, '/app');
+        const materials = "{\"materials\": " + JSON.stringify(this.materials)+"}";
+        this.$cookie.set('materials', materials, Infinity, '/app');
+        const damages = "{\"damages\": " + JSON.stringify(this.damages)+"}";
+        this.$cookie.set('damages', damages, Infinity, '/app');
+        const blocks = "{\"blocks\": " + JSON.stringify(this.blocks)+"}";
+        this.$cookie.set('blocks', blocks, Infinity, '/app');
+        const boundaryConditions = "{\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+"}";
+        this.$cookie.set('boundaryConditions', boundaryConditions, Infinity, '/app');
+        const computes = "{\"computes\": " + JSON.stringify(this.computes)+"}";
+        this.$cookie.set('computes', computes, Infinity, '/app');
+        const outputs = "{\"outputs\": " + JSON.stringify(this.outputs)+"}";
+        this.$cookie.set('outputs', outputs, Infinity, '/app');
+        const solver = "{\"solver\": " + JSON.stringify(this.solver)+"}";
+        this.$cookie.set('solver', solver, Infinity, '/app');
+      },
+      getCurrentData() {
+        let data = JSON.parse(this.$cookie.get('data'));
+        for(var i = 0; i < Object.keys(data).length; i++) {
+          var name = Object.keys(data)[i]
+          this[name] = data[name];
+        }
+        data = JSON.parse(this.$cookie.get('materials'));
+        for(var i = 0; i < Object.keys(data).length; i++) {
+          var name = Object.keys(data)[i]
+          this[name] = data[name];
+        }
+        data = JSON.parse(this.$cookie.get('damages'));
+        for(var i = 0; i < Object.keys(data).length; i++) {
+          var name = Object.keys(data)[i]
+          this[name] = data[name];
+        }
+        data = JSON.parse(this.$cookie.get('blocks'));
+        for(var i = 0; i < Object.keys(data).length; i++) {
+          var name = Object.keys(data)[i]
+          this[name] = data[name];
+        }
+        data = JSON.parse(this.$cookie.get('boundaryConditions'));
+        for(var i = 0; i < Object.keys(data).length; i++) {
+          var name = Object.keys(data)[i]
+          this[name] = data[name];
+        }
+        data = JSON.parse(this.$cookie.get('computes'));
+        for(var i = 0; i < Object.keys(data).length; i++) {
+          var name = Object.keys(data)[i]
+          this[name] = data[name];
+        }
+        data = JSON.parse(this.$cookie.get('outputs'));
+        for(var i = 0; i < Object.keys(data).length; i++) {
+          var name = Object.keys(data)[i]
+          this[name] = data[name];
+        }
+        data = JSON.parse(this.$cookie.get('solver'));
+        for(var i = 0; i < Object.keys(data).length; i++) {
+          var name = Object.keys(data)[i]
+          this[name] = data[name];
         }
       },
       async viewPointData() {
@@ -895,7 +964,13 @@ import { Plotly } from 'vue-plotly'
         return false;
       },
     },
-    beforeDestroy() {
+    beforeMount() {
+      this.getCurrentData()
+    },
+    updated() {
+      this.saveCurrentData()
+    },
+    beforeUnmount() {
       // Don't forget to remove the interval before destroying the component
       clearInterval(this.interval)
     },

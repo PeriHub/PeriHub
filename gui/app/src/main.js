@@ -10,12 +10,14 @@ import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles
 import vueNumeralFilterInstaller from 'vue-numeral-filter';
 library.add(faUserSecret);
 import vuescroll from "vuescroll/dist/vuescroll-native";
+import VueCookie from 'vue-cookie';
 // import the css file 
 import "vuescroll/dist/vuescroll.css";
 
 
 Vue.use(vuescroll);
 Vue.use(VueVtkJs);
+Vue.use(VueCookie);
 Vue.use(vueNumeralFilterInstaller, { locale: 'en-gb' });
 Vue.component('FontAwesomeIcon', FontAwesomeIcon);
 Vue.component('PrismEditor', PrismEditor);
