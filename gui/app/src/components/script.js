@@ -69,27 +69,27 @@ import { Plotly } from 'vue-plotly'
             actualHorizon: '',
             yieldStress: '',
             Parameter: {
-              C11: {'value': 165863.6296530634},
-              C12: {'value': 4090.899504376252},
-              C13: {'value': 2471.126276093059},
+              C11: {'value': 0.0}, 
+              C12: {'value': 0.0}, 
+              C13: {'value': 0.0}, 
               C14: {'value': 0.0},              
               C15: {'value': 0.0},              
               C16: {'value': 0.0},              
-              C22: {'value': 9217.158022124806},
-              C23: {'value': 2471.126276093059},
+              C22: {'value': 0.0}, 
+              C23: {'value': 0.0}, 
               C24: {'value': 0.0},              
               C25: {'value': 0.0},              
               C26: {'value': 0.0},              
-              C33: {'value': 9217.158022124804},
+              C33: {'value': 0.0}, 
               C34: {'value': 0.0},              
               C35: {'value': 0.0},              
               C36: {'value': 0.0},              
-              C44: {'value': 3360.0},           
+              C44: {'value': 0.0},            
               C45: {'value': 0.0},              
               C46: {'value': 0.0},              
-              C55: {'value': 4200.0},           
+              C55: {'value': 0.0},           
               C56: {'value': 0.0},              
-              C66: {'value': 4200.0}}},
+              C66: {'value': 0.0}}},
           { id: 2, Name: 'PMMAElast', 
           MatType: 'Linear Elastic Correspondence', 
           density: 1.4e5, 
@@ -127,7 +127,6 @@ import { Plotly } from 'vue-plotly'
             C55: {'value': 4200.0},           
             C56: {'value': 0.0},              
             C66: {'value': 4200.0}}}],
-        nextMaterialId: 3,
         // Damage
         damageModelName: ['Critical Stretch', 'Interface Aware', 'Time Dependent Critical Stretch', 'Critical Energy', 'Initial Damage', 'Time Dependent Critical Stretch', 'Critical Energy Correspondence'],
         damages: [
@@ -142,7 +141,6 @@ import { Plotly } from 'vue-plotly'
             thickness: 10.0,
             hourglassCoefficient: 1.0,
             stabilizatonType: 'Global Stiffness'}],
-        nextdamageId: 2,
         // Blocks 
         blocks: [
           { id: 1, Name: 'block_1', material: 'PMMAElast', damageModel: '', interface: '', show: true},
@@ -151,7 +149,6 @@ import { Plotly } from 'vue-plotly'
           { id: 4, Name: 'block_4', material: 'PMMAElast', damageModel: '', interface: '', show: true},
           { id: 5, Name: 'block_5', material: 'PMMAElast', damageModel: '', interface: '', show: true},
           ],
-        nextBlockId: 6,
         //  boundaryConditions
         boundarytype: ['Initial Displacement', 'Initial Velocity', 'Prescribed Displacement', 'Prescribed Fluid Pressure U', 'Initial Fluid Pressure U', 'Initial Temperature', 'Prescribed Temperature', 'Thermal Flux', 'Body Force'],
         coordinate: ['x', 'y', 'z'],
@@ -159,18 +156,15 @@ import { Plotly } from 'vue-plotly'
           { id: 1, Name: 'BC_1', boundarytype: 'Prescribed Displacement',  blockId: 1, coordinate: 'x', value: '0*t'},
           { id: 2, Name: 'BC_2', boundarytype: 'Prescribed Displacement',  blockId: 5, coordinate: 'x', value: '0.05*t'},
           ],
-        nextBoundaryConditionId: 3,
         // Compute 
         calculationType: ['Sum', 'Maximum', 'Minimum'],
         variables: ['Force', 'Displacement', 'Damage'],
         computes: [
           { id: 1, Name: 'External_Displacement', variable: 'Displacement', calculationType: 'Maximum', blockName: 'block_5'},
           { id: 2, Name: 'External_Force', variable: 'Force', calculationType: 'Sum', blockName: 'block_5'}],
-        nextComputeId: 3,
         // Output 
         outputs: [
           { id: 1, Name: 'Output1', Displacement: true, Force: true, Damage: true, Partial_Stress: true, External_Force: true, External_Displacement: true, Number_Of_Neighbors: false, Frequency: 100, InitStep: 0}],
-        nextOutputId: 3,
         // Solver
         solver: {
           verbose: false,
@@ -471,61 +465,51 @@ import { Plotly } from 'vue-plotly'
                       "\"rotatedAngles\":" + this.rotatedAngles + ",\n" +
                       "\"angles\":[" + this.angles + "]}";
         this.$cookie.set('data', data, Infinity, '/app');
-        const materials = "{\"materials\": " + JSON.stringify(this.materials)+"}";
-        this.$cookie.set('materials', materials, Infinity, '/app');
-        const damages = "{\"damages\": " + JSON.stringify(this.damages)+"}";
-        this.$cookie.set('damages', damages, Infinity, '/app');
-        const blocks = "{\"blocks\": " + JSON.stringify(this.blocks)+"}";
-        this.$cookie.set('blocks', blocks, Infinity, '/app');
-        const boundaryConditions = "{\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+"}";
-        this.$cookie.set('boundaryConditions', boundaryConditions, Infinity, '/app');
-        const computes = "{\"computes\": " + JSON.stringify(this.computes)+"}";
-        this.$cookie.set('computes', computes, Infinity, '/app');
-        const outputs = "{\"outputs\": " + JSON.stringify(this.outputs)+"}";
-        this.$cookie.set('outputs', outputs, Infinity, '/app');
-        const solver = "{\"solver\": " + JSON.stringify(this.solver)+"}";
-        this.$cookie.set('solver', solver, Infinity, '/app');
+        this.jsonToCookie("materials", true)
+        this.jsonToCookie("damages")
+        this.jsonToCookie("blocks")
+        this.jsonToCookie("boundaryConditions")
+        this.jsonToCookie("computes")
+        this.jsonToCookie("outputs")
+        this.jsonToCookie("solver")
+      },
+      jsonToCookie(name, split = false) {
+        if(!split){
+          const data = "{\"" + name + "\": " + JSON.stringify(this[name])+"}";
+          this.$cookie.set(name, data, Infinity, '/app');
+        }
+        else{
+          for(var id = 0; id < this[name].length; id++) {
+            const subdata = "{\"" + name + id + "\": " + JSON.stringify(this[name][id])+"}";
+            this.$cookie.set(name + id, subdata, Infinity, '/app');
+          }
+        }
       },
       getCurrentData() {
-        let data = JSON.parse(this.$cookie.get('data'));
-        for(var i = 0; i < Object.keys(data).length; i++) {
-          var name = Object.keys(data)[i]
-          this[name] = data[name];
+        this.cookieToJson("data")
+        this.cookieToJson("materials", true)
+        this.cookieToJson("damages")
+        this.cookieToJson("blocks")
+        this.cookieToJson("boundaryConditions")
+        this.cookieToJson("computes")
+        this.cookieToJson("outputs")
+        this.cookieToJson("solver")
+      },
+      cookieToJson(name, split = false) {
+        if(!split){
+          const data = JSON.parse(this.$cookie.get(name));
+          if(data==null) return
+          for(var i = 0; i < Object.keys(data).length; i++) {
+            var name = Object.keys(data)[i]
+            this[name] = data[name];
+          }
         }
-        data = JSON.parse(this.$cookie.get('materials'));
-        for(var i = 0; i < Object.keys(data).length; i++) {
-          var name = Object.keys(data)[i]
-          this[name] = data[name];
-        }
-        data = JSON.parse(this.$cookie.get('damages'));
-        for(var i = 0; i < Object.keys(data).length; i++) {
-          var name = Object.keys(data)[i]
-          this[name] = data[name];
-        }
-        data = JSON.parse(this.$cookie.get('blocks'));
-        for(var i = 0; i < Object.keys(data).length; i++) {
-          var name = Object.keys(data)[i]
-          this[name] = data[name];
-        }
-        data = JSON.parse(this.$cookie.get('boundaryConditions'));
-        for(var i = 0; i < Object.keys(data).length; i++) {
-          var name = Object.keys(data)[i]
-          this[name] = data[name];
-        }
-        data = JSON.parse(this.$cookie.get('computes'));
-        for(var i = 0; i < Object.keys(data).length; i++) {
-          var name = Object.keys(data)[i]
-          this[name] = data[name];
-        }
-        data = JSON.parse(this.$cookie.get('outputs'));
-        for(var i = 0; i < Object.keys(data).length; i++) {
-          var name = Object.keys(data)[i]
-          this[name] = data[name];
-        }
-        data = JSON.parse(this.$cookie.get('solver'));
-        for(var i = 0; i < Object.keys(data).length; i++) {
-          var name = Object.keys(data)[i]
-          this[name] = data[name];
+        else{
+          for(var id = 0; id < 100; id++) {
+            const subdata = JSON.parse(this.$cookie.get(name + id));
+            if(subdata==null) break
+            this[name][id] = subdata[name + id]
+          }
         }
       },
       async viewPointData() {
@@ -846,59 +830,87 @@ import { Plotly } from 'vue-plotly'
         this.snackbar=true
       },
       addMaterial() {
+        const len = this.materials.length
         this.materials.push({
-          id: this.nextMaterialId++,
-          Name: "Material"+(this.nextMaterialId-1),
-          MatType: 'Elastic',
-          tensionSeparation: false,
-          nonLinear: false,
-          Parameter: {}
+          id: len+1,
+          Name: "Material"+(len+1)
         })
+        for (const key in this.materials[len-1]) {
+          if(key!='id' & key!='Name'){
+            this.materials[len][key] = this.materials[len-1][key]
+          }
+        }
       },
       removeMaterial(index) {
         this.materials.splice(index, 1)
+        this.$cookie.delete("materials" + index);
       },
       addDamage() {
+        const len = this.damages.length
         this.damages.push({
-          id: this.nextdamageId++,
-          Name: "Damage"+(this.nextdamageId-1),
-          Parameter: {}
+          id: len+1,
+          Name: "Damage"+(len+1)
         })
+        for (const key in this.damages[len-1]) {
+          if(key!='id' & key!='Name'){
+            this.damages[len][key] = this.damages[len-1][key]
+          }
+        }
       },
       removeDamage(index) {
         this.damages.splice(index, 1)
       },
       addBlock() {
+        const len = this.blocks.length
         this.blocks.push({
-          id: this.nextBlockId++,
-          Name: "block_"+(this.nextBlockId-1)
+          id: len+1,
+          Name: "block_"+(len+1)
         })
+        for (const key in this.blocks[len-1]) {
+          if(key!='id' & key!='Name'){
+            this.blocks[len][key] = this.blocks[len-1][key]
+          }
+        }
       },
       removeBlock(index) {
         this.blocks.splice(index, 1)
       },
       addCondition() {
+        
+        const len = this.boundaryConditions.length
         this.boundaryConditions.push({
-          id: this.nextBoundaryConditionId++,
-          Name: "BC_"+(this.nextBoundaryConditionId-1)
+          id: len+1,
+          Name: "BC_"+(len+1)
         })
+        for (const key in this.boundaryConditions[len-1]) {
+          if(key!='id' & key!='Name'){
+            this.boundaryConditions[len][key] = this.boundaryConditions[len-1][key]
+          }
+        }
       },
       removeCondition(index) {
         this.boundaryConditions.splice(index, 1)
       },
       addCompute() {
+        const len = this.computes.length
         this.computes.push({
-          id: this.nextComputeId++,
-          Name: "Compute"+(this.nextComputeId-1)
+          id: len+1,
+          Name: "Compute"+(len+1)
         })
+        for (const key in this.computes[len-1]) {
+          if(key!='id' & key!='Name'){
+            this.computes[len][key] = this.computes[len-1][key]
+          }
+        }
       },
       removeCompute(index) {
         this.computes.splice(index, 1)
       },
       addOutput() {
+        const len = this.computes.length
         this.outputs.push({
-          id: this.nextOutputId++,
-          Name: "Output"+(this.nextOutputId-1),
+          id: len+1,
+          Name: "Outputs"+(len+1),
           Displacement: false,
           Force: false,
           Damage: false,
