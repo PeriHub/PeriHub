@@ -77,7 +77,7 @@ class fileHandler(object):
             remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
             for root, dirs, files in os.walk(remotepath):
                 if len(files)==0:
-                    return ModelName + ' results can be found on ' + Cluster
+                    return False
 
                 for filename in files:
                     if(allData or '.e' in filename):
@@ -88,7 +88,7 @@ class fileHandler(object):
                             shutil.copy(os.path.join(remotepath, filename), os.path.join(resultpath,filename))
                     # os.chmod(os.path.join(remotepath,name), 0o0777)
                     # os.chown(os.path.join(remotepath,name), 'test')
-            # return ModelName + ' has been copied'
+            return True
 
         else:
             remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
@@ -106,10 +106,10 @@ class fileHandler(object):
                         else:
                             sftp.get(os.path.join(remotepath, filename), os.path.join(resultpath, filename))
             except:
-                return ModelName + ' results can be found on ' + Cluster
+                return False
             sftp.close()
             ssh.close()
-            # return ModelName + ' has been copied'
+            return True
 
     def sftpToCluster(Cluster, username):
         

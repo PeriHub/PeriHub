@@ -455,6 +455,7 @@ import { Plotly } from 'vue-plotly'
         }
       },
       saveCurrentData() {
+        this.$cookie.set('panel', JSON.stringify(this.panel), Infinity, '/app');
         const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
                       "\"length\":" + this.length + ",\n" +
                       "\"width\":" + this.width + ",\n" +
@@ -472,6 +473,7 @@ import { Plotly } from 'vue-plotly'
         this.jsonToCookie("computes")
         this.jsonToCookie("outputs")
         this.jsonToCookie("solver")
+        this.jsonToCookie("job")
       },
       jsonToCookie(name, split = false) {
         if(!split){
@@ -486,6 +488,7 @@ import { Plotly } from 'vue-plotly'
         }
       },
       getCurrentData() {
+        this.panel = JSON.parse(this.$cookie.get('panel'));
         this.cookieToJson("data")
         this.cookieToJson("materials", true)
         this.cookieToJson("damages")
@@ -494,6 +497,7 @@ import { Plotly } from 'vue-plotly'
         this.cookieToJson("computes")
         this.cookieToJson("outputs")
         this.cookieToJson("solver")
+        this.cookieToJson("job")
       },
       cookieToJson(name, split = false) {
         if(!split){
@@ -628,14 +632,18 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
 
-        axios.request(reqOptions).then((response) => {
+        axios.request(reqOptions)
+        .then((response) => {
             var fileURL = window.URL.createObjectURL(new Blob([response.data]));
             var fileLink = document.createElement('a');
             fileLink.href = fileURL;
             fileLink.setAttribute('download', 'file.zip');
             document.body.appendChild(fileLink);
             fileLink.click();
-
+        })
+        .catch((error) => {
+          this.message = error
+          this.snackbar = true
         });
       },
       async saveResults(allData) {
@@ -667,14 +675,18 @@ import { Plotly } from 'vue-plotly'
         //   headers: headersList,
         //   }
           
-        axios.request(reqOptions).then((response) => {
+        axios.request(reqOptions)
+        .then((response) => {
             var fileURL = window.URL.createObjectURL(new Blob([response.data]));
             var fileLink = document.createElement('a');
             fileLink.href = fileURL;
             fileLink.setAttribute('download', this.modelNameSelected + '.zip');
             document.body.appendChild(fileLink);
             fileLink.click();
-
+        })
+        .catch((error) => {
+          this.message = error
+          this.snackbar = true
         });
 
         this.resultsLoading = false;
@@ -695,8 +707,14 @@ import { Plotly } from 'vue-plotly'
           }
 
         this.modelLoading = true
-        await axios.request(reqOptions).then(response => (
-          this.plotRawData = response.data))
+        await axios.request(reqOptions)
+        .then(response => (this.plotRawData = response.data))
+        .catch((error) => {
+          this.message = error
+          this.snackbar = true
+          this.modelLoading = false
+          return
+        })
         
         if(Variable=='Time'){
           this.plotData[0].x =  this.plotRawData[0].split(',')
@@ -730,8 +748,14 @@ import { Plotly } from 'vue-plotly'
           }
 
         this.modelLoading = true
-        await axios.request(reqOptions).then(response => (
-          this.modelImg = window.URL.createObjectURL(new Blob([response.data]))))
+        await axios.request(reqOptions)
+        .then((response) => this.modelImg = window.URL.createObjectURL(new Blob([response.data])))
+        .catch((error) => {
+          this.message = error
+          this.snackbar = true
+          this.modelLoading = false
+          return
+        })
         this.viewId = 0
         this.modelLoading = false
       },

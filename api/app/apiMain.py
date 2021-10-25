@@ -15,8 +15,9 @@ from support.fileHandler  import fileHandler
 # import matplotlib.pyplot as plt
 # import pandas as pd
 from typing import Optional
-from fastapi import FastAPI, Header, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
 # from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -40,6 +41,10 @@ class ModelName(str, Enum):
 class FileType(str, Enum):
     yaml = "yaml"
     xml = "xml"
+
+class NotFoundException(Exception):
+    def __init__(self, name: str):
+        self.name = name
 
 app = FastAPI()
 
@@ -92,6 +97,13 @@ class ModelControl(object):
     def endRun(self, returnDir = None, feFilename = None, runDir = None):
        pass
 
+
+    @app.exception_handler(NotFoundException)
+    async def notFound_exception_handler(request: Request, exc: NotFoundException):
+        return JSONResponse(
+            status_code=404,
+            content={"message": f"{exc.name} can't be found"},
+        )
 
     @app.post("/generateModel")
     def generateModel(ModelName: ModelName, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
@@ -165,8 +177,6 @@ class ModelControl(object):
         except:
             return 'Inputfile can\'t be found'
 
-        return FileResponse('./Output/' + ModelName + '/'  + ModelName + '.' + FileType)
-
     @app.post("/writeInputFile")
     def writeInputFile(ModelName: ModelName, InputString: str, FileType: FileType, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
@@ -189,7 +199,7 @@ class ModelControl(object):
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
         except:
-            return 'Modelfiles can\'t be found'
+            raise HTTPException(status_code=404, detail=ModelName + ' files can not be found on ' + Cluster)
      
     @app.get("/getLogFile")
     def getLogFile(ModelName: ModelName, Cluster: str, request: Request):
@@ -245,7 +255,8 @@ class ModelControl(object):
     def getResults(ModelName: ModelName, Cluster: str, allData: bool, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
-        fileHandler.copyResultsFromCluster(username, ModelName, Cluster, allData)
+        if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, allData)==False):
+            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
         # resultpath = './Results/' + os.path.join(username, ModelName)
         userpath = './Results/' + username
@@ -257,7 +268,7 @@ class ModelControl(object):
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
         except:
-            return 'Resultfiles can\'t be found'
+            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     # @app.get("/getResults")
     # def getResults(ModelName: ModelName, username: str):
@@ -355,7 +366,8 @@ class ModelControl(object):
                 OutputName = Output['Name']
                 break
 
-        fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
+        if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
+            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
         process = subprocess.Popen(['./support/read.sh globalData ' + username + ' ' + ModelName + ' ' + OutputName], shell=True)
@@ -378,7 +390,7 @@ class ModelControl(object):
             response=[timeString.rstrip(timeString[-1]),displacementString.rstrip(displacementString[-1]),forceString.rstrip(forceString[-1])]  
             return response
         except:
-            return 'Resultfile can\'t be found'
+            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     @app.get("/getImage")
     def getImage(ModelName: ModelName, Cluster: str, Variable: str, Height: float, Discretization: float, request: Request):
@@ -387,7 +399,8 @@ class ModelControl(object):
         nn = 2*int(Discretization/2)+1
         dx = Height/nn
 
-        fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)
+        if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
+            raise NotFoundException(name=ModelName)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
         process = subprocess.Popen(['./support/read.sh image ' + username + ' ' + ModelName + ' ' + Variable + ' ' + str(dx)], shell=True)
@@ -396,7 +409,7 @@ class ModelControl(object):
         try:
             return FileResponse('./Results/' + os.path.join(username, ModelName) + '/'  + Variable + '.jpg')
         except:
-            return 'Resultfile can\'t be found'
+            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     @app.get("/getPointData")
     def getPointData(ModelName: ModelName, request: Request):
@@ -419,7 +432,7 @@ class ModelControl(object):
             response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
             return response
         except:
-            return 'Meshfile can\'t be found'
+            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
 
     @app.post("/runModel")
     def runModel(ModelName: ModelName, FileType: FileType, Param: dict, request: Request):
