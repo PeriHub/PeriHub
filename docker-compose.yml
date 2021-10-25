@@ -1,10 +1,10 @@
 version: '3'
 
 services:
-  modelgeneratorApi:
+  periHubApi:
     build: api/.
-    container_name: modelgeneratorApi
-    image: modelgenerator_api_image
+    container_name: periHubApi
+    image: peri_hub_api_image
     ports:
       - 8000:80
     networks:
@@ -13,10 +13,10 @@ services:
       - peridigm_volume:/app/peridigmJobs
       - paraView_volume:/app/paraView
 
-  modelgeneratorGui:
+  periHubGui:
     build: gui/.
-    container_name: modelgeneratorGui
-    image: modelgenerator_gui_image
+    container_name: periHubGui
+    image: peri_hub_gui_image
     ports:
       - 8080:80
     networks:

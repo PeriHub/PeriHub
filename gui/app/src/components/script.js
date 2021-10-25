@@ -26,7 +26,7 @@ import DogboneFile from '../assets/Dogbone/Dogbone.json'
 import { Plotly } from 'vue-plotly'
 
   export default {
-    name: 'ModelGenerator',
+    name: 'PeriHub',
     components: {
       PrismEditor,
       Splitpanes,

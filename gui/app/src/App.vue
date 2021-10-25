@@ -62,19 +62,19 @@
     </v-app-bar>
 
     <v-main>
-      <Generator />
+      <Home />
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Generator from './components/Generator';
+import Home from './components/Home';
 
 export default {
   name: 'App',
 
   components: {
-    Generator,
+    Home,
   },
 
   data: () => ({
