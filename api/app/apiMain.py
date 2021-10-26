@@ -171,9 +171,11 @@ class ModelControl(object):
     @app.get("/viewInputFile")
     def viewInputFile(ModelName: ModelName, FileType: FileType, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
-
+        filePath = './Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType
+        if not os.path.exists(filePath):
+            return 'Inputfile can\'t be found'
         try:
-            return FileResponse('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType)
+            return FileResponse(filePath)
         except:
             return 'Inputfile can\'t be found'
 

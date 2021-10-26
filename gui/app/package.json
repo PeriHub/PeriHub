@@ -32,6 +32,7 @@
     "vue-vtk-js": "^1.1.6",
     "vuescroll": "^4.17.3",
     "vuetify": "^2.5.9",
+    "xml-js": "^1.6.11",
     "yaml-loader": "^0.6.0"
   },
   "devDependencies": {

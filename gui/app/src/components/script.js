@@ -128,6 +128,23 @@ import { Plotly } from 'vue-plotly'
             C55: {'value': 4200.0},           
             C56: {'value': 0.0},              
             C66: {'value': 4200.0}}}],
+        materialKeys: {
+          Name: 'Name',
+          MatType: 'Material Model',
+          density: 'Density',
+          bulkModulus: 'Bulk Modulus',
+          youngsModulus: "Young's Modulus",
+          poissonsRatio: "Poisson's Ratio",
+          tensionSeparation: "Tension Separation",
+          nonLinear: 'Non linear',
+          planeStress: 'Plane Stress',
+          materialSymmetry: "Material Symmetry",
+          stabilizatonType: "Stabilizaton Type",
+          thickness: "Thickness",
+          hourglassCoefficient: "Hourglass Coefficient",
+          actualHorizon: "Actual Horizon",
+          yieldStress: "Yield Stress",
+        },
         // Damage
         damageModelName: ['Critical Stretch', 'Interface Aware', 'Time Dependent Critical Stretch', 'Critical Energy', 'Initial Damage', 'Time Dependent Critical Stretch', 'Critical Energy Correspondence'],
         damages: [
@@ -142,6 +159,18 @@ import { Plotly } from 'vue-plotly'
             thickness: 10.0,
             hourglassCoefficient: 1.0,
             stabilizatonType: 'Global Stiffness'}],
+        damageKeys:{
+          Name: 'Name', 
+          damageModel: 'Name',
+          criticalStretch: "Critical Stretch",
+          criticalEnergy: "Critical Energy",
+          interblockdamageEnergy: "Interblock Damage Energy",
+          planeStress: 'Plane Stress',
+          onlyTension: "Only Tension",
+          detachedNodesCheck: "Detached Nodes Check",
+          thickness: "Thickness",
+          hourglassCoefficient: "Hourglass Coefficient",
+          stabilizatonType: "Stabilizaton Type"},
         // Blocks 
         blocks: [
           { id: 1, Name: 'block_1', material: 'PMMAElast', damageModel: '', interface: '', show: true},
@@ -150,7 +179,12 @@ import { Plotly } from 'vue-plotly'
           { id: 4, Name: 'block_4', material: 'PMMAElast', damageModel: '', interface: '', show: true},
           { id: 5, Name: 'block_5', material: 'PMMAElast', damageModel: '', interface: '', show: true},
           ],
-        //  boundaryConditions
+        blockKeys: {
+          Name: 'Name', 
+          material: 'Material', 
+          damageModel: 'Damage Model', 
+          interface: 'Interface'},
+        //  boundaryConditionswwwwwwwwwww
         boundarytype: ['Initial Displacement', 'Initial Velocity', 'Prescribed Displacement', 'Prescribed Fluid Pressure U', 'Initial Fluid Pressure U', 'Initial Temperature', 'Prescribed Temperature', 'Thermal Flux', 'Body Force'],
         coordinate: ['x', 'y', 'z'],
         boundaryConditions: [
@@ -404,12 +438,80 @@ import { Plotly } from 'vue-plotly'
       },
       onFilePicked (event) {
         const files = event.target.files
+        const filetype = files[0].type
+        // this.message=filetype
+        // this.snackbar=true
         if (files.length <= 0) {
           return false;
         }
 
         const fr = new FileReader();
+        
+        if(filetype=='application/json'){
+          this.loadJsonFile(fr, files)
+        }
+        else if(filetype=='application/yaml'){
+          this.loadYamlModel(fr, files)
+        }
+        else if(filetype=='text/xml'){
+          this.loadXmlModel(fr, files)
+        }
+        else if(filetype=='.peridigm'){
+          this.loadPeridigmModel(fr, files)
+        }
+      },
+      //return an array of values that match on a certain key
+      getValues(obj, key) {
+        var objects = [];
+        for (var i in obj) {
+            if (!obj.hasOwnProperty(i)) continue;
+            if (typeof obj[i] == 'object') {
+                objects = objects.concat(this.getValues(obj[i], key));
+            } else if (i == key) {
+                objects.push(obj[i]);
+            }
+        }
+        return objects;
+      },
+      getKeyByValue(object, value) {
+        return Object.keys(object).find(key => object[key] === value);
+      },
+      getValuesFromJson(paramObject, paramName, paramKeys, addFunction, removeFunction){
+        let numberOfItems = 1
+        if(Array.isArray(paramObject.ParameterList)){
+          numberOfItems = Object.keys(paramObject.ParameterList).length
+          if(this[paramName].length>numberOfItems){
+            for(var j = numberOfItems; j < this[paramName].length; j++) {
+              removeFunction(j)
+            }
+          }
+          for(var j = 0; j < numberOfItems; j++) {
+            const names = this.getValues(paramObject.ParameterList[j],'name')
+            const values = this.getValues(paramObject.ParameterList[j],'value')
+            var key = ''
+            if (this[paramName].length<j+1){
+              addFunction()
+            }
+            for(var k = 1; k < values.length; k++) {
+              key = this.getKeyByValue(paramKeys, names[k])
+              this[paramName][j][key] = values[k-1]
+            }
+          }
+        }
+        else{
+          const names = this.getValues(paramObject.ParameterList,'name')
+          const values = this.getValues(paramObject.ParameterList,'value')
+          var key = ''
+          for(var k = 1; k < values.length; k++) {
+            key = this.getKeyByValue(paramKeys, names[k])
+            this[paramName][0][key] = values[k-1]
+          }
+        }
 
+      },
+      loadJsonFile(fr, files) {
+        this.ownModel=false
+        
         fr.onload = e => {
           const result = JSON.parse(e.target.result);
           for(var i = 0; i < Object.keys(result).length; i++) {
@@ -428,7 +530,46 @@ import { Plotly } from 'vue-plotly'
         }
         fr.readAsText(files.item(0));
       },
-      loadOwnModel() {
+      loadYamlModel(fr, files) {
+        this.ownModel=true
+      },
+      loadXmlModel(fr, files) {
+        this.ownModel=true
+        
+        fr.onload = e => {
+          const xml = e.target.result;
+          var convert = require('xml-js');
+          var json = convert.xml2json(xml, {compact: true, spaces: 4});
+          // this.message = json
+          // this.snackbar =true
+          const result = JSON.parse(json);
+          for(var i = 0; i < result.ParameterList.ParameterList.length; i++) {
+            var Param = result.ParameterList.ParameterList[i]
+            var name = Param._attributes.name
+            let numberOfDamages = 1
+            let numberOfBlocks = 1
+            switch (name) {
+              case 'Materials':
+                this.getValuesFromJson(Param, 'materials', this.materialKeys, this.addMaterial(), this.removeMaterial())
+              case 'Damage Models':
+                this.getValuesFromJson(Param, 'damages', this.damageKeys, this.addDamage(), this.removeDamage())
+              case 'Blocks':
+                this.getValuesFromJson(Param, 'blocks', this.blockKeys, this.addBlock(), this.removeBlock())
+            // if (name!='Param'){
+            //   this[name] = result[name];
+            // }
+            // else{
+            //   // var param = result[i]
+            //   for(var j = 0; j < Object.keys(result['Param']).length; j++) {
+            //     var paramName = Object.keys(result['Param'])[j]
+            //     this[paramName] = result['Param'][paramName];
+            //   }
+            }
+          }
+        }
+        fr.readAsText(files.item(0));
+      },
+      loadPeridigmModel(fr, files) {
         this.ownModel=true
       },
       resetData() {
