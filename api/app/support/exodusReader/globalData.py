@@ -9,6 +9,7 @@ from paraview.simple import *
 
 UserName = sys.argv[1]
 ModelName = sys.argv[2]
+OutputName = sys.argv[3]
 filePath = path.join('./Results/' + UserName, ModelName)
 # class Geometry(object):
 #     def __init__(self):
@@ -18,7 +19,7 @@ filePath = path.join('./Results/' + UserName, ModelName)
 paraview.simple._DisableFirstRenderCameraReset()
 
 # create a new 'ExodusIIReader'
-pMMA_var_0_1e = ExodusIIReader(FileName=[path.join(filePath, ModelName + '_Output2.e')])
+pMMA_var_0_1e = ExodusIIReader(FileName=[path.join(filePath, ModelName + '_' + OutputName + '.e')])
 # pMMA_var_0_1e.ElementVariables = []
 # pMMA_var_0_1e.PointVariables = []
 # pMMA_var_0_1e.GlobalVariables = []

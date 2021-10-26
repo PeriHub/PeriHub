@@ -354,17 +354,8 @@ class ModelControl(object):
             return 'Data of ' + username + ' has been deleted'
 
     @app.get("/getPlot")
-    def getPlot(ModelName: ModelName, Cluster: str, Outputs: dict, request: Request):
+    def getPlot(ModelName: ModelName, Cluster: str, OutputName: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
-
-        Outputs =  Outputs['Outputs']
-
-        OutputName = ''
-
-        for Output in Outputs:
-            if(Output['External_Force'] or Output['External_Displacement']):
-                OutputName = Output['Name']
-                break
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)

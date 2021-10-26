@@ -8,13 +8,13 @@
                     <i class="fas fa-upload"></i>
                 </v-btn>
               </template>
-                <span>Load JSON</span>
+                <span>Load Model</span>
               </v-tooltip>
               <input
                 type="file"
                 style="display: none"
                 ref="fileInput"
-                accept="application/json"
+                accept="application/json,application/xml,.peridigm"
                 @change="onFilePicked"/>
                 
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -60,7 +60,7 @@
         <!-- <v-list-item> -->
         <v-card>
               <v-expansion-panels height=45vh v-model="panel" multiple>
-                <v-expansion-panel>
+                <v-expansion-panel >
                   <v-expansion-panel-header>
                     <h2>Model</h2>
                   </v-expansion-panel-header>
@@ -129,7 +129,7 @@
                   </v-expansion-panel-content>
                 </v-expansion-panel>
               <v-divider></v-divider>
-              <v-expansion-panel>
+              <v-expansion-panel v-show="ownModel">
                   <v-expansion-panel-header>
                     <h2>Material</h2>
                   </v-expansion-panel-header>

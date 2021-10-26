@@ -40,6 +40,7 @@ import { Plotly } from 'vue-plotly'
         // Model
         modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],
         modelNameSelected: 'Dogbone',
+        ownModel: false,
         length: 0.115,
         width: 0.003,
         height: 0.019,
@@ -427,6 +428,9 @@ import { Plotly } from 'vue-plotly'
         }
         fr.readAsText(files.item(0));
       },
+      loadOwnModel() {
+        this.ownModel=true
+      },
       resetData() {
         switch (this.modelNameSelected) {
         case 'GIICmodel':  
@@ -696,12 +700,26 @@ import { Plotly } from 'vue-plotly'
         let headersList = {
         'Cache-Control': 'no-cache'
         }
+        let OutputName = ''
+        for (var i = 0; i < this.outputs.length; i++) {
+          if(this.outputs[i]['External_Force'] | this.outputs[i]['External_Displacement']){
+            OutputName = this.outputs[i]['Name']
+            break
+          }
+        }
+        if(OutputName==''){
+          this.message = 'No Output was defined with External_Force or External_Displacement'
+          this.snackbar = true
+          this.modelLoading = false
+          return
+        }
+            
 
         let reqOptions = {
           url: "http://localhost:8000/getPlot",
           params: {ModelName: this.modelNameSelected,
                    Cluster: this.job.cluster,
-                   Outputs: JSON.parse("{\"Outputs\": " + JSON.stringify(this.outputs) + "}")},
+                   OutputName: OutputName},
           method: "GET",
           headers: headersList,
           }
