@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  periHubApi:
+    build: api/.
+    container_name: periHubApi
+    image: peri_hub_api_image
+    ports:
+      - 8000:80
+    networks:
+      - backend
+    volumes:
+      - peridigm_volume:/app/peridigmJobs
+      - paraView_volume:/app/paraView
+
+  periHubGui:
+    build: gui/.
+    container_name: periHubGui
+    image: peri_hub_gui_image
+    ports:
+      - 8080:80
+    networks:
+      - backend
+
+  peridigm:
+    build: 
+      context: peridigm/.
+      args: 
+        GITLAB_USER: ${GITLAB_USER}
+        GITLAB_TOKEN: ${GITLAB_TOKEN}
+    container_name: peridigm
+    image: peridigm_image
+    ports:
+      - 2222:80
+    networks:
+      - backend
+    volumes:
+      - peridigm_volume:/app/peridigmJobs
+
+  paraview:
+    build: 
+      context: paraview/.
+    container_name: paraview
+    image: paraview_image
+    volumes:
+      - paraView_volume:/app/paraView
+  
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  peridigm_volume:
+  paraView_volume:
