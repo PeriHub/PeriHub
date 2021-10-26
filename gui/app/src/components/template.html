@@ -14,7 +14,7 @@
                 type="file"
                 style="display: none"
                 ref="fileInput"
-                accept="application/json,application/xml,.peridigm"
+                accept="application/json,application/xml,application/yaml,.peridigm"
                 @change="onFilePicked"/>
                 
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -60,7 +60,7 @@
         <!-- <v-list-item> -->
         <v-card>
               <v-expansion-panels height=45vh v-model="panel" multiple>
-                <v-expansion-panel >
+                <v-expansion-panel>
                   <v-expansion-panel-header>
                     <h2>Model</h2>
                   </v-expansion-panel-header>
@@ -75,23 +75,26 @@
                   <v-text-field 
                     class="textfield-col"
                     v-model="length"
+                    :disabled="ownModel"
                     :rules="[rules.required, rules.float]"
                     label="Length"
                     outlined></v-text-field>
                   <v-text-field 
                     class="textfield-col"
                     v-model="width"
+                    :disabled="ownModel"
                     :rules="[rules.required, rules.float]"
                     label="Width"
                     outlined></v-text-field>
                   <v-text-field 
                     class="textfield-col"
                     v-model="height"
+                    :disabled="ownModel"
                     :rules="[rules.required, rules.float]"
                     label="Height"
                     outlined></v-text-field>
                   <v-text-field 
-                    v-show="modelNameSelected=='Dogbone'"
+                    v-show="modelNameSelected=='Dogbone' & !ownModel"
                     class="textfield-col"
                     v-model="height2"
                     :rules="[rules.required, rules.float]"
@@ -100,36 +103,39 @@
                   <v-text-field 
                     class="textfield-col"
                     v-model="discretization"
+                    :disabled="ownModel"
                     :rules="[rules.required, rules.int]"
                     label="Discretization"
                     outlined></v-text-field>
-                    <v-switch
-                      class="checkbox-col"
-                      v-model="twoDimensional"
-                      label="Two Dimensional"
-                    ></v-switch>
-                    <v-switch
-                      v-model="rotatedAngles"
-                      label="Rotated Angles"
-                    ></v-switch>
-                    <v-row v-show="rotatedAngles">
-                      <v-col class="textfield-col">
-                        <v-text-field 
-                          v-model=angles[0]
-                          label="Angle 0"
-                          outlined></v-text-field>
-                      </v-col>
-                      <v-col class="textfield-col">
-                        <v-text-field 
-                          v-model=angles[1]
-                          label="Angle 1"
-                          outlined></v-text-field>
-                      </v-col>
-                    </v-row>
+                  <v-switch
+                    class="checkbox-col"
+                    v-model="twoDimensional"
+                    :disabled="ownModel"
+                    label="Two Dimensional"
+                  ></v-switch>
+                  <v-switch
+                    v-model="rotatedAngles"
+                    :disabled="ownModel"
+                    label="Rotated Angles"
+                  ></v-switch>
+                  <v-row v-show="rotatedAngles">
+                    <v-col class="textfield-col">
+                      <v-text-field 
+                        v-model=angles[0]
+                        label="Angle 0"
+                        outlined></v-text-field>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-text-field 
+                        v-model=angles[1]
+                        label="Angle 1"
+                        outlined></v-text-field>
+                    </v-col>
+                  </v-row>
                   </v-expansion-panel-content>
                 </v-expansion-panel>
               <v-divider></v-divider>
-              <v-expansion-panel v-show="ownModel">
+              <v-expansion-panel>
                   <v-expansion-panel-header>
                     <h2>Material</h2>
                   </v-expansion-panel-header>
