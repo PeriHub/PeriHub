@@ -507,7 +507,6 @@ import { Plotly } from 'vue-plotly'
             this[paramName][0][key] = values[k-1]
           }
         }
-
       },
       loadJsonFile(fr, files) {
         this.ownModel=false
