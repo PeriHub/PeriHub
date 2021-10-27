@@ -106,7 +106,7 @@ class ModelControl(object):
         )
 
     @app.post("/generateModel")
-    def generateModel(ModelName: ModelName, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
+    def generateModel(ModelName: ModelName, ownModel: bool, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
        
         username = request.headers.get('x-forwarded-preferred-username')
          # L = 152
@@ -164,6 +164,18 @@ class ModelControl(object):
             solver=Param['Param']['Solver'],
             username = username)
             model = db.createModel()
+
+        if ownModel:
+            db = Dogbone(
+            material=Param['Param']['Material'], 
+            damage=Param['Param']['Damage'], 
+            block=Param['Param']['Block'], 
+            bc=Param['Param']['BoundaryConditions'], 
+            compute=Param['Param']['Compute'],  
+            output=Param['Param']['Output'], 
+            solver=Param['Param']['Solver'],
+            username = username)
+            db.createModel()
 
         print()
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
