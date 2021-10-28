@@ -9,20 +9,23 @@ from GIICmodel.GIICmodel import GIICmodel
 from DCBmodel.DCBmodel import DCBmodel
 from Verification.verificationModels import VerificationModels
 from Dogbone.Dogbone import Dogbone
+from OwnModel.OwnModel import OwnModel
 from support.sbatchCreator  import SbatchCreator
 from support.fileHandler  import fileHandler
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
 # import matplotlib.pyplot as plt
 # import pandas as pd
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse
 # from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
+
 import uvicorn
 import shutil
-import filecmp
 
 from enum import Enum
 
@@ -34,10 +37,10 @@ import time
 import subprocess
 
 
-class ModelName(str, Enum):
-    Dogbone = "Dogbone"
-    GIICmodel = "GIICmodel"
-    DCBmodel = "DCBmodel"
+# class ModelName(str, Enum):
+#     Dogbone = "Dogbone"
+#     GIICmodel = "GIICmodel"
+#     DCBmodel = "DCBmodel"
 class FileType(str, Enum):
     yaml = "yaml"
     xml = "xml"
@@ -106,7 +109,7 @@ class ModelControl(object):
         )
 
     @app.post("/generateModel")
-    def generateModel(ModelName: ModelName, ownModel: bool, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
+    def generateModel(ModelName: str, ownModel: bool, Length: float, Width: float, Height: float, Discretization: float, Horizon: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
        
         username = request.headers.get('x-forwarded-preferred-username')
          # L = 152
@@ -123,7 +126,7 @@ class ModelControl(object):
 
         start_time = time.time()
         
-        if ModelName==ModelName.GIICmodel:
+        if ModelName=='GIICmodel':
             gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx,
             TwoD = TwoDimensional,
             rot=RotatedAngles, angle=[Angle0,Angle1], 
@@ -137,7 +140,7 @@ class ModelControl(object):
             username = username)
             model = gc.createModel()
 
-        if ModelName==ModelName.DCBmodel:
+        if ModelName=='DCBmodel':
             dcb = DCBmodel(xend = L, yend = h, zend = W, dx=dx,
             TwoD = TwoDimensional, 
             rot=RotatedAngles, angle=[Angle0,Angle1], 
@@ -151,7 +154,7 @@ class ModelControl(object):
             username = username)
             model = dcb.createModel()
 
-        if ModelName==ModelName.Dogbone:
+        if ModelName=='Dogbone':
             db = Dogbone(xend = L, h1 = h, h2 = Height2, zend = W, dx=dx,
             TwoD = TwoDimensional, 
             rot=RotatedAngles, angle=[Angle0,Angle1], 
@@ -166,7 +169,9 @@ class ModelControl(object):
             model = db.createModel()
 
         if ownModel:
-            db = Dogbone(
+            own = OwnModel(filename=ModelName, dx=dx,
+            TwoD = TwoDimensional,
+            horizon = Horizon,
             material=Param['Param']['Material'], 
             damage=Param['Param']['Damage'], 
             block=Param['Param']['Block'], 
@@ -175,13 +180,13 @@ class ModelControl(object):
             output=Param['Param']['Output'], 
             solver=Param['Param']['Solver'],
             username = username)
-            db.createModel()
+            own.createModel()
 
         print()
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
    
     @app.get("/viewInputFile")
-    def viewInputFile(ModelName: ModelName, FileType: FileType, request: Request):
+    def viewInputFile(ModelName: str, FileType: FileType, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
         filePath = './Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType
         if not os.path.exists(filePath):
@@ -192,7 +197,7 @@ class ModelControl(object):
             return 'Inputfile can\'t be found'
 
     @app.post("/writeInputFile")
-    def writeInputFile(ModelName: ModelName, InputString: str, FileType: FileType, request: Request):
+    def writeInputFile(ModelName: str, InputString: str, FileType: FileType, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         fid = open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType ,'w')
@@ -202,7 +207,7 @@ class ModelControl(object):
         return ModelName + '-InputFile has been saved'
 
     @app.get("/getModel")
-    def getModel(ModelName: ModelName, request: Request):
+    def getModel(ModelName: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         try:
@@ -213,10 +218,10 @@ class ModelControl(object):
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
         except:
-            raise HTTPException(status_code=404, detail=ModelName + ' files can not be found on ' + Cluster)
+            raise HTTPException(status_code=404, detail=ModelName + ' files can not be found')
      
     @app.get("/getLogFile")
-    def getLogFile(ModelName: ModelName, Cluster: str, request: Request):
+    def getLogFile(ModelName: str, Cluster: str, request: Request):
 
         username = request.headers.get('x-forwarded-preferred-username')
         usermail = request.headers.get('x-forwarded-email')
@@ -266,7 +271,7 @@ class ModelControl(object):
             return response
 
     @app.get("/getResults")
-    def getResults(ModelName: ModelName, Cluster: str, allData: bool, request: Request):
+    def getResults(ModelName: str, Cluster: str, allData: bool, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, allData)==False):
@@ -285,7 +290,7 @@ class ModelControl(object):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     # @app.get("/getResults")
-    # def getResults(ModelName: ModelName, username: str):
+    # def getResults(ModelName: str, username: str):
 
     #     resultpath = './Results/' + os.path.join(username, ModelName)
     #     userpath = './Results/' + username
@@ -300,7 +305,7 @@ class ModelControl(object):
     #         return 'Resultfiles can\'t be found'
             
     @app.post("/deleteModel")
-    def deleteModel(ModelName: ModelName, request: Request):
+    def deleteModel(ModelName: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         localpath = './Output/' + os.path.join(username, ModelName)
@@ -309,7 +314,7 @@ class ModelControl(object):
 
 
     @app.post("/deleteModelFromCluster")
-    def deleteModelFromCluster(ModelName: ModelName, Cluster: str, request: Request):
+    def deleteModelFromCluster(ModelName: str, Cluster: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         if Cluster=='None':
@@ -368,7 +373,7 @@ class ModelControl(object):
             return 'Data of ' + username + ' has been deleted'
 
     @app.get("/getPlot")
-    def getPlot(ModelName: ModelName, Cluster: str, OutputName: str, request: Request):
+    def getPlot(ModelName: str, Cluster: str, OutputName: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
@@ -398,7 +403,7 @@ class ModelControl(object):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     @app.get("/getImage")
-    def getImage(ModelName: ModelName, Cluster: str, Variable: str, Height: float, Discretization: float, request: Request):
+    def getImage(ModelName: str, Cluster: str, Variable: str, Height: float, Discretization: float, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
         
         nn = 2*int(Discretization/2)+1
@@ -417,7 +422,7 @@ class ModelControl(object):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     @app.get("/getPointData")
-    def getPointData(ModelName: ModelName, request: Request):
+    def getPointData(ModelName: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         pointString=''
@@ -439,8 +444,21 @@ class ModelControl(object):
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
 
+    @app.post("/uploadfiles")
+    async def uploadfiles( ModelName: str, request: Request, files: List[UploadFile] = File(...)): 
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        localpath = './Output/' + os.path.join(username, ModelName)
+
+        for file in files:
+            file_location = localpath + f"/{file.filename}"
+            with open(file_location, "wb+") as file_object:
+                shutil.copyfileobj(file.file, file_object)
+
+        return {"info": f"file '{files[0].file.name}' saved at '{file_location}'"}
+
     @app.post("/runModel")
-    def runModel(ModelName: ModelName, FileType: FileType, Param: dict, request: Request):
+    def runModel(ModelName: str, FileType: FileType, Param: dict, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
         usermail = request.headers.get('x-forwarded-email')
 
@@ -503,7 +521,7 @@ class ModelControl(object):
             return Cluster + ' unknown'
 
     @app.post("/cancelJob")
-    def cancelJob(ModelName: ModelName, Cluster: str, request: Request):
+    def cancelJob(ModelName: str, Cluster: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         if Cluster=='None':

@@ -16,6 +16,13 @@
                 ref="fileInput"
                 accept="application/json,application/xml,.yaml,.peridigm"
                 @change="onFilePicked"/>
+              <input
+                type="file"
+                style="display: none"
+                ref="multifileInput"
+                multiple
+                accept="text/plain,.g"
+                @change="onMultiFilePicked"/>
                 
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveData">
@@ -25,7 +32,7 @@
                 <span>Save as JSON</span>
               </v-tooltip>
     
-              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+              <v-tooltip bottom v-if="!ownModel"><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="resetData">
                     <i class="fas fa-undo"></i>
                 </v-btn>
@@ -41,12 +48,28 @@
                 <span>Generate Model</span>
               </v-tooltip>
     
+              <v-tooltip bottom v-if="ownModel"><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="uploadMesh">
+                    <i class="fas fa-upload"></i>
+                </v-btn>
+              </template>
+                <span>Upload Mesh and Nodesets</span>
+              </v-tooltip>
+    
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveModel">
                     <i class="fas fa-download"></i>
                 </v-btn>
               </template>
                 <span>Download Modelfiles</span>
+              </v-tooltip>
+    
+              <v-tooltip bottom v-if="ownModel"><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="switchModels">
+                    <i class="fas fa-backward"></i>
+                </v-btn>
+              </template>
+                <span>Use predefined Models</span>
               </v-tooltip>
         </v-subheader>
           <!-- <v-virtual-scroll
@@ -69,27 +92,35 @@
                     class="textfield-col"
                     :items="modelName"
                     v-model="modelNameSelected"
+                    v-show="!ownModel"
                     @change="showModelImg(); resetData();"
                     label="ModelName"
                     outlined></v-select>
                   <v-text-field 
                     class="textfield-col"
+                    v-model="modelNameSelected"
+                    v-show="ownModel"
+                    :rules="[rules.required]"
+                    label="ModelName"
+                    outlined></v-text-field>
+                  <v-text-field 
+                    class="textfield-col"
                     v-model="length"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     :rules="[rules.required, rules.float]"
                     label="Length"
                     outlined></v-text-field>
                   <v-text-field 
                     class="textfield-col"
                     v-model="width"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     :rules="[rules.required, rules.float]"
                     label="Width"
                     outlined></v-text-field>
                   <v-text-field 
                     class="textfield-col"
                     v-model="height"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     :rules="[rules.required, rules.float]"
                     label="Height"
                     outlined></v-text-field>
@@ -103,19 +134,25 @@
                   <v-text-field 
                     class="textfield-col"
                     v-model="discretization"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     :rules="[rules.required, rules.int]"
                     label="Discretization"
+                    outlined></v-text-field>
+                  <v-text-field 
+                    class="textfield-col"
+                    v-model="horizon"
+                    v-show="ownModel"
+                    :rules="[rules.required, rules.float]"
+                    label="Horizon"
                     outlined></v-text-field>
                   <v-switch
                     class="checkbox-col"
                     v-model="twoDimensional"
-                    :disabled="ownModel"
                     label="Two Dimensional"
                   ></v-switch>
                   <v-switch
                     v-model="rotatedAngles"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     label="Rotated Angles"
                   ></v-switch>
                   <v-row v-show="rotatedAngles">
@@ -1407,7 +1444,7 @@
                   <vtk-algorithm 
                     vtkClass="vtkSphereSource" 
                     :state="{ phiResolution: resolution, thetaResolution: resolution, radius: radius}" 
-                    port=1
+                    :port=1
                   />
                 </vtk-glyph-representation>
               </vtk-view>

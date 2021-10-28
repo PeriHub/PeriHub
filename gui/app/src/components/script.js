@@ -46,6 +46,7 @@ import { Plotly } from 'vue-plotly'
         height: 0.019,
         height2: 0.013,
         discretization: 21,
+        horizon: 0.01,
         twoDimensional: true,
         rotatedAngles: false,
         angles: [0, 0],
@@ -430,6 +431,7 @@ import { Plotly } from 'vue-plotly'
                     Height: this.height,
                     Height2: this.height2,
                     Discretization: this.discretization,
+                    Horizon: this.horizon,
                     TwoDimensional: this.twoDimensional,
                     RotatedAngles: this.rotatedAngles,
                     Angle0: this.angles[0],
@@ -444,13 +446,17 @@ import { Plotly } from 'vue-plotly'
             method: "POST",
             headers: headersList,
           }
-          this.modelLoading = true
+          if(!this.ownModel){
+            this.modelLoading = true
+          }
           this.textLoading = true
           await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true
           this.viewInputFile()
-          this.viewPointData()
-          this.modelLoading = false
+          if(!this.ownModel){
+            this.viewPointData()
+            this.modelLoading = false
+          }
           this.textLoading = false
           this.saveCurrentData()
         }
@@ -482,6 +488,9 @@ import { Plotly } from 'vue-plotly'
       readData() {
         this.$refs.fileInput.click()
       },
+      uploadMesh() {
+        this.$refs.multifileInput.click()
+      },
       onFilePicked (event) {
         const files = event.target.files
         const filetype = files[0].type
@@ -503,6 +512,49 @@ import { Plotly } from 'vue-plotly'
         else if(filetype=='.peridigm'){
           this.loadPeridigmModel(fr, files)
         }
+      },
+      onMultiFilePicked (event) {
+        const files = event.target.files
+        const filetype = files[0].type
+        if (files.length <= 0) {
+          return false;
+        }
+
+        this.uploadfiles(files)
+      },
+      async uploadfiles(files) {
+        // this.snackbar=true
+        // this.message = JSON.parse("{\"Job\": " + JSON.stringify(this.job)+"}")
+        const formData = new FormData();
+        for (var i = 0; i < files.length; i++){
+          formData.append('files',files[i])
+        }
+
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'multipart/form-data'
+        }
+
+        let reqOptions = {
+          url: "http://localhost:8000/uploadfiles",
+          params: {ModelName: this.modelNameSelected},
+          data: formData,
+          method: "POST",
+          headers: headersList,
+        }
+
+        this.modelLoading = true
+        this.message = 'Meshfiles have been uploaded'
+        await axios.request(reqOptions)
+        .catch((error) => {
+          console.log(response)
+          this.message = error
+          return
+        })
+        
+        this.viewPointData()
+        this.modelLoading = false
+        this.snackbar=true
       },
       //return an array of values that match on a certain key
       getValues(obj, key) {
@@ -567,7 +619,12 @@ import { Plotly } from 'vue-plotly'
           }
           for(var i = 0; i < names.length; i++) {
             var key = this.getKeyByValue(paramKeys, names[i])
-            this[paramName][id-1][key] = paramObject[names[i]]
+            if(key=='Name'){
+              this[paramName][id-1][key] = paramObject[names[i]].split('_').slice(-1)[0]
+            }
+            else{
+              this[paramName][id-1][key] = paramObject[names[i]]
+            }
             var subNames = Object.keys(paramObject[names[i]])
             for(var j = 0; j < subNames.length; j++) {
               var key = this.getKeyByValue(paramKeys, subNames[j])
@@ -615,6 +672,9 @@ import { Plotly } from 'vue-plotly'
             var subNames = Object.keys(paramObject[names[i]])
             for(var j = 0; j < subNames.length; j++) {
               var key = this.getKeyByValue(paramKeys, subNames[j])
+              if(subNames[j]=='Horizon'){
+                this.horizon = paramObject[names[i]][subNames[j]]
+              }
               this[paramName][i][key] = paramObject[names[i]][subNames[j]]
             }
           }
@@ -649,6 +709,8 @@ import { Plotly } from 'vue-plotly'
       loadYamlModel(fr, files) {
         this.ownModel=true
         
+        this.modelNameSelected = files[0].name.split('.')[0]
+
         fr.onload = e => {
           const yaml = e.target.result;
           this.loadYamlString(yaml)
@@ -657,6 +719,8 @@ import { Plotly } from 'vue-plotly'
       },
       loadXmlModel(fr, files) {
         this.ownModel=true
+
+        this.modelNameSelected = files[0].name.split('.')[0]
         
         fr.onload = e => {
           const xml = e.target.result;
@@ -697,6 +761,9 @@ import { Plotly } from 'vue-plotly'
               break
           }
         }
+      },
+      switchModels(){
+        this.ownModel=false
       },
       resetData() {
         switch (this.modelNameSelected) {
@@ -800,6 +867,7 @@ import { Plotly } from 'vue-plotly'
           }
 
         this.modelLoading = true
+        this.viewId = 1
         await axios.request(reqOptions).then(response => (
           this.pointString = response.data[0].split(','),
           this.blockIdString = response.data[1].split(',')))
@@ -807,7 +875,6 @@ import { Plotly } from 'vue-plotly'
         let dx = this.height/(2*parseInt(this.discretization/2)+1)
         this.radius = dx.toFixed(2);
         this.updatePoints()
-        this.viewId = 1
         this.modelLoading = false
         this.$refs.view.resetCamera()
       },

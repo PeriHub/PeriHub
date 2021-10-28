@@ -30,6 +30,19 @@ class fileHandler(object):
             for root, dirs, files in os.walk(localpath):
                 if len(files)==0:
                     return ModelName + ' has not been created yet'
+                inputExist = False
+                meshExist = False
+                for name in files:
+                    if name.split('.')[-1]=='yaml':
+                        inputExist = True
+                    if name.split('.')[-1]=='txt':
+                        meshExist = True
+
+                if inputExist==False:
+                    return 'Inputfile of ' + ModelName + ' has not been created yet'
+
+                if meshExist==False:
+                    return 'Meshfile of ' + ModelName + ' has not been created yet'
 
                 for name in files:
                     shutil.copy(os.path.join(root,name), os.path.join(remotepath,name))
