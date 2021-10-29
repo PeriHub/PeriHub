@@ -73,6 +73,20 @@ class fileHandler(object):
             for root, dirs, files in os.walk(localpath):
                 if len(files)==0:
                     return ModelName + ' has not been created yet'
+                inputExist = False
+                meshExist = False
+                for name in files:
+                    if name.split('.')[-1]=='yaml':
+                        inputExist = True
+                    if name.split('.')[-1]=='txt':
+                        meshExist = True
+
+                if inputExist==False:
+                    return 'Inputfile of ' + ModelName + ' has not been created yet'
+
+                if meshExist==False:
+                    return 'Meshfile of ' + ModelName + ' has not been created yet'
+
                 for name in files:
                     sftp.put(os.path.join(root,name), name)
 
@@ -80,6 +94,23 @@ class fileHandler(object):
             ssh.close()
             
             return 'Success'
+
+    def copyFileToFromPeridigmContainer(username, ModelName, Filename, ToOrFrom):
+        
+        localpath = './Output/' + os.path.join(username, ModelName)
+        remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
+        if not os.path.exists(remotepath):
+            os.makedirs(remotepath)
+            # os.chown(remotepath, 'test')
+        if not os.path.exists(localpath):
+            return ModelName + ' has not been created yet'
+
+        if ToOrFrom:
+            shutil.copy(os.path.join(localpath,Filename), os.path.join(remotepath,Filename))
+        else:
+            shutil.copy(os.path.join(remotepath,Filename), os.path.join(localpath,Filename))
+        
+        return 'Success'
 
     def copyResultsFromCluster(username, ModelName, Cluster, allData):
         resultpath = './Results/' + os.path.join(username, ModelName)

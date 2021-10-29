@@ -512,6 +512,9 @@ import { Plotly } from 'vue-plotly'
         else if(filetype=='.peridigm'){
           this.loadPeridigmModel(fr, files)
         }
+        else{
+          this.loadFeModel(files)
+        }
       },
       onMultiFilePicked (event) {
         const files = event.target.files
@@ -729,6 +732,41 @@ import { Plotly } from 'vue-plotly'
         }
         fr.readAsText(files.item(0));
       },
+      loadFeModel(files) {
+        this.ownModel=true
+
+        if (files.length <= 0) {
+          return false;
+        }
+        this.modelNameSelected = files[0].name.split('.')[0]
+        const filetype = files[0].name.split('.')[1]
+
+        this.translateModel(files, filetype)
+      },
+      async translateModel(files, filetype) {
+
+        const formData = new FormData();
+        for (var i = 0; i < files.length; i++){
+          formData.append('files',files[i])
+        }
+
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'multipart/form-data'
+        }
+
+        let reqOptions = {
+          url: "http://localhost:8000/translateModel",
+          params: {ModelName: this.modelNameSelected,
+                   Filetype: filetype},
+          data: formData,
+          method: "POST",
+          headers: headersList,
+        }
+
+        await axios.request(reqOptions).then(response => (this.message = response.data))
+        this.snackbar=true
+      },
       loadYamlString(yaml) {
         var convert = require('js-yaml');
         var json = convert.load(yaml);
@@ -794,6 +832,7 @@ import { Plotly } from 'vue-plotly'
       },
       saveCurrentData() {
         this.$cookie.set('panel', JSON.stringify(this.panel), Infinity, '/app');
+        this.$cookie.set('ownModel', JSON.stringify(this.ownModel), Infinity, '/app');
         const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
                       "\"length\":" + this.length + ",\n" +
                       "\"width\":" + this.width + ",\n" +
@@ -827,6 +866,7 @@ import { Plotly } from 'vue-plotly'
       },
       getCurrentData() {
         this.panel = JSON.parse(this.$cookie.get('panel'));
+        this.ownModel = JSON.parse(this.$cookie.get('ownModel'));
         this.cookieToJson("data")
         this.cookieToJson("materials", true)
         this.cookieToJson("damages")

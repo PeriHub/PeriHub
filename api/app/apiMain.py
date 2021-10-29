@@ -457,6 +457,57 @@ class ModelControl(object):
 
         return {"info": f"file '{files[0].file.name}' saved at '{file_location}'"}
 
+    @app.post("/translateModel")
+    def translateModel(ModelName: str, Filetype: str,request: Request, files: List[UploadFile] = File(...)):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        localpath = './Output/' + os.path.join(username, ModelName)
+        
+        if os.path.exists(localpath) == False:
+            os.makedirs(localpath)
+
+        for file in files:
+            file_location = localpath + f"/{file.filename}"
+            with open(file_location, "wb+") as file_object:
+                shutil.copyfileobj(file.file, file_object)
+
+        inputformat="'ansys (cdb)'"
+        if Filetype=='cdb':
+            inputformat = 'ansys'
+            # inputformat = "'ansys (cdb)'"
+
+        command = "java -jar ./support/jCoMoT/jCoMoT-0.0.1-all.jar -ifile " + os.path.join(localpath, ModelName + '.' + Filetype) + \
+        " -iformat " + inputformat + " -oformat peridigm -opath " + localpath + \
+        " && mv " + os.path.join(localpath, 'mesh.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
+        " && mv " + os.path.join(localpath, 'model.peridigm ') + os.path.join(localpath, ModelName) + '.peridigm'
+        # " && mv " + os.path.join(localpath, 'discretization.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
+        try:
+            subprocess.call(command, shell=True)
+        except:
+            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+        
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g.ascii', True)
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.peridigm', True)
+
+        # if returnString!='Success':
+        #     return returnString
+
+        remotepath = '/app/peridigmJobs/' + os.path.join(username, ModelName)
+        ssh = paramiko.SSHClient() 
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect('peridigm', username='root', allow_agent=False, password='root')
+        command = '/usr/local/netcdf/bin/ncgen ' + os.path.join(remotepath, ModelName) + '.g.ascii -o ' + os.path.join(remotepath, ModelName) + '.g' + \
+        ' && python3 /peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
+        ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
+        ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
+        stdin, stdout, stderr  = ssh.exec_command(command)
+        ssh.close()
+
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
+
+        return command
+
     @app.post("/runModel")
     def runModel(ModelName: str, FileType: FileType, Param: dict, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
