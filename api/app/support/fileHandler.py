@@ -35,7 +35,7 @@ class fileHandler(object):
                 for name in files:
                     if name.split('.')[-1]=='yaml':
                         inputExist = True
-                    if name.split('.')[-1]=='txt':
+                    if name.split('.')[-1]=='txt' or name.split('.')[-1]=='e' :
                         meshExist = True
 
                 if inputExist==False:
@@ -78,7 +78,7 @@ class fileHandler(object):
                 for name in files:
                     if name.split('.')[-1]=='yaml':
                         inputExist = True
-                    if name.split('.')[-1]=='txt':
+                    if name.split('.')[-1]=='txt' or name.split('.')[-1]=='e':
                         meshExist = True
 
                 if inputExist==False:

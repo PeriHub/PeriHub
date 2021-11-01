@@ -54,7 +54,12 @@ class XMLcreator(object):
                     string += '            <Parameter name="'+ param +'" type="double" value="' +str(np.format_float_scientific(float(mat['Parameter'][param]['value']))) +'"/>\n'
 
                 # needed for time step estimation
-            string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['youngsModulus']))) + '"/>\n'
+            if (mat['youngsModulus'] != None) and (mat['youngsModulus'] != 0) :
+                string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['youngsModulus']))) + '"/>\n'
+            if (mat['shearModulus'] != None) and (mat['shearModulus'] != 0):
+                string += '            <Parameter name="Shear Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['shearModulus']))) + '"/>\n'
+            if (mat['bulkModulus'] != None) and (mat['bulkModulus'] != 0):
+                string += '            <Parameter name="Bulk Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['bulkModulus']))) + '"/>\n'
             string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="' + str(np.format_float_scientific(float(mat['poissonsRatio']))) + '"/>\n'
             string += '            <Parameter name="Stabilizaton Type" type="string" value="' + mat['stabilizatonType'] + '"/>\n'
             string += '            <Parameter name="Thickness" type="double" value="' + str(float(mat['thickness'])) + '"/>\n'

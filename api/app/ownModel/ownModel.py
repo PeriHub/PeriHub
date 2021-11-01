@@ -14,6 +14,7 @@ class OwnModel(object):
         self.computeDict = compute
         self.outputDict = output
         self.materialDict = material
+        self.bondfilters = {}
         self.bcDict = bc
         self.solverDict = solver
 

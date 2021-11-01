@@ -220,6 +220,22 @@ class ModelControl(object):
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' files can not be found')
      
+    @app.get("/getVtkFile")
+    def getVtkFile(ModelName: str, request: Request):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        localpath = './Output/' + os.path.join(username, ModelName)
+
+        try:
+            file = os.path.join(localpath, ModelName) + '.vtk'
+
+            response = FileResponse(file, media_type=".vtk")
+            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + '.vtk'
+            # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+            return response
+        except:
+            raise HTTPException(status_code=404, detail=ModelName + ' files can not be found')
+
     @app.get("/getLogFile")
     def getLogFile(ModelName: str, Cluster: str, request: Request):
 
@@ -461,6 +477,8 @@ class ModelControl(object):
     def translateModel(ModelName: str, Filetype: str,request: Request, files: List[UploadFile] = File(...)):
         username = request.headers.get('x-forwarded-preferred-username')
 
+        start_time = time.time()
+
         localpath = './Output/' + os.path.join(username, ModelName)
         
         if os.path.exists(localpath) == False:
@@ -474,6 +492,8 @@ class ModelControl(object):
         inputformat="'ansys (cdb)'"
         if Filetype=='cdb':
             inputformat = 'ansys'
+        if Filetype=='inp':
+            inputformat = 'abaqus'
             # inputformat = "'ansys (cdb)'"
 
         command = "java -jar ./support/jCoMoT/jCoMoT-0.0.1-all.jar -ifile " + os.path.join(localpath, ModelName + '.' + Filetype) + \
@@ -506,7 +526,14 @@ class ModelControl(object):
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
 
-        return command
+        command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtk'
+
+        try:
+            subprocess.call(command, shell=True)
+        except:
+            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+
+        return ModelName + ' has been translated in ' + "%.2f seconds" % (time.time() - start_time)
 
     @app.post("/runModel")
     def runModel(ModelName: str, FileType: FileType, Param: dict, request: Request):

@@ -14,7 +14,7 @@
                 type="file"
                 style="display: none"
                 ref="fileInput"
-                accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb"
+                accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp"
                 @change="onFilePicked"/>
               <input
                 type="file"
@@ -208,25 +208,36 @@
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=material.density
-                              label="Density"
-                              outlined></v-text-field>
-                          </v-col>
-                          <!-- <v-col class="textfield-col">
-                            <v-text-field 
-                              v-model=material.bulkModulus
-                              label="Bulk Modulus"
-                              outlined></v-text-field>
-                          </v-col> -->
-                          <v-col class="textfield-col">
-                            <v-text-field 
-                              v-model=material.youngsModulus
-                              label="Young's Modulus"
+                              :label=materialKeys.density
                               outlined></v-text-field>
                           </v-col>
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=material.poissonsRatio
-                              label="Poisson's Ratio"
+                              :label=materialKeys.poissonsRatio
+                              outlined></v-text-field>
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col class="textfield-col">
+                            <v-text-field 
+                              v-model=material.bulkModulus
+                              :label=materialKeys.bulkModulus
+                              clearable
+                              outlined></v-text-field>
+                          </v-col>
+                          <v-col class="textfield-col">
+                            <v-text-field 
+                              v-model=material.shearModulus
+                              :label=materialKeys.shearModulus
+                              clearable
+                              outlined></v-text-field>
+                          </v-col>
+                          <v-col class="textfield-col">
+                            <v-text-field 
+                              v-model=material.youngsModulus
+                              :label=materialKeys.youngsModulus
+                              clearable
                               outlined></v-text-field>
                           </v-col>
                         </v-row>
@@ -764,6 +775,7 @@
                         <v-text-field 
                           v-model="solver.initialTime"
                           label="Initial Time"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -772,6 +784,7 @@
                         <v-text-field 
                           v-model="solver.finalTime"
                           label="Final Time"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -799,6 +812,7 @@
                         <v-text-field 
                           v-model="solver.safetyFactor"
                           label="Safety Factor"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -807,6 +821,7 @@
                         <v-text-field 
                           v-model="solver.numericalDamping"
                           label="Numerical Damping"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                     </v-row>
@@ -835,6 +850,7 @@
                         <v-text-field 
                           v-model="solver.numberofLoadSteps"
                           label="Number of Load Steps"
+                          :rules="[rules.required, rules.int]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -843,6 +859,7 @@
                         <v-text-field 
                           v-model="solver.maxSolverIterations"
                           label="Max Solver Iterations"
+                          :rules="[rules.required, rules.int]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -851,6 +868,7 @@
                         <v-text-field 
                           v-model="solver.relativeTolerance"
                           label="Relative Tolerance"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -917,6 +935,7 @@
                         <v-text-field 
                           v-model="solver.verlet.safetyFactor"
                           label="Safety Factor"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -925,6 +944,7 @@
                         <v-text-field 
                           v-model="solver.verlet.numericalDamping"
                           label="Numerical Damping"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -933,6 +953,7 @@
                         <v-text-field 
                           v-model="solver.verlet.outputFrequency"
                           label="Output Frequency"
+                          :rules="[rules.required, rules.int]"
                           outlined></v-text-field>
                       </v-col>
                     </v-row>
@@ -1471,7 +1492,7 @@
             <!-- <v-container> -->
             <v-subheader>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewInputFile">
+                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewInputFile(false)">
                       <i class="fas fa-sync-alt"></i>
                   </v-btn>
                 </template>
