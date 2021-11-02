@@ -1275,13 +1275,13 @@
               <v-dialog
                 v-model="dialogDeleteData"
                 persistent
-                max-width="400"
+                max-width="500"
               >
                   <v-card>
                     <v-card-title class="text-h5">
                       Delete Data
                     </v-card-title>
-                    <v-card-text>Do you want to delete the selected Model data or all User data?</v-card-text>
+                    <v-card-text>Do you want to delete the selected Model data, all Cookies or all User data?</v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn
@@ -1290,6 +1290,13 @@
                         @click="dialogDeleteData = false, dialogDeleteModel = true"
                       >
                         Model data
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="dialogDeleteData = false, dialogDeleteCookies = true"
+                      >
+                        Cookies
                       </v-btn>
                       <v-btn
                         color="green darken-1"
@@ -1347,11 +1354,41 @@
                 <span>Delete User Data</span>
               </v-tooltip> -->
     
+                <v-dialog
+                v-model="dialogDeleteCookies"
+                persistent
+                max-width="400"
+                >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Delete User Data
+                    </v-card-title>
+                    <v-card-text>Are you sure, you want to delete all Cookies?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="deleteCookies"
+                      >
+                        Yes
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogDeleteCookies = false"
+                      >
+                        No
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
+    
               <v-dialog
                 v-model="dialogDeleteUserData"
                 persistent
                 max-width="400"
-              >
+                >
                   <v-card>
                     <v-card-title class="text-h5">
                       Delete User Data
@@ -1447,7 +1484,7 @@
                 transition="scale-transition"
                 width="100%"
               />
-              <vtk-view
+              <!-- <vtk-view
                 v-if="viewId==1"
                 ref="view"
                 :background="[45/255, 45/255, 45/255]">
@@ -1468,7 +1505,17 @@
                     :port=1
                   />
                 </vtk-glyph-representation>
+              </vtk-view> -->
+
+              <vtk-view
+                v-if="viewId==1"
+                ref="view"
+                :background="[45/255, 45/255, 45/255]">
+                <vtk-geometry-representation>
+                  <vtk-reader vtkClass="vtkOBJReader" :url="vtkFile" />
+                </vtk-geometry-representation>
               </vtk-view>
+
               <Plotly v-if="viewId==2" 
                 :data="plotData" 
                 :layout="plotLayout" 

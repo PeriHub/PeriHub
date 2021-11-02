@@ -227,10 +227,10 @@ class ModelControl(object):
         localpath = './Output/' + os.path.join(username, ModelName)
 
         try:
-            file = os.path.join(localpath, ModelName) + '.vtk'
+            file = os.path.join(localpath, ModelName) + '.vtu'
 
-            response = FileResponse(file, media_type=".vtk")
-            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + '.vtk'
+            response = FileResponse(file, media_type=".vtu")
+            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + '.vtu'
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
         except:
@@ -520,13 +520,13 @@ class ModelControl(object):
         ' && python3 /peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
         ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
         ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
-        stdin, stdout, stderr  = ssh.exec_command(command)
+        ssh.exec_command(command)
         ssh.close()
 
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
 
-        command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtk'
+        command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtu'
 
         try:
             subprocess.call(command, shell=True)

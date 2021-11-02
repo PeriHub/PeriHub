@@ -25,6 +25,7 @@
     "vue-cookie": "^1.1.4",
     "vue-json-editor": "^1.4.3",
     "vue-json-pretty": "^1.8.1",
+    "vue-meta": "^2.4.0",
     "vue-numeral-filter": "^2.0.0",
     "vue-numerals": "^4.0.6",
     "vue-plotly": "^1.1.0",

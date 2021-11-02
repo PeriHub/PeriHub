@@ -316,6 +316,7 @@ import { Plotly } from 'vue-plotly'
         dialogGetPlot: false,
         dialogDeleteData: false,
         dialogDeleteModel: false,
+        dialogDeleteCookies: false,
         dialogDeleteUserData: false,
         errors: [],
         plotRawData: '',
@@ -429,7 +430,6 @@ import { Plotly } from 'vue-plotly'
           'Cache-Control': 'no-cache',
           // 'Access-Control-Allow-Origin': '*'
           }
-
           let reqOptions = {
             url: "http://localhost:8000/generateModel",
             params: {ModelName: this.modelNameSelected,
@@ -454,14 +454,14 @@ import { Plotly } from 'vue-plotly'
             method: "POST",
             headers: headersList,
           }
-          if(!this.ownModel){
+          if(this.ownModel==false){
             this.modelLoading = true
           }
           this.textLoading = true
           await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true
           this.viewInputFile(false)
-          if(!this.ownModel){
+          if(this.ownModel==false){
             this.viewPointData()
             this.modelLoading = false
           }
@@ -875,7 +875,7 @@ import { Plotly } from 'vue-plotly'
       },
       saveCurrentData() {
         this.$cookie.set('panel', JSON.stringify(this.panel), Infinity, '/app');
-        this.$cookie.set('ownModel', JSON.stringify(this.ownModel), Infinity, '/app');
+        this.$cookie.set('ownModel', this.ownModel, Infinity, '/app');
         const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
                       "\"length\":" + this.length + ",\n" +
                       "\"width\":" + this.width + ",\n" +
@@ -909,7 +909,7 @@ import { Plotly } from 'vue-plotly'
       },
       getCurrentData() {
         this.panel = JSON.parse(this.$cookie.get('panel'));
-        this.ownModel = JSON.parse(this.$cookie.get('ownModel'));
+        this.ownModel = this.$cookie.get('ownModel');
         this.cookieToJson("data")
         this.cookieToJson("materials", true)
         this.cookieToJson("damages")
@@ -936,6 +936,25 @@ import { Plotly } from 'vue-plotly'
             this[name][id] = subdata[name + id]
           }
         }
+      },
+      deleteCookies() {
+        this.dialogDeleteCookies = false;
+        // var cookieKeys = this.$cookie.keys()
+        // for(key in cookieKeys){
+        this.$cookie.delete('darkMode')
+        this.$cookie.delete('panel')
+        this.$cookie.delete('ownModel')
+        this.$cookie.delete('data')
+        for(var i = 0; i<100; i++){
+          this.$cookie.delete('materials'+i)
+          this.$cookie.delete('blocks'+i)
+        }
+        this.$cookie.delete('damages')
+        this.$cookie.delete('boundaryConditions')
+        this.$cookie.delete('computes')
+        this.$cookie.delete('outputs')
+        this.$cookie.delete('solver')
+        this.$cookie.delete('job')
       },
       async viewPointData() {
 
