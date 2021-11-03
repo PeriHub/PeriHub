@@ -26,6 +26,7 @@ class GIICmodel(object):
         
         self.filename = filename
         self.scal = 4.01
+        self.DiscType = 'txt'
         self.TwoD = TwoD
         self.rot = rot
         # anriss

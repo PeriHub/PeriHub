@@ -23,6 +23,7 @@ from fastapi.responses import HTMLResponse
 # from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
+import re 
 
 import uvicorn
 import shutil
@@ -109,7 +110,7 @@ class ModelControl(object):
         )
 
     @app.post("/generateModel")
-    def generateModel(ModelName: str, ownModel: bool, Length: float, Width: float, Height: float, Discretization: float, Horizon: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
+    def generateModel(ModelName: str, ownModel: bool, translated: bool, Length: float, Width: float, Height: float, Discretization: float, Horizon: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
        
         username = request.headers.get('x-forwarded-preferred-username')
          # L = 152
@@ -169,7 +170,13 @@ class ModelControl(object):
             model = db.createModel()
 
         if ownModel:
+            if translated:
+                discType = 'e'
+            else:
+                discType = 'txt'
+
             own = OwnModel(filename=ModelName, dx=dx,
+            DiscType = discType,
             TwoD = TwoDimensional,
             horizon = Horizon,
             material=Param['Param']['Material'], 
@@ -220,21 +227,21 @@ class ModelControl(object):
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' files can not be found')
      
-    @app.get("/getVtkFile")
-    def getVtkFile(ModelName: str, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
+    # @app.get("/getVtkFile")
+    # def getVtkFile(ModelName: str, request: Request):
+    #     username = request.headers.get('x-forwarded-preferred-username')
 
-        localpath = './Output/' + os.path.join(username, ModelName)
+    #     localpath = './Output/' + os.path.join(username, ModelName)
 
-        try:
-            file = os.path.join(localpath, ModelName) + '.vtu'
+    #     try:
+    #         file = os.path.join(localpath, ModelName) + '.vtu'
 
-            response = FileResponse(file, media_type=".vtu")
-            response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + '.vtu'
-            # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
-            return response
-        except:
-            raise HTTPException(status_code=404, detail=ModelName + ' files can not be found')
+    #         response = FileResponse(file, media_type=".vtu")
+    #         response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + '.vtu'
+    #         # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+    #         return response
+    #     except:
+    #         raise HTTPException(status_code=404, detail=ModelName + ' files can not be found')
 
     @app.get("/getLogFile")
     def getLogFile(ModelName: str, Cluster: str, request: Request):
@@ -438,27 +445,63 @@ class ModelControl(object):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     @app.get("/getPointData")
-    def getPointData(ModelName: str, request: Request):
+    def getPointData(ModelName: str, OwnModel: bool, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         pointString=''
         blockIdString=''
-        firstRow=True  
-        try:
-            with open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.txt', 'r') as f:
-                    reader = csv.reader(f)
-                    for row in reader:
-                        if firstRow==False:
-                            str1 = ''.join(row)
-                            parts = str1.split(" ")
-                            pointString+=parts[0]+','+parts[1]+','+parts[2]+','
-                            blockIdString+=str(int(parts[3])/10)+','
-                        firstRow=False
-                        
-            response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
-            return response
-        except:
-            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+        if OwnModel:
+            # try:
+                with open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.g.ascii', 'r') as f:
+                        data = f.read()
+                        numOfBlocks = re.findall('num_el_blk\s=\s\d*\s;', data)
+                        numOfBlocks = int(numOfBlocks[0][13:][:2])
+                        coords = re.findall('coord.\s=\s[-\d.,\se]{1,}', data)
+                        nodes = re.findall('node_ns[\d]*\s=\s[\d,\s]*', data)
+                        blockId = [1]*len(coords[0])
+                        for i in range(0,3):
+                            coords[i]=coords[i][8:].replace(" ", "").split(',')
+                        for i in range(0,numOfBlocks):
+                            nodes[i]=nodes[i*2][8:].replace(" ", "").split('=')[1].split(',')
+                            for node in nodes[i]:
+                                if int(node)> len(blockId):
+                                    print(node + ' ' + str(len(blockId)) + ' ' + str(i))
+                                else:
+                                    blockId[int(node)-1] = i + 1
+                        for i in range(0,len(coords[0])):
+                            pointString+=coords[0][i]+','+coords[1][i]+','+coords[2][i]+','
+                            blockIdString+=str(blockId[i]/numOfBlocks)+','
+                            
+                response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
+                return response
+            # except:
+            #     raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+        else:
+            firstRow=True 
+            maxBlockId = 1
+            try:
+                with open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.txt', 'r') as f:
+                        reader = csv.reader(f)
+                        rows = list(reader)
+                        for row in rows:
+                            if firstRow==False:
+                                str1 = ''.join(row)
+                                parts = str1.split(" ")
+                                pointString+=parts[0]+','+parts[1]+','+parts[2]+','
+                                if int(parts[3]) > maxBlockId:
+                                    maxBlockId = int(parts[3])
+                            firstRow=False
+                        firstRow=True 
+                        for row in rows:
+                            if firstRow==False:
+                                str1 = ''.join(row)
+                                parts = str1.split(" ")
+                                blockIdString+=str(int(parts[3])/maxBlockId)+','
+                            firstRow=False
+                response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
+                return response
+            except:
+                raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
 
     @app.post("/uploadfiles")
     async def uploadfiles( ModelName: str, request: Request, files: List[UploadFile] = File(...)): 

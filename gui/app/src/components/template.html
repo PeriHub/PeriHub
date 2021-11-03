@@ -215,6 +215,7 @@
                             <v-text-field 
                               v-model=material.poissonsRatio
                               :label=materialKeys.poissonsRatio
+                              clearable
                               outlined></v-text-field>
                           </v-col>
                         </v-row>
@@ -515,7 +516,13 @@
                         <v-col class="textfieldlist-col"
                           cols="12"
                           sm="2">
+                          <v-text-field
+                            v-if="ownModel"
+                            v-model=boundaryCondition.nodeSet
+                            :label=boundaryKeys.nodeSet
+                            outlined></v-text-field>
                           <v-select
+                            v-if="!ownModel"
                             :items=blocks
                             item-text="id"
                             v-model=boundaryCondition.blockId
@@ -1484,7 +1491,7 @@
                 transition="scale-transition"
                 width="100%"
               />
-              <!-- <vtk-view
+              <vtk-view
                 v-if="viewId==1"
                 ref="view"
                 :background="[45/255, 45/255, 45/255]">
@@ -1505,16 +1512,16 @@
                     :port=1
                   />
                 </vtk-glyph-representation>
-              </vtk-view> -->
+              </vtk-view>
 
-              <vtk-view
+              <!-- <vtk-view
                 v-if="viewId==1"
                 ref="view"
                 :background="[45/255, 45/255, 45/255]">
                 <vtk-geometry-representation>
                   <vtk-reader vtkClass="vtkOBJReader" :url="vtkFile" />
                 </vtk-geometry-representation>
-              </vtk-view>
+              </vtk-view> -->
 
               <Plotly v-if="viewId==2" 
                 :data="plotData" 

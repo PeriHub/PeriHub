@@ -13,12 +13,17 @@ class XMLcreator(object):
         self.bc = modelWriter.bcDict
         self.nsName = modelWriter.nsName
         self.nsList = modelWriter.nsList
+        self.DiscType = modelWriter.DiscType
         self.TwoD = modelWriter.TwoD
         
     def loadMesh(self):
         string = '    <ParameterList name="Discretization">\n'
-        string += '        <Parameter name="Type" type="string" value="Text File" />\n'
-        string += '        <Parameter name="Input Mesh File" type="string" value="' + self.filename +'.txt"/>\n'    
+        if self.DiscType == 'txt':
+            string += '        <Parameter name="Type" type="string" value="Text File" />\n'
+            string += '        <Parameter name="Input Mesh File" type="string" value="' + self.filename +'.txt"/>\n'  
+        elif self.DiscType == 'e':
+            string += '        <Parameter name="Type" type="string" value="Exodus" />\n'
+            string += '        <Parameter name="Input Mesh File" type="string" value="' + self.filename +'.e"/>\n'  
         return string
     def createBondFilter(self):
         string = '        <ParameterList name="Bond Filters">\n'
@@ -54,13 +59,14 @@ class XMLcreator(object):
                     string += '            <Parameter name="'+ param +'" type="double" value="' +str(np.format_float_scientific(float(mat['Parameter'][param]['value']))) +'"/>\n'
 
                 # needed for time step estimation
-            if (mat['youngsModulus'] != None) and (mat['youngsModulus'] != 0) :
+            if (mat['youngsModulus'] != None) and (mat['youngsModulus'] != 0) and (mat['youngsModulus'] != ''):
                 string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['youngsModulus']))) + '"/>\n'
-            if (mat['shearModulus'] != None) and (mat['shearModulus'] != 0):
+            if (mat['shearModulus'] != None) and (mat['shearModulus'] != 0) and (mat['shearModulus'] != ''):
                 string += '            <Parameter name="Shear Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['shearModulus']))) + '"/>\n'
-            if (mat['bulkModulus'] != None) and (mat['bulkModulus'] != 0):
+            if (mat['bulkModulus'] != None) and (mat['bulkModulus'] != 0) and (mat['bulkModulus'] != ''):
                 string += '            <Parameter name="Bulk Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['bulkModulus']))) + '"/>\n'
-            string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="' + str(np.format_float_scientific(float(mat['poissonsRatio']))) + '"/>\n'
+            if (mat['poissonsRatio'] != None) and (mat['poissonsRatio'] != 0) and (mat['poissonsRatio'] != ''):
+                string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="' + str(np.format_float_scientific(float(mat['poissonsRatio']))) + '"/>\n'
             string += '            <Parameter name="Stabilizaton Type" type="string" value="' + mat['stabilizatonType'] + '"/>\n'
             string += '            <Parameter name="Thickness" type="double" value="' + str(float(mat['thickness'])) + '"/>\n'
             string += '            <Parameter name="Hourglass Coefficient" type="double" value="' + str(float(mat['hourglassCoefficient'])) + '"/>\n'
@@ -159,13 +165,17 @@ class XMLcreator(object):
         return string
     def boundaryCondition(self):
         string = '    <ParameterList name="Boundary Conditions">\n'
-        for idx in range(0, len(self.nsList)):
-            string += '        <Parameter name="Node Set ' + str(idx+1) +'" type="string" value="' + self.nsName + '_' + str(idx+1) + '.txt' + '"/>\n'
+        if self.DiscType == 'txt':
+            for idx in range(0, len(self.nsList)):
+                string += '        <Parameter name="Node Set ' + str(idx+1) +'" type="string" value="' + self.nsName + '_' + str(idx+1) + '.txt' + '"/>\n'
         for bc in self.bc:
             nodeSetId = self.nsList.index(bc['blockId'])
             string += '        <ParameterList name="' + bc['Name'] + '">\n'
             string += '            <Parameter name="Type" type="string" value="' + bc['boundarytype'] + '"/>\n'
-            string += '            <Parameter name="Node Set" type="string" value="Node Set ' + str(nodeSetId+1) + '"/>\n'
+            if (bc['nodeSet'] != None) and (bc['nodeSet'] != '') :
+                string += '            <Parameter name="Node Set" type="string" value="' + bc['nodeSet'] + '"/>\n'
+            else:
+                string += '            <Parameter name="Node Set" type="string" value="Node Set ' + str(nodeSetId+1) + '"/>\n'
             string += '            <Parameter name="Coordinate" type="string" value="' + bc['coordinate'] + '"/>\n'
             string += '            <Parameter name="Value" type="string" value="' + str(bc['value']) + '"/>\n'
             string += '        </ParameterList>\n'

@@ -20,6 +20,7 @@ class DCBmodel(object):
         
         self.filename = filename
         self.scal = 4.01
+        self.DiscType = 'txt'
         self.TwoD = TwoD
         self.nsList = [3,4]
         self.dx   = dx

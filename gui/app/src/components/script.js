@@ -41,6 +41,7 @@ import { Plotly } from 'vue-plotly'
         modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],
         modelNameSelected: 'Dogbone',
         ownModel: false,
+        translated: false,
         length: 0.115,
         width: 0.003,
         height: 0.019,
@@ -191,11 +192,12 @@ import { Plotly } from 'vue-plotly'
         boundarytype: ['Initial Displacement', 'Initial Velocity', 'Prescribed Displacement', 'Prescribed Fluid Pressure U', 'Initial Fluid Pressure U', 'Initial Temperature', 'Prescribed Temperature', 'Thermal Flux', 'Body Force'],
         coordinate: ['x', 'y', 'z'],
         boundaryConditions: [
-          { id: 1, Name: 'BC_1', boundarytype: 'Prescribed Displacement',  blockId: 1, coordinate: 'x', value: '0*t'},
-          { id: 2, Name: 'BC_2', boundarytype: 'Prescribed Displacement',  blockId: 5, coordinate: 'x', value: '0.05*t'},
+          { id: 1, Name: 'BC_1', nodeSet: null, boundarytype: 'Prescribed Displacement',  blockId: 1, coordinate: 'x', value: '0*t'},
+          { id: 2, Name: 'BC_2', nodeSet: null, boundarytype: 'Prescribed Displacement',  blockId: 5, coordinate: 'x', value: '0.05*t'},
           ],
         boundaryKeys:{
           Name: 'Name', 
+          nodeSet: 'Node Set',
           boundarytype: 'Type', 
           blockId: 1, 
           coordinate: 'Coordinate', 
@@ -434,6 +436,7 @@ import { Plotly } from 'vue-plotly'
             url: "http://localhost:8000/generateModel",
             params: {ModelName: this.modelNameSelected,
                     ownModel: this.ownModel,
+                    translated: this.translated,
                     Length: this.length,
                     Width: this.width,
                     Height: this.height,
@@ -721,6 +724,7 @@ import { Plotly } from 'vue-plotly'
       },
       loadJsonFile(fr, files) {
         this.ownModel=false
+        this.translated=false
         
         fr.onload = e => {
           const result = JSON.parse(e.target.result);
@@ -742,6 +746,7 @@ import { Plotly } from 'vue-plotly'
       },
       loadYamlModel(fr, files) {
         this.ownModel=true
+        this.translated=false
         
         this.modelNameSelected = files[0].name.split('.')[0]
 
@@ -753,6 +758,7 @@ import { Plotly } from 'vue-plotly'
       },
       loadXmlModel(fr, files) {
         this.ownModel=true
+        this.translated=false
 
         this.modelNameSelected = files[0].name.split('.')[0]
         
@@ -765,6 +771,7 @@ import { Plotly } from 'vue-plotly'
       },
       loadFeModel(files) {
         this.ownModel=true
+        this.translated=true
         
         // this.modelLoading = true
       	this.textLoading = true
@@ -803,7 +810,7 @@ import { Plotly } from 'vue-plotly'
         
         this.viewInputFile(true)
         // this.loadYamlString(this.textOutput)
-        // this.viewPointData()
+        this.viewPointData()
 
         // this.modelLoading = false
       	this.textLoading = false
@@ -845,6 +852,7 @@ import { Plotly } from 'vue-plotly'
       },
       switchModels(){
         this.ownModel=false
+        this.translated=false
       },
       resetData() {
         switch (this.modelNameSelected) {
@@ -876,6 +884,7 @@ import { Plotly } from 'vue-plotly'
       saveCurrentData() {
         this.$cookie.set('panel', JSON.stringify(this.panel), Infinity, '/app');
         this.$cookie.set('ownModel', this.ownModel, Infinity, '/app');
+        this.$cookie.set('translated', this.translated, Infinity, '/app');
         const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
                       "\"length\":" + this.length + ",\n" +
                       "\"width\":" + this.width + ",\n" +
@@ -910,6 +919,7 @@ import { Plotly } from 'vue-plotly'
       getCurrentData() {
         this.panel = JSON.parse(this.$cookie.get('panel'));
         this.ownModel = this.$cookie.get('ownModel');
+        this.translated = this.$cookie.get('translated');
         this.cookieToJson("data")
         this.cookieToJson("materials", true)
         this.cookieToJson("damages")
@@ -944,6 +954,7 @@ import { Plotly } from 'vue-plotly'
         this.$cookie.delete('darkMode')
         this.$cookie.delete('panel')
         this.$cookie.delete('ownModel')
+        this.$cookie.delete('translated')
         this.$cookie.delete('data')
         for(var i = 0; i<100; i++){
           this.$cookie.delete('materials'+i)
@@ -964,47 +975,24 @@ import { Plotly } from 'vue-plotly'
         this.modelLoading = true
         this.viewId = 1
 
+        let reqOptions = {
+          url: "http://localhost:8000/getPointData",
+          params: {ModelName: this.modelNameSelected,
+                   OwnModel: this.ownModel},
+          method: "GET",
+          headers: headersList,
+          }
+
+        await axios.request(reqOptions).then(response => (
+          this.pointString = response.data[0].split(','),
+          this.blockIdString = response.data[1].split(',')))
+        
         if (this.ownModel){
-          
-          let reqOptions = {
-            url: "http://localhost:8000/getVtkFile",
-            params: {ModelName: this.modelNameSelected},
-            method: "GET",
-            responseType: 'blob',
-            headers: headersList,
-            }
-  
-          axios.request(reqOptions)
-          .then((response) => {
-              this.vtkFile = window.URL.createObjectURL(new Blob([response.data]));
-              // var fileLink = document.createElement('a');
-              // fileLink.href = fileURL;
-              // fileLink.setAttribute('download', 'file.zip');
-              // document.body.appendChild(fileLink);
-              // fileLink.click();
-          })
-          .catch((error) => {
-            this.message = error
-            this.snackbar = true
-          });
-        }
-        else{
-
-          let reqOptions = {
-            url: "http://localhost:8000/getPointData",
-            params: {ModelName: this.modelNameSelected},
-            method: "GET",
-            headers: headersList,
-            }
-
-          await axios.request(reqOptions).then(response => (
-            this.pointString = response.data[0].split(','),
-            this.blockIdString = response.data[1].split(',')))
-            
           let dx = this.height/(2*parseInt(this.discretization/2)+1)
           this.radius = dx.toFixed(2);
           this.updatePoints()
         }
+
         this.modelLoading = false
         this.$refs.view.resetCamera()
       },
@@ -1013,7 +1001,7 @@ import { Plotly } from 'vue-plotly'
         this.filteredBlockIdString = []
         this.filteredPointString = []
         for (var i = 0; i < this.blockIdString.length; i++) {
-          if (this.blocks[this.blockIdString[i]*10-1].show){
+          if (this.blocks[this.blockIdString[i]*this.blocks.length-1].show){
             this.filteredBlockIdString[idx] = this.blockIdString[i]
             for (var j = 0; j < 3; j++) {
               this.filteredPointString[idx*3+j] = this.pointString[i*3+j] * this.multiplier
