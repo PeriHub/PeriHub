@@ -301,6 +301,7 @@ import { Plotly } from 'vue-plotly'
         blockIdString: [1],
         filteredBlockIdString: [1],
         resolution: 6,
+        dx: 0.1,
         radius: 0.2,
         multiplier: 1,
         snackbar: false,
@@ -987,11 +988,14 @@ import { Plotly } from 'vue-plotly'
           this.pointString = response.data[0].split(','),
           this.blockIdString = response.data[1].split(',')))
         
-        if (this.ownModel){
-          let dx = this.height/(2*parseInt(this.discretization/2)+1)
-          this.radius = dx.toFixed(2);
-          this.updatePoints()
+        if (!this.ownModel){
+          this.dx = this.height/(2*parseInt(this.discretization/2)+1)
         }
+        else{
+          this.dx = Math.hypot(parseFloat(this.pointString[3])-parseFloat(this.pointString[0]),parseFloat(this.pointString[4])-parseFloat(this.pointString[1]),parseFloat(this.pointString[5])-parseFloat(this.pointString[2]))
+        }
+        this.radius = this.dx.toFixed(2);
+        this.updatePoints()
 
         this.modelLoading = false
         this.$refs.view.resetCamera()
@@ -1131,7 +1135,7 @@ import { Plotly } from 'vue-plotly'
         //   headers: headersList,
         //   }
           
-        axios.request(reqOptions)
+        await axios.request(reqOptions)
         .then((response) => {
             var fileURL = window.URL.createObjectURL(new Blob([response.data]));
             var fileLink = document.createElement('a');
@@ -1210,8 +1214,7 @@ import { Plotly } from 'vue-plotly'
           params: {ModelName: this.modelNameSelected,
                    Cluster: this.job.cluster,
                    Variable: Variable,
-                   Height: this.height,
-                   Discretization: this.discretization},
+                   dx: this.dx},
           method: "GET",
           responseType: 'blob',
           headers: headersList,

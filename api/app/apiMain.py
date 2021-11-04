@@ -426,11 +426,8 @@ class ModelControl(object):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     @app.get("/getImage")
-    def getImage(ModelName: str, Cluster: str, Variable: str, Height: float, Discretization: float, request: Request):
+    def getImage(ModelName: str, Cluster: str, Variable: str, dx: float, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
-        
-        nn = 2*int(Discretization/2)+1
-        dx = Height/nn
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
             raise NotFoundException(name=ModelName)
@@ -464,10 +461,7 @@ class ModelControl(object):
                         for i in range(0,numOfBlocks):
                             nodes[i]=nodes[i*2][8:].replace(" ", "").split('=')[1].split(',')
                             for node in nodes[i]:
-                                if int(node)> len(blockId):
-                                    print(node + ' ' + str(len(blockId)) + ' ' + str(i))
-                                else:
-                                    blockId[int(node)-1] = i + 1
+                                blockId[int(node)-1] = i + 1
                         for i in range(0,len(coords[0])):
                             pointString+=coords[0][i]+','+coords[1][i]+','+coords[2][i]+','
                             blockIdString+=str(blockId[i]/numOfBlocks)+','
@@ -561,20 +555,20 @@ class ModelControl(object):
         ssh.connect('peridigm', username='root', allow_agent=False, password='root')
         command = '/usr/local/netcdf/bin/ncgen ' + os.path.join(remotepath, ModelName) + '.g.ascii -o ' + os.path.join(remotepath, ModelName) + '.g' + \
         ' && python3 /peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
-        ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
         ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
+        # ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
         ssh.exec_command(command)
         ssh.close()
 
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
 
-        command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtu'
+        # command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtu'
 
-        try:
-            subprocess.call(command, shell=True)
-        except:
-            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+        # try:
+        #     subprocess.call(command, shell=True)
+        # except:
+        #     raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
 
         return ModelName + ' has been translated in ' + "%.2f seconds" % (time.time() - start_time)
 

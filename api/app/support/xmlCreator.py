@@ -15,6 +15,9 @@ class XMLcreator(object):
         self.nsList = modelWriter.nsList
         self.DiscType = modelWriter.DiscType
         self.TwoD = modelWriter.TwoD
+
+    def checkIfDefined(self, name, obj):
+        return name in obj and obj[name] != None and obj[name] != 0 and obj[name] != ''
         
     def loadMesh(self):
         string = '    <ParameterList name="Discretization">\n'
@@ -23,7 +26,7 @@ class XMLcreator(object):
             string += '        <Parameter name="Input Mesh File" type="string" value="' + self.filename +'.txt"/>\n'  
         elif self.DiscType == 'e':
             string += '        <Parameter name="Type" type="string" value="Exodus" />\n'
-            string += '        <Parameter name="Input Mesh File" type="string" value="' + self.filename +'.e"/>\n'  
+            string += '        <Parameter name="Input Mesh File" type="string" value="' + self.filename +'.g"/>\n'  
         return string
     def createBondFilter(self):
         string = '        <ParameterList name="Bond Filters">\n'
@@ -59,13 +62,13 @@ class XMLcreator(object):
                     string += '            <Parameter name="'+ param +'" type="double" value="' +str(np.format_float_scientific(float(mat['Parameter'][param]['value']))) +'"/>\n'
 
                 # needed for time step estimation
-            if (mat['youngsModulus'] != None) and (mat['youngsModulus'] != 0) and (mat['youngsModulus'] != ''):
+            if self.checkIfDefined('youngsModulus',mat):
                 string += '            <Parameter name="Young' + "'" + 's Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['youngsModulus']))) + '"/>\n'
-            if (mat['shearModulus'] != None) and (mat['shearModulus'] != 0) and (mat['shearModulus'] != ''):
+            if self.checkIfDefined('shearModulus',mat):
                 string += '            <Parameter name="Shear Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['shearModulus']))) + '"/>\n'
-            if (mat['bulkModulus'] != None) and (mat['bulkModulus'] != 0) and (mat['bulkModulus'] != ''):
+            if self.checkIfDefined('bulkModulus',mat):
                 string += '            <Parameter name="Bulk Modulus" type="double" value="' + str(np.format_float_scientific(float(mat['bulkModulus']))) + '"/>\n'
-            if (mat['poissonsRatio'] != None) and (mat['poissonsRatio'] != 0) and (mat['poissonsRatio'] != ''):
+            if self.checkIfDefined('poissonsRatio',mat):
                 string += '            <Parameter name="Poisson' + "'" + 's Ratio" type="double" value="' + str(np.format_float_scientific(float(mat['poissonsRatio']))) + '"/>\n'
             string += '            <Parameter name="Stabilizaton Type" type="string" value="' + mat['stabilizatonType'] + '"/>\n'
             string += '            <Parameter name="Thickness" type="double" value="' + str(float(mat['thickness'])) + '"/>\n'
@@ -124,7 +127,7 @@ class XMLcreator(object):
             string += '        <ParameterList name="Verlet">\n'
             string += '            <Parameter name="Safety Factor" type="double" value="'+ str(float(self.solverDict['safetyFactor'])) +'"/>\n'
             string += '            <Parameter name="Numerical Damping" type="double" value="'+ str(float(self.solverDict['numericalDamping'])) +'"/>\n'
-            if('adaptivetimeStepping' in self.solverDict):
+            if('adaptivetimeStepping' in self.solverDict and self.solverDict['adaptivetimeStepping']):
                 string += '            <Parameter name="Adaptive Time Stepping" type="bool" value="true"/>\n'
                 string += '            <Parameter name="Stable Step Difference" type="int" value="'+ str(self.solverDict['adapt']['stableStepDifference']) +'"/>\n'
                 string += '            <Parameter name="Maximum Bond Difference" type="int" value="'+ str(self.solverDict['adapt']['maximumBondDifference']) +'"/>\n'
@@ -172,7 +175,7 @@ class XMLcreator(object):
             nodeSetId = self.nsList.index(bc['blockId'])
             string += '        <ParameterList name="' + bc['Name'] + '">\n'
             string += '            <Parameter name="Type" type="string" value="' + bc['boundarytype'] + '"/>\n'
-            if (bc['nodeSet'] != None) and (bc['nodeSet'] != '') :
+            if self.checkIfDefined('nodeSet', bc):
                 string += '            <Parameter name="Node Set" type="string" value="' + bc['nodeSet'] + '"/>\n'
             else:
                 string += '            <Parameter name="Node Set" type="string" value="Node Set ' + str(nodeSetId+1) + '"/>\n'

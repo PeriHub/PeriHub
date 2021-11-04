@@ -91,7 +91,7 @@ class GIICmodel(object):
         if material=='':
             i=0
             for material in matNameList:
-                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 1.95e-07, 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
+                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 1.95e-07, 'bulkModulus':None, 'shearModulus':None, 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
                 # if isotropic:
                 #     params =[5.2e-08, 3184.5476165501973,0.3824761153875444, 0 ,0]
                 #     mat = MaterialRoutines()

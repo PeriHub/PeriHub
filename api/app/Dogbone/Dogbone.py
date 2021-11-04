@@ -85,7 +85,7 @@ class Dogbone(object):
         if material=='':
             i=0
             for material in matNameList:
-                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 200000.0, 'youngsModulus': 1.5e9, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Isotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0, 'yieldStress': 31.3e4, 'nonLinear': False}#, 'adaptHourStiff': False}
+                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 200000.0, 'bulkModulus':None, 'shearModulus':None, 'youngsModulus': 1.5e9, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Isotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0, 'yieldStress': 31.3e4, 'nonLinear': False}#, 'adaptHourStiff': False}
                 # if isotropic:
                     # params =[200000.0,    #Density
                     # 1.5e9,                #Young's Modulus

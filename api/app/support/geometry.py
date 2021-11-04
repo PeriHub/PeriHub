@@ -59,7 +59,7 @@ class Geometry(object):
         #########
         # Bottom
         #########               
-        x = np.array([2*l1+2*dl+l2+0.1])
+        x = np.array([2*dl+2*l1+l2+0.01])
         y = np.array([0])
         
         #########

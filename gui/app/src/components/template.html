@@ -351,22 +351,25 @@
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=damage.criticalStretch
-                              :rules="[rules.required, rules.float]"
+                              :rules="[rules.float]"
                               label="Critical Stretch"
+                              clearable
                               outlined></v-text-field>
                           </v-col>
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=damage.criticalEnergy
-                              :rules="[rules.required, rules.float]"
+                              :rules="[rules.float]"
                               label="Critical Energy"
+                              clearable
                               outlined></v-text-field>
                           </v-col>
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=damage.interblockdamageEnergy
-                              :rules="[rules.required, rules.float]"
+                              :rules="[rules.float]"
                               label="Interblock Damage Energy"
+                              clearable
                               outlined></v-text-field>
                           </v-col>
                         </v-row>
