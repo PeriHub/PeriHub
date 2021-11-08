@@ -2,8 +2,13 @@ import shutil
 import filecmp
 import paramiko
 import os
+import time
 
 class fileHandler(object):
+
+    def getRemotePath(Cluster):
+        
+        return './PeridigmJobs/apiModels/'
     
     def getRemoteModelPath(Cluster, username, ModelName):
         
@@ -16,6 +21,52 @@ class fileHandler(object):
     def getUserPath(Cluster, username, ModelName):
         
         return './PeridigmJobs/apiModels/' + username
+
+    def removeFolderIfOlder(path, days, recursive):
+        
+        now = time.time()
+        names = []
+        for foldername in os.listdir(path):
+            
+            folderPath =os.path.join(path, foldername)
+
+            if os.path.getmtime(folderPath) < now - days * 86400:
+                names.append(foldername)
+                shutil.rmtree(folderPath)
+            else:
+                if recursive:
+                    for subfoldername in os.listdir(folderPath):
+                        if os.path.getmtime(os.path.join(folderPath, subfoldername)) < now - days * 86400:
+                            names.append(os.path.join(foldername, subfoldername))
+                            shutil.rmtree(os.path.join(folderPath, subfoldername))
+        return names
+
+    def removeFolderIfOlderSftp(sftp, path, days, recursive):
+        
+        now = time.time()
+        for foldername in sftp.listdir(path):
+            
+            folderPath = os.path.join(path, foldername)
+
+            if os.path.getmtime(folderPath) < now - days * 86400:
+                fileHandler.removeAllFolderSftp(sftp, folderPath, True)
+            else:
+                if recursive:
+                    for subfoldername in sftp.listdir(folderPath):
+                        if os.path.getmtime(os.path.join(folderPath, subfoldername)) < now - days * 86400:
+                            fileHandler.removeAllFolderSftp(sftp, os.path.join(folderPath, subfoldername), True)
+
+    def removeAllFolderSftp(sftp, remotepath, recursive):
+
+        for filename in sftp.listdir(remotepath):
+            for subfilename in sftp.listdir(os.path.join(remotepath, filename)):
+                if recursive:
+                    for subSubfilename in sftp.listdir(os.path.join(remotepath, subfilename)):
+                        sftp.remove(os.path.join(remotepath, subSubfilename))
+                sftp.remove(os.path.join(remotepath, subfilename))
+            sftp.remove(os.path.join(remotepath, filename))
+        sftp.rmdir(remotepath)
+
 
     def copyModelToCluster(username, ModelName, Cluster):
         
@@ -155,7 +206,7 @@ class fileHandler(object):
             ssh.close()
             return True
 
-    def sftpToCluster(Cluster, username):
+    def sftpToCluster(Cluster):
         
         if Cluster=='FA-Cluster':
             username='f_peridi'

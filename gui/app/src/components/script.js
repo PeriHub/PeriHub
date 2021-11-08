@@ -24,6 +24,7 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
 import DogboneImage from '../assets/Dogbone/Dogbone.jpg'
 import DogboneFile from '../assets/Dogbone/Dogbone.json'
 import { Plotly } from 'vue-plotly'
+import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
 
   export default {
     name: 'PeriHub',
@@ -48,6 +49,7 @@ import { Plotly } from 'vue-plotly'
         height2: 0.013,
         discretization: 21,
         horizon: 0.01,
+        structured: true,
         twoDimensional: true,
         rotatedAngles: false,
         angles: [0, 0],
@@ -444,6 +446,7 @@ import { Plotly } from 'vue-plotly'
                     Height2: this.height2,
                     Discretization: this.discretization,
                     Horizon: this.horizon,
+                    Structured: this.structured,
                     TwoDimensional: this.twoDimensional,
                     RotatedAngles: this.rotatedAngles,
                     Angle0: this.angles[0],
@@ -1311,7 +1314,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: "http://localhost:8000/deleteUserData",
-          // params: {},
+          params: {checkDate: false},
           method: "POST",
           headers: headersList,
           }
@@ -1319,7 +1322,8 @@ import { Plotly } from 'vue-plotly'
         axios.request(reqOptions).then(response => (this.message = response.data))
         reqOptions = {
           url: "http://localhost:8000/deleteUserDataFromCluster",
-          params: {Cluster: this.job.cluster},
+          params: {Cluster: this.job.cluster,
+                  checkDate: false},
           method: "POST",
           headers: headersList,
           }

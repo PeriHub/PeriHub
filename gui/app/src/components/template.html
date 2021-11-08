@@ -146,6 +146,12 @@
                     label="Horizon"
                     outlined></v-text-field>
                   <v-switch
+                    v-show="modelNameSelected=='Dogbone' & !ownModel"
+                    class="checkbox-col"
+                    v-model="structured"
+                    label="Structured"
+                  ></v-switch>
+                  <v-switch
                     class="checkbox-col"
                     v-model="twoDimensional"
                     label="Two Dimensional"

@@ -26,10 +26,12 @@ class ModelControl(object):
         L = 52
         B = 10
         h = 4.95
-        nn = 19
+        h = 0.019
+        nn = 21
         
         
         
+        nn = 2*int(nn/2)+1
         nn = 2*int(nn/2)+1
         dx=[h/nn,h/nn,h/nn]
         
@@ -38,10 +40,10 @@ class ModelControl(object):
         # gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, TwoD = True)
         # model = gc.createModel()
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
-        dx=[0.00025,0.00025,0.00025]
+        # dx=[0.00025,0.00025,0.00025]
         # db = DCBmodel(dx = dx, TwoD = True)
         # model = db.createModel()
-        db = Dogbone(dx = dx, TwoD = True)
+        db = Dogbone(dx = dx, TwoD = False, h1=h)
         model = db.createModel()
         #veri = VerificationModels()
         #veri.createVerificationModels()

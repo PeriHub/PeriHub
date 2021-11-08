@@ -5,10 +5,11 @@ from scipy import interpolate
 from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
+import matplotlib.pyplot as plt
 
 class Dogbone(object):
-    def __init__(self, xend = 0.115, h1 = 0.019, h2 = 0.013, zend = 0.003, dx=[0.0005,0.0005,0.0005], 
-    filename = 'Dogbone', TwoD = False, rot = False, angle = [0,0], 
+    def __init__(self, xend = 0.115, h1 = 0.019, h2 = 0.017, zend = 0.003, dx=[0.0005,0.0005,0.0005], 
+    filename = 'Dogbone', TwoD = False, structured = True, rot = False, angle = [0,0], 
     material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = ''):
         '''
             definition der blocks
@@ -28,13 +29,14 @@ class Dogbone(object):
         self.xend = xend
         self.h1 = h1
         self.h2 = h2
+        self.structured = structured
         self.zend = zend + dx[2]
         self.rot = rot
         self.blockDef = block
         self.username = username
         if self.TwoD:
             self.zbegin = 0
-            self.zend = 0
+            self.zend = 1
             self.dx[2] = 1
         numberOfBlocks = 5
         # xbound = [0, 4*dx[0],5*dx[0], xend-5*dx[0],xend-4*dx[0],xend + dx[0]]
@@ -186,74 +188,100 @@ class Dogbone(object):
         #dy = self.h1/int(self.h1/self.dx[0])
         
         #print(self.dx[0],self.dx[1])
+        geo = Geometry()
         bc = 0.002
         R = 0.076; l2 = 0.057
-        dl = np.sqrt(R*R-(R-(self.h1-self.h2)/2)**2)
-        
-        l1 = (self.xend - 2*dl - l2)/2;
         dh =  (self.h1-self.h2)/2
+        dl = np.sqrt(R*R-(R-dh)**2)
+        l1 = (self.xend - 2*dl - l2)/2
         alpha = np.arccos((R-dh)/R)*180/np.pi
 
-        geo = Geometry()
-        
-        topSurf, bottomSurf = geo.createBoundaryCurve(h = self.h1, l1 = l1, R = R, l2 = l2, alphaMax = alpha, dl = dl, dh = dh)
-        blockDef = np.array([0, bc, l1, l1+2*dl+l2, self.xend - bc])
-        x0 = np.arange(0,self.xend+self.dx[0], self.dx[0])
-        y0 = np.arange(0,self.h1+self.dx[1], self.dx[1])
-        z0 = np.arange(0,t, self.dx[0])
-        num = len(x0)*len(y0)*len(z0)
-        x = []
-        y = []
-        z = []
-        k = []
-        vol = np.full((num), self.dx[0]*self.dx[0])
-        matNum = 0
-        xList = []
-        yList = []
-        #vol = dx*dx #*dx
-        stringLeft = ''
-        stringRight = ''
-        string = '# x y z block_id volume\n'
-        num = 0
-        bccount = 0
-        for xval in x0:
-            for yval in y0:
-                for zval in z0:
-                    if geo.checkValGreater(yval,bottomSurf(xval)) and geo.checkValLower(yval,topSurf(xval)):
-                        num += 1
+        x0 = np.arange(0,self.xend, self.dx[0])
+        y0 = np.arange(-self.h1/2 - self.dx[1],self.h1/2 + self.dx[1], self.dx[1])
+        z0 = np.arange(0,self.zend, self.dx[2])
+
+        if self.structured:
+            nn = 2*int((self.h1/self.dx[1])/2)+1
+            numRows = int((nn-1)/2)
+            fh2 = ((2*self.dx[1]*(numRows)+self.h2-self.h1)/(self.dx[1]*(numRows)))
+            x = []
+            y = []
+            z = []
+            k = []
+            for zval in z0:
+                for i in range(0,numRows):
+                    h1 = self.h1-self.dx[1]*i*2
+                    h2 = self.h2-self.dx[1]*i*fh2
+                    # R1 = R+0.03*i
+                    dh1 =  (h1-h2)/2
+                    
+                    alpha1 = np.arccos((R-dh1)/R)*180/np.pi
+
+                    
+                    topSurf, bottomSurf = geo.createBoundaryCurve(h = h1/2, l1 = l1, R = R, l2 = l2, alphaMax = alpha, alphaMax1 = alpha1, dl = dl, dh = dh1)
+                    blockDef = np.array([0, bc, l1, l1+2*dl+l2, self.xend - bc])
+
+                    x = np.concatenate((x,x0))
+                    x = np.concatenate((x,x0))
+                    y = np.concatenate((y,topSurf(x0)))
+                    y = np.concatenate((y,bottomSurf(x0)))
+                    z = np.concatenate((z,np.full_like(x0, zval)))
+                    z = np.concatenate((z,np.full_like(x0, zval)))
+                    for xval in x0:
                         for idx,val in enumerate(blockDef): 
                             if geo.checkValGreater(xval,val): matNum = idx + 1
-                        if geo.checkValLower(xval,blockDef[0]):
-                            stringLeft += str(num) + '\n'
-                            bccount += 1
-                        if geo.checkValGreater(xval,blockDef[-1]):
-                            stringRight += str(num) + '\n'
-                            bccount += 1
-                        x.append(xval)
-                        y.append(yval)
-                        z.append(zval)
                         k.append(matNum)
-                        # x[num-1] = xval
-                        # y[num-1] = yval
-                        # z[num-1] = zval
-                        # k[num-1] = matNum
-                        # string += str(xval) + ' ' + str(yval) + ' ' +  str(zval)  + ' ' + str(matNum) + ' ' + str(vol) + '\n'  
-                        xList.append(xval);                yList.append(yval)
-        
-        #for zval in z0: 
-            #string += str(l1+dl) + ' ' + str(0.5*(self.h1-self.h2)) + ' ' +  str(zval)  + ' ' + str(3) + ' ' + str(vol) + '\n' 
-            
-            # x[num-1] = l1+dl
-            # y[num-1] = 0.5*(self.h1-self.h2)
-            # z[num-1] = zval
-            # k[num-1] = 3
-            #x.append(l1+dl)
-            #y.append(0.5*(self.h1-self.h2))
-            #z.append(zval)
-            #k.append(3)
-        #xList.append(l1+dl);                yList.append(0.5*(self.h1-self.h2))
+                    for xval in x0:
+                        for idx,val in enumerate(blockDef): 
+                            if geo.checkValGreater(xval,val): matNum = idx + 1
+                        k.append(matNum)
+                    plt.scatter(x0, topSurf(x0))
+                    plt.scatter(x0, bottomSurf(x0))
 
-        #vol = np.(dx*dx)
+                x = np.concatenate((x,x0))
+                y = np.concatenate((y,np.zeros_like(x0)))
+                z = np.concatenate((z,np.full_like(x0, zval)))
+            # plt.scatter(x0, np.zeros_like(x0))
+                for xval in x0:
+                    for idx,val in enumerate(blockDef): 
+                        if geo.checkValGreater(xval,val): matNum = idx + 1
+                    k.append(matNum)
+
+
+            # plt.show()
+            
+            num = len(x0)*len(y0)*len(z0)
+            vol = np.full_like(x, self.dx[0]*self.dx[0])
+
+        else:
+            topSurf, bottomSurf = geo.createBoundaryCurveOld(h = self.h1/2, l1 = l1, R = R, l2 = l2, alphaMax = alpha, dl = dl, dh = dh)
+            blockDef = np.array([0, bc, l1, l1+2*dl+l2, self.xend - bc])
+            
+            # plt.scatter(x0, topSurf(x0))
+            # plt.scatter(x0, bottomSurf(x0))
+            # plt.show()
+            num = len(x0)*len(y0)*len(z0)
+            x = []
+            y = []
+            z = []
+            k = []
+            vol = np.full((num), self.dx[0]*self.dx[0])
+            matNum = 0
+            for xval in x0:
+                for yval in y0:
+                    for zval in z0:
+                        if geo.checkValGreater(yval,bottomSurf(xval)) and geo.checkValLower(yval,topSurf(xval)):
+                            for idx,val in enumerate(blockDef):
+                                if geo.checkValGreater(xval,val): matNum = idx + 1
+                            x.append(xval)
+                            y.append(yval)
+                            z.append(zval)
+                            k.append(matNum)
+            
+            # plt.scatter(x0, np.zeros_like(x0))
+            # plt.scatter(np.zeros_like(y0),y0)
+            plt.scatter(x, y)
+            plt.show()
         if self.rot:
             angle_x = np.zeros(len(x))
             angle_y = np.zeros(len(x))
