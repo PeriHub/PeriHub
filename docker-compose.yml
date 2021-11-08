@@ -44,6 +44,15 @@ services:
     image: paraview_image
     volumes:
       - paraView_volume:/app/paraView
+
+  cron:
+    build: cron/.
+    container_name: cron
+    image: cron_image
+    ports:
+      - 3333:80
+    networks:
+      - backend
   
 networks:
   backend:

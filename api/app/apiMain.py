@@ -110,7 +110,7 @@ class ModelControl(object):
         )
 
     @app.post("/generateModel")
-    def generateModel(ModelName: str, ownModel: bool, translated: bool, Length: float, Width: float, Height: float, Discretization: float, Horizon: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
+    def generateModel(ModelName: str, ownModel: bool, translated: bool, Length: float, Width: float, Height: float, Discretization: float, Horizon: float, Structured: bool, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
        
         username = request.headers.get('x-forwarded-preferred-username')
          # L = 152
@@ -122,7 +122,10 @@ class ModelControl(object):
         L = Length
         W = Width
         h = Height
-        nn = 2*int(Discretization/2)+1
+        if ModelName=='Dogbone':
+            nn = 2*int(Discretization/2)
+        else:
+            nn = 2*int(Discretization/2)+1
         dx=[h/nn,h/nn,h/nn]
 
         start_time = time.time()
@@ -157,6 +160,7 @@ class ModelControl(object):
 
         if ModelName=='Dogbone':
             db = Dogbone(xend = L, h1 = h, h2 = Height2, zend = W, dx=dx,
+            structured = Structured,
             TwoD = TwoDimensional, 
             rot=RotatedAngles, angle=[Angle0,Angle1], 
             material=Param['Param']['Material'], 
@@ -355,7 +359,7 @@ class ModelControl(object):
             else:
                 return Cluster + ' unknown'
 
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            ssh, sftp = fileHandler.sftpToCluster(Cluster)
 
             for filename in sftp.listdir(remotepath):
                 sftp.remove(os.path.join(remotepath, filename))
@@ -365,35 +369,55 @@ class ModelControl(object):
             return ModelName + ' has been deleted'
 
     @app.post("/deleteUserData")
-    def deleteUserData(request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
+    def deleteUserData(checkDate: bool, request: Request, days: Optional[int] = 7):
+        if checkDate:
+            localpath = './Output'
+            if os.path.exists(localpath):
+                names = fileHandler.removeFolderIfOlder(localpath, days, True)
+                if len(names)!=0:
+                    return 'Data of ' + ', '.join(names) + ' has been deleted'
+            return 'Nothing has been deleted'
+        else:
+            username = request.headers.get('x-forwarded-preferred-username')
 
-        localpath = './Output/' + username
-        shutil.rmtree(localpath)
-        return 'Data of ' + username + ' has been deleted'
+            localpath = './Output/' + username
+            shutil.rmtree(localpath)
+            return 'Data of ' + username + ' has been deleted'
 
     @app.post("/deleteUserDataFromCluster")
-    def deleteUserDataFromCluster(Cluster: str, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
+    def deleteUserDataFromCluster(Cluster: str, checkDate: bool, request: Request, days: Optional[int] = 7):
 
-        if Cluster=='None':
-            remotepath = './peridigmJobs/' + username
-            shutil.rmtree(remotepath)
-            return 'Data of ' + username + ' has been deleted'
+        if checkDate:
+            if Cluster=='None':
+                localpath = './peridigmJobs'
+                fileHandler.removeFolderIfOlder(localpath, days, True)
+            else:
+                remotepath = fileHandler.getRemotePath(Cluster)
+                
+                ssh, sftp = fileHandler.sftpToCluster(Cluster)
 
+                fileHandler.removeFolderIfOlderSftp(sftp, remotepath, days, True)
+
+                sftp.close()
+                ssh.close()
+        
         else:
-            remotepath = fileHandler.getRemoteUserPath(Cluster, username)
-            
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            username = request.headers.get('x-forwarded-preferred-username')
+            if Cluster=='None':
+                remotepath = './peridigmJobs/' + username
+                shutil.rmtree(remotepath)
+                return 'Data of ' + username + ' has been deleted'
 
-            for filename in sftp.listdir(remotepath):
-                for subfilename in sftp.listdir(os.path.join(remotepath, filename)):
-                    sftp.remove(os.path.join(remotepath, subfilename))
-                sftp.remove(os.path.join(remotepath, filename))
-            sftp.rmdir(remotepath)
-            sftp.close()
-            ssh.close()
-            return 'Data of ' + username + ' has been deleted'
+            else:
+                remotepath = fileHandler.getRemoteUserPath(Cluster, username)
+                
+                ssh, sftp = fileHandler.sftpToCluster(Cluster)
+
+                fileHandler.removeAllFolderSftp(sftp, remotepath, False)
+
+                sftp.close()
+                ssh.close()
+                return 'Data of ' + username + ' has been deleted'
 
     @app.get("/getPlot")
     def getPlot(ModelName: str, Cluster: str, OutputName: str, request: Request):
@@ -655,7 +679,7 @@ class ModelControl(object):
 
         else:     
             remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            ssh, sftp = fileHandler.sftpToCluster(Cluster)
             try:
                 outputFiles = sftp.listdir(remotepath)
                 filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
@@ -670,6 +694,13 @@ class ModelControl(object):
             ssh.close()
 
             return 'Job: ' + jobId + ' has been canceled'
+    
+    # @app.get("/startCron")
+    # def startCron():
+    #     cron = CronTab(user='root')
+    #     job = cron.new(command='echo hello_world')
+    #     job.minute.every(1)
+    #     cron.write()
 
     # uvicorn.run(app, host="0.0.0.0", port=80)    
     # pointString=''
