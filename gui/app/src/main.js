@@ -11,6 +11,7 @@ import vueNumeralFilterInstaller from 'vue-numeral-filter';
 library.add(faUserSecret);
 import vuescroll from "vuescroll/dist/vuescroll-native";
 import VueCookie from 'vue-cookie';
+import VueMeta from 'vue-meta'
 // import the css file 
 import "vuescroll/dist/vuescroll.css";
 
@@ -18,6 +19,7 @@ import "vuescroll/dist/vuescroll.css";
 Vue.use(vuescroll);
 Vue.use(VueVtkJs);
 Vue.use(VueCookie);
+Vue.use(VueMeta);
 Vue.use(vueNumeralFilterInstaller, { locale: 'en-gb' });
 Vue.component('FontAwesomeIcon', FontAwesomeIcon);
 Vue.component('PrismEditor', PrismEditor);

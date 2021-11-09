@@ -9,20 +9,24 @@ from GIICmodel.GIICmodel import GIICmodel
 from DCBmodel.DCBmodel import DCBmodel
 from Verification.verificationModels import VerificationModels
 from Dogbone.Dogbone import Dogbone
+from OwnModel.OwnModel import OwnModel
 from support.sbatchCreator  import SbatchCreator
 from support.fileHandler  import fileHandler
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
 # import matplotlib.pyplot as plt
 # import pandas as pd
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse
 # from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
+import re 
+
 import uvicorn
 import shutil
-import filecmp
 
 from enum import Enum
 
@@ -34,10 +38,10 @@ import time
 import subprocess
 
 
-class ModelName(str, Enum):
-    Dogbone = "Dogbone"
-    GIICmodel = "GIICmodel"
-    DCBmodel = "DCBmodel"
+# class ModelName(str, Enum):
+#     Dogbone = "Dogbone"
+#     GIICmodel = "GIICmodel"
+#     DCBmodel = "DCBmodel"
 class FileType(str, Enum):
     yaml = "yaml"
     xml = "xml"
@@ -106,7 +110,7 @@ class ModelControl(object):
         )
 
     @app.post("/generateModel")
-    def generateModel(ModelName: ModelName, Length: float, Width: float, Height: float, Discretization: float, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
+    def generateModel(ModelName: str, ownModel: bool, translated: bool, Length: float, Width: float, Height: float, Discretization: float, Horizon: float, Structured: bool, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
        
         username = request.headers.get('x-forwarded-preferred-username')
          # L = 152
@@ -118,12 +122,15 @@ class ModelControl(object):
         L = Length
         W = Width
         h = Height
-        nn = 2*int(Discretization/2)+1
+        if ModelName=='Dogbone':
+            nn = 2*int(Discretization/2)
+        else:
+            nn = 2*int(Discretization/2)+1
         dx=[h/nn,h/nn,h/nn]
 
         start_time = time.time()
         
-        if ModelName==ModelName.GIICmodel:
+        if ModelName=='GIICmodel':
             gc = GIICmodel(xend = L, yend = h, zend = W, dx=dx,
             TwoD = TwoDimensional,
             rot=RotatedAngles, angle=[Angle0,Angle1], 
@@ -137,7 +144,7 @@ class ModelControl(object):
             username = username)
             model = gc.createModel()
 
-        if ModelName==ModelName.DCBmodel:
+        if ModelName=='DCBmodel':
             dcb = DCBmodel(xend = L, yend = h, zend = W, dx=dx,
             TwoD = TwoDimensional, 
             rot=RotatedAngles, angle=[Angle0,Angle1], 
@@ -151,8 +158,9 @@ class ModelControl(object):
             username = username)
             model = dcb.createModel()
 
-        if ModelName==ModelName.Dogbone:
+        if ModelName=='Dogbone':
             db = Dogbone(xend = L, h1 = h, h2 = Height2, zend = W, dx=dx,
+            structured = Structured,
             TwoD = TwoDimensional, 
             rot=RotatedAngles, angle=[Angle0,Angle1], 
             material=Param['Param']['Material'], 
@@ -165,11 +173,31 @@ class ModelControl(object):
             username = username)
             model = db.createModel()
 
+        if ownModel:
+            if translated:
+                discType = 'e'
+            else:
+                discType = 'txt'
+
+            own = OwnModel(filename=ModelName, dx=dx,
+            DiscType = discType,
+            TwoD = TwoDimensional,
+            horizon = Horizon,
+            material=Param['Param']['Material'], 
+            damage=Param['Param']['Damage'], 
+            block=Param['Param']['Block'], 
+            bc=Param['Param']['BoundaryConditions'], 
+            compute=Param['Param']['Compute'],  
+            output=Param['Param']['Output'], 
+            solver=Param['Param']['Solver'],
+            username = username)
+            own.createModel()
+
         print()
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
    
     @app.get("/viewInputFile")
-    def viewInputFile(ModelName: ModelName, FileType: FileType, request: Request):
+    def viewInputFile(ModelName: str, FileType: FileType, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
         filePath = './Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType
         if not os.path.exists(filePath):
@@ -180,7 +208,7 @@ class ModelControl(object):
             return 'Inputfile can\'t be found'
 
     @app.post("/writeInputFile")
-    def writeInputFile(ModelName: ModelName, InputString: str, FileType: FileType, request: Request):
+    def writeInputFile(ModelName: str, InputString: str, FileType: FileType, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         fid = open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType ,'w')
@@ -190,7 +218,7 @@ class ModelControl(object):
         return ModelName + '-InputFile has been saved'
 
     @app.get("/getModel")
-    def getModel(ModelName: ModelName, request: Request):
+    def getModel(ModelName: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         try:
@@ -201,10 +229,26 @@ class ModelControl(object):
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
         except:
-            raise HTTPException(status_code=404, detail=ModelName + ' files can not be found on ' + Cluster)
+            raise HTTPException(status_code=404, detail=ModelName + ' files can not be found')
      
+    # @app.get("/getVtkFile")
+    # def getVtkFile(ModelName: str, request: Request):
+    #     username = request.headers.get('x-forwarded-preferred-username')
+
+    #     localpath = './Output/' + os.path.join(username, ModelName)
+
+    #     try:
+    #         file = os.path.join(localpath, ModelName) + '.vtu'
+
+    #         response = FileResponse(file, media_type=".vtu")
+    #         response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + '.vtu'
+    #         # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
+    #         return response
+    #     except:
+    #         raise HTTPException(status_code=404, detail=ModelName + ' files can not be found')
+
     @app.get("/getLogFile")
-    def getLogFile(ModelName: ModelName, Cluster: str, request: Request):
+    def getLogFile(ModelName: str, Cluster: str, request: Request):
 
         username = request.headers.get('x-forwarded-preferred-username')
         usermail = request.headers.get('x-forwarded-email')
@@ -254,7 +298,7 @@ class ModelControl(object):
             return response
 
     @app.get("/getResults")
-    def getResults(ModelName: ModelName, Cluster: str, allData: bool, request: Request):
+    def getResults(ModelName: str, Cluster: str, allData: bool, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, allData)==False):
@@ -273,7 +317,7 @@ class ModelControl(object):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     # @app.get("/getResults")
-    # def getResults(ModelName: ModelName, username: str):
+    # def getResults(ModelName: str, username: str):
 
     #     resultpath = './Results/' + os.path.join(username, ModelName)
     #     userpath = './Results/' + username
@@ -288,7 +332,7 @@ class ModelControl(object):
     #         return 'Resultfiles can\'t be found'
             
     @app.post("/deleteModel")
-    def deleteModel(ModelName: ModelName, request: Request):
+    def deleteModel(ModelName: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         localpath = './Output/' + os.path.join(username, ModelName)
@@ -297,7 +341,7 @@ class ModelControl(object):
 
 
     @app.post("/deleteModelFromCluster")
-    def deleteModelFromCluster(ModelName: ModelName, Cluster: str, request: Request):
+    def deleteModelFromCluster(ModelName: str, Cluster: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         if Cluster=='None':
@@ -315,7 +359,7 @@ class ModelControl(object):
             else:
                 return Cluster + ' unknown'
 
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            ssh, sftp = fileHandler.sftpToCluster(Cluster)
 
             for filename in sftp.listdir(remotepath):
                 sftp.remove(os.path.join(remotepath, filename))
@@ -325,38 +369,58 @@ class ModelControl(object):
             return ModelName + ' has been deleted'
 
     @app.post("/deleteUserData")
-    def deleteUserData(request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
+    def deleteUserData(checkDate: bool, request: Request, days: Optional[int] = 7):
+        if checkDate:
+            localpath = './Output'
+            if os.path.exists(localpath):
+                names = fileHandler.removeFolderIfOlder(localpath, days, True)
+                if len(names)!=0:
+                    return 'Data of ' + ', '.join(names) + ' has been deleted'
+            return 'Nothing has been deleted'
+        else:
+            username = request.headers.get('x-forwarded-preferred-username')
 
-        localpath = './Output/' + username
-        shutil.rmtree(localpath)
-        return 'Data of ' + username + ' has been deleted'
+            localpath = './Output/' + username
+            shutil.rmtree(localpath)
+            return 'Data of ' + username + ' has been deleted'
 
     @app.post("/deleteUserDataFromCluster")
-    def deleteUserDataFromCluster(Cluster: str, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
+    def deleteUserDataFromCluster(Cluster: str, checkDate: bool, request: Request, days: Optional[int] = 7):
 
-        if Cluster=='None':
-            remotepath = './peridigmJobs/' + username
-            shutil.rmtree(remotepath)
-            return 'Data of ' + username + ' has been deleted'
+        if checkDate:
+            if Cluster=='None':
+                localpath = './peridigmJobs'
+                fileHandler.removeFolderIfOlder(localpath, days, True)
+            else:
+                remotepath = fileHandler.getRemotePath(Cluster)
+                
+                ssh, sftp = fileHandler.sftpToCluster(Cluster)
 
+                fileHandler.removeFolderIfOlderSftp(sftp, remotepath, days, True)
+
+                sftp.close()
+                ssh.close()
+        
         else:
-            remotepath = fileHandler.getRemoteUserPath(Cluster, username)
-            
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            username = request.headers.get('x-forwarded-preferred-username')
+            if Cluster=='None':
+                remotepath = './peridigmJobs/' + username
+                shutil.rmtree(remotepath)
+                return 'Data of ' + username + ' has been deleted'
 
-            for filename in sftp.listdir(remotepath):
-                for subfilename in sftp.listdir(os.path.join(remotepath, filename)):
-                    sftp.remove(os.path.join(remotepath, subfilename))
-                sftp.remove(os.path.join(remotepath, filename))
-            sftp.rmdir(remotepath)
-            sftp.close()
-            ssh.close()
-            return 'Data of ' + username + ' has been deleted'
+            else:
+                remotepath = fileHandler.getRemoteUserPath(Cluster, username)
+                
+                ssh, sftp = fileHandler.sftpToCluster(Cluster)
+
+                fileHandler.removeAllFolderSftp(sftp, remotepath, False)
+
+                sftp.close()
+                ssh.close()
+                return 'Data of ' + username + ' has been deleted'
 
     @app.get("/getPlot")
-    def getPlot(ModelName: ModelName, Cluster: str, OutputName: str, request: Request):
+    def getPlot(ModelName: str, Cluster: str, OutputName: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
@@ -386,11 +450,8 @@ class ModelControl(object):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     @app.get("/getImage")
-    def getImage(ModelName: ModelName, Cluster: str, Variable: str, Height: float, Discretization: float, request: Request):
+    def getImage(ModelName: str, Cluster: str, Variable: str, dx: float, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
-        
-        nn = 2*int(Discretization/2)+1
-        dx = Height/nn
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
             raise NotFoundException(name=ModelName)
@@ -405,30 +466,138 @@ class ModelControl(object):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     @app.get("/getPointData")
-    def getPointData(ModelName: ModelName, request: Request):
+    def getPointData(ModelName: str, OwnModel: bool, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         pointString=''
         blockIdString=''
-        firstRow=True  
+        if OwnModel:
+            # try:
+                with open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.g.ascii', 'r') as f:
+                        data = f.read()
+                        numOfBlocks = re.findall('num_el_blk\s=\s\d*\s;', data)
+                        numOfBlocks = int(numOfBlocks[0][13:][:2])
+                        coords = re.findall('coord.\s=\s[-\d.,\se]{1,}', data)
+                        nodes = re.findall('node_ns[\d]*\s=\s[\d,\s]*', data)
+                        blockId = [1]*len(coords[0])
+                        for i in range(0,3):
+                            coords[i]=coords[i][8:].replace(" ", "").split(',')
+                        for i in range(0,numOfBlocks):
+                            nodes[i]=nodes[i*2][8:].replace(" ", "").split('=')[1].split(',')
+                            for node in nodes[i]:
+                                blockId[int(node)-1] = i + 1
+                        for i in range(0,len(coords[0])):
+                            pointString+=coords[0][i]+','+coords[1][i]+','+coords[2][i]+','
+                            blockIdString+=str(blockId[i]/numOfBlocks)+','
+                            
+                response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
+                return response
+            # except:
+            #     raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+        else:
+            firstRow=True 
+            maxBlockId = 1
+            try:
+                with open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.txt', 'r') as f:
+                        reader = csv.reader(f)
+                        rows = list(reader)
+                        for row in rows:
+                            if firstRow==False:
+                                str1 = ''.join(row)
+                                parts = str1.split(" ")
+                                pointString+=parts[0]+','+parts[1]+','+parts[2]+','
+                                if int(parts[3]) > maxBlockId:
+                                    maxBlockId = int(parts[3])
+                            firstRow=False
+                        firstRow=True 
+                        for row in rows:
+                            if firstRow==False:
+                                str1 = ''.join(row)
+                                parts = str1.split(" ")
+                                blockIdString+=str(int(parts[3])/maxBlockId)+','
+                            firstRow=False
+                response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
+                return response
+            except:
+                raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+
+    @app.post("/uploadfiles")
+    async def uploadfiles( ModelName: str, request: Request, files: List[UploadFile] = File(...)): 
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        localpath = './Output/' + os.path.join(username, ModelName)
+
+        for file in files:
+            file_location = localpath + f"/{file.filename}"
+            with open(file_location, "wb+") as file_object:
+                shutil.copyfileobj(file.file, file_object)
+
+        return {"info": f"file '{files[0].file.name}' saved at '{file_location}'"}
+
+    @app.post("/translateModel")
+    def translateModel(ModelName: str, Filetype: str,request: Request, files: List[UploadFile] = File(...)):
+        username = request.headers.get('x-forwarded-preferred-username')
+
+        start_time = time.time()
+
+        localpath = './Output/' + os.path.join(username, ModelName)
+        
+        if os.path.exists(localpath) == False:
+            os.makedirs(localpath)
+
+        for file in files:
+            file_location = localpath + f"/{file.filename}"
+            with open(file_location, "wb+") as file_object:
+                shutil.copyfileobj(file.file, file_object)
+
+        inputformat="'ansys (cdb)'"
+        if Filetype=='cdb':
+            inputformat = 'ansys'
+        if Filetype=='inp':
+            inputformat = 'abaqus'
+            # inputformat = "'ansys (cdb)'"
+
+        command = "java -jar ./support/jCoMoT/jCoMoT-0.0.1-all.jar -ifile " + os.path.join(localpath, ModelName + '.' + Filetype) + \
+        " -iformat " + inputformat + " -oformat peridigm -opath " + localpath + \
+        " && mv " + os.path.join(localpath, 'mesh.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
+        " && mv " + os.path.join(localpath, 'model.peridigm ') + os.path.join(localpath, ModelName) + '.peridigm'
+        # " && mv " + os.path.join(localpath, 'discretization.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
         try:
-            with open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.txt', 'r') as f:
-                    reader = csv.reader(f)
-                    for row in reader:
-                        if firstRow==False:
-                            str1 = ''.join(row)
-                            parts = str1.split(" ")
-                            pointString+=parts[0]+','+parts[1]+','+parts[2]+','
-                            blockIdString+=str(int(parts[3])/10)+','
-                        firstRow=False
-                        
-            response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
-            return response
+            subprocess.call(command, shell=True)
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+        
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g.ascii', True)
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.peridigm', True)
+
+        # if returnString!='Success':
+        #     return returnString
+
+        remotepath = '/app/peridigmJobs/' + os.path.join(username, ModelName)
+        ssh = paramiko.SSHClient() 
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect('peridigm', username='root', allow_agent=False, password='root')
+        command = '/usr/local/netcdf/bin/ncgen ' + os.path.join(remotepath, ModelName) + '.g.ascii -o ' + os.path.join(remotepath, ModelName) + '.g' + \
+        ' && python3 /peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
+        ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
+        # ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
+        ssh.exec_command(command)
+        ssh.close()
+
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
+
+        # command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtu'
+
+        # try:
+        #     subprocess.call(command, shell=True)
+        # except:
+        #     raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+
+        return ModelName + ' has been translated in ' + "%.2f seconds" % (time.time() - start_time)
 
     @app.post("/runModel")
-    def runModel(ModelName: ModelName, FileType: FileType, Param: dict, request: Request):
+    def runModel(ModelName: str, FileType: FileType, Param: dict, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
         usermail = request.headers.get('x-forwarded-email')
 
@@ -491,7 +660,7 @@ class ModelControl(object):
             return Cluster + ' unknown'
 
     @app.post("/cancelJob")
-    def cancelJob(ModelName: ModelName, Cluster: str, request: Request):
+    def cancelJob(ModelName: str, Cluster: str, request: Request):
         username = request.headers.get('x-forwarded-preferred-username')
 
         if Cluster=='None':
@@ -510,7 +679,7 @@ class ModelControl(object):
 
         else:     
             remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            ssh, sftp = fileHandler.sftpToCluster(Cluster)
             try:
                 outputFiles = sftp.listdir(remotepath)
                 filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
@@ -525,6 +694,13 @@ class ModelControl(object):
             ssh.close()
 
             return 'Job: ' + jobId + ' has been canceled'
+    
+    # @app.get("/startCron")
+    # def startCron():
+    #     cron = CronTab(user='root')
+    #     job = cron.new(command='echo hello_world')
+    #     job.minute.every(1)
+    #     cron.write()
 
     # uvicorn.run(app, host="0.0.0.0", port=80)    
     # pointString=''

@@ -24,6 +24,7 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
 import DogboneImage from '../assets/Dogbone/Dogbone.jpg'
 import DogboneFile from '../assets/Dogbone/Dogbone.json'
 import { Plotly } from 'vue-plotly'
+import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
 
   export default {
     name: 'PeriHub',
@@ -41,11 +42,14 @@ import { Plotly } from 'vue-plotly'
         modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],
         modelNameSelected: 'Dogbone',
         ownModel: false,
+        translated: false,
         length: 0.115,
         width: 0.003,
         height: 0.019,
         height2: 0.013,
         discretization: 21,
+        horizon: 0.01,
+        structured: true,
         twoDimensional: true,
         rotatedAngles: false,
         angles: [0, 0],
@@ -57,7 +61,8 @@ import { Plotly } from 'vue-plotly'
           { id: 1, Name: 'PMMA', 
             MatType: 'Linear Elastic Correspondence', 
             density: 1.4e5, 
-            bulkModulus: 630000.0,
+            bulkModulus: 0.0,
+            shearModulus: 0.0,
             youngsModulus: 2.997e9,
             poissonsRatio: 0.3,
             tensionSeparation: false,
@@ -133,6 +138,7 @@ import { Plotly } from 'vue-plotly'
           MatType: 'Material Model',
           density: 'Density',
           bulkModulus: 'Bulk Modulus',
+          shearModulus: 'Shear Modulus',
           youngsModulus: "Young's Modulus",
           poissonsRatio: "Poisson's Ratio",
           tensionSeparation: "Tension Separation",
@@ -164,7 +170,7 @@ import { Plotly } from 'vue-plotly'
           damageModel: 'Name',
           criticalStretch: "Critical Stretch",
           criticalEnergy: "Critical Energy",
-          interblockdamageEnergy: "Interblock Damage Energy",
+          interblockdamageEnergy: "Interblock damage energy",
           planeStress: 'Plane Stress',
           onlyTension: "Only Tension",
           detachedNodesCheck: "Detached Nodes Check",
@@ -184,23 +190,54 @@ import { Plotly } from 'vue-plotly'
           material: 'Material', 
           damageModel: 'Damage Model', 
           interface: 'Interface'},
-        //  boundaryConditionswwwwwwwwwww
+        //  boundaryConditions
         boundarytype: ['Initial Displacement', 'Initial Velocity', 'Prescribed Displacement', 'Prescribed Fluid Pressure U', 'Initial Fluid Pressure U', 'Initial Temperature', 'Prescribed Temperature', 'Thermal Flux', 'Body Force'],
         coordinate: ['x', 'y', 'z'],
         boundaryConditions: [
-          { id: 1, Name: 'BC_1', boundarytype: 'Prescribed Displacement',  blockId: 1, coordinate: 'x', value: '0*t'},
-          { id: 2, Name: 'BC_2', boundarytype: 'Prescribed Displacement',  blockId: 5, coordinate: 'x', value: '0.05*t'},
+          { id: 1, Name: 'BC_1', nodeSet: null, boundarytype: 'Prescribed Displacement',  blockId: 1, coordinate: 'x', value: '0*t'},
+          { id: 2, Name: 'BC_2', nodeSet: null, boundarytype: 'Prescribed Displacement',  blockId: 5, coordinate: 'x', value: '0.05*t'},
           ],
+        boundaryKeys:{
+          Name: 'Name', 
+          nodeSet: 'Node Set',
+          boundarytype: 'Type', 
+          blockId: 1, 
+          coordinate: 'Coordinate', 
+          value: 'Value'},
         // Compute 
         calculationType: ['Sum', 'Maximum', 'Minimum'],
         variables: ['Force', 'Displacement', 'Damage'],
         computes: [
           { id: 1, Name: 'External_Displacement', variable: 'Displacement', calculationType: 'Maximum', blockName: 'block_5'},
           { id: 2, Name: 'External_Force', variable: 'Force', calculationType: 'Sum', blockName: 'block_5'}],
+        computeKeys:{
+          Name: 'Output Label',
+          variable: 'Variable',
+          calculationType: 'Calculation Type',
+          blockName: 'Block'},
         // Output 
         outputs: [
           { id: 1, Name: 'Output1', Displacement: true, Force: true, Damage: true, Partial_Stress: true, External_Force: true, External_Displacement: true, Number_Of_Neighbors: false, Frequency: 100, InitStep: 0}],
+        outputKeys:{
+          Name: 'Output Filename',
+          Displacement: 'Displacement',
+          Force: 'Force',
+          Damage: 'Damage',
+          Partial_Stress: 'Partial_Stress',
+          External_Force: 'External_Force',
+          External_Displacement: 'External_Displacement',
+          Number_Of_Neighbors: 'Number_Of_Neighbors',
+          Frequency: 'Output Frequency',
+          InitStep: 'Initial Output Step'},
         // Solver
+        solvertype: ['Verlet', 'NOXQuasiStatic'],
+        peridgimPreconditioner: ['Full Tangent', 'Block 3x3', 'None'],
+        nonlinearSolver: ['Line Search Based'],
+        directionMethod: ['Newton', 'NonlinearCG'],
+        jacobianOperator: ['Matrix-Free', ''],
+        preconditioner: ['User Defined', 'None'],
+        lineSearchMethod: ['Polynomial'],
+        filetype: ['yaml', 'xml'],
         solver: {
           verbose: false,
           initialTime: 0.0,
@@ -225,14 +262,29 @@ import { Plotly } from 'vue-plotly'
           adapt: {stableStepDifference: 4, maximumBondDifference: 4, stableBondDifference: 1},
           filetype: 'yaml',
         },
-        solvertype: ['Verlet', 'NOXQuasiStatic'],
-        peridgimPreconditioner: ['Full Tangent', 'Block 3x3', 'None'],
-        nonlinearSolver: ['Line Search Based'],
-        directionMethod: ['Newton', 'NonlinearCG'],
-        jacobianOperator: ['Matrix-Free', ''],
-        preconditioner: ['User Defined', 'None'],
-        lineSearchMethod: ['Polynomial'],
-        filetype: ['yaml', 'xml'],
+        solverKeys: {
+          verbose: 'Verbose',
+          initialTime: 'Initial Time',
+          finalTime: 'Final Time',
+          solvertype: 'Solvertype',
+          safetyFactor: 'Safety Factor',
+          numericalDamping: 'Numerical Damping',
+          peridgimPreconditioner: 'Peridgim Preconditioner',
+          nonlinearSolver: 'Nonlinear Solver',
+          numberofLoadSteps: 'Number of Load Steps',
+          maxSolverIterations: 'Max Solver Iterations',
+          relativeTolerance: 'Relative Tolerance',
+          maxAgeOfPrec: 'Max Age Of Prec',
+          directionMethod: 'Direction Method',
+          newton: {jacobianOperator: 'Jacobian Operator', preconditioner: 'Preconditioner'},
+          lineSearchMethod: 'Line Search Method',
+          verletSwitch: 'Switch to Verlet',
+          verlet: {safetyFactor: 'Safety Factor', numericalDamping: 'Numerical Damping', outputFrequency: 'Output Frequency'},
+          stopAfterDamageInitation: 'Stop after damage initation',
+          stopBeforeDamageInitation: 'Stop before damage initation',
+          adaptivetimeStepping: 'Adaptive Time Stepping',
+          adapt: {stableStepDifference: 'Stable Step Difference', maximumBondDifference: 'Maximum Bond Difference', stableBondDifference: 'Stable Bond Difference'},
+        },
         // Job
         job: {
           cluster: 'None',
@@ -251,6 +303,7 @@ import { Plotly } from 'vue-plotly'
         blockIdString: [1],
         filteredBlockIdString: [1],
         resolution: 6,
+        dx: 0.1,
         radius: 0.2,
         multiplier: 1,
         snackbar: false,
@@ -262,11 +315,13 @@ import { Plotly } from 'vue-plotly'
         colors: '',
         modelImg: DogboneImage,
         jsonFIle: DogboneFile,
+        vtkFile: '',
         dialog: false,
         dialogGetImage: false,
         dialogGetPlot: false,
         dialogDeleteData: false,
         dialogDeleteModel: false,
+        dialogDeleteCookies: false,
         dialogDeleteUserData: false,
         errors: [],
         plotRawData: '',
@@ -350,7 +405,7 @@ import { Plotly } from 'vue-plotly'
         return highlight(code, languages.js); // languages.<insert language> to return html with markup
       },
 
-      viewInputFile() {
+      viewInputFile(loadFile) {
         let headersList = {
         'Cache-Control': 'no-cache'
         }
@@ -363,7 +418,12 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
 
-        axios.request(reqOptions).then(response => (this.textOutput = response.data))
+        axios.request(reqOptions).then(response => {
+          (this.textOutput = response.data)
+
+          if(loadFile){
+            this.loadYamlString(this.textOutput)
+          }})
       },
       async generateModel() {
         // this.snackbar=true
@@ -372,22 +432,25 @@ import { Plotly } from 'vue-plotly'
         //                                     "\"Output\": " + JSON.stringify(this.outputs) + "}}")
         if(this.checkInputs()){
           let headersList = {
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          // 'Access-Control-Allow-Origin': '*'
           }
-
           let reqOptions = {
             url: "http://localhost:8000/generateModel",
             params: {ModelName: this.modelNameSelected,
+                    ownModel: this.ownModel,
+                    translated: this.translated,
                     Length: this.length,
                     Width: this.width,
                     Height: this.height,
                     Height2: this.height2,
                     Discretization: this.discretization,
+                    Horizon: this.horizon,
+                    Structured: this.structured,
                     TwoDimensional: this.twoDimensional,
                     RotatedAngles: this.rotatedAngles,
                     Angle0: this.angles[0],
-                    Angle1: this.angles[1],
-                    Solvertype: this.solvertypeSelected,},
+                    Angle1: this.angles[1]},
             data: JSON.parse("{\"Param\":" + "{\"Material\": " + JSON.stringify(this.materials)+",\n" +
                                               "\"Damage\": " + JSON.stringify(this.damages)+",\n" +
                                               "\"Block\": " + JSON.stringify(this.blocks)+",\n" +
@@ -398,13 +461,17 @@ import { Plotly } from 'vue-plotly'
             method: "POST",
             headers: headersList,
           }
-          this.modelLoading = true
+          if(this.ownModel==false){
+            this.modelLoading = true
+          }
           this.textLoading = true
           await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true
-          this.viewInputFile()
-          this.viewPointData()
-          this.modelLoading = false
+          this.viewInputFile(false)
+          if(this.ownModel==false){
+            this.viewPointData()
+            this.modelLoading = false
+          }
           this.textLoading = false
           this.saveCurrentData()
         }
@@ -436,21 +503,232 @@ import { Plotly } from 'vue-plotly'
       readData() {
         this.$refs.fileInput.click()
       },
+      uploadMesh() {
+        this.$refs.multifileInput.click()
+      },
       onFilePicked (event) {
         const files = event.target.files
         const filetype = files[0].type
-        // this.message=filetype
-        // this.snackbar=true
         if (files.length <= 0) {
           return false;
         }
 
         const fr = new FileReader();
         
-        this.loadJsonFile(fr, files)
+        if(filetype=='application/json'){
+          this.loadJsonFile(fr, files)
+        }
+        else if(files[0].name.includes('.yaml')){
+          this.loadYamlModel(fr, files)
+        }
+        else if(filetype=='text/xml'){
+          this.loadXmlModel(fr, files)
+        }
+        else if(filetype=='.peridigm'){
+          this.loadPeridigmModel(fr, files)
+        }
+        else{
+          this.loadFeModel(files)
+        }
+      },
+      onMultiFilePicked (event) {
+        const files = event.target.files
+        const filetype = files[0].type
+        if (files.length <= 0) {
+          return false;
+        }
+
+        this.uploadfiles(files)
+      },
+      async uploadfiles(files) {
+        // this.snackbar=true
+        // this.message = JSON.parse("{\"Job\": " + JSON.stringify(this.job)+"}")
+        const formData = new FormData();
+        for (var i = 0; i < files.length; i++){
+          formData.append('files',files[i])
+        }
+
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'multipart/form-data'
+        }
+
+        let reqOptions = {
+          url: "http://localhost:8000/uploadfiles",
+          params: {ModelName: this.modelNameSelected},
+          data: formData,
+          method: "POST",
+          headers: headersList,
+        }
+
+        this.modelLoading = true
+        this.message = 'Meshfiles have been uploaded'
+        await axios.request(reqOptions)
+        .catch((error) => {
+          console.log(response)
+          this.message = error
+          return
+        })
+        
+        this.viewPointData()
+        this.modelLoading = false
+        this.snackbar=true
+      },
+      //return an array of values that match on a certain key
+      getValues(obj, key) {
+        var objects = [];
+        for (var i in obj) {
+            if (!obj.hasOwnProperty(i)) continue;
+            if (typeof obj[i] == 'object') {
+                objects = objects.concat(this.getValues(obj[i], key));
+            } else if (i == key) {
+                objects.push(obj[i]);
+            }
+        }
+        return objects;
+      },
+      getKeyByValue(object, value) {
+        return Object.keys(object).find(key => object[key] === value);
+      },
+      translateXMLtoYAML(xmlString){
+        var stringYAML = 'Peridigm:\n'
+        var splitString = xmlString.split('\n')
+        for(var i = 0; i < splitString.length; i++) {
+          if (!splitString[i].includes("</ParameterList>") && !splitString[i].includes('<ParameterList>')){
+            var partString = splitString[i].split('"')
+            var spaces = splitString[i].split('<')
+            
+            if (partString.length>3){
+              var tempString =''
+              if (partString[3].includes('string')){
+                tempString = '"'+ partString[5] + '"'
+              }
+              else{
+                tempString = partString[5]
+              }
+              stringYAML += spaces[0] + partString[1] + ': ' + tempString + '\n'
+            }
+            else{
+              if (partString.length!=1){
+                stringYAML += spaces[0] + partString[1] + ': \n'
+              }
+            }
+          }
+        }
+        return stringYAML
+      },
+      getValuesFromJson(paramObject, paramName, paramKeys, addFunction, removeFunction, id){
+        var names = Object.keys(paramObject)
+        if(paramName=='solver'){
+          for(var i = 0; i < names.length; i++) {
+            var key = this.getKeyByValue(paramKeys, names[i])
+            this[paramName][key] = paramObject[names[i]]
+            var subNames = Object.keys(paramObject[names[i]])
+            for(var j = 0; j < subNames.length; j++) {
+              this[paramName]['solvertype'] = names[i]
+              var key = this.getKeyByValue(paramKeys, subNames[j])
+              this[paramName][key] = paramObject[names[i]][subNames[j]]
+            }
+          }
+        }
+        else if(paramName=='outputs'){
+          if(id.length>=1){
+            if (this[paramName].length<id){
+              addFunction()
+            }
+            for(var i = 0; i < names.length; i++) {
+              var key = this.getKeyByValue(paramKeys, names[i])
+              if(key=='Name'){
+                this[paramName][id-1][key] = paramObject[names[i]].split('_').slice(-1)[0]
+              }
+              else{
+                this[paramName][id-1][key] = paramObject[names[i]]
+              }
+              var subNames = Object.keys(paramObject[names[i]])
+              for(var j = 0; j < subNames.length; j++) {
+                var key = this.getKeyByValue(paramKeys, subNames[j])
+                this[paramName][id-1][key] = paramObject[names[i]][subNames[j]]
+              }
+            }
+            if(this[paramName].length>id){
+              for(var j = id; j < this[paramName].length; j++) {
+                removeFunction(j)
+              }
+            }
+          }
+          else{
+            for(var i = 0; i < names.length; i++) {
+              var key = this.getKeyByValue(paramKeys, names[i])
+              if(key=='Name'){
+                this[paramName][0][key] = paramObject[names[i]].split('_').slice(-1)[0]
+              }
+              else{
+                this[paramName][0][key] = paramObject[names[i]]
+              }
+              var subNames = Object.keys(paramObject[names[i]])
+              for(var j = 0; j < subNames.length; j++) {
+                var key = this.getKeyByValue(paramKeys, subNames[j])
+                this[paramName][0][key] = paramObject[names[i]][subNames[j]]
+              }
+            }
+            if(this[paramName].length>1){
+              for(var j = 1; j < this[paramName].length; j++) {
+                removeFunction(j)
+              }
+            }
+          }
+        }
+        else if(paramName=='boundaryConditions'){
+          var numberOfItems = 0
+          var filteredNames = []
+          for(var i = 0; i < names.length; i++) {
+            if (Object.keys(paramObject[names[i]])[0].length>2){
+              numberOfItems++
+              filteredNames.push(names[i])
+            }
+          }
+          for(var i = 0; i < numberOfItems; i++) {
+            if (this[paramName].length<i+1){
+              addFunction()
+            }
+            this[paramName][i]['Name'] = filteredNames[i]
+            var subNames = Object.keys(paramObject[filteredNames[i]])
+            for(var j = 0; j < subNames.length; j++) {
+              var key = this.getKeyByValue(paramKeys, subNames[j])
+              this[paramName][i][key] = paramObject[filteredNames[i]][subNames[j]]
+            }
+          }
+          if(this[paramName].length>numberOfItems){
+            for(var j = numberOfItems; j < this[paramName].length; j++) {
+              removeFunction(j)
+            }
+          }
+        }
+        else{
+          for(var i = 0; i < names.length; i++) {
+            if (this[paramName].length<i+1){
+              addFunction()
+            }
+            this[paramName][i]['Name'] = names[i]
+            var subNames = Object.keys(paramObject[names[i]])
+            for(var j = 0; j < subNames.length; j++) {
+              var key = this.getKeyByValue(paramKeys, subNames[j])
+              if(subNames[j]=='Horizon'){
+                this.horizon = paramObject[names[i]][subNames[j]]
+              }
+              this[paramName][i][key] = paramObject[names[i]][subNames[j]]
+            }
+          }
+          if(this[paramName].length>names.length){
+            for(var j = names.length; j < this[paramName].length; j++) {
+              removeFunction(j)
+            }
+          }
+        }
       },
       loadJsonFile(fr, files) {
         this.ownModel=false
+        this.translated=false
         
         fr.onload = e => {
           const result = JSON.parse(e.target.result);
@@ -469,6 +747,116 @@ import { Plotly } from 'vue-plotly'
           }
         }
         fr.readAsText(files.item(0));
+      },
+      loadYamlModel(fr, files) {
+        this.ownModel=true
+        this.translated=false
+        
+        this.modelNameSelected = files[0].name.split('.')[0]
+
+        fr.onload = e => {
+          const yaml = e.target.result;
+          this.loadYamlString(yaml)
+        }
+        fr.readAsText(files.item(0));
+      },
+      loadXmlModel(fr, files) {
+        this.ownModel=true
+        this.translated=false
+
+        this.modelNameSelected = files[0].name.split('.')[0]
+        
+        fr.onload = e => {
+          const xml = e.target.result;
+          var yaml = this.translateXMLtoYAML(xml)
+          this.loadYamlString(yaml)
+        }
+        fr.readAsText(files.item(0));
+      },
+      loadFeModel(files) {
+        this.ownModel=true
+        this.translated=true
+        
+        // this.modelLoading = true
+      	this.textLoading = true
+
+        if (files.length <= 0) {
+          return false;
+        }
+        this.modelNameSelected = files[0].name.split('.')[0]
+        const filetype = files[0].name.split('.')[1]
+
+        this.translateModel(files, filetype)
+        
+      },
+      async translateModel(files, filetype) {
+
+        const formData = new FormData();
+        for (var i = 0; i < files.length; i++){
+          formData.append('files',files[i])
+        }
+
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'multipart/form-data'
+        }
+
+        let reqOptions = {
+          url: "http://localhost:8000/translateModel",
+          params: {ModelName: this.modelNameSelected,
+                   Filetype: filetype},
+          data: formData,
+          method: "POST",
+          headers: headersList,
+        }
+
+        await axios.request(reqOptions).then(response => (this.message = response.data))
+        
+        this.viewInputFile(true)
+        // this.loadYamlString(this.textOutput)
+        this.viewPointData()
+
+        // this.modelLoading = false
+      	this.textLoading = false
+
+        this.snackbar=true
+      },
+      loadYamlString(yaml) {
+        var convert = require('js-yaml');
+        var json = convert.load(yaml);
+        // this.message = json
+        // this.snackbar =true
+        var names = Object.keys(json.Peridigm)
+        for(var i = 0; i < names.length; i++) {
+          var Param = json.Peridigm[names[i]]
+          switch (names[i].replace(/[0-9]/g, '')) {
+            case 'Materials':
+              this.getValuesFromJson(Param, 'materials', this.materialKeys, this.addMaterial, this.removeMaterial)
+              break
+            case 'Damage Models':
+              this.getValuesFromJson(Param, 'damages', this.damageKeys, this.addDamage, this.removeDamage)
+              break
+            case 'Blocks':
+              this.getValuesFromJson(Param, 'blocks', this.blockKeys, this.addBlock, this.removeBlock)
+              break
+            case 'Boundary Conditions':
+              this.getValuesFromJson(Param, 'boundaryConditions', this.boundaryKeys, this.addCondition, this.removeCondition)
+              break
+            case 'Compute Class Parameters':
+              this.getValuesFromJson(Param, 'computes', this.computeKeys, this.addCompute, this.removeOutput)
+              break
+            case 'Output':
+              this.getValuesFromJson(Param, 'outputs', this.outputKeys, this.addOutput, this.removeOutput, names[i].replace(/\D/g,''))
+              break
+            case 'Solver':
+              this.getValuesFromJson(Param, 'solver', this.solverKeys)
+              break
+          }
+        }
+      },
+      switchModels(){
+        this.ownModel=false
+        this.translated=false
       },
       resetData() {
         switch (this.modelNameSelected) {
@@ -499,6 +887,8 @@ import { Plotly } from 'vue-plotly'
       },
       saveCurrentData() {
         this.$cookie.set('panel', JSON.stringify(this.panel), Infinity, '/app');
+        this.$cookie.set('ownModel', this.ownModel, Infinity, '/app');
+        this.$cookie.set('translated', this.translated, Infinity, '/app');
         const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
                       "\"length\":" + this.length + ",\n" +
                       "\"width\":" + this.width + ",\n" +
@@ -511,7 +901,7 @@ import { Plotly } from 'vue-plotly'
         this.$cookie.set('data', data, Infinity, '/app');
         this.jsonToCookie("materials", true)
         this.jsonToCookie("damages")
-        this.jsonToCookie("blocks")
+        this.jsonToCookie("blocks", true)
         this.jsonToCookie("boundaryConditions")
         this.jsonToCookie("computes")
         this.jsonToCookie("outputs")
@@ -532,10 +922,12 @@ import { Plotly } from 'vue-plotly'
       },
       getCurrentData() {
         this.panel = JSON.parse(this.$cookie.get('panel'));
+        this.ownModel = this.$cookie.get('ownModel');
+        this.translated = this.$cookie.get('translated');
         this.cookieToJson("data")
         this.cookieToJson("materials", true)
         this.cookieToJson("damages")
-        this.cookieToJson("blocks")
+        this.cookieToJson("blocks", true)
         this.cookieToJson("boundaryConditions")
         this.cookieToJson("computes")
         this.cookieToJson("outputs")
@@ -559,27 +951,55 @@ import { Plotly } from 'vue-plotly'
           }
         }
       },
-      async viewPointData() {
-        let headersList = {
-        'Cache-Control': 'no-cache'
+      deleteCookies() {
+        this.dialogDeleteCookies = false;
+        // var cookieKeys = this.$cookie.keys()
+        // for(key in cookieKeys){
+        this.$cookie.delete('darkMode')
+        this.$cookie.delete('panel')
+        this.$cookie.delete('ownModel')
+        this.$cookie.delete('translated')
+        this.$cookie.delete('data')
+        for(var i = 0; i<100; i++){
+          this.$cookie.delete('materials'+i)
+          this.$cookie.delete('blocks'+i)
         }
+        this.$cookie.delete('damages')
+        this.$cookie.delete('boundaryConditions')
+        this.$cookie.delete('computes')
+        this.$cookie.delete('outputs')
+        this.$cookie.delete('solver')
+        this.$cookie.delete('job')
+      },
+      async viewPointData() {
+
+        let headersList = {
+          'Cache-Control': 'no-cache'
+          }
+        this.modelLoading = true
+        this.viewId = 1
 
         let reqOptions = {
           url: "http://localhost:8000/getPointData",
-          params: {ModelName: this.modelNameSelected},
+          params: {ModelName: this.modelNameSelected,
+                   OwnModel: this.ownModel},
           method: "GET",
           headers: headersList,
           }
 
-        this.modelLoading = true
         await axios.request(reqOptions).then(response => (
           this.pointString = response.data[0].split(','),
           this.blockIdString = response.data[1].split(',')))
-          
-        let dx = this.height/(2*parseInt(this.discretization/2)+1)
-        this.radius = dx.toFixed(2);
+        
+        if (!this.ownModel){
+          this.dx = this.height/(2*parseInt(this.discretization/2)+1)
+        }
+        else{
+          this.dx = Math.hypot(parseFloat(this.pointString[3])-parseFloat(this.pointString[0]),parseFloat(this.pointString[4])-parseFloat(this.pointString[1]),parseFloat(this.pointString[5])-parseFloat(this.pointString[2]))
+        }
+        this.radius = this.dx.toFixed(2);
         this.updatePoints()
-        this.viewId = 1
+
         this.modelLoading = false
         this.$refs.view.resetCamera()
       },
@@ -588,7 +1008,7 @@ import { Plotly } from 'vue-plotly'
         this.filteredBlockIdString = []
         this.filteredPointString = []
         for (var i = 0; i < this.blockIdString.length; i++) {
-          if (this.blocks[this.blockIdString[i]*10-1].show){
+          if (this.blocks[this.blockIdString[i]*this.blocks.length-1].show){
             this.filteredBlockIdString[idx] = this.blockIdString[i]
             for (var j = 0; j < 3; j++) {
               this.filteredPointString[idx*3+j] = this.pointString[i*3+j] * this.multiplier
@@ -718,7 +1138,7 @@ import { Plotly } from 'vue-plotly'
         //   headers: headersList,
         //   }
           
-        axios.request(reqOptions)
+        await axios.request(reqOptions)
         .then((response) => {
             var fileURL = window.URL.createObjectURL(new Blob([response.data]));
             var fileLink = document.createElement('a');
@@ -797,8 +1217,7 @@ import { Plotly } from 'vue-plotly'
           params: {ModelName: this.modelNameSelected,
                    Cluster: this.job.cluster,
                    Variable: Variable,
-                   Height: this.height,
-                   Discretization: this.discretization},
+                   dx: this.dx},
           method: "GET",
           responseType: 'blob',
           headers: headersList,
@@ -821,6 +1240,7 @@ import { Plotly } from 'vue-plotly'
       },
       monitorLogFile() {
         if(this.monitorToggle){
+          this.getLogFile()
           this.interval = setInterval(() => {
             this.getLogFile()
           }, 30000)
@@ -894,7 +1314,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: "http://localhost:8000/deleteUserData",
-          // params: {},
+          params: {checkDate: false},
           method: "POST",
           headers: headersList,
           }
@@ -902,7 +1322,8 @@ import { Plotly } from 'vue-plotly'
         axios.request(reqOptions).then(response => (this.message = response.data))
         reqOptions = {
           url: "http://localhost:8000/deleteUserDataFromCluster",
-          params: {Cluster: this.job.cluster},
+          params: {Cluster: this.job.cluster,
+                  checkDate: false},
           method: "POST",
           headers: headersList,
           }
@@ -988,7 +1409,7 @@ import { Plotly } from 'vue-plotly'
         this.computes.splice(index, 1)
       },
       addOutput() {
-        const len = this.computes.length
+        const len = this.outputs.length
         this.outputs.push({
           id: len+1,
           Name: "Outputs"+(len+1),
@@ -998,7 +1419,8 @@ import { Plotly } from 'vue-plotly'
           Partial_Stress: false,
           External_Force: false,
           External_Displacement: false,
-          Number_Of_Neighbors: false
+          Number_Of_Neighbors: false,
+          InitStep: 0
         })
       },
       removeOutput(index) {

@@ -1,6 +1,7 @@
-FROM python:3.7
+FROM openjdk:slim
+COPY --from=python:3.7 / /
 
-RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles pyevtk
+RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles pyevtk python-multipart meshio[all]
 # pysftp 
 
 RUN mkdir -p /root/.ssh && \

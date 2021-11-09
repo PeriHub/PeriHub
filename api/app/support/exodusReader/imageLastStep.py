@@ -124,10 +124,10 @@ colorPalette.Background = [45/255, 45/255, 45/255]
 # saving layout sizes for layouts
 
 # layout/tab size in pixels
-layout1.SetSize(1920, 1680)
+layout1.SetSize(1920, 1080)
 
 # save screenshot
-SaveScreenshot(path.join(filePath, Variable + '.jpg'), renderView1, ImageResolution=[1920, 1920])
+SaveScreenshot(path.join(filePath, Variable + '.jpg'), renderView1, ImageResolution=[1920, 1080])
 
 
 Delete(Output1)

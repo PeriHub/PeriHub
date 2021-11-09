@@ -14,8 +14,15 @@
                 type="file"
                 style="display: none"
                 ref="fileInput"
-                accept="application/json,application/xml,application/yaml,.peridigm"
+                accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp"
                 @change="onFilePicked"/>
+              <input
+                type="file"
+                style="display: none"
+                ref="multifileInput"
+                multiple
+                accept="text/plain,.g"
+                @change="onMultiFilePicked"/>
                 
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveData">
@@ -25,7 +32,7 @@
                 <span>Save as JSON</span>
               </v-tooltip>
     
-              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+              <v-tooltip bottom v-if="!ownModel"><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="resetData">
                     <i class="fas fa-undo"></i>
                 </v-btn>
@@ -41,12 +48,28 @@
                 <span>Generate Model</span>
               </v-tooltip>
     
+              <v-tooltip bottom v-if="ownModel"><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="uploadMesh">
+                    <i class="fas fa-upload"></i>
+                </v-btn>
+              </template>
+                <span>Upload Mesh and Nodesets</span>
+              </v-tooltip>
+    
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveModel">
                     <i class="fas fa-download"></i>
                 </v-btn>
               </template>
                 <span>Download Modelfiles</span>
+              </v-tooltip>
+    
+              <v-tooltip bottom v-if="ownModel"><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="switchModels">
+                    <i class="fas fa-backward"></i>
+                </v-btn>
+              </template>
+                <span>Use predefined Models</span>
               </v-tooltip>
         </v-subheader>
           <!-- <v-virtual-scroll
@@ -69,27 +92,35 @@
                     class="textfield-col"
                     :items="modelName"
                     v-model="modelNameSelected"
+                    v-show="!ownModel"
                     @change="showModelImg(); resetData();"
                     label="ModelName"
                     outlined></v-select>
                   <v-text-field 
                     class="textfield-col"
+                    v-model="modelNameSelected"
+                    v-show="ownModel"
+                    :rules="[rules.required]"
+                    label="ModelName"
+                    outlined></v-text-field>
+                  <v-text-field 
+                    class="textfield-col"
                     v-model="length"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     :rules="[rules.required, rules.float]"
                     label="Length"
                     outlined></v-text-field>
                   <v-text-field 
                     class="textfield-col"
                     v-model="width"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     :rules="[rules.required, rules.float]"
                     label="Width"
                     outlined></v-text-field>
                   <v-text-field 
                     class="textfield-col"
                     v-model="height"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     :rules="[rules.required, rules.float]"
                     label="Height"
                     outlined></v-text-field>
@@ -103,19 +134,31 @@
                   <v-text-field 
                     class="textfield-col"
                     v-model="discretization"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     :rules="[rules.required, rules.int]"
                     label="Discretization"
                     outlined></v-text-field>
+                  <v-text-field 
+                    class="textfield-col"
+                    v-model="horizon"
+                    v-show="ownModel"
+                    :rules="[rules.required, rules.float]"
+                    label="Horizon"
+                    outlined></v-text-field>
+                  <v-switch
+                    v-show="modelNameSelected=='Dogbone' & !ownModel"
+                    class="checkbox-col"
+                    v-model="structured"
+                    label="Structured"
+                  ></v-switch>
                   <v-switch
                     class="checkbox-col"
                     v-model="twoDimensional"
-                    :disabled="ownModel"
                     label="Two Dimensional"
                   ></v-switch>
                   <v-switch
                     v-model="rotatedAngles"
-                    :disabled="ownModel"
+                    v-show="!ownModel"
                     label="Rotated Angles"
                   ></v-switch>
                   <v-row v-show="rotatedAngles">
@@ -171,25 +214,37 @@
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=material.density
-                              label="Density"
-                              outlined></v-text-field>
-                          </v-col>
-                          <!-- <v-col class="textfield-col">
-                            <v-text-field 
-                              v-model=material.bulkModulus
-                              label="Bulk Modulus"
-                              outlined></v-text-field>
-                          </v-col> -->
-                          <v-col class="textfield-col">
-                            <v-text-field 
-                              v-model=material.youngsModulus
-                              label="Young's Modulus"
+                              :label=materialKeys.density
                               outlined></v-text-field>
                           </v-col>
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=material.poissonsRatio
-                              label="Poisson's Ratio"
+                              :label=materialKeys.poissonsRatio
+                              clearable
+                              outlined></v-text-field>
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col class="textfield-col">
+                            <v-text-field 
+                              v-model=material.bulkModulus
+                              :label=materialKeys.bulkModulus
+                              clearable
+                              outlined></v-text-field>
+                          </v-col>
+                          <v-col class="textfield-col">
+                            <v-text-field 
+                              v-model=material.shearModulus
+                              :label=materialKeys.shearModulus
+                              clearable
+                              outlined></v-text-field>
+                          </v-col>
+                          <v-col class="textfield-col">
+                            <v-text-field 
+                              v-model=material.youngsModulus
+                              :label=materialKeys.youngsModulus
+                              clearable
                               outlined></v-text-field>
                           </v-col>
                         </v-row>
@@ -302,22 +357,25 @@
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=damage.criticalStretch
-                              :rules="[rules.required, rules.float]"
+                              :rules="[rules.float]"
                               label="Critical Stretch"
+                              clearable
                               outlined></v-text-field>
                           </v-col>
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=damage.criticalEnergy
-                              :rules="[rules.required, rules.float]"
+                              :rules="[rules.float]"
                               label="Critical Energy"
+                              clearable
                               outlined></v-text-field>
                           </v-col>
                           <v-col class="textfield-col">
                             <v-text-field 
                               v-model=damage.interblockdamageEnergy
-                              :rules="[rules.required, rules.float]"
+                              :rules="[rules.float]"
                               label="Interblock Damage Energy"
+                              clearable
                               outlined></v-text-field>
                           </v-col>
                         </v-row>
@@ -467,7 +525,13 @@
                         <v-col class="textfieldlist-col"
                           cols="12"
                           sm="2">
+                          <v-text-field
+                            v-if="ownModel"
+                            v-model=boundaryCondition.nodeSet
+                            :label=boundaryKeys.nodeSet
+                            outlined></v-text-field>
                           <v-select
+                            v-if="!ownModel"
                             :items=blocks
                             item-text="id"
                             v-model=boundaryCondition.blockId
@@ -727,6 +791,7 @@
                         <v-text-field 
                           v-model="solver.initialTime"
                           label="Initial Time"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -735,6 +800,7 @@
                         <v-text-field 
                           v-model="solver.finalTime"
                           label="Final Time"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -762,6 +828,7 @@
                         <v-text-field 
                           v-model="solver.safetyFactor"
                           label="Safety Factor"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -770,6 +837,7 @@
                         <v-text-field 
                           v-model="solver.numericalDamping"
                           label="Numerical Damping"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                     </v-row>
@@ -798,6 +866,7 @@
                         <v-text-field 
                           v-model="solver.numberofLoadSteps"
                           label="Number of Load Steps"
+                          :rules="[rules.required, rules.int]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -806,6 +875,7 @@
                         <v-text-field 
                           v-model="solver.maxSolverIterations"
                           label="Max Solver Iterations"
+                          :rules="[rules.required, rules.int]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -814,6 +884,7 @@
                         <v-text-field 
                           v-model="solver.relativeTolerance"
                           label="Relative Tolerance"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -880,6 +951,7 @@
                         <v-text-field 
                           v-model="solver.verlet.safetyFactor"
                           label="Safety Factor"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -888,6 +960,7 @@
                         <v-text-field 
                           v-model="solver.verlet.numericalDamping"
                           label="Numerical Damping"
+                          :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
                       <v-col class="textfield-col"
@@ -896,6 +969,7 @@
                         <v-text-field 
                           v-model="solver.verlet.outputFrequency"
                           label="Output Frequency"
+                          :rules="[rules.required, rules.int]"
                           outlined></v-text-field>
                       </v-col>
                     </v-row>
@@ -1217,13 +1291,13 @@
               <v-dialog
                 v-model="dialogDeleteData"
                 persistent
-                max-width="400"
+                max-width="500"
               >
                   <v-card>
                     <v-card-title class="text-h5">
                       Delete Data
                     </v-card-title>
-                    <v-card-text>Do you want to delete the selected Model data or all User data?</v-card-text>
+                    <v-card-text>Do you want to delete the selected Model data, all Cookies or all User data?</v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn
@@ -1232,6 +1306,13 @@
                         @click="dialogDeleteData = false, dialogDeleteModel = true"
                       >
                         Model data
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="dialogDeleteData = false, dialogDeleteCookies = true"
+                      >
+                        Cookies
                       </v-btn>
                       <v-btn
                         color="green darken-1"
@@ -1289,11 +1370,41 @@
                 <span>Delete User Data</span>
               </v-tooltip> -->
     
+                <v-dialog
+                v-model="dialogDeleteCookies"
+                persistent
+                max-width="400"
+                >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Delete User Data
+                    </v-card-title>
+                    <v-card-text>Are you sure, you want to delete all Cookies?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="deleteCookies"
+                      >
+                        Yes
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogDeleteCookies = false"
+                      >
+                        No
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
+    
               <v-dialog
                 v-model="dialogDeleteUserData"
                 persistent
                 max-width="400"
-              >
+                >
                   <v-card>
                     <v-card-title class="text-h5">
                       Delete User Data
@@ -1407,10 +1518,20 @@
                   <vtk-algorithm 
                     vtkClass="vtkSphereSource" 
                     :state="{ phiResolution: resolution, thetaResolution: resolution, radius: radius}" 
-                    port=1
+                    :port=1
                   />
                 </vtk-glyph-representation>
               </vtk-view>
+
+              <!-- <vtk-view
+                v-if="viewId==1"
+                ref="view"
+                :background="[45/255, 45/255, 45/255]">
+                <vtk-geometry-representation>
+                  <vtk-reader vtkClass="vtkOBJReader" :url="vtkFile" />
+                </vtk-geometry-representation>
+              </vtk-view> -->
+
               <Plotly v-if="viewId==2" 
                 :data="plotData" 
                 :layout="plotLayout" 
@@ -1434,7 +1555,7 @@
             <!-- <v-container> -->
             <v-subheader>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewInputFile">
+                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewInputFile(false)">
                       <i class="fas fa-sync-alt"></i>
                   </v-btn>
                 </template>

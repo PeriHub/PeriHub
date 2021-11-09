@@ -17,6 +17,7 @@ class ModelWriter(object):
         self.outputDict = modelClass.outputDict
         self.solverDict = modelClass.solverDict
         self.bondfilters = modelClass.bondfilters
+        self.DiscType = modelClass.DiscType
         self.TwoD = modelClass.TwoD
         if not os.path.exists('Output'):
             os.mkdir('Output')   

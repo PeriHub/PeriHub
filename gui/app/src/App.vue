@@ -28,7 +28,7 @@
           <v-btn
             class="my-btn"
             v-bind="attrs"
-            href="https://gitlab.dlr.de/AG-SATT/modelgenerator"
+            href="https://gitlab.dlr.de/fa_sw/perihub"
             target="_blank"
             color="primary"
             v-on="on"
