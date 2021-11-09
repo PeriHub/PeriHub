@@ -1,8 +1,5 @@
 # PeriHub
 PeriHub enables the generation, editing, execution and evaluation of standard peridynamic models
-
-* Mirror: https://gitlab-test.dlr.de/garb_ma/PyCODAC
-* Image: https://gitlab-test.dlr.de/garb_ma/pycodac/container_registry
 ## FA-Services
 ToDo
 ## API
