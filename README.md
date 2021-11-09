@@ -19,28 +19,19 @@ Create a .env file an save your git username and token, in order to get the peri
 echo "GITLAB_TOKEN=<YourToken>
 GITLAB_USER=<YourUsername>" >> .env
 ```
-Go into the netcdf folder.
+Go into the netcdf folder and build the netcdf image.
 ```
 cd ../netcdf
-```
-Build the netcdf image.
-```
 docker build . -t netcdf
 ```
-Go into the trilinos folder.
+Go into the trilinos folder and build the trilinos image.
 ```
 cd ../trilinos
-```
-Build the trilinos image.
-```
 docker build . -t trilinos
 ```
-Go back to perihub folder.
+Go back to perihub folder and run Docker-Compose.
 ```
 cd ..
-```
-Run Docker-Compose.
-```
 docker-compose up
 ```
 ## Contact
