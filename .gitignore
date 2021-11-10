@@ -11,12 +11,6 @@ id_rsa_*
 # Model Files
 Files/
 Output/
-#OutputFiltered/
-*.png
-**/ParaviewReader/Input/
-
-#ParaView
-ParaView-5.9.1*
 
 # Vagrant
 .vagrant/
