@@ -9,7 +9,7 @@ from GIICmodel.GIICmodel import GIICmodel
 from DCBmodel.DCBmodel import DCBmodel
 from Verification.verificationModels import VerificationModels
 from Dogbone.Dogbone import Dogbone
-from OwnModel.OwnModel import OwnModel
+from ownModel.ownModel import OwnModel
 from support.sbatchCreator  import SbatchCreator
 from support.fileHandler  import fileHandler
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
@@ -581,7 +581,9 @@ class ModelControl(object):
         ' && python3 /peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
         ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
         # ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
-        ssh.exec_command(command)
+        stdin, stdout, stderr = ssh.exec_command(command)
+        stdout.channel.set_combine_stderr(True)
+        output = stdout.readlines()
         ssh.close()
 
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
