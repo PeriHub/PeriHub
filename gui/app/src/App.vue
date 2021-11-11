@@ -64,6 +64,51 @@
     <v-main>
       <Home />
     </v-main>
+    
+    <v-footer
+      color="#464646"
+      padless
+    >
+      <v-row
+        justify="center"
+        no-gutters
+      >
+        <v-btn
+          href="https://www.dlr.de/fa"
+          color="white"
+          text
+          rounded
+          class="my-2"
+        >
+          ABOUT US 
+        </v-btn>
+        <v-btn
+          href="https://leichtbau.dlr.de/"
+          color="white"
+          text
+          rounded
+          class="my-2"
+        >
+          BLOG
+        </v-btn>
+        <v-btn
+          href="mailto:Jan-Timo.Hesse@dlr.de"
+          color="white"
+          text
+          rounded
+          class="my-2"
+        >
+          CONTACT US
+        </v-btn>
+        <v-col
+          class="lighten-2 py-2 text-center white--text"
+          color="#464646"
+          cols="12"
+        >
+          {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Jan-Timo Hesse | Christian Willberg
+        </v-col>
+      </v-row>
+    </v-footer>
   </v-app>
 </template>
 

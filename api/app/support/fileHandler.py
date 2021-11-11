@@ -156,11 +156,14 @@ class fileHandler(object):
         if not os.path.exists(localpath):
             return ModelName + ' has not been created yet'
 
-        if ToOrFrom:
-            shutil.copy(os.path.join(localpath,Filename), os.path.join(remotepath,Filename))
-        else:
-            shutil.copy(os.path.join(remotepath,Filename), os.path.join(localpath,Filename))
-        
+        try:
+            if ToOrFrom:
+                shutil.copy(os.path.join(localpath,Filename), os.path.join(remotepath,Filename))
+            else:
+                shutil.copy(os.path.join(remotepath,Filename), os.path.join(localpath,Filename))
+        except:
+            return 'File not found'
+
         return 'Success'
 
     def copyResultsFromCluster(username, ModelName, Cluster, allData):

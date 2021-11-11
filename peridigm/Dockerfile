@@ -46,9 +46,9 @@ RUN cmake \
     -D CMAKE_CXX_COMPILER:STRING="mpicxx" \
     -D USE_DAKOTA:BOOL=OFF \
     ..; \
-    make && make install; \
-    cd ..; \
-    rm -rf peridigm
+    make && make install; 
+    # cd ..; \
+    # rm -rf peridigm
 
 VOLUME /output
 WORKDIR /output

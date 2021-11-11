@@ -53,7 +53,7 @@ class SbatchCreator(object):
     def createSh(self):
         # if(self.tasks==1):
         string='#!/bin/sh' + '\n'
-        string += '/peridigm/build/src/Peridigm ' + self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
+        string += '/usr/local/peridigm/bin/Peridigm ' + self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
         string += 'pid=`cat pid.txt` \n'
         string += 'tail --pid=$pid -f /dev/null \n'
         string += 'rm pid.txt \n'

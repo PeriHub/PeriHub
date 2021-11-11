@@ -922,8 +922,14 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       },
       getCurrentData() {
         this.panel = JSON.parse(this.$cookie.get('panel'));
-        this.ownModel = this.$cookie.get('ownModel');
-        this.translated = this.$cookie.get('translated');
+        let data = this.$cookie.get('ownModel');
+        if(data!=null) {
+          this.ownModel = data;
+        }
+        data = this.$cookie.get('translated');
+        if(data!=null) {
+          this.translated = data;
+        }
         this.cookieToJson("data")
         this.cookieToJson("materials", true)
         this.cookieToJson("damages")
@@ -987,9 +993,15 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           headers: headersList,
           }
 
-        await axios.request(reqOptions).then(response => (
+        await axios.request(reqOptions)
+        .then(response => (
           this.pointString = response.data[0].split(','),
           this.blockIdString = response.data[1].split(',')))
+        .catch(error => (
+          this.modelLoading = false,
+          this.message = error,
+          this.snackbar = true
+        ));
         
         if (!this.ownModel){
           this.dx = this.height/(2*parseInt(this.discretization/2)+1)
