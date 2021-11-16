@@ -1,5 +1,13 @@
 FROM trilinos 
 
+ARG PERIDEV
+ENV PERIDEV $PERIDEV
+# ARG if [ "$EXTERNAL" = "False" ]; then \
+#         GITLAB_USER; GITLAB_TOKEN;\
+#     fi
+# ENV if [ "$EXTERNAL" = "False" ]; then \
+#         GITLAB_USER $GITLAB_USER; GITLAB_TOKEN $GITLAB_TOKEN;\
+#     fi
 ARG GITLAB_USER
 ENV GITLAB_USER $GITLAB_USER
 ARG GITLAB_TOKEN
@@ -14,7 +22,10 @@ RUN apt-get -yq install git
 RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
-RUN git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/AG-SATT/peridigmDev.git peridigm
+RUN if [ "$PERIDEV" = "True" ]; then \
+        git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/AG-SATT/peridigmDev.git peridigm; else \
+        git clone https://github.com/PeriDoX/peridigm.git peridigm; \
+    fi
 
 # #Build Peridigm
 # RUN mkdir peridigm
@@ -35,9 +46,9 @@ RUN cmake \
     -D CMAKE_CXX_COMPILER:STRING="mpicxx" \
     -D USE_DAKOTA:BOOL=OFF \
     ..; \
-    make && make install; \
-    cd ..; \
-    rm -rf peridigm
+    make && make install; 
+    # cd ..; \
+    # rm -rf peridigm
 
 VOLUME /output
 WORKDIR /output

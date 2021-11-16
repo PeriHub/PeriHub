@@ -9,7 +9,7 @@ from GIICmodel.GIICmodel import GIICmodel
 from DCBmodel.DCBmodel import DCBmodel
 from Verification.verificationModels import VerificationModels
 from Dogbone.Dogbone import Dogbone
-from OwnModel.OwnModel import OwnModel
+from ownModel.ownModel import OwnModel
 from support.sbatchCreator  import SbatchCreator
 from support.fileHandler  import fileHandler
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
@@ -472,7 +472,7 @@ class ModelControl(object):
         pointString=''
         blockIdString=''
         if OwnModel:
-            # try:
+            try:
                 with open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.g.ascii', 'r') as f:
                         data = f.read()
                         numOfBlocks = re.findall('num_el_blk\s=\s\d*\s;', data)
@@ -492,8 +492,8 @@ class ModelControl(object):
                             
                 response=[pointString.rstrip(pointString[-1]),blockIdString.rstrip(blockIdString[-1])]
                 return response
-            # except:
-            #     raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+            except:
+                raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
         else:
             firstRow=True 
             maxBlockId = 1
@@ -567,8 +567,12 @@ class ModelControl(object):
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
         
-        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g.ascii', True)
-        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.peridigm', True)
+        if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g.ascii', True) != 'Success':
+            return ModelName + ' can not be translated'
+
+        if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.peridigm', True) != 'Success':
+            return ModelName + ' can not be translated'
+
 
         # if returnString!='Success':
         #     return returnString
@@ -581,7 +585,9 @@ class ModelControl(object):
         ' && python3 /peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
         ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
         # ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
-        ssh.exec_command(command)
+        stdin, stdout, stderr = ssh.exec_command(command)
+        stdout.channel.set_combine_stderr(True)
+        output = stdout.readlines()
         ssh.close()
 
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)

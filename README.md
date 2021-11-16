@@ -31,7 +31,7 @@ Go into the trilinos folder and build the trilinos image.
 cd ../trilinos
 docker build . -t trilinos
 ```
-Go back to perihub folder and run Docker-Compose.
+Go back to perihub folder and run docker-compose.
 ```
 cd ..
 docker-compose up
