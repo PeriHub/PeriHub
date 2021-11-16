@@ -1,11 +1,17 @@
 # PeriHub
 PeriHub enables the generation, editing, execution and evaluation of standard peridynamic models
 
+### Generate model
 ![](doc/gif/generateModel.gif)
+### View generated mesh
 ![](doc/gif/viewMesh.gif)
+### Edit input deck
 ![](doc/gif/editInputDeck.gif)
+### Add materials or damage models
 ![](doc/gif/addMaterialDamage.gif)
+### Submit model
 ![](doc/gif/runModel.gif)
+### Analyse results
 ![](doc/gif/analyseResults.gif)
 
 ## FA-Services
