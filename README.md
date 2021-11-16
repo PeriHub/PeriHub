@@ -17,7 +17,9 @@ cd perihub
 Create a .env file an save your git username and token, in order to get the peridigm code.
 ```
 echo "GITLAB_TOKEN=<YourToken>
-GITLAB_USER=<YourUsername>" >> .env
+GITLAB_USER=<YourUsername>
+PERIDEV=False
+EXTERNAL=False" >> .env
 ```
 Go into the netcdf folder and build the netcdf image.
 ```
