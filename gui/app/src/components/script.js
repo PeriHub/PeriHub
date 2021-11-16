@@ -924,11 +924,11 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         this.panel = JSON.parse(this.$cookie.get('panel'));
         let data = this.$cookie.get('ownModel');
         if(data!=null) {
-          this.ownModel = data;
+          this.ownModel = (data == 'true');
         }
         data = this.$cookie.get('translated');
         if(data!=null) {
-          this.translated = data;
+          this.translated = (data == 'true');
         }
         this.cookieToJson("data")
         this.cookieToJson("materials", true)

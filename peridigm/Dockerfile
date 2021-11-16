@@ -1,7 +1,7 @@
 FROM trilinos 
 
-ARG EXTERNAL
-ENV EXTERNAL $EXTERNAL
+ARG PERIDEV
+ENV PERIDEV $PERIDEV
 # ARG if [ "$EXTERNAL" = "False" ]; then \
 #         GITLAB_USER; GITLAB_TOKEN;\
 #     fi
@@ -22,7 +22,7 @@ RUN apt-get -yq install git
 RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
-RUN if [ "$EXTERNAL" = "False" ]; then \
+RUN if [ "$PERIDEV" = "True" ]; then \
         git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/AG-SATT/peridigmDev.git peridigm; else \
         git clone https://github.com/PeriDoX/peridigm.git peridigm; \
     fi

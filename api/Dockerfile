@@ -1,6 +1,9 @@
 FROM openjdk:slim
 COPY --from=python:3.7 / /
 
+ARG EXTERNAL
+ENV EXTERNAL $EXTERNAL
+
 RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles pyevtk python-multipart meshio[all]
 # pysftp 
 
