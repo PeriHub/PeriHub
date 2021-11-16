@@ -142,7 +142,7 @@
                     class="textfield-col"
                     v-model="horizon"
                     v-show="ownModel"
-                    :rules="[rules.required, rules.float]"
+                    :rules="[rules.required, rules.posFloat]"
                     label="Horizon"
                     outlined></v-text-field>
                   <v-switch

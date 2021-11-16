@@ -382,6 +382,10 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
             const pattern = /^[A-Za-z0-9_]{1,15}/
             return pattern.test(value) || 'Invalid name'
           },
+          posFloat: value => {
+            const pattern = /^((?!0)|(?=0+\.))(\d*\.)?\d+(e[-]\d+)?$|^0$/
+            return pattern.test(value) || 'Invalid number'
+          },
           float: value => {
             const pattern = /^((?!0)|[-]|(?=0+\.))(\d*\.)?\d+(e[-]\d+)?$|^0$/
             return pattern.test(value) || 'Invalid number'
@@ -714,7 +718,12 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
             for(var j = 0; j < subNames.length; j++) {
               var key = this.getKeyByValue(paramKeys, subNames[j])
               if(subNames[j]=='Horizon'){
-                this.horizon = paramObject[names[i]][subNames[j]]
+                if(parseFloat(paramObject[names[i]][subNames[j]])==paramObject[names[i]][subNames[j]]){
+                  this.horizon = paramObject[names[i]][subNames[j]]
+                }
+                else{
+                  this.horizon = -1.0
+                }
               }
               this[paramName][i][key] = paramObject[names[i]][subNames[j]]
             }
@@ -914,6 +923,9 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           this.$cookie.set(name, data, Infinity, '/app');
         }
         else{
+          for(var i = this[name].length; i<100; i++){
+            this.$cookie.delete(name+i)
+          }
           for(var id = 0; id < this[name].length; id++) {
             const subdata = "{\"" + name + id + "\": " + JSON.stringify(this[name][id])+"}";
             this.$cookie.set(name + id, subdata, Infinity, '/app');
@@ -1388,6 +1400,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       },
       removeBlock(index) {
         this.blocks.splice(index, 1)
+        this.$cookie.delete("blocks" + index);
       },
       addCondition() {
         
