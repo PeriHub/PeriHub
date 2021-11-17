@@ -1,6 +1,6 @@
 <v-container fluid style="height: 100%;">
     <splitpanes>
-      <pane min-size="15" style="height: 94vh">
+      <pane min-size="15" style="height: 90vh">
         <v-subheader>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -1083,7 +1083,7 @@
         <!-- </v-container> -->
       </pane>
       <pane min-size="40">
-        <splitpanes horizontal style="height: 94vh">
+        <splitpanes horizontal style="height: 90vh">
           <pane size="55">
              <!-- <v-container> -->
             
@@ -1435,7 +1435,7 @@
             <v-card class="my-card"
             title='ModelView'
             elevation="0"
-            height=88%
+            height=100%
             width=100%
             margin=10px
             :loading="modelLoading"
@@ -1600,10 +1600,10 @@
             <v-card class="my-card"
             title='Editor'
             elevation="0"
-            height=85%
-            width=100%
+            margin-bottom= -17px
             :loading="textLoading"
             flex
+            margin=10px
             >
               <template slot="progress">
                 <v-progress-linear
@@ -1621,6 +1621,7 @@
                   :highlight="highlighter"
                   line-numbers
                 ></prism-editor>
+                <!-- style="margin-left: 39px; margin-bottom: -17px; border-right-width: 33px; min-height: 2547px; padding-right: 9px; padding-bottom: 0px;" -->
               <!-- <v-textarea
                 v-model="yamlOutput"
                 auto-grow

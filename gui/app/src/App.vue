@@ -67,7 +67,7 @@
     
     <v-footer
       color="#464646"
-      padless
+      app
     >
       <v-row
         justify="center"
@@ -105,7 +105,7 @@
           color="#464646"
           cols="12"
         >
-          {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Jan-Timo Hesse | Christian Willberg
+          {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Falk Heinecke | Jan-Timo Hesse | Christian Willberg
         </v-col>
       </v-row>
     </v-footer>
@@ -155,7 +155,11 @@ export default {
   margin-right: 5px;
 }
 .v-app {
-  height: 600px;
+  height: 100%;
   width: 100%;
+}
+.v-footer {
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 </style>
