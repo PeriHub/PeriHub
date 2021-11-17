@@ -895,9 +895,9 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
       },
       saveCurrentData() {
-        this.$cookie.set('panel', JSON.stringify(this.panel), Infinity, '/app');
-        this.$cookie.set('ownModel', this.ownModel, Infinity, '/app');
-        this.$cookie.set('translated', this.translated, Infinity, '/app');
+        this.$cookie.set('panel', JSON.stringify(this.panel), { expires: '1M' }, '/app');
+        this.$cookie.set('ownModel', this.ownModel, { expires: '1M' }, '/app');
+        this.$cookie.set('translated', this.translated, { expires: '1M' }, '/app');
         const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
                       "\"length\":" + this.length + ",\n" +
                       "\"width\":" + this.width + ",\n" +
@@ -907,7 +907,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
                       "\"twoDimensional\":" + this.twoDimensional + ",\n" +
                       "\"rotatedAngles\":" + this.rotatedAngles + ",\n" +
                       "\"angles\":[" + this.angles + "]}";
-        this.$cookie.set('data', data, Infinity, '/app');
+        this.$cookie.set('data', data, { expires: '1M' }, '/app');
         this.jsonToCookie("materials", true)
         this.jsonToCookie("damages")
         this.jsonToCookie("blocks", true)
@@ -920,7 +920,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       jsonToCookie(name, split = false) {
         if(!split){
           const data = "{\"" + name + "\": " + JSON.stringify(this[name])+"}";
-          this.$cookie.set(name, data, Infinity, '/app');
+          this.$cookie.set(name, data, { expires: '1M' }, '/app');
         }
         else{
           for(var i = this[name].length; i<100; i++){
@@ -928,7 +928,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           }
           for(var id = 0; id < this[name].length; id++) {
             const subdata = "{\"" + name + id + "\": " + JSON.stringify(this[name][id])+"}";
-            this.$cookie.set(name + id, subdata, Infinity, '/app');
+            this.$cookie.set(name + id, subdata, { expires: '1M' }, '/app');
           }
         }
       },
