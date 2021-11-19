@@ -8,10 +8,6 @@ ENV PERIDEV $PERIDEV
 # ENV if [ "$EXTERNAL" = "False" ]; then \
 #         GITLAB_USER $GITLAB_USER; GITLAB_TOKEN $GITLAB_TOKEN;\
 #     fi
-ARG GITLAB_USER
-ENV GITLAB_USER $GITLAB_USER
-ARG GITLAB_TOKEN
-ENV GITLAB_TOKEN $GITLAB_TOKEN
 
 ENV HOME /root
 
@@ -23,7 +19,7 @@ RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
 RUN if [ "$PERIDEV" = "True" ]; then \
-        git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/AG-SATT/peridigmDev.git peridigm; else \
+        git clone https://gitlab.dlr.de/fa_sw/peridynamik/peridigmDev.git peridigm; else \
         git clone https://github.com/PeriDoX/peridigm.git peridigm; \
     fi
 
