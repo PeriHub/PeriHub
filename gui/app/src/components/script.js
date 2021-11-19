@@ -415,7 +415,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/viewInputFile",
+          url: "http://localhost:6020/viewInputFile",
           params: {ModelName: this.modelNameSelected,
                   FileType: this.solver.filetype},
           method: "GET",
@@ -440,7 +440,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           // 'Access-Control-Allow-Origin': '*'
           }
           let reqOptions = {
-            url: "http://localhost:8000/generateModel",
+            url: "http://localhost:6020/generateModel",
             params: {ModelName: this.modelNameSelected,
                     ownModel: this.ownModel,
                     translated: this.translated,
@@ -558,7 +558,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/uploadfiles",
+          url: "http://localhost:6020/uploadfiles",
           params: {ModelName: this.modelNameSelected},
           data: formData,
           method: "POST",
@@ -811,7 +811,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/translateModel",
+          url: "http://localhost:6020/translateModel",
           params: {ModelName: this.modelNameSelected,
                    Filetype: filetype},
           data: formData,
@@ -998,7 +998,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         this.viewId = 1
 
         let reqOptions = {
-          url: "http://localhost:8000/getPointData",
+          url: "http://localhost:6020/getPointData",
           params: {ModelName: this.modelNameSelected,
                    OwnModel: this.ownModel},
           method: "GET",
@@ -1058,7 +1058,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       //   'Cache-Control': 'no-cache'
       //   }
       //   let reqOptions = {
-      //     url: "http://localhost:8000/copyModelToCluster",
+      //     url: "http://localhost:6020/copyModelToCluster",
       //     params: {ModelName: this.modelNameSelected,
       //             Cluster: this.job.cluster},
       //     method: "GET",
@@ -1077,7 +1077,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/runModel",
+          url: "http://localhost:6020/runModel",
           params: {ModelName: this.modelNameSelected,
                   FileType: this.solver.filetype,},
           data: JSON.parse("{\"Param\":" + "{\"Job\": " + JSON.stringify(this.job)+",\n" +
@@ -1096,7 +1096,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/cancelJob",
+          url: "http://localhost:6020/cancelJob",
           params: {ModelName: this.modelNameSelected,
                   Cluster: this.job.cluster,},
           method: "POST",
@@ -1112,7 +1112,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/getModel",
+          url: "http://localhost:6020/getModel",
           params: {ModelName: this.modelNameSelected},
           method: "GET",
           responseType: 'blob',
@@ -1142,7 +1142,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/getResults",
+          url: "http://localhost:6020/getResults",
           params: {ModelName: this.modelNameSelected,
                   Cluster: this.job.cluster,
                   allData: allData},
@@ -1155,7 +1155,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         // // this.snackbar=true
 
         // reqOptions = {
-        //   url: "http://localhost:8000/getResults",
+        //   url: "http://localhost:6020/getResults",
         //   params: {ModelName: this.modelNameSelected},
         //   method: "GET",
         //   responseType: 'blob',
@@ -1199,7 +1199,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
             
 
         let reqOptions = {
-          url: "http://localhost:8000/getPlot",
+          url: "http://localhost:6020/getPlot",
           params: {ModelName: this.modelNameSelected,
                    Cluster: this.job.cluster,
                    OutputName: OutputName},
@@ -1237,7 +1237,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/getImage",
+          url: "http://localhost:6020/getImage",
           params: {ModelName: this.modelNameSelected,
                    Cluster: this.job.cluster,
                    Variable: Variable,
@@ -1279,7 +1279,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/getLogFile",
+          url: "http://localhost:6020/getLogFile",
           params: {ModelName: this.modelNameSelected,
                   Cluster: this.job.cluster},
           method: "GET",
@@ -1293,7 +1293,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       },
       writeInputFile() {
         let reqOptions = {
-          url: "http://localhost:8000/writeInputFile",
+          url: "http://localhost:6020/writeInputFile",
           params: {ModelName: this.modelNameSelected,
                   InputString: this.textOutput,
                   FileType: this.solver.filetype},
@@ -1310,7 +1310,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/deleteModel",
+          url: "http://localhost:6020/deleteModel",
           params: {ModelName: this.modelNameSelected},
           method: "POST",
           headers: headersList,
@@ -1319,7 +1319,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         axios.request(reqOptions).then(response => (this.message = response.data))
 
         reqOptions = {
-          url: "http://localhost:8000/deleteModelFromCluster",
+          url: "http://localhost:6020/deleteModelFromCluster",
           params: {ModelName: this.modelNameSelected,
                   Cluster: this.job.cluster},
           method: "POST",
@@ -1337,7 +1337,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/deleteUserData",
+          url: "http://localhost:6020/deleteUserData",
           params: {checkDate: false},
           method: "POST",
           headers: headersList,
@@ -1345,7 +1345,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           
         axios.request(reqOptions).then(response => (this.message = response.data))
         reqOptions = {
-          url: "http://localhost:8000/deleteUserDataFromCluster",
+          url: "http://localhost:6020/deleteUserDataFromCluster",
           params: {Cluster: this.job.cluster,
                   checkDate: false},
           method: "POST",

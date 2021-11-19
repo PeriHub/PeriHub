@@ -54,8 +54,10 @@ app = FastAPI()
 
 origins = [
     "http://localhost",
-    "http://localhost:8080",
-    "https://localhost:8080",
+    "http://localhost:6010",
+    "https://localhost:6010",
+    "http://fa-jenkins2:6010",
+    "https://fa-jenkins2:6010",
 ]
 
 app.add_middleware(
