@@ -17,6 +17,12 @@ compose_job:
   script:
     - cd /mnt/c/Users/f_testpa/Desktop/perihub
     - ls
+    - cat api/Dockerfile
+    - cat gui/Dockerfile
+    - cat peridigm/Dockerfile
+    - cat paraview/Dockerfile
+    - cat cron/Dockerfile
+    - cat docker-compose.yml
     - docker-compose up
   dependencies:
     - pull_job
