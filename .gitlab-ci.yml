@@ -18,6 +18,6 @@ compose_job:
     - cd /mnt/c/Users/f_testpa/Desktop/perihub
     - ls
     - cat docker-compose.yml
-    - docker-compose up --build -d
+    - docker-compose up --build -d periHubApi
   dependencies:
     - pull_job
