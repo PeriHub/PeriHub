@@ -1,6 +1,6 @@
-<v-container fluid style="height: 100%;">
-    <splitpanes>
-      <pane min-size="15" style="height: 94vh">
+<v-container fluid style="height:100%;">
+    <splitpanes style="height:100%;">
+      <pane min-size="15" style="height:100%;">
         <v-subheader>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -78,7 +78,7 @@
                 height=100vh
               > -->
         <!-- <v-container> -->
-          <v-list style="height: 90vh; overflow-y: scroll">
+          <v-list style="height: 100%; overflow-y: scroll">
       <!-- <v-list-item-group> -->
         <!-- <v-list-item> -->
         <v-card>
@@ -142,7 +142,7 @@
                     class="textfield-col"
                     v-model="horizon"
                     v-show="ownModel"
-                    :rules="[rules.required, rules.float]"
+                    :rules="[rules.required, rules.posFloat]"
                     label="Horizon"
                     outlined></v-text-field>
                   <v-switch
@@ -1079,11 +1079,11 @@
         </v-card>
               <!-- </v-list-item> -->
       <!-- </v-list-item-group> -->
-    </v-list>
+          </v-list>
         <!-- </v-container> -->
       </pane>
-      <pane min-size="40">
-        <splitpanes horizontal style="height: 94vh">
+      <pane min-size="40" style="height:100%;">
+        <splitpanes horizontal style="height: 100%">
           <pane size="55">
              <!-- <v-container> -->
             
@@ -1435,7 +1435,7 @@
             <v-card class="my-card"
             title='ModelView'
             elevation="0"
-            height=88%
+            height=100%
             width=100%
             margin=10px
             :loading="modelLoading"
@@ -1600,10 +1600,10 @@
             <v-card class="my-card"
             title='Editor'
             elevation="0"
-            height=85%
-            width=100%
+            margin-bottom= -17px
             :loading="textLoading"
             flex
+            margin=10px
             >
               <template slot="progress">
                 <v-progress-linear
@@ -1621,6 +1621,7 @@
                   :highlight="highlighter"
                   line-numbers
                 ></prism-editor>
+                <!-- style="margin-left: 39px; margin-bottom: -17px; border-right-width: 33px; min-height: 2547px; padding-right: 9px; padding-bottom: 0px;" -->
               <!-- <v-textarea
                 v-model="yamlOutput"
                 auto-grow

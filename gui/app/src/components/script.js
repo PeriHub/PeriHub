@@ -61,8 +61,8 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           { id: 1, Name: 'PMMA', 
             MatType: 'Linear Elastic Correspondence', 
             density: 1.4e5, 
-            bulkModulus: 0.0,
-            shearModulus: 0.0,
+            bulkModulus: null,
+            shearModulus: null,
             youngsModulus: 2.997e9,
             poissonsRatio: 0.3,
             tensionSeparation: false,
@@ -99,11 +99,12 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           { id: 2, Name: 'PMMAElast', 
           MatType: 'Linear Elastic Correspondence', 
           density: 1.4e5, 
-          bulkModulus: 630000.0,
+          bulkModulus: null,
+          shearModulus: null,
           youngsModulus: 2.997e9,
           poissonsRatio: 0.3,
           tensionSeparation: false,
-          nonLinear: false,
+          nonLinear: true,
           planeStress: true,
           materialSymmetry: 'Isotropic',
           stabilizatonType: 'Global Stiffness',
@@ -296,7 +297,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         },
         cluster: ['Cara', 'FA-Cluster', 'None'],
 
-
+        url: 'http://localhost:6020/',
         textOutput: '',
         pointString: [1,0,0],
         filteredPointString: [1,0,0],
@@ -382,6 +383,10 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
             const pattern = /^[A-Za-z0-9_]{1,15}/
             return pattern.test(value) || 'Invalid name'
           },
+          posFloat: value => {
+            const pattern = /^((?!0)|(?=0+\.))(\d*\.)?\d+(e[-]\d+)?$|^0$/
+            return pattern.test(value) || 'Invalid number'
+          },
           float: value => {
             const pattern = /^((?!0)|[-]|(?=0+\.))(\d*\.)?\d+(e[-]\d+)?$|^0$/
             return pattern.test(value) || 'Invalid number'
@@ -411,7 +416,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/viewInputFile",
+          url: this.url + "viewInputFile",
           params: {ModelName: this.modelNameSelected,
                   FileType: this.solver.filetype},
           method: "GET",
@@ -436,7 +441,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           // 'Access-Control-Allow-Origin': '*'
           }
           let reqOptions = {
-            url: "http://localhost:8000/generateModel",
+            url: this.url + "generateModel",
             params: {ModelName: this.modelNameSelected,
                     ownModel: this.ownModel,
                     translated: this.translated,
@@ -554,7 +559,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/uploadfiles",
+          url: this.url + "uploadfiles",
           params: {ModelName: this.modelNameSelected},
           data: formData,
           method: "POST",
@@ -714,7 +719,12 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
             for(var j = 0; j < subNames.length; j++) {
               var key = this.getKeyByValue(paramKeys, subNames[j])
               if(subNames[j]=='Horizon'){
-                this.horizon = paramObject[names[i]][subNames[j]]
+                if(parseFloat(paramObject[names[i]][subNames[j]])==paramObject[names[i]][subNames[j]]){
+                  this.horizon = paramObject[names[i]][subNames[j]]
+                }
+                else{
+                  this.horizon = -1.0
+                }
               }
               this[paramName][i][key] = paramObject[names[i]][subNames[j]]
             }
@@ -802,7 +812,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/translateModel",
+          url: this.url + "translateModel",
           params: {ModelName: this.modelNameSelected,
                    Filetype: filetype},
           data: formData,
@@ -886,9 +896,9 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
       },
       saveCurrentData() {
-        this.$cookie.set('panel', JSON.stringify(this.panel), Infinity, '/app');
-        this.$cookie.set('ownModel', this.ownModel, Infinity, '/app');
-        this.$cookie.set('translated', this.translated, Infinity, '/app');
+        this.$cookie.set('panel', JSON.stringify(this.panel), { expires: '1M' }, '/app');
+        this.$cookie.set('ownModel', this.ownModel, { expires: '1M' }, '/app');
+        this.$cookie.set('translated', this.translated, { expires: '1M' }, '/app');
         const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
                       "\"length\":" + this.length + ",\n" +
                       "\"width\":" + this.width + ",\n" +
@@ -898,7 +908,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
                       "\"twoDimensional\":" + this.twoDimensional + ",\n" +
                       "\"rotatedAngles\":" + this.rotatedAngles + ",\n" +
                       "\"angles\":[" + this.angles + "]}";
-        this.$cookie.set('data', data, Infinity, '/app');
+        this.$cookie.set('data', data, { expires: '1M' }, '/app');
         this.jsonToCookie("materials", true)
         this.jsonToCookie("damages")
         this.jsonToCookie("blocks", true)
@@ -911,12 +921,15 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       jsonToCookie(name, split = false) {
         if(!split){
           const data = "{\"" + name + "\": " + JSON.stringify(this[name])+"}";
-          this.$cookie.set(name, data, Infinity, '/app');
+          this.$cookie.set(name, data, { expires: '1M' }, '/app');
         }
         else{
+          for(var i = this[name].length; i<100; i++){
+            this.$cookie.delete(name+i)
+          }
           for(var id = 0; id < this[name].length; id++) {
             const subdata = "{\"" + name + id + "\": " + JSON.stringify(this[name][id])+"}";
-            this.$cookie.set(name + id, subdata, Infinity, '/app');
+            this.$cookie.set(name + id, subdata, { expires: '1M' }, '/app');
           }
         }
       },
@@ -986,7 +999,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         this.viewId = 1
 
         let reqOptions = {
-          url: "http://localhost:8000/getPointData",
+          url: this.url + "getPointData",
           params: {ModelName: this.modelNameSelected,
                    OwnModel: this.ownModel},
           method: "GET",
@@ -1046,7 +1059,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       //   'Cache-Control': 'no-cache'
       //   }
       //   let reqOptions = {
-      //     url: "http://localhost:8000/copyModelToCluster",
+      //     url: this.url + "copyModelToCluster",
       //     params: {ModelName: this.modelNameSelected,
       //             Cluster: this.job.cluster},
       //     method: "GET",
@@ -1065,7 +1078,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/runModel",
+          url: this.url + "runModel",
           params: {ModelName: this.modelNameSelected,
                   FileType: this.solver.filetype,},
           data: JSON.parse("{\"Param\":" + "{\"Job\": " + JSON.stringify(this.job)+",\n" +
@@ -1084,7 +1097,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/cancelJob",
+          url: this.url + "cancelJob",
           params: {ModelName: this.modelNameSelected,
                   Cluster: this.job.cluster,},
           method: "POST",
@@ -1100,7 +1113,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/getModel",
+          url: this.url + "getModel",
           params: {ModelName: this.modelNameSelected},
           method: "GET",
           responseType: 'blob',
@@ -1130,7 +1143,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/getResults",
+          url: this.url + "getResults",
           params: {ModelName: this.modelNameSelected,
                   Cluster: this.job.cluster,
                   allData: allData},
@@ -1143,7 +1156,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         // // this.snackbar=true
 
         // reqOptions = {
-        //   url: "http://localhost:8000/getResults",
+        //   url: this.url + "getResults",
         //   params: {ModelName: this.modelNameSelected},
         //   method: "GET",
         //   responseType: 'blob',
@@ -1187,7 +1200,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
             
 
         let reqOptions = {
-          url: "http://localhost:8000/getPlot",
+          url: this.url + "getPlot",
           params: {ModelName: this.modelNameSelected,
                    Cluster: this.job.cluster,
                    OutputName: OutputName},
@@ -1225,7 +1238,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/getImage",
+          url: this.url + "getImage",
           params: {ModelName: this.modelNameSelected,
                    Cluster: this.job.cluster,
                    Variable: Variable,
@@ -1267,7 +1280,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/getLogFile",
+          url: this.url + "getLogFile",
           params: {ModelName: this.modelNameSelected,
                   Cluster: this.job.cluster},
           method: "GET",
@@ -1281,7 +1294,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       },
       writeInputFile() {
         let reqOptions = {
-          url: "http://localhost:8000/writeInputFile",
+          url: this.url + "writeInputFile",
           params: {ModelName: this.modelNameSelected,
                   InputString: this.textOutput,
                   FileType: this.solver.filetype},
@@ -1298,7 +1311,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/deleteModel",
+          url: this.url + "deleteModel",
           params: {ModelName: this.modelNameSelected},
           method: "POST",
           headers: headersList,
@@ -1307,7 +1320,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         axios.request(reqOptions).then(response => (this.message = response.data))
 
         reqOptions = {
-          url: "http://localhost:8000/deleteModelFromCluster",
+          url: this.url + "deleteModelFromCluster",
           params: {ModelName: this.modelNameSelected,
                   Cluster: this.job.cluster},
           method: "POST",
@@ -1325,7 +1338,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         }
 
         let reqOptions = {
-          url: "http://localhost:8000/deleteUserData",
+          url: this.url + "deleteUserData",
           params: {checkDate: false},
           method: "POST",
           headers: headersList,
@@ -1333,7 +1346,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           
         axios.request(reqOptions).then(response => (this.message = response.data))
         reqOptions = {
-          url: "http://localhost:8000/deleteUserDataFromCluster",
+          url: this.url + "deleteUserDataFromCluster",
           params: {Cluster: this.job.cluster,
                   checkDate: false},
           method: "POST",
@@ -1388,6 +1401,7 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       },
       removeBlock(index) {
         this.blocks.splice(index, 1)
+        this.$cookie.delete("blocks" + index);
       },
       addCondition() {
         
@@ -1493,6 +1507,15 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
     },
     beforeMount() {
       this.getCurrentData()
+      if(process.env.VUE_APP_ROOT_API!=undefined)
+      {
+        console.log(this.url)
+        this.url = process.env.VUE_APP_ROOT_API
+        console.log(process.env.VUE_APP_ROOT_API)
+        console.log(this.url)
+      }
+      console.log(process.env.VUE_APP_ROOT_API)
+      console.log(this.url)
     },
     updated() {
       this.saveCurrentData()

@@ -1,7 +1,7 @@
 FROM trilinos 
 
-ARG PERIDEV
-ENV PERIDEV $PERIDEV
+ARG PERIDOX
+ENV PERIDOX $PERIDOX
 # ARG if [ "$EXTERNAL" = "False" ]; then \
 #         GITLAB_USER; GITLAB_TOKEN;\
 #     fi
@@ -22,9 +22,9 @@ RUN apt-get -yq install git
 RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
-RUN if [ "$PERIDEV" = "True" ]; then \
-        git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/AG-SATT/peridigmDev.git peridigm; else \
-        git clone https://github.com/PeriDoX/peridigm.git peridigm; \
+RUN if [ "$PERIDOX" = "True" ]; then \
+        git clone https://github.com/peridigm/peridigm.git peridigm; else \
+        git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/fa_sw/peridynamik/peridigmDev.git peridigm; \
     fi
 
 # #Build Peridigm
@@ -56,6 +56,10 @@ ENV LD_LIBRARY_PATH /usr/local/netcdf/lib
 ENV PATH /usr/local/peridigm/bin:$PATH
 ENV PATH /usr/local/trilinos/bin:$PATH
 
+# Allow mpirun as root, should only be used in container
+ENV OMPI_ALLOW_RUN_AS_ROOT 1
+ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM 1
+
 RUN mkdir /var/run/sshd
 
 RUN  echo 'root:root' | chpasswd
@@ -69,48 +73,3 @@ WORKDIR /app/
 
 EXPOSE 22
 CMD    ["/usr/sbin/sshd", "-D"]
-
-# RUN apt-get --no-install-recommends -y install vim mariadb-server mariadb-client supervisor
-
-# RUN set -x \
-#     && git clone https://github.com/SchedMD/slurm.git \
-#     && cd slurm \
-#     # && git checkout tags/$SLURM_TAG \
-#     && ./configure --enable-debug --enable-front-end --prefix=/usr \
-#        --sysconfdir=/etc/slurm --with-mysql_config=/usr/bin \
-#        --libdir=/usr/lib64 \
-#     && make install \
-#     && install -D -m644 etc/cgroup.conf.example /etc/slurm/cgroup.conf.example \
-#     && install -D -m644 etc/slurm.conf.example /etc/slurm/slurm.conf.example \
-#     && install -D -m644 etc/slurm.epilog.clean /etc/slurm/slurm.epilog.clean \
-#     && install -D -m644 etc/slurmdbd.conf.example /etc/slurm/slurmdbd.conf.example \
-#     && install -D -m644 contribs/slurm_completion_help/slurm_completion.sh /etc/profile.d/slurm_completion.sh \
-#     && cd .. \
-#     && rm -rf slurm \
-#     && groupadd -r slurm  \
-#     && useradd -r -g slurm slurm 
-
-# RUN mkdir -p /etc/sysconfig/slurm \
-#         /var/spool/slurmd \
-#         /var/run/slurmd \        
-#         /var/lib/slurmd \
-#         /var/log/slurm \
-# 	/var/run/supervisor \
-# 	/var/run/munge
-
-# RUN chown slurm:root /var/spool/slurmd \
-#         /var/run/slurmd \
-#         /var/lib/slurmd \
-#         /var/log/slurm  \
-#     && chown munge:root /var/run/munge 
-
-# COPY slurm.conf /etc/slurm-llnl/slurm.conf
-# COPY slurmdbd.conf /etc/slurm-llnl/slurmdbd.conf
-# COPY supervisord.conf /etc/
-
-# VOLUME ["/var/lib/mysql", "/var/lib/slurmd", "/var/spool/slurmd", "/var/log/slurm"]
-
-# COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-
-# ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-# CMD ["/bin/bash"]

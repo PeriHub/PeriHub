@@ -1,9 +1,22 @@
 # PeriHub
 PeriHub enables the generation, editing, execution and evaluation of standard peridynamic models
-## FA-Services
-ToDo
-## API
-ToDo
+
+- FA-Services: https://fa-jenkins2:6010/
+- API: https://fa-jenkins2:6020/docs
+
+### Generate model
+![](doc/gif/generateModel.gif)
+### View generated mesh
+![](doc/gif/viewMesh.gif)
+### Edit input deck
+![](doc/gif/editInputDeck.gif)
+### Add materials or damage models
+![](doc/gif/addMaterialDamage.gif)
+### Submit model
+![](doc/gif/runModel.gif)
+### Analyse results
+![](doc/gif/analyseResults.gif)
+
 
 ## Building locally
 Clone the repository
