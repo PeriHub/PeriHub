@@ -8,7 +8,7 @@ pull_job:
   stage: pull
   script:
     - cd /mnt/c/Users/f_testpa/Desktop/perihub
-    - sudo git pull
+    - git pull
 
 compose_job:
   tags:
