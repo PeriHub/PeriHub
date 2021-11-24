@@ -16,6 +16,7 @@ compose_job:
   stage: compose
   script:
     - cd /mnt/c/Users/f_testpa/Desktop/perihub
+    - ls
     - docker-compose up --build -d
   dependencies:
     - pull_job
