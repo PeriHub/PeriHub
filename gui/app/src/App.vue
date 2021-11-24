@@ -109,7 +109,7 @@
             color="#464646"
             cols="12"
           >
-            {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Falk Heinecke | Jan-Timo Hesse | Christian Willberg
+            {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Jan-Timo Hesse | Christian Willberg | Falk Heinecke 
           </v-col>
         </v-row>
       </v-footer>

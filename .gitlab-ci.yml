@@ -1,0 +1,22 @@
+stages:
+  - pull
+  - compose
+
+pull_job:
+  tags:
+    - wsl
+  stage: pull
+  script:
+    - cd /mnt/c/Users/f_testpa/Desktop/perihub
+    - ls
+    - git pull
+
+compose_job:
+  tags:
+    - wsl
+  stage: compose
+  script:
+    - cd /mnt/c/Users/f_testpa/Desktop/perihub
+    - docker-compose up --build -d
+  dependencies:
+    - pull_job
