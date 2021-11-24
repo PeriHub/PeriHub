@@ -1,8 +1,8 @@
 # PeriHub
 PeriHub enables the generation, editing, execution and evaluation of standard peridynamic models
 
-- FA-Services: http://fa-jenkins2:6010/
-- API: http://fa-jenkins2:6020/docs
+- FA-Services: https://fa-jenkins2:6010/
+- API: https://fa-jenkins2:6020/docs
 
 ### Generate model
 ![](doc/gif/generateModel.gif)
