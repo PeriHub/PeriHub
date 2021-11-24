@@ -3,6 +3,8 @@ COPY --from=python:3.7 / /
 
 ARG EXTERNAL
 ENV EXTERNAL $EXTERNAL
+ARG FASERVICES
+ENV FASERVICES $FASERVICES
 
 RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles pyevtk python-multipart meshio[all]
 # pysftp 
@@ -19,9 +21,8 @@ RUN if [ "$EXTERNAL" = "False" ]; then \
 #     ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts && \
 #     ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts
 
-# COPY id_rsa_cara /app/id_rsa_cara
-# COPY id_rsa_cluster /app/id_rsa_cluster
-
+COPY id_rsa_cara* /app/id_rsa_cara
+COPY id_rsa_cluster* /app/id_rsa_cluster
 
 WORKDIR /app/
 
@@ -37,4 +38,7 @@ RUN if [ "$EXTERNAL" = "False" ]; then echo "Host cara.dlr.de\n\tStrictHostKeyCh
 
 RUN chmod +x /app/support/read.sh
 
-CMD ["uvicorn", "apiMain:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app"]
+RUN bash -c "if $FASERVICES ; then echo uvicorn apiMain:app --host 0.0.0.0 --port 80 --ssl-certfile /app/certs/jenkins.pem --proxy-headers --forwarded-allow-ips='*' --reload --reload-dir /app > run.sh; else echo uvicorn apiMain:app --host 0.0.0.0 --port 80 --proxy-headers --forwarded-allow-ips='*' --reload --reload-dir /app > run.sh; fi; chmod 777 run.sh;"
+CMD ./run.sh
+
+#CMD ["uvicorn", "apiMain:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app"]

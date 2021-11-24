@@ -1,7 +1,7 @@
 FROM trilinos 
 
-ARG PERIDEV
-ENV PERIDEV $PERIDEV
+ARG PERIDOX
+ENV PERIDOX $PERIDOX
 # ARG if [ "$EXTERNAL" = "False" ]; then \
 #         GITLAB_USER; GITLAB_TOKEN;\
 #     fi
@@ -22,9 +22,9 @@ RUN apt-get -yq install git
 RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
-RUN if [ "$PERIDEV" = "True" ]; then \
-        git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/fa_sw/peridynamik/peridigmDev.git peridigm; else \
-        git clone https://github.com/PeriDoX/peridigm.git peridigm; \
+RUN if [ "$PERIDOX" = "True" ]; then \
+        git clone https://github.com/peridigm/peridigm.git peridigm; else \
+        git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/fa_sw/peridynamik/peridigmDev.git peridigm; \
     fi
 
 # #Build Peridigm
@@ -55,6 +55,10 @@ WORKDIR /output
 ENV LD_LIBRARY_PATH /usr/local/netcdf/lib
 ENV PATH /usr/local/peridigm/bin:$PATH
 ENV PATH /usr/local/trilinos/bin:$PATH
+
+# Allow mpirun as root, should only be used in container
+ENV OMPI_ALLOW_RUN_AS_ROOT 1
+ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM 1
 
 RUN mkdir /var/run/sshd
 
