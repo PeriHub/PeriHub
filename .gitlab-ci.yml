@@ -17,6 +17,7 @@ compose_job:
   script:
     - cd /mnt/c/Users/f_testpa/Desktop/perihub
     - ls
-    - /usr/local/bin/docker-compose -h
+    - which docker-compose
+    - which docker
   dependencies:
     - pull_job
