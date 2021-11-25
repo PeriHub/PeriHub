@@ -1,9 +1,61 @@
 version: '3'
 
 services:
+  periHubApi:
+    build:
+      context: api/.
+      args: 
+        EXTERNAL: ${EXTERNAL}
+        FASERVICES: ${FASERVICES}
+    container_name: periHubApi
+    image: peri_hub_api_image
+    ports:
+      - 6020:80
+    volumes:
+      - peridigm_volume:/app/peridigmJobs
+      - paraView_volume:/app/paraView
+      - secrets:/app/certs
+
+  periHubGui:
+    build: gui/.
+    container_name: periHubGui
+    image: peri_hub_gui_image
+    ports:
+      - 6010:443
+    volumes:
+      - secrets:/app/certs
+
+  peridigm:
+    build: 
+      context: peridigm/.
+      args: 
+        GITLAB_USER: ${GITLAB_USER}
+        GITLAB_TOKEN: ${GITLAB_TOKEN}
+        PERIDOX: ${PERIDOX}
+    container_name: peridigm
+    image: peridigm_image
+    ports:
+      - 6030:80
+    volumes:
+      - peridigm_volume:/app/peridigmJobs
+
+  paraview:
+    build: 
+      context: paraview/.
+    container_name: paraview
+    image: paraview_image
+    volumes:
+      - paraView_volume:/app/paraView
+
   cron:
     build: cron/.
     container_name: cron
     image: cron_image
     ports:
-      - 6040:6040
+      - 6040:80
+
+volumes:
+  peridigm_volume:
+  paraView_volume:
+  secrets:
+    external: true
