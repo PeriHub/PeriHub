@@ -22,8 +22,7 @@ build_job:
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
   script:
-    - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDEV=False\nEXTERNAL=False\nFASERVICES=True" >> .env
-    - cat .env
+    - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False\nFASERVICES=True" >> .env
     - docker-compose build
   after_script:
     - docker logout
