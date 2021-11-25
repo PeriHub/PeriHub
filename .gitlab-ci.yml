@@ -23,8 +23,11 @@ build_job:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
   script:
     - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False\nFASERVICES=True" >> .env
-    - docker pull https://gitlab-test.dlr.de/hess_ja/images|| true
-    - docker-compose build
+    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/periHubApi || true
+    # - docker pull registry.gitlab-test.dlr.de/hess_ja/images/periHubGui || true
+    # - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peridigm || true
+    # - docker pull registry.gitlab-test.dlr.de/hess_ja/images/cron || true
+    - docker build --pull --cache-from registry.gitlab-test.dlr.de/hess_ja/images/periHubApi --tag periHubApi api/.
   after_script:
     - docker logout
 
@@ -35,9 +38,9 @@ push_job:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
     - docker push periHubApi
-    - docker push periHubGui
-    - docker push peridigm
-    - docker push cron
+    # - docker push periHubGui
+    # - docker push peridigm
+    # - docker push cron
   after_script:
     - docker logout
   dependencies:

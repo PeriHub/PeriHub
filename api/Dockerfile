@@ -30,8 +30,8 @@ EXPOSE 80
 
 COPY ./app /app
 
-RUN if [ "$EXTERNAL" = "False" ]; then chmod 600 /app/id_rsa_cara; fi
-RUN if [ "$EXTERNAL" = "False" ]; then chmod 600 /app/id_rsa_cluster; fi
+# RUN if [ "$EXTERNAL" = "False" ]; then chmod 600 /app/id_rsa_cara; fi
+# RUN if [ "$EXTERNAL" = "False" ]; then chmod 600 /app/id_rsa_cluster; fi
 
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host 129.247.54.37\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host cara.dlr.de\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
