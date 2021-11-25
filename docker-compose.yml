@@ -1,13 +1,13 @@
 version: '3'
 
 services:
-  periHubApi:
+  perihubapi:
     build:
       context: api/.
       args: 
         EXTERNAL: ${EXTERNAL}
         FASERVICES: ${FASERVICES}
-    container_name: periHubApi
+    container_name: perihubapi
     image: peri_hub_api_image
     ports:
       - 6020:6020
@@ -18,9 +18,9 @@ services:
       - paraView_volume:/app/paraView
       - secrets:/app/certs
 
-  periHubGui:
+  perihubgui:
     build: gui/.
-    container_name: periHubGui
+    container_name: perihubgui
     image: peri_hub_gui_image
     ports:
       - 6010:6010
