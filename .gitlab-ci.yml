@@ -23,11 +23,11 @@ build_job:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
   script:
     - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False\nFASERVICES=True" >> .env
-    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/periHubApi || true
+    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image || true
     # - docker pull registry.gitlab-test.dlr.de/hess_ja/images/periHubGui || true
     # - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peridigm || true
     # - docker pull registry.gitlab-test.dlr.de/hess_ja/images/cron || true
-    - docker build --pull --cache-from registry.gitlab-test.dlr.de/hess_ja/images/periHubApi --tag periHubApi api/.
+    - docker build --pull --cache-from peri_hub_api_image --tag peri_hub_api_image api/.
   after_script:
     - docker logout
 
