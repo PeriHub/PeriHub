@@ -27,17 +27,18 @@ build_job:
     # - docker pull registry.gitlab-test.dlr.de/hess_ja/images/periHubGui || true
     # - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peridigm || true
     # - docker pull registry.gitlab-test.dlr.de/hess_ja/images/cron || true
-    - docker build --pull --cache-from peri_hub_api_image --tag peri_hub_api_image api/.
+    - docker build --pull --cache-from peri_hub_api_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image api/.
   after_script:
     - docker logout
 
 
 push_job:
+  image: docker
   stage: push
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
-    - docker push periHubApi
+    - docker push registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image
     # - docker push periHubGui
     # - docker push peridigm
     # - docker push cron
