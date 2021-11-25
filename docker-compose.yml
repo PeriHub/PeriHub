@@ -1,51 +1,6 @@
 version: '3'
 
 services:
-  perihubapi:
-    build:
-      context: api/.
-    container_name: perihubapi
-    image: peri_hub_api_image
-    ports:
-      - 6020:6020
-    networks:
-      - backend
-    volumes:
-      - peridigm_volume:/app/peridigmJobs
-      - paraView_volume:/app/paraView
-      - secrets:/app/certs
-
-  perihubgui:
-    build: gui/.
-    container_name: perihubgui
-    image: peri_hub_gui_image
-    ports:
-      - 6010:6010
-    networks:
-      - backend
-    volumes:
-      - secrets:/app/certs
-
-  peridigm:
-    build: 
-      context: peridigm/.
-    container_name: peridigm
-    image: peridigm_image
-    ports:
-      - 6030:6030
-    networks:
-      - backend
-    volumes:
-      - peridigm_volume:/app/peridigmJobs
-
-  paraview:
-    build: 
-      context: paraview/.
-    container_name: paraview
-    image: paraview_image
-    volumes:
-      - paraView_volume:/app/paraView
-
   cron:
     build: cron/.
     container_name: cron
@@ -58,9 +13,3 @@ services:
 networks:
   backend:
     driver: bridge
-
-volumes:
-  peridigm_volume:
-  paraView_volume:
-  secrets:
-    external: true
