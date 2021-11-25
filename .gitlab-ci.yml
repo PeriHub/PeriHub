@@ -20,7 +20,7 @@ build_job:
     - docker:dind 
   stage: build
   variables:
-    CI_REGISTRY_PATH: "registry.gitlab-test.dlr.de/hess_ja/images/
+    CI_REGISTRY_PATH: "registry.gitlab-test.dlr.de/hess_ja/images/"
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
@@ -58,4 +58,4 @@ deploy_job:
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image --tag ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}peridigm_image --tag ${CI_REGISTRY_PATH}peridigm_image peridigm/.
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image --tag ${CI_REGISTRY_PATH}cron_image cron/.
-    
+
