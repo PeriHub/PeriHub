@@ -9,7 +9,7 @@ services:
       - 6040:6040
     networks:
       - backend
-  
+
 networks:
   backend:
     driver: bridge
