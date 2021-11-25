@@ -1,10 +1,23 @@
+variables: &globals
+  GIT_STRATEGY: clone
+  GIT_SSL_CAINFO: /etc/ssl/certs/ca-certificates.crt
+  DOCKER_DRIVER: overlay2
+  DOCKER_LANG: en_US.UTF-8
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  DOCKER_AUTH_CONFIG: '{ "auths": { "$CI_REGISTRY": { "auth": "$GIT_AUTH" }, "https://index.docker.io/v1/": { "auth": "$DOCKER_AUTH" }}}'
+  FF_ENABLE_BASH_EXIT_CODE_CHECK: 1
+
 stages:
   - build
+  - deploy
 
 build_job:
   image: docker/compose:latest
-  tags:
-    - wsl
+  services:
+    - docker:dind 
   stage: build
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
@@ -25,3 +38,21 @@ build_job:
     - docker push registry.gitlab-test.dlr.de/hess_ja/images/cron_image
   after_script:
     - docker logout
+
+deploy_job:
+  stage: deploy
+  tags:
+    - wsl
+  before_script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image || true
+    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_gui_image || true
+    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image || true
+    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/cron_image || true
+    - cd /mnt/c/Users/f_testpa/Desktop/perihub
+    - docker build --pull --cache-from peri_hub_api_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image api/.
+    - docker build --pull --cache-from peri_hub_gui_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_gui_image gui/.
+    - docker build --pull --cache-from peridigm_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image peridigm/.
+    - docker build --pull --cache-from cron_image --tag registry.gitlab-test.dlr.de/hess_ja/images/cron_image cron/.
