@@ -10,21 +10,19 @@ RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles 
 # pysftp 
 
 
-# RUN if [ "$EXTERNAL" = "False" ]; then \
-#         mkdir -p /root/.ssh && \
-#         chmod 0700 /root/.ssh && \
-#         ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts && \
-#         ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts; \
-#     fi
-RUN mkdir -p /root/.ssh
-RUN chmod 0700 /root/.ssh
-RUN which ssh-keyscan
-RUN ssh-keyscan -t dsa 129.247.54.37
-RUN ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts
-RUN ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts
+RUN if [ "$EXTERNAL" = "False" ]; then \
+        mkdir -p /root/.ssh && \
+        chmod 0700 /root/.ssh && \
+        ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts && \
+        ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts; \
+    fi
+# RUN mkdir -p /root/.ssh && \
+#     chmod 0700 /root/.ssh && \
+#     ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts && \
+#     ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts
 
-RUN cp /app/certs/id_rsa_cara /app/id_rsa_cara
-RUN cp /app/certs/id_rsa_cluster /app/id_rsa_cluster
+COPY id_rsa_cara /app/id_rsa_cara
+COPY id_rsa_cluster /app/id_rsa_cluster
 
 WORKDIR /app/
 
