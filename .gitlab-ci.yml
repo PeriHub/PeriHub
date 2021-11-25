@@ -23,6 +23,7 @@ build_job:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
   script:
     - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False\nFASERVICES=True" >> .env
+    - docker pull https://gitlab-test.dlr.de/hess_ja/images|| true
     - docker-compose build
   after_script:
     - docker logout

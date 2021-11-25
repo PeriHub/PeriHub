@@ -21,8 +21,8 @@ RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles 
 #     ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts && \
 #     ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts
 
-RUN cp /app/certs/id_rsa_cara /app/id_rsa_cara
-RUN cp /app/certs/id_rsa_cluster /app/id_rsa_cluster
+# RUN cp /app/certs/id_rsa_cara /app/id_rsa_cara
+# RUN cp /app/certs/id_rsa_cluster /app/id_rsa_cluster
 
 WORKDIR /app/
 
