@@ -18,7 +18,8 @@ RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles 
 #     fi
 RUN mkdir -p /root/.ssh
 RUN chmod 0700 /root/.ssh
-RUN ssh-keyscan 129.247.54.37
+RUN ssh-keyscan -h
+RUN ssh-keyscan -t dsa 129.247.54.37
 RUN ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts
 RUN ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts
 
