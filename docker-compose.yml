@@ -10,7 +10,7 @@ services:
     container_name: periHubApi
     image: peri_hub_api_image
     ports:
-      - 6020:80
+      - 6020:6020
     networks:
       - backend
     volumes:
@@ -23,7 +23,7 @@ services:
     container_name: periHubGui
     image: peri_hub_gui_image
     ports:
-      - 6010:443
+      - 6010:6010
     networks:
       - backend
     volumes:
@@ -39,7 +39,7 @@ services:
     container_name: peridigm
     image: peridigm_image
     ports:
-      - 6030:80
+      - 6030:6030
     networks:
       - backend
     volumes:
@@ -58,7 +58,7 @@ services:
     container_name: cron
     image: cron_image
     ports:
-      - 6040:80
+      - 6040:6040
     networks:
       - backend
   
