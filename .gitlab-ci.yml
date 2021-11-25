@@ -19,23 +19,25 @@ build_job:
   services:
     - docker:dind 
   stage: build
+  variables:
+    CI_REGISTRY_PATH: "registry.gitlab-test.dlr.de/hess_ja/images/
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
     - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False\nFASERVICES=True" >> .env
-    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image || true
-    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_gui_image || true
-    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image || true
-    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/cron_image || true
-    - docker build --pull --cache-from peri_hub_api_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image api/.
-    - docker build --pull --cache-from peri_hub_gui_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_gui_image gui/.
-    - docker build --pull --cache-from peridigm_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image peridigm/.
-    - docker build --pull --cache-from cron_image --tag registry.gitlab-test.dlr.de/hess_ja/images/cron_image cron/.
-    - docker push registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image
-    - docker push registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_gui_image
-    - docker push registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image
-    - docker push registry.gitlab-test.dlr.de/hess_ja/images/cron_image
+    - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
+    - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
+    - docker pull ${CI_REGISTRY_PATH}peridigm_image || true
+    - docker pull ${CI_REGISTRY_PATH}cron_image || true
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_api_image --tag ${CI_REGISTRY_PATH}peri_hub_api_image api/.
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image --tag ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peridigm_image --tag ${CI_REGISTRY_PATH}peridigm_image peridigm/.
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image --tag ${CI_REGISTRY_PATH}cron_image cron/.
+    - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
+    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
+    - docker push ${CI_REGISTRY_PATH}peridigm_image
+    - docker push ${CI_REGISTRY_PATH}cron_image
   after_script:
     - docker logout
 
@@ -47,12 +49,12 @@ deploy_job:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
-    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image || true
-    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_gui_image || true
-    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image || true
-    - docker pull registry.gitlab-test.dlr.de/hess_ja/images/cron_image || true
+    - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
+    - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
+    - docker pull ${CI_REGISTRY_PATH}peridigm_image || true
+    - docker pull ${CI_REGISTRY_PATH}cron_image || true
     - cd /mnt/c/Users/f_testpa/Desktop/perihub
-    - docker build --pull --cache-from peri_hub_api_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_api_image api/.
-    - docker build --pull --cache-from peri_hub_gui_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peri_hub_gui_image gui/.
-    - docker build --pull --cache-from peridigm_image --tag registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image peridigm/.
-    - docker build --pull --cache-from cron_image --tag registry.gitlab-test.dlr.de/hess_ja/images/cron_image cron/.
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_api_image --tag ${CI_REGISTRY_PATH}peri_hub_api_image api/.
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image --tag ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peridigm_image --tag ${CI_REGISTRY_PATH}peridigm_image peridigm/.
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image --tag ${CI_REGISTRY_PATH}cron_image cron/.
