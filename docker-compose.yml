@@ -4,9 +4,6 @@ services:
   perihubapi:
     build:
       context: api/.
-      args: 
-        EXTERNAL: ${EXTERNAL}
-        FASERVICES: ${FASERVICES}
     container_name: perihubapi
     image: peri_hub_api_image
     ports:
@@ -32,10 +29,6 @@ services:
   peridigm:
     build: 
       context: peridigm/.
-      args: 
-        GITLAB_USER: ${GITLAB_USER}
-        GITLAB_TOKEN: ${GITLAB_TOKEN}
-        PERIDOX: ${PERIDOX}
     container_name: peridigm
     image: peridigm_image
     ports:
