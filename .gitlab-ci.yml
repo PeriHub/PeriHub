@@ -12,7 +12,7 @@ variables: &globals
 
 stages:
   - build
-  - push
+  # - push
 
 build_job:
   image: docker/compose:latest
@@ -22,20 +22,25 @@ build_job:
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
   script:
+    - ls
     - echo "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDEV=False\nEXTERNAL=False\nFASERVICES=True" >> .env
-    - docker-compose build
+    - ls
+    - cat .env
+    # - docker-compose build
   after_script:
     - docker logout
 
 
-push_job:
-  stage: push
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-  script:
-    - docker push periHubApi
-    - docker push periHubGui
-    - docker push peridigm
-    - docker push cron
-  dependencies:
-    - build_job
+# push_job:
+#   stage: push
+#   before_script:
+#     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+#   script:
+#     - docker push periHubApi
+#     - docker push periHubGui
+#     - docker push peridigm
+#     - docker push cron
+#   after_script:
+#     - docker logout
+#   dependencies:
+#     - build_job
