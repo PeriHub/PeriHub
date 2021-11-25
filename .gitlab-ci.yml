@@ -15,7 +15,8 @@ stages:
 
 build_job:
   image: docker/compose:latest
-  tags: wsl
+  tags:
+    - wsl
   stage: build
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
