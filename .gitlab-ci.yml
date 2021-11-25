@@ -58,3 +58,4 @@ deploy_job:
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image --tag ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}peridigm_image --tag ${CI_REGISTRY_PATH}peridigm_image peridigm/.
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image --tag ${CI_REGISTRY_PATH}cron_image cron/.
+    
