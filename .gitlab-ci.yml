@@ -26,17 +26,21 @@ build_job:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
     - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False\nFASERVICES=True" >> .env
+
     - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
-    - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
-    - docker pull ${CI_REGISTRY_PATH}peridigm_image || true
-    - docker pull ${CI_REGISTRY_PATH}cron_image || true
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_api_image --tag ${CI_REGISTRY_PATH}peri_hub_api_image api/.
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image --tag ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peridigm_image --tag ${CI_REGISTRY_PATH}peridigm_image peridigm/.
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image --tag ${CI_REGISTRY_PATH}cron_image cron/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
+
+    - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image --tag ${CI_REGISTRY_PATH}peri_hub_gui_image --build-arg GITLAB_TOKEN=KVzxkFWxSdzY9WYRZkqR --build-arg GITLAB_USER=f_testpa gui/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
+
+    - docker pull ${CI_REGISTRY_PATH}peridigm_image || true
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peridigm_image --tag ${CI_REGISTRY_PATH}peridigm_image peridigm/.
     - docker push ${CI_REGISTRY_PATH}peridigm_image
+
+    - docker pull ${CI_REGISTRY_PATH}cron_image || true
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image --tag ${CI_REGISTRY_PATH}cron_image cron/.
     - docker push ${CI_REGISTRY_PATH}cron_image
   after_script:
     - docker logout
