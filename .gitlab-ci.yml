@@ -48,7 +48,8 @@ deploy_api_job:
     - docker container stop periHubApi || true
     - docker container rm periHubApi || true
     - docker run --name periHubApi -d -p 6020:80 -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_api_image
-    - docker exec −it periHubApi ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts
+    - docker exec periHubApi bash -c "ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts"
+    - docker exec periHubApi bash -c "ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts"
 
 deploy_gui_job:
   stage: deploy
