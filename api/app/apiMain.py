@@ -115,9 +115,7 @@ class ModelControl(object):
     @app.post("/generateModel")
     def generateModel(ModelName: str, ownModel: bool, translated: bool, Length: float, Width: float, Height: float, Discretization: float, Horizon: float, Structured: bool, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
        
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
          # L = 152
         # L = 50
@@ -204,9 +202,7 @@ class ModelControl(object):
    
     @app.get("/viewInputFile")
     def viewInputFile(ModelName: str, FileType: FileType, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         filePath = './Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType
         if not os.path.exists(filePath):
@@ -218,9 +214,7 @@ class ModelControl(object):
 
     @app.post("/writeInputFile")
     def writeInputFile(ModelName: str, InputString: str, FileType: FileType, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         fid = open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType ,'w')
         fid.write(InputString)
@@ -230,9 +224,7 @@ class ModelControl(object):
 
     @app.get("/getModel")
     def getModel(ModelName: str, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         try:
             shutil.make_archive(ModelName, "zip", './Output/' + os.path.join(username, ModelName))
@@ -246,9 +238,7 @@ class ModelControl(object):
      
     # @app.get("/getVtkFile")
     # def getVtkFile(ModelName: str, request: Request):
-    #     username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+    #     username = fileHandler.getUserName(request)
 
     #     localpath = './Output/' + os.path.join(username, ModelName)
 
@@ -265,9 +255,7 @@ class ModelControl(object):
     @app.get("/getLogFile")
     def getLogFile(ModelName: str, Cluster: str, request: Request):
 
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
         usermail = request.headers.get('x-forwarded-email')
 
         if Cluster=='None':
@@ -316,9 +304,7 @@ class ModelControl(object):
 
     @app.get("/getResults")
     def getResults(ModelName: str, Cluster: str, allData: bool, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, allData)==False):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
@@ -352,9 +338,7 @@ class ModelControl(object):
             
     @app.post("/deleteModel")
     def deleteModel(ModelName: str, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         localpath = './Output/' + os.path.join(username, ModelName)
         shutil.rmtree(localpath)
@@ -363,9 +347,7 @@ class ModelControl(object):
 
     @app.post("/deleteModelFromCluster")
     def deleteModelFromCluster(ModelName: str, Cluster: str, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         if Cluster=='None':
             remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
@@ -449,9 +431,7 @@ class ModelControl(object):
 
     @app.get("/getPlot")
     def getPlot(ModelName: str, Cluster: str, OutputName: str, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
@@ -481,9 +461,7 @@ class ModelControl(object):
 
     @app.get("/getImage")
     def getImage(ModelName: str, Cluster: str, Variable: str, dx: float, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
             raise NotFoundException(name=ModelName)
@@ -499,9 +477,7 @@ class ModelControl(object):
 
     @app.get("/getPointData")
     def getPointData(ModelName: str, OwnModel: bool, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         pointString=''
         blockIdString=''
@@ -557,9 +533,7 @@ class ModelControl(object):
 
     @app.post("/uploadfiles")
     async def uploadfiles( ModelName: str, request: Request, files: List[UploadFile] = File(...)): 
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         localpath = './Output/' + os.path.join(username, ModelName)
 
@@ -572,9 +546,7 @@ class ModelControl(object):
 
     @app.post("/translateModel")
     def translateModel(ModelName: str, Filetype: str,request: Request, files: List[UploadFile] = File(...)):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         start_time = time.time()
 
@@ -642,9 +614,7 @@ class ModelControl(object):
 
     @app.post("/runModel")
     def runModel(ModelName: str, FileType: FileType, Param: dict, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
         usermail = request.headers.get('x-forwarded-email')
 
         Cluster =  Param['Param']['Job']['cluster']
@@ -707,9 +677,7 @@ class ModelControl(object):
 
     @app.post("/cancelJob")
     def cancelJob(ModelName: str, Cluster: str, request: Request):
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        username = fileHandler.getUserName(request)
 
         if Cluster=='None':
             server='periHubPeridigm'

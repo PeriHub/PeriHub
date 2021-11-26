@@ -22,6 +22,13 @@ class fileHandler(object):
         
         return './PeridigmJobs/apiModels/' + username
 
+    def getUserName(request):
+        username = request.headers.get('x-forwarded-preferred-username')
+        if username == None:
+            username = 'guest'
+
+        return username
+
     def removeFolderIfOlder(path, days, recursive):
         
         now = time.time()
