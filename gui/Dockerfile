@@ -4,9 +4,10 @@ FROM node:lts-alpine as develop-stage
 ARG FASERVICES
 ENV FASERVICES $FASERVICES
 
-RUN if [ "$FASERVICES" = "True" ]; then echo "VUE_APP_ROOT_API=http://fa-jenkins2:6020/" > /app/.env; fi
-
 WORKDIR /app
+
+RUN if [ "$FASERVICES" = "True" ]; then echo "VUE_APP_ROOT_API=http://fa-jenkins2:6020/" > .env; fi
+
 COPY app/package*.json ./
 RUN npm install
 COPY app/. .
