@@ -6,6 +6,7 @@ stages:
   - deploy
 
 build_api_job:
+  stage: build
   extends: [.build_before_script_template]
   only:
     changes:
@@ -16,6 +17,7 @@ build_api_job:
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
 build_gui_job:
+  stage: build
   extends: [.build_before_script_template]
   only:
     changes:
@@ -26,6 +28,7 @@ build_gui_job:
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_cron_job:
+  stage: build
   extends: [.build_before_script_template]
   only:
     changes:
@@ -36,6 +39,7 @@ build_cron_job:
     - docker push ${CI_REGISTRY_PATH}cron_image
 
 deploy_api_job:
+  stage: deploy
   extends: [.build_before_script_template]
   only:
     changes:
@@ -46,6 +50,7 @@ deploy_api_job:
     - docker run --name periHubApi -d -p 6020:80 -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_api_image
 
 deploy_gui_job:
+  stage: deploy
   extends: [.build_before_script_template]
   only:
     changes:
@@ -56,6 +61,7 @@ deploy_gui_job:
     - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 deploy_cron_job:
+  stage: deploy
   extends: [.build_before_script_template]
   only:
     changes:
@@ -66,6 +72,7 @@ deploy_cron_job:
     - docker run --name periHubCron -d -p 6040:80 ${CI_REGISTRY_PATH}cron_image
 
 deploy_peridigm_job:
+  stage: deploy
   extends: [.build_before_script_template]
   script:
     - docker container stop periHubPeridigm || true
@@ -73,7 +80,6 @@ deploy_peridigm_job:
     - docker run --name periHubPeridigm -d -p 6030:80 -v peridigm_volume:/app/peridigmJobs ${CI_REGISTRY_PATH}peridigm_image
 
 .build_before_script_template:
-  stage: build
   image: docker/compose:latest
   services:
     - docker:dind
@@ -94,7 +100,6 @@ deploy_peridigm_job:
     - docker logout
 
 .deploy_before_script_template:
-  stage: deploy
   tags:
     - wsl
   before_script:
