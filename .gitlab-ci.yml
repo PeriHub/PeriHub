@@ -13,7 +13,7 @@ build_api_job:
   stage: build
   script:
     - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_api_image -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_api_image --build-arg EXTERNAL=False --build-arg FASERVICES=True -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
   after_script:
     - docker logout

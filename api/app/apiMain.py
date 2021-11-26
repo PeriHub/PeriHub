@@ -799,7 +799,6 @@ class ModelControl(object):
     # mesh.write("./foo.stl")
     # print(mesh)
     
-    
     # username='hess_ja'
     # server='cara.dlr.de'
     # keypath = 'id_rsa_cara'
