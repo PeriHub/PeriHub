@@ -679,7 +679,7 @@ class ModelControl(object):
             return ModelName + ' has been submitted'
 
         elif Cluster=='None':
-            server='peridigm'
+            server='periHubPeridigm'
             remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
             if os.path.exists(os.path.join('.' + remotepath,'pid.txt')):
                 return ModelName + ' already submitted'
@@ -712,7 +712,7 @@ class ModelControl(object):
             username = 'guest'
 
         if Cluster=='None':
-            server='peridigm'
+            server='periHubPeridigm'
             remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
             ssh = paramiko.SSHClient() 
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
