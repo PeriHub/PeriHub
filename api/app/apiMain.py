@@ -328,7 +328,6 @@ class ModelControl(object):
     #     userpath = './Results/' + username
     #     try:
     #         shutil.make_archive(ModelName, "zip", userpath, resultpath)
-
     #         response = FileResponse(os.path.join(userpath, ModelName) + ".zip", media_type="application/x-zip-compressed")
     #         response.headers["Content-Disposition"] = "attachment; filename=" + ModelName + ".zip"
     #         # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")

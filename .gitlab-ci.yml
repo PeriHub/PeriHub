@@ -9,7 +9,7 @@ build_api_job:
   extends: [.build_before_script_template]
   only:
     changes:
-      - api/*
+      - api/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_api_image --build-arg EXTERNAL=False --build-arg FASERVICES=True -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
@@ -19,7 +19,7 @@ build_gui_job:
   extends: [.build_before_script_template]
   only:
     changes:
-      - gui/*
+      - gui/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image -t ${CI_REGISTRY_PATH}peri_hub_gui_image --build-arg GITLAB_TOKEN=KVzxkFWxSdzY9WYRZkqR --build-arg GITLAB_USER=f_testpa gui/.
@@ -29,7 +29,7 @@ build_cron_job:
   extends: [.build_before_script_template]
   only:
     changes:
-      - cron/*
+      - cron/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}cron_image || true
     - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image -t ${CI_REGISTRY_PATH}cron_image cron/.
@@ -39,7 +39,7 @@ deploy_api_job:
   extends: [.build_before_script_template]
   only:
     changes:
-      - api/*
+      - api/**/*
   script:
     - docker container stop periHubApi || true
     - docker container rm periHubApi || true
@@ -49,7 +49,7 @@ deploy_gui_job:
   extends: [.build_before_script_template]
   only:
     changes:
-      - gui/*
+      - gui/**/*
   script:
     - docker container stop periHubGui || true
     - docker container rm periHubGui || true
@@ -59,7 +59,7 @@ deploy_cron_job:
   extends: [.build_before_script_template]
   only:
     changes:
-      - cron/*
+      - cron/**/*
   script:
     - docker container stop periHubCron || true
     - docker container rm periHubCron || true
