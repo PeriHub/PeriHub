@@ -13,9 +13,8 @@ build_api_job:
       - api/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_api_image --build-arg EXTERNAL=False --build-arg FASERVICES=True -t peri_hub_api_image api/.
-    - docker commit peri_hub_api_image ${CI_REGISTRY_PATH}peri_hub_api_image:latest
-    - docker push ${CI_REGISTRY_PATH}peri_hub_api_image:latest
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_api_image --build-arg EXTERNAL=False --build-arg FASERVICES=True -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
+    - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
 build_gui_job:
   stage: build
@@ -25,9 +24,8 @@ build_gui_job:
       - gui/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image -t peri_hub_gui_image --build-arg FASERVICES=True gui/.
-    - docker commit peri_hub_gui_image ${CI_REGISTRY_PATH}peri_hub_gui_image:latest
-    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image:latest
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image -t ${CI_REGISTRY_PATH}peri_hub_gui_image --build-arg FASERVICES=True gui/.
+    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_cron_job:
   stage: build
@@ -37,9 +35,8 @@ build_cron_job:
       - cron/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}cron_image || true
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image -t cron_image cron/.
-    - docker commit cron_image ${CI_REGISTRY_PATH}cron_image:latest
-    - docker push ${CI_REGISTRY_PATH}cron_image:latest
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image -t ${CI_REGISTRY_PATH}cron_image cron/.
+    - docker push ${CI_REGISTRY_PATH}cron_image
 
 deploy_api_job:
   stage: deploy
@@ -50,7 +47,7 @@ deploy_api_job:
   script:
     - docker container stop periHubApi || true
     - docker container rm periHubApi || true
-    - docker run --name periHubApi -d -p 6020:80 -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_api_image:latest
+    - docker run --name periHubApi -d -p 6020:80 -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_api_image
     - docker exec periHubApi bash -c "ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts" || true
     - docker exec periHubApi bash -c "ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts" || true
 
@@ -63,7 +60,7 @@ deploy_gui_job:
   script:
     - docker container stop periHubGui || true
     - docker container rm periHubGui || true
-    - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image:latest
+    - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 deploy_cron_job:
   stage: deploy
@@ -74,7 +71,7 @@ deploy_cron_job:
   script:
     - docker container stop periHubCron || true
     - docker container rm periHubCron || true
-    - docker run --name periHubCron -d -p 6040:80 ${CI_REGISTRY_PATH}cron_image:latest
+    - docker run --name periHubCron -d -p 6040:80 ${CI_REGISTRY_PATH}cron_image
 
 deploy_peridigm_job:
   stage: deploy
@@ -82,7 +79,7 @@ deploy_peridigm_job:
   script:
     - docker container stop periHubPeridigm || true
     - docker container rm periHubPeridigm || true
-    - docker run --name periHubPeridigm -d -p 6030:80 -v peridigm_volume:/app/peridigmJobs ${CI_REGISTRY_PATH}peridigm_image:latest
+    - docker run --name periHubPeridigm -d -p 6030:80 -v peridigm_volume:/app/peridigmJobs ${CI_REGISTRY_PATH}peridigm_image
 
 .build_before_script_template:
   image: docker/compose:latest
