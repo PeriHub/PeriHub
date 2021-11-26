@@ -24,7 +24,7 @@ build_gui_job:
       - gui/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image -t ${CI_REGISTRY_PATH}peri_hub_gui_image --build-arg GITLAB_TOKEN=KVzxkFWxSdzY9WYRZkqR --build-arg GITLAB_USER=f_testpa gui/.
+    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image -t ${CI_REGISTRY_PATH}peri_hub_gui_image --build-arg FASERVICES=True gui/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_cron_job:

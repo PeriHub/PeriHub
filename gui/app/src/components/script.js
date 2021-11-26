@@ -1509,13 +1509,8 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       this.getCurrentData()
       if(process.env.VUE_APP_ROOT_API!=undefined)
       {
-        console.log(this.url)
         this.url = process.env.VUE_APP_ROOT_API
-        console.log(process.env.VUE_APP_ROOT_API)
-        console.log(this.url)
       }
-      console.log(process.env.VUE_APP_ROOT_API)
-      console.log(this.url)
     },
     updated() {
       this.saveCurrentData()

@@ -17,7 +17,10 @@ services:
       - secrets:/app/certs
 
   periHubGui:
-    build: gui/.
+    build:
+      context: gui/.
+      args: 
+        FASERVICES: ${FASERVICES}
     container_name: periHubGui
     image: peri_hub_gui_image
     ports:
