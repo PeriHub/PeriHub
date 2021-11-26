@@ -1,14 +1,5 @@
 variables: &globals
-  GIT_STRATEGY: clone
-  GIT_SSL_CAINFO: /etc/ssl/certs/ca-certificates.crt
-  DOCKER_DRIVER: overlay2
-  DOCKER_LANG: en_US.UTF-8
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_VERIFY: 1
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
-  DOCKER_AUTH_CONFIG: '{ "auths": { "$CI_REGISTRY": { "auth": "$GIT_AUTH" }, "https://index.docker.io/v1/": { "auth": "$DOCKER_AUTH" }}}'
-  FF_ENABLE_BASH_EXIT_CODE_CHECK: 1
+  CI_REGISTRY_PATH: "registry.gitlab-test.dlr.de/hess_ja/images/"
 
 stages:
   - build
@@ -20,7 +11,16 @@ build_job:
     - docker:dind 
   stage: build
   variables:
-    CI_REGISTRY_PATH: "registry.gitlab-test.dlr.de/hess_ja/images/"
+    GIT_STRATEGY: clone
+    GIT_SSL_CAINFO: /etc/ssl/certs/ca-certificates.crt
+    DOCKER_DRIVER: overlay2
+    DOCKER_LANG: en_US.UTF-8
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_AUTH_CONFIG: '{ "auths": { "$CI_REGISTRY": { "auth": "$GIT_AUTH" }, "https://index.docker.io/v1/": { "auth": "$DOCKER_AUTH" }}}'
+    FF_ENABLE_BASH_EXIT_CODE_CHECK: 1
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
@@ -46,16 +46,10 @@ deploy_job:
   tags:
     - wsl
   before_script:
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
-    - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
-    - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
-    - docker pull ${CI_REGISTRY_PATH}peridigm_image || true
-    - docker pull ${CI_REGISTRY_PATH}cron_image || true
-    - cd /mnt/c/Users/f_testpa/Desktop/perihub
-    - docker run ${CI_REGISTRY_PATH}peri_hub_api_image -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs --name periHubApi
-    - docker run ${CI_REGISTRY_PATH}peri_hub_gui_image -v secrets:/app/certs --name periHubGui
-    - docker run ${CI_REGISTRY_PATH}peridigm_image -v peridigm_volume:/app/peridigmJobs --name peridigm
-    - docker run ${CI_REGISTRY_PATH}cron_image --name cron
+    - docker run --name periHub:api -d -p 6020:80 ${CI_REGISTRY_PATH}peri_hub_api_image -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs
+    - docker run --name periHub:gui -d -p 6010:443 ${CI_REGISTRY_PATH}peri_hub_gui_image -v secrets:/app/certs
+    - docker run --name periHub:peridigm -d -p 6030:80 ${CI_REGISTRY_PATH}peridigm_image -v peridigm_volume:/app/peridigmJobs
+    - docker run --name periHub:cron -d -p 6040:80 ${CI_REGISTRY_PATH}cron_image
 
