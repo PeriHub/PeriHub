@@ -323,7 +323,6 @@ class ModelControl(object):
 
     # @app.get("/getResults")
     # def getResults(ModelName: str, username: str):
-
     #     resultpath = './Results/' + os.path.join(username, ModelName)
     #     userpath = './Results/' + username
     #     try:
