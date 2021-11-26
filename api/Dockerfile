@@ -16,8 +16,8 @@ RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles 
 #         ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts && \
 #         ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts; \
 #     fi
-# RUN mkdir -p /root/.ssh && \
-#     chmod 0700 /root/.ssh && \
+RUN mkdir -p /root/.ssh && \
+    chmod 0700 /root/.ssh
 #     ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts && \
 #     ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts
 
@@ -30,8 +30,8 @@ EXPOSE 80
 
 COPY ./app /app
 
-# RUN if [ "$EXTERNAL" = "False" ]; then chmod 600 /app/id_rsa_cara; fi
-# RUN if [ "$EXTERNAL" = "False" ]; then chmod 600 /app/id_rsa_cluster; fi
+# RUN if [ "$EXTERNAL" = "False" ]; then chmod 600 /app/certs/id_rsa_cara; fi
+# RUN if [ "$EXTERNAL" = "False" ]; then chmod 600 /app/certs/id_rsa_cluster; fi
 
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host 129.247.54.37\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host cara.dlr.de\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi

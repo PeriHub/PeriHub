@@ -214,12 +214,12 @@ class fileHandler(object):
         if Cluster=='FA-Cluster':
             username='f_peridi'
             server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
+            keypath = 'certs/id_rsa_cluster'
         
         elif Cluster=='Cara':
             username='f_peridi'
             server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
+            keypath = 'certs/id_rsa_cara'
 
         ssh = paramiko.SSHClient() 
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -232,12 +232,12 @@ class fileHandler(object):
         if Cluster=='FA-Cluster':
             username='f_peridi'
             server='129.247.54.37'
-            keypath = 'id_rsa_cluster'
+            keypath = 'certs/id_rsa_cluster'
         
         elif Cluster=='Cara':
             username='f_peridi'
             server='cara.dlr.de'
-            keypath = 'id_rsa_cara'
+            keypath = 'certs/id_rsa_cara'
 
         ssh = paramiko.SSHClient() 
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
