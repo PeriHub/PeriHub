@@ -822,8 +822,6 @@ class ModelControl(object):
     # ssh.exec_command(command)
     # ssh.close()
 
-    # print(' has been submitted')
-
     # import cadquery
     # cadquery.Workplane('XY').box(1,2,3).toSvg()
 
