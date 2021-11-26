@@ -2,7 +2,7 @@ variables: &globals
   CI_REGISTRY_PATH: "registry.gitlab-test.dlr.de/hess_ja/images/"
 
 stages:
-  - build
+  # - build
   - deploy
 
 build_job:
@@ -46,6 +46,7 @@ deploy_job:
   tags:
     - wsl
   before_script:
+    - id
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
     - docker run --name periHub:api -d -p 6020:80 ${CI_REGISTRY_PATH}peri_hub_api_image -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs
