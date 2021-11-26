@@ -40,7 +40,7 @@ RUN chmod +x /app/support/read.sh
 
 
 RUN bash -c "if [ "$FASERVICES" = "True" ] ; then echo uvicorn apiMain:app --host 0.0.0.0 --port 80 --ssl-certfile /app/certs/jenkins.pem --proxy-headers --forwarded-allow-ips='*' --reload --reload-dir /app > run.sh; else echo uvicorn apiMain:app --host 0.0.0.0 --port 80 --proxy-headers --forwarded-allow-ips='*' --reload --reload-dir /app > run.sh; fi; chmod 777 run.sh;"
-RUN echo run.sh
+RUN cat run.sh
 CMD ./run.sh
 
 #CMD ["uvicorn", "apiMain:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app"]
