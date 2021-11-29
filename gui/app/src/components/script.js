@@ -992,9 +992,6 @@ import { faLessThanEqual, faThumbsDown } from '@fortawesome/free-solid-svg-icons
       },
       async viewPointData() {
 
-        let headersList = {
-          'Cache-Control': 'no-cache'
-          }
         this.modelLoading = true
         this.viewId = 1
 
@@ -1033,6 +1030,10 @@ import { faLessThanEqual, faThumbsDown } from '@fortawesome/free-solid-svg-icons
         this.modelLoading = false
       },
       async getPointDataAndUpdateDx() {
+        let headersList = {
+          'Cache-Control': 'no-cache'
+          }
+          
         let reqOptions = {
           url: this.url + "getPointData",
           params: {ModelName: this.modelNameSelected,
