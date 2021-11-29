@@ -998,7 +998,7 @@ import { faLessThanEqual, faThumbsDown } from '@fortawesome/free-solid-svg-icons
         this.modelLoading = true
         this.viewId = 1
 
-        this.getPointDataAndUpdateDx()
+        await this.getPointDataAndUpdateDx()
 
         this.radius = this.dx.toFixed(2);
         this.updatePoints()
@@ -1032,7 +1032,7 @@ import { faLessThanEqual, faThumbsDown } from '@fortawesome/free-solid-svg-icons
         }
         this.modelLoading = false
       },
-      getPointDataAndUpdateDx() {
+      async getPointDataAndUpdateDx() {
         let reqOptions = {
           url: this.url + "getPointData",
           params: {ModelName: this.modelNameSelected,
@@ -1238,8 +1238,8 @@ import { faLessThanEqual, faThumbsDown } from '@fortawesome/free-solid-svg-icons
       async getImage(Variable) {
         this.dialogGetImage = false
 
-        faThumbsDown.getPointDataAndUpdateDx()
-        
+        await this.getPointDataAndUpdateDx()
+
         let headersList = {
         'Cache-Control': 'no-cache'
         }
