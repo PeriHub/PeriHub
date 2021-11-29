@@ -25,7 +25,8 @@ build_gui_job:
   script:
     # - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
     - docker build --no-cache -t ${CI_REGISTRY_PATH}peri_hub_gui_image --build-arg FASERVICES=True gui/.
-    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
+    - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image
+    # - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_cron_job:
   stage: build
