@@ -6,7 +6,7 @@ ENV FASERVICES $FASERVICES
 
 WORKDIR /app
 
-RUN if [ "$FASERVICES" = "True" ]; then echo "VUE_APP_ROOT_API=https://fa-jenkins2:6020/" > .env; fi
+# RUN if [ "$FASERVICES" = "True" ]; then echo "VUE_APP_ROOT_API=https://fa-jenkins2:6020/" > .env; fi
 
 COPY app/package*.json ./
 RUN npm install

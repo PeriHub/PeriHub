@@ -297,7 +297,7 @@ import { faLessThanEqual, faThumbsDown } from '@fortawesome/free-solid-svg-icons
         },
         cluster: ['Cara', 'FA-Cluster', 'None'],
 
-        url: 'http://localhost:6020/',
+        url: 'https://fa-jenkins2:6020/',
         textOutput: '',
         pointString: [1,0,0],
         filteredPointString: [1,0,0],
