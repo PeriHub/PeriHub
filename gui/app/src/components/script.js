@@ -1033,7 +1033,6 @@ import { faLessThanEqual, faThumbsDown } from '@fortawesome/free-solid-svg-icons
         let headersList = {
           'Cache-Control': 'no-cache'
           }
-          
         let reqOptions = {
           url: this.url + "getPointData",
           params: {ModelName: this.modelNameSelected,

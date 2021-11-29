@@ -24,9 +24,9 @@ build_gui_job:
       - gui/**/*
   script:
     # - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
-    - docker build --no-cache -t ${CI_REGISTRY_PATH}peri_hub_gui_image --build-arg FASERVICES=True gui/.
-    - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image
-    # - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
+    - docker build --no-cache -t peri_hub_gui_image --build-arg FASERVICES=True gui/.
+    - docker tag peri_hub_gui_image ${CI_REGISTRY_PATH}peri_hub_gui_image:stable
+    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image:stable
 
 build_cron_job:
   stage: build
@@ -61,7 +61,7 @@ deploy_gui_job:
   script:
     - docker container stop periHubGui || true
     - docker container rm periHubGui || true
-    - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image
+    - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image:stable
 
 deploy_cron_job:
   stage: deploy
