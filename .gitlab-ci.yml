@@ -82,7 +82,7 @@ deploy_peridigm_job:
     - docker run --name periHubPeridigm -d -p 6030:80 -v peridigm_volume:/app/peridigmJobs ${CI_REGISTRY_PATH}peridigm_image
 
 .build_before_script_template:
-  image: docker/compose:latest
+  image: docker:latest
   services:
     - docker:dind
   variables:

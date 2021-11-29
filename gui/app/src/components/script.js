@@ -24,7 +24,7 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
 import DogboneImage from '../assets/Dogbone/Dogbone.jpg'
 import DogboneFile from '../assets/Dogbone/Dogbone.json'
 import { Plotly } from 'vue-plotly'
-import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
+import { faLessThanEqual, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 
   export default {
     name: 'PeriHub',
@@ -998,30 +998,8 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
         this.modelLoading = true
         this.viewId = 1
 
-        let reqOptions = {
-          url: this.url + "getPointData",
-          params: {ModelName: this.modelNameSelected,
-                   OwnModel: this.ownModel},
-          method: "GET",
-          headers: headersList,
-          }
+        this.getPointDataAndUpdateDx()
 
-        await axios.request(reqOptions)
-        .then(response => (
-          this.pointString = response.data[0].split(','),
-          this.blockIdString = response.data[1].split(',')))
-        .catch(error => (
-          this.modelLoading = false,
-          this.message = error,
-          this.snackbar = true
-        ));
-        
-        if (!this.ownModel){
-          this.dx = this.height/(2*parseInt(this.discretization/2)+1)
-        }
-        else{
-          this.dx = Math.hypot(parseFloat(this.pointString[3])-parseFloat(this.pointString[0]),parseFloat(this.pointString[4])-parseFloat(this.pointString[1]),parseFloat(this.pointString[5])-parseFloat(this.pointString[2]))
-        }
         this.radius = this.dx.toFixed(2);
         this.updatePoints()
 
@@ -1053,6 +1031,32 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
           this.filterPointData()
         }
         this.modelLoading = false
+      },
+      getPointDataAndUpdateDx() {
+        let reqOptions = {
+          url: this.url + "getPointData",
+          params: {ModelName: this.modelNameSelected,
+                   OwnModel: this.ownModel},
+          method: "GET",
+          headers: headersList,
+          }
+
+        await axios.request(reqOptions)
+        .then(response => (
+          this.pointString = response.data[0].split(','),
+          this.blockIdString = response.data[1].split(',')))
+        .catch(error => (
+          this.modelLoading = false,
+          this.message = error,
+          this.snackbar = true
+        ));
+
+        if (!this.ownModel){
+          this.dx = this.height/(2*parseInt(this.discretization/2)+1)
+        }
+        else{
+          this.dx = Math.hypot(parseFloat(this.pointString[3])-parseFloat(this.pointString[0]),parseFloat(this.pointString[4])-parseFloat(this.pointString[1]),parseFloat(this.pointString[5])-parseFloat(this.pointString[2]))
+        }
       },
       // async copyModelToCluster() {
       //   let headersList = {
@@ -1233,6 +1237,9 @@ import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
       },
       async getImage(Variable) {
         this.dialogGetImage = false
+
+        faThumbsDown.getPointDataAndUpdateDx()
+        
         let headersList = {
         'Cache-Control': 'no-cache'
         }
