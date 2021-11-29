@@ -13,7 +13,7 @@ build_api_job:
       - api/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_api_image --build-arg EXTERNAL=False --build-arg FASERVICES=True -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
+    - docker build --no-cache --build-arg EXTERNAL=False --build-arg FASERVICES=True -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
 build_gui_job:
@@ -24,7 +24,7 @@ build_gui_job:
       - gui/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}peri_hub_gui_image -t ${CI_REGISTRY_PATH}peri_hub_gui_image --build-arg FASERVICES=True gui/.
+    - docker build --no-cache -t ${CI_REGISTRY_PATH}peri_hub_gui_image --build-arg FASERVICES=True gui/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_cron_job:
@@ -35,7 +35,7 @@ build_cron_job:
       - cron/**/*
   script:
     - docker pull ${CI_REGISTRY_PATH}cron_image || true
-    - docker build --pull --cache-from ${CI_REGISTRY_PATH}cron_image -t ${CI_REGISTRY_PATH}cron_image cron/.
+    - docker build --no-cache -t ${CI_REGISTRY_PATH}cron_image cron/.
     - docker push ${CI_REGISTRY_PATH}cron_image
 
 deploy_api_job:
