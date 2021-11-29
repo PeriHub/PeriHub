@@ -12,7 +12,7 @@ build_api_job:
     changes:
       - api/**/*
   script:
-    - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
+    # - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
     - docker build --build-arg EXTERNAL=False --build-arg FASERVICES=True -t peri_hub_api_image api/. #--no-cache 
     - docker tag peri_hub_api_image ${CI_REGISTRY_PATH}peri_hub_api_image
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
@@ -25,7 +25,7 @@ build_gui_job:
       - gui/**/*
   script:
     # - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
-    - docker build --no-cache -t peri_hub_gui_image --build-arg FASERVICES=True gui/.
+    - docker build -t peri_hub_gui_image --build-arg FASERVICES=True gui/.
     - docker tag peri_hub_gui_image ${CI_REGISTRY_PATH}peri_hub_gui_image
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
@@ -37,11 +37,13 @@ build_cron_job:
       - cron/**/*
   script:
     # - docker pull ${CI_REGISTRY_PATH}cron_image || true
-    - docker build -t ${CI_REGISTRY_PATH}cron_image cron/. #--no-cache 
+    - docker build -t ${CI_REGISTRY_PATH}cron_image cron/. 
     - docker push ${CI_REGISTRY_PATH}cron_image
 
 deploy_api_job:
   stage: deploy
+  tags: 
+    - wsl
   extends: [.deploy_before_script_template]
   only:
     changes:
@@ -55,13 +57,15 @@ deploy_api_job:
 
 deploy_gui_job:
   stage: deploy
+  tags: 
+    - wsl
   extends: [.deploy_before_script_template]
   only:
     changes:
       - gui/**/*
   script:
-    # - docker container stop periHubGui || true
-    # - docker container rm periHubGui || true
+    - docker container stop periHubGui || true
+    - docker container rm periHubGui || true
     - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 deploy_cron_job:
@@ -79,6 +83,8 @@ deploy_cron_job:
 
 deploy_peridigm_job:
   stage: deploy
+  tags: 
+    - wsl
   extends: [.deploy_before_script_template]
   script:
     - docker container stop periHubPeridigm || true
