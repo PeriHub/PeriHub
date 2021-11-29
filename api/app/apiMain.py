@@ -285,7 +285,7 @@ class ModelControl(object):
             else:
                 return Cluster + ' unknown'
 
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, 'f_peridi')
+            ssh, sftp = fileHandler.sftpToCluster(Cluster)
 
             try:
                 outputFiles = sftp.listdir(remotepath)
@@ -623,7 +623,7 @@ class ModelControl(object):
 
         if Cluster=='FA-Cluster':
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
-            ssh = fileHandler.sshToCluster('FA-Cluster', username)
+            ssh = fileHandler.sshToCluster('FA-Cluster')
             command = 'cd ' + remotepath + ' \n qperidigm -d -c ' + str(Param['Param']['Job']['tasks']) + ' -O tgz -J ' + ModelName +' -E /home/f_peridi/Peridigm/build/bin/Peridigm '+ ModelName + '.' + FileType
             ssh.exec_command(command)
             ssh.close()
@@ -634,7 +634,7 @@ class ModelControl(object):
             sb = SbatchCreator(filename=ModelName, output=Param['Param']['Output'], job=Param['Param']['Job'], username=username, usermail=usermail)
             sbatchString = sb.createSbatch()
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
-            ssh, sftp = fileHandler.sftpToCluster('Cara', username)
+            ssh, sftp = fileHandler.sftpToCluster('Cara')
             file=sftp.file(remotepath + '/' + ModelName + '.sbatch', "a", -1)
             file.write(sbatchString)
             file.flush()
@@ -647,7 +647,7 @@ class ModelControl(object):
             return ModelName + ' has been submitted'
 
         elif Cluster=='None':
-            server='periHubPeridigm'
+            server='periHubPeridigms'
             remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
             if os.path.exists(os.path.join('.' + remotepath,'pid.txt')):
                 return ModelName + ' already submitted'
