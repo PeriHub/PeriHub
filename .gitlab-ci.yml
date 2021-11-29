@@ -49,7 +49,7 @@ deploy_api_job:
   script:
     - docker container stop periHubApi || true
     - docker container rm periHubApi || true
-    - docker run --name periHubApi -d -p 6020:80 -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_api_image:stable
+    - docker run --name periHubApi -d -p 6020:80 -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs --network peridigm ${CI_REGISTRY_PATH}peri_hub_api_image:stable
     - docker exec periHubApi bash -c "ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts" || true
     - docker exec periHubApi bash -c "ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts" || true
 
@@ -81,7 +81,7 @@ deploy_peridigm_job:
   script:
     - docker container stop periHubPeridigm || true
     - docker container rm periHubPeridigm || true
-    - docker run --name periHubPeridigm -d -p 6030:80 -v peridigm_volume:/app/peridigmJobs ${CI_REGISTRY_PATH}peridigm_image
+    - docker run --name periHubPeridigm -d -p 6030:80 -v peridigm_volume:/app/peridigmJobs --network peridigm ${CI_REGISTRY_PATH}peridigm_image
 
 .build_before_script_template:
   image: docker:latest

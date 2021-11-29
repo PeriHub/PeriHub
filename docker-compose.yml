@@ -15,6 +15,8 @@ services:
       - peridigm_volume:/app/peridigmJobs
       - paraView_volume:/app/paraView
       - secrets:/app/certs
+    networks:
+      - backend
 
   periHubGui:
     build:
@@ -35,12 +37,14 @@ services:
         GITLAB_USER: ${GITLAB_USER}
         GITLAB_TOKEN: ${GITLAB_TOKEN}
         PERIDOX: ${PERIDOX}
-    container_name: peridigm
+    container_name: periHubperidigm
     image: peridigm_image
     ports:
       - 6030:80
     volumes:
       - peridigm_volume:/app/peridigmJobs
+    networks:
+      - backend
 
   paraview:
     build: 
@@ -52,7 +56,7 @@ services:
 
   cron:
     build: cron/.
-    container_name: cron
+    container_name: periHubCron
     image: cron_image
     ports:
       - 6040:80
@@ -62,3 +66,7 @@ volumes:
   paraView_volume:
   secrets:
     external: true
+
+networks:
+  backend:
+    driver: bridge

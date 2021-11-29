@@ -113,7 +113,7 @@ class fileHandler(object):
             localpath = './Output/' + os.path.join(username, ModelName)
             remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
             userpath = fileHandler.getUserPath(Cluster, username, ModelName) 
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            ssh, sftp = fileHandler.sftpToCluster(Cluster)
 
             try:
                 sftp.chdir(userpath) 
@@ -197,7 +197,7 @@ class fileHandler(object):
 
         else:
             remotepath = fileHandler.getRemoteModelPath(Cluster, username, ModelName)
-            ssh, sftp = fileHandler.sftpToCluster(Cluster, username)
+            ssh, sftp = fileHandler.sftpToCluster(Cluster)
             try:
                 for filename in sftp.listdir(remotepath):
                     if(allData or '.e' in filename):
@@ -234,7 +234,7 @@ class fileHandler(object):
         sftp = ssh.open_sftp()
         return ssh, sftp
 
-    def sshToCluster(Cluster, username):
+    def sshToCluster(Cluster):
         
         if Cluster=='FA-Cluster':
             username='f_peridi'
