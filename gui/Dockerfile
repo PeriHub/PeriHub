@@ -11,6 +11,8 @@ RUN if [ "$FASERVICES" = "True" ]; then echo "VUE_APP_ROOT_API=https://fa-jenkin
 COPY app/package*.json ./
 RUN npm install
 COPY app/. .
+RUN ls
+RUN cat .env
 
 # # build stage
 # FROM develop-stage as build-stage
