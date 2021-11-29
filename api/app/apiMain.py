@@ -669,7 +669,6 @@ class ModelControl(object):
 
             # return stdout + stderr
             return ModelName + ' has been submitted'
-
         else:
             return Cluster + ' unknown'
 

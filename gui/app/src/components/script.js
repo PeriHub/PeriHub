@@ -24,7 +24,7 @@ import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
 import DogboneImage from '../assets/Dogbone/Dogbone.jpg'
 import DogboneFile from '../assets/Dogbone/Dogbone.json'
 import { Plotly } from 'vue-plotly'
-import { faLessThanEqual, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
+// import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
 
   export default {
     name: 'PeriHub',
