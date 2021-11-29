@@ -37,7 +37,7 @@ build_cron_job:
       - cron/**/*
   script:
     # - docker pull ${CI_REGISTRY_PATH}cron_image || true
-    - docker build --no-cache -t ${CI_REGISTRY_PATH}cron_image cron/.
+    - docker build -t ${CI_REGISTRY_PATH}cron_image cron/. #--no-cache 
     - docker push ${CI_REGISTRY_PATH}cron_image
 
 deploy_api_job:
@@ -66,6 +66,7 @@ deploy_gui_job:
 
 deploy_cron_job:
   stage: deploy
+  tags: wsl
   extends: [.deploy_before_script_template]
   only:
     changes:
@@ -104,9 +105,6 @@ deploy_peridigm_job:
     - docker logout
 
 .deploy_before_script_template:
-  image: docker:latest
-  services:
-    - docker:dind
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   after_script:
