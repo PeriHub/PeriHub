@@ -602,7 +602,6 @@ class ModelControl(object):
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
 
         # command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtu'
-
         # try:
         #     subprocess.call(command, shell=True)
         # except:

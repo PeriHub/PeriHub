@@ -14,8 +14,8 @@ build_api_job:
   script:
     # - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image || true
     - docker build --no-cache --build-arg EXTERNAL=False --build-arg FASERVICES=True -t peri_hub_api_image api/.
-    - docker tag peri_hub_api_image ${CI_REGISTRY_PATH}peri_hub_api_image:stable
-    - docker push ${CI_REGISTRY_PATH}peri_hub_api_image:stable
+    - docker tag peri_hub_api_image ${CI_REGISTRY_PATH}peri_hub_api_image
+    - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
 build_gui_job:
   stage: build
@@ -26,8 +26,8 @@ build_gui_job:
   script:
     # - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image || true
     - docker build --no-cache -t peri_hub_gui_image --build-arg FASERVICES=True gui/.
-    - docker tag peri_hub_gui_image ${CI_REGISTRY_PATH}peri_hub_gui_image:stable
-    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image:stable
+    - docker tag peri_hub_gui_image ${CI_REGISTRY_PATH}peri_hub_gui_image
+    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_cron_job:
   stage: build
@@ -42,6 +42,8 @@ build_cron_job:
 
 deploy_api_job:
   stage: deploy
+  tags:
+    - wsl
   extends: [.build_before_script_template]
   only:
     changes:
@@ -49,12 +51,14 @@ deploy_api_job:
   script:
     - docker container stop periHubApi || true
     - docker container rm periHubApi || true
-    - docker run --name periHubApi -d -p 6020:80 -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs --network peridigm ${CI_REGISTRY_PATH}peri_hub_api_image:stable
+    - docker run --name periHubApi -d -p 6020:80 -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs --network peridigm ${CI_REGISTRY_PATH}peri_hub_api_image
     - docker exec periHubApi bash -c "ssh-keyscan 129.247.54.37 > /root/.ssh/known_hosts" || true
     - docker exec periHubApi bash -c "ssh-keyscan cara.dlr.de >> /root/.ssh/known_hosts" || true
 
 deploy_gui_job:
   stage: deploy
+  tags:
+    - wsl
   extends: [.build_before_script_template]
   only:
     changes:
@@ -62,10 +66,12 @@ deploy_gui_job:
   script:
     - docker container stop periHubGui || true
     - docker container rm periHubGui || true
-    - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image:stable
+    - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 deploy_cron_job:
   stage: deploy
+  tags:
+    - wsl
   extends: [.build_before_script_template]
   only:
     changes:
@@ -104,8 +110,6 @@ deploy_peridigm_job:
     - docker logout
 
 .deploy_before_script_template:
-  tags:
-    - wsl
   before_script:
     - id
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
