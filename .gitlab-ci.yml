@@ -110,6 +110,15 @@ deploy_peridigm_job:
     - docker logout
 
 .deploy_before_script_template:
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_LANG: en_US.UTF-8
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_AUTH_CONFIG: '{ "auths": { "$CI_REGISTRY": { "auth": "$GIT_AUTH" }, "https://index.docker.io/v1/": { "auth": "$DOCKER_AUTH" }}}'
+    FF_ENABLE_BASH_EXIT_CODE_CHECK: 1
   before_script:
     - id
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
