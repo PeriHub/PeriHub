@@ -23,6 +23,13 @@
                 multiple
                 accept="text/plain,.g"
                 @change="onMultiFilePicked"/>
+              <input
+                type="file"
+                style="display: none"
+                ref="multiSoInput"
+                multiple
+                accept=".so"
+                @change="onMultiFilePicked"/>
                 
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveData">
@@ -210,103 +217,147 @@
                           v-model=material.MatType
                           label="Material Model Name"
                           outlined></v-select>
-                        <v-row>
-                          <v-col class="textfield-col">
-                            <v-text-field 
-                              v-model=material.density
-                              :label=materialKeys.density
-                              outlined></v-text-field>
-                          </v-col>
-                          <v-col class="textfield-col">
-                            <v-text-field 
-                              v-model=material.poissonsRatio
-                              :label=materialKeys.poissonsRatio
-                              clearable
-                              outlined></v-text-field>
-                          </v-col>
-                        </v-row>
-                        <v-row>
-                          <v-col class="textfield-col">
-                            <v-text-field 
-                              v-model=material.bulkModulus
-                              :label=materialKeys.bulkModulus
-                              clearable
-                              outlined></v-text-field>
-                          </v-col>
-                          <v-col class="textfield-col">
-                            <v-text-field 
-                              v-model=material.shearModulus
-                              :label=materialKeys.shearModulus
-                              clearable
-                              outlined></v-text-field>
-                          </v-col>
-                          <v-col class="textfield-col">
-                            <v-text-field 
-                              v-model=material.youngsModulus
-                              :label=materialKeys.youngsModulus
-                              clearable
-                              outlined></v-text-field>
-                          </v-col>
-                        </v-row>
-                        <v-row>
-                          <v-col class="textfield-col">
-                            <v-switch
-                              v-model=material.tensionSeparation
-                              :label="`Tension Separation`"
-                            ></v-switch>
-                          </v-col>
-                          <v-col class="textfield-col">
-                            <v-switch
-                              v-model=material.nonLinear
-                              :label="`Non linear`"
-                            ></v-switch>
-                          </v-col>
-                        </v-row>
-                        <v-select
-                          :items="materialSymmetry"
-                          v-model=material.materialSymmetry
-                          v-show="material.MatType=='Linear Elastic Correspondence'"
-                          label="Material Symmetry"
-                          outlined></v-select>
-                          <v-container v-show="material.materialSymmetry=='Anisotropic' & material.MatType=='Linear Elastic Correspondence'">
-                            <v-row>
-                              <li v-for="(params, name) in material.Parameter" :key="params.index">
-                                <v-text-field  class="textfield-col"
-                                  style="padding-right: 10px"
-                                  v-model="params.value"
-                                  :label="name"
-                                  :rules="[rules.required, rules.float]"
-                                  outlined></v-text-field>
-                              </li>
-                            </v-row>
-                          </v-container>
-                        <v-select class="textfield-col"
-                          :items="stabilizatonType"
-                          v-model=material.stabilizatonType
-                          label="Stabilizaton Type"
-                          outlined></v-select>
-                        <v-text-field class="textfield-col"
-                          v-model=material.thickness
-                          :rules="[rules.required, rules.float]"
-                          label="Thickness"
-                          outlined></v-text-field>
-                        <v-text-field class="textfield-col"
-                          v-model=material.hourglassCoefficient
-                          :rules="[rules.required, rules.float]"
-                          label="Hourglass Coefficient"
-                          outlined></v-text-field>
-                        <v-text-field class="textfield-col"
-                          v-show="material.MatType=='Elastic Plastic Hypoelastic Correspondence'"
-                          v-model=material.actualHorizon
-                          :rules="[rules.required, rules.float]"
-                          label="Actual Horizon"
-                          outlined></v-text-field>
-                        <v-text-field class="textfield-col"
-                          v-show="material.MatType.includes('Plastic')"
-                          v-model=material.yieldStress
-                          :rules="[rules.required, rules.float]"
-                          label="Yield Stress"
-                          outlined></v-text-field>
+                        <template v-if="material.MatType.includes('User')">
+                            <v-list v-for="prop, subindex in material.Properties" :key="material.Properties.id"style="padding: 0px">
+                              <v-row>
+                                <v-col class="textfieldlist-col">
+                                  <v-text-field
+                                    v-model=prop.value
+                                    :rules="[rules.required, rules.float]"
+                                    :label=prop.Name
+                                    outlined></v-text-field>
+                                </v-col>
+                                <v-col class="textfieldlist-col">
+                                  <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeProp(index, subindex)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </v-btn>
+                                    </template>
+                                      <span>Remove Property</span>
+                                  </v-tooltip>
+                                </v-col>
+                              </v-row>
+                            </v-list>
+                          <v-row>
+                            <v-col class="textfieldlist-col">
+                              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addProp(index)">
+                                      <i class="fas fa-plus"></i>
+                                  </v-btn>
+                                </template>
+                                  <span>Add Property</span>
+                              </v-tooltip>
+                            </v-col>
+                            <v-col class="textfieldlist-col">
+                              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="uploadSo">
+                                    <i class="fas fa-upload"></i>
+                                </v-btn>
+                              </template>
+                                <span>Upload shared Libraries</span>
+                              </v-tooltip>
+                            </v-col>
+                          </v-row>
+                        </template>
+                        <!-- <template v-else> -->
+                          <v-row>
+                            <v-col class="textfield-col">
+                              <v-text-field 
+                                v-model=material.density
+                                :label=materialKeys.density
+                                outlined></v-text-field>
+                            </v-col>
+                            <v-col class="textfield-col">
+                              <v-text-field 
+                                v-model=material.poissonsRatio
+                                :label=materialKeys.poissonsRatio
+                                clearable
+                                outlined></v-text-field>
+                            </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-col class="textfield-col">
+                              <v-text-field 
+                                v-model=material.bulkModulus
+                                :label=materialKeys.bulkModulus
+                                clearable
+                                outlined></v-text-field>
+                            </v-col>
+                            <v-col class="textfield-col">
+                              <v-text-field 
+                                v-model=material.shearModulus
+                                :label=materialKeys.shearModulus
+                                clearable
+                                outlined></v-text-field>
+                            </v-col>
+                            <v-col class="textfield-col">
+                              <v-text-field 
+                                v-model=material.youngsModulus
+                                :label=materialKeys.youngsModulus
+                                clearable
+                                outlined></v-text-field>
+                            </v-col>
+                          </v-row>
+                          <v-row>
+                            <v-col class="textfield-col">
+                              <v-switch
+                                v-model=material.tensionSeparation
+                                :label="`Tension Separation`"
+                              ></v-switch>
+                            </v-col>
+                            <v-col class="textfield-col">
+                              <v-switch
+                                v-model=material.nonLinear
+                                :label="`Non linear`"
+                              ></v-switch>
+                            </v-col>
+                          </v-row>
+                          <v-select
+                            :items="materialSymmetry"
+                            v-model=material.materialSymmetry
+                            v-show="material.MatType=='Linear Elastic Correspondence'"
+                            label="Material Symmetry"
+                            outlined></v-select>
+                            <v-container v-if="material.materialSymmetry=='Anisotropic' & material.MatType=='Linear Elastic Correspondence'">
+                              <v-row>
+                                <li v-for="(params, name) in material.Parameter" :key="params.index">
+                                  <v-text-field  class="textfield-col"
+                                    style="padding-right: 10px"
+                                    v-model="params.value"
+                                    :label="name"
+                                    :rules="[rules.required, rules.float]"
+                                    outlined></v-text-field>
+                                </li>
+                              </v-row>
+                            </v-container>
+                          <v-select class="textfield-col"
+                            :items="stabilizatonType"
+                            v-model=material.stabilizatonType
+                            label="Stabilizaton Type"
+                            outlined></v-select>
+                          <v-text-field class="textfield-col"
+                            v-model=material.thickness
+                            :rules="[rules.required, rules.float]"
+                            label="Thickness"
+                            outlined></v-text-field>
+                          <v-text-field class="textfield-col"
+                            v-model=material.hourglassCoefficient
+                            :rules="[rules.required, rules.float]"
+                            label="Hourglass Coefficient"
+                            outlined></v-text-field>
+                          <v-text-field class="textfield-col"
+                            v-show="material.MatType=='Elastic Plastic Hypoelastic Correspondence'"
+                            v-model=material.actualHorizon
+                            :rules="[rules.required, rules.float]"
+                            label="Actual Horizon"
+                            outlined></v-text-field>
+                          <v-text-field class="textfield-col"
+                            v-show="material.MatType.includes('Plastic')"
+                            v-model=material.yieldStress
+                            :rules="[rules.required, rules.float]"
+                            label="Yield Stress"
+                            outlined></v-text-field>
+                        <!-- </template> -->
                       </v-container>
                       <v-divider></v-divider>
                     </v-list>

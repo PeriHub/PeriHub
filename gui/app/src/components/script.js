@@ -54,7 +54,11 @@ import { Plotly } from 'vue-plotly'
         rotatedAngles: false,
         angles: [0, 0],
         // Material
-        materialModelName: ['Elastic', 'Multiphysics Elastic', 'Elastic Plastic', 'Elastic Plastic Hardening', 'Viscoelastic', 'Elastic Plastic Correspondence', 'Elastic Correspondence', 'Viscoplastic Needleman Correspondence', 'Isotropic Hardening Correspondence', 'Elastic Hypoelastic Correspondence', 'Elastic Plastic Hypoelastic Correspondence', 'Isotropic Hardening Hypoelastic Correspondence', 'LCM', 'Elastic Bond Based', 'Vector Poisson', 'Diffusion', 'Pals', 'Linear LPS Partial Volume', 'Linear Elastic Correspondence', 'Elastic Partial Volume', 'Elastic Correspondence Partial Stress', 'Pressure Dependent Elastic Plastic'],
+        materialModelName: ['Diffusion', 'Elastic', 'Elastic Bond Based', 'Elastic Correspondence', 'Elastic Correspondence Partial Stress', 
+        'Elastic Hypoelastic Correspondence', 'Elastic Partial Volume', 'Elastic Plastic',  'Elastic Plastic Correspondence', 
+        'Elastic Plastic Hardening', 'Elastic Plastic Hypoelastic Correspondence', 'Isotropic Hardening Correspondence', 
+        'Isotropic Hardening Hypoelastic Correspondence', 'LCM', 'Linear Elastic Correspondence', 'Linear LPS Partial Volume', 'Multiphysics Elastic', 'Pals',
+        'Pressure Dependent Elastic Plastic', 'User Correspondence',  'Viscoelastic', 'Viscoplastic Needleman Correspondence', 'Vector Poisson'],
         materialSymmetry: ['Isotropic', 'Anisotropic'],
         stabilizatonType: ['Bond Based', 'State Based', 'Sub Horizon', 'Global Stiffness'],
         materials: [
@@ -95,7 +99,9 @@ import { Plotly } from 'vue-plotly'
               C46: {'value': 0.0},              
               C55: {'value': 0.0},           
               C56: {'value': 0.0},              
-              C66: {'value': 0.0}}},
+              C66: {'value': 0.0}},
+            Properties: [
+              { id: 1, Name: 'Prop_1', value: 0.0}]},
           { id: 2, Name: 'PMMAElast', 
           MatType: 'Linear Elastic Correspondence', 
           density: 1.4e5, 
@@ -133,7 +139,9 @@ import { Plotly } from 'vue-plotly'
             C46: {'value': 0.0},              
             C55: {'value': 4200.0},           
             C56: {'value': 0.0},              
-            C66: {'value': 4200.0}}}],
+            C66: {'value': 4200.0}},
+          Properties: [
+            { id: 1, Name: 'Prop_1', value: 0.0}]}],
         materialKeys: {
           Name: 'Name',
           MatType: 'Material Model',
@@ -510,6 +518,9 @@ import { Plotly } from 'vue-plotly'
       },
       uploadMesh() {
         this.$refs.multifileInput.click()
+      },
+      uploadSo() {
+        this.$refs.multiSoInput.click()
       },
       onFilePicked (event) {
         const files = event.target.files
@@ -1086,7 +1097,8 @@ import { Plotly } from 'vue-plotly'
           params: {ModelName: this.modelNameSelected,
                   FileType: this.solver.filetype,},
           data: JSON.parse("{\"Param\":" + "{\"Job\": " + JSON.stringify(this.job)+",\n" +
-                                            "\"Output\": " + JSON.stringify(this.outputs) + "}}"),
+                                            "\"Output\": " + JSON.stringify(this.outputs)+",\n" + 
+                                            "\"Material\": " + JSON.stringify(this.materials) + "}}"),
           method: "POST",
           headers: headersList,
         }
@@ -1379,6 +1391,22 @@ import { Plotly } from 'vue-plotly'
         this.materials.splice(index, 1)
         this.$cookie.delete("materials" + index);
       },
+      addProp(index) {
+        const len = this.materials[index].Properties.length
+        this.materials[index].Properties.push({
+          id: len+1,
+          Name: "Prop_"+(len+1)
+        })
+        for (const key in this.materials[index].Properties[len-1]) {
+          if(key!='id' & key!='Name'){
+            this.materials[index].Properties[len][key] = this.materials[index].Properties[len-1][key]
+          }
+        }
+      },
+      removeProp(index,subindex) {
+        this.materials[index].Properties.splice(subindex, 1)
+        // this.$cookie.delete("materials" + index);
+      },
       addDamage() {
         const len = this.damages.length
         this.damages.push({
@@ -1513,7 +1541,7 @@ import { Plotly } from 'vue-plotly'
       },
     },
     beforeMount() {
-      this.getCurrentData()
+      // this.getCurrentData()
       if(process.env.VUE_APP_ROOT_API!=undefined)
       {
         this.url = process.env.VUE_APP_ROOT_API

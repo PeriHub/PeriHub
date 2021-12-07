@@ -31,14 +31,8 @@ services:
       - secrets:/app/certs
 
   peridigm:
-    build: 
-      context: peridigm/.
-      args: 
-        GITLAB_USER: ${GITLAB_USER}
-        GITLAB_TOKEN: ${GITLAB_TOKEN}
-        PERIDOX: ${PERIDOX}
-    container_name: periHubperidigm
-    image: peridigm_image
+    container_name: periHubPeridigm
+    image: registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image
     ports:
       - 6030:80
     volumes:

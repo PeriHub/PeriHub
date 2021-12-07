@@ -14,6 +14,12 @@ class fileHandler(object):
         
         return './PeridigmJobs/apiModels/' + username + '/' + ModelName
 
+    def getRemoteUmatPath(Cluster):
+        
+        if Cluster=='None':
+            return '/Peridigm/src/materials/umats/'
+        return './Peridigm/src/src/materials/umats/'
+
     def getRemoteUserPath(Cluster, username):
         
         return './PeridigmJobs/apiModels/' + username
@@ -153,6 +159,27 @@ class fileHandler(object):
             
             return 'Success'
 
+    def copyLibToCluster(username, ModelName, Cluster):
+        
+        localpath = './Output/' + os.path.join(username, ModelName)
+        remotepath = fileHandler.getRemoteUmatPath(Cluster)
+        ssh, sftp = fileHandler.sftpToCluster(Cluster)
+
+        if not os.path.exists(localpath):
+            return 'Shared libray can not been found'
+        for root, dirs, files in os.walk(localpath):
+            if len(files)==0:
+                return 'Shared libray can not been found'
+            for name in files:
+                if name.split('.')[-1]=='so':
+                    sftp.put(os.path.join(root,name), os.path.join(remotepath,name))
+                    return 'Success'
+
+        sftp.close()
+        ssh.close()
+        
+        return 'Shared libray can not been found'
+
     def copyFileToFromPeridigmContainer(username, ModelName, Filename, ToOrFrom):
         
         localpath = './Output/' + os.path.join(username, ModelName)
@@ -217,20 +244,28 @@ class fileHandler(object):
             return True
 
     def sftpToCluster(Cluster):
+
+        ssh = paramiko.SSHClient() 
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
         if Cluster=='FA-Cluster':
             username='f_peridi'
             server='129.247.54.37'
             keypath = 'certs/id_rsa_cluster'
+            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
         
         elif Cluster=='Cara':
             username='f_peridi'
             server='cara.dlr.de'
             keypath = 'certs/id_rsa_cara'
+            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+        
+        elif Cluster=='None':
+            username='root'
+            server='periHubPeridigm'
+            keypath = 'certs/id_rsa_cara'
+            ssh.connect(server, username=username, allow_agent=False, password='root')
 
-        ssh = paramiko.SSHClient() 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
         sftp = ssh.open_sftp()
         return ssh, sftp
 

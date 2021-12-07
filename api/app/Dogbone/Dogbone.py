@@ -68,7 +68,8 @@ class Dogbone(object):
         self.outputDict = [{},{}]
         self.angle = [0,0]
         if damage=='':
-            self.damageDict[0] = {'Name': 'PMMADamage', 'damageModel': 'Critical Energy Correspondence', 'criticalEnergy':5.1, 'interblockdamageEnergy':0.01, 'onlyTension': True, 'detachedNodesCheck': True, 'thickness': 10, 'hourglassCoefficient': 1.0, 'stabilizatonType': 'Global Stiffness'}
+            self.damageDict[0] = {'Name': 'PMMADamage', 'damageModel': 'Critical Energy Correspondence', 'criticalEnergy':5.1,
+             'interblockdamageEnergy':0.01, 'onlyTension': True, 'detachedNodesCheck': True, 'thickness': 10, 'hourglassCoefficient': 1.0, 'stabilizatonType': 'Global Stiffness'}
         else:
             self.damageDict = damage
         
@@ -79,15 +80,19 @@ class Dogbone(object):
             self.computeDict = compute
        
         if output=='':
-            self.outputDict[0] = {'Name': 'Output1', 'Displacement': True, 'Force': True, 'Damage': True, 'Partial_Stress': False, 'External_Force': False, 'External_Displacement': False, 'Number_Of_Neighbors': False, 'Frequency': 500, 'InitStep': 0}
-            self.outputDict[1] = {'Name': 'Output2', 'Displacement': False, 'Force': False, 'Damage': True, 'Partial_Stress': True, 'External_Force': True, 'External_Displacement': True, 'Number_Of_Neighbors': False, 'Frequency': 200, 'InitStep': 0}
+            self.outputDict[0] = {'Name': 'Output1', 'Displacement': True, 'Force': True, 'Damage': True, 'Partial_Stress': False, 
+            'External_Force': False, 'External_Displacement': False, 'Number_Of_Neighbors': False, 'Frequency': 500, 'InitStep': 0}
+            self.outputDict[1] = {'Name': 'Output2', 'Displacement': False, 'Force': False, 'Damage': True, 'Partial_Stress': True, 
+            'External_Force': True, 'External_Displacement': True, 'Number_Of_Neighbors': False, 'Frequency': 200, 'InitStep': 0}
         else:
             self.outputDict = output
         
         if material=='':
             i=0
             for material in matNameList:
-                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 200000.0, 'bulkModulus':None, 'shearModulus':None, 'youngsModulus': 1.5e9, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Isotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0, 'yieldStress': 31.3e4, 'nonLinear': False}#, 'adaptHourStiff': False}
+                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 200000.0, 'bulkModulus':None, 
+                'shearModulus':None, 'youngsModulus': 1.5e9, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Isotropic', 
+                'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0, 'yieldStress': 31.3e4, 'nonLinear': False}#, 'adaptHourStiff': False}
                 # if isotropic:
                     # params =[200000.0,    #Density
                     # 1.5e9,                #Young's Modulus

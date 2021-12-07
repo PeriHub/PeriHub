@@ -535,6 +535,9 @@ class ModelControl(object):
 
         localpath = './Output/' + os.path.join(username, ModelName)
 
+        if os.path.exists(localpath) == False:
+            os.makedirs(localpath)
+
         for file in files:
             file_location = localpath + f"/{file.filename}"
             with open(file_location, "wb+") as file_object:
@@ -614,11 +617,23 @@ class ModelControl(object):
         username = fileHandler.getUserName(request)
         usermail = request.headers.get('x-forwarded-email')
 
+        Material =  Param['Param']['Material']
+
+        UserMat = False
+        for mat in Material:
+            if mat['MatType'] == 'User Correspondence':
+                UserMat = True
+                break
+
         Cluster =  Param['Param']['Job']['cluster']
         returnString = fileHandler.copyModelToCluster(username, ModelName, Cluster)
 
         if returnString!='Success':
             return returnString
+        if UserMat:
+            returnString = fileHandler.copyLibToCluster(username, ModelName, Cluster)
+            if returnString!='Success':
+                return returnString
 
         if Cluster=='FA-Cluster':
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
@@ -646,7 +661,7 @@ class ModelControl(object):
             return ModelName + ' has been submitted'
 
         elif Cluster=='None':
-            server='periHubPeridigms'
+            server='periHubPeridigm'
             remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
             if os.path.exists(os.path.join('.' + remotepath,'pid.txt')):
                 return ModelName + ' already submitted'

@@ -81,6 +81,10 @@ class XMLcreator(object):
                 string += '            <Parameter name="Yield Stress" type="double" value="' + str(float(mat['yieldStress'])) + '"/>\n'
             if 'nonLinear' in mat and mat['nonLinear']!='':
                 string += '            <Parameter name="Non linear" type="double" value="' + str(mat['nonLinear']) + '"/>\n'
+            if self.checkIfDefined('Properties',mat) and 'User' in mat['MatType']:
+                string += '            <Parameter name="Number of Properties" type="int" value="' + str(len(mat['Properties'])) + '"/>\n'
+                for prop in mat['Properties']:
+                    string += '            <Parameter name="'+ prop['Name'] +'" type="double" value="' +str(np.format_float_scientific(float(prop['value']))) +'"/>\n'
             string += '        </ParameterList>\n'
         string += '    </ParameterList>\n'  
         return string  
