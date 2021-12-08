@@ -47,7 +47,11 @@
     height: 100%;
     margin: 10px;
   }
-
+  
+  .remaining-height{
+    height: calc(100% - 48px);
+    overflow-y: scroll;
+  }
   /* .splitpanes {background-color: #f8f8f8;} */
   
   .splitpanes__splitter {background-color: #ccc;position: relative;}
