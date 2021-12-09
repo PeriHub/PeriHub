@@ -99,7 +99,7 @@ class fileHandler(object):
                 for name in files:
                     if name.split('.')[-1]=='yaml':
                         inputExist = True
-                    if name.split('.')[-1]=='txt' or name.split('.')[-1]=='e' :
+                    if name.split('.')[-1]=='txt' or name.split('.')[-1]=='e' or name.split('.')[-1]=='g' :
                         meshExist = True
 
                 if inputExist==False:

@@ -49,6 +49,7 @@ deploy_api_job:
     changes:
       - api/**/*
   script:
+    - docker pull ${CI_REGISTRY_PATH}peri_hub_api_image
     - docker container stop periHubApi || true
     - docker container rm periHubApi || true
     - docker run --name periHubApi -d -p 6020:80 -v peridigm_volume:/app/peridigmJobs -v paraView_volume:/app/paraView -v secrets:/app/certs --network peridigm ${CI_REGISTRY_PATH}peri_hub_api_image
@@ -64,6 +65,7 @@ deploy_gui_job:
     changes:
       - gui/**/*
   script:
+    - docker pull ${CI_REGISTRY_PATH}peri_hub_gui_image
     - docker container stop periHubGui || true
     - docker container rm periHubGui || true
     - docker run --name periHubGui -d -p 6010:443 -v secrets:/app/certs ${CI_REGISTRY_PATH}peri_hub_gui_image
@@ -77,6 +79,7 @@ deploy_cron_job:
     changes:
       - cron/**/*
   script:
+    - docker pull ${CI_REGISTRY_PATH}cron_image
     - docker container stop periHubCron || true
     - docker container rm periHubCron || true
     - docker run --name periHubCron -d -p 6040:80 ${CI_REGISTRY_PATH}cron_image
@@ -87,6 +90,7 @@ deploy_peridigm_job:
     - wsl
   extends: [.deploy_before_script_template]
   script:
+    - docker pull ${CI_REGISTRY_PATH}peridigm_image
     - docker container stop periHubPeridigm || true
     - docker container rm periHubPeridigm || true
     - docker run --name periHubPeridigm -d -p 6030:80 -v peridigm_volume:/app/peridigmJobs --network peridigm ${CI_REGISTRY_PATH}peridigm_image

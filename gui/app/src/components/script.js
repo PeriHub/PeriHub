@@ -433,7 +433,6 @@ import { Plotly } from 'vue-plotly'
 
         axios.request(reqOptions).then(response => {
           (this.textOutput = response.data)
-
           if(loadFile){
             this.loadYamlString(this.textOutput)
           }})
@@ -578,7 +577,7 @@ import { Plotly } from 'vue-plotly'
         }
 
         this.modelLoading = true
-        this.message = 'Meshfiles have been uploaded'
+        this.message = 'Files have been uploaded'
         await axios.request(reqOptions)
         .catch((error) => {
           console.log(response)
@@ -852,6 +851,12 @@ import { Plotly } from 'vue-plotly'
           var Param = json.Peridigm[names[i]]
           switch (names[i].replace(/[0-9]/g, '')) {
             case 'Materials':
+              for(var i = 0; i < this.materials.length; i++) {
+                this.materials[i].poissonsRatio = null
+                this.materials[i].bulkModulus = null
+                this.materials[i].shearModulus = null
+                this.materials[i].youngsModulus = null
+              }
               this.getValuesFromJson(Param, 'materials', this.materialKeys, this.addMaterial, this.removeMaterial)
               break
             case 'Damage Models':

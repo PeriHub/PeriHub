@@ -588,12 +588,13 @@ class ModelControl(object):
         # if returnString!='Success':
         #     return returnString
 
+        server='periHubPeridigm'
         remotepath = '/app/peridigmJobs/' + os.path.join(username, ModelName)
         ssh = paramiko.SSHClient() 
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect('peridigm', username='root', allow_agent=False, password='root')
+        ssh.connect(server, username='root', allow_agent=False, password='root')
         command = '/usr/local/netcdf/bin/ncgen ' + os.path.join(remotepath, ModelName) + '.g.ascii -o ' + os.path.join(remotepath, ModelName) + '.g' + \
-        ' && python3 /peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
+        ' && python3 /Peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
         ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
         # ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
         stdin, stdout, stderr = ssh.exec_command(command)
