@@ -851,11 +851,11 @@ import { Plotly } from 'vue-plotly'
           var Param = json.Peridigm[names[i]]
           switch (names[i].replace(/[0-9]/g, '')) {
             case 'Materials':
-              for(var i = 0; i < this.materials.length; i++) {
-                this.materials[i].poissonsRatio = null
-                this.materials[i].bulkModulus = null
-                this.materials[i].shearModulus = null
-                this.materials[i].youngsModulus = null
+              for(var j = 0; j < this.materials.length; j++) {
+                this.materials[j].poissonsRatio = null
+                this.materials[j].bulkModulus = null
+                this.materials[j].shearModulus = null
+                this.materials[j].youngsModulus = null
               }
               this.getValuesFromJson(Param, 'materials', this.materialKeys, this.addMaterial, this.removeMaterial)
               break
@@ -872,6 +872,15 @@ import { Plotly } from 'vue-plotly'
               this.getValuesFromJson(Param, 'computes', this.computeKeys, this.addCompute, this.removeOutput)
               break
             case 'Output':
+              for(var j = 0; j < this.outputs.length; j++) {
+                this.outputs[j].Displacement = false
+                this.outputs[j].Force = false
+                this.outputs[j].Damage = false
+                this.outputs[j].Partial_Stress = false
+                this.outputs[j].External_Force = false
+                this.outputs[j].External_Displacement = false
+                this.outputs[j].Number_Of_Neighbors = false
+              }
               this.getValuesFromJson(Param, 'outputs', this.outputKeys, this.addOutput, this.removeOutput, names[i].replace(/\D/g,''))
               break
             case 'Solver':
@@ -925,9 +934,9 @@ import { Plotly } from 'vue-plotly'
                       "\"rotatedAngles\":" + this.rotatedAngles + ",\n" +
                       "\"angles\":[" + this.angles + "]}";
         this.$cookie.set('data', data, { expires: '1M' }, '/app');
-        this.jsonToCookie("materials", true)
+        // this.jsonToCookie("materials", true)
         this.jsonToCookie("damages")
-        this.jsonToCookie("blocks", true)
+        // this.jsonToCookie("blocks", true)
         this.jsonToCookie("boundaryConditions")
         this.jsonToCookie("computes")
         this.jsonToCookie("outputs")
@@ -960,9 +969,9 @@ import { Plotly } from 'vue-plotly'
           this.translated = (data == 'true');
         }
         this.cookieToJson("data")
-        this.cookieToJson("materials", true)
+        // this.cookieToJson("materials", true)
         this.cookieToJson("damages")
-        this.cookieToJson("blocks", true)
+        // this.cookieToJson("blocks", true)
         this.cookieToJson("boundaryConditions")
         this.cookieToJson("computes")
         this.cookieToJson("outputs")

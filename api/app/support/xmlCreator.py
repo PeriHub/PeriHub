@@ -205,7 +205,7 @@ class XMLcreator(object):
         idx = 0
         string=''
         for out in self.outputDict:
-            string += '    <ParameterList name="' + out['Name'] + '">\n'
+            string += '    <ParameterList name="Output' + str(idx+1) + '">\n'
             string += '        <Parameter name="Output File Type" type="string" value="ExodusII"/>\n'
             string += '        <Parameter name="Output Format" type="string" value="BINARY"/>\n'
             string += '        <Parameter name="Output Filename" type="string" value="' + self.filename +'_' + out['Name'] +'"/>\n'
