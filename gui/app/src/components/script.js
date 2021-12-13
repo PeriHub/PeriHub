@@ -934,9 +934,9 @@ import { Plotly } from 'vue-plotly'
                       "\"rotatedAngles\":" + this.rotatedAngles + ",\n" +
                       "\"angles\":[" + this.angles + "]}";
         this.$cookie.set('data', data, { expires: '1M' }, '/app');
-        // this.jsonToCookie("materials", true)
+        this.jsonToCookie("materials", true)
         this.jsonToCookie("damages")
-        // this.jsonToCookie("blocks", true)
+        this.jsonToCookie("blocks", true)
         this.jsonToCookie("boundaryConditions")
         this.jsonToCookie("computes")
         this.jsonToCookie("outputs")
@@ -969,9 +969,9 @@ import { Plotly } from 'vue-plotly'
           this.translated = (data == 'true');
         }
         this.cookieToJson("data")
-        // this.cookieToJson("materials", true)
+        this.cookieToJson("materials", true)
         this.cookieToJson("damages")
-        // this.cookieToJson("blocks", true)
+        this.cookieToJson("blocks", true)
         this.cookieToJson("boundaryConditions")
         this.cookieToJson("computes")
         this.cookieToJson("outputs")
