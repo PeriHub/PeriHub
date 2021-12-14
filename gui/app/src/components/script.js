@@ -69,8 +69,6 @@ import { Plotly } from 'vue-plotly'
             rve_radius: 6.6,
             rve_lgth: 50,
             rve_dpth: 1},
-          Interface: {
-            int_ufrac: 10},
           Mesh: {
             mesh_fib: 35,
             mesh_lgth: 35,
@@ -519,7 +517,18 @@ import { Plotly } from 'vue-plotly'
         //   this.modelLoading = true
         // }
         // this.textLoading = true
-        await axios.request(reqOptions).then(response => (this.message = response.data))
+        var zipFile
+        await axios.request(reqOptions).then(response => (zipFile = response.data))
+        
+        var jsZip = require('jszip')
+        jsZip.loadAsync(zipFile).then(function (zip) {
+          Object.keys(zip.files).forEach(function (filename) {
+            zip.files[filename].async('string').then(function (fileData) {
+              console.log(fileData) // These are your file contents      
+            })
+          })
+        })
+
         this.snackbar=true
         // this.viewInputFile(false)
         // if(this.model.ownModel==false){
@@ -945,6 +954,8 @@ import { Plotly } from 'vue-plotly'
         case 'Dogbone':  
           this.jsonFile = DogboneFile;
           break;
+        default:
+          return;
         }
 
         for(var i = 0; i < Object.keys(this.jsonFile).length; i++) {
