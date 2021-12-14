@@ -39,12 +39,20 @@
                 <span>Save as JSON</span>
               </v-tooltip>
     
-              <v-tooltip bottom v-if="!ownModel"><template v-slot:activator="{ on, attrs }">
+              <v-tooltip bottom v-if="!model.ownModel"><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="resetData">
                     <i class="fas fa-undo"></i>
                 </v-btn>
               </template>
                 <span>Reset Data</span>
+              </v-tooltip>
+    
+              <v-tooltip bottom v-if="model.modelNameSelected=='RVE' & !model.ownModel"><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="generateMesh">
+                    <i class="fas fa-cogs"></i>
+                </v-btn>
+              </template>
+                <span>Generate Mesh</span>
               </v-tooltip>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -55,7 +63,7 @@
                 <span>Generate Model</span>
               </v-tooltip>
     
-              <v-tooltip bottom v-if="ownModel"><template v-slot:activator="{ on, attrs }">
+              <v-tooltip bottom v-if="model.ownModel"><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="uploadMesh">
                     <i class="fas fa-upload"></i>
                 </v-btn>
@@ -71,7 +79,7 @@
                 <span>Download Modelfiles</span>
               </v-tooltip>
     
-              <v-tooltip bottom v-if="ownModel"><template v-slot:activator="{ on, attrs }">
+              <v-tooltip bottom v-if="model.ownModel"><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="switchModels">
                     <i class="fas fa-backward"></i>
                 </v-btn>
@@ -80,7 +88,7 @@
               </v-tooltip>
         </v-subheader>
           <!-- <v-virtual-scroll
-                :items="Array.from({length: 9}).map((_, index) => index)"
+                :items="Array.from({model.length: 9}).map((_, index) => index)"
                 :item-height="50"
                 height=100vh
               > -->
@@ -95,93 +103,150 @@
                     <h2>Model</h2>
                   </v-expansion-panel-header>
                   <v-expansion-panel-content>
-                  <v-select 
-                    class="textfield-col"
-                    :items="modelName"
-                    v-model="modelNameSelected"
-                    v-show="!ownModel"
-                    @change="showModelImg(); resetData();"
-                    label="ModelName"
-                    outlined></v-select>
-                  <v-text-field 
-                    class="textfield-col"
-                    v-model="modelNameSelected"
-                    v-show="ownModel"
-                    :rules="[rules.required]"
-                    label="ModelName"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    class="textfield-col"
-                    v-model="length"
-                    v-show="!ownModel"
-                    :rules="[rules.required, rules.float]"
-                    label="Length"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    class="textfield-col"
-                    v-model="width"
-                    v-show="!ownModel"
-                    :rules="[rules.required, rules.float]"
-                    label="Width"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    class="textfield-col"
-                    v-model="height"
-                    v-show="!ownModel"
-                    :rules="[rules.required, rules.float]"
-                    label="Height"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    v-show="modelNameSelected=='Dogbone' & !ownModel"
-                    class="textfield-col"
-                    v-model="height2"
-                    :rules="[rules.required, rules.float]"
-                    label="Height2"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    class="textfield-col"
-                    v-model="discretization"
-                    v-show="!ownModel"
-                    :rules="[rules.required, rules.int]"
-                    label="Discretization"
-                    outlined></v-text-field>
-                  <v-text-field 
-                    class="textfield-col"
-                    v-model="horizon"
-                    v-show="ownModel"
-                    :rules="[rules.required, rules.posFloat]"
-                    label="Horizon"
-                    outlined></v-text-field>
-                  <v-switch
-                    v-show="modelNameSelected=='Dogbone' & !ownModel"
-                    class="checkbox-col"
-                    v-model="structured"
-                    label="Structured"
-                  ></v-switch>
-                  <v-switch
-                    class="checkbox-col"
-                    v-model="twoDimensional"
-                    label="Two Dimensional"
-                  ></v-switch>
-                  <v-switch
-                    v-model="rotatedAngles"
-                    v-show="!ownModel"
-                    label="Rotated Angles"
-                  ></v-switch>
-                  <v-row v-show="rotatedAngles">
-                    <v-col class="textfield-col">
+                    <v-select 
+                      class="textfield-col"
+                      :items="modelName"
+                      v-model="model.modelNameSelected"
+                      v-show="!model.ownModel"
+                      @change="showModelImg(); resetData();"
+                      label="ModelName"
+                      outlined></v-select>
+                    <v-text-field 
+                      class="textfield-col"
+                      v-model="model.modelNameSelected"
+                      v-show="model.ownModel"
+                      :rules="[rules.required]"
+                      label="ModelName"
+                      outlined></v-text-field>
+                    <v-text-field 
+                      class="textfield-col"
+                      v-model="model.length"
+                      v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                      :rules="[rules.required, rules.float]"
+                      label="Length"
+                      outlined></v-text-field>
+                    <v-text-field 
+                      class="textfield-col"
+                      v-model="model.width"
+                      v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                      :rules="[rules.required, rules.float]"
+                      label="Width"
+                      outlined></v-text-field>
+                    <v-text-field 
+                      class="textfield-col"
+                      v-model="model.height"
+                      v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                      :rules="[rules.required, rules.float]"
+                      label="Height"
+                      outlined></v-text-field>
+                    <v-text-field 
+                      v-show="model.modelNameSelected=='Dogbone' & !model.ownModel"
+                      class="textfield-col"
+                      v-model="model.height2"
+                      :rules="[rules.required, rules.float]"
+                      label="Height2"
+                      outlined></v-text-field>
+                    <v-text-field 
+                      class="textfield-col"
+                      v-model="model.discretization"
+                      v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                      :rules="[rules.required, rules.int]"
+                      label="Discretization"
+                      outlined></v-text-field>
+                    <v-text-field 
+                      class="textfield-col"
+                      v-model="model.horizon"
+                      v-show="model.ownModel"
+                      :rules="[rules.required, rules.posFloat]"
+                      label="Horizon"
+                      outlined></v-text-field>
+                    <v-switch
+                      v-show="model.modelNameSelected=='Dogbone' & !model.ownModel"
+                      class="checkbox-col"
+                      v-model="model.structured"
+                      label="Structured"
+                    ></v-switch>
+                    <v-switch
+                      v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                      class="checkbox-col"
+                      v-model="model.twoDimensional"
+                      label="Two Dimensional"
+                    ></v-switch>
+                    <v-switch
+                      v-model="model.rotatedAngles"
+                      v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                      label="Rotated Angles"
+                    ></v-switch>
+                    <v-row v-show="model.rotatedAngles">
+                      <v-col class="textfield-col">
+                        <v-text-field 
+                          v-model=model.angles[0]
+                          label="Angle 0"
+                          outlined></v-text-field>
+                      </v-col>
+                      <v-col class="textfield-col">
+                        <v-text-field 
+                          v-model=model.angles[1]
+                          label="Angle 1"
+                          outlined></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <div v-show="model.modelNameSelected=='RVE' & !model.ownModel">
                       <v-text-field 
-                        v-model=angles[0]
-                        label="Angle 0"
+                        class="textfield-col"
+                        v-model="micofam.RVE.rve_fvc"
+                        :rules="[rules.required, rules.float]"
+                        label="rve_fvc"
                         outlined></v-text-field>
-                    </v-col>
-                    <v-col class="textfield-col">
                       <v-text-field 
-                        v-model=angles[1]
-                        label="Angle 1"
+                        class="textfield-col"
+                        v-model="micofam.RVE.rve_radius"
+                        :rules="[rules.required, rules.float]"
+                        label="rve_radius"
                         outlined></v-text-field>
-                    </v-col>
-                  </v-row>
+                      <v-text-field 
+                        class="textfield-col"
+                        v-model="micofam.RVE.rve_lgth"
+                        :rules="[rules.required, rules.float]"
+                        label="rve_lgth"
+                        outlined></v-text-field>
+                      <v-text-field 
+                        class="textfield-col"
+                        v-model="micofam.RVE.rve_dpth"
+                        :rules="[rules.required, rules.float]"
+                        label="rve_dpth"
+                        outlined></v-text-field>
+                      <v-text-field 
+                        class="textfield-col"
+                        v-model="micofam.Interface.int_ufrac"
+                        :rules="[rules.required, rules.float]"
+                        label="int_ufrac"
+                        outlined></v-text-field>
+                      <v-text-field 
+                        class="textfield-col"
+                        v-model="micofam.Mesh.mesh_fib"
+                        :rules="[rules.required, rules.float]"
+                        label="mesh_fib"
+                        outlined></v-text-field>
+                      <v-text-field 
+                        class="textfield-col"
+                        v-model="micofam.Mesh.mesh_lgth"
+                        :rules="[rules.required, rules.float]"
+                        label="mesh_lgth"
+                        outlined></v-text-field>
+                      <v-text-field 
+                        class="textfield-col"
+                        v-model="micofam.Mesh.mesh_dpth"
+                        :rules="[rules.required, rules.float]"
+                        label="mesh_dpth"
+                        outlined></v-text-field>
+                      <v-text-field 
+                        class="textfield-col"
+                        v-model="micofam.Mesh.mesh_aa"
+                        :rules="[rules.required]"
+                        label="mesh_aa"
+                        outlined></v-text-field>
+                    </div>
                   </v-expansion-panel-content>
                 </v-expansion-panel>
               <v-divider></v-divider>
@@ -577,12 +642,12 @@
                           cols="12"
                           sm="2">
                           <v-text-field
-                            v-if="ownModel"
+                            v-if="model.ownModel"
                             v-model=boundaryCondition.nodeSet
                             :label=boundaryKeys.nodeSet
                             outlined></v-text-field>
                           <v-select
-                            v-if="!ownModel"
+                            v-if="!model.ownModel"
                             :items=blocks
                             item-text="id"
                             v-model=boundaryCondition.blockId

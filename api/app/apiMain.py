@@ -36,6 +36,7 @@ import csv
 from re import match
 import time
 import subprocess
+#import requests
 
 
 # class ModelName(str, Enum):
@@ -200,6 +201,33 @@ class ModelControl(object):
         print()
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
    
+    # @app.post("/generateMesh")
+    # def generateMesh(ModelName: str, Param: dict, request: Request):
+    #     username = fileHandler.getUserName(request)
+
+    #     json=Param, 
+    #     print(Param)
+
+    #     headers = {
+    #         'accept': 'application/json',
+    #         'Content-Type': 'multipart/form-data',
+    #     }
+
+    #     files = {
+    #         'ZIP': (None, ''),
+    #         'JSON': (None, '{\n  "RVE": {\n    "rve_fvc": 30,\n    "rve_radius": 6.6,\n    "rve_lgth": 50,\n    "rve_dpth": 1\n  },\n  "Interface": {\n    "int_ufrac": 10\n  },\n  "Mesh": {\n    "mesh_fib": 35,\n    "mesh_lgth": 35,\n    "mesh_dpth": 1,\n    "mesh_aa": "on"\n  }\n}'),
+    #     }
+
+    #     return requests.patch('https://localhost:5000/1/PyCODAC/api/micofam/%7Bzip%7D', headers=headers, files=files)
+
+    #     filePath = './Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType
+    #     if not os.path.exists(filePath):
+    #         return 'Inputfile can\'t be found'
+    #     try:
+    #         return FileResponse(filePath)
+    #     except:
+    #         return 'Inputfile can\'t be found'
+
     @app.get("/viewInputFile")
     def viewInputFile(ModelName: str, FileType: FileType, request: Request):
         username = fileHandler.getUserName(request)

@@ -39,20 +39,22 @@ import { Plotly } from 'vue-plotly'
     data () {
       return {
         // Model
-        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],
-        modelNameSelected: 'Dogbone',
-        ownModel: false,
-        translated: false,
-        length: 0.115,
-        width: 0.003,
-        height: 0.019,
-        height2: 0.013,
-        discretization: 21,
-        horizon: 0.01,
-        structured: true,
-        twoDimensional: true,
-        rotatedAngles: false,
-        angles: [0, 0],
+        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel', 'RVE'],
+        model: {
+          modelNameSelected: 'Dogbone',
+          ownModel: false,
+          translated: false,
+          length: 0.115,
+          width: 0.003,
+          height: 0.019,
+          height2: 0.013,
+          discretization: 21,
+          horizon: 0.01,
+          structured: true,
+          twoDimensional: true,
+          rotatedAngles: false,
+          angles: [0, 0]
+        },
         // Material
         materialModelName: ['Diffusion', 'Elastic', 'Elastic Bond Based', 'Elastic Correspondence', 'Elastic Correspondence Partial Stress', 
         'Elastic Hypoelastic Correspondence', 'Elastic Partial Volume', 'Elastic Plastic',  'Elastic Plastic Correspondence', 
@@ -61,6 +63,19 @@ import { Plotly } from 'vue-plotly'
         'Pressure Dependent Elastic Plastic', 'User Correspondence',  'Viscoelastic', 'Viscoplastic Needleman Correspondence', 'Vector Poisson'],
         materialSymmetry: ['Isotropic', 'Anisotropic'],
         stabilizatonType: ['Bond Based', 'State Based', 'Sub Horizon', 'Global Stiffness'],
+        micofam:{
+          RVE: {
+            rve_fvc: 30,
+            rve_radius: 6.6,
+            rve_lgth: 50,
+            rve_dpth: 1},
+          Interface: {
+            int_ufrac: 10},
+          Mesh: {
+            mesh_fib: 35,
+            mesh_lgth: 35,
+            mesh_dpth: 1,
+            mesh_aa: "on"}},
         materials: [
           { id: 1, Name: 'PMMA', 
             MatType: 'Linear Elastic Correspondence', 
@@ -344,7 +359,7 @@ import { Plotly } from 'vue-plotly'
           y: [10,15,5,17],
           type:"scatter"}],
         plotLayout:{
-          // title: 'this.modelNameSelected',
+          // title: 'this.model.modelNameSelected',
           showlegend: true,
           // margin: { t: 50 },
           hovermode: "compare",
@@ -425,7 +440,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "viewInputFile",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                   FileType: this.solver.filetype},
           method: "GET",
           headers: headersList,
@@ -449,20 +464,20 @@ import { Plotly } from 'vue-plotly'
           }
           let reqOptions = {
             url: this.url + "generateModel",
-            params: {ModelName: this.modelNameSelected,
-                    ownModel: this.ownModel,
-                    translated: this.translated,
-                    Length: this.length,
-                    Width: this.width,
-                    Height: this.height,
-                    Height2: this.height2,
-                    Discretization: this.discretization,
-                    Horizon: this.horizon,
-                    Structured: this.structured,
-                    TwoDimensional: this.twoDimensional,
-                    RotatedAngles: this.rotatedAngles,
-                    Angle0: this.angles[0],
-                    Angle1: this.angles[1]},
+            params: {ModelName: this.model.modelNameSelected,
+                    ownModel: this.model.ownModel,
+                    translated: this.model.translated,
+                    Length: this.model.length,
+                    Width: this.model.width,
+                    Height: this.model.height,
+                    Height2: this.model.height2,
+                    Discretization: this.model.discretization,
+                    Horizon: this.model.horizon,
+                    Structured: this.model.structured,
+                    TwoDimensional: this.model.twoDimensional,
+                    RotatedAngles: this.model.rotatedAngles,
+                    Angle0: this.model.angles[0],
+                    Angle1: this.model.angles[1]},
             data: JSON.parse("{\"Param\":" + "{\"Material\": " + JSON.stringify(this.materials)+",\n" +
                                               "\"Damage\": " + JSON.stringify(this.damages)+",\n" +
                                               "\"Block\": " + JSON.stringify(this.blocks)+",\n" +
@@ -473,31 +488,57 @@ import { Plotly } from 'vue-plotly'
             method: "POST",
             headers: headersList,
           }
-          if(this.ownModel==false){
+          if(this.model.ownModel==false){
             this.modelLoading = true
           }
           this.textLoading = true
           await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true
           this.viewInputFile(false)
-          if(this.ownModel==false){
+          if(this.model.ownModel==false){
             this.viewPointData()
             this.modelLoading = false
           }
           this.textLoading = false
-          this.saveCurrentData()
+          // this.saveCurrentData()
         }
       },
+      async generateMesh() {     
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'accept': 'application/json',
+        'Content-Type': 'multipart/form-data'
+        }
+        let reqOptions = {
+          url: "https://fa-jenkins2:5000/1/PyCODAC/api/micofam/{zip}",
+          data: JSON.parse(JSON.stringify(this.micofam)),
+          method: "PATCH",
+          headers: headersList,
+        }
+        // if(this.model.ownModel==false){
+        //   this.modelLoading = true
+        // }
+        // this.textLoading = true
+        await axios.request(reqOptions).then(response => (this.message = response.data))
+        this.snackbar=true
+        // this.viewInputFile(false)
+        // if(this.model.ownModel==false){
+        //   this.viewPointData()
+        //   this.modelLoading = false
+        // }
+        // this.textLoading = false
+        // this.saveCurrentData()
+      },
       saveData() {
-        const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
-                      "\"length\":" + this.length + ",\n" +
-                      "\"width\":" + this.width + ",\n" +
-                      "\"height\":" + this.height + ",\n" +
-                      "\"height2\":" + this.height2 + ",\n" +
-                      "\"discretization\":" + this.discretization + ",\n" +
-                      "\"twoDimensional\":" + this.twoDimensional + ",\n" +
-                      "\"rotatedAngles\":" + this.rotatedAngles + ",\n" +
-                      "\"angles\":[" + this.angles + "],\n" +
+        const data = "{\"modelNameSelected\":\"" + this.model.modelNameSelected + "\",\n" +
+                      "\"length\":" + this.model.length + ",\n" +
+                      "\"width\":" + this.model.width + ",\n" +
+                      "\"height\":" + this.model.height + ",\n" +
+                      "\"height2\":" + this.model.height2 + ",\n" +
+                      "\"discretization\":" + this.model.discretization + ",\n" +
+                      "\"twoDimensional\":" + this.model.twoDimensional + ",\n" +
+                      "\"rotatedAngles\":" + this.model.rotatedAngles + ",\n" +
+                      "\"angles\":[" + this.model.angles + "],\n" +
                       "\"Param\":" + "{\"materials\": " + JSON.stringify(this.materials)+",\n" +
                                       "\"damages\": " + JSON.stringify(this.damages)+",\n" +
                                       "\"blocks\": " + JSON.stringify(this.blocks)+",\n" +
@@ -508,7 +549,7 @@ import { Plotly } from 'vue-plotly'
         var fileURL = window.URL.createObjectURL(new Blob([data], {type: 'application/json'}));
         var fileLink = document.createElement('a');
         fileLink.href = fileURL;
-        fileLink.setAttribute('download', this.modelNameSelected + '.json');
+        fileLink.setAttribute('download', this.model.modelNameSelected + '.json');
         document.body.appendChild(fileLink);
         fileLink.click();
       },
@@ -570,7 +611,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "uploadfiles",
-          params: {ModelName: this.modelNameSelected},
+          params: {ModelName: this.model.modelNameSelected},
           data: formData,
           method: "POST",
           headers: headersList,
@@ -730,10 +771,10 @@ import { Plotly } from 'vue-plotly'
               var key = this.getKeyByValue(paramKeys, subNames[j])
               if(subNames[j]=='Horizon'){
                 if(parseFloat(paramObject[names[i]][subNames[j]])==paramObject[names[i]][subNames[j]]){
-                  this.horizon = paramObject[names[i]][subNames[j]]
+                  this.model.horizon = paramObject[names[i]][subNames[j]]
                 }
                 else{
-                  this.horizon = -1.0
+                  this.model.horizon = -1.0
                 }
               }
               this[paramName][i][key] = paramObject[names[i]][subNames[j]]
@@ -747,8 +788,8 @@ import { Plotly } from 'vue-plotly'
         }
       },
       loadJsonFile(fr, files) {
-        this.ownModel=false
-        this.translated=false
+        this.model.ownModel=false
+        this.model.translated=false
         
         fr.onload = e => {
           const result = JSON.parse(e.target.result);
@@ -769,10 +810,10 @@ import { Plotly } from 'vue-plotly'
         fr.readAsText(files.item(0));
       },
       loadYamlModel(fr, files) {
-        this.ownModel=true
-        this.translated=false
+        this.model.ownModel=true
+        this.model.translated=false
         
-        this.modelNameSelected = files[0].name.split('.')[0]
+        this.model.modelNameSelected = files[0].name.split('.')[0]
 
         fr.onload = e => {
           const yaml = e.target.result;
@@ -781,10 +822,10 @@ import { Plotly } from 'vue-plotly'
         fr.readAsText(files.item(0));
       },
       loadXmlModel(fr, files) {
-        this.ownModel=true
-        this.translated=false
+        this.model.ownModel=true
+        this.model.translated=false
 
-        this.modelNameSelected = files[0].name.split('.')[0]
+        this.model.modelNameSelected = files[0].name.split('.')[0]
         
         fr.onload = e => {
           const xml = e.target.result;
@@ -794,8 +835,8 @@ import { Plotly } from 'vue-plotly'
         fr.readAsText(files.item(0));
       },
       loadFeModel(files) {
-        this.ownModel=true
-        this.translated=true
+        this.model.ownModel=true
+        this.model.translated=true
         
         // this.modelLoading = true
       	this.textLoading = true
@@ -803,7 +844,7 @@ import { Plotly } from 'vue-plotly'
         if (files.length <= 0) {
           return false;
         }
-        this.modelNameSelected = files[0].name.split('.')[0]
+        this.model.modelNameSelected = files[0].name.split('.')[0]
         const filetype = files[0].name.split('.')[1]
 
         this.translateModel(files, filetype)
@@ -823,7 +864,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "translateModel",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                    Filetype: filetype},
           data: formData,
           method: "POST",
@@ -890,11 +931,11 @@ import { Plotly } from 'vue-plotly'
         }
       },
       switchModels(){
-        this.ownModel=false
-        this.translated=false
+        this.model.ownModel=false
+        this.model.translated=false
       },
       resetData() {
-        switch (this.modelNameSelected) {
+        switch (this.model.modelNameSelected) {
         case 'GIICmodel':  
           this.jsonFile = GIICmodelFile;
           break;
@@ -920,101 +961,62 @@ import { Plotly } from 'vue-plotly'
           }
         }
       },
-      saveCurrentData() {
-        this.$cookie.set('panel', JSON.stringify(this.panel), { expires: '1M' }, '/app');
-        this.$cookie.set('ownModel', this.ownModel, { expires: '1M' }, '/app');
-        this.$cookie.set('translated', this.translated, { expires: '1M' }, '/app');
-        const data = "{\"modelNameSelected\":\"" + this.modelNameSelected + "\",\n" +
-                      "\"length\":" + this.length + ",\n" +
-                      "\"width\":" + this.width + ",\n" +
-                      "\"height\":" + this.height + ",\n" +
-                      "\"height2\":" + this.height2 + ",\n" +
-                      "\"discretization\":" + this.discretization + ",\n" +
-                      "\"twoDimensional\":" + this.twoDimensional + ",\n" +
-                      "\"rotatedAngles\":" + this.rotatedAngles + ",\n" +
-                      "\"angles\":[" + this.angles + "]}";
-        this.$cookie.set('data', data, { expires: '1M' }, '/app');
-        this.jsonToCookie("materials", true)
-        this.jsonToCookie("damages")
-        this.jsonToCookie("blocks", true)
-        this.jsonToCookie("boundaryConditions")
-        this.jsonToCookie("computes")
-        this.jsonToCookie("outputs")
-        this.jsonToCookie("solver")
-        this.jsonToCookie("job")
-      },
-      jsonToCookie(name, split = false) {
-        if(!split){
-          const data = "{\"" + name + "\": " + JSON.stringify(this[name])+"}";
-          this.$cookie.set(name, data, { expires: '1M' }, '/app');
-        }
-        else{
-          for(var i = this[name].length; i<100; i++){
-            this.$cookie.delete(name+i)
-          }
-          for(var id = 0; id < this[name].length; id++) {
-            const subdata = "{\"" + name + id + "\": " + JSON.stringify(this[name][id])+"}";
-            this.$cookie.set(name + id, subdata, { expires: '1M' }, '/app');
-          }
-        }
-      },
-      getCurrentData() {
-        this.panel = JSON.parse(this.$cookie.get('panel'));
-        let data = this.$cookie.get('ownModel');
-        if(data!=null) {
-          this.ownModel = (data == 'true');
-        }
-        data = this.$cookie.get('translated');
-        if(data!=null) {
-          this.translated = (data == 'true');
-        }
-        this.cookieToJson("data")
-        this.cookieToJson("materials", true)
-        this.cookieToJson("damages")
-        this.cookieToJson("blocks", true)
-        this.cookieToJson("boundaryConditions")
-        this.cookieToJson("computes")
-        this.cookieToJson("outputs")
-        this.cookieToJson("solver")
-        this.cookieToJson("job")
-      },
-      cookieToJson(name, split = false) {
-        if(!split){
-          const data = JSON.parse(this.$cookie.get(name));
-          if(data==null) return
-          for(var i = 0; i < Object.keys(data).length; i++) {
-            var name = Object.keys(data)[i]
-            this[name] = data[name];
-          }
-        }
-        else{
-          for(var id = 0; id < 100; id++) {
-            const subdata = JSON.parse(this.$cookie.get(name + id));
-            if(subdata==null) break
-            this[name][id] = subdata[name + id]
-          }
-        }
-      },
-      deleteCookies() {
-        this.dialogDeleteCookies = false;
-        // var cookieKeys = this.$cookie.keys()
-        // for(key in cookieKeys){
-        this.$cookie.delete('darkMode')
-        this.$cookie.delete('panel')
-        this.$cookie.delete('ownModel')
-        this.$cookie.delete('translated')
-        this.$cookie.delete('data')
-        for(var i = 0; i<100; i++){
-          this.$cookie.delete('materials'+i)
-          this.$cookie.delete('blocks'+i)
-        }
-        this.$cookie.delete('damages')
-        this.$cookie.delete('boundaryConditions')
-        this.$cookie.delete('computes')
-        this.$cookie.delete('outputs')
-        this.$cookie.delete('solver')
-        this.$cookie.delete('job')
-      },
+      // saveCurrentData() {
+        // this.$store.commit('saveModelName', this.model.modelNameSelected);
+        // this.$cookie.set('panel', JSON.stringify(this.panel), { expires: '1M' }, '/app');
+        // this.$cookie.set('ownModel', this.model.ownModel, { expires: '1M' }, '/app');
+        // this.$cookie.set('translated', this.model.translated, { expires: '1M' }, '/app');
+        // const data = "{\"modelNameSelected\":\"" + this.model.modelNameSelected + "\",\n" +
+        //               "\"length\":" + this.model.length + ",\n" +
+        //               "\"width\":" + this.model.width + ",\n" +
+        //               "\"height\":" + this.model.height + ",\n" +
+        //               "\"height2\":" + this.model.height2 + ",\n" +
+        //               "\"discretization\":" + this.model.discretization + ",\n" +
+        //               "\"twoDimensional\":" + this.model.twoDimensional + ",\n" +
+        //               "\"rotatedAngles\":" + this.model.rotatedAngles + ",\n" +
+        //               "\"angles\":[" + this.model.angles + "]}";
+        // this.$cookie.set('data', data, { expires: '1M' }, '/app');
+        // this.jsonToCookie("materials", true)
+        // this.jsonToCookie("damages")
+        // this.jsonToCookie("blocks", true)
+        // this.jsonToCookie("boundaryConditions")
+        // this.jsonToCookie("computes")
+        // this.jsonToCookie("outputs")
+        // this.jsonToCookie("solver")
+        // this.jsonToCookie("job")
+      // },
+      // jsonToCookie(name, split = false) {
+      //   if(!split){
+      //     const data = "{\"" + name + "\": " + JSON.stringify(this[name])+"}";
+      //     this.$cookie.set(name, data, { expires: '1M' }, '/app');
+      //   }
+      //   else{
+      //     for(var i = this[name].length; i<100; i++){
+      //       this.$cookie.delete(name+i)
+      //     }
+      //     for(var id = 0; id < this[name].length; id++) {
+      //       const subdata = "{\"" + name + id + "\": " + JSON.stringify(this[name][id])+"}";
+      //       this.$cookie.set(name + id, subdata, { expires: '1M' }, '/app');
+      //     }
+      //   }
+      // },
+      // cookieToJson(name, split = false) {
+      //   if(!split){
+      //     const data = JSON.parse(this.$cookie.get(name));
+      //     if(data==null) return
+      //     for(var i = 0; i < Object.keys(data).length; i++) {
+      //       var name = Object.keys(data)[i]
+      //       this[name] = data[name];
+      //     }
+      //   }
+      //   else{
+      //     for(var id = 0; id < 100; id++) {
+      //       const subdata = JSON.parse(this.$cookie.get(name + id));
+      //       if(subdata==null) break
+      //       this[name][id] = subdata[name + id]
+      //     }
+      //   }
+      // },
       async viewPointData() {
 
         this.modelLoading = true
@@ -1060,8 +1062,8 @@ import { Plotly } from 'vue-plotly'
           }
         let reqOptions = {
           url: this.url + "getPointData",
-          params: {ModelName: this.modelNameSelected,
-                   OwnModel: this.ownModel},
+          params: {ModelName: this.model.modelNameSelected,
+                   OwnModel: this.model.ownModel},
           method: "GET",
           headers: headersList,
           }
@@ -1076,8 +1078,8 @@ import { Plotly } from 'vue-plotly'
           this.snackbar = true
         ));
 
-        if (!this.ownModel){
-          this.dx = this.height/(2*parseInt(this.discretization/2)+1)
+        if (!this.model.ownModel){
+          this.dx = this.model.height/(2*parseInt(this.model.discretization/2)+1)
         }
         else{
           this.dx = Math.hypot(parseFloat(this.pointString[3])-parseFloat(this.pointString[0]),parseFloat(this.pointString[4])-parseFloat(this.pointString[1]),parseFloat(this.pointString[5])-parseFloat(this.pointString[2]))
@@ -1089,7 +1091,7 @@ import { Plotly } from 'vue-plotly'
       //   }
       //   let reqOptions = {
       //     url: this.url + "copyModelToCluster",
-      //     params: {ModelName: this.modelNameSelected,
+      //     params: {ModelName: this.model.modelNameSelected,
       //             Cluster: this.job.cluster},
       //     method: "GET",
       //     headers: headersList,
@@ -1108,7 +1110,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "runModel",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                   FileType: this.solver.filetype,},
           data: JSON.parse("{\"Param\":" + "{\"Job\": " + JSON.stringify(this.job)+",\n" +
                                             "\"Output\": " + JSON.stringify(this.outputs)+",\n" + 
@@ -1128,7 +1130,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "cancelJob",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                   Cluster: this.job.cluster,},
           method: "POST",
           headers: headersList,
@@ -1144,7 +1146,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "getModel",
-          params: {ModelName: this.modelNameSelected},
+          params: {ModelName: this.model.modelNameSelected},
           method: "GET",
           responseType: 'blob',
           headers: headersList,
@@ -1174,7 +1176,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "getResults",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                   Cluster: this.job.cluster,
                   allData: allData},
           method: "GET",
@@ -1187,7 +1189,7 @@ import { Plotly } from 'vue-plotly'
 
         // reqOptions = {
         //   url: this.url + "getResults",
-        //   params: {ModelName: this.modelNameSelected},
+        //   params: {ModelName: this.model.modelNameSelected},
         //   method: "GET",
         //   responseType: 'blob',
         //   headers: headersList,
@@ -1198,7 +1200,7 @@ import { Plotly } from 'vue-plotly'
             var fileURL = window.URL.createObjectURL(new Blob([response.data]));
             var fileLink = document.createElement('a');
             fileLink.href = fileURL;
-            fileLink.setAttribute('download', this.modelNameSelected + '.zip');
+            fileLink.setAttribute('download', this.model.modelNameSelected + '.zip');
             document.body.appendChild(fileLink);
             fileLink.click();
         })
@@ -1231,7 +1233,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "getPlot",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                    Cluster: this.job.cluster,
                    OutputName: OutputName},
           method: "GET",
@@ -1272,7 +1274,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "getImage",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                    Cluster: this.job.cluster,
                    Variable: Variable,
                    dx: this.dx},
@@ -1314,7 +1316,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "getLogFile",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                   Cluster: this.job.cluster},
           method: "GET",
           headers: headersList,
@@ -1328,7 +1330,7 @@ import { Plotly } from 'vue-plotly'
       writeInputFile() {
         let reqOptions = {
           url: this.url + "writeInputFile",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                   InputString: this.textOutput,
                   FileType: this.solver.filetype},
           method: "POST",
@@ -1345,7 +1347,7 @@ import { Plotly } from 'vue-plotly'
 
         let reqOptions = {
           url: this.url + "deleteModel",
-          params: {ModelName: this.modelNameSelected},
+          params: {ModelName: this.model.modelNameSelected},
           method: "POST",
           headers: headersList,
           }
@@ -1354,7 +1356,7 @@ import { Plotly } from 'vue-plotly'
 
         reqOptions = {
           url: this.url + "deleteModelFromCluster",
-          params: {ModelName: this.modelNameSelected,
+          params: {ModelName: this.model.modelNameSelected,
                   Cluster: this.job.cluster},
           method: "POST",
           headers: headersList,
@@ -1502,7 +1504,7 @@ import { Plotly } from 'vue-plotly'
         this.outputs.splice(index, 1)
       },
       showModelImg() {
-        switch (this.modelNameSelected) {
+        switch (this.model.modelNameSelected) {
         case 'GIICmodel':  
           this.modelImg = GIICmodelImage;
           break;
@@ -1534,16 +1536,16 @@ import { Plotly } from 'vue-plotly'
         }
       },
       checkInputs() {
-        if (this.length && this.width) {
+        if (this.model.length && this.model.width) {
           return true;
         }
 
         this.errors = [];
 
-        if (!this.length) {
+        if (!this.model.length) {
           this.errors.push('Length required');
         }
-        if (!this.width) {
+        if (!this.model.width) {
           this.errors.push('Width required');
         }
 
@@ -1553,19 +1555,131 @@ import { Plotly } from 'vue-plotly'
 
         return false;
       },
+      getCurrentData() {
+        this.getLocalStorage('model');
+        this.getLocalStorage('materials');
+        this.getLocalStorage('damages');
+        this.getLocalStorage('blocks');
+        this.getLocalStorage('boundaryConditions');
+        this.getLocalStorage('computes');
+        this.getLocalStorage('outputs');
+        this.getLocalStorage('solver');
+        this.getLocalStorage('job');
+        this.getLocalStorage('panel');
+      },
+      getLocalStorage(name){
+        if (localStorage.getItem(name)) 
+            this[name] = JSON.parse(localStorage.getItem(name));
+      },
+      deleteCookies() {
+        this.dialogDeleteCookies = false;
+        this.$cookie.delete('darkMode')
+        localStorage.removeItem('model');
+        localStorage.removeItem('materials');
+        localStorage.removeItem('damages');
+        localStorage.removeItem('blocks');
+        localStorage.removeItem('boundaryConditions');
+        localStorage.removeItem('computes');
+        localStorage.removeItem('outputs');
+        localStorage.removeItem('solver');
+        localStorage.removeItem('job');
+        localStorage.removeItem('panel');
+      },
     },
     beforeMount() {
-      // this.getCurrentData()
+      // console.log("beforeMount")
       if(process.env.VUE_APP_ROOT_API!=undefined)
       {
         this.url = process.env.VUE_APP_ROOT_API
       }
     },
+    mounted() {
+      // console.log("mounted")
+      this.getCurrentData()
+    },
     updated() {
-      this.saveCurrentData()
+      // console.log("updated")
+      // console.log(this.model.modelNameSelected)
+      // console.log(this.$store.state.modelName)
+      // this.saveCurrentData()
+      // console.log(this.model.modelNameSelected)
+      // console.log(this.$store.state.modelName)
     },
     beforeUnmount() {
+      // console.log("beforeUnmount")
       // Don't forget to remove the interval before destroying the component
       clearInterval(this.interval)
+    },
+    watch: {
+      model: {
+          handler() {
+              // console.log('model changed!');
+              localStorage.setItem('model', JSON.stringify(this.model));
+          },
+          deep: true,
+      },
+      materials: {
+          handler() {
+              // console.log('materials changed!');
+              localStorage.setItem('materials', JSON.stringify(this.materials));
+          },
+          deep: true,
+      },
+      damages: {
+          handler() {
+              // console.log('damages changed!');
+              localStorage.setItem('damages', JSON.stringify(this.damages));
+          },
+          deep: true,
+      },
+      blocks: {
+          handler() {
+              // console.log('blocks changed!');
+              localStorage.setItem('blocks', JSON.stringify(this.blocks));
+          },
+          deep: true,
+      },
+      boundaryConditions: {
+          handler() {
+              // console.log('boundaryConditions changed!');
+              localStorage.setItem('boundaryConditions', JSON.stringify(this.boundaryConditions));
+          },
+          deep: true,
+      },
+      computes: {
+          handler() {
+              // console.log('computes changed!');
+              localStorage.setItem('computes', JSON.stringify(this.computes));
+          },
+          deep: true,
+      },
+      outputs: {
+          handler() {
+              // console.log('outputs changed!');
+              localStorage.setItem('outputs', JSON.stringify(this.outputs));
+          },
+          deep: true,
+      },
+      solver: {
+          handler() {
+              // console.log('solver changed!');
+              localStorage.setItem('solver', JSON.stringify(this.solver));
+          },
+          deep: true,
+      },
+      job: {
+          handler() {
+              // console.log('job changed!');
+              localStorage.setItem('job', JSON.stringify(this.job));
+          },
+          deep: true,
+      },
+      panel: {
+          handler() {
+              // console.log('panel changed!');
+              localStorage.setItem('panel', JSON.stringify(this.panel));
+          },
+          deep: true,
+      },
     },
   }

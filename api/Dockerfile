@@ -6,8 +6,11 @@ ENV EXTERNAL $EXTERNAL
 ARG FASERVICES
 ENV FASERVICES $FASERVICES
 
-RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles pyevtk python-multipart meshio[all]
+RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles python-multipart 
+#requests 
+# meshio[all]
 # pysftp 
+#pyevtk 
 
 
 # RUN if [ "$EXTERNAL" = "False" ]; then \
