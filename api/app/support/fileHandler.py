@@ -252,19 +252,28 @@ class fileHandler(object):
             username='f_peridi'
             server='129.247.54.37'
             keypath = 'certs/id_rsa_cluster'
-            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+            try:
+                ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+            except:
+                return "ssh connection to " + server + " failed!"
         
         elif Cluster=='Cara':
             username='f_peridi'
             server='cara.dlr.de'
             keypath = 'certs/id_rsa_cara'
-            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+            try:
+                ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+            except:
+                return "ssh connection to " + server + " failed!"
         
         elif Cluster=='None':
             username='root'
             server='periHubPeridigm'
             keypath = 'certs/id_rsa_cara'
-            ssh.connect(server, username=username, allow_agent=False, password='root')
+            try:
+                ssh.connect(server, username=username, allow_agent=False, password='root')
+            except:
+                return "ssh connection to " + server + " failed!"
 
         sftp = ssh.open_sftp()
         return ssh, sftp
@@ -283,5 +292,8 @@ class fileHandler(object):
 
         ssh = paramiko.SSHClient() 
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+        try:
+            ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
+        except:
+            return "ssh connection to " + server + " failed!"
         return ssh

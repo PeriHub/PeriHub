@@ -620,7 +620,10 @@ class ModelControl(object):
         remotepath = '/app/peridigmJobs/' + os.path.join(username, ModelName)
         ssh = paramiko.SSHClient() 
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(server, username='root', allow_agent=False, password='root')
+        try:
+            ssh.connect(server, username='root', allow_agent=False, password='root')
+        except:
+           return "ssh connection to " + server + " failed!"
         command = '/usr/local/netcdf/bin/ncgen ' + os.path.join(remotepath, ModelName) + '.g.ascii -o ' + os.path.join(remotepath, ModelName) + '.g' + \
         ' && python3 /Peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
         ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
@@ -702,7 +705,10 @@ class ModelControl(object):
             os.chmod(os.path.join('.' + remotepath,"runPeridigm.sh"), 0o0755)
             ssh = paramiko.SSHClient() 
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username='root', allow_agent=False, password='root')
+            try:
+                ssh.connect(server, username='root', allow_agent=False, password='root')
+            except:
+                return "ssh connection to " + server + " failed!"
             command = 'cd /app' + remotepath + ' \n rm ' + ModelName + '.log \n sh /app' + remotepath + '/runPeridigm.sh >> ' + ModelName + '.log &'
             stdin, stdout, stderr  = ssh.exec_command(command)
             #stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
@@ -724,7 +730,10 @@ class ModelControl(object):
             remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
             ssh = paramiko.SSHClient() 
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(server, username='root', allow_agent=False, password='root')
+            try:
+                ssh.connect(server, username='root', allow_agent=False, password='root')
+            except:
+                return "ssh connection to " + server + " failed!"
             command = 'kill -9 `cat /app' + os.path.join(remotepath, 'pid.txt') + '` \n rm /app' + os.path.join(remotepath, 'pid.txt')
             stdin, stdout, stderr  = ssh.exec_command(command)
             stdout=stdout.readlines()

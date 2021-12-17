@@ -1046,7 +1046,7 @@ import { Plotly } from 'vue-plotly'
         this.filteredBlockIdString = []
         this.filteredPointString = []
         for (var i = 0; i < this.blockIdString.length; i++) {
-          if (this.blocks[this.blockIdString[i]*this.blocks.length-1].show){
+          if (this.blocks[parseInt(this.blockIdString[i]*this.blocks.length-1)].show){
             this.filteredBlockIdString[idx] = this.blockIdString[i]
             for (var j = 0; j < 3; j++) {
               this.filteredPointString[idx*3+j] = this.pointString[i*3+j] * this.multiplier
