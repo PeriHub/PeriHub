@@ -40,6 +40,17 @@ build_cron_job:
     - docker build -t ${CI_REGISTRY_PATH}cron_image cron/. 
     - docker push ${CI_REGISTRY_PATH}cron_image
 
+build_paraview_job:
+  stage: build
+  extends: [.build_before_script_template]
+  only:
+    changes:
+      - paraview/**/*
+  script:
+    # - docker pull ${CI_REGISTRY_PATH}cron_image || true
+    - docker build -t ${CI_REGISTRY_PATH}paraview_image paraview/. 
+    - docker push ${CI_REGISTRY_PATH}paraview_image
+
 # deploy_api_job:
 #   stage: deploy
 #   tags: 

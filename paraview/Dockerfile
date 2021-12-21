@@ -31,7 +31,6 @@ RUN tar xvzf paraView.tar.gz
 #                         # libopenmpi-dev \
 #                         # libtbb-dev \
 #                         ninja-build
-
 # COPY read.sh read.sh
 
 # RUN git clone https://gitlab.kitware.com/paraview/paraview.git; \
