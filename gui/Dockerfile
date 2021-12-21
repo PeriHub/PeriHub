@@ -19,7 +19,7 @@ RUN npm run build
 # production stage
 FROM nginx:alpine as production-stage
 COPY --from=develop-stage /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
+# COPY nginx.conf /etc/nginx/nginx.conf
 # COPY nginx.conf.ssl* /etc/nginx/nginx.conf
 
 EXPOSE 90
