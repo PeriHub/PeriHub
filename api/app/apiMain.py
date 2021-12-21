@@ -617,7 +617,7 @@ class ModelControl(object):
         # if returnString!='Success':
         #     return returnString
 
-        server='periHubPeridigm'
+        server='perihub_peridigm'
         remotepath = '/app/peridigmJobs/' + os.path.join(username, ModelName)
         ssh = paramiko.SSHClient() 
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -694,7 +694,7 @@ class ModelControl(object):
             return ModelName + ' has been submitted'
 
         elif Cluster=='None':
-            server='periHubPeridigm'
+            server='perihub_peridigm'
             remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
             if os.path.exists(os.path.join('.' + remotepath,'pid.txt')):
                 return ModelName + ' already submitted'
@@ -727,7 +727,7 @@ class ModelControl(object):
         username = fileHandler.getUserName(request)
 
         if Cluster=='None':
-            server='periHubPeridigm'
+            server='perihub_peridigm'
             remotepath = '/peridigmJobs/' + os.path.join(username, ModelName)
             ssh = paramiko.SSHClient() 
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
