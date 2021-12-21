@@ -460,6 +460,7 @@ import { Plotly } from 'vue-plotly'
           'Cache-Control': 'no-cache',
           // 'Access-Control-Allow-Origin': '*'
           }
+          
           console.log(this.url + "generateModel");
           let reqOptions = {
 
