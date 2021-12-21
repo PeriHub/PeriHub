@@ -612,7 +612,6 @@ class ModelControl(object):
         if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.peridigm', True) != 'Success':
             return ModelName + ' can not be translated'
 
-
         # if returnString!='Success':
         #     return returnString
 
