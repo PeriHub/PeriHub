@@ -1,5 +1,5 @@
 variables: &globals
-  CI_REGISTRY_PATH: "https://harbor.fa-services.intra.dlr.de/hess_ja/"
+  CI_REGISTRY_PATH: "harbor.fa-services.intra.dlr.de/hess_ja/"
 
 stages:
   - build
