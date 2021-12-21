@@ -318,7 +318,7 @@ import { Plotly } from 'vue-plotly'
         },
         cluster: ['Cara', 'FA-Cluster', 'None'],
 
-        url: 'periHubApi/',
+        url: 'https://perihub-api.fa-services.intra.dlr.de/',
         textOutput: '',
         pointString: [1,0,0],
         filteredPointString: [1,0,0],
@@ -460,10 +460,7 @@ import { Plotly } from 'vue-plotly'
           'Cache-Control': 'no-cache',
           // 'Access-Control-Allow-Origin': '*'
           }
-          
-          console.log(this.url + "generateModel");
           let reqOptions = {
-
             url: this.url + "generateModel",
             params: {ModelName: this.model.modelNameSelected,
                     ownModel: this.model.ownModel,
@@ -492,7 +489,6 @@ import { Plotly } from 'vue-plotly'
           if(this.model.ownModel==false){
             this.modelLoading = true
           }
-          console.log(reqOptions);
           this.textLoading = true
           await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true
@@ -1603,10 +1599,10 @@ import { Plotly } from 'vue-plotly'
     },
     beforeMount() {
       // console.log("beforeMount")
-      // if(process.env.VUE_APP_ROOT_API!=undefined)
-      // {
-      //   this.url = process.env.VUE_APP_ROOT_API
-      // }
+      if(process.env.VUE_APP_ROOT_API!=undefined)
+      {
+        this.url = process.env.VUE_APP_ROOT_API
+      }
     },
     mounted() {
       // console.log("mounted")
