@@ -460,7 +460,9 @@ import { Plotly } from 'vue-plotly'
           'Cache-Control': 'no-cache',
           // 'Access-Control-Allow-Origin': '*'
           }
+          console.log(this.url + "generateModel");
           let reqOptions = {
+
             url: this.url + "generateModel",
             params: {ModelName: this.model.modelNameSelected,
                     ownModel: this.model.ownModel,
@@ -489,6 +491,7 @@ import { Plotly } from 'vue-plotly'
           if(this.model.ownModel==false){
             this.modelLoading = true
           }
+          console.log(reqOptions);
           this.textLoading = true
           await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true

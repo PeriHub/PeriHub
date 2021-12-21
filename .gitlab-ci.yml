@@ -3,7 +3,7 @@ variables: &globals
 
 stages:
   - build
-  - deploy
+  # - deploy
 
 build_api_job:
   stage: build
