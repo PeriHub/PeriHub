@@ -59,6 +59,7 @@ origins = [
     "https://localhost:6010",
     "http://fa-jenkins2:6010",
     "https://fa-jenkins2:6010",
+    "https://perihub.fa-services.intra.dlr.de",
 ]
 
 app.add_middleware(
