@@ -52,6 +52,5 @@ RUN tar xvzf paraView.tar.gz
 # RUN mkdir /var/run/sshd
 
 # WORKDIR /app/
-
 # EXPOSE 55
 # CMD    ["/usr/sbin/sshd", "-D"]
