@@ -1,5 +1,5 @@
 variables: &globals
-  CI_REGISTRY_PATH: "registry.gitlab-test.dlr.de/hess_ja/images/"
+  CI_REGISTRY_PATH: "https://harbor.fa-services.intra.dlr.de/hess_ja/"
 
 stages:
   - build
@@ -110,14 +110,14 @@ deploy_peridigm_job:
     FF_ENABLE_BASH_EXIT_CODE_CHECK: 1
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False\nFASERVICES=True" >> .env
   after_script:
     - docker logout
 
 .deploy_before_script_template:
   before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   after_script:
     - docker logout
 
