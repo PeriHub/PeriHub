@@ -268,7 +268,7 @@ class fileHandler(object):
         
         elif Cluster=='None':
             username='root'
-            server='periHubPeridigm'
+            server='perihub_peridigm'
             keypath = 'certs/id_rsa_cara'
             try:
                 ssh.connect(server, username=username, allow_agent=False, password='root')

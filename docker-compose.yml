@@ -7,7 +7,7 @@ services:
       args: 
         EXTERNAL: ${EXTERNAL}
         FASERVICES: ${FASERVICES}
-    container_name: periHubApi
+    # container_name: periHubApi
     image: peri_hub_api_image
     ports:
       - 6020:80
@@ -23,7 +23,7 @@ services:
       context: gui/.
       args: 
         FASERVICES: ${FASERVICES}
-    container_name: periHubGui
+    # container_name: periHubGui
     image: peri_hub_gui_image
     ports:
       - 6010:443
@@ -33,7 +33,7 @@ services:
       - backend
 
   peridigm:
-    container_name: periHubPeridigm
+    # container_name: periHubPeridigm
     image: registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image
     ports:
       - 6030:80
@@ -45,14 +45,14 @@ services:
   paraview:
     build: 
       context: paraview/.
-    container_name: paraview
+    # container_name: paraview
     image: paraview_image
     volumes:
       - paraView_volume:/app/paraView
 
   cron:
     build: cron/.
-    container_name: periHubCron
+    # container_name: periHubCron
     image: cron_image
     ports:
       - 6040:80
