@@ -29,6 +29,8 @@ services:
       - 6010:443
     volumes:
       - secrets:/app/certs
+    networks:
+      - backend
 
   peridigm:
     container_name: periHubPeridigm

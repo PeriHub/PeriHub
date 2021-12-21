@@ -318,7 +318,7 @@ import { Plotly } from 'vue-plotly'
         },
         cluster: ['Cara', 'FA-Cluster', 'None'],
 
-        url: 'https://fa-jenkins2:6020/',
+        url: 'periHubApi/',
         textOutput: '',
         pointString: [1,0,0],
         filteredPointString: [1,0,0],
@@ -1599,10 +1599,10 @@ import { Plotly } from 'vue-plotly'
     },
     beforeMount() {
       // console.log("beforeMount")
-      if(process.env.VUE_APP_ROOT_API!=undefined)
-      {
-        this.url = process.env.VUE_APP_ROOT_API
-      }
+      // if(process.env.VUE_APP_ROOT_API!=undefined)
+      // {
+      //   this.url = process.env.VUE_APP_ROOT_API
+      // }
     },
     mounted() {
       // console.log("mounted")
