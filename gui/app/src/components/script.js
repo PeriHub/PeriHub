@@ -1602,7 +1602,10 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "https://perihub.fa-services.intra.dlr.de"
         }
-        axios.request(reqOptions).then(response => (this.authToken = response.headers))
+        axios.request(reqOptions).then(response => (console.log(response)));
+        axios.request(reqOptions).then(response => (console.log(response.headers)));
+        axios.request(reqOptions).then(response => (console.log(response.headers.authorization)));
+        axios.request(reqOptions).then(response => (this.authToken = response.headers.authorization));
         console.log(this.authToken);
       },
     },
