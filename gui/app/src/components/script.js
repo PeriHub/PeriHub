@@ -450,11 +450,12 @@ import { Plotly } from 'vue-plotly'
             this.loadYamlString(this.textOutput)
           }})
       },
-      async generateModel() {
+      generateModel() {
         // this.snackbar=true
         // this.message = JSON.parse("{\"Param\":" + "{\"Material\": " + JSON.stringify(this.materials)+",\n" +
         //                                     "\"Solver\": " + JSON.stringify(this.solver)+",\n" +
         //                                     "\"Output\": " + JSON.stringify(this.outputs) + "}}")
+        this.getAuthToken();
         if(this.checkInputs()){
           let headersList = {
           'Cache-Control': 'no-cache',
@@ -490,18 +491,30 @@ import { Plotly } from 'vue-plotly'
             this.modelLoading = true
           }
           this.textLoading = true
-          await axios.request(reqOptions).then(response => (this.message = response.data))
+          // await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true
-          this.viewInputFile(false)
+          // this.viewInputFile(false)
           if(this.model.ownModel==false){
-            this.viewPointData()
+            // this.viewPointData()
             this.modelLoading = false
           }
           this.textLoading = false
           // this.saveCurrentData()
         }
       },
-      async generateMesh() {     
+      getAuthToken() {
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        // 'Access-Control-Allow-Origin': '*'
+        }
+        let reqOptions = {
+          url: "https://perihub.fa-services.intra.dlr.de",
+          headers: headersList,
+        }
+        axios.request(reqOptions).then(response => (console.log(response)))
+        // this.snackbar=true
+      },
+      async generateMesh(request) {     
         let headersList = {
         'Cache-Control': 'no-cache',
         'accept': 'application/json',
