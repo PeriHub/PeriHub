@@ -330,6 +330,7 @@ import { Plotly } from 'vue-plotly'
         multiplier: 1,
         snackbar: false,
         message: 'Messsages',
+        authToken: '',
         modelLoading: false,
         textLoading: false,
         resultsLoading: false,
@@ -450,12 +451,11 @@ import { Plotly } from 'vue-plotly'
             this.loadYamlString(this.textOutput)
           }})
       },
-      generateModel() {
+      async generateModel() {
         // this.snackbar=true
         // this.message = JSON.parse("{\"Param\":" + "{\"Material\": " + JSON.stringify(this.materials)+",\n" +
         //                                     "\"Solver\": " + JSON.stringify(this.solver)+",\n" +
         //                                     "\"Output\": " + JSON.stringify(this.outputs) + "}}")
-        this.getAuthToken();
         if(this.checkInputs()){
           let headersList = {
           'Cache-Control': 'no-cache',
@@ -491,34 +491,23 @@ import { Plotly } from 'vue-plotly'
             this.modelLoading = true
           }
           this.textLoading = true
-          // await axios.request(reqOptions).then(response => (this.message = response.data))
+          await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true
-          // this.viewInputFile(false)
+          this.viewInputFile(false)
           if(this.model.ownModel==false){
-            // this.viewPointData()
+            this.viewPointData()
             this.modelLoading = false
           }
           this.textLoading = false
           // this.saveCurrentData()
         }
       },
-      getAuthToken() {
-        let headersList = {
-        'Cache-Control': 'no-cache',
-        // 'Access-Control-Allow-Origin': '*'
-        }
-        let reqOptions = {
-          url: "https://perihub.fa-services.intra.dlr.de",
-          headers: headersList,
-        }
-        axios.request(reqOptions).then(response => (console.log(response)))
-        // this.snackbar=true
-      },
-      async generateMesh(request) {     
+      async generateMesh() {     
         let headersList = {
         'Cache-Control': 'no-cache',
         'accept': 'application/json',
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
+        'Authorization': this.authToken
         }
         let reqOptions = {
           url: "https://fa-jenkins2:5000/1/PyCODAC/api/micofam/{zip}",
@@ -1609,9 +1598,17 @@ import { Plotly } from 'vue-plotly'
         localStorage.removeItem('job');
         localStorage.removeItem('panel');
       },
+      getAuthToken() {
+        let reqOptions = {
+          url: "https://perihub.fa-services.intra.dlr.de"
+        }
+        axios.request(reqOptions).then(response => this.authToken = response.headers.get('authorization'))
+        console.log(this.authToken);
+      },
     },
     beforeMount() {
       // console.log("beforeMount")
+      this.getAuthToken();
       if(process.env.VUE_APP_ROOT_API!=undefined)
       {
         this.url = process.env.VUE_APP_ROOT_API
