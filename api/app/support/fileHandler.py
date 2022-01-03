@@ -3,6 +3,7 @@ import filecmp
 import paramiko
 import os
 import time
+import jwt
 
 class fileHandler(object):
 
@@ -29,14 +30,19 @@ class fileHandler(object):
         return './PeridigmJobs/apiModels/' + username
 
     def getUserName(request):
-        print(request)
-        print(request.headers)
-        print(request.headers.get('x-forwarded-preferred-username'))
-        username = request.headers.get('x-forwarded-preferred-username')
-        if username == None:
-            username = 'guest'
+        encodedToken = request.headers.get('Authorization')
+        if encodedToken == None:
+            return 'guest'
 
-        return username
+        decodedToken = jwt.decode(encodedToken.split(' ')[1], options={"verify_signature": False})
+
+        return decodedToken['preferred_username']
+
+    def getUserMail(request):
+        encodedToken = request.headers.get('Authorization')
+        decodedToken = jwt.decode(encodedToken.split(' ')[1], options={"verify_signature": False})
+
+        return decodedToken['email']
 
     def removeFolderIfOlder(path, days, recursive):
         

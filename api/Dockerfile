@@ -6,7 +6,7 @@ ENV EXTERNAL $EXTERNAL
 ARG FASERVICES
 ENV FASERVICES $FASERVICES
 
-RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles python-multipart 
+RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles python-multipart pyjwt
 #requests 
 # meshio[all]
 # pysftp 

@@ -285,7 +285,7 @@ class ModelControl(object):
     def getLogFile(ModelName: str, Cluster: str, request: Request):
 
         username = fileHandler.getUserName(request)
-        usermail = request.headers.get('x-forwarded-email')
+        usermail = fileHandler.getUserMail(request)
 
         if Cluster=='None':
             
@@ -646,7 +646,7 @@ class ModelControl(object):
     @app.post("/runModel")
     def runModel(ModelName: str, FileType: FileType, Param: dict, request: Request):
         username = fileHandler.getUserName(request)
-        usermail = request.headers.get('x-forwarded-email')
+        usermail = fileHandler.getUserMail(request)
 
         Material =  Param['Param']['Material']
 
