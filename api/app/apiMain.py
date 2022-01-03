@@ -410,9 +410,7 @@ class ModelControl(object):
                     return 'Data of ' + ', '.join(names) + ' has been deleted'
             return 'Nothing has been deleted'
         else:
-            username = request.headers.get('x-forwarded-preferred-username')
-            if username == None:
-                username = 'guest'
+            username = fileHandler.getUserName(request)
 
             localpath = './Output/' + username
             shutil.rmtree(localpath)
@@ -440,7 +438,8 @@ class ModelControl(object):
 
             if Cluster=='None':
                 remotepath = './peridigmJobs/' + username
-                shutil.rmtree(remotepath)
+                if os.path.exists(remotepath):
+                    shutil.rmtree(remotepath)
                 return 'Data of ' + username + ' has been deleted'
 
             else:
