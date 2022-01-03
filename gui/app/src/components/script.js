@@ -434,7 +434,8 @@ import { Plotly } from 'vue-plotly'
 
       viewInputFile(loadFile) {
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -459,6 +460,7 @@ import { Plotly } from 'vue-plotly'
         if(this.checkInputs()){
           let headersList = {
           'Cache-Control': 'no-cache',
+          'Authorization': this.authToken
           // 'Access-Control-Allow-Origin': '*'
           }
           let reqOptions = {
@@ -617,7 +619,8 @@ import { Plotly } from 'vue-plotly'
 
         let headersList = {
         'Cache-Control': 'no-cache',
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -870,7 +873,8 @@ import { Plotly } from 'vue-plotly'
 
         let headersList = {
         'Cache-Control': 'no-cache',
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'multipart/form-data',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -1071,7 +1075,8 @@ import { Plotly } from 'vue-plotly'
       },
       async getPointDataAndUpdateDx() {
         let headersList = {
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          'Authorization': this.authToken
           }
         let reqOptions = {
           url: this.url + "getPointData",
@@ -1118,7 +1123,8 @@ import { Plotly } from 'vue-plotly'
         // this.snackbar=true
         // this.message = JSON.parse("{\"Job\": " + JSON.stringify(this.job)+"}")
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -1138,7 +1144,8 @@ import { Plotly } from 'vue-plotly'
       },
       cancelJob() {
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -1154,7 +1161,8 @@ import { Plotly } from 'vue-plotly'
       },
       saveModel() {
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -1184,7 +1192,8 @@ import { Plotly } from 'vue-plotly'
         this.dialog = false;
 
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -1227,7 +1236,8 @@ import { Plotly } from 'vue-plotly'
       async getPlot(Variable) {
         this.dialogGetPlot = false
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
         let OutputName = ''
         for (var i = 0; i < this.outputs.length; i++) {
@@ -1282,7 +1292,8 @@ import { Plotly } from 'vue-plotly'
         await this.getPointDataAndUpdateDx()
 
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -1324,7 +1335,8 @@ import { Plotly } from 'vue-plotly'
       },
       async getLogFile() {
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -1355,7 +1367,8 @@ import { Plotly } from 'vue-plotly'
         this.dialogDeleteModel = false;
         
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -1382,7 +1395,8 @@ import { Plotly } from 'vue-plotly'
         this.dialogDeleteUserData = false;
         
         let headersList = {
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
         let reqOptions = {
@@ -1602,9 +1616,6 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: "https://perihub.fa-services.intra.dlr.de"
         }
-        axios.request(reqOptions).then(response => (console.log(response)));
-        axios.request(reqOptions).then(response => (console.log(response.headers)));
-        axios.request(reqOptions).then(response => (console.log(response.headers.authorization)));
         axios.request(reqOptions).then(response => (this.authToken = response.headers.authorization));
         console.log(this.authToken);
       },
