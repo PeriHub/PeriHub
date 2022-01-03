@@ -47,6 +47,24 @@
             <v-btn
               class="my-btn"
               v-bind="attrs"
+              href="https://perihub-api.fa-services.intra.dlr.de/docs"
+              target="_blank"
+              color="primary"
+              v-on="on"
+            >
+              <i
+                class="fas fa-bolt"
+                size="2x"
+              />
+            </v-btn>
+          </template>
+          <span>PeriHub-API</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              class="my-btn"
+              v-bind="attrs"
               href="https://github.com/PeriDoX/PeriDoX"
               target="_blank"
               color="primary"

@@ -436,9 +436,7 @@ class ModelControl(object):
                 ssh.close()
         
         else:
-            username = request.headers.get('x-forwarded-preferred-username')
-            if username == None:
-                username = 'guest'
+            username = fileHandler.getUserName(request)
 
             if Cluster=='None':
                 remotepath = './peridigmJobs/' + username

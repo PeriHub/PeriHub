@@ -29,6 +29,9 @@ class fileHandler(object):
         return './PeridigmJobs/apiModels/' + username
 
     def getUserName(request):
+        print(request)
+        print(request.headers)
+        print(request.headers.get('x-forwarded-preferred-username'))
         username = request.headers.get('x-forwarded-preferred-username')
         if username == None:
             username = 'guest'
