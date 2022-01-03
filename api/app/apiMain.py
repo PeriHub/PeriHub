@@ -285,7 +285,7 @@ class ModelControl(object):
     def getLogFile(ModelName: str, Cluster: str, request: Request):
 
         username = fileHandler.getUserName(request)
-        usermail = fileHandler.getUserMail(request)
+        # usermail = fileHandler.getUserMail(request)
 
         if Cluster=='None':
             
@@ -294,9 +294,9 @@ class ModelControl(object):
                 outputFiles = os.listdir(remotepath)
                 filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
             except:
-                return 'LogFile can\'t be found'
+                return 'LogFile can\'t be found in ' + remotepath
             if(len(filtered_values)==0):
-                return 'LogFile can\'t be found'
+                return 'LogFile can\'t be found in ' + remotepath
 
             f = open(os.path.join(remotepath, filtered_values[-1]), 'r')
             response = f.read()
@@ -320,9 +320,9 @@ class ModelControl(object):
                 outputFiles = sftp.listdir(remotepath)
                 filtered_values = list(filter(lambda v: match('^.+\.log$', v), outputFiles))
             except:
-                return 'LogFile can\'t be found'
+                return 'LogFile can\'t be found in ' + remotepath
             if(len(filtered_values)==0):
-                return 'LogFile can\'t be found'
+                return 'LogFile can\'t be found in ' + remotepath
             sftp.chdir(remotepath)
             logfile = sftp.file(filtered_values[-1],'r')
             response = logfile.read()
