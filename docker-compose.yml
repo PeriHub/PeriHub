@@ -34,7 +34,7 @@ services:
 
   peridigm:
     # container_name: periHubPeridigm
-    image: registry.gitlab-test.dlr.de/hess_ja/images/peridigm_image
+    image: harbor.fa-services.intra.dlr.de/hess_ja/peridigm_image
     ports:
       - 6030:80
     volumes:
