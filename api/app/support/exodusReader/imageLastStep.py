@@ -9,8 +9,12 @@ from paraview.simple import *
 
 UserName = sys.argv[1]
 ModelName = sys.argv[2]
-Variable = sys.argv[3]
-dx = sys.argv[4]
+OutputName = sys.argv[3]
+Variable = sys.argv[4]
+Axis = sys.argv[5]
+dx = sys.argv[6]
+if Variable == 'Damage':
+    Axis='Magnitude'
 filePath = path.join('./Results/' + UserName, ModelName)
 # class Geometry(object):
 #     def __init__(self):
@@ -19,7 +23,7 @@ filePath = path.join('./Results/' + UserName, ModelName)
 #### disable automatic camera reset on 'Show'
 paraview.simple._DisableFirstRenderCameraReset()
 
-Output1 = ExodusIIReader(FileName=[path.join(filePath, ModelName + '_Output1.e')])
+Output1 = ExodusIIReader(FileName=[path.join(filePath, ModelName + '_' + OutputName +'.e')])
 
 Output1.ApplyDisplacements = 0
 
@@ -75,7 +79,7 @@ ColorBy(glyph1Display, ('FIELD', 'vtkBlockColors'))
 glyph1Display.SetScalarBarVisibility(renderView1, True)
 
 # set scalar coloring
-ColorBy(glyph1Display, ('POINTS', Variable, 'Magnitude'))
+ColorBy(glyph1Display, ('POINTS', Variable, Axis))
 
 # Hide the scalar bar for this color map if no visible data is colored by it.
 HideScalarBarIfNotNeeded(vtkBlockColorsLUT, renderView1)
@@ -127,7 +131,7 @@ colorPalette.Background = [45/255, 45/255, 45/255]
 layout1.SetSize(1920, 1080)
 
 # save screenshot
-SaveScreenshot(path.join(filePath, Variable + '.jpg'), renderView1, ImageResolution=[1920, 1080])
+SaveScreenshot(path.join(filePath, Variable + '_' + Axis + '.jpg'), renderView1, ImageResolution=[1920, 1080])
 
 
 Delete(Output1)

@@ -484,18 +484,18 @@ class ModelControl(object):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
     @app.get("/getImage")
-    def getImage(ModelName: str, Cluster: str, Variable: str, dx: float, request: Request):
+    def getImage(ModelName: str, Cluster: str, Output: str,  Variable: str,  Axis: str, dx: float, request: Request):
         username = fileHandler.getUserName(request)
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
             raise NotFoundException(name=ModelName)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(['sh support/read.sh image ' + username + ' ' + ModelName + ' ' + Variable + ' ' + str(dx)], shell=True)
+        process = subprocess.Popen(['sh support/read.sh image ' + username + ' ' + ModelName + ' ' + Output + ' ' + Variable + ' ' + Axis + ' ' + str(dx)], shell=True)
         process.wait()
 
         try:
-            return FileResponse('./Results/' + os.path.join(username, ModelName) + '/'  + Variable + '.jpg')
+            return FileResponse('./Results/' + os.path.join(username, ModelName) + '/'  + Variable + '_' + Axis + '.jpg')
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 

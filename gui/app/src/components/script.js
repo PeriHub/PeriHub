@@ -341,6 +341,11 @@ import { Plotly } from 'vue-plotly'
         vtkFile: '',
         dialog: false,
         dialogGetImage: false,
+        getImageOutput: 'Output1',
+        getImageVariable: ['Displacement','Force','Damage','Partial_StressX','Partial_StressY','Partial_StressZ','Number_Of_Neighbors'],
+        getImageVariableSelected: 'Displacement',
+        getImageAxis: ['Magnitude','X','Y','Z'],
+        getImageAxisSelected: 'Magnitude',
         dialogGetPlot: false,
         dialogDeleteData: false,
         dialogDeleteModel: false,
@@ -1286,7 +1291,7 @@ import { Plotly } from 'vue-plotly'
         this.viewId = 2
         this.modelLoading = false
       },
-      async getImage(Variable) {
+      async getImage() {
         this.dialogGetImage = false
 
         await this.getPointDataAndUpdateDx()
@@ -1300,7 +1305,9 @@ import { Plotly } from 'vue-plotly'
           url: this.url + "getImage",
           params: {ModelName: this.model.modelNameSelected,
                    Cluster: this.job.cluster,
-                   Variable: Variable,
+                   Output: this.getImageOutput,
+                   Variable: this.getImageVariableSelected,
+                   Axis: this.getImageAxisSelected,
                    dx: this.dx},
           method: "GET",
           responseType: 'blob',
@@ -1516,7 +1523,7 @@ import { Plotly } from 'vue-plotly'
         const len = this.outputs.length
         this.outputs.push({
           id: len+1,
-          Name: "Outputs"+(len+1),
+          Name: "Output"+(len+1),
           Displacement: false,
           Force: false,
           Damage: false,

@@ -1334,7 +1334,7 @@
               <v-dialog
                 v-model="dialogGetImage"
                 persistent
-                max-width="600"
+                max-width="800"
               >
                   <v-card>
                     <v-card-title class="text-h5">
@@ -1343,14 +1343,31 @@
                     <v-card-text>Which variable do you want to display ?</v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
+                      <v-select
+                        :items=outputs
+                        item-text="Name"
+                        v-model=getImageOutput
+                        label="Output Name"
+                        outlined></v-select>
+                      <v-select
+                        :items=getImageVariable
+                        v-model=getImageVariableSelected
+                        label="Variable"
+                        outlined></v-select>
+                      <v-select
+                        :items=getImageAxis
+                        :disabled="getImageVariableSelected=='Damage'"
+                        v-model=getImageAxisSelected
+                        label="Axis"
+                        outlined></v-select>
                       <v-btn
                         color="green darken-1"
                         text
-                        @click="getImage('Displacement')"
+                        @click="getImage"
                       >
-                        Displacement
+                        Show
                       </v-btn>
-                      <v-btn
+                      <!-- <v-btn
                         color="green darken-1"
                         text
                         @click="getImage('Damage')"
@@ -1370,7 +1387,7 @@
                         @click="getImage('Force')"
                       >
                         Force
-                      </v-btn>
+                      </v-btn> -->
                       <v-btn
                         color="red darken-1"
                         text

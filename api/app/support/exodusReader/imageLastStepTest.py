@@ -9,8 +9,10 @@ from paraview.simple import *
 
 UserName = sys.argv[1]
 ModelName = sys.argv[2]
-Variable = sys.argv[3]
-dx = sys.argv[4]
+OutputName = sys.argv[3]
+Variable = sys.argv[4]
+Axis = sys.argv[5]
+dx = sys.argv[6]
 filePath = path.join('Output', ModelName)
 # class Geometry(object):
 #     def __init__(self):
