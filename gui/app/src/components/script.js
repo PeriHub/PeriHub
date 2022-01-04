@@ -1617,15 +1617,19 @@ import { Plotly } from 'vue-plotly'
           url: "https://perihub.fa-services.intra.dlr.de"
         }
         axios.request(reqOptions).then(response => (this.authToken = response.headers.authorization));
-        console.log(this.authToken);
+        // console.log(this.authToken);
       },
     },
     beforeMount() {
       // console.log("beforeMount")
-      this.getAuthToken();
       if(process.env.VUE_APP_ROOT_API!=undefined)
       {
         this.url = process.env.VUE_APP_ROOT_API
+        console.log("changed URL: " + process.env.VUE_APP_ROOT_API)
+      }
+      else
+      {
+        this.getAuthToken();
       }
     },
     mounted() {

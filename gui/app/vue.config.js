@@ -1,6 +1,6 @@
 module.exports = {
   devServer: {
-    https: true,
+    // https: true,
     port: 6010
   },
   transpileDependencies: [

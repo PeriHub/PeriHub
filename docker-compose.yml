@@ -7,14 +7,13 @@ services:
       args: 
         EXTERNAL: ${EXTERNAL}
         FASERVICES: ${FASERVICES}
-    # container_name: periHubApi
+    container_name:  perihub_periHubApi
     image: peri_hub_api_image
     ports:
       - 6020:80
     volumes:
-      - peridigm_volume:/app/peridigmJobs
+      - /mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs:/app/peridigmJobs
       - paraView_volume:/app/paraView
-      - secrets:/app/certs
     networks:
       - backend
 
@@ -23,45 +22,38 @@ services:
       context: gui/.
       args: 
         FASERVICES: ${FASERVICES}
-    # container_name: periHubGui
+    container_name:  perihub_periHubGui
     image: peri_hub_gui_image
     ports:
-      - 6010:443
-    volumes:
-      - secrets:/app/certs
+      - 6010:80
     networks:
       - backend
 
   peridigm:
-    # container_name: periHubPeridigm
+    container_name:  perihub_peridigm
     image: harbor.fa-services.intra.dlr.de/hess_ja/peridigm_image
     ports:
       - 6030:80
     volumes:
-      - peridigm_volume:/app/peridigmJobs
+      - /mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs:/app/peridigmJobs
     networks:
       - backend
 
   paraview:
     build: 
       context: paraview/.
-    # container_name: paraview
+    container_name:  perihub_paraview
     image: paraview_image
     volumes:
       - paraView_volume:/app/paraView
 
   cron:
     build: cron/.
-    # container_name: periHubCron
+    container_name:  perihub_cron
     image: cron_image
-    ports:
-      - 6040:80
 
 volumes:
-  peridigm_volume:
   paraView_volume:
-  secrets:
-    external: true
 
 networks:
   backend:

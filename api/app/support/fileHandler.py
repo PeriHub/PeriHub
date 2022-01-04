@@ -31,7 +31,7 @@ class fileHandler(object):
 
     def getUserName(request):
         encodedToken = request.headers.get('Authorization')
-        if encodedToken == None:
+        if encodedToken == None or encodedToken == '':
             return 'guest'
 
         decodedToken = jwt.decode(encodedToken.split(' ')[1], options={"verify_signature": False})
@@ -40,6 +40,9 @@ class fileHandler(object):
 
     def getUserMail(request):
         encodedToken = request.headers.get('Authorization')
+        if encodedToken == None or encodedToken == '':
+            return ''
+
         decodedToken = jwt.decode(encodedToken.split(' ')[1], options={"verify_signature": False})
 
         return decodedToken['email']
