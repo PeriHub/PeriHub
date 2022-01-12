@@ -39,7 +39,7 @@ import { Plotly } from 'vue-plotly'
     data () {
       return {
         // Model
-        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel', 'RVE'],
+        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],//, 'RVE'],
         model: {
           modelNameSelected: 'Dogbone',
           ownModel: false,
@@ -509,55 +509,93 @@ import { Plotly } from 'vue-plotly'
           // this.saveCurrentData()
         }
       },
-      async generateMesh() {     
+      async generateMesh() {   
+
         let headersList = {
         'Cache-Control': 'no-cache',
-        'accept': 'application/json',
         'Content-Type': 'multipart/form-data',
         'Authorization': this.authToken
         }
+
         let reqOptions = {
-          url: "https://fa-jenkins2:5000/1/PyCODAC/api/micofam/{zip}",
-          data: JSON.parse(JSON.stringify(this.micofam)),
-          method: "PATCH",
+          url: this.url + "generateMesh",
+          params: {ModelName: this.model.modelNameSelected,
+            Param: JSON.stringify(this.micofam)},
+          method: "GET",
           headers: headersList,
         }
+
+        this.modelLoading = true
+
+        await axios.request(reqOptions).then(response => (this.message = response.data))
+        
+        this.model.ownModel=true
+        this.model.translated=true
+        this.modelNameSelected = this.message
+
+        var files
+        this.translateModel(files, 'inp', false)
+        // this.viewInputFile(true)
+        // this.loadYamlString(this.textOutput)
+        // this.viewPointData()
+
+        // this.modelLoading = false
+      	this.modelLoading = false
+
+        this.snackbar=true  
+        // let headersList = {
+        // 'Cache-Control': 'no-cache',
+        // 'accept': 'application/json',
+        // 'Content-Type': 'multipart/form-data'
+        // }
+        // let reqOptions = {
+        //   url: "https://fa-jenkins2:5000/1/PyCODAC/api/micofam/{zip}",
+        //   // data: JSON.parse(JSON.stringify(this.micofam)),
+        //   method: "PATCH",
+        //   responseType: 'blob',
+        //   // headers: headersList,
+        // }
         // if(this.model.ownModel==false){
         //   this.modelLoading = true
         // }
         // this.textLoading = true
-        var zipFile
-        await axios.request(reqOptions).then(response => (zipFile = response.data))
+        // this.modelLoading = true
+        // var zipFile
+        // await axios.request(reqOptions)
+        // .then((response) => {
+        //     var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+        //     var fileLink = document.createElement('a');
+        //     fileLink.href = fileURL;
+        //     fileLink.setAttribute('download', this.model.modelNameSelected + '.zip');
+        //     document.body.appendChild(fileLink);
+        //     fileLink.click();
+        // })
+        // .catch((error) => {
+        //   this.message = error
+        //   this.snackbar = true
+        // });
+        // await axios.request(reqOptions).then(response => (zipFile = response.data))
         
-        var jsZip = require('jszip')
-        jsZip.loadAsync(zipFile).then(function (zip) {
-          Object.keys(zip.files).forEach(function (filename) {
-            zip.files[filename].async('string').then(function (fileData) {
-              console.log(fileData) // These are your file contents      
-            })
-          })
-        })
+        // var jsZip = require('jszip')
+        // jsZip.loadAsync(zipFile).then(function (zip) {
+        //   Object.keys(zip.files).forEach(function (filename) {
+        //     zip.files[filename].async('string').then(function (fileData) {
+        //       console.log(fileData) // These are your file contents      
+        //     })
+        //   })
+        // })
 
-        this.snackbar=true
+        // this.snackbar=true
         // this.viewInputFile(false)
         // if(this.model.ownModel==false){
         //   this.viewPointData()
-        //   this.modelLoading = false
+        // this.modelLoading = false
         // }
         // this.textLoading = false
-        // this.saveCurrentData()
       },
       saveData() {
-        const data = "{\"modelNameSelected\":\"" + this.model.modelNameSelected + "\",\n" +
-                      "\"length\":" + this.model.length + ",\n" +
-                      "\"width\":" + this.model.width + ",\n" +
-                      "\"height\":" + this.model.height + ",\n" +
-                      "\"height2\":" + this.model.height2 + ",\n" +
-                      "\"discretization\":" + this.model.discretization + ",\n" +
-                      "\"twoDimensional\":" + this.model.twoDimensional + ",\n" +
-                      "\"rotatedAngles\":" + this.model.rotatedAngles + ",\n" +
-                      "\"angles\":[" + this.model.angles + "],\n" +
-                      "\"Param\":" + "{\"materials\": " + JSON.stringify(this.materials)+",\n" +
+        const data = "{\"Param\":" + "{\"model\": " + JSON.stringify(this.model)+",\n" +
+                                      "\"materials\": " + JSON.stringify(this.materials)+",\n" +
                                       "\"damages\": " + JSON.stringify(this.damages)+",\n" +
                                       "\"blocks\": " + JSON.stringify(this.blocks)+",\n" +
                                       "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
@@ -815,13 +853,13 @@ import { Plotly } from 'vue-plotly'
           for(var i = 0; i < Object.keys(result).length; i++) {
             var name = Object.keys(result)[i]
             if (name!='Param'){
-              this[name] = result[name];
+              this.model[name] = result[name];
             }
             else{
               // var param = result[i]
               for(var j = 0; j < Object.keys(result['Param']).length; j++) {
                 var paramName = Object.keys(result['Param'])[j]
-                this[paramName] = result['Param'][paramName];
+                this.model[paramName] = result['Param'][paramName];
               }
             }
           }
@@ -866,16 +904,17 @@ import { Plotly } from 'vue-plotly'
         this.model.modelNameSelected = files[0].name.split('.')[0]
         const filetype = files[0].name.split('.')[1]
 
-        this.translateModel(files, filetype)
+        this.translateModel(files, filetype, true)
         
       },
-      async translateModel(files, filetype) {
+      async translateModel(files, filetype, upload) {
 
-        const formData = new FormData();
-        for (var i = 0; i < files.length; i++){
-          formData.append('files',files[i])
+        if(upload){
+          const formData = new FormData();
+          for (var i = 0; i < files.length; i++){
+            formData.append('files',files[i])
+          }
         }
-
         let headersList = {
         'Cache-Control': 'no-cache',
         'Content-Type': 'multipart/form-data',
@@ -883,12 +922,24 @@ import { Plotly } from 'vue-plotly'
         }
 
         let reqOptions = {
-          url: this.url + "translateModel",
+          url: this.url + "translateExistModel",
           params: {ModelName: this.model.modelNameSelected,
-                   Filetype: filetype},
-          data: formData,
+                    Filetype: filetype,
+                    Upload: upload},
           method: "POST",
           headers: headersList,
+        }
+
+        if(upload){
+          reqOptions = {
+            url: this.url + "translateModel",
+            params: {ModelName: this.model.modelNameSelected,
+                      Filetype: filetype,
+                      Upload: upload},
+            data: formData,
+            method: "POST",
+            headers: headersList,
+          }
         }
 
         await axios.request(reqOptions).then(response => (this.message = response.data))
@@ -970,17 +1021,17 @@ import { Plotly } from 'vue-plotly'
         }
 
         for(var i = 0; i < Object.keys(this.jsonFile).length; i++) {
-          var name = Object.keys(this.jsonFile)[i]
-          if (name!='Param'){
-            this[name] = this.jsonFile[name];
-          }
-          else{
+          // var name = Object.keys(this.jsonFile)[i]
+          // if (name!='Param'){
+          //   this.model[name] = this.jsonFile[name];
+          // }
+          // else{
             // var param = result[i]
             for(var j = 0; j < Object.keys(this.jsonFile['Param']).length; j++) {
               var paramName = Object.keys(this.jsonFile['Param'])[j]
               this[paramName] = this.jsonFile['Param'][paramName];
             }
-          }
+          // }
         }
       },
       // saveCurrentData() {

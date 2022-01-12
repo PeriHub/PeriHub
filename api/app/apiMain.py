@@ -36,7 +36,7 @@ import csv
 from re import match
 import time
 import subprocess
-#import requests
+import requests, zipfile, io
 
 
 # class ModelName(str, Enum):
@@ -202,32 +202,47 @@ class ModelControl(object):
         print()
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
    
-    # @app.post("/generateMesh")
-    # def generateMesh(ModelName: str, Param: dict, request: Request):
-    #     username = fileHandler.getUserName(request)
+    @app.get("/generateMesh")
+    def generateMesh(ModelName: str, Param: str, request: Request):
+        username = fileHandler.getUserName(request)
 
-    #     json=Param, 
-    #     print(Param)
+        # json=Param, 
+        print(Param)
 
-    #     headers = {
-    #         'accept': 'application/json',
-    #         'Content-Type': 'multipart/form-data',
-    #     }
+        # headers = {
+        #     'accept': 'application/json',
+        #     'Content-Type': 'multipart/form-data',
+        # }
 
-    #     files = {
-    #         'ZIP': (None, ''),
-    #         'JSON': (None, '{\n  "RVE": {\n    "rve_fvc": 30,\n    "rve_radius": 6.6,\n    "rve_lgth": 50,\n    "rve_dpth": 1\n  },\n  "Interface": {\n    "int_ufrac": 10\n  },\n  "Mesh": {\n    "mesh_fib": 35,\n    "mesh_lgth": 35,\n    "mesh_dpth": 1,\n    "mesh_aa": "on"\n  }\n}'),
-    #     }
+        # files = {
+        #     'ZIP': (None, ''),
+        #     'JSON': (None, '{\n  "RVE": {\n    "rve_fvc": 30,\n    "rve_radius": 6.6,\n    "rve_lgth": 50,\n    "rve_dpth": 1\n  },\n  "Interface": {\n    "int_ufrac": 10\n  },\n  "Mesh": {\n    "mesh_fib": 35,\n    "mesh_lgth": 35,\n    "mesh_dpth": 1,\n    "mesh_aa": "on"\n  }\n}'),
+        # }
 
-    #     return requests.patch('https://localhost:5000/1/PyCODAC/api/micofam/%7Bzip%7D', headers=headers, files=files)
+        r = requests.patch("https://129.247.54.235:5000/1/PyCODAC/api/micofam/{zip}", verify=False)
+        z = zipfile.ZipFile(io.BytesIO(r.content))
 
-    #     filePath = './Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType
-    #     if not os.path.exists(filePath):
-    #         return 'Inputfile can\'t be found'
-    #     try:
-    #         return FileResponse(filePath)
-    #     except:
-    #         return 'Inputfile can\'t be found'
+        localpath = './Output/' + os.path.join(username, ModelName)
+
+        if os.path.exists(localpath) == False:
+            os.makedirs(localpath)
+            
+        z.extractall(localpath)
+
+        outputFiles = os.listdir(localpath)
+        filtered_values = list(filter(lambda v: match('^.+\.inp$', v), outputFiles))
+        os.rename(os.path.join(localpath, filtered_values[0]), os.path.join(localpath, ModelName + ".inp"))
+
+
+        # return requests.patch('https://localhost:5000/1/PyCODAC/api/micofam/%7Bzip%7D', headers=headers, files=files)
+
+        # filePath = './Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType
+        # if not os.path.exists(filePath):
+        #     return 'Inputfile can\'t be found'
+        # try:
+        #     return FileResponse(filePath)
+        # except:
+        return "Mesh generated"
 
     @app.get("/viewInputFile")
     def viewInputFile(ModelName: str, FileType: FileType, request: Request):
@@ -330,6 +345,18 @@ class ModelControl(object):
             ssh.close()
 
             return response
+
+    @app.get("/getPublications")
+    def getPublications():
+            
+        remotepath = './Publications/papers.bib'
+
+        f = open(remotepath, 'r')
+        response = f.read()
+        f.close()
+
+        return response
+
 
     @app.get("/getResults")
     def getResults(ModelName: str, Cluster: str, allData: bool, request: Request):
@@ -572,7 +599,7 @@ class ModelControl(object):
         return {"info": f"file '{files[0].file.name}' saved at '{file_location}'"}
 
     @app.post("/translateModel")
-    def translateModel(ModelName: str, Filetype: str,request: Request, files: List[UploadFile] = File(...)):
+    def translateModel(ModelName: str, Filetype: str, Upload: bool, request: Request, files: Optional[List[UploadFile]] = File(...)):
         username = fileHandler.getUserName(request)
 
         start_time = time.time()
@@ -582,10 +609,74 @@ class ModelControl(object):
         if os.path.exists(localpath) == False:
             os.makedirs(localpath)
 
-        for file in files:
-            file_location = localpath + f"/{file.filename}"
-            with open(file_location, "wb+") as file_object:
-                shutil.copyfileobj(file.file, file_object)
+        if Upload:
+            for file in files:
+                file_location = localpath + f"/{file.filename}"
+                with open(file_location, "wb+") as file_object:
+                    shutil.copyfileobj(file.file, file_object)
+
+        inputformat="'ansys (cdb)'"
+        if Filetype=='cdb':
+            inputformat = 'ansys'
+        if Filetype=='inp':
+            inputformat = 'abaqus'
+            # inputformat = "'ansys (cdb)'"
+
+        command = "java -jar ./support/jCoMoT/jCoMoT-0.0.1-all.jar -ifile " + os.path.join(localpath, ModelName + '.' + Filetype) + \
+        " -iformat " + inputformat + " -oformat peridigm -opath " + localpath + \
+        " && mv " + os.path.join(localpath, 'mesh.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
+        " && mv " + os.path.join(localpath, 'model.peridigm ') + os.path.join(localpath, ModelName) + '.peridigm'
+        # " && mv " + os.path.join(localpath, 'discretization.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
+        try:
+            subprocess.call(command, shell=True)
+        except:
+            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+        
+        if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g.ascii', True) != 'Success':
+            return ModelName + ' can not be translated'
+
+        if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.peridigm', True) != 'Success':
+            return ModelName + ' can not be translated'
+
+
+        # if returnString!='Success':
+        #     return returnString
+
+        server='perihub_peridigm'
+        remotepath = '/app/peridigmJobs/' + os.path.join(username, ModelName)
+        ssh = paramiko.SSHClient() 
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            ssh.connect(server, username='root', allow_agent=False, password='root')
+        except:
+           return "ssh connection to " + server + " failed!"
+        command = '/usr/local/netcdf/bin/ncgen ' + os.path.join(remotepath, ModelName) + '.g.ascii -o ' + os.path.join(remotepath, ModelName) + '.g' + \
+        ' && python3 /Peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
+        ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
+        # ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
+        stdin, stdout, stderr = ssh.exec_command(command)
+        stdout.channel.set_combine_stderr(True)
+        output = stdout.readlines()
+        ssh.close()
+
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
+        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
+
+        # command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtu'
+        # try:
+        #     subprocess.call(command, shell=True)
+        # except:
+        #     raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+
+        return ModelName + ' has been translated in ' + "%.2f seconds" % (time.time() - start_time)
+
+    @app.post("/translateExistModel")
+    def translateExistModel(ModelName: str, Filetype: str, Upload: bool, request: Request):
+        username = fileHandler.getUserName(request)
+
+        start_time = time.time()
+
+        localpath = './Output/' + os.path.join(username, ModelName)
 
         inputformat="'ansys (cdb)'"
         if Filetype=='cdb':
