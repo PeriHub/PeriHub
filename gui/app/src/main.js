@@ -12,8 +12,12 @@ library.add(faUserSecret);
 import vuescroll from "vuescroll/dist/vuescroll-native";
 import VueCookie from 'vue-cookie';
 import VueMeta from 'vue-meta'
+import VueRouter from 'vue-router';
 // import the css file 
 import "vuescroll/dist/vuescroll.css";
+import Routes from './routes.js';
+
+Vue.use(VueRouter);
 
 
 Vue.use(vuescroll);
@@ -26,8 +30,13 @@ Vue.component('PrismEditor', PrismEditor);
 
 Vue.config.productionTip = false
 
+const router = new VueRouter({
+  routes: Routes
+});
+
 new Vue({
   vuetify,
+  router,
   render: h => h(App),
 }).$mount('#app')
 

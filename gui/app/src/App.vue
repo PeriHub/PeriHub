@@ -6,17 +6,19 @@
         color="#464646"
         dark
       >
-        <div class="d-flex align-center">
-          <v-img
-            alt="DLR Logo"
-            class="shrink mr-2"
-            contain
-            src="./assets/DLR_Signet_weiss.png"
-            transition="scale-transition"
-            width="40"
-          />
-          <h1> PeriHub </h1>
-        </div>
+        <router-link style="text-decoration: none; color: inherit;" to="/">
+          <div class="d-flex align-center">
+            <v-img
+              alt="DLR Logo"
+              class="shrink mr-2"
+              contain
+              src="./assets/DLR_Signet_weiss.png"
+              transition="scale-transition"
+              width="40"
+            />
+            <h1> PeriHub </h1>
+          </div>
+        </router-link>
 
         <v-spacer />
         <v-switch
@@ -82,7 +84,7 @@
     </div>
 
     <div class="body"> 
-        <Home />
+      <router-view class="view one" name="a"></router-view>
     </div>
 
     <div class="footer">
@@ -164,10 +166,13 @@ export default {
       this.$cookie.set('darkMode', this.$vuetify.theme.dark, Infinity, '/app');
     },
     getDarkMode() {
-      this.$vuetify.theme.dark = this.$cookie.get('darkMode');
+      var dark = this.$cookie.get('darkMode')
+      if(dark=='true'){
+        this.$vuetify.theme.dark = true;
+      }
     }
   },
-  beforeMount(){
+  mounted(){
     this.getDarkMode()
   },
 };
