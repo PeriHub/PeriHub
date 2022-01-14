@@ -287,7 +287,7 @@ class fileHandler(object):
         if Cluster=='FA-Cluster':
             username='f_peridi'
             server='129.247.54.37'
-            keypath = 'certs/id_rsa_cluster'
+            keypath = './rsaFiles/id_rsa_cluster'
             try:
                 ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
             except:
@@ -296,7 +296,7 @@ class fileHandler(object):
         elif Cluster=='Cara':
             username='f_peridi'
             server='cara.dlr.de'
-            keypath = 'certs/id_rsa_cara'
+            keypath = './rsaFiles/id_rsa_cara'
             try:
                 ssh.connect(server, username=username, allow_agent=False, key_filename=keypath)
             except:
@@ -305,7 +305,7 @@ class fileHandler(object):
         elif Cluster=='None':
             username='root'
             server='perihub_peridigm'
-            keypath = 'certs/id_rsa_cara'
+            keypath = './rsaFiles/id_rsa_cara'
             try:
                 ssh.connect(server, username=username, allow_agent=False, password='root')
             except:
@@ -319,12 +319,12 @@ class fileHandler(object):
         if Cluster=='FA-Cluster':
             username='f_peridi'
             server='129.247.54.37'
-            keypath = 'certs/id_rsa_cluster'
+            keypath = './rsaFiles/id_rsa_cluster'
         
         elif Cluster=='Cara':
             username='f_peridi'
             server='cara.dlr.de'
-            keypath = 'certs/id_rsa_cara'
+            keypath = './rsaFiles/id_rsa_cara'
 
         ssh = paramiko.SSHClient() 
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

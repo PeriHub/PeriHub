@@ -13,6 +13,7 @@ services:
       - 6020:80
     volumes:
       - /mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs:/app/peridigmJobs
+      - /mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/rsaFiles:/app/rsaFiles
       - paraView_volume:/app/paraView
     networks:
       - backend
