@@ -316,7 +316,7 @@ import { Plotly } from 'vue-plotly'
           account: '2263032',
           // mail: 'jan-timo.hesse@dlr.de',
         },
-        cluster: ['Cara', 'FA-Cluster', 'None'],
+        cluster: ['Cara', 'None'],//'FA-Cluster', 
 
         url: 'https://perihub-api.fa-services.intra.dlr.de/',
         textOutput: '',
@@ -436,7 +436,7 @@ import { Plotly } from 'vue-plotly'
         return highlight(code, languages.js); // languages.<insert language> to return html with markup
       },
 
-      viewInputFile(loadFile) {
+      async viewInputFile(loadFile) {
         let headersList = {
         'Cache-Control': 'no-cache',
         'Authorization': this.authToken
@@ -450,7 +450,7 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
 
-        axios.request(reqOptions).then(response => {
+        await axios.request(reqOptions).then(response => {
           (this.textOutput = response.data)
           if(loadFile){
             this.loadYamlString(this.textOutput)
@@ -736,12 +736,20 @@ import { Plotly } from 'vue-plotly'
         if(paramName=='solver'){
           for(var i = 0; i < names.length; i++) {
             var key = this.getKeyByValue(paramKeys, names[i])
-            this[paramName][key] = paramObject[names[i]]
+            if(key==undefined){
+              console.log('Warning: ' + names[i] + ' is not supported yet')
+              continue;
+            }
+            Object.assign(this[paramName][key], paramObject[names[i]])
             var subNames = Object.keys(paramObject[names[i]])
             for(var j = 0; j < subNames.length; j++) {
               this[paramName]['solvertype'] = names[i]
               var key = this.getKeyByValue(paramKeys, subNames[j])
-              this[paramName][key] = paramObject[names[i]][subNames[j]]
+              if(key==undefined){
+                console.log('Warning: ' + subNames[j] + ' is not supported yet')
+                continue;
+              }
+              Object.assign(this[paramName][key], paramObject[names[i]][subNames[j]])
             }
           }
         }
@@ -752,16 +760,31 @@ import { Plotly } from 'vue-plotly'
             }
             for(var i = 0; i < names.length; i++) {
               var key = this.getKeyByValue(paramKeys, names[i])
-              if(key=='Name'){
-                this[paramName][id-1][key] = paramObject[names[i]].split('_').slice(-1)[0]
+              console.log(key)
+              console.log(paramObject[names[i]])
+              if(key==undefined & names[i]!='Output Variables'){
+                console.log('Warning: ' + names[i] + ' is not supported yet')
+                continue;
               }
               else{
-                this[paramName][id-1][key] = paramObject[names[i]]
-              }
-              var subNames = Object.keys(paramObject[names[i]])
-              for(var j = 0; j < subNames.length; j++) {
-                var key = this.getKeyByValue(paramKeys, subNames[j])
-                this[paramName][id-1][key] = paramObject[names[i]][subNames[j]]
+                if(key=='Name'){
+                  this[paramName][id-1][key] = paramObject[names[i]].split('_').slice(-1)[0]
+                  continue;
+                }
+                else{
+                  this[paramName][id-1][key] = paramObject[names[i]]
+                }
+                var subNames = Object.keys(paramObject[names[i]])
+                for(var j = 0; j < subNames.length; j++) {
+                  var key = this.getKeyByValue(paramKeys, subNames[j])
+                  console.log(key)
+                  console.log(paramObject[names[i]][subNames[j]])
+                  if(key==undefined){
+                    console.log('Warning: subname ' + subNames[j] + ' is not supported yet')
+                    continue;
+                  }
+                  this[paramName][id-1][key] = paramObject[names[i]][subNames[j]]
+                }
               }
             }
             if(this[paramName].length>id){
@@ -773,6 +796,10 @@ import { Plotly } from 'vue-plotly'
           else{
             for(var i = 0; i < names.length; i++) {
               var key = this.getKeyByValue(paramKeys, names[i])
+              if(key==undefined){
+                console.log('Warning: ' + names[i] + ' is not supported yet')
+                continue;
+              }
               if(key=='Name'){
                 this[paramName][0][key] = paramObject[names[i]].split('_').slice(-1)[0]
               }
@@ -782,7 +809,11 @@ import { Plotly } from 'vue-plotly'
               var subNames = Object.keys(paramObject[names[i]])
               for(var j = 0; j < subNames.length; j++) {
                 var key = this.getKeyByValue(paramKeys, subNames[j])
-                this[paramName][0][key] = paramObject[names[i]][subNames[j]]
+                if(key==undefined){
+                  console.log('Warning: ' + subNames[j] + ' is not supported yet')
+                  continue;
+                }
+                Object.assign(this[paramName][0][key], paramObject[names[i]][subNames[j]])
               }
             }
             if(this[paramName].length>1){
@@ -794,22 +825,32 @@ import { Plotly } from 'vue-plotly'
         }
         else if(paramName=='boundaryConditions'){
           var numberOfItems = 0
-          var filteredNames = []
+          // var filteredNames = []
+          // for(var i = 0; i < names.length; i++) {
+          //   if (Object.keys(paramObject[names[i]])[0].length>2){
+          //     numberOfItems++
+          //     filteredNames.push(names[i])
+          //   }
+          // }
           for(var i = 0; i < names.length; i++) {
-            if (Object.keys(paramObject[names[i]])[0].length>2){
+            if(!names[i].includes('Node Set')){
+              if (this[paramName].length<numberOfItems+1){
+                addFunction()
+              }
+              this[paramName][i]['Name'] = names[i]
+              var subNames = Object.keys(paramObject[names[i]])
+              for(var j = 0; j < subNames.length; j++) {
+                var key = this.getKeyByValue(paramKeys, subNames[j])
+                if(key==undefined){
+                  console.log('Warning: ' + subNames[j] + ' is not supported yet')
+                  continue;
+                }
+                // Object.assign(this[paramName][i][key], paramObject[names[i]][subNames[j]])
+                // var temp = 
+                this[paramName][i][key] = paramObject[names[i]][subNames[j]]
+                // Object.assign(this[paramName][i][key], temp)
+              }
               numberOfItems++
-              filteredNames.push(names[i])
-            }
-          }
-          for(var i = 0; i < numberOfItems; i++) {
-            if (this[paramName].length<i+1){
-              addFunction()
-            }
-            this[paramName][i]['Name'] = filteredNames[i]
-            var subNames = Object.keys(paramObject[filteredNames[i]])
-            for(var j = 0; j < subNames.length; j++) {
-              var key = this.getKeyByValue(paramKeys, subNames[j])
-              this[paramName][i][key] = paramObject[filteredNames[i]][subNames[j]]
             }
           }
           if(this[paramName].length>numberOfItems){
@@ -827,6 +868,10 @@ import { Plotly } from 'vue-plotly'
             var subNames = Object.keys(paramObject[names[i]])
             for(var j = 0; j < subNames.length; j++) {
               var key = this.getKeyByValue(paramKeys, subNames[j])
+              if(key==undefined){
+                console.log('Warning: ' + subNames[j] + ' is not supported yet')
+                continue;
+              }
               if(subNames[j]=='Horizon'){
                 if(parseFloat(paramObject[names[i]][subNames[j]])==paramObject[names[i]][subNames[j]]){
                   this.model.horizon = paramObject[names[i]][subNames[j]]
@@ -887,7 +932,7 @@ import { Plotly } from 'vue-plotly'
         this.model.ownModel=true
         this.model.translated=true
         
-        // this.modelLoading = true
+        this.modelLoading = true
       	this.textLoading = true
 
         if (files.length <= 0) {
@@ -901,6 +946,7 @@ import { Plotly } from 'vue-plotly'
           await this.translateModel(files, filetype, true)
         }
         else{
+          this.modelLoading = false
       	  this.textLoading = false
         }
 
@@ -977,11 +1023,11 @@ import { Plotly } from 'vue-plotly'
 
         await axios.request(reqOptions).then(response => (this.message = response.data))
         
-        this.viewInputFile(true)
+        await this.viewInputFile(true)
         // this.loadYamlString(this.textOutput)
         this.viewPointData()
 
-        // this.modelLoading = false
+        this.modelLoading = false
       	this.textLoading = false
 
         this.snackbar=true
@@ -1038,7 +1084,7 @@ import { Plotly } from 'vue-plotly'
         this.model.ownModel=false
         this.model.translated=false
       },
-      resetData() {
+      async resetData() {
         const jsonFile = {};
         switch (this.model.modelNameSelected) {
         case 'GIICmodel':  
@@ -1061,8 +1107,33 @@ import { Plotly } from 'vue-plotly'
           // }
           // else{
             // var param = result[i]
-            for(var j = 0; j < Object.keys(jsonFile['Param']).length; j++) {
-              var paramName = Object.keys(jsonFile['Param'])[j]
+            console.log(jsonFile)
+            console.log(jsonFile['Param'])
+            console.log(Object.keys(jsonFile['Param']).length)
+            for(var i = 0; i < Object.keys(jsonFile['Param']).length; i++) {
+              var paramName = Object.keys(jsonFile['Param'])[i]
+              console.log(i)
+              if(paramName!='model' & paramName!='solver'){
+                console.log(paramName)
+                console.log(this[paramName].length)
+                console.log(jsonFile['Param'][paramName].length)
+                // console.log(this[paramName])
+                // console.log(jsonFile['Param'][paramName])
+                if(this[paramName].length>jsonFile['Param'][paramName].length){
+                  for(var j = this[paramName].length; j >= jsonFile['Param'][paramName].length; j--) {
+                  // for(var j = jsonFile['Param'][paramName].length; j < this[paramName].length; j++) {
+                    this[paramName].splice(j, 1)
+                    // console.log('Remove'+ j)
+                  }
+                }
+                if(this[paramName].length<jsonFile['Param'][paramName].length){
+                  for(var j = this[paramName].length; j < jsonFile['Param'][paramName].length; j++) {
+                    this[paramName].push({})
+                  }
+                }
+              }
+              // console.log(this[paramName])
+              // console.log(jsonFile['Param'][paramName])
               Object.assign(this[paramName], jsonFile['Param'][paramName])
             }
           // }
@@ -1524,7 +1595,6 @@ import { Plotly } from 'vue-plotly'
       },
       removeMaterial(index) {
         this.materials.splice(index, 1)
-        this.$cookie.delete("materials" + index);
       },
       addProp(index) {
         const len = this.materials[index].Properties.length
@@ -1540,7 +1610,6 @@ import { Plotly } from 'vue-plotly'
       },
       removeProp(index,subindex) {
         this.materials[index].Properties.splice(subindex, 1)
-        // this.$cookie.delete("materials" + index);
       },
       addDamage() {
         const len = this.damages.length
@@ -1571,7 +1640,6 @@ import { Plotly } from 'vue-plotly'
       },
       removeBlock(index) {
         this.blocks.splice(index, 1)
-        this.$cookie.delete("blocks" + index);
       },
       addCondition() {
         
