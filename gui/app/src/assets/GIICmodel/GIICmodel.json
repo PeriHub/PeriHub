@@ -1,11 +1,15 @@
 {
     "Param": {
       "model": {
-        "modelNameSelected": "GIICmodel",
+        "ownModel": false,
+        "translated": false,
         "length": 50,
         "width": 10,
         "height": 4.95,
+        "height2": 0.013,
+        "structured": false,
         "discretization": 11,
+        "horizon": 0.01,
         "twoDimensional": true,
         "rotatedAngles": true,
         "angles": [

@@ -1,11 +1,15 @@
 {
     "Param": {
       "model": {
-        "modelNameSelected": "DCBmodel",
+        "ownModel": false,
+        "translated": false,
         "length": 0.05,
         "width": 0.01,
         "height": 0.03,
+        "height2": 0.013,
+        "structured": false,
         "discretization": 10,
+        "horizon": 0.01,
         "twoDimensional": true,
         "rotatedAngles": true,
         "angles": [

@@ -1,12 +1,15 @@
 {
     "Param": {
       "model": {
-        "modelNameSelected": "Dogbone",
+        "ownModel": false,
+        "translated": false,
         "length": 0.115,
         "width": 0.003,
         "height": 0.019,
         "height2": 0.013,
+        "structured": true,
         "discretization": 21,
+        "horizon": 0.01,
         "twoDimensional": true,
         "rotatedAngles": false,
         "angles": [
