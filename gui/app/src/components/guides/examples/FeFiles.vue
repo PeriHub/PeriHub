@@ -1,5 +1,9 @@
 <template>
-  <router-view class="view three" name="c"></router-view>
+    <v-container>
+        <v-row dense align="center" justify="center" style="height:20%;">
+            <h1>Fe Files</h1>
+        </v-row>
+    </v-container>
 </template>
 
 <script>
