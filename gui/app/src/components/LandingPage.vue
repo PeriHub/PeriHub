@@ -119,5 +119,7 @@ import { Plotly } from 'vue-plotly'
     text-decoration: none; 
     padding-right: 10px;
     padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 </style>
