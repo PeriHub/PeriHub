@@ -337,7 +337,6 @@ import { Plotly } from 'vue-plotly'
         dataJson: '',
         colors: '',
         modelImg: DogboneImage,
-        jsonFIle: DogboneFile,
         vtkFile: '',
         dialog: false,
         dialogGetImage: false,
@@ -500,11 +499,13 @@ import { Plotly } from 'vue-plotly'
           this.textLoading = true
           await axios.request(reqOptions).then(response => (this.message = response.data))
           this.snackbar=true
-          this.viewInputFile(false)
-          if(this.model.ownModel==false){
-            this.viewPointData()
-            this.modelLoading = false
+          if(this.message.includes("has been created")){
+            this.viewInputFile(false)
+            if(this.model.ownModel==false){
+              this.viewPointData()
+            }
           }
+          this.modelLoading = false
           this.textLoading = false
           // this.saveCurrentData()
         }
@@ -531,7 +532,7 @@ import { Plotly } from 'vue-plotly'
         
         this.model.ownModel=true
         this.model.translated=true
-        this.modelNameSelected = this.message
+        this.model.modelNameSelected = this.message
 
         var files
         this.translateModel(files, 'inp', false)
@@ -850,18 +851,9 @@ import { Plotly } from 'vue-plotly'
         
         fr.onload = e => {
           const result = JSON.parse(e.target.result);
-          for(var i = 0; i < Object.keys(result).length; i++) {
-            var name = Object.keys(result)[i]
-            if (name!='Param'){
-              this.model[name] = result[name];
-            }
-            else{
-              // var param = result[i]
-              for(var j = 0; j < Object.keys(result['Param']).length; j++) {
-                var paramName = Object.keys(result['Param'])[j]
-                this.model[paramName] = result['Param'][paramName];
-              }
-            }
+          for(var j = 0; j < Object.keys(result['Param']).length; j++) {
+            var paramName = Object.keys(result['Param'])[j]
+            Object.assign(this[paramName], jsonFile['Param'][paramName])
           }
         }
         fr.readAsText(files.item(0));
@@ -891,7 +883,7 @@ import { Plotly } from 'vue-plotly'
         }
         fr.readAsText(files.item(0));
       },
-      loadFeModel(files) {
+      async loadFeModel(files) {
         this.model.ownModel=true
         this.model.translated=true
         
@@ -901,16 +893,57 @@ import { Plotly } from 'vue-plotly'
         if (files.length <= 0) {
           return false;
         }
-        this.model.modelNameSelected = files[0].name.split('.')[0]
-        const filetype = files[0].name.split('.')[1]
 
-        this.translateModel(files, filetype, true)
+        if (await this.checkFeSize(files)){
+          this.model.modelNameSelected = files[0].name.split('.')[0]
+          const filetype = files[0].name.split('.')[1]
+  
+          await this.translateModel(files, filetype, true)
+        }
+        else{
+      	  this.textLoading = false
+        }
+
         
+      },
+      async checkFeSize(files){
+        let headersList = {
+        'Authorization': this.authToken
+        }
+        let reqOptions = {
+            url: this.url + "getMaxFeSize",
+            method: "GET",
+            headers: headersList
+        }
+
+        var allowedFeSize = 0
+        await axios.request(reqOptions).then(response => (
+          allowedFeSize = response.data))
+
+        if(allowedFeSize > files[0].size){
+          return true
+        }
+        else{
+          this.message = 'The file size (' + this.formatBytes(files[0].size) + ') is larger than the allowed ' + this.formatBytes(allowedFeSize)
+          this.snackbar=true
+          return false
+        }
+
+      },
+      formatBytes(bytes, decimals = 2){
+        if (bytes === 0) {
+          return '0 Bytes';
+        }
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
       },
       async translateModel(files, filetype, upload) {
 
+        const formData = new FormData();
         if(upload){
-          const formData = new FormData();
           for (var i = 0; i < files.length; i++){
             formData.append('files',files[i])
           }
@@ -1006,33 +1039,34 @@ import { Plotly } from 'vue-plotly'
         this.model.translated=false
       },
       resetData() {
+        const jsonFile = {};
         switch (this.model.modelNameSelected) {
         case 'GIICmodel':  
-          this.jsonFile = GIICmodelFile;
+          Object.assign(jsonFile, GIICmodelFile)
           break;
         case 'DCBmodel':  
-          this.jsonFile = DCBmodelFile;
+          Object.assign(jsonFile, DCBmodelFile)
           break;
         case 'Dogbone':  
-          this.jsonFile = DogboneFile;
+          Object.assign(jsonFile, DogboneFile)
           break;
         default:
           return;
         }
 
-        for(var i = 0; i < Object.keys(this.jsonFile).length; i++) {
+        // for(var i = 0; i < Object.keys(this.jsonFile).length; i++) {
           // var name = Object.keys(this.jsonFile)[i]
           // if (name!='Param'){
           //   this.model[name] = this.jsonFile[name];
           // }
           // else{
             // var param = result[i]
-            for(var j = 0; j < Object.keys(this.jsonFile['Param']).length; j++) {
-              var paramName = Object.keys(this.jsonFile['Param'])[j]
-              this[paramName] = this.jsonFile['Param'][paramName];
+            for(var j = 0; j < Object.keys(jsonFile['Param']).length; j++) {
+              var paramName = Object.keys(jsonFile['Param'])[j]
+              Object.assign(this[paramName], jsonFile['Param'][paramName])
             }
           // }
-        }
+        // }
       },
       // saveCurrentData() {
         // this.$store.commit('saveModelName', this.model.modelNameSelected);
