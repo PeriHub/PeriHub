@@ -23,6 +23,8 @@ class OwnModel(object):
 
         writer = ModelWriter(modelClass = self)
         self.writeFILE(writer = writer)
+        
+        return 'Model created'
 
     def writeFILE(self, writer):
 

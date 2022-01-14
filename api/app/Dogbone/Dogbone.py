@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 class Dogbone(object):
     def __init__(self, xend = 0.115, h1 = 0.019, h2 = 0.017, zend = 0.003, dx=[0.0005,0.0005,0.0005], 
     filename = 'Dogbone', TwoD = False, structured = True, rot = False, angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = ''):
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000):
         '''
             definition der blocks
             k =
@@ -34,6 +34,7 @@ class Dogbone(object):
         self.rot = rot
         self.blockDef = block
         self.username = username
+        self.maxNodes = maxNodes
         if self.TwoD:
             self.zbegin = 0
             self.zend = 1
@@ -204,6 +205,12 @@ class Dogbone(object):
         x0 = np.arange(0,self.xend, self.dx[0])
         y0 = np.arange(-self.h1/2 - self.dx[1],self.h1/2 + self.dx[1], self.dx[1])
         z0 = np.arange(0,self.zend, self.dx[2])
+            
+        num = len(x0)*len(y0)*len(z0)
+        
+        if num>self.maxNodes:
+            return 'The number of nodes (' + str(num) + ') is larger than the allowed ' + str(self.maxNodes)
+
 
         if self.structured:
             nn = 2*int((self.h1/self.dx[1])/2)+1
@@ -254,8 +261,7 @@ class Dogbone(object):
 
 
             # plt.show()
-            
-            num = len(x0)*len(y0)*len(z0)
+
             vol = np.full_like(x, self.dx[0]*self.dx[0])
 
         else:
@@ -265,7 +271,7 @@ class Dogbone(object):
             # plt.scatter(x0, topSurf(x0))
             # plt.scatter(x0, bottomSurf(x0))
             # plt.show()
-            num = len(x0)*len(y0)*len(z0)
+            # num = len(x0)*len(y0)*len(z0)
             x = []
             y = []
             z = []
@@ -315,7 +321,7 @@ class Dogbone(object):
         writer.writeNodeSets(model)
         self.writeFILE(writer = writer, model = model)
         
-        return model
+        return 'Model created'
 
     def createBlockdef(self,model):
         blockLen = int(max(model['k']))

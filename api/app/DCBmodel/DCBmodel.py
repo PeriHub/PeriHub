@@ -8,7 +8,7 @@ from support.geometry import Geometry
 class DCBmodel(object):
     def __init__(self, xend = 0.045, yend = 0.01, zend = 0.003, dx=[0.001,0.001,0.001], 
     filename = 'DCBmodel', TwoD = False, rot = 'False', angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = ''):
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000):
         '''
             definition der blocks
             k =
@@ -33,6 +33,7 @@ class DCBmodel(object):
         self.rot = rot
         self.blockDef = block
         self.username = username
+        self.maxNodes = maxNodes
         if self.TwoD:
             self.zbegin = 0
             self.zend = 0
@@ -188,6 +189,10 @@ class DCBmodel(object):
         geo = Geometry()
         
         x,y,z = geo.createPoints(coor = [self.xbegin, self.xend, self.ybegin, self.yend, self.zbegin, self.zend], dx = self.dx)
+
+        if len(x)>self.maxNodes:
+            return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
+
         vol = np.zeros(len(x))
         k = np.ones(len(x))
         if self.rot:
@@ -218,7 +223,7 @@ class DCBmodel(object):
         writer.writeNodeSets(model)
         self.writeFILE(writer = writer, model = model)
         
-        return model
+        return 'Model created'
 
     def createBlockdef(self,model):
         blockLen = int(max(model['k']))

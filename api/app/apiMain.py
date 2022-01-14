@@ -118,6 +118,7 @@ class ModelControl(object):
     def generateModel(ModelName: str, ownModel: bool, translated: bool, Length: float, Width: float, Height: float, Discretization: float, Horizon: float, Structured: bool, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
        
         username = fileHandler.getUserName(request)
+        maxNodes = fileHandler.getMaxNodes(username)
 
          # L = 152
         # L = 50
@@ -147,8 +148,9 @@ class ModelControl(object):
             compute=Param['Param']['Compute'],  
             output=Param['Param']['Output'], 
             solver=Param['Param']['Solver'],
-            username = username)
-            model = gc.createModel()
+            username=username,
+            maxNodes=maxNodes)
+            result = gc.createModel()
 
         if ModelName=='DCBmodel':
             dcb = DCBmodel(xend = L, yend = h, zend = W, dx=dx,
@@ -161,8 +163,9 @@ class ModelControl(object):
             compute=Param['Param']['Compute'],  
             output=Param['Param']['Output'], 
             solver=Param['Param']['Solver'],
-            username = username)
-            model = dcb.createModel()
+            username = username,
+            maxNodes=maxNodes)
+            result = dcb.createModel()
 
         if ModelName=='Dogbone':
             db = Dogbone(xend = L, h1 = h, h2 = Height2, zend = W, dx=dx,
@@ -176,8 +179,9 @@ class ModelControl(object):
             compute=Param['Param']['Compute'],  
             output=Param['Param']['Output'], 
             solver=Param['Param']['Solver'],
-            username = username)
-            model = db.createModel()
+            username = username,
+            maxNodes=maxNodes)
+            result = db.createModel()
 
         if ownModel:
             if translated:
@@ -197,9 +201,11 @@ class ModelControl(object):
             output=Param['Param']['Output'], 
             solver=Param['Param']['Solver'],
             username = username)
-            own.createModel()
+            result = own.createModel()
 
         print()
+        if (result!='Model created'):
+            return result
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
    
     @app.get("/generateMesh")
@@ -356,6 +362,29 @@ class ModelControl(object):
         f.close()
 
         return response
+
+    @app.get("/getDocs")
+    def getDocs(Name: str, model: bool):
+            
+        if model:
+            remotepath = './'+ Name+ '/' + Name + '.md'
+        else:
+            remotepath = './guides/' + Name + '.md'
+
+
+        f = open(remotepath, 'r')
+        response = f.read()
+        f.close()
+
+        return response
+
+    @app.get("/getMaxFeSize")
+    def getMaxFeSize(request: Request):
+
+        username = fileHandler.getUserName(request)
+        FeSize = fileHandler.getMaxFeSize(username)
+
+        return FeSize
 
 
     @app.get("/getResults")

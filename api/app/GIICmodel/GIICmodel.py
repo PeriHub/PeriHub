@@ -7,7 +7,7 @@ from support.geometry import Geometry
 class GIICmodel(object):
     def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], 
     filename = 'GIICmodel', TwoD = False, rot = 'False', angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = ''):
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000):
         '''
             definition der blocks
             k =
@@ -39,6 +39,7 @@ class GIICmodel(object):
         self.zend = zend
         self.rot = rot
         self.username = username
+        self.maxNodes = maxNodes
         if TwoD:
             self.zend = 0
             self.dx[2] = 1
@@ -195,6 +196,10 @@ class GIICmodel(object):
     def createModel(self):
         geo = Geometry()
         x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)
+
+        if len(x)>self.maxNodes:
+            return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
+
         vol = np.zeros(len(x))
         k = np.ones(len(x))
         if self.rot:
@@ -225,7 +230,7 @@ class GIICmodel(object):
         writer.writeNodeSets(model)
         self.writeFILE(writer = writer, model = model)
         
-        return model
+        return 'Model created'
 
     def createBlockdef(self,model):
         blockLen = int(max(model['k']))

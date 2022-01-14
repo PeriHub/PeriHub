@@ -1,0 +1,14 @@
+{
+    "hess_ja": {
+        "allowedNodes": 100000,
+        "allowedFeSize": 15000000},
+    "will_cr": {
+        "allowedNodes": 100000,
+        "allowedFeSize": 15000000},
+    "garb_ma": {
+        "allowedNodes": 100000,
+        "allowedFeSize": 15000000},
+    "guest": {
+        "allowedNodes": 10000,
+        "allowedFeSize": 5242880}
+}

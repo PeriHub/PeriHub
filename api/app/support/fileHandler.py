@@ -4,6 +4,7 @@ import paramiko
 import os
 import time
 import jwt
+import json
 
 class fileHandler(object):
 
@@ -37,6 +38,29 @@ class fileHandler(object):
         decodedToken = jwt.decode(encodedToken.split(' ')[1], options={"verify_signature": False})
 
         return decodedToken['preferred_username']
+
+    def getMaxNodes(username):
+        
+        f = open('./support/allowedMaxNodes.json')
+        data = json.load(f)
+        
+        if data[username]:
+            return data[username]['allowedNodes']
+        
+        else:
+            return data['guest']['allowedNodes']
+
+    def getMaxFeSize(username):
+        
+        f = open('./support/allowedMaxNodes.json')
+        data = json.load(f)
+        
+        if data[username]:
+            return data[username]['allowedFeSize']
+        
+        else:
+            return data['guest']['allowedFeSize']
+
 
     def getUserMail(request):
         encodedToken = request.headers.get('Authorization')
