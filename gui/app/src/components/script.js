@@ -1779,6 +1779,14 @@ import { Plotly } from 'vue-plotly'
         axios.request(reqOptions).then(response => (this.authToken = response.headers.authorization));
         // console.log(this.authToken);
       },
+      openHidePanels() {
+        if (this.panel.length==0){
+          this.panel=[0,1,2,3,4,5,6,7]
+        }
+        else{
+          this.panel=[]
+        }
+      },
     },
     beforeMount() {
       // console.log("beforeMount")

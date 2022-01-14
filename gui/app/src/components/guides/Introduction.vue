@@ -1,6 +1,6 @@
 <template>
     <v-container fluid class="pa-0" style="height:100%">
-        <div id="app" class="remaining-height">
+        <div id="app" class="scroll">
           <v-container fluid class="pa-0" style="height:100%">
             <vue-markdown :source="markdown"></vue-markdown>
           </v-container>
@@ -49,7 +49,7 @@
   }
 </script>
 <style>
-  .remaining-height{
+  .scroll{
     height: 100%;
     overflow-y: scroll;
   }

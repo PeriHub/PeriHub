@@ -86,6 +86,16 @@
               </template>
                 <span>Use predefined Models</span>
               </v-tooltip>
+    
+              <v-spacer></v-spacer>
+              
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="openHidePanels">
+                    <i class="fas fa-sort"></i>
+                </v-btn>
+              </template>
+                <span>Collapse/Expand all panels</span>
+              </v-tooltip>
         </v-subheader>
           <!-- <v-virtual-scroll
                 :items="Array.from({model.length: 9}).map((_, index) => index)"
@@ -624,7 +634,7 @@
                         </v-col>
                         <v-col class="textfieldlist-col"
                           cols="12"
-                          sm="3">
+                          sm="2">
                           <v-select
                             :items= boundarytype
                             item-text="Name"

@@ -1,6 +1,6 @@
 <template>
     <v-container fluid class="pa-0" style="height:100%">
-        <div id="app" class="remaining-height">
+        <div id="app" class="scroll">
             <v-container>
                 <h1>Publications</h1>
                 <ul>
@@ -97,7 +97,7 @@
     }
 </script>
 <style>
-  .remaining-height{
+  .scroll{
     height: 100%;
     overflow-y: scroll;
   }
