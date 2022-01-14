@@ -5,7 +5,7 @@
         </v-row>
         <v-container fluid>
             <v-row justify="center">
-                    <router-link style="text-decoration: none;" to="home">
+                    <router-link class="card" to="home">
                         <v-card width="400px">
                         <v-img
                             src="../assets/PeriHub.png"
@@ -16,7 +16,8 @@
                         </v-img>
                         </v-card>
                     </router-link>
-                    <v-card width="400px" href="https://perihub-api.fa-services.intra.dlr.de/docs">
+                    <div class="card" to="home">
+                        <v-card width="400px" href="https://perihub-api.fa-services.intra.dlr.de/docs">
                         <v-img
                             src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
                             class="white--text align-end"
@@ -25,7 +26,8 @@
                             <v-card-title>API</v-card-title>
                         </v-img>
                         </v-card>
-                    <router-link style="text-decoration: none;" to="guide">
+                    </div>
+                    <router-link class="card" to="guide">
                         <v-card width="400px">
                         <v-img
                             src="https://static.vecteezy.com/system/resources/previews/000/263/066/original/book-icon-vector.jpg"
@@ -36,7 +38,7 @@
                         </v-img>
                         </v-card>
                     </router-link>
-                    <router-link style="text-decoration: none;" to="publications">
+                    <router-link class="card" to="publications">
                         <v-card width="400px">
                         <v-img
                             src="http://www.umsl.edu/psychology/thrive/photos/stock/publications.jpg"
@@ -44,17 +46,6 @@
                             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                             height="200px">
                             <v-card-title>Publications</v-card-title>
-                        </v-img>
-                        </v-card>
-                    </router-link>
-                    <router-link style="text-decoration: none;" to="home">
-                        <v-card width="400px">
-                        <v-img
-                            src="../assets/PeriHub.png"
-                            class="white--text align-end"
-                            gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                            height="200px">
-                            <v-card-title>Bla</v-card-title>
                         </v-img>
                         </v-card>
                     </router-link>
@@ -124,4 +115,9 @@ import { Plotly } from 'vue-plotly'
   }
 </script>
 <style>
+  .card{
+    text-decoration: none; 
+    padding-right: 10px;
+    padding-left: 10px;
+  }
 </style>

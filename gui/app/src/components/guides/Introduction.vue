@@ -1,23 +1,57 @@
 <template>
-    <v-container>
-        <v-row dense align="center" justify="center" style="height:20%;">
-            <h1>Introduction</h1>
-        </v-row>
+    <v-container fluid class="pa-0" style="height:100%">
+        <div id="app" class="remaining-height">
+          <v-container fluid class="pa-0" style="height:100%">
+            <vue-markdown :source="markdown"></vue-markdown>
+          </v-container>
+        </div>
     </v-container>
 </template>
 
 <script>
+  import axios from 'axios'
+  import VueMarkdown from 'vue-markdown'
+  // import DogboneMd from '../assets/Dogbone/Dogbone.md'
+
   export default {
     name: 'PeriHub',
-    components: {
+    components: {  
+      VueMarkdown
     },
     data () {
       return {
-        }
+        markdown:  "![img](/images/PeriHub.png)",
+        url: 'https://perihub-api.fa-services.intra.dlr.de/'
+      }
     },
     methods: {
+      async getDocs(){
+
+        let reqOptions = {
+            url: this.url + "getDocs",
+            params: {Name: "Introduction",
+                     model: false},
+            method: "GET"
+        }
+
+        await axios.request(reqOptions).then(response => (
+        this.markdown = response.data))
+      },
+    },
+    beforeMount() {
+      if(process.env.VUE_APP_ROOT_API!=undefined)
+      {
+          this.url = process.env.VUE_APP_ROOT_API
+          console.log("changed URL: " + process.env.VUE_APP_ROOT_API)
+      }
+      this.getDocs();
     }
   }
 </script>
 <style>
+  .remaining-height{
+    height: 100%;
+    overflow-y: scroll;
+  }
+  img[alt=drawing] { width: 70%; }
 </style>
