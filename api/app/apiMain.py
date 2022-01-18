@@ -51,7 +51,15 @@ class NotFoundException(Exception):
     def __init__(self, name: str):
         self.name = name
 
-app = FastAPI()
+tags_metadata = [
+    {"name": "Post Methods", "description": "Generate, translate or upload models"},
+    {"name": "Put Methods", "description": "Run, cancel or write jobs"},
+    {"name": "Get Methods", "description": "Get mesh files, input files or postprocessing data"},
+    {"name": "Delete Methods", "description": "Delet user or model data"},
+    {"name": "Documentation Methods", "description": "Retrieve markdwon documentaion or bibtex files"},
+]
+
+app = FastAPI(openapi_tags=tags_metadata)
 
 origins = [
     "http://localhost",
@@ -114,7 +122,7 @@ class ModelControl(object):
             content={"message": f"{exc.name} can't be found"},
         )
 
-    @app.post("/generateModel")
+    @app.post("/generateModel", tags=["Post Methods"])
     def generateModel(ModelName: str, ownModel: bool, translated: bool, Length: float, Width: float, Height: float, Discretization: float, Horizon: float, Structured: bool, TwoDimensional: bool, RotatedAngles: bool, Angle0: float, Angle1: float, Param: dict, request: Request, Height2: Optional[float] = None):#Material: dict, Output: dict):
        
         username = fileHandler.getUserName(request)
@@ -208,7 +216,7 @@ class ModelControl(object):
             return result
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
    
-    @app.get("/generateMesh")
+    @app.get("/generateMesh", tags=["Get Methods"])
     def generateMesh(ModelName: str, Param: str, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -226,14 +234,18 @@ class ModelControl(object):
         # }
 
         r = requests.patch("https://129.247.54.235:5000/1/PyCODAC/api/micofam/{zip}", verify=False)
-        z = zipfile.ZipFile(io.BytesIO(r.content))
+        try:
+            z = zipfile.ZipFile(io.BytesIO(r.content))
 
-        localpath = './Output/' + os.path.join(username, ModelName)
+            localpath = './Output/' + os.path.join(username, ModelName)
 
-        if os.path.exists(localpath) == False:
-            os.makedirs(localpath)
-            
-        z.extractall(localpath)
+            if os.path.exists(localpath) == False:
+                os.makedirs(localpath)
+                
+            z.extractall(localpath)
+        except:
+            return "Micofam request failed"
+
 
         outputFiles = os.listdir(localpath)
         filtered_values = list(filter(lambda v: match('^.+\.inp$', v), outputFiles))
@@ -250,7 +262,7 @@ class ModelControl(object):
         # except:
         return "Mesh generated"
 
-    @app.get("/viewInputFile")
+    @app.get("/viewInputFile", tags=["Get Methods"])
     def viewInputFile(ModelName: str, FileType: FileType, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -262,7 +274,7 @@ class ModelControl(object):
         except:
             return 'Inputfile can\'t be found'
 
-    @app.post("/writeInputFile")
+    @app.put("/writeInputFile", tags=["Put Methods"])
     def writeInputFile(ModelName: str, InputString: str, FileType: FileType, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -272,7 +284,7 @@ class ModelControl(object):
 
         return ModelName + '-InputFile has been saved'
 
-    @app.get("/getModel")
+    @app.get("/getModel", tags=["Get Methods"])
     def getModel(ModelName: str, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -302,7 +314,7 @@ class ModelControl(object):
     #     except:
     #         raise HTTPException(status_code=404, detail=ModelName + ' files can not be found')
 
-    @app.get("/getLogFile")
+    @app.get("/getLogFile", tags=["Get Methods"])
     def getLogFile(ModelName: str, Cluster: str, request: Request):
 
         username = fileHandler.getUserName(request)
@@ -352,7 +364,7 @@ class ModelControl(object):
 
             return response
 
-    @app.get("/getPublications")
+    @app.get("/getPublications", tags=["Documentation Methods"])
     def getPublications():
             
         remotepath = './Publications/papers.bib'
@@ -363,7 +375,7 @@ class ModelControl(object):
 
         return response
 
-    @app.get("/getDocs")
+    @app.get("/getDocs", tags=["Documentation Methods"])
     def getDocs(Name: str, model: bool):
             
         if model:
@@ -378,7 +390,7 @@ class ModelControl(object):
 
         return response
 
-    @app.get("/getMaxFeSize")
+    @app.get("/getMaxFeSize", tags=["Get Methods"])
     def getMaxFeSize(request: Request):
 
         username = fileHandler.getUserName(request)
@@ -387,7 +399,7 @@ class ModelControl(object):
         return FeSize
 
 
-    @app.get("/getResults")
+    @app.get("/getResults", tags=["Get Methods"])
     def getResults(ModelName: str, Cluster: str, allData: bool, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -419,7 +431,7 @@ class ModelControl(object):
     #     except:
     #         return 'Resultfiles can\'t be found'
             
-    @app.post("/deleteModel")
+    @app.delete("/deleteModel", tags=["Delete Methods"])
     def deleteModel(ModelName: str, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -428,7 +440,7 @@ class ModelControl(object):
         return ModelName + ' has been deleted'
 
 
-    @app.post("/deleteModelFromCluster")
+    @app.delete("/deleteModelFromCluster", tags=["Delete Methods"])
     def deleteModelFromCluster(ModelName: str, Cluster: str, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -456,7 +468,7 @@ class ModelControl(object):
             ssh.close()
             return ModelName + ' has been deleted'
 
-    @app.post("/deleteUserData")
+    @app.delete("/deleteUserData", tags=["Delete Methods"])
     def deleteUserData(checkDate: bool, request: Request, days: Optional[int] = 7):
         if checkDate:
             localpath = './Output'
@@ -472,7 +484,7 @@ class ModelControl(object):
             shutil.rmtree(localpath)
             return 'Data of ' + username + ' has been deleted'
 
-    @app.post("/deleteUserDataFromCluster")
+    @app.delete("/deleteUserDataFromCluster", tags=["Delete Methods"])
     def deleteUserDataFromCluster(Cluster: str, checkDate: bool, request: Request, days: Optional[int] = 7):
 
         if checkDate:
@@ -509,7 +521,7 @@ class ModelControl(object):
                 ssh.close()
                 return 'Data of ' + username + ' has been deleted'
 
-    @app.get("/getPlot")
+    @app.get("/getPlot", tags=["Get Methods"])
     def getPlot(ModelName: str, Cluster: str, OutputName: str, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -539,7 +551,7 @@ class ModelControl(object):
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
-    @app.get("/getImage")
+    @app.get("/getImage", tags=["Get Methods"])
     def getImage(ModelName: str, Cluster: str, Output: str,  Variable: str,  Axis: str, dx: float, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -555,7 +567,7 @@ class ModelControl(object):
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
-    @app.get("/getPointData")
+    @app.get("/getPointData", tags=["Get Methods"])
     def getPointData(ModelName: str, OwnModel: bool, request: Request):
         username = fileHandler.getUserName(request)
 
@@ -611,7 +623,7 @@ class ModelControl(object):
             except:
                 raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
 
-    @app.post("/uploadfiles")
+    @app.post("/uploadfiles", tags=["Post Methods"])
     async def uploadfiles( ModelName: str, request: Request, files: List[UploadFile] = File(...)): 
         username = fileHandler.getUserName(request)
 
@@ -627,18 +639,17 @@ class ModelControl(object):
 
         return {"info": f"file '{files[0].file.name}' saved at '{file_location}'"}
 
-    @app.post("/translateModel")
+    @app.post("/translateModel", tags=["Post Methods"])
     def translateModel(ModelName: str, Filetype: str, Upload: bool, request: Request, files: Optional[List[UploadFile]] = File(...)):
         username = fileHandler.getUserName(request)
 
         start_time = time.time()
 
         localpath = './Output/' + os.path.join(username, ModelName)
-        
-        if os.path.exists(localpath) == False:
-            os.makedirs(localpath)
 
         if Upload:
+            if os.path.exists(localpath) == False:
+                os.makedirs(localpath)
             for file in files:
                 file_location = localpath + f"/{file.filename}"
                 with open(file_location, "wb+") as file_object:
@@ -709,70 +720,70 @@ class ModelControl(object):
 
         return ModelName + ' has been translated in ' + "%.2f seconds" % (time.time() - start_time)
 
-    @app.post("/translateExistModel")
-    def translateExistModel(ModelName: str, Filetype: str, Upload: bool, request: Request):
-        username = fileHandler.getUserName(request)
+    # @app.post("/translateExistModel")
+    # def translateExistModel(ModelName: str, Filetype: str, Upload: bool, request: Request):
+    #     username = fileHandler.getUserName(request)
 
-        start_time = time.time()
+    #     start_time = time.time()
 
-        localpath = './Output/' + os.path.join(username, ModelName)
+    #     localpath = './Output/' + os.path.join(username, ModelName)
 
-        inputformat="'ansys (cdb)'"
-        if Filetype=='cdb':
-            inputformat = 'ansys'
-        if Filetype=='inp':
-            inputformat = 'abaqus'
-            # inputformat = "'ansys (cdb)'"
+    #     inputformat="'ansys (cdb)'"
+    #     if Filetype=='cdb':
+    #         inputformat = 'ansys'
+    #     if Filetype=='inp':
+    #         inputformat = 'abaqus'
+    #         # inputformat = "'ansys (cdb)'"
 
-        command = "java -jar ./support/jCoMoT/jCoMoT-0.0.1-all.jar -ifile " + os.path.join(localpath, ModelName + '.' + Filetype) + \
-        " -iformat " + inputformat + " -oformat peridigm -opath " + localpath + \
-        " && mv " + os.path.join(localpath, 'mesh.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
-        " && mv " + os.path.join(localpath, 'model.peridigm ') + os.path.join(localpath, ModelName) + '.peridigm'
-        # " && mv " + os.path.join(localpath, 'discretization.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
-        try:
-            subprocess.call(command, shell=True)
-        except:
-            raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+    #     command = "java -jar ./support/jCoMoT/jCoMoT-0.0.1-all.jar -ifile " + os.path.join(localpath, ModelName + '.' + Filetype) + \
+    #     " -iformat " + inputformat + " -oformat peridigm -opath " + localpath + \
+    #     " && mv " + os.path.join(localpath, 'mesh.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
+    #     " && mv " + os.path.join(localpath, 'model.peridigm ') + os.path.join(localpath, ModelName) + '.peridigm'
+    #     # " && mv " + os.path.join(localpath, 'discretization.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
+    #     try:
+    #         subprocess.call(command, shell=True)
+    #     except:
+    #         raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
         
-        if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g.ascii', True) != 'Success':
-            return ModelName + ' can not be translated'
+    #     if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g.ascii', True) != 'Success':
+    #         return ModelName + ' can not be translated'
 
-        if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.peridigm', True) != 'Success':
-            return ModelName + ' can not be translated'
+    #     if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.peridigm', True) != 'Success':
+    #         return ModelName + ' can not be translated'
 
 
-        # if returnString!='Success':
-        #     return returnString
+    #     # if returnString!='Success':
+    #     #     return returnString
 
-        server='perihub_peridigm'
-        remotepath = '/app/peridigmJobs/' + os.path.join(username, ModelName)
-        ssh = paramiko.SSHClient() 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        try:
-            ssh.connect(server, username='root', allow_agent=False, password='root')
-        except:
-           return "ssh connection to " + server + " failed!"
-        command = '/usr/local/netcdf/bin/ncgen ' + os.path.join(remotepath, ModelName) + '.g.ascii -o ' + os.path.join(remotepath, ModelName) + '.g' + \
-        ' && python3 /Peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
-        ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
-        # ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
-        stdin, stdout, stderr = ssh.exec_command(command)
-        stdout.channel.set_combine_stderr(True)
-        output = stdout.readlines()
-        ssh.close()
+    #     server='perihub_peridigm'
+    #     remotepath = '/app/peridigmJobs/' + os.path.join(username, ModelName)
+    #     ssh = paramiko.SSHClient() 
+    #     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #     try:
+    #         ssh.connect(server, username='root', allow_agent=False, password='root')
+    #     except:
+    #        return "ssh connection to " + server + " failed!"
+    #     command = '/usr/local/netcdf/bin/ncgen ' + os.path.join(remotepath, ModelName) + '.g.ascii -o ' + os.path.join(remotepath, ModelName) + '.g' + \
+    #     ' && python3 /Peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
+    #     ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
+    #     # ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
+    #     stdin, stdout, stderr = ssh.exec_command(command)
+    #     stdout.channel.set_combine_stderr(True)
+    #     output = stdout.readlines()
+    #     ssh.close()
 
-        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
-        fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
+    #     fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
+    #     fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
 
-        # command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtu'
-        # try:
-        #     subprocess.call(command, shell=True)
-        # except:
-        #     raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+    #     # command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtu'
+    #     # try:
+    #     #     subprocess.call(command, shell=True)
+    #     # except:
+    #     #     raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
 
-        return ModelName + ' has been translated in ' + "%.2f seconds" % (time.time() - start_time)
+    #     return ModelName + ' has been translated in ' + "%.2f seconds" % (time.time() - start_time)
 
-    @app.post("/runModel")
+    @app.put("/runModel", tags=["Put Methods"])
     def runModel(ModelName: str, FileType: FileType, Param: dict, request: Request):
         username = fileHandler.getUserName(request)
         usermail = fileHandler.getUserMail(request)
@@ -849,7 +860,7 @@ class ModelControl(object):
         else:
             return Cluster + ' unknown'
 
-    @app.post("/cancelJob")
+    @app.put("/cancelJob", tags=["Put Methods"])
     def cancelJob(ModelName: str, Cluster: str, request: Request):
         username = fileHandler.getUserName(request)
 

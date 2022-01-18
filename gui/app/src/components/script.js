@@ -39,7 +39,7 @@ import { Plotly } from 'vue-plotly'
     data () {
       return {
         // Model
-        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],//, 'RVE'],
+        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel', 'RVE'],
         model: {
           modelNameSelected: 'Dogbone',
           ownModel: false,
@@ -529,21 +529,29 @@ import { Plotly } from 'vue-plotly'
         this.modelLoading = true
 
         await axios.request(reqOptions).then(response => (this.message = response.data))
-        
-        this.model.ownModel=true
-        this.model.translated=true
-        this.model.modelNameSelected = this.message
-
-        var files
-        this.translateModel(files, 'inp', false)
-        // this.viewInputFile(true)
-        // this.loadYamlString(this.textOutput)
-        // this.viewPointData()
-
-        // this.modelLoading = false
-      	this.modelLoading = false
 
         this.snackbar=true  
+        
+        if(this.message=="Mesh generated"){
+          this.model.ownModel=true
+          this.model.translated=true
+          // this.model.modelNameSelected = this.message
+
+          var files
+          this.translateModel(files, 'inp', false)
+          // this.viewInputFile(true)
+          // this.loadYamlString(this.textOutput)
+          // this.viewPointData()
+
+          // this.modelLoading = false
+          this.modelLoading = false
+
+          this.snackbar=true  
+            
+        }
+        else{
+          this.modelLoading = true
+        }
         // let headersList = {
         // 'Cache-Control': 'no-cache',
         // 'accept': 'application/json',
@@ -1001,7 +1009,7 @@ import { Plotly } from 'vue-plotly'
         }
 
         let reqOptions = {
-          url: this.url + "translateExistModel",
+          url: this.url + "translateModel",
           params: {ModelName: this.model.modelNameSelected,
                     Filetype: filetype,
                     Upload: upload},
@@ -1295,7 +1303,7 @@ import { Plotly } from 'vue-plotly'
           data: JSON.parse("{\"Param\":" + "{\"Job\": " + JSON.stringify(this.job)+",\n" +
                                             "\"Output\": " + JSON.stringify(this.outputs)+",\n" + 
                                             "\"Material\": " + JSON.stringify(this.materials) + "}}"),
-          method: "POST",
+          method: "PUT",
           headers: headersList,
         }
 
@@ -1313,7 +1321,7 @@ import { Plotly } from 'vue-plotly'
           url: this.url + "cancelJob",
           params: {ModelName: this.model.modelNameSelected,
                   Cluster: this.job.cluster,},
-          method: "POST",
+          method: "PUT",
           headers: headersList,
         }
 
@@ -1521,7 +1529,7 @@ import { Plotly } from 'vue-plotly'
           params: {ModelName: this.model.modelNameSelected,
                   InputString: this.textOutput,
                   FileType: this.solver.filetype},
-          method: "POST",
+          method: "PUT",
           }
 
         axios.request(reqOptions).then(response => (this.message = response.data))
@@ -1537,7 +1545,7 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: this.url + "deleteModel",
           params: {ModelName: this.model.modelNameSelected},
-          method: "POST",
+          method: "DELETE",
           headers: headersList,
           }
           
@@ -1547,7 +1555,7 @@ import { Plotly } from 'vue-plotly'
           url: this.url + "deleteModelFromCluster",
           params: {ModelName: this.model.modelNameSelected,
                   Cluster: this.job.cluster},
-          method: "POST",
+          method: "DELETE",
           headers: headersList,
           }
           
@@ -1565,7 +1573,7 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: this.url + "deleteUserData",
           params: {checkDate: false},
-          method: "POST",
+          method: "DELETE",
           headers: headersList,
           }
           
@@ -1574,7 +1582,7 @@ import { Plotly } from 'vue-plotly'
           url: this.url + "deleteUserDataFromCluster",
           params: {Cluster: this.job.cluster,
                   checkDate: false},
-          method: "POST",
+          method: "DELETE",
           headers: headersList,
           }
           
