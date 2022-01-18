@@ -20,7 +20,7 @@
     },
     data () {
       return {
-        markdown:  "![img](/images/PeriHub.png)",
+        markdown:  "",
         url: 'https://perihub-api.fa-services.intra.dlr.de/'
       }
     },
