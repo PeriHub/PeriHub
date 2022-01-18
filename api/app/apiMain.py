@@ -203,7 +203,7 @@ class ModelControl(object):
             username = username)
             result = own.createModel()
 
-        print()
+        print(ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time))
         if (result!='Model created'):
             return result
         return ModelName + ' has been created in ' + "%.2f seconds" % (time.time() - start_time) + ', dx: '+ str(dx)
@@ -652,18 +652,25 @@ class ModelControl(object):
             # inputformat = "'ansys (cdb)'"
 
         command = "java -jar ./support/jCoMoT/jCoMoT-0.0.1-all.jar -ifile " + os.path.join(localpath, ModelName + '.' + Filetype) + \
-        " -iformat " + inputformat + " -oformat peridigm -opath " + localpath + \
-        " && mv " + os.path.join(localpath, 'mesh.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
-        " && mv " + os.path.join(localpath, 'model.peridigm ') + os.path.join(localpath, ModelName) + '.peridigm'
+        " -iformat " + inputformat + " -oformat peridigm -opath " + localpath #+ \
+        # " && mv " + os.path.join(localpath, 'mesh.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
+        # " && mv " + os.path.join(localpath, 'model.peridigm ') + os.path.join(localpath, ModelName) + '.peridigm'
         # " && mv " + os.path.join(localpath, 'discretization.g.ascii ') + os.path.join(localpath, ModelName) + '.g.ascii' + \
         try:
             subprocess.call(command, shell=True)
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found')
+
+        print('Rename mesh File')
+        os.rename(os.path.join(localpath, 'mesh.g.ascii'), os.path.join(localpath, ModelName + '.g.ascii'))
+        print('Rename peridigm File')
+        os.rename(os.path.join(localpath, 'model.peridigm'), os.path.join(localpath, ModelName + '.peridigm'))
         
+        print('Copy mesh File')
         if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g.ascii', True) != 'Success':
             return ModelName + ' can not be translated'
 
+        print('Copy peridigm File')
         if fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.peridigm', True) != 'Success':
             return ModelName + ' can not be translated'
 
@@ -683,12 +690,15 @@ class ModelControl(object):
         ' && python3 /Peridigm/scripts/peridigm_to_yaml.py ' + os.path.join(remotepath, ModelName) + '.peridigm' + \
         ' && rm ' +  os.path.join(remotepath, ModelName) + '.peridigm'
         # ' && rm ' +  os.path.join(remotepath, ModelName) + '.g.ascii' + \
+        print('Peridigm to yaml')
         stdin, stdout, stderr = ssh.exec_command(command)
         stdout.channel.set_combine_stderr(True)
         output = stdout.readlines()
         ssh.close()
 
+        print('Copy mesh File')
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.g', False)
+        print('Copy yaml File')
         fileHandler.copyFileToFromPeridigmContainer(username, ModelName, ModelName + '.yaml', False)
 
         # command = 'mv ' + os.path.join(localpath, ModelName) + '.g ' + os.path.join(localpath, ModelName) + '.e && meshio convert ' + os.path.join(localpath, ModelName) + '.e ' + os.path.join(localpath, ModelName) + '.vtu'

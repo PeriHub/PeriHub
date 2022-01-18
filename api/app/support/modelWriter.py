@@ -2,6 +2,8 @@ import numpy as np
 import os
 from support.xmlCreator  import XMLcreator
 from support.yamlCreator  import YAMLcreator
+import time
+# from numba import jit
 
 class ModelWriter(object):
     def __init__(self, modelClass):
@@ -32,7 +34,7 @@ class ModelWriter(object):
 
     def writeNodeSets(self, model):
         for idx, k in enumerate(self.nsList):
-            points = np.where(model['k'] == k)
+            points = np.where(model[:,3] == k)
             string = ''
             for pt in points[0]:
                 string += str(int(pt)+1) + '\n'
@@ -41,21 +43,29 @@ class ModelWriter(object):
     def fileWriter(self, filename, string):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-        fid = open(self.path+'/'+filename,'w')
-        fid.write(string)
-        fid.close()
-    def writeMesh(self, model):    
+        with open(self.path+'/'+filename,'w') as f:
+            f.write(string)
+
+    def meshFileWriter(self, filename, string, meshArray, format):
+        print('Write mesh file')
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)
+        with open(self.path+'/'+filename,'w') as f:
+            f.write(string)
+            np.savetxt(f, meshArray, fmt=format, delimiter=' ')
+
+    def writeMesh(self, model):   
+        start_time = time.time() 
         string = '# x y z block_id volume\n'
-        for idx in range(0, len(model['x'])):
-            string += f"{str(model['x'][idx])} {str(model['y'][idx])} { str(model['z'][idx])} {str(int(model['k'][idx]))} {str(model['vol'][idx])} \n"
-        self.fileWriter(self.filename + '.txt', string)
-    def writeMeshWithAngles(self, model):    
-        string = '# x y z block_id volume angle_x angle_y angle_z\n'
-        for idx in range(0, len(model['x'])):
-            string += f"{str(model['x'][idx])} {str(model['y'][idx])} {str(model['z'][idx])} {str(int(model['k'][idx]))} {str(model['vol'][idx])} {str(model['angle_x'][idx])} {str(model['angle_y'][idx])} {str(model['angle_z'][idx])} \n"
-            # if idx < 20:
-            #     print(string)
-        self.fileWriter(self.filename + '.txt', string)       
+        self.meshFileWriter(self.filename + '.txt', string, model, '%.18e %.18e %.18e %d %.18e')  
+        print('Mesh written in ' + "%.2f seconds" % (time.time() - start_time))
+
+    def writeMeshWithAngles(self, model):   
+        start_time = time.time() 
+        string = '# x y z block_id volume angle_x angle_y angle_z\n'  
+        self.meshFileWriter(self.filename + '.txt', string, model, '%.18e %.18e %.18e %d %.18e %.18e %.18e %.18e')  
+        print('Mesh written in ' + "%.2f seconds" % (time.time() - start_time))
+
     def createFile(self, blockDef):
 
             #string = yl.createYAML(string)

@@ -6,7 +6,7 @@ from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 import matplotlib.pyplot as plt
-
+import time
 class Dogbone(object):
     def __init__(self, xend = 0.115, h1 = 0.019, h2 = 0.017, zend = 0.003, dx=[0.0005,0.0005,0.0005], 
     filename = 'Dogbone', TwoD = False, structured = True, rot = False, angle = [0,0], 
@@ -19,6 +19,7 @@ class Dogbone(object):
             3 Min Y Up Node Set
             4 Min Y Down Node Set
         '''
+        start_time = time.time()
         
         self.filename = filename
         self.scal = 4.01
@@ -151,38 +152,34 @@ class Dogbone(object):
 
         self.intBlockId = ['']*numberOfBlocks
         self.matBlock = ['PMMA']*numberOfBlocks
+        
+        print('Initialized in ' + "%.2f seconds" % (time.time() - start_time) )
+        
     # def createLoadBlock(self,x,y,k):
-    #     if self.loadfuncx(x) == self.loadfuncy(y):
-    #         k = self.loadfuncx(x)
+    #     k = np.where(self.loadfuncx(x) == self.loadfuncy(y), self.loadfuncx(x), k)
     #     return k
-    # def createBoundaryConditionBlock(self,x,y,k):
-    #     k = (self.boundfuncx(x)-1)*self.boundfuncy(y)+1
-    #     return k
-    def createLoadIntroNode(self,x,y, k):
-        if x < self.xbegin+self.dx[0]*3:
-            if y > 0:
-                k = 3
-            if y < 0:
-                k = 4
-        return k
 
-    def createBlock(self,y,k):
-         #k = self.blockfuny(y)
-        if y > 0:
-            k = 1
-        if y < 0:
-            k = 2
-        return k
+    # def createBoundaryConditionBlock(self,x,y,k):
+    #     k = np.array(((self.boundfuncx(x)-1)*self.boundfuncy(y)+1), dtype='int')
+    #     return k
+
+    # def createLoadIntroNode(self,x,y, k):
+    #     k = np.where(np.logical_and(x < self.xbegin+self.dx[0]*3, y > 0), 3, k)
+    #     k = np.where(np.logical_and(x < self.xbegin+self.dx[0]*3, y < 0), 4, k)
+    #     return k
+
+    # def createBlock(self,y,k):
+    #     k = np.where(y > 0, 1, k)
+    #     k = np.where(y < 0, 2, k)
+    #     return k
+
     # def createAngles(self,x,y,z):
-    #     '''tbd'''
-    #     angle_x = 0
-    #     if y<self.yend/2:
-    #         angle_y = self.angle[0]
-    #     else:
-    #         angle_y = self.angle[1]
-    #     angle_z = 0
+    #     angle_x = np.zeros_like(x)
+    #     angle_y = np.where(y<self.yend/2, self.angle[0], self.angle[1])
+    #     angle_z = np.zeros_like(x)
 
     #     return angle_x, angle_y, angle_z
+
     def createModel(self):
         # dx = 0.001
         t = self.dx[0]
@@ -276,7 +273,6 @@ class Dogbone(object):
             y = []
             z = []
             k = []
-            vol = np.full((num), self.dx[0]*self.dx[0])
             matNum = 0
             for xval in x0:
                 for yval in y0:
@@ -293,6 +289,8 @@ class Dogbone(object):
             # plt.scatter(np.zeros_like(y0),y0)
             plt.scatter(x, y)
             plt.show()
+            vol = np.full_like(x, self.dx[0]*self.dx[0])
+
         if self.rot:
             angle_x = np.zeros(len(x))
             angle_y = np.zeros(len(x))
@@ -313,10 +311,10 @@ class Dogbone(object):
         writer = ModelWriter(modelClass = self)
         
         if self.rot:
-            model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol, 'angle_x':angle_x, 'angle_y':angle_y, 'angle_z': angle_z}
+            model = np.transpose(np.vstack([np.array(x).ravel(), np.array(y).ravel(), np.array(z).ravel(), np.array(k).ravel(), vol.ravel(), angle_x.ravel(), angle_y.ravel(), angle_z.ravel()]))
             writer.writeMeshWithAngles(model)
         else:
-            model = {'x':x, 'y':y, 'z': z, 'k':np.array(k), 'vol':vol}
+            model = np.transpose(np.vstack([np.array(x).ravel(), np.array(y).ravel(), np.array(z).ravel(), np.array(k).ravel(), vol.ravel()]))
             writer.writeMesh(model)
         writer.writeNodeSets(model)
         self.writeFILE(writer = writer, model = model)

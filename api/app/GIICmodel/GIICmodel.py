@@ -4,6 +4,7 @@ from scipy import interpolate
 from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
+import time
 class GIICmodel(object):
     def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], 
     filename = 'GIICmodel', TwoD = False, rot = 'False', angle = [0,0], 
@@ -23,7 +24,8 @@ class GIICmodel(object):
             10 RB Node links oben
             11 RB links oben - fehlt noch
         '''
-        
+        start_time = time.time()
+
         self.filename = filename
         self.scal = 4.01
         self.DiscType = 'txt'
@@ -156,43 +158,39 @@ class GIICmodel(object):
         self.intBlockId[7] = 9
         self.intBlockId[8] = 8
         self.matBlock = ['PMMA']*numberOfBlocks
+        
+        print('Initialized in ' + "%.2f seconds" % (time.time() - start_time) )
+
     def createLoadBlock(self,x,y,k):
-        if self.loadfuncx(x) == self.loadfuncy(y):
-            k = self.loadfuncx(x)
+        k = np.where(self.loadfuncx(x) == self.loadfuncy(y), self.loadfuncx(x), k)
         return k
+
     def createBoundaryConditionBlock(self,x,y,k):
-        k = (self.boundfuncx(x)-1)*self.boundfuncy(y)+1
+        k = np.array(((self.boundfuncx(x)-1)*self.boundfuncy(y)+1), dtype='int')
         return k
-    def createLoadIntroNode(self,x,y, k):
-        if (self.xend-self.dx[0])/2 < x < (self.xend+self.dx[0])/2:
-            if y > self.yend-self.dx[1]/2:
-                k = 7
+
+    def createLoadIntroNode(self,x,y,k):
+        k = np.where(np.logical_and((self.xend-self.dx[0])/2 < x, np.logical_and(x < (self.xend+self.dx[0])/2, y > self.yend-self.dx[1]/2)), 7, k)
         return k
-    def createBCNode(self,x,y, k):
-        if x <= 0 + self.dx[0]  and y == 0:
-            k = 5
-        if x > self.xend - self.dx[0]/3 and y == 0:
-            k = 6
-        if x == 0  and y > self.yend - self.dx[1]/3:
-            k = 10
+
+    def createBCNode(self,x,y,k):
+        k = np.where(np.logical_and(x <= 0 + self.dx[0], y == 0), 5, k)
+        k = np.where(np.logical_and(x > self.xend - self.dx[0]/3, y == 0), 6, k)
+        k = np.where(np.logical_and(x == 0, y > self.yend - self.dx[1]/3), 10, k)
         return k
+
     def createBlock(self,y,k):
-        #k = self.blockfuny(y)
-        if  self.yend/2-5*self.dx[1] < y < self.yend/2:
-            k = 8
-        if  self.yend/2 <= y < self.yend/2+5*self.dx[1]:
-            k = 9  
+        k = np.where(np.logical_and(self.yend/2-5*self.dx[1] < y, y < self.yend/2), 8, k)
+        k = np.where(np.logical_and(self.yend/2 <= y, y < self.yend/2+5*self.dx[1]), 9, k)
         return k
+
     def createAngles(self,x,y,z):
-        '''tbd'''
-        angle_x = 0
-        if y<self.yend/2:
-            angle_y = self.angle[0]
-        else:
-            angle_y = self.angle[1]
-        angle_z = 0
+        angle_x = np.zeros_like(x)
+        angle_y = np.where(y<self.yend/2, self.angle[0], self.angle[1])
+        angle_z = np.zeros_like(x)
 
         return angle_x, angle_y, angle_z
+
     def createModel(self):
         geo = Geometry()
         x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)
@@ -200,32 +198,38 @@ class GIICmodel(object):
         if len(x)>self.maxNodes:
             return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
 
+        start_time = time.time()
+
         vol = np.zeros(len(x))
         k = np.ones(len(x))
         if self.rot:
             angle_x = np.zeros(len(x))
             angle_y = np.zeros(len(x))
             angle_z = np.zeros(len(x))
-        for idx in range(0, len(x)):
-            if self.rot:
-                angle_x[idx], angle_y[idx], angle_z[idx] = self.createAngles(x[idx],y[idx], z[idx])
-            if y[idx] >= self.yend/2:
-                k[idx] = self.createLoadBlock(x[idx],y[idx],k[idx])
-            else:
-                k[idx] = self.createBoundaryConditionBlock(x[idx],y[idx],k[idx])
-            k[idx] = int(self.createBCNode(x[idx],y[idx], k[idx]))
-            k[idx] = int(self.createLoadIntroNode(x[idx],y[idx], k[idx]))
-            k[idx] = int(self.createBlock(y[idx],k[idx]))
 
-            vol[idx] = self.dx[0] * self.dx[1] * self.dx[2]
+        print('Angles assigned in ' + "%.2f seconds" % (time.time() - start_time) )
+        start_time = time.time()
+        if self.rot:
+            angle_x, angle_y, angle_z = self.createAngles(x, y, z)
+        
+        k = np.ones_like(x)
+
+        k = np.where(y>=self.yend/2,self.createLoadBlock(x,y,k),self.createBoundaryConditionBlock(x,y,k))
+        k = self.createBCNode(x,y, k)
+        k = self.createLoadIntroNode(x,y, k)
+        k = self.createBlock(y,k)
+
+        vol =  np.full_like(x, self.dx[0] * self.dx[1] * self.dx[2])
+
+        print('BC and Blocks created in ' + "%.2f seconds" % (time.time() - start_time) )
         
         writer = ModelWriter(modelClass = self)
         
         if self.rot:
-            model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol, 'angle_x':angle_x, 'angle_y':angle_y, 'angle_z': angle_z}
+            model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel(), angle_x.ravel(), angle_y.ravel(), angle_z.ravel()]))
             writer.writeMeshWithAngles(model)
         else:
-            model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol}
+            model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel()]))
             writer.writeMesh(model)
         writer.writeNodeSets(model)
         self.writeFILE(writer = writer, model = model)

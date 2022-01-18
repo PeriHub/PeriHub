@@ -153,38 +153,32 @@ class DCBmodel(object):
 
         self.intBlockId = ['']*numberOfBlocks
         self.matBlock = ['PMMA']*numberOfBlocks
+        
     # def createLoadBlock(self,x,y,k):
-    #     if self.loadfuncx(x) == self.loadfuncy(y):
-    #         k = self.loadfuncx(x)
+    #     k = np.where(self.loadfuncx(x) == self.loadfuncy(y), self.loadfuncx(x), k)
     #     return k
+
     # def createBoundaryConditionBlock(self,x,y,k):
-    #     k = (self.boundfuncx(x)-1)*self.boundfuncy(y)+1
+    #     k = np.array(((self.boundfuncx(x)-1)*self.boundfuncy(y)+1), dtype='int')
     #     return k
+
     def createLoadIntroNode(self,x,y, k):
-        if x < self.xbegin+self.dx[0]*3:
-            if y > 0:
-                k = 3
-            if y < 0:
-                k = 4
+        k = np.where(np.logical_and(x < self.xbegin+self.dx[0]*3, y > 0), 3, k)
+        k = np.where(np.logical_and(x < self.xbegin+self.dx[0]*3, y < 0), 4, k)
         return k
 
     def createBlock(self,y,k):
-         #k = self.blockfuny(y)
-        if y > 0:
-            k = 1
-        if y < 0:
-            k = 2
+        k = np.where(y > 0, 1, k)
+        k = np.where(y > 0, 2, k)
         return k
+
     # def createAngles(self,x,y,z):
-    #     '''tbd'''
-    #     angle_x = 0
-    #     if y<self.yend/2:
-    #         angle_y = self.angle[0]
-    #     else:
-    #         angle_y = self.angle[1]
-    #     angle_z = 0
+    #     angle_x = np.zeros_like(x)
+    #     angle_y = np.where(y<self.yend/2, self.angle[0], self.angle[1])
+    #     angle_z = np.zeros_like(x)
 
     #     return angle_x, angle_y, angle_z
+        
     def createModel(self):
         geo = Geometry()
         
@@ -199,26 +193,19 @@ class DCBmodel(object):
             angle_x = np.zeros(len(x))
             angle_y = np.zeros(len(x))
             angle_z = np.zeros(len(x))
-        for idx in range(0, len(x)):
-            # if rot:
-            #     angle_x[idx], angle_y[idx], angle_z[idx] = self.createAngles(x[idx],y[idx], z[idx])
-            # if y[idx] >= self.yend/2:
-            #     k[idx] = self.createLoadBlock(x[idx],y[idx],k[idx])
-            # else:
-            #     k[idx] = self.createBoundaryConditionBlock(x[idx],y[idx],k[idx])
-            k[idx] = int(self.createBlock(y[idx],k[idx]))
-            k[idx] = int(self.createLoadIntroNode(x[idx], y[idx], k[idx]))
-            
 
-            vol[idx] = self.dx[0] * self.dx[1] * self.dx[2]
+        k = self.createBlock(y, k)
+        k = self.createLoadIntroNode(x, y, k)
+
+        vol =  np.full_like(x, self.dx[0] * self.dx[1] * self.dx[2])
         
         writer = ModelWriter(modelClass = self)
         
         if self.rot:
-            model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol, 'angle_x':angle_x, 'angle_y':angle_y, 'angle_z': angle_z}
+            model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel(), angle_x.ravel(), angle_y.ravel(), angle_z.ravel()]))
             writer.writeMeshWithAngles(model)
         else:
-            model = {'x':x, 'y':y, 'z': z, 'k':k, 'vol':vol}
+            model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel()]))
             writer.writeMesh(model)
         writer.writeNodeSets(model)
         self.writeFILE(writer = writer, model = model)

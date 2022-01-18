@@ -760,8 +760,8 @@ import { Plotly } from 'vue-plotly'
             }
             for(var i = 0; i < names.length; i++) {
               var key = this.getKeyByValue(paramKeys, names[i])
-              console.log(key)
-              console.log(paramObject[names[i]])
+              // console.log(key)
+              // console.log(paramObject[names[i]])
               if(key==undefined & names[i]!='Output Variables'){
                 console.log('Warning: ' + names[i] + ' is not supported yet')
                 continue;
@@ -777,8 +777,8 @@ import { Plotly } from 'vue-plotly'
                 var subNames = Object.keys(paramObject[names[i]])
                 for(var j = 0; j < subNames.length; j++) {
                   var key = this.getKeyByValue(paramKeys, subNames[j])
-                  console.log(key)
-                  console.log(paramObject[names[i]][subNames[j]])
+                  // console.log(key)
+                  // console.log(paramObject[names[i]][subNames[j]])
                   if(key==undefined){
                     console.log('Warning: subname ' + subNames[j] + ' is not supported yet')
                     continue;
@@ -1023,7 +1023,7 @@ import { Plotly } from 'vue-plotly'
 
         await axios.request(reqOptions).then(response => (this.message = response.data))
         
-        await this.viewInputFile(true)
+        this.viewInputFile(true)
         // this.loadYamlString(this.textOutput)
         this.viewPointData()
 

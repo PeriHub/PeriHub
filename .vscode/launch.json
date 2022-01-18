@@ -23,6 +23,7 @@
             "name": "Main",
             "type": "python",
             "request": "launch",
+            "cwd": "${workspaceFolder}/api/app",
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal"
         }

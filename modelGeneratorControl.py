@@ -37,14 +37,14 @@ class ModelControl(object):
         
         print(dx, 4.01*dx[0])
         
-        # gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, TwoD = True)
-        # model = gc.createModel()
+        gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, TwoD = True)
+        model = gc.createModel()
         #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
         # dx=[0.00025,0.00025,0.00025]
         # db = DCBmodel(dx = dx, TwoD = True)
         # model = db.createModel()
-        db = Dogbone(dx = dx, TwoD = False, h1=h)
-        model = db.createModel()
+        # db = Dogbone(dx = dx, TwoD = False, h1=h)
+        # model = db.createModel()
         #veri = VerificationModels()
         #veri.createVerificationModels()
     def endRunOnError(self):
