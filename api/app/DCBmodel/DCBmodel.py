@@ -225,7 +225,7 @@ class DCBmodel(object):
             blockDef = self.createBlockdef(model)
         else:
             for idx in range(0,len(self.blockDef)):
-                self.blockDef[idx]['horizon']= self.scal*max([self.dx[0],self.dx[1]])
+                self.blockDef[idx].horizon= self.scal*max([self.dx[0],self.dx[1]])
             blockDef = self.blockDef
 
         writer.createFile(blockDef)

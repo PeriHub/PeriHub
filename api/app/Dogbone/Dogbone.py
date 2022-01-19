@@ -8,7 +8,7 @@ from support.geometry import Geometry
 import matplotlib.pyplot as plt
 import time
 class Dogbone(object):
-    def __init__(self, xend = 0.115, h1 = 0.019, h2 = 0.017, zend = 0.003, dx=[0.0005,0.0005,0.0005], 
+    def __init__(self, xend = 0.15, h1 = 0.02, h2 = 0.01, zend = 0.001, dx=[0.0005,0.0005,0.0005], 
     filename = 'Dogbone', TwoD = False, structured = True, rot = False, angle = [0,0], 
     material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000):
         '''
@@ -334,7 +334,7 @@ class Dogbone(object):
             blockDef = self.createBlockdef(model)
         else:
             for idx in range(0,len(self.blockDef)):
-                self.blockDef[idx]['horizon']= self.scal*max([self.dx[0],self.dx[1]])
+                self.blockDef[idx].horizon= self.scal*max([self.dx[0],self.dx[1]])
             blockDef = self.blockDef
 
         writer.createFile(blockDef)

@@ -27,9 +27,9 @@ class ModelWriter(object):
         numberOfNs = 0
         nodeSetIds = []
         for bc in self.bcDict:
-            if(bc['blockId'] not in nodeSetIds):
+            if(bc.blockId not in nodeSetIds):
                 numberOfNs += 1
-                nodeSetIds.append(bc['blockId'])
+                nodeSetIds.append(bc.blockId)
         self.nsList = nodeSetIds
 
     def writeNodeSets(self, model):
@@ -73,13 +73,13 @@ class ModelWriter(object):
         #if self.solverDict['filetype'] == 'xml':
         xl = XMLcreator(self, blockDef = blockDef)
         string = xl.createXML()
-        if self.solverDict['filetype'] == 'yaml':
+        if self.solverDict.filetype == 'yaml':
             yl = YAMLcreator(self, blockDef = blockDef)
         
             string = yl.translateXMLtoYAML(string)
         #else:
         #    print('Not a supported filetye: ', self.solverDict['filetype'])   
 
-        self.fileWriter(self.filename + '.' + self.solverDict['filetype'], string)
+        self.fileWriter(self.filename + '.' + self.solverDict.filetype, string)
             
         

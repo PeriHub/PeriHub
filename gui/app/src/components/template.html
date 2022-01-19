@@ -389,11 +389,11 @@
                             outlined></v-select>
                             <v-container v-if="material.materialSymmetry=='Anisotropic' & material.MatType=='Linear Elastic Correspondence'">
                               <v-row>
-                                <li v-for="(params, name) in material.Parameter" :key="params.index">
+                                <li v-for="params in material.Parameter" :key="params.index">
                                   <v-text-field  class="textfield-col"
                                     style="padding-right: 10px"
                                     v-model="params.value"
-                                    :label="name"
+                                    :label="params.name"
                                     :rules="[rules.required, rules.float]"
                                     outlined></v-text-field>
                                 </li>

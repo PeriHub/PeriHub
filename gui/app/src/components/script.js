@@ -89,30 +89,30 @@ import { Plotly } from 'vue-plotly'
             stabilizatonType: 'Global Stiffness',
             thickness: 0.01,
             hourglassCoefficient: 1.0,
-            actualHorizon: '',
-            yieldStress: '',
-            Parameter: {
-              C11: {'value': 0.0}, 
-              C12: {'value': 0.0}, 
-              C13: {'value': 0.0}, 
-              C14: {'value': 0.0},              
-              C15: {'value': 0.0},              
-              C16: {'value': 0.0},              
-              C22: {'value': 0.0}, 
-              C23: {'value': 0.0}, 
-              C24: {'value': 0.0},              
-              C25: {'value': 0.0},              
-              C26: {'value': 0.0},              
-              C33: {'value': 0.0}, 
-              C34: {'value': 0.0},              
-              C35: {'value': 0.0},              
-              C36: {'value': 0.0},              
-              C44: {'value': 0.0},            
-              C45: {'value': 0.0},              
-              C46: {'value': 0.0},              
-              C55: {'value': 0.0},           
-              C56: {'value': 0.0},              
-              C66: {'value': 0.0}},
+            actualHorizon: null,
+            yieldStress: null,
+            Parameter: [
+              {Name: 'C11', value: 0.0},
+              {Name: 'C12', value: 0.0},
+              {Name: 'C13', value: 0.0},
+              {Name: 'C14', value: 0.0},
+              {Name: 'C15', value: 0.0},
+              {Name: 'C16', value: 0.0},
+              {Name: 'C22', value: 0.0},
+              {Name: 'C23', value: 0.0},
+              {Name: 'C24', value: 0.0},
+              {Name: 'C25', value: 0.0},
+              {Name: 'C26', value: 0.0},
+              {Name: 'C33', value: 0.0},
+              {Name: 'C34', value: 0.0},
+              {Name: 'C35', value: 0.0},
+              {Name: 'C36', value: 0.0},
+              {Name: 'C44', value: 0.0},
+              {Name: 'C45', value: 0.0},
+              {Name: 'C46', value: 0.0},
+              {Name: 'C55', value: 0.0},
+              {Name: 'C56', value: 0.0},
+              {Name: 'C66', value: 0.0}],
             Properties: [
               { id: 1, Name: 'Prop_1', value: 0.0}]},
           { id: 2, Name: 'PMMAElast', 
@@ -129,30 +129,30 @@ import { Plotly } from 'vue-plotly'
           stabilizatonType: 'Global Stiffness',
           thickness: 0.01,
           hourglassCoefficient: 1.0,
-          actualHorizon: '',
-          yieldStress: '',
-          Parameter: {
-            C11: {'value': 165863.6296530634},
-            C12: {'value': 4090.899504376252},
-            C13: {'value': 2471.126276093059},
-            C14: {'value': 0.0},              
-            C15: {'value': 0.0},              
-            C16: {'value': 0.0},              
-            C22: {'value': 9217.158022124806},
-            C23: {'value': 2471.126276093059},
-            C24: {'value': 0.0},              
-            C25: {'value': 0.0},              
-            C26: {'value': 0.0},              
-            C33: {'value': 9217.158022124804},
-            C34: {'value': 0.0},              
-            C35: {'value': 0.0},              
-            C36: {'value': 0.0},              
-            C44: {'value': 3360.0},           
-            C45: {'value': 0.0},              
-            C46: {'value': 0.0},              
-            C55: {'value': 4200.0},           
-            C56: {'value': 0.0},              
-            C66: {'value': 4200.0}},
+          actualHorizon: null,
+          yieldStress: null,
+          Parameter: [
+            {Name: 'C11', value: 165863.6296530634},
+            {Name: 'C12', value: 4090.899504376252},
+            {Name: 'C13', value: 2471.126276093059},
+            {Name: 'C14', value: 0.0},
+            {Name: 'C15', value: 0.0},
+            {Name: 'C16', value: 0.0},
+            {Name: 'C22', value: 9217.158022124806},
+            {Name: 'C23', value: 2471.126276093059},
+            {Name: 'C24', value: 0.0},
+            {Name: 'C25', value: 0.0},
+            {Name: 'C26', value: 0.0},
+            {Name: 'C33', value: 9217.158022124804},
+            {Name: 'C34', value: 0.0},
+            {Name: 'C35', value: 0.0},
+            {Name: 'C36', value: 0.0},
+            {Name: 'C44', value: 3360.0},
+            {Name: 'C45', value: 0.0},
+            {Name: 'C46', value: 0.0},
+            {Name: 'C55', value: 4200.0},
+            {Name: 'C56', value: 0.0},
+            {Name: 'C66', value: 4200.0}],
           Properties: [
             { id: 1, Name: 'Prop_1', value: 0.0}]}],
         materialKeys: {
@@ -201,11 +201,11 @@ import { Plotly } from 'vue-plotly'
           stabilizatonType: "Stabilizaton Type"},
         // Blocks 
         blocks: [
-          { id: 1, Name: 'block_1', material: 'PMMAElast', damageModel: '', interface: '', show: true},
-          { id: 2, Name: 'block_2', material: 'PMMAElast', damageModel: '', interface: '', show: true},
-          { id: 3, Name: 'block_3', material: 'PMMA', damageModel: 'PMMADamage', interface: '', show: true},
-          { id: 4, Name: 'block_4', material: 'PMMAElast', damageModel: '', interface: '', show: true},
-          { id: 5, Name: 'block_5', material: 'PMMAElast', damageModel: '', interface: '', show: true},
+          { id: 1, Name: 'block_1', material: 'PMMAElast', damageModel: '', horizon: null, interface: '', show: true},
+          { id: 2, Name: 'block_2', material: 'PMMAElast', damageModel: '', horizon: null, interface: '', show: true},
+          { id: 3, Name: 'block_3', material: 'PMMA', damageModel: 'PMMADamage', horizon: null, interface: '', show: true},
+          { id: 4, Name: 'block_4', material: 'PMMAElast', damageModel: '', horizon: null, interface: '', show: true},
+          { id: 5, Name: 'block_5', material: 'PMMAElast', damageModel: '', horizon: null, interface: '', show: true},
           ],
         blockKeys: {
           Name: 'Name', 
@@ -469,30 +469,26 @@ import { Plotly } from 'vue-plotly'
           }
           let reqOptions = {
             url: this.url + "generateModel",
-            params: {ModelName: this.model.modelNameSelected,
-                    ownModel: this.model.ownModel,
-                    translated: this.model.translated,
-                    Length: this.model.length,
-                    Width: this.model.width,
-                    Height: this.model.height,
-                    Height2: this.model.height2,
-                    Discretization: this.model.discretization,
-                    Horizon: this.model.horizon,
-                    Structured: this.model.structured,
-                    TwoDimensional: this.model.twoDimensional,
-                    RotatedAngles: this.model.rotatedAngles,
-                    Angle0: this.model.angles[0],
-                    Angle1: this.model.angles[1]},
-            data: JSON.parse("{\"Param\":" + "{\"Material\": " + JSON.stringify(this.materials)+",\n" +
-                                              "\"Damage\": " + JSON.stringify(this.damages)+",\n" +
-                                              "\"Block\": " + JSON.stringify(this.blocks)+",\n" +
-                                              "\"BoundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
-                                              "\"Compute\": " + JSON.stringify(this.computes)+",\n" +
-                                              "\"Output\": " + JSON.stringify(this.outputs)+",\n" +
-                                              "\"Solver\": " + JSON.stringify(this.solver) + "}}"),
+            params: {ModelName: this.model.modelNameSelected},
+            data: JSON.parse("{\"model\": " + JSON.stringify(this.model)+",\n" +
+                              "\"materials\": " + JSON.stringify(this.materials)+",\n" +
+                              "\"damages\": " + JSON.stringify(this.damages)+",\n" +
+                              "\"blocks\": " + JSON.stringify(this.blocks)+",\n" +
+                              "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
+                              "\"computes\": " + JSON.stringify(this.computes)+",\n" +
+                              "\"outputs\": " + JSON.stringify(this.outputs)+",\n" +
+                              "\"solver\": " + JSON.stringify(this.solver) + "}"),
             method: "POST",
             headers: headersList,
           }
+          console.log(JSON.parse("{\"model\": " + JSON.stringify(this.model)+",\n" +
+          "\"materials\": " + JSON.stringify(this.materials)+",\n" +
+          "\"damages\": " + JSON.stringify(this.damages)+",\n" +
+          "\"blocks\": " + JSON.stringify(this.blocks)+",\n" +
+          "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
+          "\"computes\": " + JSON.stringify(this.computes)+",\n" +
+          "\"outputs\": " + JSON.stringify(this.outputs)+",\n" +
+          "\"solver\": " + JSON.stringify(this.solver) + "}"))
           if(this.model.ownModel==false){
             this.modelLoading = true
           }
@@ -550,7 +546,7 @@ import { Plotly } from 'vue-plotly'
             
         }
         else{
-          this.modelLoading = true
+          this.modelLoading = false
         }
         // let headersList = {
         // 'Cache-Control': 'no-cache',
@@ -603,14 +599,14 @@ import { Plotly } from 'vue-plotly'
         // this.textLoading = false
       },
       saveData() {
-        const data = "{\"Param\":" + "{\"model\": " + JSON.stringify(this.model)+",\n" +
-                                      "\"materials\": " + JSON.stringify(this.materials)+",\n" +
-                                      "\"damages\": " + JSON.stringify(this.damages)+",\n" +
-                                      "\"blocks\": " + JSON.stringify(this.blocks)+",\n" +
-                                      "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
-                                      "\"computes\": " + JSON.stringify(this.computes)+",\n" +
-                                      "\"outputs\": " + JSON.stringify(this.outputs)+",\n" +
-                                      "\"solver\": " + JSON.stringify(this.solver) + "}}";
+        const data = "{\"model\": " + JSON.stringify(this.model)+",\n" +
+                      "\"materials\": " + JSON.stringify(this.materials)+",\n" +
+                      "\"damages\": " + JSON.stringify(this.damages)+",\n" +
+                      "\"blocks\": " + JSON.stringify(this.blocks)+",\n" +
+                      "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
+                      "\"computes\": " + JSON.stringify(this.computes)+",\n" +
+                      "\"outputs\": " + JSON.stringify(this.outputs)+",\n" +
+                      "\"solver\": " + JSON.stringify(this.solver) + "}";
         var fileURL = window.URL.createObjectURL(new Blob([data], {type: 'application/json'}));
         var fileLink = document.createElement('a');
         fileLink.href = fileURL;
@@ -659,7 +655,12 @@ import { Plotly } from 'vue-plotly'
           return false;
         }
 
+        this.modelLoading = true
         this.uploadfiles(files)
+        
+        this.viewPointData()
+        this.modelLoading = false
+        this.snackbar=true
       },
       async uploadfiles(files) {
         // this.snackbar=true
@@ -683,7 +684,6 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
         }
 
-        this.modelLoading = true
         this.message = 'Files have been uploaded'
         await axios.request(reqOptions)
         .catch((error) => {
@@ -691,10 +691,6 @@ import { Plotly } from 'vue-plotly'
           this.message = error
           return
         })
-        
-        this.viewPointData()
-        this.modelLoading = false
-        this.snackbar=true
       },
       //return an array of values that match on a certain key
       getValues(obj, key) {
@@ -904,9 +900,9 @@ import { Plotly } from 'vue-plotly'
         
         fr.onload = e => {
           const result = JSON.parse(e.target.result);
-          for(var j = 0; j < Object.keys(result['Param']).length; j++) {
-            var paramName = Object.keys(result['Param'])[j]
-            Object.assign(this[paramName], jsonFile['Param'][paramName])
+          for(var j = 0; j < Object.keys(result).length; j++) {
+            var paramName = Object.keys(result)[j]
+            Object.assign(this[paramName], jsonFile[paramName])
           }
         }
         fr.readAsText(files.item(0));
@@ -998,9 +994,7 @@ import { Plotly } from 'vue-plotly'
 
         const formData = new FormData();
         if(upload){
-          for (var i = 0; i < files.length; i++){
-            formData.append('files',files[i])
-          }
+          await this.uploadfiles(files)
         }
         let headersList = {
         'Cache-Control': 'no-cache',
@@ -1011,22 +1005,9 @@ import { Plotly } from 'vue-plotly'
         let reqOptions = {
           url: this.url + "translateModel",
           params: {ModelName: this.model.modelNameSelected,
-                    Filetype: filetype,
-                    Upload: upload},
+                    Filetype: filetype},
           method: "POST",
           headers: headersList,
-        }
-
-        if(upload){
-          reqOptions = {
-            url: this.url + "translateModel",
-            params: {ModelName: this.model.modelNameSelected,
-                      Filetype: filetype,
-                      Upload: upload},
-            data: formData,
-            method: "POST",
-            headers: headersList,
-          }
         }
 
         await axios.request(reqOptions).then(response => (this.message = response.data))
@@ -1115,34 +1096,34 @@ import { Plotly } from 'vue-plotly'
           // }
           // else{
             // var param = result[i]
-            console.log(jsonFile)
-            console.log(jsonFile['Param'])
-            console.log(Object.keys(jsonFile['Param']).length)
-            for(var i = 0; i < Object.keys(jsonFile['Param']).length; i++) {
-              var paramName = Object.keys(jsonFile['Param'])[i]
-              console.log(i)
+            // console.log(jsonFile)
+            // console.log(jsonFile)
+            // console.log(Object.keys(jsonFile).length)
+            for(var i = 0; i < Object.keys(jsonFile).length; i++) {
+              var paramName = Object.keys(jsonFile)[i]
+              // console.log(i)
               if(paramName!='model' & paramName!='solver'){
-                console.log(paramName)
-                console.log(this[paramName].length)
-                console.log(jsonFile['Param'][paramName].length)
+                // console.log(paramName)
+                // console.log(this[paramName].length)
+                // console.log(jsonFile[paramName].length)
                 // console.log(this[paramName])
-                // console.log(jsonFile['Param'][paramName])
-                if(this[paramName].length>jsonFile['Param'][paramName].length){
-                  for(var j = this[paramName].length; j >= jsonFile['Param'][paramName].length; j--) {
-                  // for(var j = jsonFile['Param'][paramName].length; j < this[paramName].length; j++) {
+                // console.log(jsonFile[paramName])
+                if(this[paramName].length>jsonFile[paramName].length){
+                  for(var j = this[paramName].length; j >= jsonFile[paramName].length; j--) {
+                  // for(var j = jsonFile[paramName].length; j < this[paramName].length; j++) {
                     this[paramName].splice(j, 1)
                     // console.log('Remove'+ j)
                   }
                 }
-                if(this[paramName].length<jsonFile['Param'][paramName].length){
-                  for(var j = this[paramName].length; j < jsonFile['Param'][paramName].length; j++) {
+                if(this[paramName].length<jsonFile[paramName].length){
+                  for(var j = this[paramName].length; j < jsonFile[paramName].length; j++) {
                     this[paramName].push({})
                   }
                 }
               }
               // console.log(this[paramName])
-              // console.log(jsonFile['Param'][paramName])
-              Object.assign(this[paramName], jsonFile['Param'][paramName])
+              // console.log(jsonFile[paramName])
+              Object.assign(this[paramName], jsonFile[paramName])
             }
           // }
         // }
@@ -1300,9 +1281,9 @@ import { Plotly } from 'vue-plotly'
           url: this.url + "runModel",
           params: {ModelName: this.model.modelNameSelected,
                   FileType: this.solver.filetype,},
-          data: JSON.parse("{\"Param\":" + "{\"Job\": " + JSON.stringify(this.job)+",\n" +
-                                            "\"Output\": " + JSON.stringify(this.outputs)+",\n" + 
-                                            "\"Material\": " + JSON.stringify(this.materials) + "}}"),
+          data: JSON.parse("{\"job\": " + JSON.stringify(this.job)+",\n" +
+                            "\"outputs\": " + JSON.stringify(this.outputs)+",\n" + 
+                            "\"materials\": " + JSON.stringify(this.materials) + "}"),
           method: "PUT",
           headers: headersList,
         }
