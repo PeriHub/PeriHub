@@ -12,7 +12,7 @@
         </v-container>
         <v-container fluid>
             <v-row justify="center">
-                    <router-link class="card" to="home">
+                    <router-link class="card" to="perihub">
                         <v-card width="400px">
                         <v-img
                             src="../assets/PeriHub.png"
@@ -125,12 +125,6 @@ import { Plotly } from 'vue-plotly'
     },
     data () {
       return {
-        cards: [
-            { title: 'PeriHub', src: '../assets/PeriHub.png', flex: 4, routes: "home" },
-            { title: 'API', src: 'https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png', flex: 4, routes: "home" },
-            { title: 'Documentation', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 4, routes: "home" },
-            { title: 'Documentation', src: 'https://cdn.vuetifyjs.com/images/cards/plane.jpg', flex: 4, routes: "home" },
-            ],
         }
     },
     methods: {

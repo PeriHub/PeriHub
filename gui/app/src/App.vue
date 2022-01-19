@@ -138,7 +138,7 @@
 </template>
 
 <script>
-import Home from './components/Home';
+import PeriHub from './components/PeriHub';
 
 export default {
   name: 'App',
@@ -155,7 +155,7 @@ export default {
     ]
   },
   components: {
-    Home,
+    PeriHub,
   },
 
   data: () => ({

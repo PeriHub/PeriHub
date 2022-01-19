@@ -1,5 +1,5 @@
 import LandingPage from './components/LandingPage.vue';
-import Home from './components/Home.vue';
+import PeriHub from './components/PeriHub.vue';
 import Guide from './components/Guide.vue';
 import Examples from './components/guides/Examples.vue';
 import Dogbone from './components/guides/examples/Dogbone.vue';
@@ -12,17 +12,17 @@ import Publications from './components/Publications.vue';
 
 export default [
   // Redirects to /route-one as the default route.
+  // {
+  //   path: '/',
+  //   redirect: '/landingPage'
+  // },
   {
     path: '/',
-    redirect: '/landingPage'
-  },
-  {
-    path: '/landingPage',
     components: {a: LandingPage}
   },
   {
-    path: '/home',
-    components: {a: Home}
+    path: '/perihub',
+    components: {a: PeriHub}
   },
   {
     path: '/guide',
