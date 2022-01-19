@@ -15,7 +15,7 @@
                     <router-link class="card" to="perihub">
                         <v-card width="400px">
                         <v-img
-                            src="../assets/PeriHub.png"
+                            src="../assets/dogbone.png"
                             class="white--text align-end"
                             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                             height="200px">
@@ -26,7 +26,7 @@
                     <router-link class="card" to="guide">
                         <v-card width="400px">
                         <v-img
-                            src="https://static.vecteezy.com/system/resources/previews/000/263/066/original/book-icon-vector.jpg"
+                            src="../assets/books.jpg"
                             class="white--text align-end"
                             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                             height="200px">
@@ -37,7 +37,7 @@
                     <router-link class="card" to="publications">
                         <v-card width="400px">
                         <v-img
-                            src="http://www.umsl.edu/psychology/thrive/photos/stock/publications.jpg"
+                            src="../assets/papers.jpg"
                             class="white--text align-end"
                             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                             height="200px">
