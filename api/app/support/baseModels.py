@@ -278,7 +278,7 @@ class Data(BaseModel):
                 "model": {
                     "ownModel": False,
                     "translated": False,
-                    "length": 0.15,
+                    "length": 0.13,
                     "width": 0.001,
                     "height": 0.02,
                     "height2": 0.01,
