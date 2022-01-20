@@ -84,56 +84,15 @@
 </template>
 
 <script>
-
- import axios from 'axios'
-//  import vueJsonEditor from 'vue-json-editor'
-//  import VueJsonPretty from 'vue-json-pretty'
-//  import 'vue-json-pretty/lib/styles.css'
-import { PrismEditor } from "vue-prism-editor";
-import "vue-prism-editor/dist/prismeditor.min.css"; // import the styles somewhere
-
-// import highlighting library (you can use any library you want just return html string)
-import { highlight, languages } from "prismjs/components/prism-core";
-import "prismjs/components/prism-clike";
-import "prismjs/components/prism-javascript";
-import "prismjs/themes/prism-tomorrow.css"; // import syntax highlighting styles
-
-import { Splitpanes, Pane } from 'splitpanes'
-import 'splitpanes/dist/splitpanes.css'
-// import pdf from 'vue-pdf'
-// import { colormap } from 'colormap';
-// import RemoteComponent from "vue-remote-component";
-import GIICmodelImage from '../assets/GIICmodel/GIICmodel.jpg'
-import GIICmodelFile from '../assets/GIICmodel/GIICmodel.json'
-import DCBmodelImage from '../assets/DCBmodel/DCBmodel.jpg'
-import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
-import DogboneImage from '../assets/Dogbone/Dogbone.jpg'
-import DogboneFile from '../assets/Dogbone/Dogbone.json'
-import PeriHubImage from '../assets/PeriHub.png'
-import { Plotly } from 'vue-plotly'
-// import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
-
   export default {
     name: 'PeriHub',
     components: {
-      PrismEditor,
-      Splitpanes,
-      Pane,
-      Plotly,
-      // pdf
-      // RemoteComponent
     },
     data () {
       return {
         }
     },
     methods: {
-        viewInputFile(loadFile) {
-            let headersList = {
-            'Cache-Control': 'no-cache',
-            'Authorization': this.authToken
-            }
-        },
     }
   }
 </script>

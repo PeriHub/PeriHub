@@ -1,8 +1,4 @@
-
- import axios from 'axios'
-//  import vueJsonEditor from 'vue-json-editor'
-//  import VueJsonPretty from 'vue-json-pretty'
-//  import 'vue-json-pretty/lib/styles.css'
+import axios from 'axios'
 import { PrismEditor } from "vue-prism-editor";
 import "vue-prism-editor/dist/prismeditor.min.css"; // import the styles somewhere
 
@@ -14,9 +10,6 @@ import "prismjs/themes/prism-tomorrow.css"; // import syntax highlighting styles
 
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
-// import pdf from 'vue-pdf'
-// import { colormap } from 'colormap';
-// import RemoteComponent from "vue-remote-component";
 import GIICmodelImage from '../assets/GIICmodel/GIICmodel.jpg'
 import GIICmodelFile from '../assets/GIICmodel/GIICmodel.json'
 import DCBmodelImage from '../assets/DCBmodel/DCBmodel.jpg'
