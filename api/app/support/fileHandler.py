@@ -199,7 +199,10 @@ class fileHandler(object):
         
         localpath = './Output/' + os.path.join(username, ModelName)
         remotepath = fileHandler.getRemoteUmatPath(Cluster)
-        ssh, sftp = fileHandler.sftpToCluster(Cluster)
+        try:
+            ssh, sftp = fileHandler.sftpToCluster(Cluster)
+        except:
+            return "ssh connection to " + Cluster + " failed!"
 
         if not os.path.exists(localpath):
             return 'Shared libray can not been found'
@@ -305,7 +308,6 @@ class fileHandler(object):
         elif Cluster=='None':
             username='root'
             server='perihub_peridigm'
-            keypath = './rsaFiles/id_rsa_cara'
             try:
                 ssh.connect(server, username=username, allow_agent=False, password='root')
             except:

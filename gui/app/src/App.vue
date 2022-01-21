@@ -199,7 +199,7 @@ export default {
   height: 100vh;
 }
 .body {
-  height: 88vh;
+  height: calc(100% - 156px);
   flex: auto;
 }
 .header {

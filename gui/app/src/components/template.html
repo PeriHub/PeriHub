@@ -923,6 +923,15 @@
                           :rules="[rules.required, rules.float]"
                           outlined></v-text-field>
                       </v-col>
+                      <v-col class="textfield-col" v-show="solver.solvertype=='Implicit' | solver.solvertype=='Verlet'"
+                        cols="12"
+                        sm="3">
+                        <v-text-field 
+                          v-model="solver.fixedDt"
+                          label="Fixed dt"
+                          clearable
+                          outlined></v-text-field>
+                      </v-col>
                       <v-col class="textfield-col"
                         cols="12"
                         sm="3">

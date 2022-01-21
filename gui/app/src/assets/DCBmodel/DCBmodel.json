@@ -171,7 +171,7 @@
       "id": 3,
       "Name": "block_3",
       "material": "PMMA",
-      "damageModel": null,
+      "damageModel": "",
       "interface": "",
       "show": true
     },
@@ -179,7 +179,7 @@
       "id": 4,
       "Name": "block_4",
       "material": "PMMA",
-      "damageModel": null,
+      "damageModel": "",
       "interface": "",
       "show": true
     }

@@ -130,6 +130,8 @@ class XMLcreator(object):
         string += '        <Parameter name="Final Time" type="double" value="'+ str(float(self.solverDict.finalTime)) +'"/>\n'
         if(self.solverDict.solvertype=='Verlet'):
             string += '        <ParameterList name="Verlet">\n'
+            if(self.checkIfDefined(self.solverDict.fixedDt)):
+                string += '            <Parameter name="Fixed dt" type="double" value="'+ str(float(self.solverDict.fixedDt)) +'"/>\n'
             string += '            <Parameter name="Safety Factor" type="double" value="'+ str(float(self.solverDict.safetyFactor)) +'"/>\n'
             string += '            <Parameter name="Numerical Damping" type="double" value="'+ str(float(self.solverDict.numericalDamping)) +'"/>\n'
             if('adaptivetimeStepping' in self.solverDict and self.solverDict.adaptivetimeStepping):

@@ -30,8 +30,8 @@ class Material(BaseModel):
     density: float
     bulkModulus: Optional[float] = None
     shearModulus: Optional[float] = None
-    youngsModulus: float
-    poissonsRatio: float
+    youngsModulus: Optional[float] = None
+    poissonsRatio: Optional[float] = None
     tensionSeparation: bool
     nonLinear: bool
     planeStress: bool
@@ -108,6 +108,7 @@ class Solver(BaseModel):
     verbose: bool
     initialTime: float
     finalTime: float
+    fixedDt: Optional[float] = None
     solvertype: str
     safetyFactor: float
     numericalDamping: float
@@ -505,6 +506,7 @@ class Data(BaseModel):
                     "verbose": False,
                     "initialTime": 0,
                     "finalTime": "0.0075",
+                    "fixedDt": None,
                     "solvertype": "Verlet",
                     "safetyFactor": "0.9",
                     "numericalDamping": "0.0005",

@@ -258,6 +258,7 @@ import { Plotly } from 'vue-plotly'
           initialTime: 0.0,
           finalTime: 0.0075,
           solvertype: 'Verlet',
+          fixedDt: null,
           safetyFactor: 0.9,
           numericalDamping: 0.0005,
           peridgimPreconditioner: 'None',
