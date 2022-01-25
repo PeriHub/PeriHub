@@ -8,7 +8,7 @@ from support.geometry import Geometry
 class DCBmodel(object):
     def __init__(self, xend = 0.045, yend = 0.01, zend = 0.003, dx=[0.001,0.001,0.001], 
     filename = 'DCBmodel', TwoD = False, rot = 'False', angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000):
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000, ignoreMesh = False):
         '''
             definition der blocks
             k =
@@ -34,6 +34,7 @@ class DCBmodel(object):
         self.blockDef = block
         self.username = username
         self.maxNodes = maxNodes
+        self.ignoreMesh = ignoreMesh
         if self.TwoD:
             self.zbegin = 0
             self.zend = 0
@@ -180,36 +181,45 @@ class DCBmodel(object):
     #     return angle_x, angle_y, angle_z
         
     def createModel(self):
-        geo = Geometry()
+        if self.ignoreMesh == True and self.blockDef!='':
         
-        x,y,z = geo.createPoints(coor = [self.xbegin, self.xend, self.ybegin, self.yend, self.zbegin, self.zend], dx = self.dx)
+            writer = ModelWriter(modelClass = self)
+            for idx in range(0,len(self.blockDef)):
+                self.blockDef[idx].horizon= self.scal*max([self.dx[0],self.dx[1]])
+            blockDef = self.blockDef
+            writer.createFile(blockDef)
 
-        if len(x)>self.maxNodes:
-            return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
-
-        vol = np.zeros(len(x))
-        k = np.ones(len(x))
-        if self.rot:
-            angle_x = np.zeros(len(x))
-            angle_y = np.zeros(len(x))
-            angle_z = np.zeros(len(x))
-
-        k = self.createBlock(y, k)
-        k = self.createLoadIntroNode(x, y, k)
-
-        vol =  np.full_like(x, self.dx[0] * self.dx[1] * self.dx[2])
-        
-        writer = ModelWriter(modelClass = self)
-        
-        if self.rot:
-            model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel(), angle_x.ravel(), angle_y.ravel(), angle_z.ravel()]))
-            writer.writeMeshWithAngles(model)
         else:
-            model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel()]))
-            writer.writeMesh(model)
-        writer.writeNodeSets(model)
-        self.writeFILE(writer = writer, model = model)
-        
+            geo = Geometry()
+            
+            x,y,z = geo.createPoints(coor = [self.xbegin, self.xend, self.ybegin, self.yend, self.zbegin, self.zend], dx = self.dx)
+
+            if len(x)>self.maxNodes:
+                return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
+
+            vol = np.zeros(len(x))
+            k = np.ones(len(x))
+            if self.rot:
+                angle_x = np.zeros(len(x))
+                angle_y = np.zeros(len(x))
+                angle_z = np.zeros(len(x))
+
+            k = self.createBlock(y, k)
+            k = self.createLoadIntroNode(x, y, k)
+
+            vol =  np.full_like(x, self.dx[0] * self.dx[1] * self.dx[2])
+            
+            writer = ModelWriter(modelClass = self)
+            
+            if self.rot:
+                model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel(), angle_x.ravel(), angle_y.ravel(), angle_z.ravel()]))
+                writer.writeMeshWithAngles(model)
+            else:
+                model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel()]))
+                writer.writeMesh(model)
+            writer.writeNodeSets(model)
+            self.writeFILE(writer = writer, model = model)
+            
         return 'Model created'
 
     def createBlockdef(self,model):

@@ -8,7 +8,7 @@ import time
 class GIICmodel(object):
     def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], 
     filename = 'GIICmodel', TwoD = False, rot = 'False', angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000):
+    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000, ignoreMesh = False):
         '''
             definition der blocks
             k =
@@ -42,6 +42,7 @@ class GIICmodel(object):
         self.rot = rot
         self.username = username
         self.maxNodes = maxNodes
+        self.ignoreMesh = ignoreMesh
         if TwoD:
             self.zend = 0
             self.dx[2] = 1
@@ -192,47 +193,57 @@ class GIICmodel(object):
         return angle_x, angle_y, angle_z
 
     def createModel(self):
-        geo = Geometry()
-        x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)
-
-        if len(x)>self.maxNodes:
-            return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
-
-        start_time = time.time()
-
-        vol = np.zeros(len(x))
-        k = np.ones(len(x))
-        if self.rot:
-            angle_x = np.zeros(len(x))
-            angle_y = np.zeros(len(x))
-            angle_z = np.zeros(len(x))
-
-        print('Angles assigned in ' + "%.2f seconds" % (time.time() - start_time) )
-        start_time = time.time()
-        if self.rot:
-            angle_x, angle_y, angle_z = self.createAngles(x, y, z)
+        if self.ignoreMesh == True and self.blockDef!='':
         
-        k = np.ones_like(x)
+            writer = ModelWriter(modelClass = self)
+            for idx in range(0,len(self.blockDef)):
+                self.blockDef[idx].horizon= self.scal*max([self.dx[0],self.dx[1]])
+            blockDef = self.blockDef
+            writer.createFile(blockDef)
 
-        k = np.where(y>=self.yend/2,self.createLoadBlock(x,y,k),self.createBoundaryConditionBlock(x,y,k))
-        k = self.createBCNode(x,y, k)
-        k = self.createLoadIntroNode(x,y, k)
-        k = self.createBlock(y,k)
-
-        vol =  np.full_like(x, self.dx[0] * self.dx[1] * self.dx[2])
-
-        print('BC and Blocks created in ' + "%.2f seconds" % (time.time() - start_time) )
-        
-        writer = ModelWriter(modelClass = self)
-        
-        if self.rot:
-            model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel(), angle_x.ravel(), angle_y.ravel(), angle_z.ravel()]))
-            writer.writeMeshWithAngles(model)
         else:
-            model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel()]))
-            writer.writeMesh(model)
-        writer.writeNodeSets(model)
-        self.writeFILE(writer = writer, model = model)
+            geo = Geometry()
+            x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)
+
+            if len(x)>self.maxNodes:
+                return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
+
+            start_time = time.time()
+
+            vol = np.zeros(len(x))
+            k = np.ones(len(x))
+            if self.rot:
+                angle_x = np.zeros(len(x))
+                angle_y = np.zeros(len(x))
+                angle_z = np.zeros(len(x))
+
+            print('Angles assigned in ' + "%.2f seconds" % (time.time() - start_time) )
+            start_time = time.time()
+            if self.rot:
+                angle_x, angle_y, angle_z = self.createAngles(x, y, z)
+            
+            k = np.ones_like(x)
+
+            k = np.where(y>=self.yend/2,self.createLoadBlock(x,y,k),self.createBoundaryConditionBlock(x,y,k))
+            k = self.createBCNode(x,y, k)
+            k = self.createLoadIntroNode(x,y, k)
+            k = self.createBlock(y,k)
+
+            vol =  np.full_like(x, self.dx[0] * self.dx[1] * self.dx[2])
+
+            print('BC and Blocks created in ' + "%.2f seconds" % (time.time() - start_time) )
+            
+            writer = ModelWriter(modelClass = self)
+            
+            if self.rot:
+                model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel(), angle_x.ravel(), angle_y.ravel(), angle_z.ravel()]))
+                writer.writeMeshWithAngles(model)
+            else:
+                model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel()]))
+                writer.writeMesh(model)
+            writer.writeNodeSets(model)
+
+            self.writeFILE(writer = writer, model = model)
         
         return 'Model created'
 

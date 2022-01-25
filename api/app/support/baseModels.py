@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from typing import List
 from enum import Enum
+import json
 
 class Model(BaseModel):
     ownModel: bool
@@ -272,6 +273,8 @@ class Data(BaseModel):
     computes: List[Compute]
     outputs: List[Output]
     solver: Solver
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     class Config:
         schema_extra = {

@@ -36,6 +36,7 @@ import time
 import subprocess
 import requests, zipfile, io
 from support.baseModels import Data, FileType, RunData
+import json
 
 # class ModelName(str, Enum):
 #     Dogbone = "Dogbone"
@@ -123,7 +124,26 @@ class ModelControl(object):
         username = fileHandler.getUserName(request)
         maxNodes = fileHandler.getMaxNodes(username)
 
-         # L = 152
+
+        localpath = './Output/' + os.path.join(username, ModelName)
+
+        if os.path.exists(localpath) == False:
+            os.makedirs(localpath)
+
+        JsonFile = os.path.join(localpath,ModelName + ".json")
+        ignoreMesh = False
+
+        if os.path.exists(JsonFile):
+            with open(JsonFile, 'r') as file:
+                json_data = json.load(file)
+                if Data.model == json_data['model']:
+                    print("Model not changed")
+                    ignoreMesh = True
+
+        with open(JsonFile, 'w') as file:
+            file.write(Data.toJSON())
+
+        # L = 152
         # L = 50
         # W = 10
         # h = 4.95
@@ -153,7 +173,8 @@ class ModelControl(object):
             output=Data.outputs, 
             solver=Data.solver,
             username=username,
-            maxNodes=maxNodes)
+            maxNodes=maxNodes,
+            ignoreMesh=ignoreMesh)
             result = gc.createModel()
         elif ModelName=='DCBmodel':
             dcb = DCBmodel(xend = L, yend = h, zend = W, dx=dx,
@@ -167,7 +188,8 @@ class ModelControl(object):
             output=Data.outputs, 
             solver=Data.solver,
             username = username,
-            maxNodes=maxNodes)
+            maxNodes=maxNodes,
+            ignoreMesh=ignoreMesh)
             result = dcb.createModel()
 
         elif ModelName=='Dogbone':
@@ -183,7 +205,8 @@ class ModelControl(object):
             output=Data.outputs, 
             solver=Data.solver,
             username = username,
-            maxNodes=maxNodes)
+            maxNodes=maxNodes,
+            ignoreMesh=ignoreMesh)
             result = db.createModel()
 
         elif Data.model.ownModel:

@@ -9,7 +9,6 @@ class ModelWriter(object):
     def __init__(self, modelClass):
         
         self.filename = modelClass.filename
-        print(self.filename)
         self.nsName = 'ns_' + modelClass.filename
         self.path = 'Output/'+ os.path.join(modelClass.username, modelClass.filename)
         self.bcDict = modelClass.bcDict
