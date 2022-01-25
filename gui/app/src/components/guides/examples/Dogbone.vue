@@ -41,7 +41,7 @@
       if(process.env.VUE_APP_ROOT_API!=undefined)
       {
           this.url = process.env.VUE_APP_ROOT_API
-          console.log("changed URL: " + process.env.VUE_APP_ROOT_API)
+          // console.log("changed URL: " + process.env.VUE_APP_ROOT_API)
       }
       this.getDocs();
     }

@@ -11,6 +11,7 @@
 <script>
   import axios from 'axios'
   import VueMarkdown from 'vue-markdown'
+  // import DogboneMd from '../assets/Dogbone/Dogbone.md'
 
   export default {
     name: 'PeriHub',
@@ -28,8 +29,8 @@
 
         let reqOptions = {
             url: this.url + "getDocs",
-            params: {Name: "DCBmodel",
-                     model: true},
+            params: {Name: "FAQ",
+                     model: false},
             method: "GET"
         }
 
@@ -41,7 +42,7 @@
       if(process.env.VUE_APP_ROOT_API!=undefined)
       {
           this.url = process.env.VUE_APP_ROOT_API
-          // console.log("changed URL: " + process.env.VUE_APP_ROOT_API)
+        //   console.log("changed URL: " + process.env.VUE_APP_ROOT_API)
       }
       this.getDocs();
     }
@@ -52,5 +53,5 @@
     height: 100%;
     overflow-y: scroll;
   }
-  img[alt=drawing] { width: 1000px; }
+  img[alt=drawing] { width: 70%; }
 </style>

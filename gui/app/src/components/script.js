@@ -32,7 +32,7 @@ import { Plotly } from 'vue-plotly'
     data () {
       return {
         // Model
-        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel', 'RVE'],
+        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],//, 'RVE'],
         model: {
           modelNameSelected: 'Dogbone',
           ownModel: false,
