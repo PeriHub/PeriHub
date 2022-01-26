@@ -61,7 +61,7 @@ class Block(BaseModel):
     id: int
     Name: str
     material: str
-    damageModel: str
+    damageModel: Optional[str] = None
     horizon: Optional[float] = None
     interface: Optional[str] = None
     show: bool
