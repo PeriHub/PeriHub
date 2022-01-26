@@ -487,7 +487,26 @@ import { Plotly } from 'vue-plotly'
             this.modelLoading = true
           }
           this.textLoading = true
-          await axios.request(reqOptions).then(response => (this.message = response.data))
+          await axios.request(reqOptions)
+          .then(response => (this.message = response.data))
+          .catch((error) => {
+            if(error.response.status==422){
+              this.message = ""
+              for (let i in error.response.data.detail){
+                this.message += error.response.data.detail[i].loc[1] + " "
+                this.message += error.response.data.detail[i].loc[2] + ", "
+                this.message += error.response.data.detail[i].loc[3] + ", "
+                this.message += error.response.data.detail[i].msg + "\n"
+              }
+              this.message = this.message.slice(0, -2)
+            }
+            this.modelLoading = false
+            this.textLoading = false
+            // this.message = error,
+            console.log(error.response.data)
+            this.snackbar = true
+            return
+          });
           this.snackbar=true
           if(this.message.includes("has been created")){
             this.viewInputFile(false)

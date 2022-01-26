@@ -187,7 +187,11 @@ class DCBmodel(object):
             for idx in range(0,len(self.blockDef)):
                 self.blockDef[idx].horizon= self.scal*max([self.dx[0],self.dx[1]])
             blockDef = self.blockDef
-            writer.createFile(blockDef)
+
+            try:
+                writer.createFile(blockDef)
+            except TypeError as e:
+                return str(e)
 
         else:
             geo = Geometry()
@@ -218,7 +222,11 @@ class DCBmodel(object):
                 model = np.transpose(np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel()]))
                 writer.writeMesh(model)
             writer.writeNodeSets(model)
-            self.writeFILE(writer = writer, model = model)
+            
+            writeReturn = self.writeFILE(writer = writer, model = model)
+
+            if writeReturn!=0:
+                return writeReturn
             
         return 'Model created'
 
@@ -238,4 +246,8 @@ class DCBmodel(object):
                 self.blockDef[idx].horizon= self.scal*max([self.dx[0],self.dx[1]])
             blockDef = self.blockDef
 
-        writer.createFile(blockDef)
+        try:
+            writer.createFile(blockDef)
+        except TypeError as e:
+            return str(e)
+        return 0

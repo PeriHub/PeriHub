@@ -1791,10 +1791,11 @@
           </v-col>
         </v-row> -->
     <v-snackbar
-        v-model="snackbar"
-        >
-        <!-- <pre>{{message}}</pre> -->
-        {{message}}
+      style="white-space:pre-wrap;"
+      v-model="snackbar"
+      >
+      <!-- <pre>{{message}}</pre> -->
+      {{message}}
     
         <template v-slot:action="{ attrs }">
             <v-btn
