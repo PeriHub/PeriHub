@@ -102,7 +102,7 @@
             color="white"
             text
             rounded
-            class="my-2"
+            class="my-0"
           >
             ABOUT US 
           </v-btn>
@@ -111,7 +111,7 @@
             color="white"
             text
             rounded
-            class="my-2"
+            class="my-0"
           >
             BLOG
           </v-btn>
@@ -120,12 +120,12 @@
             color="white"
             text
             rounded
-            class="my-2"
+            class="my-0"
           >
             CONTACT US
           </v-btn>
           <v-col
-            class="lighten-2 py-2 text-center white--text"
+            class="lighten-2 py-0 text-center white--text"
             color="#464646"
             cols="12"
           >
@@ -208,6 +208,5 @@ export default {
 }
 .footer {
   flex: none;
-  height: 92px;
 }
 </style>
