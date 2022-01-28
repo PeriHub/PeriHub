@@ -757,7 +757,8 @@ import { Plotly } from 'vue-plotly'
               console.log('Warning: ' + names[i] + ' is not supported yet')
               continue;
             }
-            Object.assign(this[paramName][key], paramObject[names[i]])
+            // Object.assign(this[paramName][key], paramObject[names[i]])
+            this[paramName][key] = paramObject[names[i]]
             var subNames = Object.keys(paramObject[names[i]])
             for(var j = 0; j < subNames.length; j++) {
               this[paramName]['solvertype'] = names[i]
@@ -854,7 +855,7 @@ import { Plotly } from 'vue-plotly'
               if (this[paramName].length<numberOfItems+1){
                 addFunction()
               }
-              this[paramName][i]['Name'] = names[i]
+              this[paramName][numberOfItems]['Name'] = names[i]
               var subNames = Object.keys(paramObject[names[i]])
               for(var j = 0; j < subNames.length; j++) {
                 var key = this.getKeyByValue(paramKeys, subNames[j])
@@ -864,7 +865,7 @@ import { Plotly } from 'vue-plotly'
                 }
                 // Object.assign(this[paramName][i][key], paramObject[names[i]][subNames[j]])
                 // var temp = 
-                this[paramName][i][key] = paramObject[names[i]][subNames[j]]
+                this[paramName][numberOfItems][key] = paramObject[names[i]][subNames[j]]
                 // Object.assign(this[paramName][i][key], temp)
               }
               numberOfItems++
@@ -885,6 +886,25 @@ import { Plotly } from 'vue-plotly'
             var subNames = Object.keys(paramObject[names[i]])
             for(var j = 0; j < subNames.length; j++) {
               var key = this.getKeyByValue(paramKeys, subNames[j])
+              if(subNames[j]=='Number of Properties'){
+                let numberOfProps = parseInt(paramObject[names[i]][subNames[j]])
+                if(this.materials[i].Properties.length<numberOfProps){
+                  while(this.materials[i].Properties.length!=numberOfProps){
+                    this.addProp(i)
+                  }
+                }
+                if(this.materials[i].Properties.length>numberOfProps){
+                  for(var j = numberOfProps; j < this.materials[i].Properties.length; j++) {
+                    this.removeProp(i,j)
+                  }
+                }
+                continue;
+              }
+              if(subNames[j].indexOf('Prop_')!==-1){
+                id = parseInt(subNames[j].split('_')[1])
+                this.materials[i].Properties[id-1].value =  paramObject[names[i]][subNames[j]]
+                continue;
+              }
               if(key==undefined){
                 console.log('Warning: ' + subNames[j] + ' is not supported yet')
                 continue;
