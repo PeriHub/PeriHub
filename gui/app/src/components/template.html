@@ -1226,7 +1226,7 @@
               </v-tooltip> -->
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="runModel">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="runModel" :disabled="!status.created || status.submitted">
                     <i class="fas fa-play"></i>
                 </v-btn>
               </template>
@@ -1234,7 +1234,7 @@
               </v-tooltip>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="cancelJob">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="cancelJob" :disabled="!status.submitted">
                     <i class="fas fa-times"></i>
                 </v-btn>
               </template>
@@ -1245,7 +1245,7 @@
                   <v-btn class="my-btn" v-bind="attrs" v-on="on" 
                           @click="dialog = true"
                           :loading="resultsLoading"
-                          :disabled="resultsLoading">
+                          :disabled="resultsLoading || !status.results">
                       <i class="fas fa-download"></i>
                   </v-btn>
                   </template>
@@ -1289,7 +1289,7 @@
                   </v-card>
               </v-dialog>
     
-              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }" v-if="job.cluster=='Cara'">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="showResults">
                     <i class="fas fa-external-link-alt"></i>
                 </v-btn>
@@ -1298,7 +1298,7 @@
               </v-tooltip>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetPlot = true">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetPlot = true" :disabled="!status.results">
                     <i class="fas fa-chart-line"></i>
                 </v-btn>
               </template>
@@ -1343,7 +1343,7 @@
               </v-dialog>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetImage = true">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetImage = true" :disabled="!status.results">
                     <i class="fas fa-image"></i>
                 </v-btn>
               </template>
@@ -1419,7 +1419,7 @@
               </v-dialog>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewPointData">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewPointData" :disabled="!status.created">
                     <i class="fas fa-chess-board"></i>
                 </v-btn>
               </template>
@@ -1701,7 +1701,7 @@
             <!-- <v-container> -->
             <v-subheader>
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewInputFile(false)">
+                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="viewInputFile(false)" :disabled="!status.created">
                       <i class="fas fa-sync-alt"></i>
                   </v-btn>
                 </template>
@@ -1709,7 +1709,7 @@
                 </v-tooltip>
     
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="writeInputFile">
+                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="writeInputFile" :disabled="!status.created">
                       <i class="fas fa-save"></i>
                   </v-btn>
                 </template>
@@ -1719,7 +1719,7 @@
                 <v-spacer></v-spacer>
     
                 <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getLogFile">
+                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getLogFile" :disabled="!status.created">
                       <i class="fas fa-sync-alt"></i>
                   </v-btn>
                 </template>

@@ -324,6 +324,11 @@ import { Plotly } from 'vue-plotly'
         multiplier: 1,
         snackbar: false,
         message: 'Messsages',
+        status:{
+          created: false,
+          submitted: false,
+          results: false
+        },
         authToken: '',
         modelLoading: false,
         textLoading: false,
@@ -393,7 +398,8 @@ import { Plotly } from 'vue-plotly'
           scrollZoom: true,
           setBackground: 'black'
         },
-        interval: null,
+        logInterval: null,
+        statusInterval: null,
         monitorToggle: false,
         viewId: 0,
         panel: [0],
@@ -516,7 +522,7 @@ import { Plotly } from 'vue-plotly'
           }
           this.modelLoading = false
           this.textLoading = false
-          // this.saveCurrentData()
+          this.getStatus()
         }
       },
       async generateMesh() {   
@@ -561,6 +567,7 @@ import { Plotly } from 'vue-plotly'
         else{
           this.modelLoading = false
         }
+        this.getStatus()
         // let headersList = {
         // 'Cache-Control': 'no-cache',
         // 'accept': 'application/json',
@@ -1324,8 +1331,26 @@ import { Plotly } from 'vue-plotly'
         await axios.request(reqOptions).then(response => (this.message = response.data))
         this.getLogFile()
         this.snackbar=true
+        this.monitorStatus(true)
       },
-      cancelJob() {
+      async getStatus() {
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
+        }
+
+        let reqOptions = {
+          url: this.url + "getStatus",
+          params: {ModelName: this.model.modelNameSelected,
+                   Cluster: this.job.cluster},
+          method: "GET",
+          headers: headersList,
+        }
+
+        await axios.request(reqOptions).then(response => (this.status = response.data))
+        console.log(this.status)
+      },
+      async cancelJob() {
         let headersList = {
         'Cache-Control': 'no-cache',
         'Authorization': this.authToken
@@ -1339,8 +1364,9 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
         }
 
-        axios.request(reqOptions).then(response => (this.message = response.data))
+        await axios.request(reqOptions).then(response => (this.message = response.data))
         this.snackbar=true
+        this.monitorStatus(false)
       },
       saveModel() {
         let headersList = {
@@ -1510,12 +1536,23 @@ import { Plotly } from 'vue-plotly'
       monitorLogFile() {
         if(this.monitorToggle){
           this.getLogFile()
-          this.interval = setInterval(() => {
+          this.logInterval = setInterval(() => {
             this.getLogFile()
           }, 30000)
         }
         else{
-          clearInterval(this.interval)
+          clearInterval(this.logInterval)
+        }
+      },
+      monitorStatus(setClear) {
+        this.getStatus()
+        if(setClear){
+          this.statusInterval = setInterval(() => {
+            this.getStatus()
+          }, 30000)
+        }
+        else{
+          clearInterval(this.statusInterval)
         }
       },
       async getLogFile() {
@@ -1548,7 +1585,7 @@ import { Plotly } from 'vue-plotly'
 
         axios.request(reqOptions).then(response => (this.message = response.data))
       },
-      deleteModel() {
+      async deleteModel() {
         this.dialogDeleteModel = false;
         
         let headersList = {
@@ -1573,10 +1610,11 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
           
-        axios.request(reqOptions).then(response => (this.message = response.data))
+        await axios.request(reqOptions).then(response => (this.message = response.data))
         this.snackbar=true
+        this.getStatus()
       },
-      deleteUserData() {
+      async deleteUserData() {
         this.dialogDeleteUserData = false;
         
         let headersList = {
@@ -1600,8 +1638,9 @@ import { Plotly } from 'vue-plotly'
           headers: headersList,
           }
           
-        axios.request(reqOptions).then(response => (this.message = response.data))
+        await axios.request(reqOptions).then(response => (this.message = response.data))
         this.snackbar=true
+        this.getStatus()
       },
       addMaterial() {
         const len = this.materials.length
@@ -1825,6 +1864,7 @@ import { Plotly } from 'vue-plotly'
     mounted() {
       // console.log("mounted")
       this.getCurrentData()
+      this.getStatus()
     },
     updated() {
       // console.log("updated")
@@ -1837,7 +1877,8 @@ import { Plotly } from 'vue-plotly'
     beforeUnmount() {
       // console.log("beforeUnmount")
       // Don't forget to remove the interval before destroying the component
-      clearInterval(this.interval)
+      clearInterval(this.logInterval)
+      clearInterval(this.statusInterval)
     },
     watch: {
       model: {

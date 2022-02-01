@@ -35,7 +35,7 @@ from re import match
 import time
 import subprocess
 import requests, zipfile, io
-from support.baseModels import Data, FileType, RunData
+from support.baseModels import Data, FileType, RunData, Status
 import json
 
 # class ModelName(str, Enum):
@@ -690,6 +690,47 @@ class ModelControl(object):
         except:
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
 
+    @app.get("/getStatus", tags=["Get Methods"])
+    def getStatus(ModelName: str = 'Dogbone', Cluster: str = 'None', request: Request = ''):
+        username = fileHandler.getUserName(request)
+
+        status = Status(False,False,False)
+
+        localpath = './Output/' + os.path.join(username, ModelName)
+        if os.path.exists(localpath):
+            status.created = True
+
+        if Cluster=='None':
+            remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
+            if os.path.exists(os.path.join(remotepath,'pid.txt')):
+                status.submitted = True
+            if os.path.exists(remotepath):
+                for root, dirs, files in os.walk(remotepath):
+                    if len(files)==0:
+                        break
+                    for filename in files:
+                        if('.e' in filename):
+                            status.results = True
+                           
+
+        elif Cluster=='Cara':
+            remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
+            ssh, sftp = fileHandler.sftpToCluster(Cluster)
+            for filename in sftp.listdir(remotepath):
+                if('.e' in filename):
+                    status.results = True
+            command = 'cd ' + remotepath + ' \n squeue -u f_peridi'
+            stdin, stdout, stderr = ssh.exec_command(command)
+            stdout.channel.set_combine_stderr(True)
+            output = stdout.readlines()
+            sftp.close()
+            ssh.close()
+
+            if output!='':
+                status.submitted = True
+
+        return status
+
     @app.get("/viewInputFile", tags=["Get Methods"])
     def viewInputFile(ModelName: str = 'Dogbone', FileType: FileType = FileType.yaml, request: Request = ''):
         username = fileHandler.getUserName(request)
@@ -707,7 +748,8 @@ class ModelControl(object):
         username = fileHandler.getUserName(request)
 
         localpath = './Output/' + os.path.join(username, ModelName)
-        shutil.rmtree(localpath)
+        if os.path.exists(localpath):
+            shutil.rmtree(localpath)
         return ModelName + ' has been deleted'
 
 
@@ -717,7 +759,8 @@ class ModelControl(object):
 
         if Cluster=='None':
             remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
-            shutil.rmtree(remotepath)
+            if os.path.exists(remotepath):
+                shutil.rmtree(remotepath)
             return ModelName + ' has been deleted'
 
         else:

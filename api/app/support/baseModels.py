@@ -4,6 +4,11 @@ from typing import List
 from enum import Enum
 import json
 
+class Status:
+  def __init__(self, created, submitted, results):
+    self.created = created
+    self.submitted = submitted
+    self.results = results
 class Model(BaseModel):
     ownModel: bool
     translated: bool
@@ -166,29 +171,92 @@ class RunData(BaseModel):
                     "hourglassCoefficient": 1,
                     "actualHorizon": None,
                     "yieldStress": None,
-                    "Parameter": {
-                        "C11": None,
-                        "C12": None,
-                        "C13": None,
-                        "C14": None,
-                        "C15": None,
-                        "C16": None,
-                        "C22": None,
-                        "C23": None,
-                        "C24": None,
-                        "C25": None,
-                        "C26": None,
-                        "C33": None,
-                        "C34": None,
-                        "C35": None,
-                        "C36": None,
-                        "C44": None,
-                        "C45": None,
-                        "C46": None,
-                        "C55": None,
-                        "C56": None,
-                        "C66": None
-                    },
+                    "Parameter": [
+                        {
+                        "Name": 'C11', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C12', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C13', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C14', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C15', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C16', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C22', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C23', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C24', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C25', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C26', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C33', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C34', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C35', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C36', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C44', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C45', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C46', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C55', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C56', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C66', 
+                        "value": None
+                        }
+                    ],
                     "Properties": [
                         {
                         "id": 1,
@@ -215,29 +283,92 @@ class RunData(BaseModel):
                     "hourglassCoefficient": "1",
                     "actualHorizon": None,
                     "yieldStress": None,
-                    "Parameter": {
-                        "C11": None,
-                        "C12": None,
-                        "C13": None,
-                        "C14": None,
-                        "C15": None,
-                        "C16": None,
-                        "C22": None,
-                        "C23": None,
-                        "C24": None,
-                        "C25": None,
-                        "C26": None,
-                        "C33": None,
-                        "C34": None,
-                        "C35": None,
-                        "C36": None,
-                        "C44": None,
-                        "C45": None,
-                        "C46": None,
-                        "C55": None,
-                        "C56": None,
-                        "C66": None
-                    },
+                    "Parameter": [
+                        {
+                        "Name": 'C11', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C12', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C13', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C14', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C15', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C16', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C22', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C23', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C24', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C25', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C26', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C33', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C34', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C35', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C36', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C44', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C45', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C46', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C55', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C56', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C66', 
+                        "value": None
+                        }
+                    ],
                     "Properties": [
                         {
                         "id": 1,
@@ -315,29 +446,92 @@ class Data(BaseModel):
                     "hourglassCoefficient": 1,
                     "actualHorizon": None,
                     "yieldStress": None,
-                    "Parameter": {
-                        "C11": None,
-                        "C12": None,
-                        "C13": None,
-                        "C14": None,
-                        "C15": None,
-                        "C16": None,
-                        "C22": None,
-                        "C23": None,
-                        "C24": None,
-                        "C25": None,
-                        "C26": None,
-                        "C33": None,
-                        "C34": None,
-                        "C35": None,
-                        "C36": None,
-                        "C44": None,
-                        "C45": None,
-                        "C46": None,
-                        "C55": None,
-                        "C56": None,
-                        "C66": None
-                    },
+                    "Parameter": [
+                        {
+                        "Name": 'C11', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C12', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C13', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C14', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C15', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C16', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C22', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C23', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C24', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C25', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C26', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C33', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C34', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C35', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C36', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C44', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C45', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C46', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C55', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C56', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C66', 
+                        "value": None
+                        }
+                    ],
                     "Properties": [
                         {
                         "id": 1,
@@ -364,29 +558,92 @@ class Data(BaseModel):
                     "hourglassCoefficient": "1",
                     "actualHorizon": None,
                     "yieldStress": None,
-                    "Parameter": {
-                        "C11": None,
-                        "C12": None,
-                        "C13": None,
-                        "C14": None,
-                        "C15": None,
-                        "C16": None,
-                        "C22": None,
-                        "C23": None,
-                        "C24": None,
-                        "C25": None,
-                        "C26": None,
-                        "C33": None,
-                        "C34": None,
-                        "C35": None,
-                        "C36": None,
-                        "C44": None,
-                        "C45": None,
-                        "C46": None,
-                        "C55": None,
-                        "C56": None,
-                        "C66": None
-                    },
+                    "Parameter": [
+                        {
+                        "Name": 'C11', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C12', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C13', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C14', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C15', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C16', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C22', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C23', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C24', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C25', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C26', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C33', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C34', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C35', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C36', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C44', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C45', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C46', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C55', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C56', 
+                        "value": None
+                        },
+                        {
+                        "Name": 'C66', 
+                        "value": None
+                        }
+                    ],
                     "Properties": [
                         {
                         "id": 1,
