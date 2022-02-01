@@ -8,42 +8,42 @@
                         <v-card width="400px">
                             <v-col class="textfield-col">
                             <v-text-field 
-                                v-model=material.bulkModulus
+                                v-model=constants.bulkModulus
                                 :label=materialKeys.bulkModulus
                                 clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
                             <v-text-field 
-                                v-model=material.shearModulus
+                                v-model=constants.shearModulus
                                 :label=materialKeys.shearModulus
                                 clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
                             <v-text-field 
-                                v-model=material.youngsModulus
+                                v-model=constants.youngsModulus
                                 :label=materialKeys.youngsModulus
                                 clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
                             <v-text-field 
-                                v-model=material.poissonsRatio
+                                v-model=constants.poissonsRatio
                                 :label=materialKeys.poissonsRatio
                                 clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
                             <v-text-field 
-                                v-model=material.pWaveModulus
+                                v-model=constants.pWaveModulus
                                 :label=materialKeys.pWaveModulus
                                 clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
                             <v-text-field 
-                                v-model=material.lameFirst
+                                v-model=constants.lameFirst
                                 :label=materialKeys.lameFirst
                                 clearable
                                 outlined></v-text-field>
@@ -128,7 +128,7 @@
         },
         data () {
             return {
-                material: {
+                constants: {
                     bulkModulus: null,
                     shearModulus: null,
                     youngsModulus: null,
@@ -156,12 +156,12 @@
         },
         methods: {
             convert(){
-                const K = this.material.bulkModulus
-                const E = this.material.youngsModulus
-                const L = this.material.lameFirst
-                const G = this.material.shearModulus
-                const v = this.material.poissonsRatio
-                const M = this.material.pWaveModulus
+                const K = this.constants.bulkModulus
+                const E = this.constants.youngsModulus
+                const L = this.constants.lameFirst
+                const G = this.constants.shearModulus
+                const v = this.constants.poissonsRatio
+                const M = this.constants.pWaveModulus
                 if (K!=null){
                     this.calculated.bulkModulus = K
                     if (E!=null){
@@ -302,20 +302,32 @@
                 let input=document.getElementById(id);
                 input.select();
                 document.execCommand("copy");
-            }
+            },
+            getCurrentData() {
+                this.getLocalStorage('constants');
+            },
+            getLocalStorage(name){
+                if (localStorage.getItem(name)) 
+                    this[name] = JSON.parse(localStorage.getItem(name));
+            },
+        },
+        mounted() {
+        // console.log("mounted")
+        this.getCurrentData()
         },
         watch: {
-            material: {
+            constants: {
                 handler() {
-                    console.log('material changed!');
+                    console.log('constants changed!');
                     localStorage.setItem('model', JSON.stringify(this.model));
                     let num = 0
-                    var mat = [];
-                    for(mat in this.material){
-                        if(this.material[mat]!=null){num++}
+                    var con = [];
+                    for(con in this.constants){
+                        if(this.constants[con]!=null){num++}
                     }
                     if(num==2){this.convert()}
                     if(num!=2){this.resetResult()}
+                    localStorage.setItem('constants', JSON.stringify(this.constants));
                 },
                 deep: true,
             },
