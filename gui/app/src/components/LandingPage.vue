@@ -27,7 +27,7 @@
                         <router-link class="card" to="guide">
                             <v-card width="400px">
                             <v-img
-                                src="../assets/books.jpg"
+                                src="../assets/compass.jpg"
                                 class="white--text align-end"
                                 gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                                 height="200px">
@@ -38,7 +38,7 @@
                         <router-link class="card" to="publications">
                             <v-card width="400px">
                             <v-img
-                                src="../assets/papers.jpg"
+                                src="../assets/books.jpg"
                                 class="white--text align-end"
                                 gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                                 height="200px">

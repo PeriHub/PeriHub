@@ -1348,7 +1348,6 @@ import { Plotly } from 'vue-plotly'
         }
 
         await axios.request(reqOptions).then(response => (this.status = response.data))
-        console.log(this.status)
       },
       async cancelJob() {
         let headersList = {
