@@ -792,17 +792,6 @@ class ModelControl(object):
                 ssh.close()
                 return 'Data of ' + username + ' has been deleted'
 
-    @app.get("/getPublications", tags=["Documentation Methods"])
-    def getPublications():
-            
-        remotepath = './Publications/papers.bib'
-
-        f = open(remotepath, 'r')
-        response = f.read()
-        f.close()
-
-        return response
-
     @app.get("/getDocs", tags=["Documentation Methods"])
     def getDocs(Name: str = 'Introduction', model: bool = False):
             
@@ -811,6 +800,17 @@ class ModelControl(object):
         else:
             remotepath = './guides/' + Name + '.md'
 
+
+        f = open(remotepath, 'r')
+        response = f.read()
+        f.close()
+
+        return response
+
+    @app.get("/getPublications", tags=["Documentation Methods"])
+    def getPublications():
+            
+        remotepath = './Publications/papers.bib'
 
         f = open(remotepath, 'r')
         response = f.read()
