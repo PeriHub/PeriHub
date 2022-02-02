@@ -182,7 +182,7 @@ import { Plotly } from 'vue-plotly'
             stabilizatonType: 'Global Stiffness'}],
         damageKeys:{
           Name: 'Name', 
-          damageModel: 'Name',
+          damageModel: 'Damage Model',
           criticalStretch: "Critical Stretch",
           criticalEnergy: "Critical Energy",
           interblockdamageEnergy: "Interblock damage energy",
@@ -283,6 +283,7 @@ import { Plotly } from 'vue-plotly'
           initialTime: 'Initial Time',
           finalTime: 'Final Time',
           solvertype: 'Solvertype',
+          fixedDt: 'Fixed dt',
           safetyFactor: 'Safety Factor',
           numericalDamping: 'Numerical Damping',
           peridgimPreconditioner: 'Peridgim Preconditioner',
@@ -760,22 +761,28 @@ import { Plotly } from 'vue-plotly'
         if(paramName=='solver'){
           for(var i = 0; i < names.length; i++) {
             var key = this.getKeyByValue(paramKeys, names[i])
+            var subNames = Object.keys(paramObject[names[i]])
+            if(subNames.length!=0){
+              for(var j = 0; j < subNames.length; j++) {
+                this[paramName]['solvertype'] = names[i]
+                var key = this.getKeyByValue(paramKeys, subNames[j])
+                if(key==undefined){
+                  console.log('Warning: ' + subNames[j] + ' is not supported yet')
+                  continue;
+                }
+                console.log(subNames[j])
+                console.log(key)
+                console.log(paramObject[names[i]][subNames[j]])
+                this[paramName][key] = paramObject[names[i]][subNames[j]]
+              }
+              continue;
+            }
             if(key==undefined){
               console.log('Warning: ' + names[i] + ' is not supported yet')
               continue;
             }
             // Object.assign(this[paramName][key], paramObject[names[i]])
             this[paramName][key] = paramObject[names[i]]
-            var subNames = Object.keys(paramObject[names[i]])
-            for(var j = 0; j < subNames.length; j++) {
-              this[paramName]['solvertype'] = names[i]
-              var key = this.getKeyByValue(paramKeys, subNames[j])
-              if(key==undefined){
-                console.log('Warning: ' + subNames[j] + ' is not supported yet')
-                continue;
-              }
-              Object.assign(this[paramName][key], paramObject[names[i]][subNames[j]])
-            }
           }
         }
         else if(paramName=='outputs'){
@@ -942,7 +949,7 @@ import { Plotly } from 'vue-plotly'
           const result = JSON.parse(e.target.result);
           for(var j = 0; j < Object.keys(result).length; j++) {
             var paramName = Object.keys(result)[j]
-            Object.assign(this[paramName], jsonFile[paramName])
+            Object.assign(this[paramName], result[paramName])
           }
         }
         fr.readAsText(files.item(0));
