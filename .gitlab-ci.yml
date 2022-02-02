@@ -9,6 +9,8 @@ build_api_job:
   stage: build
   extends: [.build_before_script_template]
   only:
+    refs:
+      - master
     changes:
       - api/**/*
   script:
@@ -21,6 +23,8 @@ build_gui_job:
   stage: build
   extends: [.build_before_script_template]
   only:
+    refs:
+      - master
     changes:
       - gui/**/*
   script:
@@ -33,6 +37,8 @@ build_cron_job:
   stage: build
   extends: [.build_before_script_template]
   only:
+    refs:
+      - master
     changes:
       - cron/**/*
   script:
@@ -44,6 +50,8 @@ build_paraview_job:
   stage: build
   extends: [.build_before_script_template]
   only:
+    refs:
+      - master
     changes:
       - paraview/**/*
   script:
