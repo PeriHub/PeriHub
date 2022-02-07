@@ -1,5 +1,5 @@
 <template>
-    <v-container fluid class="pa-0" style="height:100%">
+    <v-container fluid class="pa-0" style="height:100%;">
         <div id="app" class="scroll">
             <v-container fluid style="height:30%; min-height:300px;">
                 <v-row dense align="center" justify="center" style="height:30%; min-height:100px;">

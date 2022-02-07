@@ -1,5 +1,5 @@
 <template>
-  <v-app class="main">
+  <v-app class="main" style="font-family: 'Arial'">
     <div class="header"> 
       <v-app-bar 
         app
@@ -179,6 +179,17 @@ export default {
 </script>
 
 <style>
+@font-face {
+  font-family: "Frutiger-light";
+  src: local("Frutiger"),   
+    url(./fonts/Frutiger/FRUTIGER-LIGHT.TTF) format("truetype");
+  font-family: "Frutiger-roman";
+  src: local("Frutiger"),   
+    url(./fonts/Frutiger/FRUTIGER-ROMAN.TTF) format("truetype");
+  font-family: "Arial";
+  src: local("Arial"),   
+    url(./fonts/Arial/ARIAL.TTF) format("truetype");
+}
 .my-btn {
   margin-right: 5px;
 }

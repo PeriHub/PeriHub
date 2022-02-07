@@ -119,14 +119,14 @@
                       v-model="model.modelNameSelected"
                       v-show="!model.ownModel"
                       @change="showModelImg(); resetData();"
-                      label="ModelName"
+                      label="Model Name"
                       outlined></v-select>
                     <v-text-field 
                       class="textfield-col"
                       v-model="model.modelNameSelected"
                       v-show="model.ownModel"
                       :rules="[rules.required]"
-                      label="ModelName"
+                      label="Model Name"
                       outlined></v-text-field>
                     <v-text-field 
                       class="textfield-col"
@@ -138,7 +138,7 @@
                     <v-text-field 
                       class="textfield-col"
                       v-model="model.width"
-                      v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                      v-show="!model.ownModel & model.modelNameSelected!='RVE' & !model.twoDimensional"
                       :rules="[rules.required, rules.float]"
                       label="Width"
                       outlined></v-text-field>
@@ -154,7 +154,7 @@
                       class="textfield-col"
                       v-model="model.height2"
                       :rules="[rules.required, rules.float]"
-                      label="Height2"
+                      label="Inner Height"
                       outlined></v-text-field>
                     <v-text-field 
                       class="textfield-col"
@@ -184,10 +184,10 @@
                     ></v-switch>
                     <v-switch
                       v-model="model.rotatedAngles"
-                      v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                      v-show="!model.ownModel & model.modelNameSelected!='RVE' & model.modelNameSelected!='Dogbone'"
                       label="Rotated Angles"
                     ></v-switch>
-                    <v-row v-show="model.rotatedAngles">
+                    <v-row v-show="model.rotatedAngles & !model.ownModel & model.modelNameSelected!='RVE' & model.modelNameSelected!='Dogbone'">
                       <v-col class="textfield-col">
                         <v-text-field 
                           v-model=model.angles[0]
@@ -1586,6 +1586,7 @@
             margin=10px
             :loading="modelLoading"
             color="#2D2D2D"
+            ref="modelView"
             >
             
             <v-card-title class="my-title" style="padding-top: 0px" v-if="viewId==1">
@@ -1645,6 +1646,7 @@
                 :src="modelImg"
                 transition="scale-transition"
                 width="100%"
+                height="100%"
               />
               <vtk-view
                 v-if="viewId==1"

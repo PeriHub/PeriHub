@@ -498,14 +498,14 @@ class ModelControl(object):
         return "Mesh generated"
 
     @app.get("/getImage", tags=["Get Methods"])
-    def getImage(ModelName: str = 'Dogbone', Cluster: str = 'None', Output: str = 'Output1',  Variable: str = 'Displacement',  Axis: str = 'Magnitude', dx: float = 0.0009, request: Request = ''):
+    def getImage(ModelName: str = 'Dogbone', Cluster: str = 'None', Output: str = 'Output1',  Variable: str = 'Displacement',  Axis: str = 'Magnitude', dx: float = 0.0009, width: int = 1920, height: int = 1080, request: Request = ''):
         username = fileHandler.getUserName(request)
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
             raise NotFoundException(name=ModelName)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(['sh support/read.sh image ' + username + ' ' + ModelName + ' ' + Output + ' ' + Variable + ' ' + Axis + ' ' + str(dx)], shell=True)
+        process = subprocess.Popen(['sh support/read.sh image ' + username + ' ' + ModelName + ' ' + Output + ' ' + Variable + ' ' + Axis + ' ' + str(dx) + ' ' + str(width) + ' ' + str(height)], shell=True)
         process.wait()
 
         try:

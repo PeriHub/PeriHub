@@ -17,6 +17,7 @@
     "core-js": "^3.18.2",
     "dotenv": "^10.0.0",
     "js-yaml": "^4.1.0",
+    "markdown-it-vue": "^1.1.6",
     "prismjs": "^1.25.0",
     "splitpanes": "^2.3.8",
     "vue": "^2.6.11",

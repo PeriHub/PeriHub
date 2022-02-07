@@ -620,14 +620,14 @@ import { Plotly } from 'vue-plotly'
         // this.textLoading = false
       },
       saveData() {
-        const data = "{\"model\": " + JSON.stringify(this.model)+",\n" +
-                      "\"materials\": " + JSON.stringify(this.materials)+",\n" +
-                      "\"damages\": " + JSON.stringify(this.damages)+",\n" +
-                      "\"blocks\": " + JSON.stringify(this.blocks)+",\n" +
-                      "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
-                      "\"computes\": " + JSON.stringify(this.computes)+",\n" +
-                      "\"outputs\": " + JSON.stringify(this.outputs)+",\n" +
-                      "\"solver\": " + JSON.stringify(this.solver) + "}";
+        const data = "{\"model\": " + JSON.stringify(this.model, null, 2)+",\n" +
+                      "\"materials\": " + JSON.stringify(this.materials, null, 2)+",\n" +
+                      "\"damages\": " + JSON.stringify(this.damages, null, 2)+",\n" +
+                      "\"blocks\": " + JSON.stringify(this.blocks, null, 2)+",\n" +
+                      "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions, null, 2)+",\n" +
+                      "\"computes\": " + JSON.stringify(this.computes, null, 2)+",\n" +
+                      "\"outputs\": " + JSON.stringify(this.outputs, null, 2)+",\n" +
+                      "\"solver\": " + JSON.stringify(this.solver, null, 2) + "}";
         var fileURL = window.URL.createObjectURL(new Blob([data], {type: 'application/json'}));
         var fileLink = document.createElement('a');
         fileLink.href = fileURL;
@@ -1511,6 +1511,9 @@ import { Plotly } from 'vue-plotly'
         'Authorization': this.authToken
         }
 
+        console.log(this.$refs.modelView.$el.clientWidth)
+        console.log(this.$refs.modelView.$el.clientHeight)
+
         let reqOptions = {
           url: this.url + "getImage",
           params: {ModelName: this.model.modelNameSelected,
@@ -1518,7 +1521,9 @@ import { Plotly } from 'vue-plotly'
                    Output: this.getImageOutput,
                    Variable: this.getImageVariableSelected,
                    Axis: this.getImageAxisSelected,
-                   dx: this.dx},
+                   dx: this.dx,
+                   width: this.$refs.modelView.$el.clientWidth,
+                   height: this.$refs.modelView.$el.clientHeight},
           method: "GET",
           responseType: 'blob',
           headers: headersList,

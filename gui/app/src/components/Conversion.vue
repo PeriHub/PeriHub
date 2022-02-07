@@ -57,7 +57,6 @@
                                 :append-icon="'mdi-content-copy'"
                                 @click:append="copyText('bulkModulus')"
                                 id="bulkModulus"
-                                clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
@@ -67,7 +66,6 @@
                                 :append-icon="'mdi-content-copy'"
                                 @click:append="copyText('shearModulus')"
                                 id="shearModulus"
-                                clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
@@ -77,7 +75,6 @@
                                 :append-icon="'mdi-content-copy'"
                                 @click:append="copyText('youngsModulus')"
                                 id="youngsModulus"
-                                clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
@@ -87,7 +84,6 @@
                                 :append-icon="'mdi-content-copy'"
                                 @click:append="copyText('poissonsRatio')"
                                 id="poissonsRatio"
-                                clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
@@ -97,7 +93,6 @@
                                 :append-icon="'mdi-content-copy'"
                                 @click:append="copyText('pWaveModulus')"
                                 id="pWaveModulus"
-                                clearable
                                 outlined></v-text-field>
                             </v-col>
                             <v-col class="textfield-col">
@@ -107,7 +102,6 @@
                                 :append-icon="'mdi-content-copy'"
                                 @click:append="copyText('lameFirst')"
                                 id="lameFirst"
-                                clearable
                                 outlined></v-text-field>
                             </v-col>
                         </v-card>

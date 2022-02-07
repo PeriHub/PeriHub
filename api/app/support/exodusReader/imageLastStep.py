@@ -13,6 +13,8 @@ OutputName = sys.argv[3]
 Variable = sys.argv[4]
 Axis = sys.argv[5]
 dx = sys.argv[6]
+width = sys.argv[7]
+height = sys.argv[8]
 if Variable == 'Damage':
     Axis='Magnitude'
 filePath = path.join('./Results/' + UserName, ModelName)
@@ -35,8 +37,14 @@ animationScene1.UpdateAnimationUsingDataTimeSteps()
 
 animationScene1.GoToLast()
 
+# get color transfer function/color map for 'Displacement'
+# LUT = GetColorTransferFunction(Variable)
+
 # get active view
 renderView1 = GetActiveViewOrCreate('RenderView')
+
+# get color legend/bar for displacementLUT in view renderView1
+# LUTColorBar = GetScalarBar(LUT, renderView1)
 
 # # get the material library
 # materialLibrary1 = GetMaterialLibrary()
@@ -128,10 +136,17 @@ colorPalette.Background = [45/255, 45/255, 45/255]
 # saving layout sizes for layouts
 
 # layout/tab size in pixels
-layout1.SetSize(1920, 1080)
+layout1.SetSize(int(width), int(height))
+
+# reset view to fit data
+renderView1.ResetCamera()
+
+# change scalar bar placement
+# LUTColorBar.Position = [0.5, 0.25]
+# LUTColorBar.ScalarBarLength = 0.322
 
 # save screenshot
-SaveScreenshot(path.join(filePath, Variable + '_' + Axis + '.jpg'), renderView1, ImageResolution=[1920, 1080])
+SaveScreenshot(path.join(filePath, Variable + '_' + Axis + '.jpg'), renderView1, ImageResolution=[int(width), int(height)])
 
 
 Delete(Output1)

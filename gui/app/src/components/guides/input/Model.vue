@@ -2,7 +2,7 @@
     <v-container fluid class="pa-0" style="height:100%">
         <div id="app" class="scroll">
           <v-container fluid class="pa-0" style="height:100%">
-            <vue-markdown :source="markdown"></vue-markdown>
+            <markdown-it-vue class="md-body" :content="markdown" :options="options" style="font-family: 'Frutiger-light'"/>
           </v-container>
         </div>
     </v-container>
@@ -10,16 +10,52 @@
 
 <script>
   import axios from 'axios'
-  import VueMarkdown from 'vue-markdown'
+  // import VueMarkdown from 'vue-markdown'
+  import MarkdownItVue from 'markdown-it-vue'
+  import 'markdown-it-latex/dist/index.css';
+
 
   export default {
     name: 'PeriHub',
     components: {  
-      VueMarkdown
+      // VueMarkdown
+      MarkdownItVue
     },
     data () {
       return {
         markdown:  "",
+        options: {
+          markdownIt: {
+            linkify: true
+          },
+          linkAttributes: {
+            attrs: {
+              target: '_blank',
+              rel: 'noopener'
+            }
+          },
+          katex: {
+            throwOnError: false,
+            errorColor: '#cc0000'
+          },
+          icons: 'font-awesome',
+          githubToc: {
+            tocFirstLevel: 2,
+            tocLastLevel: 3,
+            tocClassName: 'toc',
+            anchorLinkSymbol: '',
+            anchorLinkSpace: false,
+            anchorClassName: 'anchor',
+            anchorLinkSymbolClassName: 'octicon octicon-link'
+          },
+          mermaid: {
+            theme: 'default'
+          },
+          image: {
+            hAlign: 'left',
+            viewer: true
+          }
+        },
         url: 'https://perihub-api.fa-services.intra.dlr.de/'
       }
     },
@@ -41,7 +77,7 @@
       if(process.env.VUE_APP_ROOT_API!=undefined)
       {
           this.url = process.env.VUE_APP_ROOT_API
-        //   console.log("changed URL: " + process.env.VUE_APP_ROOT_API)
+          console.log("changed URL: " + process.env.VUE_APP_ROOT_API)
       }
       this.getDocs();
     }
