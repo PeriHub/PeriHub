@@ -52,5 +52,5 @@
     height: 100%;
     overflow-y: scroll;
   }
-  img[alt=drawing] { width: 1000px; }
+  img[alt=drawing] { width: 45%; }
 </style>
