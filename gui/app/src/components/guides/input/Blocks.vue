@@ -10,15 +10,9 @@
 
 <script>
   import axios from 'axios'
-  // import VueMarkdown from 'vue-markdown'
-  import MarkdownItVue from 'markdown-it-vue'
 
   export default {
     name: 'PeriHub',
-    components: {  
-      // VueMarkdown
-      MarkdownItVue
-    },
     data () {
       return {
         markdown:  "",

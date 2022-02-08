@@ -2,7 +2,7 @@
     <v-container fluid class="pa-0" style="height:100%">
         <div id="app" class="scroll">
           <v-container fluid class="pa-0" style="height:100%">
-            <vue-markdown :source="markdown"></vue-markdown>
+            <markdown-it-vue class="md-body" :content="markdown"/>
           </v-container>
         </div>
     </v-container>
@@ -10,14 +10,10 @@
 
 <script>
   import axios from 'axios'
-  import VueMarkdown from 'vue-markdown'
   // import DogboneMd from '../assets/Dogbone/Dogbone.md'
 
   export default {
     name: 'PeriHub',
-    components: {  
-      VueMarkdown
-    },
     data () {
       return {
         markdown:  "",

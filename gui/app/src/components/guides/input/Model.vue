@@ -10,17 +10,9 @@
 
 <script>
   import axios from 'axios'
-  // import VueMarkdown from 'vue-markdown'
-  import MarkdownItVue from 'markdown-it-vue'
-  // import 'markdown-it-latex/dist/index.css';
-
 
   export default {
     name: 'PeriHub',
-    components: {  
-      // VueMarkdown
-      MarkdownItVue
-    },
     data () {
       return {
         markdown:  "",

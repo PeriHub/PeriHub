@@ -16,11 +16,14 @@ import VueRouter from 'vue-router';
 // import the css file 
 // import "vuescroll/dist/vuescroll.css";
 import Routes from './routes.js';
+import MarkdownItVue from 'markdown-it-vue';
+import 'markdown-it-vue/dist/markdown-it-vue.css';
 
 Vue.use(VueRouter);
 Vue.use(VueVtkJs);
 Vue.use(VueCookie);
 Vue.use(VueMeta);
+Vue.use(MarkdownItVue);
 Vue.use(vueNumeralFilterInstaller, { locale: 'en-gb' });
 Vue.component('FontAwesomeIcon', FontAwesomeIcon);
 Vue.component('PrismEditor', PrismEditor);
