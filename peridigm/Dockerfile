@@ -2,12 +2,6 @@ FROM registry.gitlab-test.dlr.de/hess_ja/images/trilinos
 
 ARG PERIDOX
 ENV PERIDOX $PERIDOX
-# ARG if [ "$EXTERNAL" = "False" ]; then \
-#         GITLAB_USER; GITLAB_TOKEN;\
-#     fi
-# ENV if [ "$EXTERNAL" = "False" ]; then \
-#         GITLAB_USER $GITLAB_USER; GITLAB_TOKEN $GITLAB_TOKEN;\
-#     fi
 ARG GITLAB_USER
 ENV GITLAB_USER $GITLAB_USER
 ARG GITLAB_TOKEN
@@ -27,14 +21,6 @@ RUN if [ "$PERIDOX" = "True" ]; then \
         git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/fa_sw/peridynamik/peridigmDev.git peridigm; \
     fi
 
-# #Build Peridigm
-# RUN mkdir peridigm
-# WORKDIR /peridigm
-# ADD src src
-# ADD test test
-# ADD scripts scripts
-# ADD examples examples 
-# ADD CMakeLists.txt .
 RUN mkdir /peridigm/build
 
 WORKDIR /peridigm/build/
@@ -46,9 +32,7 @@ RUN cmake \
     -D CMAKE_CXX_COMPILER:STRING="mpicxx" \
     -D USE_DAKOTA:BOOL=OFF \
     ..; \
-    make && make install; 
-    # cd ..; \
-    # rm -rf peridigm
+    make && make install;
 
 VOLUME /output
 WORKDIR /output

@@ -138,7 +138,6 @@
 </template>
 
 <script>
-import PeriHub from './components/PeriHub';
 
 export default {
   name: 'App',
@@ -153,9 +152,6 @@ export default {
       // { name: 'description', content: 'An example Vue application with vue-meta.' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' }
     ]
-  },
-  components: {
-    PeriHub,
   },
 
   data: () => ({
@@ -219,5 +215,17 @@ export default {
 }
 .footer {
   flex: none;
+}
+.theme--dark .markdown-body {
+  color: white !important;
+}
+.theme--dark .markdown-body table th {
+  background-color:#222222;
+}
+.theme--dark .markdown-body table tr {
+  background-color:#333333;
+}
+.theme--dark .markdown-body table tr:nth-child(2n) {
+  background-color:#222222;
 }
 </style>
