@@ -1,7 +1,7 @@
 from support.modelWriter import ModelWriter
 
 class OwnModel(object):
-    def __init__(self, dx=[0.0005,0.0005,0.0005], DiscType = 'txt', TwoD = False, horizon = 0.1, filename = 'ownModel', material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = ''):
+    def __init__(self, dx=[0.0005,0.0005,0.0005], DiscType = 'txt', TwoD = False, horizon = 0.1, filename = 'ownModel', material = '', damage = '', block = '', bc = '', bf = '', compute = '', output = '', solver = '', username = ''):
         
         self.filename = filename
         self.scal = 1
@@ -15,7 +15,7 @@ class OwnModel(object):
         self.computeDict = compute
         self.outputDict = output
         self.materialDict = material
-        self.bondfilters = {}
+        self.bondfilters = bf
         self.bcDict = bc
         self.solverDict = solver
 

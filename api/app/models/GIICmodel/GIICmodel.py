@@ -1,6 +1,7 @@
 import numpy as np
 # import ast
 from scipy import interpolate
+from support.baseModels import Adapt, Block, BondFilters, BoundaryConditions, Compute, Damage, Material, Output, Newton, Solver, Verlet
 from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
@@ -8,7 +9,7 @@ import time
 class GIICmodel(object):
     def __init__(self, xend = 1, yend = 1, zend = 1, dx=[0.1,0.1,0.1], 
     filename = 'GIICmodel', TwoD = False, rot = 'False', angle = [0,0], 
-    material = '', damage = '', block = '', bc = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000, ignoreMesh = False):
+    material = '', damage = '', block = '', bc = '', bf = '', compute = '', output = '', solver = '', username = '', maxNodes = 100000, ignoreMesh = False):
         '''
             definition der blocks
             k =
@@ -70,37 +71,38 @@ class GIICmodel(object):
         
         isotropic = False
         matNameList = ['PMMA']
-        self.materialDict = [{}]
-        self.damageDict = [{}]
-        self.computeDict = [{},{}]
-        self.outputDict = [{},{}]
+        self.materialDict = []
         self.angle = [0,0]
         if damage=='':
-            self.damageDict[0] = {'Name': 'PMMADamage', 'damageModel': 'Critical Energy Correspondence', 'criticalEnergy':5.1, 'interblockdamageEnergy':0.01, 'onlyTension': True, 'detachedNodesCheck': True, 'thickness': 10, 'hourglassCoefficient': 1.0, 'stabilizatonType': 'Global Stiffness'}
+            damageDict = Damage(id=1, Name='PMMADamage', damageModel='Critical Energy Correspondence', criticalStretch=10.0, criticalEnergy=5.1, interblockdamageEnergy=0.01, planeStress=True, onlyTension=True, detachedNodesCheck=True, thickness=10, hourglassCoefficient=1.0, stabilizatonType='Global Stiffness')
+            self.damageDict = [damageDict]
         else:
             self.damageDict = damage
 
         if compute=='':
-            self.computeDict[0] = {'Name':'External_Displacement','variable':'Displacement', 'calculationType':'Minimum','blockName':'block_7'}
-            self.computeDict[1] = {'Name':'External_Force','variable':'Force', 'calculationType':'Sum','blockName':'block_7'}
+            computeDict1 = Compute(id=1, Name='External_Displacement', variable='Displacement', calculationType='Minimum', blockName='block_7')
+            computeDict2 = Compute(id=2, Name='External_Force', variable='Force', calculationType='Sum', blockName='block_7')
+            self.computeDict = [computeDict1, computeDict2]
         else:
             self.computeDict = compute
 
         if output=='':
-            self.outputDict[0] = {'Name': 'Output1', 'Displacement': True, 'Force': True, 'Damage': True, 'Partial_Stress': False, 'External_Force': False, 'External_Displacement': False, 'Number_Of_Neighbors': False, 'Frequency': 5000, 'InitStep': 0}
-            self.outputDict[1] = {'Name': 'Output2', 'Displacement': False, 'Force': False, 'Damage': True, 'Partial_Stress': True, 'External_Force': True, 'External_Displacement': True, 'Number_Of_Neighbors': False, 'Frequency': 200, 'InitStep': 0}
+            outputDict1 = Output(id=1, Name='Output1', Displacement=True, Force=True, Damage=True, Velocity=True, Partial_Stress=False, External_Force=False, External_Displacement=False, Number_Of_Neighbors=False, Frequency=5000, InitStep=0)
+            outputDict2 = Output(id=2, Name='Output2', Displacement=False, Force=False, Damage=True, Velocity=False, Partial_Stress=True, External_Force=True, External_Displacement=True, Number_Of_Neighbors=False, Frequency=200, InitStep=0)
+            self.outputDict = [outputDict1, outputDict2]
         else:
             self.outputDict = output
 
         if material=='':
             i=0
             for material in matNameList:
-                self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 1.95e-07, 'bulkModulus':None, 'shearModulus':None, 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
+                matDict = Material(id=i+1, Name=material, MatType='Linear Elastic Correspondence', density=1.95e-07, bulkModulus=None, shearModulus=None, youngsModulus=210000.0, poissonsRatio=0.3, tensionSeparation=False, nonLinear=True, planeStress=True, materialSymmetry='Anisotropic', stabilizatonType='Global Stiffness', thickness=10.0, hourglassCoefficient=1.0, actualHorizon=None, yieldStress=None, Parameter=[] ,Properties=[])
+                # self.materialDict[i] = {'Name': material, 'MatType':'Linear Elastic Correspondence', 'density': 1.95e-07, 'bulkModulus':None, 'shearModulus':None, 'youngsModulus': 210000.0, 'poissonsRatio': 0.3, 'tensionSeparation': False, 'materialSymmetry': 'Anisotropic', 'stabilizatonType': 'Global Stiffness', 'thickness': 10.0, 'hourglassCoefficient': 1.0}
                 # if isotropic:
                 #     params =[5.2e-08, 3184.5476165501973,0.3824761153875444, 0 ,0]
                 #     mat = MaterialRoutines()
                 #     self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'isotropic', matParam = params)
-                if self.materialDict[i]['materialSymmetry'] == 'Anisotropic':
+                if matDict.materialSymmetry == 'Anisotropic':
                     self.angle = [60,-60]
                     params = [
                     165863.6296530634,  #C11
@@ -125,30 +127,30 @@ class GIICmodel(object):
                     0.0,                #C56
                     4200.0]             #C66     
                     mat = MaterialRoutines(angle = self.angle)   
-                    self.materialDict[i]['Parameter'] = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
+                    matDict.Parameter = mat.stiffnessMatrix(type = 'anisotropic', matParam = params)
                 i+=1
+                self.materialDict.append(matDict)
         else:
             self.angle = angle
             self.materialDict = material
 
+        if(bf==''): 
+            bf1 = BondFilters(id=1, Name='bf_1', type='Rectangular_Plane', normalX=0.0, normalY=1.0, normalZ=0.0, lowerLeftCornerX=0.0, lowerLeftCornerY=self.yend, lowerLeftCornerZ=-0.1, bottomUnitVectorX=1.0, bottomUnitVectorY=0.0, bottomUnitVectorZ=0.0, bottomLength=self.a, sideLength=zend + 0.5, centerX=0.0, centerY=1.0, centerZ=0.0, radius=1.0, show=True)
+            self.bondfilters = [bf1]
+        else:
+            self.bondfilters = bf
 
-        self.bondfilters = {'Name':['bf_1'], 
-                            'Normal':[[0.0,1.0,0.0]],
-                            'Lower_Left_Corner':[[0.0,self.yend/2,-0.1]],
-                            'Bottom_Unit_Vector':[[1.0,0.0,0.0]],
-                            'Bottom_Length':[self.a],
-                            'Side_Length':[zend + 0.5]}
-
-        if(bc==''):               
-            self.bcDict = [{'Name': 'BC_1', 'boundarytype': 'Prescribed Displacement', 'blockId': 5, 'coordinate': 'y', 'value': '0*t'},
-                        {'Name': 'BC_2', 'boundarytype': 'Prescribed Displacement', 'blockId': 6, 'coordinate': 'y', 'value': '0*t'},
-                        {'Name': 'BC_3', 'boundarytype': 'Prescribed Displacement', 'blockId': 7, 'coordinate': 'y', 'value': '-10*t'},
-                        {'Name': 'BC_4', 'boundarytype': 'Prescribed Displacement', 'blockId': 10, 'coordinate': 'y', 'value': '0*t'},]
+        if(bc==''): 
+            bc1 = BoundaryConditions(id=1, Name='BC_1', NodeSets=None, boundarytype='Prescribed Displacement', blockId=5, coordinate='y', value='0*t')
+            bc2 = BoundaryConditions(id=2, Name='BC_2', NodeSets=None, boundarytype='Prescribed Displacement', blockId=6, coordinate='y', value='0*t')
+            bc3 = BoundaryConditions(id=3, Name='BC_3', NodeSets=None, boundarytype='Prescribed Displacement', blockId=7, coordinate='y', value='-10*t')
+            bc4 = BoundaryConditions(id=4, Name='BC_4', NodeSets=None, boundarytype='Prescribed Displacement', blockId=10, coordinate='y', value='0*t')
+            self.bcDict = [bc1,bc2,bc3,bc4]
         else:
             self.bcDict = bc
 
         if(solver==''):               
-            self.solverDict = {'verbose': False, 'initialTime': 0.0, 'finalTime': 0.03, 'solvertype': 'Verlet', 'safetyFactor': 0.95, 'numericalDamping': 0.000005, 'filetype': 'xml'}
+            self.solverDict = Solver(verbose=False, initialTime=0.0, finalTime=0.03, fixedDt=None, solvertype='Verlet', safetyFactor=0.95, numericalDamping=0.000005, peridgimPreconditioner='None', nonlinearSolver='Line Search Based', numberofLoadSteps=100, maxSolverIterations=50, relativeTolerance=1e-8, maxAgeOfPrec=100, directionMethod='Newton', newton=Newton(), lineSearchMethod='Polynomial', verletSwitch=False, verlet=Verlet(), stopAfterDamageInitation=False, stopBeforeDamageInitation=False, adaptivetimeStepping=False, adapt=Adapt(), filetype='yaml')
         else:
             self.solverDict = solver
 
@@ -246,25 +248,27 @@ class GIICmodel(object):
                 writer.writeMesh(model)
             writer.writeNodeSets(model)
             
-            writeReturn = self.writeFILE(writer = writer, model = model)
+            blockLen = int(max(k))
+
+            writeReturn = self.writeFILE(writer = writer, blockLen = blockLen)
 
             if writeReturn!=0:
                 return writeReturn
         
         return 'Model created'
 
-    def createBlockdef(self,model):
-        blockLen = int(max(model['k']))
-        blockDef=[{}]*blockLen
+    def createBlockdef(self, blockLen):
+        blockDict=[]
         for idx in range(0,blockLen):
-            blockDef[idx] = {'Name': 'block_' + str(idx+1), 'material':self.matBlock[idx], 'damageModel':self.damBlock[idx], 'horizon': self.scal*max([self.dx[0],self.dx[1]]),'interface':self.intBlockId[idx]}
+            blockDef = Block(id=1, Name= 'block_' + str(idx+1), material=self.matBlock[idx], damageModel=self.damBlock[idx], horizon= self.scal*max([self.dx[0],self.dx[1]]), interface=self.intBlockId[idx], show=False)
+            blockDict.append(blockDef)
         # 3d tbd
-        return blockDef
+        return blockDict
         
-    def writeFILE(self, writer, model):
+    def writeFILE(self, writer, blockLen):
         
         if self.blockDef=='':
-            blockDef = self.createBlockdef(model)
+            blockDef = self.createBlockdef(blockLen)
         else:
             for idx in range(0,len(self.blockDef)):
                 self.blockDef[idx].horizon= self.scal*max([self.dx[0],self.dx[1]])

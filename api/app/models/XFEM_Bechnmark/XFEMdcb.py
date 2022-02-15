@@ -1,9 +1,12 @@
 import numpy as np
 from scipy import interpolate
-from support.geometry import Geometry as geo
+from support.geometry import Geometry
 class XFEMDCB(object):
-    def __init__(self, xend = 1, yend = 1, dx=[0.1,0.1], filename = 'XFEMDCBmodel'):
-        self.L = xend
+    def __init__(self, xend = 1, yend = 1, zend = 0, dx=[0.1,0.1], filename = 'XFEMDCBmodel'):
+        self.xend = xend
+        self.yend = yend
+        self.zend = zend
+        self.dx = dx
         da = 9.5
         dgap = 3
         tb = 1
@@ -17,7 +20,7 @@ class XFEMDCB(object):
         return fun
     def createModel(self):
         geo = Geometry()
-        x,y = geo.createPoints(coor = [0,self.xend,0,self.yend], dx = self.dx)
+        x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)
         vol = np.zeros(len(x))
         k = np.ones(len(x))
         for idx in range(0, len(x)):
