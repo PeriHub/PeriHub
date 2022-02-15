@@ -1,11 +1,13 @@
 # Copyright (C) 2021 Deutsches Zentrum fuer Luft- und Raumfahrt(DLR, German Aerospace Center) <www.dlr.de>
 
-
-from api.app.GIICmodel.GIICmodel import GIICmodel
-from api.app.DCBmodel.DCBmodel import DCBmodel
-from api.app.Verification.verificationModels import VerificationModels
-#from XFEM_Bechnmark.XFEMdcb import XFEMDCB
-from api.app.Dogbone.Dogbone import Dogbone
+import sys
+sys.path.insert(0, '/home/jt/perihub/api/app')
+from models.GIICmodel.GIICmodel import GIICmodel
+from models.DCBmodel.DCBmodel import DCBmodel
+from models.KalthoffWinkler.KalthoffWinkler import KalthoffWinkler
+from Verification.verificationModels import VerificationModels
+from models.XFEM_Bechnmark.XFEMdcb import XFEMDCB
+from models.Dogbone.Dogbone import Dogbone
 import matplotlib.pyplot as plt
 
 import matplotlib.pyplot as plt
@@ -22,14 +24,16 @@ class ModelControl(object):
     def run(self,**kwargs):
         """doc"""
         
-        L = 152
-        L = 52
+        # L = 152
+        # L = 52
         B = 10
-        h = 4.95
-        h = 0.019
-        nn = 21
-        
-        
+        # h = 4.95
+        # h = 0.019
+        # nn = 21
+
+        h=200
+        L=100
+        nn=100
         
         nn = 2*int(nn/2)+1
         nn = 2*int(nn/2)+1
@@ -37,12 +41,14 @@ class ModelControl(object):
         
         print(dx, 4.01*dx[0])
         
-        gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, TwoD = True)
-        model = gc.createModel()
-        #xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
-        # dx=[0.00025,0.00025,0.00025]
-        # db = DCBmodel(dx = dx, TwoD = True)
-        # model = db.createModel()
+        kw = KalthoffWinkler(xend = L, yend = h, zend = B, dx=dx, TwoD = True)
+        model = kw.createModel()
+        # gc = GIICmodel(xend = L, yend = h, zend = B, dx=dx, TwoD = True)
+        # model = gc.createModel()
+        # xm = XFEMDCB(xend = L, yend = 2*h, dx=[0.08,0.08])
+        # model = xm.createModel()
+        # dcb = DCBmodel(dx = dx, TwoD = True)
+        # model = dcb.createModel()
         # db = Dogbone(dx = dx, TwoD = False, h1=h)
         # model = db.createModel()
         #veri = VerificationModels()
