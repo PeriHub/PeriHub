@@ -335,3 +335,34 @@ class fileHandler(object):
         except:
             return "ssh connection to " + server + " failed!"
         return ssh
+
+    def writeGetCaraJobId():
+        ssh, sftp = fileHandler.sftpToCluster('Cara')
+        command = " squeue -u f_peridi | grep -o -E '[0-9]{7}' > jobIds.txt"
+        ssh.exec_command(command)
+        jobIdsFile = sftp.file('./jobIds.txt','r')
+        jobIds = jobIdsFile.read()
+        sftp.close()
+        ssh.close()
+        return str(jobIds)
+
+    def writeCaraJobIdToModel(username, ModelName, jobId):
+        localpath = './Output/' + os.path.join(username, ModelName)
+
+        if os.path.exists(localpath) == False:
+            os.makedirs(localpath)
+
+        JobIdFile = os.path.join(localpath, "jobId.txt")
+
+        with open(JobIdFile, 'w') as file:
+            file.write(jobId)
+
+    def getCaraJobIdModel(username, ModelName):
+        localpath = './Output/' + os.path.join(username, ModelName)
+        jobIdpath = os.path.join(localpath, "jobId.txt")
+
+        if os.path.exists(jobIdpath) == False:
+            return 'No pid'
+
+        file = open(jobIdpath, 'r')
+        return str(file.read())
