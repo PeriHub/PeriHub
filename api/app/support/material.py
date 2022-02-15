@@ -1,5 +1,7 @@
 import numpy as np
 
+from support.baseModels import Parameter
+
 '''
 Created on 13.12.2013
 Routines taken from
@@ -25,27 +27,29 @@ class MaterialRoutines(object):
         #CTensor = self.createStiffnessTensor()
         #CTensor = self.rotateStiffnessTensor(self.alpha, self.beta, self.gamma)
         #parameter = self.obtainTensorComponents()
-        parameter["C11"] = {'value': matParam[0]} 
-        parameter["C12"] = {'value': matParam[1]}
-        parameter["C13"] = {'value': matParam[2]}
-        parameter["C14"] = {'value': matParam[3]}
-        parameter["C15"] = {'value': matParam[4]}
-        parameter["C16"] = {'value': matParam[5]}
-        parameter["C22"] = {'value': matParam[6]}
-        parameter["C23"] = {'value': matParam[7]}
-        parameter["C24"] = {'value': matParam[8]}
-        parameter["C25"] = {'value': matParam[9]}
-        parameter["C26"] = {'value': matParam[10]}
-        parameter["C33"] = {'value': matParam[11]}
-        parameter["C34"] = {'value': matParam[12]}
-        parameter["C35"] = {'value': matParam[13]}
-        parameter["C36"] = {'value': matParam[14]}
-        parameter["C44"] = {'value': matParam[15]}
-        parameter["C45"] = {'value': matParam[16]}
-        parameter["C46"] = {'value': matParam[17]}
-        parameter["C55"] = {'value': matParam[18]}
-        parameter["C56"] = {'value': matParam[19]}
-        parameter["C66"] = {'value': matParam[20]}
+        parameter = []
+        
+        parameter.append(Parameter(Name='C11', value=matParam[0]))
+        parameter.append(Parameter(Name='C12', value=matParam[1]))
+        parameter.append(Parameter(Name='C13', value=matParam[2]))
+        parameter.append(Parameter(Name='C14', value=matParam[3]))
+        parameter.append(Parameter(Name='C15', value=matParam[4]))
+        parameter.append(Parameter(Name='C16', value=matParam[5]))
+        parameter.append(Parameter(Name='C22', value=matParam[6]))
+        parameter.append(Parameter(Name='C23', value=matParam[7]))
+        parameter.append(Parameter(Name='C24', value=matParam[8]))
+        parameter.append(Parameter(Name='C25', value=matParam[9]))
+        parameter.append(Parameter(Name='C26', value=matParam[10]))
+        parameter.append(Parameter(Name='C33', value=matParam[11]))
+        parameter.append(Parameter(Name='C34', value=matParam[12]))
+        parameter.append(Parameter(Name='C35', value=matParam[13]))
+        parameter.append(Parameter(Name='C36', value=matParam[14]))
+        parameter.append(Parameter(Name='C44', value=matParam[15]))
+        parameter.append(Parameter(Name='C45', value=matParam[16]))
+        parameter.append(Parameter(Name='C46', value=matParam[17]))
+        parameter.append(Parameter(Name='C55', value=matParam[18]))
+        parameter.append(Parameter(Name='C56', value=matParam[19]))
+        parameter.append(Parameter(Name='C66', value=matParam[20]))
         return parameter
 
     def getTransformationMatrixFromAngle(self,angle, transformationType = 'epsilon', rotationAxis = 'z'):

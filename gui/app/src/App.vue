@@ -21,6 +21,7 @@
         </router-link>
 
         <v-spacer />
+        <i class="fas fa-adjust"></i>
         <v-switch
           v-model="$vuetify.theme.dark"
           @change="saveDarkMode"
