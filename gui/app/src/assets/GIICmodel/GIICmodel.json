@@ -1,5 +1,6 @@
 {
   "model": {
+    "modelNameSelected": "GIICmodel",
     "ownModel": false,
     "translated": false,
     "length": 50,
@@ -293,6 +294,7 @@
       "Displacement": true,
       "Force": true,
       "Damage": true,
+      "Velocity": true,
       "Partial_Stress": true,
       "External_Force": false,
       "External_Displacement": false,
@@ -306,6 +308,7 @@
       "Displacement": false,
       "Force": false,
       "Damage": true,
+      "Velocity": false,
       "Partial_Stress": false,
       "External_Force": true,
       "External_Displacement": true,

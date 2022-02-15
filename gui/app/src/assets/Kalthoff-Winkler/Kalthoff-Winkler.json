@@ -1,17 +1,17 @@
 {
   "model": {
-    "modelNameSelected": "Dogbone",
+    "modelNameSelected": "Kalthoff-Winkler",
     "ownModel": false,
     "translated": false,
-    "length": 0.13,
-    "width": 0.001,
-    "height": 0.02,
-    "height2": 0.01,
-    "structured": true,
-    "discretization": 21,
+    "length": 100,
+    "width": 0.01,
+    "height": 200,
+    "height2": 0.013,
+    "structured": false,
+    "discretization": 100,
     "horizon": 0.01,
     "twoDimensional": true,
-    "rotatedAngles": false,
+    "rotatedAngles": true,
     "angles": [
       0,
       0
@@ -21,135 +21,19 @@
     {
       "id": 1,
       "Name": "PMMA",
-      "MatType": "Linear Elastic Correspondence",
-      "density": "1.4e5",
-      "bulkModulus": null,
+      "density": 1.95e-7,
+      "MatType": "Elastic Bond Based",
+      "bulkModulus": 1.27e+05,
       "shearModulus": null,
-      "youngsModulus": "2.997e9",
-      "poissonsRatio": 0.3,
+      "youngsModulus": null,
+      "poissonsRatio": null,
       "tensionSeparation": false,
-      "nonLinear": true,
+      "nonLinear": false,
       "planeStress": true,
       "materialSymmetry": "Isotropic",
       "stabilizatonType": "Global Stiffness",
-      "thickness": "0.01",
+      "thickness": 10,
       "hourglassCoefficient": 1,
-      "actualHorizon": null,
-      "yieldStress": null,
-      "Parameter": [
-        {
-          "Name": "C11",
-          "value": null
-        },
-        {
-          "Name": "C12",
-          "value": null
-        },
-        {
-          "Name": "C13",
-          "value": null
-        },
-        {
-          "Name": "C14",
-          "value": null
-        },
-        {
-          "Name": "C14",
-          "value": null
-        },
-        {
-          "Name": "C15",
-          "value": null
-        },
-        {
-          "Name": "C16",
-          "value": null
-        },
-        {
-          "Name": "C22",
-          "value": null
-        },
-        {
-          "Name": "C23",
-          "value": null
-        },
-        {
-          "Name": "C24",
-          "value": null
-        },
-        {
-          "Name": "C25",
-          "value": null
-        },
-        {
-          "Name": "C26",
-          "value": null
-        },
-        {
-          "Name": "C33",
-          "value": null
-        },
-        {
-          "Name": "C34",
-          "value": null
-        },
-        {
-          "Name": "C35",
-          "value": null
-        },
-        {
-          "Name": "C36",
-          "value": null
-        },
-        {
-          "Name": "C44",
-          "value": null
-        },
-        {
-          "Name": "C45",
-          "value": null
-        },
-        {
-          "Name": "C46",
-          "value": null
-        },
-        {
-          "Name": "C55",
-          "value": null
-        },
-        {
-          "Name": "C56",
-          "value": null
-        },
-        {
-          "Name": "C66",
-          "value": null
-        }
-      ],
-      "Properties": [
-        {
-          "id": 1,
-          "Name": "Prop_1",
-          "value": null
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "Name": "PMMAElast",
-      "MatType": "Linear Elastic Correspondence",
-      "density": "1.4e5",
-      "bulkModulus": null,
-      "shearModulus": null,
-      "youngsModulus": "2.997e9",
-      "poissonsRatio": "0.3",
-      "tensionSeparation": false,
-      "nonLinear": true,
-      "planeStress": true,
-      "materialSymmetry": "Isotropic",
-      "stabilizatonType": "Global Stiffness",
-      "thickness": "0.01",
-      "hourglassCoefficient": "1",
       "actualHorizon": null,
       "yieldStress": null,
       "Parameter": [
@@ -255,10 +139,10 @@
     {
       "id": 1,
       "Name": "PMMADamage",
-      "damageModel": "Critical Energy Correspondence",
-      "criticalStretch": 10,
-      "criticalEnergy": "10.1",
-      "interblockdamageEnergy": "0.01",
+      "damageModel": "Critical Stretch",
+      "criticalStretch": 0.0022170,
+      "criticalEnergy": null,
+      "interblockdamageEnergy": null,
       "planeStress": true,
       "onlyTension": false,
       "detachedNodesCheck": true,
@@ -271,15 +155,15 @@
     {
       "id": 1,
       "Name": "block_1",
-      "material": "PMMAElast",
-      "damageModel": "",
+      "material": "PMMA",
+      "damageModel": "PMMADamage",
       "interface": "",
       "show": true
     },
     {
       "id": 2,
       "Name": "block_2",
-      "material": "PMMAElast",
+      "material": "PMMA",
       "damageModel": "",
       "interface": "",
       "show": true
@@ -288,22 +172,14 @@
       "id": 3,
       "Name": "block_3",
       "material": "PMMA",
-      "damageModel": "PMMADamage",
+      "damageModel": "",
       "interface": "",
       "show": true
     },
     {
       "id": 4,
       "Name": "block_4",
-      "material": "PMMAElast",
-      "damageModel": "",
-      "interface": "",
-      "show": true
-    },
-    {
-      "id": 5,
-      "Name": "block_5",
-      "material": "PMMAElast",
+      "material": "PMMA",
       "damageModel": "",
       "interface": "",
       "show": true
@@ -315,7 +191,7 @@
       "Name": "BC_1",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
-      "blockId": 1,
+      "blockId": 2,
       "coordinate": "x",
       "value": "0*t"
     },
@@ -324,9 +200,62 @@
       "Name": "BC_2",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
-      "blockId": 5,
+      "blockId": 3,
       "coordinate": "x",
-      "value": "0.05*t"
+      "value": "0*t"
+    },
+    {
+      "id": 3,
+      "Name": "BC_3",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 4,
+      "coordinate": "x",
+      "value": "100*t"
+    }
+  ],
+  "bondFilters": [
+    {
+      "id": 1,
+      "Name": "bf_1",
+      "type": "Rectangular_Plane",
+      "normalX": 0,
+      "normalY": 1,
+      "normalZ": 0,
+      "lowerLeftCornerX": -0.5,
+      "lowerLeftCornerY": 25,
+      "lowerLeftCornerZ": 5,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": 50.5,
+      "sideLength": 10,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true
+    },
+    {
+      "id": 2,
+      "Name": "bf_2",
+      "type": "Rectangular_Plane",
+      "normalX": 0,
+      "normalY": 1,
+      "normalZ": 0,
+      "lowerLeftCornerX": -0.5,
+      "lowerLeftCornerY": -25,
+      "lowerLeftCornerZ": 5,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": 50.5,
+      "sideLength": 10,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true
     }
   ],
   "computes": [
@@ -334,15 +263,15 @@
       "id": 1,
       "Name": "External_Displacement",
       "variable": "Displacement",
-      "calculationType": "Maximum",
-      "blockName": "block_5"
+      "calculationType": "Minimum",
+      "blockName": "block_3"
     },
     {
       "id": 2,
       "Name": "External_Force",
       "variable": "Force",
       "calculationType": "Sum",
-      "blockName": "block_5"
+      "blockName": "block_3"
     }
   ],
   "outputs": [
@@ -353,21 +282,21 @@
       "Force": true,
       "Damage": true,
       "Velocity": true,
-      "Partial_Stress": true,
-      "External_Force": true,
-      "External_Displacement": true,
+      "Partial_Stress": false,
+      "External_Force": false,
+      "External_Displacement": false,
       "Number_Of_Neighbors": false,
-      "Frequency": "100",
+      "Frequency": "10",
       "InitStep": 0
     }
   ],
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": "0.0075",
+    "finalTime": 0.03,
     "solvertype": "Verlet",
-    "safetyFactor": "0.9",
-    "numericalDamping": "0.0005",
+    "safetyFactor": 0.95,
+    "numericalDamping": 0.000005,
     "peridgimPreconditioner": "None",
     "nonlinearSolver": "Line Search Based",
     "numberofLoadSteps": 100,
