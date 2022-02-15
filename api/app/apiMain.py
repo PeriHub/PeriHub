@@ -5,11 +5,12 @@
 # from fastapi import responses
 # from numpy import string_
 # from numpy.lib.shape_base import split
-from GIICmodel.GIICmodel import GIICmodel
-from DCBmodel.DCBmodel import DCBmodel
+from models.GIICmodel.GIICmodel import GIICmodel
+from models.DCBmodel.DCBmodel import DCBmodel
 from Verification.verificationModels import VerificationModels
-from Dogbone.Dogbone import Dogbone
-from ownModel.ownModel import OwnModel
+from models.Dogbone.Dogbone import Dogbone
+from models.KalthoffWinkler.KalthoffWinkler import KalthoffWinkler
+from models.ownModel.ownModel import OwnModel
 from support.sbatchCreator  import SbatchCreator
 from support.fileHandler  import fileHandler
 #from XFEM_Bechnmark.XFEMdcb import XFEMDCB
@@ -169,6 +170,7 @@ class ModelControl(object):
             damage=Data.damages, 
             block=Data.blocks, 
             bc=Data.boundaryConditions, 
+            bf=Data.bondFilters, 
             compute=Data.computes,  
             output=Data.outputs, 
             solver=Data.solver,
@@ -180,10 +182,11 @@ class ModelControl(object):
             dcb = DCBmodel(xend = L, yend = h, zend = W, dx=dx,
             TwoD=Data.model.twoDimensional,
             rot=Data.model.rotatedAngles, angle=Data.model.angles,
-            material=Data.materials, 
-            damage=Data.damages, 
-            block=Data.blocks, 
-            bc=Data.boundaryConditions, 
+            material=Data.materials,
+            damage=Data.damages,
+            block=Data.blocks,
+            bc=Data.boundaryConditions,
+            bf=Data.bondFilters,
             compute=Data.computes,  
             output=Data.outputs, 
             solver=Data.solver,
@@ -201,6 +204,24 @@ class ModelControl(object):
             damage=Data.damages, 
             block=Data.blocks, 
             bc=Data.boundaryConditions, 
+            bf=Data.bondFilters,
+            compute=Data.computes,  
+            output=Data.outputs, 
+            solver=Data.solver,
+            username = username,
+            maxNodes=maxNodes,
+            ignoreMesh=ignoreMesh)
+            result = db.createModel()
+
+        elif ModelName=='Kalthoff-Winkler':
+            db = KalthoffWinkler(xend = L, yend = h, zend = W, dx=dx,
+            TwoD=Data.model.twoDimensional,
+            rot=Data.model.rotatedAngles, angle=Data.model.angles,
+            material=Data.materials, 
+            damage=Data.damages, 
+            block=Data.blocks, 
+            bc=Data.boundaryConditions, 
+            bf=Data.bondFilters,
             compute=Data.computes,  
             output=Data.outputs, 
             solver=Data.solver,
@@ -222,7 +243,8 @@ class ModelControl(object):
             material=Data.materials, 
             damage=Data.damages, 
             block=Data.blocks, 
-            bc=Data.boundaryConditions, 
+            bc=Data.boundaryConditions,
+            bf=Data.bondFilters,
             compute=Data.computes,  
             output=Data.outputs, 
             solver=Data.solver,
@@ -368,6 +390,8 @@ class ModelControl(object):
             return ModelName + ' has been submitted'
 
         elif Cluster=='Cara':
+            initialJobs = fileHandler.writeGetCaraJobId()
+            print(initialJobs)
             sb = SbatchCreator(filename=ModelName, output=Data.outputs, job=Data.job, username=username, usermail=usermail)
             sbatchString = sb.createSbatch()
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
@@ -381,7 +405,14 @@ class ModelControl(object):
             ssh.exec_command(command)
             ssh.close()
 
-            return ModelName + ' has been submitted'
+            currentJobs = fileHandler.writeGetCaraJobId()
+            print(currentJobs)
+
+            jobId = currentJobs.replace(initialJobs, '').strip()
+
+            fileHandler.writeCaraJobIdToModel(username, ModelName, jobId)
+
+            return ModelName + ' has been submitted with Job Id: ' + jobId
 
         elif Cluster=='None':
             server='perihub_peridigm'
@@ -719,14 +750,13 @@ class ModelControl(object):
             for filename in sftp.listdir(remotepath):
                 if('.e' in filename):
                     status.results = True
-            command = 'cd ' + remotepath + ' \n squeue -u f_peridi'
-            stdin, stdout, stderr = ssh.exec_command(command)
-            stdout.channel.set_combine_stderr(True)
-            output = stdout.readlines()
             sftp.close()
             ssh.close()
-
-            if output!='':
+            jobIds = fileHandler.writeGetCaraJobId()
+            jobId = fileHandler.getCaraJobIdModel(username, ModelName)
+            print (jobId)
+            print (jobIds)
+            if jobId in jobIds:
                 status.submitted = True
 
         return status

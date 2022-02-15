@@ -30,22 +30,26 @@ class XMLcreator(object):
         return string
     def createBondFilter(self):
         string = '        <ParameterList name="Bond Filters">\n'
-        
-        
-        for idx in range(0, len(self.bondfilters['Name'])):
-            string += '            <ParameterList name="' + self.bondfilters['Name'][idx] +'">\n'
-            string += '                <Parameter name="Type" type="string" value = "Rectangular_Plane"/>\n'
-            string += '                <Parameter name="Normal_X" type="double" value="' + str(self.bondfilters['Normal'][idx][0]) + '"/>\n'
-            string += '                <Parameter name="Normal_Y" type="double" value="' + str(self.bondfilters['Normal'][idx][1]) + '"/>\n'
-            string += '                <Parameter name="Normal_Z" type="double" value="' + str(self.bondfilters['Normal'][idx][2]) + '"/>\n'
-            string += '                <Parameter name="Lower_Left_Corner_X" type="double" value="' + str(self.bondfilters['Lower_Left_Corner'][idx][0]) + '"/>\n'
-            string += '                <Parameter name="Lower_Left_Corner_Y" type="double" value="' + str(self.bondfilters['Lower_Left_Corner'][idx][1]) + '"/>\n'
-            string += '                <Parameter name="Lower_Left_Corner_Z" type="double" value="' + str(self.bondfilters['Lower_Left_Corner'][idx][2]) + '"/>\n'
-            string += '                <Parameter name="Bottom_Unit_Vector_X" type="double" value="' + str(self.bondfilters['Bottom_Unit_Vector'][idx][0]) + '"/>\n'
-            string += '                <Parameter name="Bottom_Unit_Vector_Y" type="double" value="' + str(self.bondfilters['Bottom_Unit_Vector'][idx][1]) + '"/>\n'
-            string += '                <Parameter name="Bottom_Unit_Vector_Z" type="double" value="' + str(self.bondfilters['Bottom_Unit_Vector'][idx][2]) + '"/>\n'
-            string += '                <Parameter name="Bottom_Length" type="double" value="' + str(self.bondfilters['Bottom_Length'][idx]) + '"/>\n'
-            string += '                <Parameter name="Side_Length" type="double" value="' + str(self.bondfilters['Side_Length'][idx]) + '"/>\n'
+        for bf in self.bondfilters:
+            string += '            <ParameterList name="' + bf.Name +'">\n'
+            string += '                <Parameter name="Type" type="string" value = "' + bf.type +'"/>\n'
+            string += '                <Parameter name="Normal_X" type="double" value="' + str(bf.normalX) + '"/>\n'
+            string += '                <Parameter name="Normal_Y" type="double" value="' + str(bf.normalY) + '"/>\n'
+            string += '                <Parameter name="Normal_Z" type="double" value="' + str(bf.normalZ) + '"/>\n'
+            if bf.type == 'Rectangular_Plane':
+                string += '                <Parameter name="Lower_Left_Corner_X" type="double" value="' + str(bf.lowerLeftCornerX) + '"/>\n'
+                string += '                <Parameter name="Lower_Left_Corner_Y" type="double" value="' + str(bf.lowerLeftCornerY) + '"/>\n'
+                string += '                <Parameter name="Lower_Left_Corner_Z" type="double" value="' + str(bf.lowerLeftCornerZ) + '"/>\n'
+                string += '                <Parameter name="Bottom_Unit_Vector_X" type="double" value="' + str(bf.bottomUnitVectorX) + '"/>\n'
+                string += '                <Parameter name="Bottom_Unit_Vector_Y" type="double" value="' + str(bf.bottomUnitVectorY) + '"/>\n'
+                string += '                <Parameter name="Bottom_Unit_Vector_Z" type="double" value="' + str(bf.bottomUnitVectorZ) + '"/>\n'
+                string += '                <Parameter name="Bottom_Length" type="double" value="' + str(bf.bottomLength) + '"/>\n'
+                string += '                <Parameter name="Side_Length" type="double" value="' + str(bf.sideLength) + '"/>\n'
+            elif bf.type == 'Disk':
+                string += '                <Parameter name="Center_X" type="double" value="' + str(bf.centerX) + '"/>\n'
+                string += '                <Parameter name="Center_Y" type="double" value="' + str(bf.centerY) + '"/>\n'
+                string += '                <Parameter name="Center_Z" type="double" value="' + str(bf.centerZ) + '"/>\n'
+                string += '                <Parameter name="Radius" type="double" value="' + str(bf.radius) + '"/>\n'
             string += '            </ParameterList>\n'
         string += '        </ParameterList>\n'
         return string
@@ -59,7 +63,6 @@ class XMLcreator(object):
             if mat.materialSymmetry == 'Anisotropic':
                 string += '            <Parameter name="Material Symmetry" type="string" value = "' + mat.materialSymmetry + '"/>\n'
                 for param in mat.Parameter:
-                    print(param)
                     string += '            <Parameter name="'+ param.Name +'" type="double" value="' +str(np.format_float_scientific(float(param.value))) +'"/>\n'
 
                 # needed for time step estimation
@@ -227,6 +230,8 @@ class XMLcreator(object):
                 string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
             if out.Force: 
                 string += '            <Parameter name="Force" type="bool" value="true"/>\n'
+            if out.Velocity: 
+                string += '            <Parameter name="Velocity" type="bool" value="true"/>\n'
             if out.External_Displacement:
                 string += '            <Parameter name="External_Displacement" type="bool" value="true"/>\n'
             if out.External_Force:

@@ -53,9 +53,9 @@ class Damage(BaseModel):
     id: int
     Name: str
     damageModel: str
-    criticalStretch: float
-    criticalEnergy: float
-    interblockdamageEnergy: float
+    criticalStretch: Optional[float] = None
+    criticalEnergy: Optional[float] = None
+    interblockdamageEnergy: Optional[float] = None
     planeStress: bool
     onlyTension: bool
     detachedNodesCheck: bool
@@ -69,7 +69,7 @@ class Block(BaseModel):
     damageModel: Optional[str] = None
     horizon: Optional[float] = None
     interface: Optional[str] = None
-    show: bool
+    show: Optional[bool] = None
 class BoundaryConditions(BaseModel):
     id: int
     Name: str
@@ -78,6 +78,26 @@ class BoundaryConditions(BaseModel):
     blockId: int
     coordinate: str
     value: str
+class BondFilters(BaseModel):
+    id: int
+    Name: str
+    type: str
+    normalX: float
+    normalY: float
+    normalZ: float
+    lowerLeftCornerX: Optional[float] = None
+    lowerLeftCornerY: Optional[float] = None
+    lowerLeftCornerZ: Optional[float] = None
+    bottomUnitVectorX: Optional[float] = None
+    bottomUnitVectorY: Optional[float] = None
+    bottomUnitVectorZ: Optional[float] = None
+    bottomLength: Optional[float] = None
+    sideLength: Optional[float] = None
+    centerX: Optional[float] = None
+    centerY: Optional[float] = None
+    centerZ: Optional[float] = None
+    radius: Optional[float] = None
+    show: Optional[bool] = None
 class Compute(BaseModel):
     id: int
     Name: str
@@ -90,6 +110,7 @@ class Output(BaseModel):
     Displacement: bool
     Force: bool
     Damage: bool
+    Velocity: bool
     Partial_Stress: bool
     External_Force: bool
     External_Displacement: bool
@@ -97,16 +118,16 @@ class Output(BaseModel):
     Frequency: int
     InitStep: int
 class Newton(BaseModel):
-    jacobianOperator: str
-    preconditioner: str
+    jacobianOperator: str = 'Matrix-Free'
+    preconditioner: str = 'None'
 class Verlet(BaseModel):
-    safetyFactor: float
-    numericalDamping: float
-    outputFrequency: int
+    safetyFactor: float = 0.95
+    numericalDamping: float = 0.000005
+    outputFrequency: int = 1000
 class Adapt(BaseModel):
-    stableStepDifference: int
-    maximumBondDifference: int
-    stableBondDifference: int
+    stableStepDifference: int = 4
+    maximumBondDifference: int = 10
+    stableBondDifference: int = 4
 class FileType(str, Enum):
     yaml = "yaml"
     xml = "xml"
@@ -401,6 +422,7 @@ class Data(BaseModel):
     damages: List[Damage]
     blocks: List[Block]
     boundaryConditions: List[BoundaryConditions]
+    bondFilters: List[BondFilters]
     computes: List[Compute]
     outputs: List[Output]
     solver: Solver
@@ -729,6 +751,29 @@ class Data(BaseModel):
                     "blockId": 5,
                     "coordinate": "x",
                     "value": "0.05*t"
+                    }
+                ],
+                "bondFilters": [
+                    {
+                    "id": 1,
+                    "Name": "bf_1",
+                    "type": "Rectangular_Plane",
+                    "normalX": 0,
+                    "normalY": 1,
+                    "normalZ": "2",
+                    "lowerLeftCornerX": -0.5,
+                    "lowerLeftCornerY": 25,
+                    "lowerLeftCornerZ": -0.5,
+                    "bottomUnitVectorX": 1,
+                    "bottomUnitVectorY": 0,
+                    "bottomUnitVectorZ": 0,
+                    "bottomLength": 50.5,
+                    "sideLength": 1,
+                    "centerX": 0,
+                    "centerY": 1,
+                    "centerZ": 0,
+                    "radius": 1,
+                    "show": True
                     }
                 ],
                 "computes": [

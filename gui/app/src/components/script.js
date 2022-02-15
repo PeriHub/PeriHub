@@ -16,6 +16,8 @@ import DCBmodelImage from '../assets/DCBmodel/DCBmodel.jpg'
 import DCBmodelFile from '../assets/DCBmodel/DCBmodel.json'
 import DogboneImage from '../assets/Dogbone/Dogbone.jpg'
 import DogboneFile from '../assets/Dogbone/Dogbone.json'
+import KalthoffWinklerImage from '../assets/Kalthoff-Winkler/Kalthoff-Winkler.jpg'
+import KalthoffWinklerFile from '../assets/Kalthoff-Winkler/Kalthoff-Winkler.json'
 import { Plotly } from 'vue-plotly'
 // import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
 
@@ -32,7 +34,7 @@ import { Plotly } from 'vue-plotly'
     data () {
       return {
         // Model
-        modelName: ['Dogbone', 'GIICmodel', 'DCBmodel'],//, 'RVE'],
+        modelName: ['Dogbone', 'Kalthoff-Winkler', 'GIICmodel', 'DCBmodel'],//, 'RVE'],
         model: {
           modelNameSelected: 'Dogbone',
           ownModel: false,
@@ -219,6 +221,31 @@ import { Plotly } from 'vue-plotly'
           blockId: 1, 
           coordinate: 'Coordinate', 
           value: 'Value'},
+        //  bondFilters
+        boundarytype: ['Initial Displacement', 'Initial Velocity', 'Prescribed Displacement', 'Prescribed Fluid Pressure U', 'Initial Fluid Pressure U', 'Initial Temperature', 'Prescribed Temperature', 'Thermal Flux', 'Body Force'],
+        bondFiltertype: ['Rectangular_Plane', 'Disk'],
+        bondFilters: [
+          { id: 1, Name: 'bf_1', type: 'Rectangular_Plane', normalX: 0.0, normalY: 1.0, normalZ: 0.0, lowerLeftCornerX: -0.5, lowerLeftCornerY: 25.0, lowerLeftCornerZ: -0.5, bottomUnitVectorX: 1.0, bottomUnitVectorY: 0.0, bottomUnitVectorZ: 0.0, bottomLength: 50.5, sideLength: 1.0, centerX: 0.0, centerY: 1.0, centerZ: 0.0, radius: 1.0, show: true},
+          { id: 2, Name: 'bf_2', type: 'Rectangular_Plane', normalX: 0.0, normalY: 1.0, normalZ: 0.0, lowerLeftCornerX: -0.5, lowerLeftCornerY: -25.0, lowerLeftCornerZ: -0.5, bottomUnitVectorX: 1.0, bottomUnitVectorY: 0.0, bottomUnitVectorZ: 0.0, bottomLength: 50.5, sideLength: 1.0, centerX: 0.0, centerY: 1.0, centerZ: 0.0, radius: 1.0, show: true},
+          ],
+        bondFilterKeys:{
+          Name: 'Name', 
+          type: 'Type',
+          normalX: 'Normal_X',
+          normalY: 'Normal_Y',
+          normalZ: 'Normal_Z',
+          lowerLeftCornerX: 'Lower_Left_Corner_X',
+          lowerLeftCornerY: 'Lower_Left_Corner_Y',
+          lowerLeftCornerZ: 'Lower_Left_Corner_Z',
+          bottomUnitVectorX: 'Bottom_Unit_Vector_X',
+          bottomUnitVectorY: 'Bottom_Unit_Vector_Y',
+          bottomUnitVectorZ: 'Bottom_Unit_Vector_Z',
+          bottomLength: 'Bottom_Length', 
+          sideLength: 'Side_Length',
+          centerX: 'Center_X', 
+          centerY: 'Center_Y', 
+          centerZ: 'Center_Z', 
+          radius: 'Radius'},
         // Compute 
         calculationType: ['Sum', 'Maximum', 'Minimum'],
         variables: ['Force', 'Displacement', 'Damage'],
@@ -232,7 +259,7 @@ import { Plotly } from 'vue-plotly'
           blockName: 'Block'},
         // Output 
         outputs: [
-          { id: 1, Name: 'Output1', Displacement: true, Force: true, Damage: true, Partial_Stress: true, External_Force: true, External_Displacement: true, Number_Of_Neighbors: false, Frequency: 100, InitStep: 0}],
+          { id: 1, Name: 'Output1', Displacement: true, Force: true, Damage: true, Velocity: false, Partial_Stress: true, External_Force: true, External_Displacement: true, Number_Of_Neighbors: false, Frequency: 100, InitStep: 0}],
         outputKeys:{
           Name: 'Output Filename',
           Displacement: 'Displacement',
@@ -319,6 +346,11 @@ import { Plotly } from 'vue-plotly'
         filteredPointString: [1,0,0],
         blockIdString: [1],
         filteredBlockIdString: [1],
+        bondFilterPoints: [{
+          id: 1,
+          bondFilterPointString: [],
+          // bondFilterPolyString: []
+        }],
         resolution: 6,
         dx: 0.1,
         radius: 0.2,
@@ -476,6 +508,7 @@ import { Plotly } from 'vue-plotly'
                               "\"damages\": " + JSON.stringify(this.damages)+",\n" +
                               "\"blocks\": " + JSON.stringify(this.blocks)+",\n" +
                               "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
+                              "\"bondFilters\": " + JSON.stringify(this.bondFilters)+",\n" +
                               "\"computes\": " + JSON.stringify(this.computes)+",\n" +
                               "\"outputs\": " + JSON.stringify(this.outputs)+",\n" +
                               "\"solver\": " + JSON.stringify(this.solver) + "}"),
@@ -487,6 +520,7 @@ import { Plotly } from 'vue-plotly'
           "\"damages\": " + JSON.stringify(this.damages)+",\n" +
           "\"blocks\": " + JSON.stringify(this.blocks)+",\n" +
           "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions)+",\n" +
+          "\"bondFilters\": " + JSON.stringify(this.bondFilters)+",\n" +
           "\"computes\": " + JSON.stringify(this.computes)+",\n" +
           "\"outputs\": " + JSON.stringify(this.outputs)+",\n" +
           "\"solver\": " + JSON.stringify(this.solver) + "}"))
@@ -625,6 +659,7 @@ import { Plotly } from 'vue-plotly'
                       "\"damages\": " + JSON.stringify(this.damages, null, 2)+",\n" +
                       "\"blocks\": " + JSON.stringify(this.blocks, null, 2)+",\n" +
                       "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions, null, 2)+",\n" +
+                      "\"bondFilters\": " + JSON.stringify(this.bondFilters, null, 2)+",\n" +
                       "\"computes\": " + JSON.stringify(this.computes, null, 2)+",\n" +
                       "\"outputs\": " + JSON.stringify(this.outputs, null, 2)+",\n" +
                       "\"solver\": " + JSON.stringify(this.solver, null, 2) + "}";
@@ -1095,6 +1130,9 @@ import { Plotly } from 'vue-plotly'
             case 'Boundary Conditions':
               this.getValuesFromJson(Param, 'boundaryConditions', this.boundaryKeys, this.addCondition, this.removeCondition)
               break
+            case 'Bond Filters':
+              this.getValuesFromJson(Param, 'bondFilters', this.bondFilterKeys, this.addBondFilter, this.removeBondFilter)
+              break
             case 'Compute Class Parameters':
               this.getValuesFromJson(Param, 'computes', this.computeKeys, this.addCompute, this.removeOutput)
               break
@@ -1123,14 +1161,17 @@ import { Plotly } from 'vue-plotly'
       async resetData() {
         const jsonFile = {};
         switch (this.model.modelNameSelected) {
-        case 'GIICmodel':  
+        case 'GIICmodel':
           Object.assign(jsonFile, GIICmodelFile)
           break;
-        case 'DCBmodel':  
+        case 'DCBmodel':
           Object.assign(jsonFile, DCBmodelFile)
           break;
-        case 'Dogbone':  
+        case 'Dogbone':
           Object.assign(jsonFile, DogboneFile)
+          break;
+        case 'Kalthoff-Winkler':
+          Object.assign(jsonFile, KalthoffWinklerFile)
           break;
         default:
           return;
@@ -1170,7 +1211,8 @@ import { Plotly } from 'vue-plotly'
               }
               // console.log(this[paramName])
               // console.log(jsonFile[paramName])
-              Object.assign(this[paramName], jsonFile[paramName])
+              this.$set(this, paramName, jsonFile[paramName])
+              // Object.assign(this[paramName], jsonFile[paramName])
             }
           // }
         // }
@@ -1256,6 +1298,76 @@ import { Plotly } from 'vue-plotly'
             }
             idx +=1 
           }
+        }
+      },
+      cross(a1, a2, a3, b1, b2, b3){
+        return [a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1]
+      },
+      vectorLength(a1, a2, a3){
+        return Math.sqrt((a1*a1)+(a2*a2)+(a3*a3))
+      },
+      getVectorNorm(a1, a2, a3){
+        const bottomLength = Math.abs(this.vectorLength(a1,a2,a3))
+        const normx = a1/bottomLength
+        const normy = a2/bottomLength
+        const normz = a3/bottomLength
+        return [normx, normy, normz]
+      },
+      showHideBondFilters() {
+        // this.bondFilterPolyString = []
+        // let bondFilterPolyString = []
+        for (var i = 0; i < this.bondFilters.length; i++) {
+          let bondFilterPointString = []
+          const bondFilter = this.bondFilters[i]
+          if (bondFilter.show){
+            const lx = parseFloat(bondFilter.lowerLeftCornerX)
+            const ly = parseFloat(bondFilter.lowerLeftCornerY)
+            const lz = parseFloat(bondFilter.lowerLeftCornerZ)
+            const bx = parseFloat(bondFilter.bottomUnitVectorX)
+            const by = parseFloat(bondFilter.bottomUnitVectorY)
+            const bz = parseFloat(bondFilter.bottomUnitVectorZ)
+            const nx = parseFloat(bondFilter.normalX)
+            const ny = parseFloat(bondFilter.normalY)
+            const nz = parseFloat(bondFilter.normalZ)
+            const bl = parseFloat(bondFilter.bottomLength)
+            const sl = parseFloat(bondFilter.sideLength)
+
+            const point1x = lx
+            const point1y = ly
+            const point1z = lz
+
+            let [normx, normy, normz] = this.getVectorNorm(bx,by,bz)
+
+            const point2x = lx + normx*bl
+            const point2y = ly + normy*bl
+            const point2z = lz + normz*bl
+
+            let crossVector = this.cross(nx,ny,nz,bx,by,bz)
+
+            let normVector = this.getVectorNorm(crossVector[0], crossVector[1],crossVector[2])
+
+            const point4x = lx + normVector[0]*sl
+            const point4y = ly + normVector[1]*sl
+            const point4z = lz + normVector[2]*sl
+
+
+            const point3x = point2x + normVector[0]*sl
+            const point3y = point2y + normVector[1]*sl
+            const point3z = point2z + normVector[2]*sl
+
+            bondFilterPointString.push(point1x, point1y, point1z)
+            bondFilterPointString.push(point2x, point2y, point2z)
+            bondFilterPointString.push(point3x, point3y, point3z)
+            bondFilterPointString.push(point4x, point4y, point4z)
+
+            // bondFilterPolyString.push(4, 0, 1, 3, 2)
+          }
+          if(this.bondFilterPoints.length<i+1){
+            this.bondFilterPoints.push({id:i+1, bondFilterPointString:[]})
+          }
+          this.bondFilterPoints[i].bondFilterPointString = bondFilterPointString
+
+          // this.bondFilterPoints[i].bondFilterPolyString = bondFilterPolyString
         }
       },
       updatePoints() {
@@ -1355,6 +1467,9 @@ import { Plotly } from 'vue-plotly'
         }
 
         await axios.request(reqOptions).then(response => (this.status = response.data))
+        if (this.status.results){
+          clearInterval(this.statusInterval)
+        }
       },
       async cancelJob() {
         let headersList = {
@@ -1661,7 +1776,7 @@ import { Plotly } from 'vue-plotly'
         })
         for (const key in this.materials[len-1]) {
           if(key!='id' & key!='Name'){
-            this.materials[len][key] = this.materials[len-1][key]
+            this.$set(this.materials[len], key, this.materials[len-1][key])
           }
         }
       },
@@ -1676,7 +1791,7 @@ import { Plotly } from 'vue-plotly'
         })
         for (const key in this.materials[index].Properties[len-1]) {
           if(key!='id' & key!='Name'){
-            this.materials[index].Properties[len][key] = this.materials[index].Properties[len-1][key]
+            this.$set(this.materials[index].Properties[len], key, this.materials[index].Properties[len-1][key])
           }
         }
       },
@@ -1691,7 +1806,7 @@ import { Plotly } from 'vue-plotly'
         })
         for (const key in this.damages[len-1]) {
           if(key!='id' & key!='Name'){
-            this.damages[len][key] = this.damages[len-1][key]
+            this.$set(this.damages[len], key, this.damages[len-1][key])
           }
         }
       },
@@ -1706,7 +1821,7 @@ import { Plotly } from 'vue-plotly'
         })
         for (const key in this.blocks[len-1]) {
           if(key!='id' & key!='Name'){
-            this.blocks[len][key] = this.blocks[len-1][key]
+            this.$set(this.blocks[len], key, this.blocks[len-1][key])
           }
         }
       },
@@ -1722,12 +1837,33 @@ import { Plotly } from 'vue-plotly'
         })
         for (const key in this.boundaryConditions[len-1]) {
           if(key!='id' & key!='Name'){
-            this.boundaryConditions[len][key] = this.boundaryConditions[len-1][key]
+            this.$set(this.boundaryConditions[len], key, this.boundaryConditions[len-1][key])
           }
         }
       },
       removeCondition(index) {
         this.boundaryConditions.splice(index, 1)
+      },
+      addBondFilter() {
+        
+        const len = this.bondFilters.length
+        this.bondFilterPoints.push({
+          id: len+1,
+          bondFilterPointString: []
+        })
+        this.bondFilters.push({
+          id: len+1,
+          Name: "bf_"+(len+1)
+        })
+        for (const key in this.bondFilters[len-1]) {
+          if(key!='id' & key!='Name'){
+            this.$set(this.bondFilters[len], key, this.bondFilters[len-1][key])
+          }
+        }
+      },
+      removeBondFilter(index) {
+        this.bondFilters.splice(index, 1)
+        this.bondFilterPoints.splice(index, 1)
       },
       addCompute() {
         const len = this.computes.length
@@ -1737,7 +1873,7 @@ import { Plotly } from 'vue-plotly'
         })
         for (const key in this.computes[len-1]) {
           if(key!='id' & key!='Name'){
-            this.computes[len][key] = this.computes[len-1][key]
+            this.$set(this.computes[len], key, this.computes[len-1][key])
           }
         }
       },
@@ -1772,6 +1908,9 @@ import { Plotly } from 'vue-plotly'
           break;
         case 'Dogbone':  
           this.modelImg = DogboneImage;
+          break;
+        case 'Kalthoff-Winkler':
+          this.modelImg = KalthoffWinklerImage;
           break;
         }
         this.viewId = 0
@@ -1820,6 +1959,7 @@ import { Plotly } from 'vue-plotly'
         this.getLocalStorage('damages');
         this.getLocalStorage('blocks');
         this.getLocalStorage('boundaryConditions');
+        this.getLocalStorage('bondFilters');
         this.getLocalStorage('computes');
         this.getLocalStorage('outputs');
         this.getLocalStorage('solver');
@@ -1838,6 +1978,7 @@ import { Plotly } from 'vue-plotly'
         localStorage.removeItem('damages');
         localStorage.removeItem('blocks');
         localStorage.removeItem('boundaryConditions');
+        localStorage.removeItem('bondFilters');
         localStorage.removeItem('computes');
         localStorage.removeItem('outputs');
         localStorage.removeItem('solver');
@@ -1924,6 +2065,14 @@ import { Plotly } from 'vue-plotly'
           handler() {
               // console.log('boundaryConditions changed!');
               localStorage.setItem('boundaryConditions', JSON.stringify(this.boundaryConditions));
+          },
+          deep: true,
+      },
+      bondFilters: {
+          handler() {
+              // console.log('bondFilters changed!');
+              this.showHideBondFilters();
+              localStorage.setItem('bondFilters', JSON.stringify(this.bondFilters));
           },
           deep: true,
       },
