@@ -13,7 +13,7 @@ build_api_job:
     changes:
       - api/**/*
   script:
-    - docker build --build-arg EXTERNAL=False --build-arg FASERVICES=True -t peri_hub_api_image api/. #--no-cache 
+    - docker build --build-arg EXTERNAL=False --build-arg -t peri_hub_api_image api/. #--no-cache 
     - docker tag peri_hub_api_image ${CI_REGISTRY_PATH}peri_hub_api_image
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
@@ -26,7 +26,7 @@ build_gui_job:
     changes:
       - gui/**/*
   script:
-    - docker build -t peri_hub_gui_image --build-arg FASERVICES=True gui/.
+    - docker build -t peri_hub_gui_image --build-arg gui/.
     - docker tag peri_hub_gui_image ${CI_REGISTRY_PATH}peri_hub_gui_image
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
@@ -61,7 +61,7 @@ build_paraview_job:
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY_PATH
-    - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False\nFASERVICES=True" >> .env
+    - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False" >> .env
   after_script:
     - docker logout
 

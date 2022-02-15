@@ -6,7 +6,6 @@ services:
       context: api/.
       args: 
         EXTERNAL: ${EXTERNAL}
-        FASERVICES: ${FASERVICES}
     container_name:  perihub_periHubApi
     image: peri_hub_api_image
     ports:
@@ -21,8 +20,6 @@ services:
   periHubGui:
     build:
       context: gui/.
-      args: 
-        FASERVICES: ${FASERVICES}
     container_name:  perihub_periHubGui
     image: peri_hub_gui_image
     ports:
