@@ -46,6 +46,17 @@
                             </v-img>
                             </v-card>
                         </router-link>
+                        <router-link class="card" to="literatureAnalysis">
+                            <v-card width="400px">
+                            <v-img
+                                src="../assets/books.jpg"
+                                class="white--text align-end"
+                                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                                height="200px">
+                                <v-card-title>Literature Analysis</v-card-title>
+                            </v-img>
+                            </v-card>
+                        </router-link>
                         <router-link class="card" to="conversion">
                             <v-card width="400px">
                             <v-img

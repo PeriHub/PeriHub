@@ -24,6 +24,7 @@ import Buttons from './components/guides/Buttons.vue';
 import FAQ from './components/guides/FAQ.vue';
 import Publications from './components/Publications.vue';
 import Conversion from './components/Conversion.vue';
+import LiteratureAnalysis from './components/LiteratureAnalysis.vue';
 
 export default [
   // Redirects to /route-one as the default route.
@@ -143,5 +144,9 @@ export default [
   {
     path: '/conversion',
     components: {a: Conversion}
+  },
+  {
+    path: '/literatureAnalysis',
+    components: {a: LiteratureAnalysis}
   },
 ];

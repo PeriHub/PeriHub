@@ -1,0 +1,856 @@
+{
+    "links": [
+        {
+            "sid": "Agrawal_S.",
+            "tid": "Journal of Petroleum Science and Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Agrawal_S.",
+            "tid": "Journal of Computational Physics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Zheng_S.",
+            "tid": "Journal of Petroleum Science and Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "International Journal of Solids and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "Computer Methods in Applied Mechanics and Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "Computational Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "International Journal for Multiscale Computational Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "Journal of Petroleum Science and Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "Journal of Dynamic Behavior of Materials",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "Journal of the Mechanics and Physics of Solids",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "International Journal of Fracture",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "International Journal for Numerical Methods in Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "Engineering Fracture Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "Journal of Computational Physics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Foster_J.",
+            "tid": "Physica A: Statistical Mechanics and its Applications",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Sharma_M.",
+            "tid": "Journal of Petroleum Science and Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Sharma_M.",
+            "tid": "Journal of Computational Physics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Sharma_M.",
+            "tid": "Computational Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Aguiar_A.",
+            "tid": "Mathematics and Mechanics of Solids",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Aguiar_A.",
+            "tid": "Journal of Elasticity",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Aguiar_A.",
+            "tid": "International Journal of Solids and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Aguiar_A.",
+            "tid": "Latin American Journal of Solids and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Fosdick_R.",
+            "tid": "Mathematics and Mechanics of Solids",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Royer-Carfagni_G.",
+            "tid": "International Journal of Solids and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Royer-Carfagni_G.",
+            "tid": "Latin American Journal of Solids and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Seitenfuss_A.",
+            "tid": "International Journal of Solids and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Seitenfuss_A.",
+            "tid": "Latin American Journal of Solids and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Patriota_T.",
+            "tid": "Latin American Journal of Solids and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Agwai_A.",
+            "tid": "International Journal of Fracture",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Agwai_A.",
+            "tid": "Microelectronics Reliability",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Agwai_A.",
+            "tid": "IEEE Transactions on Components, Packaging and Manufacturing Technology",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Agwai_A.",
+            "tid": "Composite Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Agwai_A.",
+            "tid": "Journal of the Mechanics and Physics of Solids",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Agwai_A.",
+            "tid": "Journal of Computational Physics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Guven_I.",
+            "tid": "Microelectronics Reliability",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Guven_I.",
+            "tid": "International Journal of Fracture",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Guven_I.",
+            "tid": "IEEE Transactions on Components, Packaging and Manufacturing Technology",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Guven_I.",
+            "tid": "Journal of Composite Materials",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Guven_I.",
+            "tid": "Theoretical and Applied Fracture Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Guven_I.",
+            "tid": "Central European Journal of Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Guven_I.",
+            "tid": "Wear",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Engineering Fracture Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Composite Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Computer Methods in Applied Mechanics and Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Theoretical and Applied Fracture Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "International Journal of Fracture",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Journal of Mechanics of Materials and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Journal of the Mechanics and Physics of Solids",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Microelectronics Reliability",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "IEEE Transactions on Components, Packaging and Manufacturing Technology",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "International Journal of Non-Linear Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Journal of Computational Physics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "International Journal of Solids and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Electronics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Fatigue \\& Fracture of Engineering Materials \\& Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "IEEE Transactions on Advanced Packaging",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Numerical Methods for Partial Differential Equations",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "ZAMM - Journal of Applied Mathematics and Mechanics / Zeitschrift f\\\"ur Angewandte Mathematik und Mechanik",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Central European Journal of Engineering",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Procedia Structural Integrity",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Madenci_E.",
+            "tid": "Engineering Geology",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Ahadi_A.",
+            "tid": "Mechanics of Advanced Materials and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Ahadi_A.",
+            "tid": "AIMS Materials Science",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Melin_S.",
+            "tid": "Mechanics of Advanced Materials and Structures",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Krochmal_J.",
+            "tid": "AIMS Materials Science",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Ahmadi_M.",
+            "tid": "Engineering Fracture Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Hosseini-Toudeshky_H.",
+            "tid": "Engineering Fracture Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Sadighi_M.",
+            "tid": "Engineering Fracture Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        },
+        {
+            "sid": "Toudeshky_H.",
+            "tid": "Engineering Fracture Mechanics",
+            "_svgAttrs": {
+                "stroke-width": 1
+            },
+            "name": 1
+        }
+    ],
+    "nodes": [
+        {
+            "id": "Agrawal_S.",
+            "name": "Agrawal_S.",
+            "_size": 2
+        },
+        {
+            "id": "Journal of Petroleum Science and Engineering",
+            "name": "Journal of Petroleum Science and Engineering",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Journal of Computational Physics",
+            "name": "Journal of Computational Physics",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Zheng_S.",
+            "name": "Zheng_S.",
+            "_size": 1
+        },
+        {
+            "id": "Foster_J.",
+            "name": "Foster_J.",
+            "_size": 18
+        },
+        {
+            "id": "International Journal of Solids and Structures",
+            "name": "International Journal of Solids and Structures",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Computer Methods in Applied Mechanics and Engineering",
+            "name": "Computer Methods in Applied Mechanics and Engineering",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Computational Mechanics",
+            "name": "Computational Mechanics",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "International Journal for Multiscale Computational Engineering",
+            "name": "International Journal for Multiscale Computational Engineering",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Journal of Dynamic Behavior of Materials",
+            "name": "Journal of Dynamic Behavior of Materials",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Journal of the Mechanics and Physics of Solids",
+            "name": "Journal of the Mechanics and Physics of Solids",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "International Journal of Fracture",
+            "name": "International Journal of Fracture",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "International Journal for Numerical Methods in Engineering",
+            "name": "International Journal for Numerical Methods in Engineering",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Engineering Fracture Mechanics",
+            "name": "Engineering Fracture Mechanics",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Physica A: Statistical Mechanics and its Applications",
+            "name": "Physica A: Statistical Mechanics and its Applications",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Sharma_M.",
+            "name": "Sharma_M.",
+            "_size": 3
+        },
+        {
+            "id": "Aguiar_A.",
+            "name": "Aguiar_A.",
+            "_size": 4
+        },
+        {
+            "id": "Mathematics and Mechanics of Solids",
+            "name": "Mathematics and Mechanics of Solids",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Journal of Elasticity",
+            "name": "Journal of Elasticity",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Latin American Journal of Solids and Structures",
+            "name": "Latin American Journal of Solids and Structures",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Fosdick_R.",
+            "name": "Fosdick_R.",
+            "_size": 1
+        },
+        {
+            "id": "Royer-Carfagni_G.",
+            "name": "Royer-Carfagni_G.",
+            "_size": 2
+        },
+        {
+            "id": "Seitenfuss_A.",
+            "name": "Seitenfuss_A.",
+            "_size": 2
+        },
+        {
+            "id": "Patriota_T.",
+            "name": "Patriota_T.",
+            "_size": 1
+        },
+        {
+            "id": "Agwai_A.",
+            "name": "Agwai_A.",
+            "_size": 6
+        },
+        {
+            "id": "Microelectronics Reliability",
+            "name": "Microelectronics Reliability",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "IEEE Transactions on Components, Packaging and Manufacturing Technology",
+            "name": "IEEE Transactions on Components, Packaging and Manufacturing Technology",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Composite Structures",
+            "name": "Composite Structures",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Guven_I.",
+            "name": "Guven_I.",
+            "_size": 8
+        },
+        {
+            "id": "Journal of Composite Materials",
+            "name": "Journal of Composite Materials",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Theoretical and Applied Fracture Mechanics",
+            "name": "Theoretical and Applied Fracture Mechanics",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Central European Journal of Engineering",
+            "name": "Central European Journal of Engineering",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Wear",
+            "name": "Wear",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Madenci_E.",
+            "name": "Madenci_E.",
+            "_size": 53
+        },
+        {
+            "id": "Journal of Mechanics of Materials and Structures",
+            "name": "Journal of Mechanics of Materials and Structures",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "International Journal of Non-Linear Mechanics",
+            "name": "International Journal of Non-Linear Mechanics",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Electronics",
+            "name": "Electronics",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Fatigue \\& Fracture of Engineering Materials \\& Structures",
+            "name": "Fatigue \\& Fracture of Engineering Materials \\& Structures",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "IEEE Transactions on Advanced Packaging",
+            "name": "IEEE Transactions on Advanced Packaging",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Numerical Methods for Partial Differential Equations",
+            "name": "Numerical Methods for Partial Differential Equations",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "ZAMM - Journal of Applied Mathematics and Mechanics / Zeitschrift f\\\"ur Angewandte Mathematik und Mechanik",
+            "name": "ZAMM - Journal of Applied Mathematics and Mechanics / Zeitschrift f\\\"ur Angewandte Mathematik und Mechanik",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Procedia Structural Integrity",
+            "name": "Procedia Structural Integrity",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Engineering Geology",
+            "name": "Engineering Geology",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Ahadi_A.",
+            "name": "Ahadi_A.",
+            "_size": 2
+        },
+        {
+            "id": "Mechanics of Advanced Materials and Structures",
+            "name": "Mechanics of Advanced Materials and Structures",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "AIMS Materials Science",
+            "name": "AIMS Materials Science",
+            "svgSym": "journalIcon",
+            "_color": "gray"
+        },
+        {
+            "id": "Melin_S.",
+            "name": "Melin_S.",
+            "_size": 1
+        },
+        {
+            "id": "Krochmal_J.",
+            "name": "Krochmal_J.",
+            "_size": 1
+        },
+        {
+            "id": "Ahmadi_M.",
+            "name": "Ahmadi_M.",
+            "_size": 2
+        },
+        {
+            "id": "Hosseini-Toudeshky_H.",
+            "name": "Hosseini-Toudeshky_H.",
+            "_size": 1
+        },
+        {
+            "id": "Sadighi_M.",
+            "name": "Sadighi_M.",
+            "_size": 2
+        },
+        {
+            "id": "Toudeshky_H.",
+            "name": "Toudeshky_H.",
+            "_size": 1
+        },
+        {
+            "id": "Ai_D.",
+            "name": "Ai_D.",
+            "_size": 2
+        }
+    ]
+}

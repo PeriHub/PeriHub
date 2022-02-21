@@ -1,0 +1,348 @@
+<v-container fluid style="height:100%;">
+    <splitpanes style="height:100%;">
+      <pane min-size="15" style="height:100%;">
+        <v-subheader>
+    
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="resetData">
+                    <i class="fas fa-upload"></i>
+                </v-btn>
+              </template>
+                <span>Load Model</span>
+              </v-tooltip>
+              <input
+                type="file"
+                style="display: none"
+                ref="fileInput"
+                accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp"
+                @change="onFilePicked"/>
+              <input
+                type="file"
+                style="display: none"
+                ref="multifileInput"
+                multiple
+                accept="text/plain,.g"
+                @change="onMultiFilePicked"/>
+              <input
+                type="file"
+                style="display: none"
+                ref="multiSoInput"
+                multiple
+                accept=".so"
+                @change="onMultiFilePicked"/>
+                
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="saveData">
+                    <i class="fas fa-save"></i>
+                </v-btn>
+              </template>
+                <span>Save as JSON</span>
+              </v-tooltip>
+                
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="screenshot">
+                    <i class="fas fa-save"></i>
+                </v-btn>
+              </template>
+                <span>Save as JSON</span>
+              </v-tooltip>
+    
+              <v-spacer></v-spacer>
+              
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="openHidePanels">
+                    <i class="fas fa-sort"></i>
+                </v-btn>
+              </template>
+                <span>Collapse/Expand all panels</span>
+              </v-tooltip>
+        </v-subheader>
+          <!-- <v-virtual-scroll
+                :items="Array.from({model.length: 9}).map((_, index) => index)"
+                :item-height="50"
+                height=100vh
+              > -->
+        <!-- <div class="remaining-height"> -->
+          <v-list class="remaining-height">
+      <!-- <v-list-item-group> -->
+        <!-- <v-list-item> -->
+        <v-card>
+              <v-expansion-panels height=45vh v-model="panel" multiple>
+                <v-expansion-panel>
+                    <v-expansion-panel-header>
+                      <h2>Keyword List</h2>
+                    </v-expansion-panel-header>
+                    <v-expansion-panel-content>
+                      <v-list v-for="keyword, index in keywordList" :key="keyword.id"
+                      style="padding: 0px">
+                        <v-container v-bind:style="(keyword.id % 2 == 0) ? 'background-color: rgba(233, 233, 233, 1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+                          <h4>Keyword {{keyword.id}}</h4>
+                          <v-row>
+                            <v-col class="textfieldlist-col">
+                              <v-text-field
+                                v-model=keyword.name
+                                :rules="[rules.required, rules.name]"
+                                label="Name"
+                                outlined></v-text-field>
+                            </v-col>
+                            <v-col class="textfieldlist-col">
+                              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeKeyword(index)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </v-btn>
+                                </template>
+                                  <span>Remove Keyword</span>
+                              </v-tooltip>
+                            </v-col>
+                          </v-row>
+                            <v-list v-for="key, subindex in keyword.keywords" :key="keyword.keywords.id" v-bind:style="(keyword.id % 2 == 0) ? 'background-color: rgba(233, 233, 233, 1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+                              <v-row>
+                                <v-col class="textfieldlist-col">
+                                  <v-text-field
+                                    v-model=key.value
+                                    :rules="[rules.required, rules.float]"
+                                    label='Name'
+                                    outlined></v-text-field>
+                                </v-col>
+                                <v-col class="textfieldlist-col">
+                                  <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                                    <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeKey(index, subindex)">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </v-btn>
+                                    </template>
+                                      <span>Remove Key</span>
+                                  </v-tooltip>
+                                </v-col>
+                              </v-row>
+                            </v-list>
+                          <v-row>
+                            <v-col class="textfieldlist-col">
+                              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addKey(index)">
+                                      <i class="fas fa-plus"></i>
+                                  </v-btn>
+                                </template>
+                                  <span>Add Key</span>
+                              </v-tooltip>
+                            </v-col>
+                          </v-row>
+                          <!-- <template v-else> -->
+                            <v-row>
+                              <v-col class="textfieldlist-col">
+                            <v-text-field class="textfield-col"
+                              v-model=keyword.weight
+                              :rules="[rules.required, rules.float]"
+                              label="Weight"
+                              outlined></v-text-field>
+                            </v-col>
+                            </v-row>
+                        </v-container>
+                        <!-- <v-divider></v-divider> -->
+                      </v-list>
+                      <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                          <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addKeyword">
+                              <i class="fas fa-plus"></i>
+                          </v-btn>
+                        </template>
+                          <span>Add Keyword</span>
+                      </v-tooltip>
+                    </v-expansion-panel-content>
+                  </v-expansion-panel>
+                  <v-expansion-panel>
+                      <v-expansion-panel-header>
+                        <h2>Network</h2>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content>
+                        <v-slider
+                          v-model="force"
+                          label="Force:"
+                          max="5000"
+                          min="0"
+                          step="1"
+                        ></v-slider>
+                        <v-switch
+                          class="checkbox-col"
+                          v-model="fMb"
+                          label="ManyBody"
+                        ></v-switch>
+                        <v-switch
+                          class="checkbox-col"
+                          v-model="fL"
+                          label="Link"
+                        ></v-switch>
+                        <v-switch
+                          class="checkbox-col"
+                          v-model="fC"
+                          label="Center"
+                        ></v-switch>
+                        <v-slider
+                          v-model="fX"
+                          label="X:"
+                          max="1"
+                          min="0"
+                          step="0.1"
+                        ></v-slider>
+                        <v-slider
+                          v-model="fY"
+                          label="Y:"
+                          max="1"
+                          min="0"
+                          step="0.1"
+                        ></v-slider>
+                        <v-switch
+                          class="checkbox-col"
+                          v-model="nodeLabels"
+                          label="Show node names"
+                        ></v-switch>
+                        <v-switch
+                          class="checkbox-col"
+                          v-model="linkLabels"
+                          label="Show link names"
+                        ></v-switch>
+                        <v-switch
+                          class="checkbox-col"
+                          v-model="strLinks"
+                          label="Straight Links"
+                        ></v-switch>
+                        <v-slider
+                          v-model="nodeSize"
+                          label="Node size:"
+                          max="50"
+                          min="0"
+                          step="1"
+                        ></v-slider>
+                        <v-slider
+                          v-model="fontSize"
+                          label="Font size:"
+                          max="50"
+                          min="1"
+                          step="1"
+                        ></v-slider>
+                        <v-slider
+                          v-model="linkWidth"
+                          label="Link width:"
+                          max="10"
+                          min="1"
+                          step="1"
+                        ></v-slider>
+                        <v-list v-if="showSelection" v-for="node in selected" :key="selected.id" style="padding: 0px">
+                          <v-row>
+                            <v-col class="textfieldlist-col">
+                              {{ node.id }}
+                            </v-col>
+                            <v-col class="textfieldlist-col">
+                              {{ node.name }}
+                            </v-col>
+                            <v-col class="textfieldlist-col">
+                              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getName(node.id)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </v-btn>
+                                </template>
+                                  <span>Get Name</span>
+                              </v-tooltip>
+                            </v-col>
+                            <v-col class="textfieldlist-col">
+                              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="unSelectNode(node.id)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </v-btn>
+                                </template>
+                                  <span>Unselect</span>
+                              </v-tooltip>
+                            </v-col>
+                          </v-row>
+                        </v-list>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+              </v-expansion-panels>
+        </v-card>
+              <!-- </v-list-item> -->
+      <!-- </v-list-item-group> -->
+          </v-list>
+        <!-- </div> -->
+      </pane>
+      <pane min-size="40" style="height:100%;">
+        <splitpanes horizontal style="height: 100%">
+          <pane size="45">
+            <v-subheader>
+              
+            </v-subheader>
+            <v-card class="my-card"
+            title='Editor'
+            elevation="0"
+            margin-bottom= -17px
+            flex
+            margin=10px
+            >
+              <v-card-title class="my-title" style="padding-top: 0px">
+
+              <v-tooltip bottom class="my-btn"><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="pinned = !pinned">
+                    <i v-if="pinned" class="fas fa-mouse-pointer"></i>
+                    <i v-if="!pinned" class="fas fa-thumbtack"></i>
+                </v-btn>
+              </template>
+                <span v-if="pinned">Select</span>
+                <span v-if="!pinned">Pin / Unpin</span>
+              </v-tooltip>
+    
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="screenshot">
+                    <i class="fas fa-camera"></i>
+                </v-btn>
+              </template>
+                <span>Screenshot</span>
+              </v-tooltip>
+    
+            </v-card-title>
+              <template slot="progress">
+                <v-progress-linear
+                  color="deep-purple"
+                  height="10"
+                  indeterminate
+                ></v-progress-linear>
+              </template>
+              <d3-network ref='net' 
+              :net-nodes="nodes"
+              :net-links="links"
+              :selection="{nodes: selected, links: linksSelected}" 
+              :options="options"
+              :node-sym='nodeSym'
+              @node-click='nodeClick'
+              @link-click="linkClick"
+              @screen-shot='screenShotDone'/>
+              <!-- <svg >
+                <defs>
+                  <marker id="m-end" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth" >
+                    <path d="M0,0 L0,6 L9,3 z"></path>
+                  </marker>
+                      <marker id="m-start" markerWidth="6" markerHeight="6" refX="-4" refY="3" orient="auto" markerUnits="strokeWidth" >
+                    <rect width="3" height="6"></rect>
+                  </marker>
+                </defs>
+              </svg> -->
+            </v-card>
+          </pane>
+        </splitpanes>
+      </pane>
+    </splitpanes>
+    <v-snackbar
+      style="white-space:pre-wrap;"
+      v-model="snackbar"
+      >
+      <!-- <pre>{{message}}</pre> -->
+      {{message}}
+    
+        <template v-slot:action="{ attrs }">
+            <v-btn
+            color="pink"
+            text
+            v-bind="attrs"
+            @click="snackbar = false"
+            >
+            Close
+            </v-btn>
+        </template>
+    </v-snackbar>
+</v-container>

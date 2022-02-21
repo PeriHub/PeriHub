@@ -32,7 +32,7 @@
             <v-btn
               class="my-btn"
               v-bind="attrs"
-              href="https://gitlab.dlr.de/fa_sw/perihub"
+              href="https://gitlab.dlr.de/fa_sw/peridynamik/perihub"
               target="_blank"
               color="primary"
               v-on="on"
