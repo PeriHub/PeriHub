@@ -38,6 +38,7 @@ import subprocess
 import requests, zipfile, io
 from support.baseModels import Data, FileType, RunData, Status
 import json
+from dotenv import load_dotenv
 
 # class ModelName(str, Enum):
 #     Dogbone = "Dogbone"
@@ -74,6 +75,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+load_dotenv()
+
+dev = os.environ.get('DEV')
+if dev:
+    print("--- Running in development mode ---")
 class ModelControl(object):
     def __init__(self,**kwargs):
         """doc"""
@@ -122,9 +129,9 @@ class ModelControl(object):
     @app.post("/generateModel", tags=["Post Methods"])
     def generateModel(Data: Data, ModelName: str = 'Dogbone', request: Request = ''):#Material: dict, Output: dict):
        
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
+        
         maxNodes = fileHandler.getMaxNodes(username)
-
 
         localpath = './Output/' + os.path.join(username, ModelName)
 
@@ -154,7 +161,7 @@ class ModelControl(object):
         W = Data.model.width
         h = Data.model.height
         h2 = Data.model.height2
-        if ModelName=='Dogbone':
+        if ModelName=='Dogbone' or ModelName=='Kalthoff-Winkler':
             nn = 2*int(Data.model.discretization/2)
         else:
             nn = 2*int(Data.model.discretization/2)+1
@@ -260,7 +267,7 @@ class ModelControl(object):
    
     @app.post("/translateModel", tags=["Post Methods"])
     def translateModel(ModelName: str, Filetype: str, request: Request):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         start_time = time.time()
 
@@ -333,7 +340,7 @@ class ModelControl(object):
 
     @app.post("/uploadfiles", tags=["Post Methods"])
     async def uploadfiles( ModelName: str, request: Request, files: List[UploadFile] = File(...)): 
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         localpath = './Output/' + os.path.join(username, ModelName)
 
@@ -349,7 +356,7 @@ class ModelControl(object):
 
     @app.put("/writeInputFile", tags=["Put Methods"])
     def writeInputFile(ModelName: str, InputString: str, FileType: FileType, request: Request):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         fid = open('./Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType ,'w')
         fid.write(InputString)
@@ -359,7 +366,7 @@ class ModelControl(object):
 
     @app.put("/runModel", tags=["Put Methods"])
     def runModel(Data: RunData, ModelName: str = 'Dogbone', FileType: FileType = FileType.yaml, request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
         usermail = fileHandler.getUserMail(request)
 
         Material =  Data.materials
@@ -445,7 +452,7 @@ class ModelControl(object):
 
     @app.put("/cancelJob", tags=["Put Methods"])
     def cancelJob(ModelName: str = 'Dogbone', Cluster: str = 'None', request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         if Cluster=='None':
             server='perihub_peridigm'
@@ -484,7 +491,7 @@ class ModelControl(object):
 
     @app.get("/generateMesh", tags=["Get Methods"])
     def generateMesh(ModelName: str, Param: str, request: Request):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         # json=Param, 
         print(Param)
@@ -530,7 +537,7 @@ class ModelControl(object):
 
     @app.get("/getImage", tags=["Get Methods"])
     def getImage(ModelName: str = 'Dogbone', Cluster: str = 'None', Output: str = 'Output1',  Variable: str = 'Displacement',  Axis: str = 'Magnitude', dx: float = 0.0009, width: int = 1920, height: int = 1080, request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
             raise NotFoundException(name=ModelName)
@@ -547,7 +554,7 @@ class ModelControl(object):
     @app.get("/getLogFile", tags=["Get Methods"])
     def getLogFile(ModelName: str = 'Dogbone', Cluster: str = 'None', request: Request = ''):
 
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
         # usermail = fileHandler.getUserMail(request)
 
         if Cluster=='None':
@@ -597,14 +604,14 @@ class ModelControl(object):
     @app.get("/getMaxFeSize", tags=["Get Methods"])
     def getMaxFeSize(request: Request = ''):
 
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
         FeSize = fileHandler.getMaxFeSize(username)
 
         return FeSize
 
     @app.get("/getModel", tags=["Get Methods"])
     def getModel(ModelName: str = 'Dogbone', request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         try:
             shutil.make_archive(ModelName, "zip", './Output/' + os.path.join(username, ModelName))
@@ -618,7 +625,7 @@ class ModelControl(object):
 
     @app.get("/getPlot", tags=["Get Methods"])
     def getPlot(ModelName: str = 'Dogbone', Cluster: str = 'None', OutputName: str = 'Output1', request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, False)==False):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
@@ -648,7 +655,7 @@ class ModelControl(object):
 
     @app.get("/getPointData", tags=["Get Methods"])
     def getPointData(ModelName: str = 'Dogbone', OwnModel: bool = False, request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         pointString=''
         blockIdString=''
@@ -704,7 +711,7 @@ class ModelControl(object):
 
     @app.get("/getResults", tags=["Get Methods"])
     def getResults(ModelName: str = 'Dogbone', Cluster: str = 'None', allData: bool = False, request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         if(fileHandler.copyResultsFromCluster(username, ModelName, Cluster, allData)==False):
             raise HTTPException(status_code=404, detail=ModelName + ' results can not be found on ' + Cluster)
@@ -723,7 +730,7 @@ class ModelControl(object):
 
     @app.get("/getStatus", tags=["Get Methods"])
     def getStatus(ModelName: str = 'Dogbone', Cluster: str = 'None', request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         status = Status(False,False,False)
 
@@ -763,7 +770,7 @@ class ModelControl(object):
 
     @app.get("/viewInputFile", tags=["Get Methods"])
     def viewInputFile(ModelName: str = 'Dogbone', FileType: FileType = FileType.yaml, request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         filePath = './Output/' + os.path.join(username, ModelName) + '/'  + ModelName + '.' + FileType
         if not os.path.exists(filePath):
@@ -775,7 +782,7 @@ class ModelControl(object):
             
     @app.delete("/deleteModel", tags=["Delete Methods"])
     def deleteModel(ModelName: str = 'Dogbone', request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         localpath = './Output/' + os.path.join(username, ModelName)
         if os.path.exists(localpath):
@@ -785,7 +792,7 @@ class ModelControl(object):
 
     @app.delete("/deleteModelFromCluster", tags=["Delete Methods"])
     def deleteModelFromCluster(ModelName: str = 'Dogbone', Cluster: str = 'None', request: Request = ''):
-        username = fileHandler.getUserName(request)
+        username = fileHandler.getUserName(request,dev)
 
         if Cluster=='None':
             remotepath = './peridigmJobs/' + os.path.join(username, ModelName)
@@ -822,7 +829,7 @@ class ModelControl(object):
                     return 'Data of ' + ', '.join(names) + ' has been deleted'
             return 'Nothing has been deleted'
         else:
-            username = fileHandler.getUserName(request)
+            username = fileHandler.getUserName(request,dev)
 
             localpath = './Output/' + username
             shutil.rmtree(localpath)
@@ -846,7 +853,7 @@ class ModelControl(object):
                 ssh.close()
         
         else:
-            username = fileHandler.getUserName(request)
+            username = fileHandler.getUserName(request,dev)
 
             if Cluster=='None':
                 remotepath = './peridigmJobs/' + username

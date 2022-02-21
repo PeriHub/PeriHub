@@ -30,14 +30,17 @@ class fileHandler(object):
         
         return './PeridigmJobs/apiModels/' + username
 
-    def getUserName(request):
-        encodedToken = request.headers.get('Authorization')
-        if encodedToken == None or encodedToken == '':
-            return 'guest'
+    def getUserName(request, dev):
+        if dev:
+            return 'dev'
+        else:
+            encodedToken = request.headers.get('Authorization')
+            if encodedToken == None or encodedToken == '':
+                return 'guest'
 
-        decodedToken = jwt.decode(encodedToken.split(' ')[1], options={"verify_signature": False})
+            decodedToken = jwt.decode(encodedToken.split(' ')[1], options={"verify_signature": False})
 
-        return decodedToken['preferred_username']
+            return decodedToken['preferred_username']
 
     def getMaxNodes(username):
         

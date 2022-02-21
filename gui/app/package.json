@@ -22,6 +22,7 @@
     "splitpanes": "^2.3.8",
     "vue": "^2.6.11",
     "vue-cookie": "^1.1.4",
+    "vue-d3-network": "^0.1.28",
     "vue-markdown": "^2.2.4",
     "vue-meta": "^2.4.0",
     "vue-numeral-filter": "^2.0.0",

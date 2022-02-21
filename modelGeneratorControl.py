@@ -33,10 +33,11 @@ class ModelControl(object):
 
         h=200
         L=100
-        nn=100
+        nn=800
         
         nn = 2*int(nn/2)+1
-        nn = 2*int(nn/2)+1
+        
+        nn=800
         dx=[h/nn,h/nn,h/nn]
         
         print(dx, 4.01*dx[0])

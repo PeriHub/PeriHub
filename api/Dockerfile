@@ -4,7 +4,7 @@ COPY --from=python:3.7 / /
 ARG EXTERNAL
 ENV EXTERNAL $EXTERNAL
 
-RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles python-multipart pyjwt requests zipfile2 
+RUN pip install fastapi uvicorn matplotlib scipy numpy pandas paramiko aiofiles python-multipart pyjwt requests zipfile2 python-dotenv
 
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh

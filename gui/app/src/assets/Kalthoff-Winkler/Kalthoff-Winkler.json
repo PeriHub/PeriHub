@@ -4,12 +4,12 @@
     "ownModel": false,
     "translated": false,
     "length": 100,
-    "width": 0.01,
+    "width": null,
     "height": 200,
-    "height2": 0.013,
-    "structured": false,
+    "height2": null,
+    "structured": null,
     "discretization": 100,
-    "horizon": 0.01,
+    "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": true,
     "angles": [
@@ -21,9 +21,9 @@
     {
       "id": 1,
       "Name": "PMMA",
-      "density": 1.95e-7,
+      "density": 8.0e-06,
       "MatType": "Elastic Bond Based",
-      "bulkModulus": 1.27e+05,
+      "bulkModulus": 1.27e+06,
       "shearModulus": null,
       "youngsModulus": null,
       "poissonsRatio": null,
@@ -224,7 +224,7 @@
       "normalZ": 0,
       "lowerLeftCornerX": -0.5,
       "lowerLeftCornerY": 25,
-      "lowerLeftCornerZ": 5,
+      "lowerLeftCornerZ": -5,
       "bottomUnitVectorX": 1,
       "bottomUnitVectorY": 0,
       "bottomUnitVectorZ": 0,
@@ -245,7 +245,7 @@
       "normalZ": 0,
       "lowerLeftCornerX": -0.5,
       "lowerLeftCornerY": -25,
-      "lowerLeftCornerZ": 5,
+      "lowerLeftCornerZ": -5,
       "bottomUnitVectorX": 1,
       "bottomUnitVectorY": 0,
       "bottomUnitVectorZ": 0,
@@ -259,20 +259,6 @@
     }
   ],
   "computes": [
-    {
-      "id": 1,
-      "Name": "External_Displacement",
-      "variable": "Displacement",
-      "calculationType": "Minimum",
-      "blockName": "block_3"
-    },
-    {
-      "id": 2,
-      "Name": "External_Force",
-      "variable": "Force",
-      "calculationType": "Sum",
-      "blockName": "block_3"
-    }
   ],
   "outputs": [
     {
@@ -286,14 +272,14 @@
       "External_Force": false,
       "External_Displacement": false,
       "Number_Of_Neighbors": false,
-      "Frequency": "10",
+      "Frequency": "50",
       "InitStep": 0
     }
   ],
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": 0.03,
+    "finalTime": 0.003,
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,

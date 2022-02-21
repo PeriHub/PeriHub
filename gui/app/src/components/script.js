@@ -1322,7 +1322,7 @@ import { Plotly } from 'vue-plotly'
           if (bondFilter.show){
             const lx = parseFloat(bondFilter.lowerLeftCornerX)
             const ly = parseFloat(bondFilter.lowerLeftCornerY)
-            const lz = parseFloat(bondFilter.lowerLeftCornerZ)
+            const lz = -parseFloat(bondFilter.lowerLeftCornerZ)
             const bx = parseFloat(bondFilter.bottomUnitVectorX)
             const by = parseFloat(bondFilter.bottomUnitVectorY)
             const bz = parseFloat(bondFilter.bottomUnitVectorZ)
@@ -1934,7 +1934,7 @@ import { Plotly } from 'vue-plotly'
         }
       },
       checkInputs() {
-        if (this.model.length && this.model.width) {
+        if (this.model.length) {
           return true;
         }
 
@@ -1943,9 +1943,9 @@ import { Plotly } from 'vue-plotly'
         if (!this.model.length) {
           this.errors.push('Length required');
         }
-        if (!this.model.width) {
-          this.errors.push('Width required');
-        }
+        // if (!this.model.width) {
+        //   this.errors.push('Width required');
+        // }
 
         this.message=this.errors.join('\n')
 

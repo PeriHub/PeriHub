@@ -39,7 +39,6 @@ class GIICmodel(object):
         self.dx   = dx
         self.xend = xend
         self.yend = yend
-        self.zend = zend
         self.rot = rot
         self.username = username
         self.maxNodes = maxNodes
@@ -47,6 +46,9 @@ class GIICmodel(object):
         if TwoD:
             self.zend = 0
             self.dx[2] = 1
+        else:
+            self.zend = zend
+
         numberOfBlocks = 10
         xbound = [0, 4*dx[0],5*dx[0], xend-4*dx[0],xend-3*dx[0],xend + dx[0]]
         ybound = [0, 4*dx[1],5*dx[1], yend + dx[1]]
@@ -195,6 +197,13 @@ class GIICmodel(object):
         return angle_x, angle_y, angle_z
 
     def createModel(self):
+
+        geo = Geometry()
+        x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)
+
+        if len(x)>self.maxNodes:
+            return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
+
         if self.ignoreMesh == True and self.blockDef!='':
         
             writer = ModelWriter(modelClass = self)
@@ -207,12 +216,6 @@ class GIICmodel(object):
                 return str(e)
 
         else:
-            geo = Geometry()
-            x,y,z = geo.createPoints(coor = [0,self.xend,0,self.yend,0,self.zend], dx = self.dx)
-
-            if len(x)>self.maxNodes:
-                return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
-
             start_time = time.time()
 
             vol = np.zeros(len(x))

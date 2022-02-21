@@ -13,12 +13,12 @@ class Model(BaseModel):
     ownModel: bool
     translated: bool
     length: float
-    width: float
+    width: Optional[float] = None
     height: float
-    height2: float
-    structured: bool
+    height2: Optional[float] = None
+    structured: Optional[bool] = None
     discretization: int
-    horizon: float
+    horizon: Optional[float] = None
     twoDimensional: bool
     rotatedAngles: bool
     angles: List[float]
@@ -107,14 +107,14 @@ class Compute(BaseModel):
 class Output(BaseModel):
     id: int
     Name: str
-    Displacement: bool
-    Force: bool
-    Damage: bool
-    Velocity: bool
-    Partial_Stress: bool
-    External_Force: bool
-    External_Displacement: bool
-    Number_Of_Neighbors: bool
+    Displacement: Optional[bool] = None
+    Force: Optional[bool] = None
+    Damage: Optional[bool] = None
+    Velocity: Optional[bool] = None
+    Partial_Stress: Optional[bool] = None
+    External_Force: Optional[bool] = None
+    External_Displacement: Optional[bool] = None
+    Number_Of_Neighbors: Optional[bool] = None
     Frequency: int
     InitStep: int
 class Newton(BaseModel):
@@ -139,21 +139,21 @@ class Solver(BaseModel):
     solvertype: str
     safetyFactor: float
     numericalDamping: float
-    peridgimPreconditioner: str
-    nonlinearSolver: str
-    numberofLoadSteps: int
-    maxSolverIterations: int
-    relativeTolerance: float
-    maxAgeOfPrec: float
-    directionMethod: str
-    newton: Newton
-    lineSearchMethod: str
-    verletSwitch: bool
-    verlet: Verlet
-    stopAfterDamageInitation: bool
-    stopBeforeDamageInitation: bool
-    adaptivetimeStepping: bool
-    adapt: Adapt
+    peridgimPreconditioner: Optional[str] = None
+    nonlinearSolver: Optional[str] = None
+    numberofLoadSteps: Optional[int] = None
+    maxSolverIterations: Optional[int] = None
+    relativeTolerance: Optional[float] = None
+    maxAgeOfPrec: Optional[float] = None
+    directionMethod: Optional[str] = None
+    newton: Optional[Newton] = None
+    lineSearchMethod: Optional[str] = None
+    verletSwitch: Optional[bool] = None
+    verlet: Optional[Verlet] = None
+    stopAfterDamageInitation: Optional[bool] = None
+    stopBeforeDamageInitation: Optional[bool] = None
+    adaptivetimeStepping: Optional[bool] = None
+    adapt: Optional[Adapt] = None
     filetype: FileType
 class Job(BaseModel):
     cluster: str

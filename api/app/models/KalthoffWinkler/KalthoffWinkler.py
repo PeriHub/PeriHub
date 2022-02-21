@@ -23,11 +23,12 @@ class KalthoffWinkler(object):
         self.nsList = [3,4]
         self.dx   = dx
         self.xbegin = 0.0
-        self.ybegin = -yend
-        self.zbegin = -zend
+        self.ybegin = -yend/2
         self.xend = xend + dx[0]
-        self.yend = yend + dx[1]
-        self.zend = zend + dx[2]
+        self.yend = yend / 2 + dx[1]
+        # self.xend = xend
+        # self.yend = yend/2
+        # self.zend = zend
         self.rot = rot
         self.blockDef = block
         self.username = username
@@ -37,6 +38,10 @@ class KalthoffWinkler(object):
             self.zbegin = 0
             self.zend = 0
             self.dx[2] = 1
+        else:
+            self.zbegin = -zend
+            self.zend = zend + dx[2]
+
         numberOfBlocks = 4
 
         ''' Definition of model
@@ -112,6 +117,14 @@ class KalthoffWinkler(object):
         return k
         
     def createModel(self):
+
+        geo = Geometry()
+        
+        x,y,z = geo.createPoints(coor = [self.xbegin, self.xend, self.ybegin, self.yend, self.zbegin, self.zend], dx = self.dx)
+
+        if len(x)>self.maxNodes:
+            return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
+            
         if self.ignoreMesh == True and self.blockDef!='':
         
             writer = ModelWriter(modelClass = self)
@@ -125,12 +138,6 @@ class KalthoffWinkler(object):
                 return str(e)
 
         else:
-            geo = Geometry()
-            
-            x,y,z = geo.createPoints(coor = [self.xbegin, self.xend, self.ybegin, self.yend, self.zbegin, self.zend], dx = self.dx)
-
-            if len(x)>self.maxNodes:
-                return 'The number of nodes (' + str(len(x)) + ') is larger than the allowed ' + str(self.maxNodes)
 
             vol = np.zeros(len(x))
             k = np.ones(len(x))

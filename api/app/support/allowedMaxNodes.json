@@ -10,5 +10,8 @@
         "allowedFeSize": 15000000},
     "guest": {
         "allowedNodes": 10000,
-        "allowedFeSize": 5242880}
+        "allowedFeSize": 5242880},
+    "dev": {
+        "allowedNodes": 1000000,
+        "allowedFeSize": 15000000}
 }

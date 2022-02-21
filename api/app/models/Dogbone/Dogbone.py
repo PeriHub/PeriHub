@@ -29,16 +29,17 @@ class Dogbone(object):
         self.h1 = h1
         self.h2 = h2
         self.structured = structured
-        self.zend = zend + dx[2]
         self.rot = rot
         self.blockDef = block
         self.username = username
         self.maxNodes = maxNodes
         self.ignoreMesh = ignoreMesh
         if self.TwoD:
-            self.zbegin = 0
             self.zend = 1
             self.dx[2] = 1
+        else:
+            self.zend = zend + dx[2]
+
         numberOfBlocks = 5
 
         ''' Definition of model
@@ -104,6 +105,24 @@ class Dogbone(object):
         print('Initialized in ' + "%.2f seconds" % (time.time() - start_time) )
 
     def createModel(self):
+        
+        geo = Geometry()
+        bc = 0.002
+        R = 0.076; l2 = 0.057
+        dh =  (self.h1-self.h2)/2
+        dl = np.sqrt(R*R-(R-dh)**2)
+        l1 = (self.xend - 2*dl - l2)/2
+        alpha = np.arccos((R-dh)/R)*180/np.pi
+
+        x0 = np.arange(0,self.xend, self.dx[0])
+        y0 = np.arange(-self.h1/2 - self.dx[1],self.h1/2 + self.dx[1], self.dx[1])
+        z0 = np.arange(0,self.zend, self.dx[2])
+            
+        num = len(x0)*len(y0)*len(z0)
+        
+        if num>self.maxNodes:
+            return 'The number of nodes (' + str(num) + ') is larger than the allowed ' + str(self.maxNodes)
+
         if self.ignoreMesh == True and self.blockDef!='':
         
             writer = ModelWriter(modelClass = self)
@@ -117,23 +136,6 @@ class Dogbone(object):
                 return str(e)
 
         else:
-            geo = Geometry()
-            bc = 0.002
-            R = 0.076; l2 = 0.057
-            dh =  (self.h1-self.h2)/2
-            dl = np.sqrt(R*R-(R-dh)**2)
-            l1 = (self.xend - 2*dl - l2)/2
-            alpha = np.arccos((R-dh)/R)*180/np.pi
-
-            x0 = np.arange(0,self.xend, self.dx[0])
-            y0 = np.arange(-self.h1/2 - self.dx[1],self.h1/2 + self.dx[1], self.dx[1])
-            z0 = np.arange(0,self.zend, self.dx[2])
-                
-            num = len(x0)*len(y0)*len(z0)
-            
-            if num>self.maxNodes:
-                return 'The number of nodes (' + str(num) + ') is larger than the allowed ' + str(self.maxNodes)
-
 
             if self.structured:
                 nn = 2*int((self.h1/self.dx[1])/2)+1
