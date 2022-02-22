@@ -49,7 +49,7 @@
                         <router-link class="card" to="literatureAnalysis">
                             <v-card width="400px">
                             <v-img
-                                src="../assets/books.jpg"
+                                src="../assets/network.jpg"
                                 class="white--text align-end"
                                 gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                                 height="200px">

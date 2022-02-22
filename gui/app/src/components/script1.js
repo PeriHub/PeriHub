@@ -45,19 +45,21 @@ export default {
         { sid: 7, tid: 9 }
       ],
       canvas:false,
-      size:{ w:1200, h:1200},
-      offset:{ x:0, y:0},
-      force: 30000,
+      sizeW: 1200,
+      sizeH: 1200,
+      offsetX: 0,
+      offsetY: 0,
+      force: 2000,
       fX: 0.5,
       fY: 0.5,
       fMb: true,
       fL: true,
       fC: false,
-      nodeSize: 20,
+      nodeSize: 13,
       linkWidth: 4,
       nodeLabels: true,
-      linkLabels: true,
-      fontSize: 20,
+      linkLabels: false,
+      fontSize: 10,
       strLinks: false,
       resizeListener: true,
       noNodes: false,
@@ -182,8 +184,8 @@ export default {
       options(){
         return{
           canvas: this.canvas,
-          size: this.size,
-          offset: this.offset,
+          size: {w: this.sizeW, h: this.sizeH},
+          offset: {x: this.offsetX, y: this.offsetY},
           force: this.force,
           forces:{
            Center: this.fC,
@@ -210,6 +212,10 @@ export default {
       }
     },
     methods: {
+      resize(){
+        this.$set(this,'sizeW',this.$refs.networkView.$el.clientWidth)
+        this.$set(this,'sizeH',this.$refs.networkView.$el.clientHeight)
+      },
       changeIcon(){
         for (let node of this.nodes){
           console.log(node)

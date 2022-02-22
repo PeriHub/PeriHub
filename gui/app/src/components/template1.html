@@ -1,5 +1,5 @@
 <v-container fluid style="height:100%;">
-    <splitpanes style="height:100%;">
+    <splitpanes @resize="resize" style="height:100%;">
       <pane min-size="15" style="height:100%;">
         <v-subheader>
     
@@ -75,7 +75,7 @@
                     <v-expansion-panel-content>
                       <v-list v-for="keyword, index in keywordList" :key="keyword.id"
                       style="padding: 0px">
-                        <v-container v-bind:style="(keyword.id % 2 == 0) ? 'background-color: rgba(233, 233, 233, 1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+                        <v-container v-bind:style="(keyword.id % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
                           <h4>Keyword {{keyword.id}}</h4>
                           <v-row>
                             <v-col class="textfieldlist-col">
@@ -95,7 +95,7 @@
                               </v-tooltip>
                             </v-col>
                           </v-row>
-                            <v-list v-for="key, subindex in keyword.keywords" :key="keyword.keywords.id" v-bind:style="(keyword.id % 2 == 0) ? 'background-color: rgba(233, 233, 233, 1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+                            <v-list v-for="key, subindex in keyword.keywords" :key="keyword.keywords.id" v-bind:style="(keyword.id % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.0);' : 'background-color: rgba(255, 255, 255, 0.0);'">
                               <v-row>
                                 <v-col class="textfieldlist-col">
                                   <v-text-field
@@ -177,17 +177,31 @@
                         ></v-switch>
                         <v-slider
                           v-model="fX"
-                          label="X:"
+                          label="X Force:"
                           max="1"
                           min="0"
                           step="0.1"
                         ></v-slider>
                         <v-slider
                           v-model="fY"
-                          label="Y:"
+                          label="Y Force:"
                           max="1"
                           min="0"
                           step="0.1"
+                        ></v-slider>
+                        <v-slider
+                          v-model="offsetX"
+                          label="X Offset:"
+                          max="1000"
+                          min="-1000"
+                          step="1"
+                        ></v-slider>
+                        <v-slider
+                          v-model="offsetY"
+                          label="Y Offset:"
+                          max="1000"
+                          min="-1000"
+                          step="1"
                         ></v-slider>
                         <v-switch
                           class="checkbox-col"
@@ -269,11 +283,12 @@
               
             </v-subheader>
             <v-card class="my-card"
-            title='Editor'
+            title='Network'
             elevation="0"
             margin-bottom= -17px
             flex
             margin=10px
+            ref="networkView"
             >
               <v-card-title class="my-title" style="padding-top: 0px">
 

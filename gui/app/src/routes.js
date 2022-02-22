@@ -1,5 +1,9 @@
 import LandingPage from './components/LandingPage.vue';
 import PeriHub from './components/PeriHub.vue';
+import LiteratureAnalysis from './components/LiteratureAnalysis.vue';
+import Publications from './components/Publications.vue';
+import Conversion from './components/Conversion.vue';
+
 import Guide from './components/Guide.vue';
 import Input from './components/guides/Input.vue';
 import Model from './components/guides/input/Model.vue';
@@ -22,9 +26,6 @@ import GettingStarted from './components/guides/GettingStarted.vue';
 import Introduction from './components/guides/Introduction.vue';
 import Buttons from './components/guides/Buttons.vue';
 import FAQ from './components/guides/FAQ.vue';
-import Publications from './components/Publications.vue';
-import Conversion from './components/Conversion.vue';
-import LiteratureAnalysis from './components/LiteratureAnalysis.vue';
 
 export default [
   // Redirects to /route-one as the default route.
