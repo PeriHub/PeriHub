@@ -754,9 +754,16 @@ class ModelControl(object):
         elif Cluster=='Cara':
             remotepath = './PeridigmJobs/apiModels/' + os.path.join(username, ModelName)
             ssh, sftp = fileHandler.sftpToCluster(Cluster)
-            for filename in sftp.listdir(remotepath):
-                if('.e' in filename):
-                    status.results = True
+
+            try:
+                for filename in sftp.listdir(remotepath):
+                    if('.e' in filename):
+                        status.results = True
+            except:
+                sftp.close()
+                ssh.close()
+                return status
+
             sftp.close()
             ssh.close()
             jobIds = fileHandler.writeGetCaraJobId()
