@@ -188,17 +188,9 @@
             "sid": "Royer-Carfagni_G.",
             "tid": "International Journal of Solids and Structures",
             "_svgAttrs": {
-                "stroke-width": 1
+                "stroke-width": 2
             },
-            "name": 1
-        },
-        {
-            "sid": "Royer-Carfagni_G.",
-            "tid": "Latin American Journal of Solids and Structures",
-            "_svgAttrs": {
-                "stroke-width": 1
-            },
-            "name": 1
+            "name": 2
         },
         {
             "sid": "Seitenfuss_A.",
@@ -846,11 +838,6 @@
             "id": "Toudeshky_H.",
             "name": "Toudeshky_H.",
             "_size": 1
-        },
-        {
-            "id": "Ai_D.",
-            "name": "Ai_D.",
-            "_size": 2
         }
     ]
 }

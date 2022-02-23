@@ -239,6 +239,14 @@
                           min="1"
                           step="1"
                         ></v-slider>
+                        <v-slider
+                          v-model="nodeSizeFilter"
+                          label="Node size filter:"
+                          :max="maxNodeSize"
+                          min="1"
+                          step="1"
+                          @change="filterNodes"
+                        ></v-slider>
                         <v-list v-if="showSelection" v-for="node in selected" :key="selected.id" style="padding: 0px">
                           <v-row>
                             <v-col class="textfieldlist-col">
@@ -319,8 +327,8 @@
                 ></v-progress-linear>
               </template>
               <d3-network ref='net' 
-              :net-nodes="nodes"
-              :net-links="links"
+              :net-nodes="filteredNodes"
+              :net-links="filteredLinks"
               :selection="{nodes: selected, links: linksSelected}" 
               :options="options"
               :node-sym='nodeSym'

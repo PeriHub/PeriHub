@@ -23,56 +23,80 @@ export default {
     data () {
       return {
         nodes: [
-        { id: 1, name: 'my awesome node 1', _size:40},
-        { id: 2, name: 'my node 2'},
-        { id: 3, name:'orange node', _color: 'orange' },
-        { id: 4, _color: '#4466ff'},
-        { id: 5, _width:10, _height:10 },
-        { id: 6 },
-        { id: 7 },
-        { id: 8 },
-        { id: 9 }
-      ],
-      links: [
-        { sid: 1, tid: 2 },
-        { sid: 2, tid: 8 },
-        { sid: 3, tid: 4,  _svgAttrs:{'stroke-width':8,opacity:1},name:'custom link' },
-        { sid: 4, tid: 5 },
-        { sid: 5, tid: 6 },
-        { sid: 7, tid: 8 },
-        { sid: 5, tid: 8 },
-        { sid: 3, tid: 8 },
-        { sid: 7, tid: 9 }
-      ],
-      canvas:false,
-      sizeW: 1200,
-      sizeH: 1200,
-      offsetX: 0,
-      offsetY: 0,
-      force: 2000,
-      fX: 0.5,
-      fY: 0.5,
-      fMb: true,
-      fL: true,
-      fC: false,
-      nodeSize: 13,
-      linkWidth: 4,
-      nodeLabels: true,
-      linkLabels: false,
-      fontSize: 10,
-      strLinks: false,
-      resizeListener: true,
-      noNodes: false,
-      
-      pinned: false,
-      selected: {},
-      linksSelected: {},
-      nodeSym: null,
-      markerSize: 4,
-      showSelection: false,
+          { id: 1, name: 'my awesome node 1', _size:40},
+          { id: 2, name: 'my node 2'},
+          { id: 3, name:'orange node', _color: 'orange' },
+          { id: 4, _color: '#4466ff'},
+          { id: 5, _width:10, _height:10 },
+          { id: 6 },
+          { id: 7 },
+          { id: 8 },
+          { id: 9 }
+        ],
+        filteredNodes: [
+          { id: 1, name: 'my awesome node 1', _size:40},
+          { id: 2, name: 'my node 2'},
+          { id: 3, name:'orange node', _color: 'orange' },
+          { id: 4, _color: '#4466ff'},
+          { id: 5, _width:10, _height:10 },
+          { id: 6 },
+          { id: 7 },
+          { id: 8 },
+          { id: 9 }
+        ],
+        links: [
+          { sid: 1, tid: 2 },
+          { sid: 2, tid: 8 },
+          { sid: 3, tid: 4,  _svgAttrs:{'stroke-width':8,opacity:1},name:'custom link' },
+          { sid: 4, tid: 5 },
+          { sid: 5, tid: 6 },
+          { sid: 7, tid: 8 },
+          { sid: 5, tid: 8 },
+          { sid: 3, tid: 8 },
+          { sid: 7, tid: 9 }
+        ],
+        filteredLinks: [
+          { sid: 1, tid: 2 },
+          { sid: 2, tid: 8 },
+          { sid: 3, tid: 4,  _svgAttrs:{'stroke-width':8,opacity:1},name:'custom link' },
+          { sid: 4, tid: 5 },
+          { sid: 5, tid: 6 },
+          { sid: 7, tid: 8 },
+          { sid: 5, tid: 8 },
+          { sid: 3, tid: 8 },
+          { sid: 7, tid: 9 }
+        ],
+        canvas:false,
+        sizeW: 1200,
+        sizeH: 1200,
+        offsetX: 0,
+        offsetY: 0,
+        force: 2000,
+        fX: 0.5,
+        fY: 0.5,
+        fMb: true,
+        fL: true,
+        fC: false,
+        nodeSize: 13,
+        linkWidth: 4,
+        nodeLabels: true,
+        linkLabels: false,
+        fontSize: 10,
+        strLinks: false,
+        resizeListener: true,
+        noNodes: false,
+        
+        pinned: false,
+        selected: {},
+        linksSelected: {},
+        nodeSym: null,
+        markerSize: 4,
+        showSelection: false,
+        nodeSizeFilter: 1,
+        maxNodeSize: 0,
 
-      // Model
-      keywordList: [
+        // Model
+        keywordList: [
         {
           id: 1,
           name: 'Peridynamics',
@@ -212,17 +236,71 @@ export default {
       }
     },
     methods: {
+      filterNodes(){
+        this.copyNodesLinks()
+        for (var i = this.filteredNodes.length-1; i >= 0; i--) {
+          let node = this.filteredNodes[i]
+          if (node._size != undefined & node._size < this.nodeSizeFilter){
+            for (var j = this.filteredLinks.length-1; j >= 0; j--) {
+              let link = this.filteredLinks[j]
+              if (link.sid == node.id || link.tid == node.id) {
+                this.filteredLinks.splice(j,1)
+              }
+            }
+            this.filteredNodes.splice(i,1)
+          }
+        }
+        for (var i = this.filteredNodes.length-1; i >= 0; i--) {
+          let node = this.filteredNodes[i]
+          if (node._size == undefined){
+            let nodeLinked = false
+            for (var j = this.filteredLinks.length-1; j >= 0; j--) {
+              let link = this.filteredLinks[j]
+              if (link.sid == node.id || link.tid == node.id) {
+                nodeLinked = true
+                break
+              }
+            }
+            if (!nodeLinked){
+              this.filteredNodes.splice(i,1)
+            }
+          }
+        }
+      },
+      copyNodesLinks(){
+        let maxSize = 0
+        for (let node of this.nodes){
+          if(node._size>maxSize){
+            maxSize = node._size
+          }
+        }
+        this.maxNodeSize = maxSize
+        // id = 0
+        // for (let link of this.links){
+        //   this.$set(this.filteredLinks, id, link)
+        //   id++
+        // }
+        // this.filteredNodes = this.nodes
+        // this.filteredLinks = this.links
+        // this.$set(this.filteredNodes, this.nodes)
+        // this.$set(this.filteredLinks, this.links)
+        this.filteredNodes = [...this.nodes]
+        this.filteredLinks = [...this.links]
+        // Object.assign(this.filteredNodes, this.nodes)
+        // Object.assign(this.filteredLinks, this.links)
+      },
       resize(){
         this.$set(this,'sizeW',this.$refs.networkView.$el.clientWidth)
         this.$set(this,'sizeH',this.$refs.networkView.$el.clientHeight)
       },
       changeIcon(){
-        for (let node of this.nodes){
-          console.log(node)
+        let id = 0
+        for (let node of this.filteredNodes){
           if (node.svgSym == 'journalIcon'){
             let newNode = Object.assign(node,{svgSym:journalIcon, svgIcon:null, svgObj:null})
-            this.$set(this.nodes,node.index,newNode)
+            Object.assign(this.filteredNodes[id], newNode)
           }
+          id++
         }
       },
       loadJsonFile(fr, files) {
@@ -242,9 +320,11 @@ export default {
 
         for(var i = 0; i < Object.keys(NetworkTest).length; i++) {
           var paramName = Object.keys(NetworkTest)[i]
-          this.$set(this, paramName, NetworkTest[paramName])
+          this[paramName] = [...NetworkTest[paramName]]
         }
+        this.copyNodesLinks()
         this.changeIcon()
+        this.resize()
       },
       screenshot() {
         this.$refs["net"].screenShot("Test", "#aa00bb", true, true);
@@ -282,7 +362,8 @@ export default {
         console.log(link)
       },
       selectNode (node) {
-        this.selected[node.id] = node
+        this.$set(this.selected, node.id, node)
+        // this.selected[node.id] = node
       },
       selectLink (link) {
         this.$set(this.linksSelected, link.id, link)
@@ -292,7 +373,7 @@ export default {
         this.linksSelected = {}
       },
       selectNodesLinks () {
-        for (let link of this.links) {
+        for (let link of this.filteredLinks) {
           // node is selected
           if (this.selected[link.sid] || this.selected[link.tid]) {
             this.selectLink(link)
@@ -304,7 +385,7 @@ export default {
       },
       unSelectNode (nodeId) {
         if (this.selected[nodeId]) {
-          delete (this.selected[nodeId])
+          this.$delete(this.selected, nodeId);
         }
         this.selectNodesLinks()
       },
@@ -313,7 +394,7 @@ export default {
       },
       unSelectLink (linkId) {
         if (this.linksSelected[linkId]) {
-          delete (this.linksSelected[linkId])
+          this.$delete(this.linksSelected, linkId);
         }
       },
       updateSelection () {
@@ -329,10 +410,10 @@ export default {
           node.fx = null
           node.fy = null
         }
-        this.nodes[node.index] = node
+        this.$set(this.filteredNodes,node.index,node)
       },
       showSelected(event, node) {
-        this.nodes[node.index]._color='gray'
+        this.filteredNodes[node.index]._color='gray'
       },
       // lcb(link){
       //   link._svgAttrs = { 'marker-end': 'url(#m-end)',
