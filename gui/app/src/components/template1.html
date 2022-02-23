@@ -240,8 +240,16 @@
                           step="1"
                         ></v-slider>
                         <v-slider
-                          v-model="nodeSizeFilter"
-                          label="Node size filter:"
+                          v-model="minNodeSizeFilter"
+                          label="Min node size filter:"
+                          :max="maxNodeSize"
+                          min="1"
+                          step="1"
+                          @change="filterNodes"
+                        ></v-slider>
+                        <v-slider
+                          v-model="maxNodeSizeFilter"
+                          label="Max node size filter:"
                           :max="maxNodeSize"
                           min="1"
                           step="1"
@@ -274,6 +282,22 @@
                               </v-tooltip>
                             </v-col>
                           </v-row>
+                          <v-list v-for="doi in node.dois" :key="node.dois.id" style="padding: 0px">
+                            <v-row>
+                              <v-col class="textfieldlist-col">
+                                {{ doi }}
+                              </v-col>
+                              <v-col class="textfieldlist-col">
+                                <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                                  <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="openDoi(doi)">
+                                      <i class="fas fa-external-link-alt"></i>
+                                  </v-btn>
+                                  </template>
+                                    <span>Get Name</span>
+                                </v-tooltip>
+                              </v-col>
+                            </v-row>
+                          </v-list>
                         </v-list>
                       </v-expansion-panel-content>
                     </v-expansion-panel>
@@ -308,6 +332,22 @@
               </template>
                 <span v-if="pinned">Select</span>
                 <span v-if="!pinned">Pin / Unpin</span>
+              </v-tooltip>
+    
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="pinAllNodes(true)">
+                    <i class="fas fa-thumbtack"></i>
+                </v-btn>
+              </template>
+                <span>Pin all</span>
+              </v-tooltip>
+    
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="pinAllNodes(false)">
+                    <i class="fas fa-thumbtack"></i>
+                </v-btn>
+              </template>
+                <span>Unpin all</span>
               </v-tooltip>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">

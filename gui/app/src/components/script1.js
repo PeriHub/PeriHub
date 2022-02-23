@@ -92,7 +92,8 @@ export default {
         nodeSym: null,
         markerSize: 4,
         showSelection: false,
-        nodeSizeFilter: 1,
+        minNodeSizeFilter: 1,
+        maxNodeSizeFilter: 1,
         maxNodeSize: 0,
 
         // Model
@@ -212,9 +213,9 @@ export default {
           offset: {x: this.offsetX, y: this.offsetY},
           force: this.force,
           forces:{
-           Center: this.fC,
            X:this.fX,
            Y:this.fY,
+           Center: this.fC,
            ManyBody:this.fMb,
            Link:this.fL,
           },
@@ -240,7 +241,7 @@ export default {
         this.copyNodesLinks()
         for (var i = this.filteredNodes.length-1; i >= 0; i--) {
           let node = this.filteredNodes[i]
-          if (node._size != undefined & node._size < this.nodeSizeFilter){
+          if (node._size != undefined & node._size < this.minNodeSizeFilter | node._size > this.maxNodeSizeFilter ){
             for (var j = this.filteredLinks.length-1; j >= 0; j--) {
               let link = this.filteredLinks[j]
               if (link.sid == node.id || link.tid == node.id) {
@@ -268,13 +269,6 @@ export default {
         }
       },
       copyNodesLinks(){
-        let maxSize = 0
-        for (let node of this.nodes){
-          if(node._size>maxSize){
-            maxSize = node._size
-          }
-        }
-        this.maxNodeSize = maxSize
         // id = 0
         // for (let link of this.links){
         //   this.$set(this.filteredLinks, id, link)
@@ -288,6 +282,16 @@ export default {
         this.filteredLinks = [...this.links]
         // Object.assign(this.filteredNodes, this.nodes)
         // Object.assign(this.filteredLinks, this.links)
+      },
+      setMaxNodeSize(){
+        let maxSize = 0
+        for (let node of this.nodes){
+          if(node._size>maxSize){
+            maxSize = node._size
+          }
+        }
+        this.maxNodeSize = maxSize
+        this.maxNodeSizeFilter = maxSize
       },
       resize(){
         this.$set(this,'sizeW',this.$refs.networkView.$el.clientWidth)
@@ -323,8 +327,12 @@ export default {
           this[paramName] = [...NetworkTest[paramName]]
         }
         this.copyNodesLinks()
+        this.setMaxNodeSize()
         this.changeIcon()
         this.resize()
+      },
+      openDoi(link) {
+        window.open("https://doi.org/" + link, "_blank");
       },
       screenshot() {
         this.$refs["net"].screenShot("Test", "#aa00bb", true, true);
@@ -411,6 +419,22 @@ export default {
           node.fy = null
         }
         this.$set(this.filteredNodes,node.index,node)
+      },
+      pinAllNodes (pinUnpin) {
+        if (pinUnpin) {
+          for (let node of this.filteredNodes){
+            node.pinned = true
+            node.fx = node.x
+            node.fy = node.y
+          }
+        } else {
+          for (let node of this.filteredNodes){
+            node.pinned = false
+            node.fx = null
+            node.fy = null
+          }
+        }
+        // this.$set(this.filteredNodes,node.index,node)
       },
       showSelected(event, node) {
         this.filteredNodes[node.index]._color='gray'
