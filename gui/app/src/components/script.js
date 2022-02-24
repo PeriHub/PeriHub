@@ -1211,7 +1211,8 @@ import { Plotly } from 'vue-plotly'
               }
               // console.log(this[paramName])
               // console.log(jsonFile[paramName])
-              this.$set(this, paramName, jsonFile[paramName])
+              this[paramName] = [...jsonFile[paramName]]
+              // this.$set(this, paramName, jsonFile[paramName])
               // Object.assign(this[paramName], jsonFile[paramName])
             }
           // }
@@ -1898,6 +1899,11 @@ import { Plotly } from 'vue-plotly'
       removeOutput(index) {
         this.outputs.splice(index, 1)
       },
+      modelNameChangedEvent(){
+        this.showModelImg()
+        this.getStatus()
+        this.resetData()
+      },
       showModelImg() {
         switch (this.model.modelNameSelected) {
         case 'GIICmodel':  
@@ -2017,6 +2023,7 @@ import { Plotly } from 'vue-plotly'
       // console.log("mounted")
       this.getCurrentData()
       this.getStatus()
+      this.showModelImg()
     },
     updated() {
       // console.log("updated")

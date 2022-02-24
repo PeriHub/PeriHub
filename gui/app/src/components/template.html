@@ -118,7 +118,7 @@
                       :items="modelName"
                       v-model="model.modelNameSelected"
                       v-show="!model.ownModel"
-                      @change="showModelImg(); resetData();"
+                      @change="modelNameChangedEvent"
                       label="Model Name"
                       outlined></v-select>
                     <v-text-field 

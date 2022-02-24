@@ -95,6 +95,9 @@ export default {
         minNodeSizeFilter: 1,
         maxNodeSizeFilter: 1,
         maxNodeSize: 0,
+        minBarSizeFilter: 1,
+        maxBarSizeFilter: 1,
+        maxBarSize: 0,
 
         // Model
         keywordList: [
@@ -130,17 +133,20 @@ export default {
         snackbar: false,
         message: 'Messsages',
         authToken: '',
+        plotLoading: false,
+        networkLoading: false,
         plotRawData: '',
         plotLoading: false,
         plotData:[{
           name: 'Displacement',
-          x: [1,2,3,4],
+          x: ['a','b','c','d'],
           y: [10,15,20,17],
-          type:"scatter"},{
-          name: 'Force',
-          x: [1,2,3,4],
-          y: [10,15,5,17],
-          type:"scatter"}],
+          type:"bar"}],
+        filteredPlotData:[{
+          name: 'Displacement',
+          x: ['a','b','c','d'],
+          y: [10,15,20,17],
+          type:"bar"}],
         plotLayout:{
           // title: 'this.model.modelNameSelected',
           showlegend: true,
@@ -179,6 +185,7 @@ export default {
           scrollZoom: true,
           setBackground: 'black'
         },
+        dialogGetPlot: false,
         logInterval: null,
         statusInterval: null,
         monitorToggle: false,
@@ -236,7 +243,121 @@ export default {
         return value.toFixed(2)
       }
     },
+    created() {
+      window.addEventListener("resize", this.windowResizedEvent);
+    },
+    destroyed() {
+      window.removeEventListener("resize", this.windowResizedEvent);
+    },
     methods: {
+      async getConnections() {
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
+        }
+
+        let reqOptions = {
+          url: this.url + "getConnections",
+          // params: {ModelName: this.model.modelNameSelected,
+          //         Cluster: this.job.cluster},
+          method: "GET",
+          headers: headersList,
+          }
+
+        this.networkLoading = true
+        let jsonResponse = ''
+        await axios.request(reqOptions).then(response => (
+          jsonResponse = response.data))
+        // console.log(jsonResponse)
+        let jsonObject = JSON.parse(jsonResponse)
+        for(var i = 0; i < Object.keys(jsonObject[0]).length; i++) {
+          var paramName = Object.keys(jsonObject[0])[i]
+          this[paramName] = [...jsonObject[0][paramName]]
+        }
+        this.copyNodesLinks()
+        this.setMaxNodeSize()
+        this.changeIcon()
+        this.resize()
+        this.networkLoading = false
+      },
+      async getBarChart(Variable) {
+        this.dialogGetPlot = false
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
+        }
+
+        let reqOptions = {
+          url: this.url + "getBarChart",
+          params: {Variable: Variable},
+          method: "GET",
+          headers: headersList,
+          }
+
+        this.networkLoading = true
+        let jsonResponse = ''
+        await axios.request(reqOptions).then(response => (
+          jsonResponse = response.data))
+        // console.log(jsonResponse)
+        let jsonObject = JSON.parse(jsonResponse)
+        this.plotData[0].x = []
+        this.filteredPlotData[0].x = []
+        this.plotData[0].y = []
+        this.filteredPlotData[0].y = []
+        this.plotData[0].name = Object.keys(jsonObject[0])[0]
+        this.filteredPlotData[0].name = Object.keys(jsonObject[0])[0]
+        this.plotData[0].type = 'bar'
+        this.filteredPlotData[0].type = 'bar'
+
+        let maxSize = 0
+        for(var i = 0; i < jsonObject.length; i++) {
+          for(var j = 0; j < Object.keys(jsonObject[i]).length; j++) {
+            var paramName = Object.keys(jsonObject[i])[j]
+            // console.log(paramName)
+            // console.log(jsonObject[i][paramName])
+            if(paramName=='Number'){
+              this.plotData[0].y.push(jsonObject[i][paramName])
+              this.filteredPlotData[0].y.push(jsonObject[i][paramName])
+              if(jsonObject[i][paramName]>maxSize){
+                maxSize = jsonObject[i][paramName]
+              }
+            }
+            else{
+              this.plotData[0].x.push(jsonObject[i][paramName])
+              this.filteredPlotData[0].x.push(jsonObject[i][paramName])
+            }
+          }
+        }
+        this.maxBarSize = maxSize
+        this.maxBarSizeFilter = maxSize
+
+        // Object.assign(this.filteredPlotData,this.plotData)
+        // this.$set(this.filteredPlotData,this.plotData)
+        // this.filteredPlotData = [...this.plotData]
+        this.networkLoading = false
+      },
+      windowResizedEvent(){
+        this.resize()
+      },
+      filterPlot(){
+        // this.$set(this.filteredPlotData,this.plotData)
+        // Object.assign(this.filteredPlotData,this.plotData)
+        this.filteredPlotData[0].x = []
+        this.filteredPlotData[0].y = []
+        for (var i =  0; i < this.plotData[0].y.length; i++) {
+          this.filteredPlotData[0].x.push(this.plotData[0].x[i])
+          this.filteredPlotData[0].y.push(this.plotData[0].y[i])
+        }
+        // this.filteredPlotData = [...this.plotData]
+        // let tempData = [...this.plotData]
+        for (var i = this.filteredPlotData[0].y.length-1; i >= 0; i--) {
+          if (this.filteredPlotData[0].y[i] > this.maxBarSizeFilter || this.filteredPlotData[0].y[i] < this.minBarSizeFilter ){
+            this.filteredPlotData[0].x.splice(i,1)
+            this.filteredPlotData[0].y.splice(i,1)
+          }
+        }
+        // this.filteredPlotData = [...tempData]
+      },
       filterNodes(){
         this.copyNodesLinks()
         for (var i = this.filteredNodes.length-1; i >= 0; i--) {
@@ -269,19 +390,8 @@ export default {
         }
       },
       copyNodesLinks(){
-        // id = 0
-        // for (let link of this.links){
-        //   this.$set(this.filteredLinks, id, link)
-        //   id++
-        // }
-        // this.filteredNodes = this.nodes
-        // this.filteredLinks = this.links
-        // this.$set(this.filteredNodes, this.nodes)
-        // this.$set(this.filteredLinks, this.links)
         this.filteredNodes = [...this.nodes]
         this.filteredLinks = [...this.links]
-        // Object.assign(this.filteredNodes, this.nodes)
-        // Object.assign(this.filteredLinks, this.links)
       },
       setMaxNodeSize(){
         let maxSize = 0
@@ -636,6 +746,7 @@ export default {
     mounted() {
       // console.log("mounted")
       this.getCurrentData()
+      this.resize()
       // this.getStatus()
     },
     updated() {

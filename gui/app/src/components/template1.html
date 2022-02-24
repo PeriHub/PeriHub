@@ -150,6 +150,29 @@
                   </v-expansion-panel>
                   <v-expansion-panel>
                       <v-expansion-panel-header>
+                        <h2>Bar Plot</h2>
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content>
+                        <v-slider
+                          v-model="minBarSizeFilter"
+                          label="Min bar size filter:"
+                          :max="maxBarSize"
+                          min="1"
+                          step="1"
+                          @change="filterPlot"
+                        ></v-slider>
+                        <v-slider
+                          v-model="maxBarSizeFilter"
+                          label="Max bar size filter:"
+                          :max="maxBarSize"
+                          min="1"
+                          step="1"
+                          @change="filterPlot"
+                        ></v-slider>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+                  <v-expansion-panel>
+                      <v-expansion-panel-header>
                         <h2>Network</h2>
                       </v-expansion-panel-header>
                       <v-expansion-panel-content>
@@ -310,20 +333,105 @@
       </pane>
       <pane min-size="40" style="height:100%;">
         <splitpanes horizontal style="height: 100%">
+          <pane size="55">
+             <!-- <v-container> -->
+            
+            <v-subheader>
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getConnections">
+                    <i class="fas fa-play"></i>
+                </v-btn>
+              </template>
+                <span>Get connections</span>
+              </v-tooltip>
+    
+              <v-spacer/>
+              
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetPlot = true">
+                    <i class="fas fa-chart-line"></i>
+                </v-btn>
+              </template>
+                <span>Show Plot</span>
+              </v-tooltip>
+
+              <v-dialog
+                v-model="dialogGetPlot"
+                persistent
+                max-width="400"
+              >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Show Plot
+                    </v-card-title>
+                    <v-card-text>Which variable do you want to use for the x-axis?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getBarChart('Journal')"
+                      >
+                      Journal
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getBarChart('Year')"
+                      >
+                      Year
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getBarChart('Authors')"
+                      >
+                      Authors
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogGetPlot = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
+    
+            </v-subheader>
+            <v-card class="my-card"
+            title='NetworkView'
+            elevation="0"
+            height=100%
+            width=100%
+            margin=10px
+            :loading="networkLoading"
+            color="#2D2D2D"
+            ref="networkView"
+            >
+            
+            <v-card-title class="my-title" style="padding-top: 0px">
+
+            </v-card-title>
+              <template slot="progress">
+                <v-progress-linear
+                  color="deep-purple"
+                  height="10"
+                  indeterminate
+                ></v-progress-linear>
+              </template>
+              <Plotly 
+                :data="filteredPlotData" 
+                :layout="plotLayout" 
+                :options="plotOptions" 
+                :display-mode-bar="true">
+              </Plotly>
+            </v-card>
+          </pane>
           <pane size="45">
             <v-subheader>
               
-            </v-subheader>
-            <v-card class="my-card"
-            title='Network'
-            elevation="0"
-            margin-bottom= -17px
-            flex
-            margin=10px
-            ref="networkView"
-            >
-              <v-card-title class="my-title" style="padding-top: 0px">
-
               <v-tooltip bottom class="my-btn"><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="pinned = !pinned">
                     <i v-if="pinned" class="fas fa-mouse-pointer"></i>
@@ -358,6 +466,17 @@
                 <span>Screenshot</span>
               </v-tooltip>
     
+            </v-subheader>
+            <v-card class="my-card"
+            title='Network'
+            elevation="0"
+            margin-bottom= -17px
+            flex
+            margin=10px
+            ref="networkView"
+            >
+              <v-card-title class="my-title" style="padding-top: 0px">
+
             </v-card-title>
               <template slot="progress">
                 <v-progress-linear
