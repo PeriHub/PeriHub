@@ -54,7 +54,7 @@ tags_metadata = [
     {"name": "Put Methods", "description": "Run, cancel or write jobs"},
     {"name": "Get Methods", "description": "Get mesh files, input files or postprocessing data"},
     {"name": "Delete Methods", "description": "Delete user or model data"},
-    {"name": "Documentation Methods", "description": "Retrieve markdwon documentaion or bibtex files"},
+    {"name": "Documentation Methods", "description": "Retrieve markdown documentation or bibtex files"},
 ]
 
 app = FastAPI(openapi_tags=tags_metadata)

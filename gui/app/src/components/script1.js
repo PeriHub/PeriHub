@@ -22,7 +22,7 @@ export default {
     },
     data () {
       return {
-        model:{
+        analysisModel:{
           fileName: 'Test',
         },
         database: {},
@@ -73,21 +73,29 @@ export default {
         canvas:false,
         sizeW: 1200,
         sizeH: 1200,
-        offsetX: 0,
-        offsetY: 0,
-        force: 2000,
-        fX: 0.5,
-        fY: 0.5,
-        fMb: true,
-        fL: true,
-        fC: false,
-        nodeSize: 1,
-        journalNodeSize: 13,
-        linkWidth: 4,
-        nodeLabels: true,
-        linkLabels: false,
-        fontSize: 10,
-        strLinks: false,
+        barPlot: {
+          minBarSizeFilter: 10,
+          maxBarSizeFilter: 20
+        },
+        network: {
+          offsetX: 0,
+          offsetY: 0,
+          force: 2000,
+          fX: 0.5,
+          fY: 0.5,
+          fMb: true,
+          fL: true,
+          fC: false,
+          nodeSize: 1,
+          journalNodeSize: 13,
+          linkWidth: 4,
+          nodeLabels: true,
+          linkLabels: false,
+          fontSize: 10,
+          strLinks: false,
+          minNodeSizeFilter: 10,
+          maxNodeSizeFilter: 20
+        },
         resizeListener: true,
         noNodes: false,
         
@@ -97,12 +105,8 @@ export default {
         nodeSym: null,
         markerSize: 4,
         showSelection: false,
-        minNodeSizeFilter: 1,
-        maxNodeSizeFilter: 1,
-        maxNodeSize: 0,
-        minBarSizeFilter: 1,
-        maxBarSizeFilter: 1,
-        maxBarSize: 0,
+        maxNodeSize: 10,
+        maxBarSize: 10,
 
         // Model
         keywordList: [
@@ -124,7 +128,7 @@ export default {
           ],
           weight: 10
         }],
-        url: 'https://perihub-api.fa-services.intra.dlr.de/',
+        url: 'https://datanalytics-api.fa-services.intra.dlr.de/',
         snackbar: false,
         message: 'Messsages',
         authToken: '',
@@ -180,13 +184,21 @@ export default {
           scrollZoom: true,
           setBackground: 'black'
         },
+        status:{
+          bibFileExist: false,
+          dumpExist: false
+        },
         dialogGetPlot: false,
         dialogGetConnections: false,
+        dialogDeleteData: false,
+        dialogDeleteModel: false,
+        dialogDeleteCookies: false,
+        dialogDeleteUserData: false,
         logInterval: null,
         statusInterval: null,
         monitorToggle: false,
         viewId: 0,
-        panel: [0],
+        panel2: [0],
         rules: {
           required: value => !!value || value == 0 || 'Required',
           name: value => {
@@ -213,21 +225,21 @@ export default {
         return{
           canvas: this.canvas,
           size: {w: this.sizeW, h: this.sizeH},
-          offset: {x: this.offsetX, y: this.offsetY},
-          force: this.force,
+          offset: {x: this.network.offsetX, y: this.network.offsetY},
+          force: this.network.force,
           forces:{
-           X:this.fX,
-           Y:this.fY,
-           Center: this.fC,
-           ManyBody:this.fMb,
-           Link:this.fL,
+           X:this.network.fX,
+           Y:this.network.fY,
+           Center: this.network.fC,
+           ManyBody:this.network.fMb,
+           Link:this.network.fL,
           },
-          nodeSize: this.journalNodeSize,
-          linkWidth: this.linkWidth,
-          nodeLabels: this.nodeLabels,
-          linkLabels: this.linkLabels,
-          fontSize: this.fontSize,
-          strLinks: this.strLinks,
+          nodeSize: this.network.journalNodeSize,
+          linkWidth: this.network.linkWidth,
+          nodeLabels: this.network.nodeLabels,
+          linkLabels: this.network.linkLabels,
+          fontSize: this.network.fontSize,
+          strLinks: this.network.strLinks,
           resizeListener: this.resizeListener,
           noNodes: this.noNodes
         }
@@ -247,6 +259,8 @@ export default {
     },
     methods: {
       async generateDatabase() {
+        this.plotLoading = true
+        this.networkLoading = true
         let headersList = {
         'Cache-Control': 'no-cache',
         'Authorization': this.authToken
@@ -254,7 +268,7 @@ export default {
 
         let reqOptions = {
           url: this.url + "generateDatabase",
-          params: {FileName: this.model.fileName},
+          params: {FileName: this.analysisModel.fileName},
           data: this.keywordList,
           method: "PUT",
           headers: headersList,
@@ -262,9 +276,15 @@ export default {
 
         await axios.request(reqOptions).then(response => (this.message = response.data))
         await this.getBibDatabase()
+        await this.getConnections('Journal')
+        await this.getBarChart('Journal')
+        this.plotLoading = false
+        this.networkLoading = false
         this.snackbar=true
+        this.getStatus()
       },
       async getConnections(Variable) {
+        this.networkLoading = true
         this.dialogGetConnections = false
         if(Variable=='Keys'){
           this.findKeywords()
@@ -276,12 +296,11 @@ export default {
 
         let reqOptions = {
           url: this.url + "getConnections",
-          params: {FileName: this.model.fileName,Variable: Variable},
+          params: {FileName: this.analysisModel.fileName,Variable: Variable},
           method: "GET",
           headers: headersList,
           }
 
-        this.networkLoading = true
         let jsonResponse = ''
         await axios.request(reqOptions).then(response => (
           jsonResponse = response.data))
@@ -294,6 +313,7 @@ export default {
         this.copyNodesLinks()
         this.setMaxNodeSize()
         this.changeIcon()
+        this.filterNodes()
         this.resize()
         this.networkLoading = false
       },
@@ -305,7 +325,7 @@ export default {
 
         let reqOptions = {
           url: this.url + "getBibDatabase",
-          params: {FileName: this.model.fileName},
+          params: {FileName: this.analysisModel.fileName},
           method: "GET",
           headers: headersList,
           }
@@ -317,6 +337,7 @@ export default {
       },
       async getBarChart(Variable) {
         this.dialogGetPlot = false
+        this.plotLoading = true
         let headersList = {
         'Cache-Control': 'no-cache',
         'Authorization': this.authToken
@@ -324,12 +345,11 @@ export default {
 
         let reqOptions = {
           url: this.url + "getBarChart",
-          params: {FileName: this.model.fileName,Variable: Variable},
+          params: {FileName: this.analysisModel.fileName,Variable: Variable},
           method: "GET",
           headers: headersList,
           }
 
-        this.networkLoading = true
         let jsonResponse = ''
         await axios.request(reqOptions).then(response => (
           jsonResponse = response.data))
@@ -364,12 +384,27 @@ export default {
           }
         }
         this.maxBarSize = maxSize
-        this.maxBarSizeFilter = maxSize
-
+        this.barPlot.maxBarSizeFilter = maxSize
+        this.filterPlot()
         // Object.assign(this.filteredPlotData,this.plotData)
         // this.$set(this.filteredPlotData,this.plotData)
         // this.filteredPlotData = [...this.plotData]
-        this.networkLoading = false
+        this.plotLoading = false
+      },
+      async getStatus() {
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
+        }
+
+        let reqOptions = {
+          url: this.url + "getStatus",
+          params: {FileName: this.analysisModel.fileName},
+          method: "GET",
+          headers: headersList,
+        }
+
+        await axios.request(reqOptions).then(response => (this.status = response.data))
       },
       async findKeywords() {
         let headersList = {
@@ -379,7 +414,7 @@ export default {
 
         let reqOptions = {
           url: this.url + "findKeywords",
-          params: {FileName: this.model.fileName},
+          params: {FileName: this.analysisModel.fileName},
           data: this.keywordList,
           method: "PUT",
           headers: headersList,
@@ -403,7 +438,7 @@ export default {
         // this.filteredPlotData = [...this.plotData]
         // let tempData = [...this.plotData]
         for (var i = this.filteredPlotData[0].y.length-1; i >= 0; i--) {
-          if (this.filteredPlotData[0].y[i] > this.maxBarSizeFilter || this.filteredPlotData[0].y[i] < this.minBarSizeFilter ){
+          if (this.filteredPlotData[0].y[i] > this.barPlot.maxBarSizeFilter || this.filteredPlotData[0].y[i] < this.barPlot.minBarSizeFilter ){
             this.filteredPlotData[0].x.splice(i,1)
             this.filteredPlotData[0].y.splice(i,1)
           }
@@ -414,7 +449,7 @@ export default {
         this.copyNodesLinks()
         for (var i = this.filteredNodes.length-1; i >= 0; i--) {
           let node = this.filteredNodes[i]
-          if (node.numDois != undefined & node.numDois < this.minNodeSizeFilter | node.numDois > this.maxNodeSizeFilter ){
+          if (node.numDois != undefined & node.numDois < this.network.minNodeSizeFilter | node.numDois > this.network.maxNodeSizeFilter ){
             for (var j = this.filteredLinks.length-1; j >= 0; j--) {
               let link = this.filteredLinks[j]
               if (link.sid == node.id || link.tid == node.id) {
@@ -442,7 +477,7 @@ export default {
         }
       },
       changeNodeSize(){
-        this.copyNodesLinks()
+        // this.copyNodesLinks()
         let id = 0
         for (let node of this.filteredNodes){
           if (node.svgSym != 'journalIcon'){
@@ -464,7 +499,7 @@ export default {
           }
         }
         this.maxNodeSize = maxSize
-        this.maxNodeSizeFilter = maxSize
+        this.network.maxNodeSizeFilter = maxSize
       },
       resize(){
         this.$set(this,'sizeW',this.$refs.networkView.$el.clientWidth)
@@ -481,9 +516,6 @@ export default {
         }
       },
       loadJsonFile(fr, files) {
-        this.model.ownModel=false
-        this.model.translated=false
-        
         fr.onload = e => {
           const result = JSON.parse(e.target.result);
           for(var j = 0; j < Object.keys(result).length; j++) {
@@ -491,7 +523,7 @@ export default {
             Object.assign(this[paramName], result[paramName])
           }
         }
-        fr.readAsText(files.item(0));
+        fr.readAsText(files);
       },
       resetData() {
 
@@ -618,19 +650,14 @@ export default {
       //   return link
       // },
       saveData() {
-        const data = "{\"model\": " + JSON.stringify(this.model, null, 2)+",\n" +
-                      "\"materials\": " + JSON.stringify(this.materials, null, 2)+",\n" +
-                      "\"damages\": " + JSON.stringify(this.damages, null, 2)+",\n" +
-                      "\"blocks\": " + JSON.stringify(this.blocks, null, 2)+",\n" +
-                      "\"boundaryConditions\": " + JSON.stringify(this.boundaryConditions, null, 2)+",\n" +
-                      "\"bondFilters\": " + JSON.stringify(this.bondFilters, null, 2)+",\n" +
-                      "\"computes\": " + JSON.stringify(this.computes, null, 2)+",\n" +
-                      "\"outputs\": " + JSON.stringify(this.outputs, null, 2)+",\n" +
-                      "\"solver\": " + JSON.stringify(this.solver, null, 2) + "}";
+        const data = "{\"analysisModel\": " + JSON.stringify(this.analysisModel, null, 2)+",\n" +
+                      "\"keywordList\": " + JSON.stringify(this.keywordList, null, 2)+",\n" +
+                      "\"barPlot\": " + JSON.stringify(this.barPlot, null, 2)+",\n" +
+                      "\"network\": " + JSON.stringify(this.network, null, 2)+ "}";
         var fileURL = window.URL.createObjectURL(new Blob([data], {type: 'application/json'}));
         var fileLink = document.createElement('a');
         fileLink.href = fileURL;
-        fileLink.setAttribute('download', this.model.modelNameSelected + '.json');
+        fileLink.setAttribute('download', this.analysisModel.fileName + '.json');
         document.body.appendChild(fileLink);
         fileLink.click();
       },
@@ -689,7 +716,7 @@ export default {
 
         let reqOptions = {
           url: this.url + "uploadBibfile",
-          params: {FileName: this.model.fileName},
+          params: {FileName: this.analysisModel.fileName},
           data: formData,
           method: "POST",
           headers: headersList,
@@ -702,6 +729,7 @@ export default {
           this.message = error
           return
         })
+        this.getStatus()
       },
       async uploadfiles(files) {
         // this.snackbar=true
@@ -719,7 +747,7 @@ export default {
 
         let reqOptions = {
           url: this.url + "uploadfiles",
-          params: {FileName: this.model.fileName},
+          params: {FileName: this.analysisModel.fileName},
           data: formData,
           method: "POST",
           headers: headersList,
@@ -733,23 +761,43 @@ export default {
           return
         })
       },
-      async cancelJob() {
+      async deleteFiles() {
+        this.dialogDeleteFiles = false;
+        
         let headersList = {
         'Cache-Control': 'no-cache',
         'Authorization': this.authToken
         }
 
         let reqOptions = {
-          url: this.url + "cancelJob",
-          params: {ModelName: this.model.modelNameSelected,
-                  Cluster: this.job.cluster,},
-          method: "PUT",
+          url: this.url + "deleteFiles",
+          params: {FileName: this.analysisModel.fileName},
+          method: "DELETE",
           headers: headersList,
+          }
+          
+        axios.request(reqOptions).then(response => (this.message = response.data))
+        this.snackbar=true
+        this.getStatus()
+      },
+      async deleteUserData() {
+        this.dialogDeleteUserData = false;
+        
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
         }
 
-        await axios.request(reqOptions).then(response => (this.message = response.data))
+        let reqOptions = {
+          url: this.url + "deleteUserData",
+          params: {checkDate: false},
+          method: "DELETE",
+          headers: headersList,
+          }
+          
+        axios.request(reqOptions).then(response => (this.message = response.data))
         this.snackbar=true
-        this.monitorStatus(false)
+        this.getStatus()
       },
       monitorLogFile() {
         if(this.monitorToggle){
@@ -788,7 +836,11 @@ export default {
         this.keywordList[index].keywords.splice(subindex, 1)
       },
       getCurrentData() {
-        this.getLocalStorage('panel');
+        this.getLocalStorage('panel2');
+        this.getLocalStorage('analysisModel');
+        this.getLocalStorage('keywordList');
+        this.getLocalStorage('barPlot');
+        this.getLocalStorage('network');
       },
       getLocalStorage(name){
         if (localStorage.getItem(name)) 
@@ -797,7 +849,11 @@ export default {
       deleteCookies() {
         this.dialogDeleteCookies = false;
         this.$cookie.delete('darkMode')
-        localStorage.removeItem('panel');
+        localStorage.removeItem('panel2');
+        localStorage.removeItem('analysisModel');
+        localStorage.removeItem('keywordList');
+        localStorage.removeItem('barPlot');
+        localStorage.removeItem('network');
       },
       getAuthToken() {
         let reqOptions = {
@@ -807,11 +863,11 @@ export default {
         // console.log(this.authToken);
       },
       openHidePanels() {
-        if (this.panel.length==0){
-          this.panel=[0,1,2,3,4,5,6,7]
+        if (this.panel2.length==0){
+          this.panel2=[0,1,2,3,4,5,6,7]
         }
         else{
-          this.panel=[]
+          this.panel2=[]
         }
       },
     },
@@ -831,7 +887,7 @@ export default {
       // console.log("mounted")
       this.getCurrentData()
       this.resize()
-      // this.getStatus()
+      this.getStatus()
     },
     updated() {
       // console.log("updated")
@@ -848,17 +904,38 @@ export default {
       clearInterval(this.statusInterval)
     },
     watch: {
-      model: {
+      analysisModel: {
           handler() {
               // console.log('model changed!');
-              localStorage.setItem('model', JSON.stringify(this.model));
+              localStorage.setItem('analysisModel', JSON.stringify(this.analysisModel));
           },
           deep: true,
       },
-      panel: {
+      keywordList: {
           handler() {
-              // console.log('panel changed!');
-              localStorage.setItem('panel', JSON.stringify(this.panel));
+              // console.log('model changed!');
+              localStorage.setItem('keywordList', JSON.stringify(this.keywordList));
+          },
+          deep: true,
+      },
+      barPlot: {
+          handler() {
+              // console.log('model changed!');
+              localStorage.setItem('barPlot', JSON.stringify(this.barPlot));
+          },
+          deep: true,
+      },
+      network: {
+          handler() {
+              // console.log('model changed!');
+              localStorage.setItem('network', JSON.stringify(this.network));
+          },
+          deep: true,
+      },
+      panel2: {
+          handler() {
+              // console.log('2 changed!');
+              localStorage.setItem('panel2', JSON.stringify(this.panel2));
           },
           deep: true,
       },

@@ -55,7 +55,7 @@
               </v-tooltip>
 
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="generateDatabase">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="generateDatabase" :disabled="!status.bibFileExist">
                     <i class="fas fa-cogs"></i>
                 </v-btn>
               </template>
@@ -82,7 +82,7 @@
       <!-- <v-list-item-group> -->
         <!-- <v-list-item> -->
         <v-card>
-          <v-expansion-panels height=45vh v-model="panel" multiple>
+          <v-expansion-panels height=45vh v-model="panel2" multiple>
                 <v-expansion-panel>
                 <v-expansion-panel-header>
                   <h2>Model</h2>
@@ -90,7 +90,7 @@
                 <v-expansion-panel-content>
                   <v-text-field 
                     class="textfield-col"
-                    v-model="model.fileName"
+                    v-model="analysisModel.fileName"
                     :rules="[rules.required]"
                     label="File Name"
                     outlined></v-text-field>
@@ -183,7 +183,7 @@
                       </v-expansion-panel-header>
                       <v-expansion-panel-content>
                         <v-slider
-                          v-model="minBarSizeFilter"
+                          v-model="barPlot.minBarSizeFilter"
                           label="Min bar size filter:"
                           :max="maxBarSize"
                           min="1"
@@ -191,7 +191,7 @@
                           @change="filterPlot"
                         ></v-slider>
                         <v-slider
-                          v-model="maxBarSizeFilter"
+                          v-model="barPlot.maxBarSizeFilter"
                           label="Max bar size filter:"
                           :max="maxBarSize"
                           min="1"
@@ -206,7 +206,7 @@
                       </v-expansion-panel-header>
                       <v-expansion-panel-content>
                         <v-slider
-                          v-model="force"
+                          v-model="network.force"
                           label="Force:"
                           max="5000"
                           min="0"
@@ -214,42 +214,42 @@
                         ></v-slider>
                         <v-switch
                           class="checkbox-col"
-                          v-model="fMb"
+                          v-model="network.fMb"
                           label="ManyBody"
                         ></v-switch>
                         <v-switch
                           class="checkbox-col"
-                          v-model="fL"
+                          v-model="network.fL"
                           label="Link"
                         ></v-switch>
                         <v-switch
                           class="checkbox-col"
-                          v-model="fC"
+                          v-model="network.fC"
                           label="Center"
                         ></v-switch>
                         <v-slider
-                          v-model="fX"
+                          v-model="network.fX"
                           label="X Force:"
                           max="1"
                           min="0"
                           step="0.1"
                         ></v-slider>
                         <v-slider
-                          v-model="fY"
+                          v-model="network.fY"
                           label="Y Force:"
                           max="1"
                           min="0"
                           step="0.1"
                         ></v-slider>
                         <v-slider
-                          v-model="offsetX"
+                          v-model="network.offsetX"
                           label="X Offset:"
                           max="1000"
                           min="-1000"
                           step="1"
                         ></v-slider>
                         <v-slider
-                          v-model="offsetY"
+                          v-model="network.offsetY"
                           label="Y Offset:"
                           max="1000"
                           min="-1000"
@@ -257,21 +257,21 @@
                         ></v-slider>
                         <v-switch
                           class="checkbox-col"
-                          v-model="nodeLabels"
+                          v-model="network.nodeLabels"
                           label="Show node names"
                         ></v-switch>
                         <v-switch
                           class="checkbox-col"
-                          v-model="linkLabels"
+                          v-model="network.linkLabels"
                           label="Show link names"
                         ></v-switch>
                         <v-switch
                           class="checkbox-col"
-                          v-model="strLinks"
+                          v-model="network.strLinks"
                           label="Straight Links"
                         ></v-switch>
                         <v-slider
-                          v-model="nodeSize"
+                          v-model="network.nodeSize"
                           label="Node size:"
                           max="30"
                           min="1"
@@ -279,28 +279,28 @@
                           @change="changeNodeSize"
                         ></v-slider>
                         <v-slider
-                          v-model="journalNodeSize"
+                          v-model="network.journalNodeSize"
                           label="Journal Node size:"
                           max="50"
                           min="0"
                           step="1"
                         ></v-slider>
                         <v-slider
-                          v-model="fontSize"
+                          v-model="network.fontSize"
                           label="Font size:"
                           max="20"
                           min="0.1"
                           step="0.1"
                         ></v-slider>
                         <v-slider
-                          v-model="linkWidth"
+                          v-model="network.linkWidth"
                           label="Link width:"
                           max="10"
                           min="1"
                           step="1"
                         ></v-slider>
                         <v-slider
-                          v-model="minNodeSizeFilter"
+                          v-model="network.minNodeSizeFilter"
                           label="Min node size filter:"
                           :max="maxNodeSize"
                           min="1"
@@ -308,7 +308,7 @@
                           @change="filterNodes"
                         ></v-slider>
                         <v-slider
-                          v-model="maxNodeSizeFilter"
+                          v-model="network.maxNodeSizeFilter"
                           label="Max node size filter:"
                           :max="maxNodeSize"
                           min="1"
@@ -374,55 +374,9 @@
              <!-- <v-container> -->
             
             <v-subheader>
-              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetConnections = true">
-                    <i class="fas fa-play"></i>
-                </v-btn>
-              </template>
-                <span>Get connections</span>
-              </v-tooltip>
-
-              <v-dialog
-                v-model="dialogGetConnections"
-                persistent
-                max-width="400"
-              >
-                  <v-card>
-                    <v-card-title class="text-h5">
-                      Show Connections
-                    </v-card-title>
-                    <v-card-text>Which variable do you want to use for the x-axis?</v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        color="green darken-1"
-                        text
-                        @click="getConnections('Journal')"
-                      >
-                      Journal
-                      </v-btn>
-                      <v-btn
-                        color="green darken-1"
-                        text
-                        @click="getConnections('Keys')"
-                      >
-                      Keys
-                      </v-btn>
-                      <v-btn
-                        color="red darken-1"
-                        text
-                        @click="dialogGetConnections = false"
-                      >
-                        Cancel
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-              </v-dialog>
-    
-              <v-spacer/>
               
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetPlot = true">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetPlot = true" :disabled="!status.dumpExist">
                     <i class="fas fa-chart-line"></i>
                 </v-btn>
               </template>
@@ -472,17 +426,169 @@
                     </v-card-actions>
                   </v-card>
               </v-dialog>
+
+              <v-spacer/>
+
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteData = true">
+                    <i class="fas fa-trash"></i>
+                </v-btn>
+              </template>
+                <span>Delete Data</span>
+              </v-tooltip>
+    
+              <v-dialog
+                v-model="dialogDeleteData"
+                persistent
+                max-width="500"
+              >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Delete Data
+                    </v-card-title>
+                    <v-card-text>Do you want to delete the selected Files, all Cookies or all User data?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="dialogDeleteData = false, dialogDeleteFiles = true"
+                      >
+                        Files
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="dialogDeleteData = false, dialogDeleteCookies = true"
+                      >
+                        Cookies
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="dialogDeleteData = false, dialogDeleteUserData = true"
+                      >
+                        User data
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogDeleteData = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
+    
+              <v-dialog
+                v-model="dialogDeleteFiles"
+                persistent
+                max-width="400"
+              >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Delete Files
+                    </v-card-title>
+                    <v-card-text>Are you sure, you want to delete the Files?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="deleteFiles"
+                      >
+                        Yes
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogDeleteFiles = false"
+                      >
+                        No
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
+    
+              <!-- <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteUserData = true">
+                    <i class="fas fa-times"></i>
+                </v-btn>
+              </template>
+                <span>Delete User Data</span>
+              </v-tooltip> -->
+    
+                <v-dialog
+                v-model="dialogDeleteCookies"
+                persistent
+                max-width="400"
+                >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Delete User Data
+                    </v-card-title>
+                    <v-card-text>Are you sure, you want to delete all Cookies?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="deleteCookies"
+                      >
+                        Yes
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogDeleteCookies = false"
+                      >
+                        No
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
+    
+              <v-dialog
+                v-model="dialogDeleteUserData"
+                persistent
+                max-width="400"
+                >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Delete User Data
+                    </v-card-title>
+                    <v-card-text>Are you sure, you want to delete the User Data?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="deleteUserData"
+                      >
+                        Yes
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogDeleteUserData = false"
+                      >
+                        No
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
     
             </v-subheader>
             <v-card class="my-card"
-            title='NetworkView'
+            title='PloView'
             elevation="0"
             height=100%
             width=100%
             margin=10px
-            :loading="networkLoading"
+            :loading="plotLoading"
             color="#2D2D2D"
-            ref="networkView"
+            ref="plotView"
             >
             
             <v-card-title class="my-title" style="padding-top: 0px">
@@ -505,6 +611,52 @@
           </pane>
           <pane size="45">
             <v-subheader>
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetConnections = true" :disabled="!status.dumpExist">
+                    <i class="fas fa-play"></i>
+                </v-btn>
+              </template>
+                <span>Get connections</span>
+              </v-tooltip>
+
+              <v-dialog
+                v-model="dialogGetConnections"
+                persistent
+                max-width="400"
+              >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Show Connections
+                    </v-card-title>
+                    <v-card-text>Which variable do you want to use for the x-axis?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getConnections('Journal')"
+                      >
+                      Journal
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getConnections('Keys')"
+                      >
+                      Keys
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogGetConnections = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
+    
+              <v-spacer/>
               
               <v-tooltip bottom class="my-btn"><template v-slot:activator="{ on, attrs }">
                 <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="pinned = !pinned">
@@ -545,6 +697,7 @@
             title='Network'
             elevation="0"
             margin-bottom= -17px
+            :loading="networkLoading"
             flex
             margin=10px
             ref="networkView"
