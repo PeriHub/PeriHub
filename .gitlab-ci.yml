@@ -13,7 +13,7 @@ build_api_job:
     changes:
       - api/**/*
   script:
-    - docker build --build-arg EXTERNAL=False -t peri_hub_api_image api/. #--no-cache 
+    - docker build --build-arg EXTERNAL=False -t peri_hub_api_image api/. #--no-cache
     - docker tag peri_hub_api_image ${CI_REGISTRY_PATH}peri_hub_api_image
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
@@ -39,7 +39,7 @@ build_cron_job:
     changes:
       - cron/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}cron_image cron/. 
+    - docker build -t ${CI_REGISTRY_PATH}cron_image cron/.
     - docker push ${CI_REGISTRY_PATH}cron_image
 
 build_paraview_job:
@@ -51,7 +51,7 @@ build_paraview_job:
     changes:
       - paraview/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}paraview_image paraview/. 
+    - docker build -t ${CI_REGISTRY_PATH}paraview_image paraview/.
     - docker push ${CI_REGISTRY_PATH}paraview_image
 
 .build_before_script_template:

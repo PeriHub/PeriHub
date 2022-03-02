@@ -1,23 +1,19 @@
 <template>
-    <v-container>
-        <v-row dense align="center" justify="center" style="height:20%;">
-            <h1>Getting Started</h1>
-        </v-row>
-    </v-container>
+  <v-container>
+    <v-row dense align="center" justify="center" style="height: 20%">
+      <h1>Getting Started</h1>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
-  export default {
-    name: 'PeriHub',
-    components: {
-    },
-    data () {
-      return {
-        }
-    },
-    methods: {
-    }
-  }
+export default {
+  name: "PeriHub",
+  components: {},
+  data() {
+    return {};
+  },
+  methods: {},
+};
 </script>
-<style>
-</style>
+<style></style>

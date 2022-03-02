@@ -10,7 +10,7 @@ from paraview.simple import *
 UserName = sys.argv[1]
 ModelName = sys.argv[2]
 OutputName = sys.argv[3]
-filePath = path.join('./Results/' + UserName, ModelName)
+filePath = path.join("./Results/" + UserName, ModelName)
 # class Geometry(object):
 #     def __init__(self):
 #         pass
@@ -19,7 +19,9 @@ filePath = path.join('./Results/' + UserName, ModelName)
 paraview.simple._DisableFirstRenderCameraReset()
 
 # create a new 'ExodusIIReader'
-pMMA_var_0_1e = ExodusIIReader(FileName=[path.join(filePath, ModelName + '_' + OutputName + '.e')])
+pMMA_var_0_1e = ExodusIIReader(
+    FileName=[path.join(filePath, ModelName + "_" + OutputName + ".e")]
+)
 # pMMA_var_0_1e.ElementVariables = []
 # pMMA_var_0_1e.PointVariables = []
 # pMMA_var_0_1e.GlobalVariables = []
@@ -32,11 +34,11 @@ pMMA_var_0_1e = ExodusIIReader(FileName=[path.join(filePath, ModelName + '_' + O
 # animationScene1.UpdateAnimationUsingDataTimeSteps()
 
 # Properties modified on pMMA_var_0_1e
-pMMA_var_0_1e.GlobalVariables = ['External_Displacement', 'External_Force']
+pMMA_var_0_1e.GlobalVariables = ["External_Displacement", "External_Force"]
 # pMMA_var_0_1e.ElementBlocks = ['block_1']
 
 # get active view
-renderView1 = GetActiveViewOrCreate('RenderView')
+renderView1 = GetActiveViewOrCreate("RenderView")
 # uncomment following to set a specific view size
 # renderView1.ViewSize = [1453, 818]
 
@@ -62,7 +64,7 @@ pMMA_var_0_1eDisplay = Show(pMMA_var_0_1e, renderView1)
 # pMMA_var_0_1eDisplay.SelectionCellLabelFontFile = ''
 # pMMA_var_0_1eDisplay.SelectionPointLabelFontFile = ''
 # pMMA_var_0_1eDisplay.PolarAxes = 'PolarAxesRepresentation'
-#pMMA_var_0_1eDisplay.ScalarOpacityUnitDistance = 3.728476947665754
+# pMMA_var_0_1eDisplay.ScalarOpacityUnitDistance = 3.728476947665754
 
 # init the 'PiecewiseFunction' selected for 'ScaleTransferFunction'
 # pMMA_var_0_1eDisplay.ScaleTransferFunction.Points = [1.0, 0.0, 0.5, 0.0, 74777.0, 1.0, 0.5, 0.0]
@@ -104,7 +106,7 @@ pMMA_var_0_1eDisplay = Show(pMMA_var_0_1e, renderView1)
 plotGlobalVariablesOverTime1 = PlotGlobalVariablesOverTime(Input=pMMA_var_0_1e)
 
 # Create a new 'Line Chart View'
-lineChartView1 = CreateView('XYChartView')
+lineChartView1 = CreateView("XYChartView")
 # lineChartView1.ViewSize = [722, 818]
 # lineChartView1.ChartTitleFontFile = ''
 # lineChartView1.LeftAxisTitleFontFile = ''
@@ -120,23 +122,45 @@ lineChartView1 = CreateView('XYChartView')
 # lineChartView1.TopAxisLabelFontFile = ''
 
 # get layout
-#layout1 = GetLayout()
+# layout1 = GetLayout()
 
-#print(layout1)
+# print(layout1)
 
 # place view in the layout
-#layout1.AssignView(2, lineChartView1)
+# layout1.AssignView(2, lineChartView1)
 
 # show data in view
 plotGlobalVariablesOverTime1Display = Show(plotGlobalVariablesOverTime1, lineChartView1)
 
 # trace defaults for the display properties.
 plotGlobalVariablesOverTime1Display.CompositeDataSetIndex = [0]
-plotGlobalVariablesOverTime1Display.AttributeType = 'Row Data'
+plotGlobalVariablesOverTime1Display.AttributeType = "Row Data"
 plotGlobalVariablesOverTime1Display.UseIndexForXAxis = 0
-plotGlobalVariablesOverTime1Display.XArrayName = 'Time'
-plotGlobalVariablesOverTime1Display.SeriesVisibility = ['External_Displacement_Magnitude', 'External_Force_Magnitude']
-plotGlobalVariablesOverTime1Display.SeriesLabel = ['External_Displacement_X', 'External_Displacement_X', 'External_Displacement_Y', 'External_Displacement_Y', 'External_Displacement_Z', 'External_Displacement_Z', 'External_Displacement_Magnitude', 'External_Displacement_Magnitude', 'External_Force_X', 'External_Force_X', 'External_Force_Y', 'External_Force_Y', 'External_Force_Z', 'External_Force_Z', 'External_Force_Magnitude', 'External_Force_Magnitude', 'Time', 'Time']
+plotGlobalVariablesOverTime1Display.XArrayName = "Time"
+plotGlobalVariablesOverTime1Display.SeriesVisibility = [
+    "External_Displacement_Magnitude",
+    "External_Force_Magnitude",
+]
+plotGlobalVariablesOverTime1Display.SeriesLabel = [
+    "External_Displacement_X",
+    "External_Displacement_X",
+    "External_Displacement_Y",
+    "External_Displacement_Y",
+    "External_Displacement_Z",
+    "External_Displacement_Z",
+    "External_Displacement_Magnitude",
+    "External_Displacement_Magnitude",
+    "External_Force_X",
+    "External_Force_X",
+    "External_Force_Y",
+    "External_Force_Y",
+    "External_Force_Z",
+    "External_Force_Z",
+    "External_Force_Magnitude",
+    "External_Force_Magnitude",
+    "Time",
+    "Time",
+]
 # plotGlobalVariablesOverTime1Display.SeriesColor = ['External_Displacement_X', '0', '0', '0', 'External_Displacement_Y', '0.8899977111467154', '0.10000762951094835', '0.1100022888532845', 'External_Displacement_Z', '0.220004577706569', '0.4899977111467155', '0.7199969481956207', 'External_Displacement_Magnitude', '0.30000762951094834', '0.6899977111467155', '0.2899977111467155', 'External_Force_X', '0.6', '0.3100022888532845', '0.6399938963912413', 'External_Force_Y', '1', '0.5000076295109483', '0', 'External_Force_Z', '0.6500038147554742', '0.3400015259021897', '0.16000610360875867', 'External_Force_Magnitude', '0', '0', '0', 'Time', '0.8899977111467154', '0.10000762951094835', '0.1100022888532845']
 # plotGlobalVariablesOverTime1Display.SeriesPlotCorner = ['External_Displacement_X', '0', 'External_Displacement_Y', '0', 'External_Displacement_Z', '0', 'External_Displacement_Magnitude', '0', 'External_Force_X', '0', 'External_Force_Y', '0', 'External_Force_Z', '0', 'External_Force_Magnitude', '0', 'Time', '0']
 # plotGlobalVariablesOverTime1Display.SeriesLabelPrefix = ''
@@ -153,24 +177,26 @@ Delete(lineChartView1)
 del lineChartView1
 
 # Create a new 'SpreadSheet View'
-spreadSheetView1 = CreateView('SpreadSheetView')
-spreadSheetView1.ColumnToSort = ''
+spreadSheetView1 = CreateView("SpreadSheetView")
+spreadSheetView1.ColumnToSort = ""
 spreadSheetView1.BlockSize = 1024
 # uncomment following to set a specific view size
 # spreadSheetView1.ViewSize = [400, 400]
 
 # place view in the layout
-#layout1.AssignView(2, spreadSheetView1)
+# layout1.AssignView(2, spreadSheetView1)
 
 # show data in view
-plotGlobalVariablesOverTime1Display = Show(plotGlobalVariablesOverTime1, spreadSheetView1)
+plotGlobalVariablesOverTime1Display = Show(
+    plotGlobalVariablesOverTime1, spreadSheetView1
+)
 
 # trace defaults for the display properties.
-spreadSheetView1.FieldAssociation = 'Row Data'
+spreadSheetView1.FieldAssociation = "Row Data"
 
 # export view
-ExportView(path.join(filePath,'dat.csv'), view=spreadSheetView1)
+ExportView(path.join(filePath, "dat.csv"), view=spreadSheetView1)
 
-# destroy spreadSheetView1 
+# destroy spreadSheetView1
 Delete(spreadSheetView1)
 del spreadSheetView1

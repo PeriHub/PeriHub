@@ -1,12 +1,8 @@
 <template>
   <v-app class="main" style="font-family: 'Arial'">
-    <div class="header"> 
-      <v-app-bar 
-        app
-        color="#464646"
-        dark
-      >
-        <router-link style="text-decoration: none; color: inherit;" to="/">
+    <div class="header">
+      <v-app-bar app color="#464646" dark>
+        <router-link style="text-decoration: none; color: inherit" to="/">
           <div class="d-flex align-center">
             <v-img
               alt="DLR Logo"
@@ -16,7 +12,7 @@
               transition="scale-transition"
               width="40"
             />
-            <h1> PeriHub </h1>
+            <h1>PeriHub</h1>
           </div>
         </router-link>
 
@@ -37,10 +33,7 @@
               color="primary"
               v-on="on"
             >
-              <i
-                class="fab fa-gitlab"
-                size="2x"
-              />
+              <i class="fab fa-gitlab" size="2x" />
             </v-btn>
           </template>
           <span>GitLab</span>
@@ -55,10 +48,7 @@
               color="primary"
               v-on="on"
             >
-              <i
-                class="fas fa-bolt"
-                size="2x"
-              />
+              <i class="fas fa-bolt" size="2x" />
             </v-btn>
           </template>
           <span>PeriHub-API</span>
@@ -73,10 +63,7 @@
               color="primary"
               v-on="on"
             >
-              <i
-                class="fab fa-github"
-                size="2x"
-              />
+              <i class="fab fa-github" size="2x" />
             </v-btn>
           </template>
           <span>PeriDoX</span>
@@ -84,20 +71,13 @@
       </v-app-bar>
     </div>
 
-    <div class="body"> 
+    <div class="body">
       <router-view class="view one" name="a"></router-view>
     </div>
 
     <div class="footer">
-    
-      <v-footer
-        color="#464646"
-        padless
-      >
-        <v-row
-          justify="center"
-          no-gutters
-        >
+      <v-footer color="#464646" padless>
+        <v-row justify="center" no-gutters>
           <v-btn
             href="https://www.dlr.de/fa"
             color="white"
@@ -105,7 +85,7 @@
             rounded
             class="my-0"
           >
-            ABOUT US 
+            ABOUT US
           </v-btn>
           <v-btn
             href="https://leichtbau.dlr.de/"
@@ -130,7 +110,8 @@
             color="#464646"
             cols="12"
           >
-            {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Jan-Timo Hesse | Christian Willberg | Falk Heinecke 
+            {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Jan-Timo
+            Hesse | Christian Willberg | Falk Heinecke
           </v-col>
         </v-row>
       </v-footer>
@@ -139,20 +120,19 @@
 </template>
 
 <script>
-
 export default {
-  name: 'App',
+  name: "App",
   metaInfo: {
-    title: 'PeriHub',
+    title: "PeriHub",
     // titleTemplate: '%s | vue-meta Example App',
     htmlAttrs: {
-      lang: 'en-US'
+      lang: "en-US",
     },
     meta: [
-      { charset: 'utf-8' },
+      { charset: "utf-8" },
       // { name: 'description', content: 'An example Vue application with vue-meta.' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' }
-    ]
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+    ],
   },
 
   data: () => ({
@@ -160,17 +140,17 @@ export default {
   }),
   methods: {
     saveDarkMode() {
-      this.$cookie.set('darkMode', this.$vuetify.theme.dark, Infinity, '/app');
+      this.$cookie.set("darkMode", this.$vuetify.theme.dark, Infinity, "/app");
     },
     getDarkMode() {
-      var dark = this.$cookie.get('darkMode')
-      if(dark=='true'){
+      var dark = this.$cookie.get("darkMode");
+      if (dark == "true") {
         this.$vuetify.theme.dark = true;
       }
-    }
+    },
   },
-  mounted(){
-    this.getDarkMode()
+  mounted() {
+    this.getDarkMode();
   },
 };
 </script>
@@ -178,14 +158,13 @@ export default {
 <style>
 @font-face {
   font-family: "Frutiger-light";
-  src: local("Frutiger"),   
+  src: local("Frutiger"),
     url(./fonts/Frutiger/FRUTIGER-LIGHT.TTF) format("truetype");
   font-family: "Frutiger-roman";
-  src: local("Frutiger"),   
+  src: local("Frutiger"),
     url(./fonts/Frutiger/FRUTIGER-ROMAN.TTF) format("truetype");
   font-family: "Arial";
-  src: local("Arial"),   
-    url(./fonts/Arial/ARIAL.TTF) format("truetype");
+  src: local("Arial"), url(./fonts/Arial/ARIAL.TTF) format("truetype");
 }
 .my-btn {
   margin-right: 5px;
@@ -221,12 +200,12 @@ export default {
   color: white !important;
 }
 .theme--dark .markdown-body table th {
-  background-color:#222222;
+  background-color: #222222;
 }
 .theme--dark .markdown-body table tr {
-  background-color:#333333;
+  background-color: #333333;
 }
 .theme--dark .markdown-body table tr:nth-child(2n) {
-  background-color:#222222;
+  background-color: #222222;
 }
 </style>

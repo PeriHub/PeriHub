@@ -1,12 +1,12 @@
-version: '3'
+version: "3"
 
 services:
   periHubApi:
     build:
       context: api/.
-      args: 
+      args:
         EXTERNAL: ${EXTERNAL}
-    container_name:  perihub_periHubApi
+    container_name: perihub_periHubApi
     image: peri_hub_api_image
     ports:
       - 6020:80
@@ -20,7 +20,7 @@ services:
   periHubGui:
     build:
       context: gui/.
-    container_name:  perihub_periHubGui
+    container_name: perihub_periHubGui
     image: peri_hub_gui_image
     ports:
       - 6010:80
@@ -28,7 +28,7 @@ services:
       - backend
 
   peridigm:
-    container_name:  perihub_peridigm
+    container_name: perihub_peridigm
     image: harbor.fa-services.intra.dlr.de/hess_ja/peridigm_image
     ports:
       - 6030:80
@@ -38,16 +38,16 @@ services:
       - backend
 
   paraview:
-    build: 
+    build:
       context: paraview/.
-    container_name:  perihub_paraview
+    container_name: perihub_paraview
     image: paraview_image
     volumes:
       - paraView_volume:/app/paraView
 
   cron:
     build: cron/.
-    container_name:  perihub_cron
+    container_name: perihub_cron
     image: cron_image
 
 volumes:

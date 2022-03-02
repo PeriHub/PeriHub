@@ -1,5 +1,5 @@
-
-#m-end path, #m-start{
+#m-end path,
+#m-start {
   fill: rgba(18, 120, 98, 0.8);
 }
 /* .link-label{
@@ -7,55 +7,68 @@
   transform: translate(0,.5em);
   font-size: .8em;
 } */
-  .textfield-col {
-    height: 80px;
-  }
-  
-  .textfieldlist-col {
-    height: 110px;
-  }
-  
-  .checkbox-col {
-    height: 30px;
-  }
-  
-  #v-list {
-    padding-top: 0px;
-  }
-  
-  .my-title {
-    height: 50px;
-    justify-content: flex-end;
-    margin: 0 30px;
-  }
-  
-  .my-card {
-    height: 100%;
-    margin: 10px;
-  }
-  
-  .remaining-height{
-    height: calc(100% - 48px);
-    overflow-y: scroll;
-  }
-  /* .splitpanes {background-color: #f8f8f8;} */
-  
-  .splitpanes__splitter {background-color: #ccc;position: relative;}
-  .splitpanes__splitter:before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    transition: opacity 0.4s;
-    background-color: rgba(158, 158, 158, 0.3);
-    opacity: 0;
-    z-index: 1;
-  }
-  .splitpanes__splitter:hover:before {opacity: 1;}
-  .splitpanes--vertical > .splitpanes__splitter:before {left: -10px;right: -10px;height: 100%;}
-  .splitpanes--horizontal > .splitpanes__splitter:before {top: -10px;bottom: -10px;width: 100%;}
+.textfield-col {
+  height: 80px;
+}
 
-  .white_label label{
-    color: white !important;
-    max-width: 200px;
-  }
+.textfieldlist-col {
+  height: 110px;
+}
+
+.checkbox-col {
+  height: 30px;
+}
+
+#v-list {
+  padding-top: 0px;
+}
+
+.my-title {
+  height: 50px;
+  justify-content: flex-end;
+  margin: 0 30px;
+}
+
+.my-card {
+  height: 100%;
+  margin: 10px;
+}
+
+.remaining-height {
+  height: calc(100% - 48px);
+  overflow-y: scroll;
+}
+/* .splitpanes {background-color: #f8f8f8;} */
+
+.splitpanes__splitter {
+  background-color: #ccc;
+  position: relative;
+}
+.splitpanes__splitter:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: opacity 0.4s;
+  background-color: rgba(158, 158, 158, 0.3);
+  opacity: 0;
+  z-index: 1;
+}
+.splitpanes__splitter:hover:before {
+  opacity: 1;
+}
+.splitpanes--vertical > .splitpanes__splitter:before {
+  left: -10px;
+  right: -10px;
+  height: 100%;
+}
+.splitpanes--horizontal > .splitpanes__splitter:before {
+  top: -10px;
+  bottom: -10px;
+  width: 100%;
+}
+
+.white_label label {
+  color: white !important;
+  max-width: 200px;
+}

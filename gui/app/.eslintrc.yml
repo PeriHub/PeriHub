@@ -2,9 +2,9 @@ env:
   browser: true
   es6: true
 extends:
-  - 'eslint:recommended'
-  - 'plugin:vue/essential'
-  - 'plugin:vue/recommended'
+  - "eslint:recommended"
+  - "plugin:vue/essential"
+  - "plugin:vue/recommended"
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
@@ -14,6 +14,4 @@ parserOptions:
 plugins:
   - eslint-plugin-html
   - vue
-rules: {
-    "vue/comment-directive": 0
-    }
+rules: { "vue/comment-directive": 0 }

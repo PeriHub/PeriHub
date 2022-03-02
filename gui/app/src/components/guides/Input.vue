@@ -3,17 +3,13 @@
 </template>
 
 <script>
-  export default {
-    name: 'PeriHub',
-    components: {
-    },
-    data () {
-      return {
-        }
-    },
-    methods: {
-    }
-  }
+export default {
+  name: "PeriHub",
+  components: {},
+  data() {
+    return {};
+  },
+  methods: {},
+};
 </script>
-<style>
-</style>
+<style></style>
