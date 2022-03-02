@@ -22,6 +22,10 @@ export default {
     },
     data () {
       return {
+        model:{
+          fileName: 'Test',
+        },
+        database: {},
         nodes: [
           { id: 1, name: 'my awesome node 1', _size:40},
           { id: 2, name: 'my node 2'},
@@ -77,7 +81,8 @@ export default {
         fMb: true,
         fL: true,
         fC: false,
-        nodeSize: 13,
+        nodeSize: 1,
+        journalNodeSize: 13,
         linkWidth: 4,
         nodeLabels: true,
         linkLabels: false,
@@ -104,29 +109,19 @@ export default {
         {
           id: 1,
           name: 'Peridynamics',
-          keywords: [
-          {
-            id: 1,
-            value: 'Peridynamics'
-          },
-          {
-            id: 2,
-            value: 'peridynamics'
-          }],
+          keywords:
+          [
+            'Peridynamics', 'peridynamics'
+          ],
           weight: 3
         },
         {
           id: 2,
           name: 'Composite',
-          keywords: [
-          {
-            id: 1,
-            value: 'composite'
-          },
-          {
-            id: 2,
-            value: 'CFRP'
-          }],
+          keywords:
+          [
+            'composite', 'CFRP'
+          ],
           weight: 10
         }],
         url: 'https://perihub-api.fa-services.intra.dlr.de/',
@@ -186,6 +181,7 @@ export default {
           setBackground: 'black'
         },
         dialogGetPlot: false,
+        dialogGetConnections: false,
         logInterval: null,
         statusInterval: null,
         monitorToggle: false,
@@ -226,7 +222,7 @@ export default {
            ManyBody:this.fMb,
            Link:this.fL,
           },
-          nodeSize: this.nodeSize,
+          nodeSize: this.journalNodeSize,
           linkWidth: this.linkWidth,
           nodeLabels: this.nodeLabels,
           linkLabels: this.linkLabels,
@@ -250,7 +246,29 @@ export default {
       window.removeEventListener("resize", this.windowResizedEvent);
     },
     methods: {
-      async getConnections() {
+      async generateDatabase() {
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
+        }
+
+        let reqOptions = {
+          url: this.url + "generateDatabase",
+          params: {FileName: this.model.fileName},
+          data: this.keywordList,
+          method: "PUT",
+          headers: headersList,
+        }
+
+        await axios.request(reqOptions).then(response => (this.message = response.data))
+        await this.getBibDatabase()
+        this.snackbar=true
+      },
+      async getConnections(Variable) {
+        this.dialogGetConnections = false
+        if(Variable=='Keys'){
+          this.findKeywords()
+        }
         let headersList = {
         'Cache-Control': 'no-cache',
         'Authorization': this.authToken
@@ -258,8 +276,7 @@ export default {
 
         let reqOptions = {
           url: this.url + "getConnections",
-          // params: {ModelName: this.model.modelNameSelected,
-          //         Cluster: this.job.cluster},
+          params: {FileName: this.model.fileName,Variable: Variable},
           method: "GET",
           headers: headersList,
           }
@@ -280,6 +297,24 @@ export default {
         this.resize()
         this.networkLoading = false
       },
+      async getBibDatabase() {
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
+        }
+
+        let reqOptions = {
+          url: this.url + "getBibDatabase",
+          params: {FileName: this.model.fileName},
+          method: "GET",
+          headers: headersList,
+          }
+        let jsonResponse = ''
+        await axios.request(reqOptions).then(response => (
+          jsonResponse = response.data))
+        // console.log(jsonResponse)
+        this.database = JSON.parse(jsonResponse)
+      },
       async getBarChart(Variable) {
         this.dialogGetPlot = false
         let headersList = {
@@ -289,7 +324,7 @@ export default {
 
         let reqOptions = {
           url: this.url + "getBarChart",
-          params: {Variable: Variable},
+          params: {FileName: this.model.fileName,Variable: Variable},
           method: "GET",
           headers: headersList,
           }
@@ -336,6 +371,23 @@ export default {
         // this.filteredPlotData = [...this.plotData]
         this.networkLoading = false
       },
+      async findKeywords() {
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Authorization': this.authToken
+        }
+
+        let reqOptions = {
+          url: this.url + "findKeywords",
+          params: {FileName: this.model.fileName},
+          data: this.keywordList,
+          method: "PUT",
+          headers: headersList,
+        }
+
+        await axios.request(reqOptions).then(response => (this.message = response.data))
+        this.snackbar=true
+      },
       windowResizedEvent(){
         this.resize()
       },
@@ -362,7 +414,7 @@ export default {
         this.copyNodesLinks()
         for (var i = this.filteredNodes.length-1; i >= 0; i--) {
           let node = this.filteredNodes[i]
-          if (node._size != undefined & node._size < this.minNodeSizeFilter | node._size > this.maxNodeSizeFilter ){
+          if (node.numDois != undefined & node.numDois < this.minNodeSizeFilter | node.numDois > this.maxNodeSizeFilter ){
             for (var j = this.filteredLinks.length-1; j >= 0; j--) {
               let link = this.filteredLinks[j]
               if (link.sid == node.id || link.tid == node.id) {
@@ -374,7 +426,7 @@ export default {
         }
         for (var i = this.filteredNodes.length-1; i >= 0; i--) {
           let node = this.filteredNodes[i]
-          if (node._size == undefined){
+          if (node.numDois == undefined){
             let nodeLinked = false
             for (var j = this.filteredLinks.length-1; j >= 0; j--) {
               let link = this.filteredLinks[j]
@@ -389,6 +441,17 @@ export default {
           }
         }
       },
+      changeNodeSize(){
+        this.copyNodesLinks()
+        let id = 0
+        for (let node of this.filteredNodes){
+          if (node.svgSym != 'journalIcon'){
+            let newNode = Object.assign(node,{_size:node.numDois*this.nodeSize})
+            Object.assign(this.filteredNodes[id], newNode)
+          }
+          id++
+        }
+      },
       copyNodesLinks(){
         this.filteredNodes = [...this.nodes]
         this.filteredLinks = [...this.links]
@@ -396,8 +459,8 @@ export default {
       setMaxNodeSize(){
         let maxSize = 0
         for (let node of this.nodes){
-          if(node._size>maxSize){
-            maxSize = node._size
+          if(node.numDois>maxSize){
+            maxSize = node.numDois
           }
         }
         this.maxNodeSize = maxSize
@@ -571,10 +634,10 @@ export default {
         document.body.appendChild(fileLink);
         fileLink.click();
       },
-      readData() {
+      uploadBib() {
         this.$refs.fileInput.click()
       },
-      uploadMesh() {
+      uploadPdfs() {
         this.$refs.multifileInput.click()
       },
       uploadSo() {
@@ -588,22 +651,16 @@ export default {
         }
 
         const fr = new FileReader();
-        
+        console.log(filetype)
         if(filetype=='application/json'){
-          this.loadJsonFile(fr, files)
+          this.loadJsonFile(fr, files[0])
         }
-        else if(files[0].name.includes('.yaml')){
-          this.loadYamlModel(fr, files)
+        else if(filetype=='text/x-bibtex'){
+          this.uploadBibfile(files[0])
         }
-        else if(filetype=='text/xml'){
-          this.loadXmlModel(fr, files)
-        }
-        else if(filetype=='.peridigm'){
-          this.loadPeridigmModel(fr, files)
-        }
-        else{
-          this.loadFeModel(files)
-        }
+        // else{
+        //   this.loadFeModel(files)
+        // }
       },
       onMultiFilePicked (event) {
         const files = event.target.files
@@ -614,10 +671,37 @@ export default {
 
         this.modelLoading = true
         this.uploadfiles(files)
-        
-        this.viewPointData()
         this.modelLoading = false
         this.snackbar=true
+      },
+      async uploadBibfile(file) {
+        // this.snackbar=true
+        // this.message = JSON.parse("{\"Job\": " + JSON.stringify(this.job)+"}")
+        const formData = new FormData();
+        formData.append('files',file)
+        
+
+        let headersList = {
+        'Cache-Control': 'no-cache',
+        'Content-Type': 'multipart/form-data',
+        'Authorization': this.authToken
+        }
+
+        let reqOptions = {
+          url: this.url + "uploadBibfile",
+          params: {FileName: this.model.fileName},
+          data: formData,
+          method: "POST",
+          headers: headersList,
+        }
+
+        this.message = 'Files have been uploaded'
+        await axios.request(reqOptions)
+        .catch((error) => {
+          // console.log(response)
+          this.message = error
+          return
+        })
       },
       async uploadfiles(files) {
         // this.snackbar=true
@@ -635,7 +719,7 @@ export default {
 
         let reqOptions = {
           url: this.url + "uploadfiles",
-          params: {ModelName: this.model.modelNameSelected},
+          params: {FileName: this.model.fileName},
           data: formData,
           method: "POST",
           headers: headersList,

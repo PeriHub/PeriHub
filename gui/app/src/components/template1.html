@@ -4,24 +4,31 @@
         <v-subheader>
     
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="resetData">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="uploadBib">
                     <i class="fas fa-upload"></i>
                 </v-btn>
               </template>
-                <span>Load Model</span>
+                <span>Load Bib</span>
+              </v-tooltip>
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="uploadPdfs">
+                    <i class="fas fa-upload"></i>
+                </v-btn>
+              </template>
+                <span>Load Pdfs</span>
               </v-tooltip>
               <input
                 type="file"
                 style="display: none"
                 ref="fileInput"
-                accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp"
+                accept="application/json,text/x-bibtex"
                 @change="onFilePicked"/>
               <input
                 type="file"
                 style="display: none"
                 ref="multifileInput"
                 multiple
-                accept="text/plain,.g"
+                accept=".pdf"
                 @change="onMultiFilePicked"/>
               <input
                 type="file"
@@ -40,11 +47,19 @@
               </v-tooltip>
                 
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="screenshot">
-                    <i class="fas fa-save"></i>
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="resetData">
+                    <i class="fas fa-undo"></i>
                 </v-btn>
               </template>
-                <span>Save as JSON</span>
+                <span>Reset Data</span>
+              </v-tooltip>
+
+              <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="generateDatabase">
+                    <i class="fas fa-cogs"></i>
+                </v-btn>
+              </template>
+                <span>Generate Database</span>
               </v-tooltip>
     
               <v-spacer></v-spacer>
@@ -67,7 +82,21 @@
       <!-- <v-list-item-group> -->
         <!-- <v-list-item> -->
         <v-card>
-              <v-expansion-panels height=45vh v-model="panel" multiple>
+          <v-expansion-panels height=45vh v-model="panel" multiple>
+                <v-expansion-panel>
+                <v-expansion-panel-header>
+                  <h2>Model</h2>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-text-field 
+                    class="textfield-col"
+                    v-model="model.fileName"
+                    :rules="[rules.required]"
+                    label="File Name"
+                    outlined></v-text-field>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            <v-divider></v-divider>
                 <v-expansion-panel>
                     <v-expansion-panel-header>
                       <h2>Keyword List</h2>
@@ -244,6 +273,14 @@
                         <v-slider
                           v-model="nodeSize"
                           label="Node size:"
+                          max="30"
+                          min="1"
+                          step="0.1"
+                          @change="changeNodeSize"
+                        ></v-slider>
+                        <v-slider
+                          v-model="journalNodeSize"
+                          label="Journal Node size:"
                           max="50"
                           min="0"
                           step="1"
@@ -251,9 +288,9 @@
                         <v-slider
                           v-model="fontSize"
                           label="Font size:"
-                          max="50"
-                          min="1"
-                          step="1"
+                          max="20"
+                          min="0.1"
+                          step="0.1"
                         ></v-slider>
                         <v-slider
                           v-model="linkWidth"
@@ -338,12 +375,49 @@
             
             <v-subheader>
               <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="getConnections">
+                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogGetConnections = true">
                     <i class="fas fa-play"></i>
                 </v-btn>
               </template>
                 <span>Get connections</span>
               </v-tooltip>
+
+              <v-dialog
+                v-model="dialogGetConnections"
+                persistent
+                max-width="400"
+              >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Show Connections
+                    </v-card-title>
+                    <v-card-text>Which variable do you want to use for the x-axis?</v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getConnections('Journal')"
+                      >
+                      Journal
+                      </v-btn>
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getConnections('Keys')"
+                      >
+                      Keys
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogGetConnections = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
     
               <v-spacer/>
               
