@@ -26,7 +26,7 @@ class fileHandler(object):
 
         return "./PeridigmJobs/apiModels/" + username
 
-    def getUserPath(Cluster, username, ModelName):
+    def getUserPath(Cluster, username):
 
         return "./PeridigmJobs/apiModels/" + username
 
@@ -35,7 +35,7 @@ class fileHandler(object):
             return "dev"
         else:
             encodedToken = request.headers.get("Authorization")
-            if encodedToken == None or encodedToken == "":
+            if encodedToken is None or encodedToken == "":
                 return "guest"
 
             decodedToken = jwt.decode(
@@ -68,7 +68,7 @@ class fileHandler(object):
 
     def getUserMail(request):
         encodedToken = request.headers.get("Authorization")
-        if encodedToken == None or encodedToken == "":
+        if encodedToken is None or encodedToken == "":
             return ""
 
         decodedToken = jwt.decode(
@@ -157,10 +157,10 @@ class fileHandler(object):
                     ):
                         meshExist = True
 
-                if inputExist == False:
+                if not inputExist:
                     return "Inputfile of " + ModelName + " has not been created yet"
 
-                if meshExist == False:
+                if not meshExist:
                     return "Meshfile of " + ModelName + " has not been created yet"
 
                 for name in files:
@@ -202,10 +202,10 @@ class fileHandler(object):
                     if name.split(".")[-1] == "txt" or name.split(".")[-1] == "e":
                         meshExist = True
 
-                if inputExist == False:
+                if not inputExist:
                     return "Inputfile of " + ModelName + " has not been created yet"
 
-                if meshExist == False:
+                if not meshExist:
                     return "Meshfile of " + ModelName + " has not been created yet"
 
                 for name in files:
@@ -222,7 +222,7 @@ class fileHandler(object):
         remotepath = fileHandler.getRemoteUmatPath(Cluster)
         try:
             ssh, sftp = fileHandler.sftpToCluster(Cluster)
-        except:
+        except Exception:
             return "ssh connection to " + Cluster + " failed!"
 
         if not os.path.exists(localpath):
@@ -261,7 +261,7 @@ class fileHandler(object):
                     os.path.join(remotepath, Filename),
                     os.path.join(localpath, Filename),
                 )
-        except:
+        except Exception:
             return "File not found"
 
         return "Success"
@@ -280,12 +280,9 @@ class fileHandler(object):
                 for filename in files:
                     if allData or ".e" in filename:
                         if os.path.exists(os.path.join(resultpath, filename)):
-                            if (
-                                filecmp.cmp(
-                                    os.path.join(remotepath, filename),
-                                    os.path.join(resultpath, filename),
-                                )
-                                == False
+                            if not filecmp.cmp(
+                                os.path.join(remotepath, filename),
+                                os.path.join(resultpath, filename),
                             ):
                                 shutil.copy(
                                     os.path.join(remotepath, filename),
@@ -330,7 +327,7 @@ class fileHandler(object):
                                 os.path.join(remotepath, filename),
                                 os.path.join(resultpath, filename),
                             )
-            except:
+            except Exception:
                 return False
             sftp.close()
             ssh.close()
@@ -349,7 +346,7 @@ class fileHandler(object):
                 ssh.connect(
                     server, username=username, allow_agent=False, key_filename=keypath
                 )
-            except:
+            except Exception:
                 return "ssh connection to " + server + " failed!"
 
         elif Cluster == "Cara":
@@ -360,7 +357,7 @@ class fileHandler(object):
                 ssh.connect(
                     server, username=username, allow_agent=False, key_filename=keypath
                 )
-            except:
+            except Exception:
                 return "ssh connection to " + server + " failed!"
 
         elif Cluster == "None":
@@ -370,7 +367,7 @@ class fileHandler(object):
                 ssh.connect(
                     server, username=username, allow_agent=False, password="root"
                 )
-            except:
+            except Exception:
                 return "ssh connection to " + server + " failed!"
 
         sftp = ssh.open_sftp()
@@ -394,7 +391,7 @@ class fileHandler(object):
             ssh.connect(
                 server, username=username, allow_agent=False, key_filename=keypath
             )
-        except:
+        except Exception:
             return "ssh connection to " + server + " failed!"
         return ssh
 
@@ -411,7 +408,7 @@ class fileHandler(object):
     def writeCaraJobIdToModel(username, ModelName, jobId):
         localpath = "./Output/" + os.path.join(username, ModelName)
 
-        if os.path.exists(localpath) == False:
+        if not os.path.exists(localpath):
             os.makedirs(localpath)
 
         JobIdFile = os.path.join(localpath, "jobId.txt")
@@ -423,7 +420,7 @@ class fileHandler(object):
         localpath = "./Output/" + os.path.join(username, ModelName)
         jobIdpath = os.path.join(localpath, "jobId.txt")
 
-        if os.path.exists(jobIdpath) == False:
+        if not os.path.exists(jobIdpath):
             return "No pid"
 
         file = open(jobIdpath, "r")

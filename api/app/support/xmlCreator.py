@@ -18,7 +18,7 @@ class XMLcreator(object):
         self.TwoD = modelWriter.TwoD
 
     def checkIfDefined(self, obj):
-        return obj != None and obj != 0 and obj != ""
+        return obj is not None and obj != 0 and obj != ""
 
     def loadMesh(self):
         string = '    <ParameterList name="Discretization">\n'
@@ -264,7 +264,7 @@ class XMLcreator(object):
                 + block.material
                 + '"/>\n'
             )
-            if block.damageModel != "" and block.damageModel != None:
+            if block.damageModel != "" and block.damageModel is not None:
                 string += (
                     '            <Parameter name="Damage Model" type="string" value="'
                     + block.damageModel
@@ -275,7 +275,7 @@ class XMLcreator(object):
                 + str(block.horizon)
                 + '"/>\n'
             )
-            if block.interface != "" and block.interface != None:
+            if block.interface != "" and block.interface is not None:
                 string += (
                     '            <Parameter name="Interface" type="int" value="'
                     + str(block.interface)

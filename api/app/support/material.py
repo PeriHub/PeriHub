@@ -16,7 +16,6 @@ class MaterialRoutines(object):
 
     def stiffnessMatrix(self, type, matParam=[0]):
         parameter = {}
-        # if type == 'isotropic':parameter = self.isotropic(parameter, matParam[1], matParam[2], matParam[3], matParam[4])
         if type == "anisotropic":
             parameter = self.anisotropic(parameter, matParam)
         return parameter
@@ -61,7 +60,8 @@ class MaterialRoutines(object):
     ):
         """This method returns the transformation matrix for epsilon for the specified rotation angle.
         For more information refer to:
-        .. [Alt1996] Einfuehrung in die Mechanik der Laminat- und Sandwichtragwerke: Modellierung und Berechnung von Balken und Platten aus Verbundwerkstoffen,  pages 29f.
+        .. [Alt1996] Einfuehrung in die Mechanik der Laminat- und Sandwichtragwerke:
+        Modellierung und Berechnung von Balken und Platten aus Verbundwerkstoffen,  pages 29f.
 
         .. attention::
 
@@ -84,7 +84,8 @@ class MaterialRoutines(object):
     ):
         """This method returns the transformation matrix for epsilon for the specified rotation matrix.
         For more information refer to:
-        .. [Alt1996] Einfuehrung in die Mechanik der Laminat- und Sandwichtragwerke: Modellierung und Berechnung von Balken und Platten aus Verbundwerkstoffen,  pages 29f.
+        .. [Alt1996] Einfuehrung in die Mechanik der Laminat- und Sandwichtragwerke:
+        Modellierung und Berechnung von Balken und Platten aus Verbundwerkstoffen,  pages 29f.
 
         .. attention::
 
@@ -219,7 +220,8 @@ class MaterialRoutines(object):
     def transformStiffnessMatrixByAngle(
         self, inputArray, angle, localToGlobal=True, rotationAxis="z"
     ):
-        """This method is intended to transform the provided array (2-D) according to the specified angle into a new coordinate system."""
+        """This method is intended to transform the provided array (2-D)
+        according to the specified angle into a new coordinate system."""
         inputArray = np.asarray(inputArray)
         if localToGlobal:
             # CONVERT LOCAL REDUCED STIFFNESS INTO GLOBAL REDUCED STIFFNESS - TRANSFORMATION FOR EPSILON
@@ -254,7 +256,8 @@ class MaterialRoutines(object):
     def transformStiffnessMatrixByMatrix(
         self, inputArray, rotationMatrix, localToGlobal=True
     ):
-        """This method is intended to transform the provided array (2-D) according to the specified rotation matrix into a new coordinate system."""
+        """This method is intended to transform the provided array (2-D)
+        according to the specified rotation matrix into a new coordinate system."""
         inputArray = np.asarray(inputArray)
         if localToGlobal:
             # CONVERT LOCAL REDUCED STIFFNESS INTO GLOBAL REDUCED STIFFNESS - TRANSFORMATION FOR EPSILON

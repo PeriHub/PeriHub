@@ -1,7 +1,3 @@
-import numpy as np
-import os
-
-
 class SbatchCreator(object):
     def __init__(
         self,
@@ -95,7 +91,8 @@ class SbatchCreator(object):
         # else:
         #     string='#!/bin/sh' + '\n'
         #     string += 'export PATH=$PATH:/usr/local/trilinos/bin \n'
-        #     string += 'mpirun --allow-run-as-root -np ' + self.tasks + ' /peridigm/build/src/Peridigm ' + self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
+        #     string += 'mpirun --allow-run-as-root -np ' + self.tasks + ' /peridigm/build/src/Peridigm ' +
+        # self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
         #     string += 'pid=`cat pid.txt` \n'
         #     string += 'tail --pid=$pid -f /dev/null \n'
         #     for out in self.outputDict:

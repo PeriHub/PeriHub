@@ -1,7 +1,6 @@
 import numpy as np
 
 # import ast
-from scipy import interpolate
 from support.modelWriter import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
@@ -11,24 +10,19 @@ class VerificationModels(object):
     def __init__(self, TwoD=True):
         # https://wiki.dlr.de/display/PDWiki/Tests
         self.scal = 4.01
-        self.l = 0.021
+        self.length = 0.021
         self.h = 0.002
         self.B = 0.001
         self.E = 7e10
         self.nu = 0.3
         self.dx = [0.00005, 0.00005, 0.00005]
-        self.Amp = "0.005*(-x/" + str(self.l) + "+ 1)"
+        self.Amp = "0.005*(-x/" + str(self.length) + "+ 1)"
         self.blockDef = ""
         self.computeDict = {}
 
         self.damageDict = ""
 
         self.bondfilters = {"Name": []}
-        # if compute=='':
-        #     self.computeDict[0] = {'Name':'External_Displacement','variable':'Displacement', 'calculationType':'Minimum','blockName':'block_7'}
-        #     self.computeDict[1] = {'Name':'External_Force','variable':'Force', 'calculationType':'Sum','blockName':'block_7'}
-        # else:
-        #     self.computeDict = compute
         self.solverDict = {}
         self.TwoD = True
 
@@ -45,7 +39,6 @@ class VerificationModels(object):
             "Frequency": 500,
             "InitStep": 0,
         }
-        # self.outputDict[1] = {'Name': 'Output2', 'Displacement': False, 'Force': False, 'Damage': False, 'Partial_Stress': True, 'External_Force': False, 'External_Displacement': False, 'Number_Of_Neighbors': False, 'Frequency': 200, 'InitStep': 0}
 
         matNameList = ["isoMatOne", "isoMatTwo", "anisoMat"]
         self.materialDict = [{}] * len(matNameList)
@@ -337,7 +330,12 @@ class VerificationModels(object):
         self.angle = angle
         self.TwoD = TwoD
         self.createModel(
-            TwoD=TwoD, xend=self.l, yend=self.h, zend=self.B, dx=self.dx, angle=angle
+            TwoD=TwoD,
+            xend=self.length,
+            yend=self.h,
+            zend=self.B,
+            dx=self.dx,
+            angle=angle,
         )
 
     def avoidMiddleNode(self, yend, dx):
@@ -353,7 +351,7 @@ class VerificationModels(object):
                 k = 3
             elif y < self.h / 2:
                 k = 4
-        elif x > self.l:
+        elif x > self.length:
             if y > self.h / 2:
                 k = 5
             elif y < self.h / 2:

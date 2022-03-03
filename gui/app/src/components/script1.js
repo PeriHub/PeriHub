@@ -279,7 +279,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "generateDatabase",
-        params: { FileName: this.analysisModel.fileName },
+        params: { file_name: this.analysisModel.fileName },
         data: this.keywordList,
         method: "PUT",
         headers: headersList,
@@ -309,7 +309,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "getConnections",
-        params: { FileName: this.analysisModel.fileName, Variable: Variable },
+        params: { file_name: this.analysisModel.fileName, variable: Variable },
         method: "GET",
         headers: headersList,
       };
@@ -339,7 +339,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "getBibDatabase",
-        params: { FileName: this.analysisModel.fileName },
+        params: { file_name: this.analysisModel.fileName },
         method: "GET",
         headers: headersList,
       };
@@ -360,7 +360,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "getBarChart",
-        params: { FileName: this.analysisModel.fileName, Variable: Variable },
+        params: { file_name: this.analysisModel.fileName, variable: Variable },
         method: "GET",
         headers: headersList,
       };
@@ -414,7 +414,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "getStatus",
-        params: { FileName: this.analysisModel.fileName },
+        params: { file_name: this.analysisModel.fileName },
         method: "GET",
         headers: headersList,
       };
@@ -431,7 +431,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "findKeywords",
-        params: { FileName: this.analysisModel.fileName },
+        params: { file_name: this.analysisModel.fileName },
         data: this.keywordList,
         method: "PUT",
         headers: headersList,
@@ -757,7 +757,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "uploadBibfile",
-        params: { FileName: this.analysisModel.fileName },
+        params: { file_name: this.analysisModel.fileName },
         data: formData,
         method: "POST",
         headers: headersList,
@@ -787,7 +787,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "uploadfiles",
-        params: { FileName: this.analysisModel.fileName },
+        params: { file_name: this.analysisModel.fileName },
         data: formData,
         method: "POST",
         headers: headersList,
@@ -810,7 +810,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "deleteFiles",
-        params: { FileName: this.analysisModel.fileName },
+        params: { file_name: this.analysisModel.fileName },
         method: "DELETE",
         headers: headersList,
       };

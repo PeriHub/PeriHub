@@ -1,6 +1,6 @@
 import numpy as np
-from scipy import interpolate
 from support.geometry import Geometry
+from support.modelWriter import ModelWriter
 
 
 class XFEMDCB(object):
@@ -57,10 +57,10 @@ class XFEMDCB(object):
 
     def fun(self, x1, x2, h, nnum):
 
-        x = [0, 2 * x1, h - 2 * x2, h]
+        # x = [0, 2 * x1, h - 2 * x2, h]
         # y = [x1, x1, x1, x2, x2, x2]
         # y = [0, 0.5*x1, 2*x1,  h-2*x2, h-0.5*x2, h]
-        y = [0, 2 * x2, h - 2 * x1, h]
+        # y = [0, 2 * x2, h - 2 * x1, h]
         A = (-2 * h + nnum * (x1 + x2)) / nnum**3
         B = (3 * h - nnum * (2 * x1 + x2)) / nnum**2
         C = x1

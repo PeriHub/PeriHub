@@ -1,0 +1,6 @@
+[flake8]
+exclude = ./api/app/support/exodusReader
+; per-file-ignores =
+;     ./api/app/support/exodusReader/imageLastStep.py:F403,F405,F401,E501
+;     ./api/app/support/exodusReader/imageLastStepTest.py:F403,F405,F401,E501
+;     ./api/app/support/exodusReader/globalData.py:F403,F405,F401,E501

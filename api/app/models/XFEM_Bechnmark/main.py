@@ -70,7 +70,8 @@ if __name__ == "__main__":
             writeString += string
             writeStringLC += stringBC
             plt.plot(datx, daty, "*")
-        # string, stringBC, num, datx, daty = dcb.createPlate(x = [tp+tg,L], y = [0,h], dfunx = [da, dx], dfuny = [dy, da], k = 1, numIn = num)
+        # string, stringBC, num, datx, daty =
+        # dcb.createPlate(x = [tp+tg,L], y = [0,h], dfunx = [da, dx], dfuny = [dy, da], k = 1, numIn = num)
         # writeString += string
         # writeStringRC = stringBC
         # plt.plot(datx, daty, '*')

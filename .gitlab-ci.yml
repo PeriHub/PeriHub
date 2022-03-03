@@ -2,10 +2,61 @@ variables: &globals
   CI_REGISTRY_PATH: "harbor.fa-services.intra.dlr.de/hess_ja/"
 
 stages:
-  - build
+  - Static Analysis
+  - Test
+  - Build
+
+flake8:
+  stage: Static Analysis
+  image: "python:3.8"
+  only:
+    refs:
+      - main
+    changes:
+      - api/**/*
+  allow_failure: true
+  before_script:
+    - pip install -r api/requirements.txt
+    - pip install flake8
+  script:
+    - flake8 --max-line-length=120 api/app/*
+
+pylint:
+  stage: Static Analysis
+  image: "python:3.8"
+  only:
+    refs:
+      - main
+    changes:
+      - api/**/*
+  allow_failure: true
+  before_script:
+    - pip install -r api/requirements.txt
+    - pip install pylint
+  script:
+    - pylint -d C0301 api/app/*
+
+unit_test:
+  stage: Test
+  image: "python:3.8"
+  only:
+    refs:
+      - main
+    changes:
+      - api/**/*
+  allow_failure: true
+  before_script:
+    - pip install -r api/requirements.txt
+    - pip install pytest
+  script:
+    - pytest -v --junitxml=report.xml api/app/
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
 
 build_api_job:
-  stage: build
+  stage: Build
   extends: [.build_before_script_template]
   only:
     refs:
@@ -18,7 +69,7 @@ build_api_job:
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
 build_gui_job:
-  stage: build
+  stage: Build
   extends: [.build_before_script_template]
   only:
     refs:
@@ -31,7 +82,7 @@ build_gui_job:
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_cron_job:
-  stage: build
+  stage: Build
   extends: [.build_before_script_template]
   only:
     refs:
@@ -43,7 +94,7 @@ build_cron_job:
     - docker push ${CI_REGISTRY_PATH}cron_image
 
 build_paraview_job:
-  stage: build
+  stage: Build
   extends: [.build_before_script_template]
   only:
     refs:

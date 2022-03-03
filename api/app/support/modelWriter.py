@@ -75,10 +75,6 @@ class ModelWriter(object):
         print("Mesh written in " + "%.2f seconds" % (time.time() - start_time))
 
     def createFile(self, blockDef):
-
-        # string = yl.createYAML(string)
-
-        # if self.solverDict['filetype'] == 'xml':
         xl = XMLcreator(self, blockDef=blockDef)
         string = xl.createXML()
         if self.solverDict.filetype == "yaml":

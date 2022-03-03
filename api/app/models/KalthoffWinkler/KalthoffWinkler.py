@@ -334,7 +334,7 @@ class KalthoffWinkler(object):
                 + str(self.maxNodes)
             )
 
-        if self.ignoreMesh == True and self.blockDef != "":
+        if self.ignoreMesh and self.blockDef != "":
 
             writer = ModelWriter(modelClass=self)
             for idx in range(0, len(self.blockDef)):
