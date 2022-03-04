@@ -8,10 +8,10 @@ import sys
 from paraview.simple import *
 
 UserName = sys.argv[1]
-ModelName = sys.argv[2]
+model_name = sys.argv[2]
 OutputName = sys.argv[3]
-filePath = path.join("./Results/" + UserName, ModelName)
-# class Geometry(object):
+filePath = path.join("./Results/" + UserName, model_name)
+# class Geometry():
 #     def __init__(self):
 #         pass
 #     def writeCSV(self):
@@ -20,7 +20,7 @@ paraview.simple._DisableFirstRenderCameraReset()
 
 # create a new 'ExodusIIReader'
 pMMA_var_0_1e = ExodusIIReader(
-    FileName=[path.join(filePath, ModelName + "_" + OutputName + ".e")]
+    FileName=[path.join(filePath, model_name + "_" + OutputName + ".e")]
 )
 # pMMA_var_0_1e.ElementVariables = []
 # pMMA_var_0_1e.PointVariables = []

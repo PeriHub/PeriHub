@@ -8,17 +8,17 @@ import sys
 from paraview.simple import *
 
 UserName = sys.argv[1]
-ModelName = sys.argv[2]
+model_name = sys.argv[2]
 OutputName = sys.argv[3]
 Variable = sys.argv[4]
 Axis = sys.argv[5]
-dx = sys.argv[6]
+dx_value = sys.argv[6]
 width = sys.argv[7]
 height = sys.argv[8]
 if Variable == "Damage":
     Axis = "Magnitude"
-filePath = path.join("./Results/" + UserName, ModelName)
-# class Geometry(object):
+filePath = path.join("./Results/" + UserName, model_name)
+# class Geometry():
 #     def __init__(self):
 #         pass
 #     def writeCSV(self):
@@ -26,7 +26,7 @@ filePath = path.join("./Results/" + UserName, ModelName)
 paraview.simple._DisableFirstRenderCameraReset()
 
 Output1 = ExodusIIReader(
-    FileName=[path.join(filePath, ModelName + "_" + OutputName + ".e")]
+    FileName=[path.join(filePath, model_name + "_" + OutputName + ".e")]
 )
 
 Output1.ApplyDisplacements = 0
@@ -117,7 +117,7 @@ glyph1.GlyphMode = "All Points"
 
 # Properties modified on glyph1
 # glyph1.ScaleFactor = 0.753243688903749
-glyph1.ScaleFactor = float(dx)
+glyph1.ScaleFactor = float(dx_value)
 
 # rescale color and/or opacity maps used to exactly fit the current data range
 glyph1Display.RescaleTransferFunctionToDataRange(False, True)

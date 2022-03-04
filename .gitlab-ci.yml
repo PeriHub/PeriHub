@@ -34,7 +34,7 @@ pylint:
     - pip install -r api/requirements.txt
     - pip install pylint
   script:
-    - pylint -d C0301 api/app/*
+    - pylint -d C0301,R0801 api/app/*
 
 unit_test:
   stage: Test

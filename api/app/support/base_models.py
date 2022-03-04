@@ -1,8 +1,9 @@
-from pydantic import BaseModel
-from typing import Optional
-from typing import List
-from enum import Enum
+# pylint: disable=no-name-in-module
 import json
+from enum import Enum
+from typing import List
+from typing import Optional
+from pydantic import BaseModel
 
 
 class Status:
@@ -316,7 +317,7 @@ class RunData(BaseModel):
         }
 
 
-class Data(BaseModel):
+class ModelData(BaseModel):
     model: Model
     materials: List[Material]
     damages: List[Damage]

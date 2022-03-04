@@ -1,154 +1,228 @@
+"""
+doc
+"""
+import time
 import numpy as np
 from scipy.interpolate import interp1d
-import time
 
 
-class Geometry(object):
-    def __init__(self):
-        pass
-
-    def createPoints(self, coor, dx):
+class Geometry:
+    @staticmethod
+    def create_points(coor, dx_value):
+        """doc"""
         start_time = time.time()
         if coor[4] == coor[5]:
             gridx, gridy = np.meshgrid(
-                np.arange(coor[0], coor[1] + dx[0], dx[0]),
-                np.arange(coor[2], coor[3] + dx[1], dx[1]),
+                np.arange(coor[0], coor[1] + dx_value[0], dx_value[0]),
+                np.arange(coor[2], coor[3] + dx_value[1], dx_value[1]),
             )
-            gx = gridx.ravel()
-            gy = gridy.ravel()
-            gz = 0 * gridy.ravel()
+            grid_x_value = gridx.ravel()
+            grid_y_value = gridy.ravel()
+            grid_z_value = 0 * gridy.ravel()
         else:
             gridx, gridy, gridz = np.meshgrid(
-                np.arange(coor[0], coor[1] + dx[0], dx[0]),
-                np.arange(coor[2], coor[3] + dx[1], dx[1]),
-                np.arange(coor[4], coor[5] + dx[2], dx[2]),
+                np.arange(coor[0], coor[1] + dx_value[0], dx_value[0]),
+                np.arange(coor[2], coor[3] + dx_value[1], dx_value[1]),
+                np.arange(coor[4], coor[5] + dx_value[2], dx_value[2]),
             )
-            gx = gridx.ravel()
-            gy = gridy.ravel()
-            gz = gridz.ravel()
-        print("Points created in " + "%.2f seconds" % (time.time() - start_time))
-        return gx, gy, gz
+            grid_x_value = gridx.ravel()
+            grid_y_value = gridy.ravel()
+            grid_z_value = gridz.ravel()
 
-    def checkValLowerNew(self, array, limit):
+        print(f"Points created  in {(time.time() - start_time):.2f} seconds")
+        return grid_x_value, grid_y_value, grid_z_value
+
+    @staticmethod
+    def check_val_lower_new(array, limit):
+        """doc"""
         return np.where(array <= limit)
 
-    def checkValGreaterNew(self, array, limit):
+    @staticmethod
+    def check_val_greater_new(array, limit):
+        """doc"""
         return np.where(array >= limit)
 
-    def checkValLower(self, val, limit):
+    @staticmethod
+    def check_val_lower(val, limit):
+        """doc"""
         inside = False
 
         if val <= limit:
             inside = True
         return inside
 
-    def checkValGreater(self, val, limit):
+    @staticmethod
+    def check_val_greater(val, limit):
+        """doc"""
         inside = False
 
         if val >= limit:
             inside = True
         return inside
 
-    def createBoundaryCurve(
-        self, h=0, l1=0, R=0, l2=0, alphaMax=90, alphaMax1=90, dl=0, dh=0
+    @staticmethod
+    def create_boundary_curve(
+        height=0,
+        length1=0,
+        radius=0,
+        length2=0,
+        alpha_max=90,
+        alpha_max1=90,
+        delta_length=0,
+        delta_height=0,
     ):
+        """doc"""
 
         dalpha = 0.025
-        # print(alphaMax)
-        alpha = np.arange(0, alphaMax, dalpha)
-        dalpha1 = alphaMax1 / len(alpha)
-        if alphaMax1 == 0:
+        # print(alpha_max)
+        alpha = np.arange(0, alpha_max, dalpha)
+        dalpha1 = alpha_max1 / len(alpha)
+        if alpha_max1 == 0:
             alpha1 = np.zeros_like(alpha)
-        elif alphaMax == alphaMax1:
-            alpha1 = np.arange(0, alphaMax, dalpha)
+        elif alpha_max == alpha_max1:
+            alpha1 = np.arange(0, alpha_max, dalpha)
         else:
-            alpha1 = np.arange(0, alphaMax1, dalpha1)
+            alpha1 = np.arange(0, alpha_max1, dalpha1)
         if len(alpha1) > len(alpha):
-            alpha1 = np.arange(0, alphaMax1 - dalpha1 / 2, dalpha1)
+            alpha1 = np.arange(0, alpha_max1 - dalpha1 / 2, dalpha1)
 
         ##################################
         # Start
         ##################################
-        x = np.array([0])
-        y = np.array([h])
+        x_value = np.array([0])
+        y_value = np.array([height])
         #########
         # Circle
         #########
-        x = np.concatenate((x, l1 + dl + R * np.sin((-alpha) / 180 * np.pi)))
-        y = np.concatenate((y, h - dh + R - R * np.cos((-alpha1) / 180 * np.pi)))
+        x_value = np.concatenate(
+            (x_value, length1 + delta_length + radius * np.sin((-alpha) / 180 * np.pi))
+        )
+        y_value = np.concatenate(
+            (
+                y_value,
+                height
+                - delta_height
+                + radius
+                - radius * np.cos((-alpha1) / 180 * np.pi),
+            )
+        )
         #########
         # Circle
         #########
 
-        x = np.concatenate((x, l1 + dl + l2 + R * np.sin(alpha / 180 * np.pi)))
-        y = np.concatenate((y, h - dh + R - R * np.cos(alpha1 / 180 * np.pi)))
+        x_value = np.concatenate(
+            (
+                x_value,
+                length1 + delta_length + length2 + radius * np.sin(alpha / 180 * np.pi),
+            )
+        )
+        y_value = np.concatenate(
+            (
+                y_value,
+                height - delta_height + radius - radius * np.cos(alpha1 / 180 * np.pi),
+            )
+        )
         #########
         # End
         #########
 
-        x = np.concatenate((x, np.array([2 * dl + 2 * l1 + l2 + 0.01])))
-        y = np.concatenate((y, np.array([h])))
+        x_value = np.concatenate(
+            (x_value, np.array([2 * delta_length + 2 * length1 + length2 + 0.01]))
+        )
+        y_value = np.concatenate((y_value, np.array([height])))
 
-        topSurf = interp1d(x, y)
-        bottomSurf = interp1d(x, -y)
+        top_surf = interp1d(x_value, y_value)
+        bottom_surf = interp1d(x_value, -y_value)
 
-        return topSurf, bottomSurf
+        return top_surf, bottom_surf
 
-    def createBoundaryCurveOld(self, h=0, l1=0, R=0, l2=0, alphaMax=90, dl=0, dh=0):
+    @staticmethod
+    def create_boundary_curve_old(
+        height=0,
+        length1=0,
+        radius=0,
+        length2=0,
+        alpha_max=90,
+        delta_length=0,
+        delta_height=0,
+    ):
+        """doc"""
 
         dalpha = 0.025
-        # print(alphaMax)
-        alpha = np.arange(0, alphaMax + dalpha, dalpha)
+        # print(alpha_max)
+        alpha = np.arange(0, alpha_max + dalpha, dalpha)
         ##################################
         # Start
         ##################################
-        x = np.array([0])
-        y = np.array([h])
+        x_value = np.array([0])
+        y_value = np.array([height])
         #########
         # Circle
         #########
-        x = np.concatenate((x, l1 + dl + R * np.sin((-alpha) / 180 * np.pi)))
-        y = np.concatenate((y, h + R - dh - R * np.cos((-alpha) / 180 * np.pi)))
+        x_value = np.concatenate(
+            (x_value, length1 + delta_length + radius * np.sin((-alpha) / 180 * np.pi))
+        )
+        y_value = np.concatenate(
+            (
+                y_value,
+                height
+                + radius
+                - delta_height
+                - radius * np.cos((-alpha) / 180 * np.pi),
+            )
+        )
         #########
         # Circle
         #########
 
-        x = np.concatenate((x, l1 + dl + l2 + R * np.sin(alpha / 180 * np.pi)))
-        y = np.concatenate((y, h - dh + R - R * np.cos(alpha / 180 * np.pi)))
+        x_value = np.concatenate(
+            (
+                x_value,
+                length1 + delta_length + length2 + radius * np.sin(alpha / 180 * np.pi),
+            )
+        )
+        y_value = np.concatenate(
+            (
+                y_value,
+                height - delta_height + radius - radius * np.cos(alpha / 180 * np.pi),
+            )
+        )
         #########
         # End
         #########
 
-        x = np.concatenate((x, np.array([2 * dl + 2 * l1 + l2 + 0.01])))
-        y = np.concatenate((y, np.array([h])))
+        x_value = np.concatenate(
+            (x_value, np.array([2 * delta_length + 2 * length1 + length2 + 0.01]))
+        )
+        y_value = np.concatenate((y_value, np.array([height])))
 
-        topSurf = interp1d(x, y)
-        bottomSurf = interp1d(x, -y)
+        top_surf = interp1d(x_value, y_value)
+        bottom_surf = interp1d(x_value, -y_value)
 
         # #########
         # # Bottom
         # #########
-        # x = np.array([2*dl+2*l1+l2+0.01])
-        # y = np.array([0])
+        # x_value = np.array([2*delta_length+2*length1+length2+0.01])
+        # y_value = np.array([0])
 
         # #########
         # # Circle
         # #########
-        # x = np.concatenate((x,l1+dl+l2+R*np.sin((alphaMax-alpha)/180*np.pi)))
-        # #x = np.concatenate((x,l1+l2+dl-R*np.cos(alpha/180*np.pi)))
-        # y = np.concatenate((y, dh -R + R*np.cos((alphaMax-alpha)/180*np.pi)))
+        # x_value = np.concatenate((x_value,length1+delta_length+length2+radius*np.sin((alpha_max-alpha)/180*np.pi)))
+        # #x_value = np.concatenate((x_value,length1+length2+delta_length-radius*np.cos(alpha/180*np.pi)))
+        # y_value = np.concatenate((y_value, delta_height -radius + radius*np.cos((alpha_max-alpha)/180*np.pi)))
 
         # #########
         # # Circle
         # #########
-        # x = np.concatenate((x,l1+dl+R*np.sin(-alpha/180*np.pi)))
-        # y = np.concatenate((y,dh -R +R*np.cos(-alpha/180*np.pi))) #error
+        # x_value = np.concatenate((x_value,length1+delta_length+radius*np.sin(-alpha/180*np.pi)))
+        # y_value = np.concatenate((y_value,delta_height -radius +radius*np.cos(-alpha/180*np.pi))) #error
         # #########
         # # End
         # #########
-        # x = np.concatenate((x,np.array([0])))
-        # y = np.concatenate((y,np.array([0])))
+        # x_value = np.concatenate((x_value,np.array([0])))
+        # y_value = np.concatenate((y_value,np.array([0])))
 
-        # bottomSurf = interp1d(x,y)
+        # bottom_surf = interp1d(x_value,y_value)
 
-        return topSurf, bottomSurf
+        return top_surf, bottom_surf

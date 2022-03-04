@@ -1,28 +1,32 @@
+"""
+doc
+"""
 import numpy as np
 
 
-class XMLcreator(object):
-    def __init__(self, modelWriter, blockDef={}):
-        self.filename = modelWriter.filename
-        self.materialDict = modelWriter.materialDict
-        self.damageDict = modelWriter.damageDict
-        self.computeDict = modelWriter.computeDict
-        self.outputDict = modelWriter.outputDict
-        self.solverDict = modelWriter.solverDict
-        self.blockDef = blockDef
-        self.bondfilters = modelWriter.bondfilters
-        self.bc = modelWriter.bcDict
-        self.nsName = modelWriter.nsName
-        self.nsList = modelWriter.nsList
-        self.DiscType = modelWriter.DiscType
-        self.TwoD = modelWriter.TwoD
+class XMLcreator:
+    def __init__(self, model_writer, block_def={}):
+        self.filename = model_writer.filename
+        self.material_dict = model_writer.material_dict
+        self.damage_dict = model_writer.damage_dict
+        self.compute_dict = model_writer.compute_dict
+        self.output_dict = model_writer.output_dict
+        self.solver_dict = model_writer.solver_dict
+        self.block_def = block_def
+        self.bondfilters = model_writer.bondfilters
+        self.boundary_condition = model_writer.bc_dict
+        self.ns_name = model_writer.ns_name
+        self.ns_list = model_writer.ns_list
+        self.disc_type = model_writer.disc_type
+        self.two_d = model_writer.two_d
 
-    def checkIfDefined(self, obj):
+    @staticmethod
+    def checkIfDefined(obj):
         return obj is not None and obj != 0 and obj != ""
 
-    def loadMesh(self):
+    def load_mesh(self):
         string = '    <ParameterList name="Discretization">\n'
-        if self.DiscType == "txt":
+        if self.disc_type == "txt":
             string += (
                 '        <Parameter name="Type" type="string" value="Text File" />\n'
             )
@@ -31,7 +35,7 @@ class XMLcreator(object):
                 + self.filename
                 + '.txt"/>\n'
             )
-        elif self.DiscType == "e":
+        elif self.disc_type == "e":
             string += '        <Parameter name="Type" type="string" value="Exodus" />\n'
             string += (
                 '        <Parameter name="Input Mesh File" type="string" value="'
@@ -40,90 +44,90 @@ class XMLcreator(object):
             )
         return string
 
-    def createBondFilter(self):
+    def create_bond_filter(self):
         string = '        <ParameterList name="Bond Filters">\n'
-        for bf in self.bondfilters:
-            string += '            <ParameterList name="' + bf.Name + '">\n'
+        for bond_filter in self.bondfilters:
+            string += '            <ParameterList name="' + bond_filter.Name + '">\n'
             string += (
                 '                <Parameter name="Type" type="string" value = "'
-                + bf.type
+                + bond_filter.type
                 + '"/>\n'
             )
             string += (
                 '                <Parameter name="Normal_X" type="double" value="'
-                + str(bf.normalX)
+                + str(bond_filter.normalX)
                 + '"/>\n'
             )
             string += (
                 '                <Parameter name="Normal_Y" type="double" value="'
-                + str(bf.normalY)
+                + str(bond_filter.normalY)
                 + '"/>\n'
             )
             string += (
                 '                <Parameter name="Normal_Z" type="double" value="'
-                + str(bf.normalZ)
+                + str(bond_filter.normalZ)
                 + '"/>\n'
             )
-            if bf.type == "Rectangular_Plane":
+            if bond_filter.type == "Rectangular_Plane":
                 string += (
                     '                <Parameter name="Lower_Left_Corner_X" type="double" value="'
-                    + str(bf.lowerLeftCornerX)
+                    + str(bond_filter.lowerLeftCornerX)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Lower_Left_Corner_Y" type="double" value="'
-                    + str(bf.lowerLeftCornerY)
+                    + str(bond_filter.lowerLeftCornerY)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Lower_Left_Corner_Z" type="double" value="'
-                    + str(bf.lowerLeftCornerZ)
+                    + str(bond_filter.lowerLeftCornerZ)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Bottom_Unit_Vector_X" type="double" value="'
-                    + str(bf.bottomUnitVectorX)
+                    + str(bond_filter.bottomUnitVectorX)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Bottom_Unit_Vector_Y" type="double" value="'
-                    + str(bf.bottomUnitVectorY)
+                    + str(bond_filter.bottomUnitVectorY)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Bottom_Unit_Vector_Z" type="double" value="'
-                    + str(bf.bottomUnitVectorZ)
+                    + str(bond_filter.bottomUnitVectorZ)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Bottom_Length" type="double" value="'
-                    + str(bf.bottomLength)
+                    + str(bond_filter.bottomLength)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Side_Length" type="double" value="'
-                    + str(bf.sideLength)
+                    + str(bond_filter.sideLength)
                     + '"/>\n'
                 )
-            elif bf.type == "Disk":
+            elif bond_filter.type == "Disk":
                 string += (
                     '                <Parameter name="Center_X" type="double" value="'
-                    + str(bf.centerX)
+                    + str(bond_filter.centerX)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Center_Y" type="double" value="'
-                    + str(bf.centerY)
+                    + str(bond_filter.centerY)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Center_Z" type="double" value="'
-                    + str(bf.centerZ)
+                    + str(bond_filter.centerZ)
                     + '"/>\n'
                 )
                 string += (
                     '                <Parameter name="Radius" type="double" value="'
-                    + str(bf.radius)
+                    + str(bond_filter.radius)
                     + '"/>\n'
                 )
             string += "            </ParameterList>\n"
@@ -132,7 +136,7 @@ class XMLcreator(object):
 
     def material(self):
         string = '    <ParameterList name="Materials">\n'
-        for mat in self.materialDict:
+        for mat in self.material_dict:
             string += '        <ParameterList name="' + mat.Name + '">\n'
             string += (
                 '            <Parameter name="Material Model" type="string" value="'
@@ -141,7 +145,7 @@ class XMLcreator(object):
             )
             string += (
                 '            <Parameter name="Plane Stress" type="bool" value="'
-                + str(self.TwoD)
+                + str(self.two_d)
                 + '"/>\n'
             )
             string += (
@@ -252,7 +256,7 @@ class XMLcreator(object):
 
     def blocks(self):
         string = '    <ParameterList name="Blocks">\n'
-        for block in self.blockDef:
+        for block in self.block_def:
             string += '        <ParameterList name="' + block.Name + '">\n'
             string += (
                 '            <Parameter name="Block Names" type="string" value="'
@@ -287,7 +291,7 @@ class XMLcreator(object):
 
     def damage(self):
         string = '    <ParameterList name="Damage Models">\n'
-        for dam in self.damageDict:
+        for dam in self.damage_dict:
             string += '        <ParameterList name="' + dam.Name + '">\n'
             string += (
                 '            <Parameter name="Damage Model" type="string" value="'
@@ -314,7 +318,7 @@ class XMLcreator(object):
                 )
             string += (
                 '            <Parameter name="Plane Stress" type="bool" value="'
-                + str(self.TwoD)
+                + str(self.two_d)
                 + '"/>\n'
             )
             string += (
@@ -350,106 +354,106 @@ class XMLcreator(object):
         string = '    <ParameterList name="Solver">\n'
         string += (
             '        <Parameter name="Verbose" type="bool" value="'
-            + str(self.solverDict.verbose)
+            + str(self.solver_dict.verbose)
             + '"/>\n'
         )
         string += (
             '        <Parameter name="Initial Time" type="double" value="'
-            + str(float(self.solverDict.initialTime))
+            + str(float(self.solver_dict.initialTime))
             + '"/>\n'
         )
         string += (
             '        <Parameter name="Final Time" type="double" value="'
-            + str(float(self.solverDict.finalTime))
+            + str(float(self.solver_dict.finalTime))
             + '"/>\n'
         )
-        if self.solverDict.solvertype == "Verlet":
+        if self.solver_dict.solvertype == "Verlet":
             string += '        <ParameterList name="Verlet">\n'
-            if self.checkIfDefined(self.solverDict.fixedDt):
+            if self.checkIfDefined(self.solver_dict.fixedDt):
                 string += (
                     '            <Parameter name="Fixed dt" type="double" value="'
-                    + str(float(self.solverDict.fixedDt))
+                    + str(float(self.solver_dict.fixedDt))
                     + '"/>\n'
                 )
             string += (
                 '            <Parameter name="Safety Factor" type="double" value="'
-                + str(float(self.solverDict.safetyFactor))
+                + str(float(self.solver_dict.safetyFactor))
                 + '"/>\n'
             )
             string += (
                 '            <Parameter name="Numerical Damping" type="double" value="'
-                + str(float(self.solverDict.numericalDamping))
+                + str(float(self.solver_dict.numericalDamping))
                 + '"/>\n'
             )
             if (
-                "adaptivetimeStepping" in self.solverDict
-                and self.solverDict.adaptivetimeStepping
+                "adaptivetimeStepping" in self.solver_dict
+                and self.solver_dict.adaptivetimeStepping
             ):
                 string += '            <Parameter name="Adaptive Time Stepping" type="bool" value="true"/>\n'
                 string += (
                     '            <Parameter name="Stable Step Difference" type="int" value="'
-                    + str(self.solverDict.adapt.stableStepDifference)
+                    + str(self.solver_dict.adapt.stableStepDifference)
                     + '"/>\n'
                 )
                 string += (
                     '            <Parameter name="Maximum Bond Difference" type="int" value="'
-                    + str(self.solverDict.adapt.maximumBondDifference)
+                    + str(self.solver_dict.adapt.maximumBondDifference)
                     + '"/>\n'
                 )
                 string += (
                     '            <Parameter name="Stable Bond Difference" type="int" value="'
-                    + str(self.solverDict.adapt.stableBondDifference)
+                    + str(self.solver_dict.adapt.stableBondDifference)
                     + '"/>\n'
                 )
-        elif self.solverDict.solvertype == "NOXQuasiStatic":
+        elif self.solver_dict.solvertype == "NOXQuasiStatic":
             string += (
                 '        <Parameter name="Peridigm Preconditioner" type="string" value="'
-                + str(self.solverDict.peridgimPreconditioner)
+                + str(self.solver_dict.peridgimPreconditioner)
                 + '"/>\n'
             )
             string += '        <ParameterList name="NOXQuasiStatic">\n'
             string += (
                 '            <Parameter name="Nonlinear Solver" type="string" value="'
-                + str(self.solverDict.nonlinearSolver)
+                + str(self.solver_dict.nonlinearSolver)
                 + '"/>\n'
             )
             string += (
                 '            <Parameter name="Number of Load Steps" type="int" value="'
-                + str(float(self.solverDict.NumberOfLoadSteps))
+                + str(float(self.solver_dict.NumberOfLoadSteps))
                 + '"/>\n'
             )
             string += (
                 '            <Parameter name="Max Solver Iterations" type="int" value="'
-                + str(self.solverDict.maxSolverIterations)
+                + str(self.solver_dict.maxSolverIterations)
                 + '"/>\n'
             )
             string += (
                 '            <Parameter name="Relative Tolerance" type="double" value="'
-                + str(float(self.solverDict.Tolerance))
+                + str(float(self.solver_dict.Tolerance))
                 + '"/>\n'
             )
             string += (
                 '            <Parameter name="Max Age Of Prec" type="int" value="'
-                + str(self.solverDict.maxAgeOfPrec)
+                + str(self.solver_dict.maxAgeOfPrec)
                 + '"/>\n'
             )
             string += '            <ParameterList name="Direction">\n'
             string += (
                 '                 <Parameter name="Method" type="string" value="'
-                + str(self.solverDict.directionMethod)
+                + str(self.solver_dict.directionMethod)
                 + '"/>\n'
             )
-            if self.solverDict.directionMethod == "Newton":
+            if self.solver_dict.directionMethod == "Newton":
                 string += '                 <ParameterList name="Newton">\n'
                 string += '                      <ParameterList name="Linear Solver">\n'
                 string += (
                     '                           <Parameter name="Jacobian Operator" type="string" value="'
-                    + str(self.solverDict.newton.jacobianOperator)
+                    + str(self.solver_dict.newton.jacobianOperator)
                     + '"/>\n'
                 )
                 string += (
                     '                           <Parameter name="Preconditioner" type="string" value="'
-                    + str(self.solverDict.newton.preconditioner)
+                    + str(self.solver_dict.newton.preconditioner)
                     + '"/>\n'
                 )
                 string += "                      </ParameterList>\n"
@@ -458,25 +462,25 @@ class XMLcreator(object):
             string += '            <ParameterList name="Line Search">\n'
             string += (
                 '                 <Parameter name="Method" type="string" value="'
-                + str(self.solverDict.lineSearchMethod)
+                + str(self.solver_dict.lineSearchMethod)
                 + '"/>\n'
             )
             string += "            </ParameterList>\n"
-            if self.solverDict.verletSwitch:
+            if self.solver_dict.verletSwitch:
                 string += '            <ParameterList name="Switch to Verlet">\n'
                 string += (
                     '                 <Parameter name="Safety Factor" type="double" value="'
-                    + str(float(self.solverDict.verlet.safetyFactor))
+                    + str(float(self.solver_dict.verlet.safetyFactor))
                     + '"/>\n'
                 )
                 string += (
                     '                 <Parameter name="Numerical Damping" type="double" value="'
-                    + str(float(self.solverDict.verlet.numericalDamping))
+                    + str(float(self.solver_dict.verlet.numericalDamping))
                     + '"/>\n'
                 )
                 string += (
                     '                 <Parameter name="Output Frequency" type="int" value="'
-                    + str(self.solverDict.verlet.outputFrequency)
+                    + str(self.solver_dict.verlet.outputFrequency)
                     + '"/>\n'
                 )
                 string += "            </ParameterList>\n"
@@ -484,44 +488,44 @@ class XMLcreator(object):
             string += '        <ParameterList name="Verlet">\n'
             string += (
                 '            <Parameter name="Safety Factor" type="double" value="'
-                + str(float(self.solverDict.safetyFactor))
+                + str(float(self.solver_dict.safetyFactor))
                 + '"/>\n'
             )
             string += (
                 '            <Parameter name="Numerical Damping" type="double" value="'
-                + str(float(self.solverDict.numericalDamping))
+                + str(float(self.solver_dict.numericalDamping))
                 + '"/>\n'
             )
         string += "        </ParameterList>\n"
         string += "    </ParameterList>\n"
         return string
 
-    def boundaryCondition(self):
+    def create_boundary_condition(self):
         string = '    <ParameterList name="Boundary Conditions">\n'
-        if self.DiscType == "txt":
-            for idx in range(0, len(self.nsList)):
+        if self.disc_type == "txt":
+            for idx in range(0, len(self.ns_list)):
                 string += (
                     '        <Parameter name="Node Set '
                     + str(idx + 1)
                     + '" type="string" value="'
-                    + self.nsName
+                    + self.ns_name
                     + "_"
                     + str(idx + 1)
                     + ".txt"
                     + '"/>\n'
                 )
-        for bc in self.bc:
-            nodeSetId = self.nsList.index(bc.blockId)
-            string += '        <ParameterList name="' + bc.Name + '">\n'
+        for boundary_condition in self.boundary_condition:
+            nodeSetId = self.ns_list.index(boundary_condition.blockId)
+            string += '        <ParameterList name="' + boundary_condition.Name + '">\n'
             string += (
                 '            <Parameter name="Type" type="string" value="'
-                + bc.boundarytype
+                + boundary_condition.boundarytype
                 + '"/>\n'
             )
-            if self.checkIfDefined(bc.nodeSet):
+            if self.checkIfDefined(boundary_condition.nodeSet):
                 string += (
                     '            <Parameter name="Node Set" type="string" value="'
-                    + bc.nodeSet
+                    + boundary_condition.nodeSet
                     + '"/>\n'
                 )
             else:
@@ -532,12 +536,12 @@ class XMLcreator(object):
                 )
             string += (
                 '            <Parameter name="Coordinate" type="string" value="'
-                + bc.coordinate
+                + boundary_condition.coordinate
                 + '"/>\n'
             )
             string += (
                 '            <Parameter name="Value" type="string" value="'
-                + str(bc.value)
+                + str(boundary_condition.value)
                 + '"/>\n'
             )
             string += "        </ParameterList>\n"
@@ -546,7 +550,7 @@ class XMLcreator(object):
 
     def compute(self):
         string = '    <ParameterList name="Compute Class Parameters">\n'
-        for out in self.computeDict:
+        for out in self.compute_dict:
             string += '        <ParameterList name="' + out.Name + '">\n'
             string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
             string += (
@@ -577,7 +581,7 @@ class XMLcreator(object):
     def output(self):
         idx = 0
         string = ""
-        for out in self.outputDict:
+        for out in self.output_dict:
             string += '    <ParameterList name="Output' + str(idx + 1) + '">\n'
             string += '        <Parameter name="Output File Type" type="string" value="ExodusII"/>\n'
             string += '        <Parameter name="Output Format" type="string" value="BINARY"/>\n'
@@ -628,18 +632,18 @@ class XMLcreator(object):
             idx += 1
         return string
 
-    def createXML(self):
+    def create_xml(self):
         string = "<ParameterList>\n"
-        string += self.loadMesh()
+        string += self.load_mesh()
 
         if len(self.bondfilters) > 0:
-            string += self.createBondFilter()
+            string += self.create_bond_filter()
         string += "    </ParameterList>\n"
         string += self.material()
-        if len(self.damageDict) > 0:
+        if len(self.damage_dict) > 0:
             string += self.damage()
         string += self.blocks()
-        string += self.boundaryCondition()
+        string += self.create_boundary_condition()
         string += self.solver()
         string += self.compute()
         string += self.output()

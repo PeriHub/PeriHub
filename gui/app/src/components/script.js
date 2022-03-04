@@ -569,7 +569,7 @@ export default {
         },
       ],
       resolution: 6,
-      dx: 0.1,
+      dx_value: 0.1,
       radius: 0.2,
       multiplier: 1,
       snackbar: false,
@@ -706,7 +706,7 @@ export default {
       let reqOptions = {
         url: this.url + "viewInputFile",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           FileType: this.solver.filetype,
         },
         method: "GET",
@@ -733,7 +733,7 @@ export default {
         };
         let reqOptions = {
           url: this.url + "generateModel",
-          params: { ModelName: this.model.modelNameSelected },
+          params: { model_name: this.model.modelNameSelected },
           data: JSON.parse(
             '{"model": ' +
               JSON.stringify(this.model) +
@@ -844,7 +844,7 @@ export default {
       let reqOptions = {
         url: this.url + "generateMesh",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           Param: JSON.stringify(this.micofam),
         },
         method: "GET",
@@ -1026,7 +1026,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "uploadfiles",
-        params: { ModelName: this.model.modelNameSelected },
+        params: { model_name: this.model.modelNameSelected },
         data: formData,
         method: "POST",
         headers: headersList,
@@ -1401,7 +1401,10 @@ export default {
 
       let reqOptions = {
         url: this.url + "translateModel",
-        params: { ModelName: this.model.modelNameSelected, Filetype: filetype },
+        params: {
+          model_name: this.model.modelNameSelected,
+          Filetype: filetype,
+        },
         method: "POST",
         headers: headersList,
       };
@@ -1647,7 +1650,7 @@ export default {
 
       await this.getPointDataAndUpdateDx();
 
-      this.radius = this.dx.toFixed(2);
+      this.radius = this.dx_value.toFixed(2);
       this.updatePoints();
 
       this.modelLoading = false;
@@ -1763,7 +1766,7 @@ export default {
       let reqOptions = {
         url: this.url + "getPointData",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           OwnModel: this.model.ownModel,
         },
         method: "GET",
@@ -1787,10 +1790,10 @@ export default {
         );
 
       if (!this.model.ownModel) {
-        this.dx =
+        this.dx_value =
           this.model.height / (2 * parseInt(this.model.discretization / 2) + 1);
       } else {
-        this.dx = Math.hypot(
+        this.dx_value = Math.hypot(
           parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),
           parseFloat(this.pointString[4]) - parseFloat(this.pointString[1]),
           parseFloat(this.pointString[5]) - parseFloat(this.pointString[2])
@@ -1803,7 +1806,7 @@ export default {
     //   }
     //   let reqOptions = {
     //     url: this.url + "copyModelToCluster",
-    //     params: {ModelName: this.model.modelNameSelected,
+    //     params: {model_name: this.model.modelNameSelected,
     //             Cluster: this.job.cluster},
     //     method: "GET",
     //     headers: headersList,
@@ -1824,7 +1827,7 @@ export default {
       let reqOptions = {
         url: this.url + "runModel",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           FileType: this.solver.filetype,
         },
         data: JSON.parse(
@@ -1858,7 +1861,7 @@ export default {
       let reqOptions = {
         url: this.url + "getStatus",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           Cluster: this.job.cluster,
         },
         method: "GET",
@@ -1881,7 +1884,7 @@ export default {
       let reqOptions = {
         url: this.url + "cancelJob",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           Cluster: this.job.cluster,
         },
         method: "PUT",
@@ -1902,7 +1905,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "getModel",
-        params: { ModelName: this.model.modelNameSelected },
+        params: { model_name: this.model.modelNameSelected },
         method: "GET",
         responseType: "blob",
         headers: headersList,
@@ -1935,7 +1938,7 @@ export default {
       let reqOptions = {
         url: this.url + "getResults",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           Cluster: this.job.cluster,
           allData: allData,
         },
@@ -1949,7 +1952,7 @@ export default {
 
       // reqOptions = {
       //   url: this.url + "getResults",
-      //   params: {ModelName: this.model.modelNameSelected},
+      //   params: {model_name: this.model.modelNameSelected},
       //   method: "GET",
       //   responseType: 'blob',
       //   headers: headersList,
@@ -2002,7 +2005,7 @@ export default {
       let reqOptions = {
         url: this.url + "getPlot",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           Cluster: this.job.cluster,
           OutputName: OutputName,
         },
@@ -2049,12 +2052,12 @@ export default {
       let reqOptions = {
         url: this.url + "getImage",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           Cluster: this.job.cluster,
           Output: this.getImageOutput,
           Variable: this.getImageVariableSelected,
           Axis: this.getImageAxisSelected,
-          dx: this.dx,
+          dx_value: this.dx_value,
           width: this.$refs.modelView.$el.clientWidth,
           height: this.$refs.modelView.$el.clientHeight,
         },
@@ -2113,7 +2116,7 @@ export default {
       let reqOptions = {
         url: this.url + "getLogFile",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           Cluster: this.job.cluster,
         },
         method: "GET",
@@ -2130,7 +2133,7 @@ export default {
       let reqOptions = {
         url: this.url + "writeInputFile",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           InputString: this.textOutput,
           FileType: this.solver.filetype,
         },
@@ -2151,7 +2154,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "deleteModel",
-        params: { ModelName: this.model.modelNameSelected },
+        params: { model_name: this.model.modelNameSelected },
         method: "DELETE",
         headers: headersList,
       };
@@ -2163,7 +2166,7 @@ export default {
       reqOptions = {
         url: this.url + "deleteModelFromCluster",
         params: {
-          ModelName: this.model.modelNameSelected,
+          model_name: this.model.modelNameSelected,
           Cluster: this.job.cluster,
         },
         method: "DELETE",

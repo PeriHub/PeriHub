@@ -1,4 +1,11 @@
-class SbatchCreator(object):
+"""
+doc
+"""
+
+
+class SbatchCreator:
+    """doc"""
+
     def __init__(
         self,
         filename="Model",
@@ -6,9 +13,9 @@ class SbatchCreator(object):
         remotepath="",
         output="",
         job="",
-        username="",
         usermail="",
     ):
+        """doc"""
         self.tasks = job.tasks
         self.time = job.time
         self.filename = filename
@@ -16,10 +23,11 @@ class SbatchCreator(object):
         self.user = "f_peridi"
         self.account = job.account
         self.mail = usermail
-        self.outputDict = output
+        self.output_dict = output
         self.remotepath = remotepath
 
-    def createSbatch(self):
+    def create_sbatch(self):
+        """doc"""
         nodes = -(-int(self.tasks) // 64)
         string = "#!/bin/bash" + "\n"
         string += "#SBATCH --nodes=" + str(nodes) + "\n"
@@ -59,7 +67,7 @@ class SbatchCreator(object):
             + "\n"
         )
 
-        for out in self.outputDict:
+        for out in self.output_dict:
             string += (
                 "python /home/"
                 + self.user
@@ -75,7 +83,8 @@ class SbatchCreator(object):
 
         return string
 
-    def createSh(self):
+    def create_sh(self):
+        """doc"""
         # if(self.tasks==1):
         string = "#!/bin/sh" + "\n"
         string += (
@@ -95,7 +104,7 @@ class SbatchCreator(object):
         # self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
         #     string += 'pid=`cat pid.txt` \n'
         #     string += 'tail --pid=$pid -f /dev/null \n'
-        #     for out in self.outputDict:
+        #     for out in self.output_dict:
         #         string += 'python /peridigm/scripts/MergeFiles.py ' + out.Name + ' ' + str(self.tasks) + '\n'
         #     string += 'rm *.e.' + str(self.tasks) + '.*' +  '\n'
         #     string += 'rm Output*.log \n'

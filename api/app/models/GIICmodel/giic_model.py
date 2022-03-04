@@ -1,8 +1,11 @@
+"""
+doc
+"""
 import numpy as np
 
 # import ast
 from scipy import interpolate
-from support.baseModels import (
+from support.base_models import (
     Adapt,
     Block,
     BondFilters,
@@ -15,34 +18,34 @@ from support.baseModels import (
     Solver,
     Verlet,
 )
-from support.modelWriter import ModelWriter
+from support.model_writer import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
 import time
 
 
-class GIICmodel(object):
+class GIICmodel:
     def __init__(
         self,
         xend=1,
         yend=1,
         zend=1,
-        dx=[0.1, 0.1, 0.1],
+        dx_value=[0.1, 0.1, 0.1],
         filename="GIICmodel",
-        TwoD=False,
+        two_d=False,
         rot="False",
         angle=[0, 0],
         material="",
         damage="",
         block="",
-        bc="",
-        bf="",
+        boundary_condition="",
+        bond_filter="",
         compute="",
         output="",
         solver="",
         username="",
-        maxNodes=100000,
-        ignoreMesh=False,
+        max_nodes=100000,
+        ignore_mesh=False,
     ):
         """
         definition der blocks
@@ -63,69 +66,74 @@ class GIICmodel(object):
 
         self.filename = filename
         self.scal = 4.01
-        self.DiscType = "txt"
-        self.TwoD = TwoD
+        self.disc_type = "txt"
+        self.two_d = two_d
         self.rot = rot
         # anriss
         self.a = 20 / 151 * xend
-        self.blockDef = block
+        self.block_def = block
 
-        self.dx = dx
+        self.dx_value = dx_value
         self.xend = xend
         self.yend = yend
         self.rot = rot
         self.username = username
-        self.maxNodes = maxNodes
-        self.ignoreMesh = ignoreMesh
-        if TwoD:
+        self.max_nodes = max_nodes
+        self.ignore_mesh = ignore_mesh
+        if two_d:
             self.zend = 0
-            self.dx[2] = 1
+            self.dx_value[2] = 1
         else:
             self.zend = zend
 
-        numberOfBlocks = 10
+        number_of_blocks = 10
         xbound = [
             0,
-            4 * dx[0],
-            5 * dx[0],
-            xend - 4 * dx[0],
-            xend - 3 * dx[0],
-            xend + dx[0],
+            4 * dx_value[0],
+            5 * dx_value[0],
+            xend - 4 * dx_value[0],
+            xend - 3 * dx_value[0],
+            xend + dx_value[0],
         ]
-        ybound = [0, 4 * dx[1], 5 * dx[1], yend + dx[1]]
+        ybound = [0, 4 * dx_value[1], 5 * dx_value[1], yend + dx_value[1]]
 
-        z = [2, 2, 1, 1, 3, 3]
-        self.boundfuncx = interpolate.interp1d(xbound, z, kind="linear")
-        z = [1, 1, 0, 0]
-        self.boundfuncy = interpolate.interp1d(ybound, z, kind="linear")
-        xload = [0, xend / 2 - 2 * dx[0], xend / 2 + 3 * dx[0], xend + dx[0]]
-        z = [1, 4, 4, 1]
-        self.loadfuncx = interpolate.interp1d(xload, z, kind="linear")
-        yload = [0, yend - 5 * dx[1], yend - 4 * dx[1], yend + dx[1]]
-        z = [1, 1, 4, 4]
-        self.loadfuncy = interpolate.interp1d(yload, z, kind="linear")
+        z_value = [2, 2, 1, 1, 3, 3]
+        self.boundfuncx = interpolate.interp1d(xbound, z_value, kind="linear")
+        z_value = [1, 1, 0, 0]
+        self.boundfuncy = interpolate.interp1d(ybound, z_value, kind="linear")
+        xload = [
+            0,
+            xend / 2 - 2 * dx_value[0],
+            xend / 2 + 3 * dx_value[0],
+            xend + dx_value[0],
+        ]
+        z_value = [1, 4, 4, 1]
+        self.loadfuncx = interpolate.interp1d(xload, z_value, kind="linear")
+        yload = [0, yend - 5 * dx_value[1], yend - 4 * dx_value[1], yend + dx_value[1]]
+        z_value = [1, 1, 4, 4]
+        self.loadfuncy = interpolate.interp1d(yload, z_value, kind="linear")
 
-        z = [1, 1, 8, 8, 9, 9, 1, 1]
+        z_value = [1, 1, 8, 8, 9, 9, 1, 1]
         yblock = [
             0,
-            yend / 2 - 5 * dx[1],
-            yend / 2 - 4 * dx[1],
-            yend / 2 - dx[1] / 4,
-            yend / 2 + dx[1] / 4,
-            yend / 2 + 4 * dx[1],
-            yend / 2 + 5 * dx[1],
-            yend + dx[1],
+            yend / 2 - 5 * dx_value[1],
+            yend / 2 - 4 * dx_value[1],
+            yend / 2 - dx_value[1] / 4,
+            yend / 2 + dx_value[1] / 4,
+            yend / 2 + 4 * dx_value[1],
+            yend / 2 + 5 * dx_value[1],
+            yend + dx_value[1],
         ]
 
-        self.blockfuny = interpolate.interp1d(yblock, z, kind="linear")
+        self.blockfuny = interpolate.interp1d(yblock, z_value, kind="linear")
         """ Definition of model
         """
 
-        matNameList = ["PMMA"]
-        self.materialDict = []
+        mat_name_list = ["PMMA"]
+        self.material_dict = []
         self.angle = [0, 0]
         if damage == "":
-            damageDict = Damage(
+            damage_dict = Damage(
                 id=1,
                 Name="PMMADamage",
                 damageModel="Critical Energy Correspondence",
@@ -139,31 +147,31 @@ class GIICmodel(object):
                 hourglassCoefficient=1.0,
                 stabilizatonType="Global Stiffness",
             )
-            self.damageDict = [damageDict]
+            self.damage_dict = [damage_dict]
         else:
-            self.damageDict = damage
+            self.damage_dict = damage
 
         if compute == "":
-            computeDict1 = Compute(
+            compute_dict1 = Compute(
                 id=1,
                 Name="External_Displacement",
                 variable="Displacement",
                 calculationType="Minimum",
                 blockName="block_7",
             )
-            computeDict2 = Compute(
+            compute_dict2 = Compute(
                 id=2,
                 Name="External_Force",
                 variable="Force",
                 calculationType="Sum",
                 blockName="block_7",
             )
-            self.computeDict = [computeDict1, computeDict2]
+            self.compute_dict = [compute_dict1, compute_dict2]
         else:
-            self.computeDict = compute
+            self.compute_dict = compute
 
         if output == "":
-            outputDict1 = Output(
+            output_dict1 = Output(
                 id=1,
                 Name="Output1",
                 Displacement=True,
@@ -177,7 +185,7 @@ class GIICmodel(object):
                 Frequency=5000,
                 InitStep=0,
             )
-            outputDict2 = Output(
+            output_dict2 = Output(
                 id=2,
                 Name="Output2",
                 Displacement=False,
@@ -191,16 +199,16 @@ class GIICmodel(object):
                 Frequency=200,
                 InitStep=0,
             )
-            self.outputDict = [outputDict1, outputDict2]
+            self.output_dict = [output_dict1, output_dict2]
         else:
-            self.outputDict = output
+            self.output_dict = output
 
         if material == "":
             i = 0
-            for material in matNameList:
-                matDict = Material(
+            for material_name in mat_name_list:
+                mat_dict = Material(
                     id=i + 1,
-                    Name=material,
+                    Name=material_name,
                     MatType="Linear Elastic Correspondence",
                     density=1.95e-07,
                     bulkModulus=None,
@@ -219,7 +227,7 @@ class GIICmodel(object):
                     Parameter=[],
                     Properties=[],
                 )
-                if matDict.materialSymmetry == "Anisotropic":
+                if mat_dict.materialSymmetry == "Anisotropic":
                     self.angle = [60, -60]
                     params = [
                         165863.6296530634,  # C11
@@ -245,16 +253,16 @@ class GIICmodel(object):
                         4200.0,
                     ]  # C66
                     mat = MaterialRoutines(angle=self.angle)
-                    matDict.Parameter = mat.stiffnessMatrix(
+                    mat_dict.Parameter = mat.stiffnessMatrix(
                         type="anisotropic", matParam=params
                     )
                 i += 1
-                self.materialDict.append(matDict)
+                self.material_dict.append(mat_dict)
         else:
             self.angle = angle
-            self.materialDict = material
+            self.material_dict = material
 
-        if bf == "":
+        if bond_filter == "":
             bf1 = BondFilters(
                 id=1,
                 Name="bf_1",
@@ -278,9 +286,9 @@ class GIICmodel(object):
             )
             self.bondfilters = [bf1]
         else:
-            self.bondfilters = bf
+            self.bondfilters = bond_filter
 
-        if bc == "":
+        if boundary_condition == "":
             bc1 = BoundaryConditions(
                 id=1,
                 Name="BC_1",
@@ -317,12 +325,12 @@ class GIICmodel(object):
                 coordinate="y",
                 value="0*t",
             )
-            self.bcDict = [bc1, bc2, bc3, bc4]
+            self.bc_dict = [bc1, bc2, bc3, bc4]
         else:
-            self.bcDict = bc
+            self.bc_dict = boundary_condition
 
         if solver == "":
-            self.solverDict = Solver(
+            self.solver_dict = Solver(
                 verbose=False,
                 initialTime=0.0,
                 finalTime=0.03,
@@ -348,32 +356,39 @@ class GIICmodel(object):
                 filetype="yaml",
             )
         else:
-            self.solverDict = solver
+            self.solver_dict = solver
 
-        self.damBlock = [""] * numberOfBlocks
-        self.damBlock[7] = "PMMADamage"
-        self.damBlock[8] = "PMMADamage"
-        self.intBlockId = [""] * numberOfBlocks
-        self.intBlockId[7] = 9
-        self.intBlockId[8] = 8
-        self.matBlock = ["PMMA"] * numberOfBlocks
+        self.dam_block = [""] * number_of_blocks
+        self.dam_block[7] = "PMMADamage"
+        self.dam_block[8] = "PMMADamage"
+        self.int_block_id = [""] * number_of_blocks
+        self.int_block_id[7] = 9
+        self.int_block_id[8] = 8
+        self.mat_block = ["PMMA"] * number_of_blocks
 
         print("Initialized in " + "%.2f seconds" % (time.time() - start_time))
 
-    def createLoadBlock(self, x, y, k):
-        k = np.where(self.loadfuncx(x) == self.loadfuncy(y), self.loadfuncx(x), k)
+    def createLoadBlock(self, x_value, y_value, k):
+        k = np.where(
+            self.loadfuncx(x_value) == self.loadfuncy(y_value),
+            self.loadfuncx(x_value),
+            k,
+        )
         return k
 
-    def createBoundaryConditionBlock(self, x, y, k):
-        k = np.array(((self.boundfuncx(x) - 1) * self.boundfuncy(y) + 1), dtype="int")
+    def createBoundaryConditionBlock(self, x_value, y_value, k):
+        k = np.array(
+            ((self.boundfuncx(x_value) - 1) * self.boundfuncy(y_value) + 1), dtype="int"
+        )
         return k
 
-    def createLoadIntroNode(self, x, y, k):
+    def createLoadIntroNode(self, x_value, y_value, k):
         k = np.where(
             np.logical_and(
-                (self.xend - self.dx[0]) / 2 < x,
+                (self.xend - self.dx_value[0]) / 2 < x_value,
                 np.logical_and(
-                    x < (self.xend + self.dx[0]) / 2, y > self.yend - self.dx[1] / 2
+                    x_value < (self.xend + self.dx_value[0]) / 2,
+                    y_value > self.yend - self.dx_value[1] / 2,
                 ),
             ),
             7,
@@ -381,96 +396,120 @@ class GIICmodel(object):
         )
         return k
 
-    def createBCNode(self, x, y, k):
-        k = np.where(np.logical_and(x <= 0 + self.dx[0], y == 0), 5, k)
-        k = np.where(np.logical_and(x > self.xend - self.dx[0] / 3, y == 0), 6, k)
-        k = np.where(np.logical_and(x == 0, y > self.yend - self.dx[1] / 3), 10, k)
-        return k
-
-    def createBlock(self, y, k):
+    def createBCNode(self, x_value, y_value, k):
         k = np.where(
-            np.logical_and(self.yend / 2 - 5 * self.dx[1] < y, y < self.yend / 2), 8, k
+            np.logical_and(x_value <= 0 + self.dx_value[0], y_value == 0), 5, k
         )
         k = np.where(
-            np.logical_and(self.yend / 2 <= y, y < self.yend / 2 + 5 * self.dx[1]), 9, k
+            np.logical_and(x_value > self.xend - self.dx_value[0] / 3, y_value == 0),
+            6,
+            k,
+        )
+        k = np.where(
+            np.logical_and(x_value == 0, y_value > self.yend - self.dx_value[1] / 3),
+            10,
+            k,
         )
         return k
 
-    def createAngles(self, x, y, z):
-        angle_x = np.zeros_like(x)
-        angle_y = np.where(y < self.yend / 2, self.angle[0], self.angle[1])
-        angle_z = np.zeros_like(x)
+    def createBlock(self, y_value, k):
+        k = np.where(
+            np.logical_and(
+                self.yend / 2 - 5 * self.dx_value[1] < y_value, y_value < self.yend / 2
+            ),
+            8,
+            k,
+        )
+        k = np.where(
+            np.logical_and(
+                self.yend / 2 <= y_value, y_value < self.yend / 2 + 5 * self.dx_value[1]
+            ),
+            9,
+            k,
+        )
+        return k
+
+    def createAngles(self, x_value, y_value):
+        """doc"""
+        angle_x = np.zeros_like(x_value)
+        angle_y = np.where(y_value < self.yend / 2, self.angle[0], self.angle[1])
+        angle_z = np.zeros_like(x_value)
 
         return angle_x, angle_y, angle_z
 
-    def createModel(self):
+    def create_model(self):
+        """doc"""
 
         geo = Geometry()
-        x, y, z = geo.createPoints(
-            coor=[0, self.xend, 0, self.yend, 0, self.zend], dx=self.dx
+        x_value, y_value, z_value = geo.create_points(
+            coor=[0, self.xend, 0, self.yend, 0, self.zend], dx_value=self.dx_value
         )
 
-        if len(x) > self.maxNodes:
+        if len(x_value) > self.max_nodes:
             return (
                 "The number of nodes ("
-                + str(len(x))
+                + str(len(x_value))
                 + ") is larger than the allowed "
-                + str(self.maxNodes)
+                + str(self.max_nodes)
             )
 
-        if self.ignoreMesh and self.blockDef != "":
+        if self.ignore_mesh and self.block_def != "":
 
-            writer = ModelWriter(modelClass=self)
-            for idx in range(0, len(self.blockDef)):
-                self.blockDef[idx].horizon = self.scal * max([self.dx[0], self.dx[1]])
-            blockDef = self.blockDef
+            writer = ModelWriter(model_class=self)
+            for idx in range(0, len(self.block_def)):
+                self.block_def[idx].horizon = self.scal * max(
+                    [self.dx_value[0], self.dx_value[1]]
+                )
+            block_def = self.block_def
             try:
-                writer.createFile(blockDef)
-            except TypeError as e:
-                return str(e)
+                writer.create_file(block_def)
+            except TypeError as exception:
+                return str(exception)
 
         else:
             start_time = time.time()
 
-            vol = np.zeros(len(x))
-            k = np.ones(len(x))
+            vol = np.zeros(len(x_value))
+            k = np.ones(len(x_value))
             if self.rot:
-                angle_x = np.zeros(len(x))
-                angle_y = np.zeros(len(x))
-                angle_z = np.zeros(len(x))
+                angle_x = np.zeros(len(x_value))
+                angle_y = np.zeros(len(x_value))
+                angle_z = np.zeros(len(x_value))
 
             print("Angles assigned in " + "%.2f seconds" % (time.time() - start_time))
             start_time = time.time()
             if self.rot:
-                angle_x, angle_y, angle_z = self.createAngles(x, y, z)
+                angle_x, angle_y, angle_z = self.createAngles(x_value, y_value)
 
-            k = np.ones_like(x)
+            k = np.ones_like(x_value)
 
             k = np.where(
-                y >= self.yend / 2,
-                self.createLoadBlock(x, y, k),
-                self.createBoundaryConditionBlock(x, y, k),
+                y_value >= self.yend / 2,
+                self.createLoadBlock(x_value, y_value, k),
+                self.createBoundaryConditionBlock(x_value, y_value, k),
             )
-            k = self.createBCNode(x, y, k)
-            k = self.createLoadIntroNode(x, y, k)
-            k = self.createBlock(y, k)
+            k = self.createBCNode(x_value, y_value, k)
+            k = self.createLoadIntroNode(x_value, y_value, k)
+            k = self.createBlock(y_value, k)
 
-            vol = np.full_like(x, self.dx[0] * self.dx[1] * self.dx[2])
+            vol = np.full_like(
+                x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
+            )
 
             print(
                 "BC and Blocks created in "
                 + "%.2f seconds" % (time.time() - start_time)
             )
 
-            writer = ModelWriter(modelClass=self)
+            writer = ModelWriter(model_class=self)
 
             if self.rot:
                 model = np.transpose(
                     np.vstack(
                         [
-                            x.ravel(),
-                            y.ravel(),
-                            z.ravel(),
+                            x_value.ravel(),
+                            y_value.ravel(),
+                            z_value.ravel(),
                             k.ravel(),
                             vol.ravel(),
                             angle_x.ravel(),
@@ -479,50 +518,60 @@ class GIICmodel(object):
                         ]
                     )
                 )
-                writer.writeMeshWithAngles(model)
+                writer.write_mesh_with_angles(model)
             else:
                 model = np.transpose(
-                    np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel()])
+                    np.vstack(
+                        [
+                            x_value.ravel(),
+                            y_value.ravel(),
+                            z_value.ravel(),
+                            k.ravel(),
+                            vol.ravel(),
+                        ]
+                    )
                 )
-                writer.writeMesh(model)
-            writer.writeNodeSets(model)
+                writer.write_mesh(model)
+            writer.write_node_sets(model)
 
-            blockLen = int(max(k))
+            block_len = int(max(k))
 
-            writeReturn = self.writeFILE(writer=writer, blockLen=blockLen)
+            write_return = self.write_file(writer=writer, block_len=block_len)
 
-            if writeReturn != 0:
-                return writeReturn
+            if write_return != 0:
+                return write_return
 
         return "Model created"
 
-    def createBlockdef(self, blockLen):
-        blockDict = []
-        for idx in range(0, blockLen):
-            blockDef = Block(
+    def create_blockdef(self, block_len):
+        """doc"""
+        block_dict = []
+        for idx in range(0, block_len):
+            block_def = Block(
                 id=1,
                 Name="block_" + str(idx + 1),
-                material=self.matBlock[idx],
-                damageModel=self.damBlock[idx],
-                horizon=self.scal * max([self.dx[0], self.dx[1]]),
-                interface=self.intBlockId[idx],
+                material=self.mat_block[idx],
+                damageModel=self.dam_block[idx],
+                horizon=self.scal * max([self.dx_value[0], self.dx_value[1]]),
+                interface=self.int_block_id[idx],
                 show=False,
             )
-            blockDict.append(blockDef)
+            block_dict.append(block_def)
         # 3d tbd
-        return blockDict
+        return block_dict
 
-    def writeFILE(self, writer, blockLen):
+    def write_file(self, writer, block_len):
+        """doc"""
 
-        if self.blockDef == "":
-            blockDef = self.createBlockdef(blockLen)
+        if self.block_def == "":
+            block_def = self.create_blockdef(block_len)
         else:
-            for idx in range(0, len(self.blockDef)):
-                self.blockDef[idx].horizon = self.scal * max([self.dx[0], self.dx[1]])
-            blockDef = self.blockDef
+            for _, block in enumerate(self.block_def):
+                block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
+            block_def = self.block_def
 
         try:
-            writer.createFile(blockDef)
-        except TypeError as e:
-            return str(e)
+            writer.create_file(block_def)
+        except TypeError as exception:
+            return str(exception)
         return 0

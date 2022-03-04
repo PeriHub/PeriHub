@@ -1,5 +1,8 @@
+"""
+doc
+"""
 import numpy as np
-from support.baseModels import (
+from support.base_models import (
     Adapt,
     Block,
     BondFilters,
@@ -12,32 +15,32 @@ from support.baseModels import (
     Solver,
     Verlet,
 )
-from support.modelWriter import ModelWriter
+from support.model_writer import ModelWriter
 from support.geometry import Geometry
 
 
-class KalthoffWinkler(object):
+class KalthoffWinkler:
     def __init__(
         self,
         xend=100,
         yend=100,
         zend=0.003,
-        dx=[0.001, 0.001, 0.001],
+        dx_value=[0.001, 0.001, 0.001],
         filename="Kalthoff-Winkler",
-        TwoD=False,
+        two_d=False,
         rot="False",
         angle=[0, 0],
         material="",
         damage="",
         block="",
-        bc="",
-        bf="",
+        boundary_condition="",
+        bond_filter="",
         compute="",
         output="",
         solver="",
         username="",
-        maxNodes=10000000,
-        ignoreMesh=False,
+        max_nodes=10000000,
+        ignore_mesh=False,
     ):
         """
         definition der blocks
@@ -50,39 +53,39 @@ class KalthoffWinkler(object):
 
         self.filename = filename
         self.scal = 4.01
-        self.DiscType = "txt"
-        self.TwoD = TwoD
-        self.nsList = [3, 4]
-        self.dx = dx
+        self.disc_type = "txt"
+        self.two_d = two_d
+        self.ns_list = [3, 4]
+        self.dx_value = dx_value
         self.xbegin = 0.0
         self.ybegin = -yend / 2
-        self.xend = xend + dx[0]
-        self.yend = yend / 2 + dx[1]
+        self.xend = xend + dx_value[0]
+        self.yend = yend / 2 + dx_value[1]
         # self.xend = xend
         # self.yend = yend/2
         # self.zend = zend
         self.rot = rot
-        self.blockDef = block
+        self.block_def = block
         self.username = username
-        self.maxNodes = maxNodes
-        self.ignoreMesh = ignoreMesh
-        if self.TwoD:
+        self.max_nodes = max_nodes
+        self.ignore_mesh = ignore_mesh
+        if self.two_d:
             self.zbegin = 0
             self.zend = 0
-            self.dx[2] = 1
+            self.dx_value[2] = 1
         else:
             self.zbegin = -zend
-            self.zend = zend + dx[2]
+            self.zend = zend + dx_value[2]
 
-        numberOfBlocks = 4
+        number_of_blocks = 4
 
         """ Definition of model
         """
-        matNameList = ["PMMA"]
-        self.materialDict = []
+        mat_name_list = ["PMMA"]
+        self.material_dict = []
         self.angle = [0, 0]
         if damage == "":
-            damageDict = Damage(
+            damage_dict = Damage(
                 id=1,
                 Name="PMMADamage",
                 damageModel="Critical Stretch",
@@ -96,31 +99,31 @@ class KalthoffWinkler(object):
                 hourglassCoefficient=1.0,
                 stabilizatonType="Global Stiffness",
             )
-            self.damageDict = [damageDict]
+            self.damage_dict = [damage_dict]
         else:
-            self.damageDict = damage
+            self.damage_dict = damage
 
         if compute == "":
-            computeDict1 = Compute(
+            compute_dict1 = Compute(
                 id=1,
                 Name="External_Displacement",
                 variable="Displacement",
                 calculationType="Minimum",
                 blockName="block_3",
             )
-            computeDict2 = Compute(
+            compute_dict2 = Compute(
                 id=2,
                 Name="External_Force",
                 variable="Force",
                 calculationType="Sum",
                 blockName="block_3",
             )
-            self.computeDict = [computeDict1, computeDict2]
+            self.compute_dict = [compute_dict1, compute_dict2]
         else:
-            self.computeDict = compute
+            self.compute_dict = compute
 
         if output == "":
-            outputDict1 = Output(
+            output_dict1 = Output(
                 id=1,
                 Name="Output1",
                 Displacement=True,
@@ -134,16 +137,16 @@ class KalthoffWinkler(object):
                 Frequency=10,
                 InitStep=0,
             )
-            self.outputDict = [outputDict1]
+            self.output_dict = [output_dict1]
         else:
-            self.outputDict = output
+            self.output_dict = output
 
         if material == "":
             i = 0
-            for material in matNameList:
-                matDict = Material(
+            for material_name in mat_name_list:
+                mat_dict = Material(
                     id=i + 1,
-                    Name=material,
+                    Name=material_name,
                     MatType="Elastic Bond Based",
                     density=8.0e-6,
                     bulkModulus=1.2666666666666667e5,
@@ -163,12 +166,12 @@ class KalthoffWinkler(object):
                     Properties=[],
                 )
                 i += 1
-                self.materialDict.append(matDict)
+                self.material_dict.append(mat_dict)
         else:
             self.angle = angle
-            self.materialDict = material
+            self.material_dict = material
 
-        if bf == "":
+        if bond_filter == "":
             bf1 = BondFilters(
                 id=1,
                 Name="bf_1",
@@ -213,9 +216,9 @@ class KalthoffWinkler(object):
             )
             self.bondfilters = [bf1, bf2]
         else:
-            self.bondfilters = bf
+            self.bondfilters = bond_filter
 
-        if bc == "":
+        if boundary_condition == "":
             bc1 = BoundaryConditions(
                 id=1,
                 Name="BC_1",
@@ -243,12 +246,12 @@ class KalthoffWinkler(object):
                 coordinate="x",
                 value="10*t",
             )
-            self.bcDict = [bc1, bc2, bc3]
+            self.bc_dict = [bc1, bc2, bc3]
         else:
-            self.bcDict = bc
+            self.bc_dict = boundary_condition
 
         if solver == "":
-            self.solverDict = Solver(
+            self.solver_dict = Solver(
                 verbose=False,
                 initialTime=0.0,
                 finalTime=0.03,
@@ -274,47 +277,60 @@ class KalthoffWinkler(object):
                 filetype="yaml",
             )
         else:
-            self.solverDict = solver
+            self.solver_dict = solver
 
-        self.damBlock = [""] * numberOfBlocks
-        self.damBlock[0] = "PMMADamage"
-        self.damBlock[1] = "PMMADamage"
-        self.damBlock[2] = "PMMADamage"
-        self.damBlock[3] = "PMMADamage"
+        self.dam_block = [""] * number_of_blocks
+        self.dam_block[0] = "PMMADamage"
+        self.dam_block[1] = "PMMADamage"
+        self.dam_block[2] = "PMMADamage"
+        self.dam_block[3] = "PMMADamage"
 
-        self.intBlockId = [""] * numberOfBlocks
-        self.matBlock = ["PMMA"] * numberOfBlocks
+        self.int_block_id = [""] * number_of_blocks
+        self.mat_block = ["PMMA"] * number_of_blocks
 
-    def createBoundaryConditionBlock(self, x, y, k):
+    def createBoundaryConditionBlock(self, x_value, y_value, k):
         k = np.where(
             np.logical_and(
-                x > self.xend - self.dx[0] * 3,
-                np.logical_and(y < 90 + self.dx[0] * 3, y > 90 - self.dx[0] * 3),
+                x_value > self.xend - self.dx_value[0] * 3,
+                np.logical_and(
+                    y_value < 90 + self.dx_value[0] * 3,
+                    y_value > 90 - self.dx_value[0] * 3,
+                ),
             ),
             2,
             k,
         )
         k = np.where(
             np.logical_and(
-                x > self.xend - self.dx[0] * 3,
-                np.logical_and(y < -90 + self.dx[0] * 3, y > -90 - self.dx[0] * 3),
+                x_value > self.xend - self.dx_value[0] * 3,
+                np.logical_and(
+                    y_value < -90 + self.dx_value[0] * 3,
+                    y_value > -90 - self.dx_value[0] * 3,
+                ),
             ),
             3,
             k,
         )
         return k
 
-    def createLoadIntroNode(self, x, y, k):
+    def createLoadIntroNode(self, x_value, y_value, k):
+        """doc"""
         k = np.where(
-            np.logical_and(x < self.dx[0] * 3, np.logical_and(y < 25, y > -25)), 4, k
+            np.logical_and(
+                x_value < self.dx_value[0] * 3,
+                np.logical_and(y_value < 25, y_value > -25),
+            ),
+            4,
+            k,
         )
         return k
 
-    def createModel(self):
+    def create_model(self):
+        """doc"""
 
         geo = Geometry()
 
-        x, y, z = geo.createPoints(
+        x_value, y_value, z_value = geo.create_points(
             coor=[
                 self.xbegin,
                 self.xend,
@@ -323,52 +339,54 @@ class KalthoffWinkler(object):
                 self.zbegin,
                 self.zend,
             ],
-            dx=self.dx,
+            dx_value=self.dx_value,
         )
 
-        if len(x) > self.maxNodes:
+        if len(x_value) > self.max_nodes:
             return (
                 "The number of nodes ("
-                + str(len(x))
+                + str(len(x_value))
                 + ") is larger than the allowed "
-                + str(self.maxNodes)
+                + str(self.max_nodes)
             )
 
-        if self.ignoreMesh and self.blockDef != "":
+        if self.ignore_mesh and self.block_def != "":
 
-            writer = ModelWriter(modelClass=self)
-            for idx in range(0, len(self.blockDef)):
-                self.blockDef[idx].horizon = self.scal * max([self.dx[0], self.dx[1]])
-            blockDef = self.blockDef
+            writer = ModelWriter(model_class=self)
+            for _, block in enumerate(self.block_def):
+                block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
+            block_def = self.block_def
 
             try:
-                writer.createFile(blockDef)
-            except TypeError as e:
-                return str(e)
+                writer.create_file(block_def)
+            except TypeError as exception:
+                return str(exception)
 
         else:
 
-            vol = np.zeros(len(x))
-            k = np.ones(len(x))
+            vol = np.zeros(len(x_value))
+            k = np.ones(len(x_value))
             if self.rot:
-                angle_x = np.zeros(len(x))
-                angle_y = np.zeros(len(x))
-                angle_z = np.zeros(len(x))
+                angle_x = np.zeros(len(x_value))
+                angle_y = np.zeros(len(x_value))
+                angle_z = np.zeros(len(x_value))
 
-            k = self.createBoundaryConditionBlock(x, y, k)
-            k = self.createLoadIntroNode(x, y, k)
+            k = self.createBoundaryConditionBlock(x_value, y_value, k)
+            k = self.createLoadIntroNode(x_value, y_value, k)
 
-            vol = np.full_like(x, self.dx[0] * self.dx[1] * self.dx[2])
+            vol = np.full_like(
+                x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
+            )
 
-            writer = ModelWriter(modelClass=self)
+            writer = ModelWriter(model_class=self)
 
             if self.rot:
                 model = np.transpose(
                     np.vstack(
                         [
-                            x.ravel(),
-                            y.ravel(),
-                            z.ravel(),
+                            x_value.ravel(),
+                            y_value.ravel(),
+                            z_value.ravel(),
                             k.ravel(),
                             vol.ravel(),
                             angle_x.ravel(),
@@ -377,50 +395,60 @@ class KalthoffWinkler(object):
                         ]
                     )
                 )
-                writer.writeMeshWithAngles(model)
+                writer.write_mesh_with_angles(model)
             else:
                 model = np.transpose(
-                    np.vstack([x.ravel(), y.ravel(), z.ravel(), k.ravel(), vol.ravel()])
+                    np.vstack(
+                        [
+                            x_value.ravel(),
+                            y_value.ravel(),
+                            z_value.ravel(),
+                            k.ravel(),
+                            vol.ravel(),
+                        ]
+                    )
                 )
-                writer.writeMesh(model)
-            writer.writeNodeSets(model)
+                writer.write_mesh(model)
+            writer.write_node_sets(model)
 
-            blockLen = int(max(k))
+            block_len = int(max(k))
 
-            writeReturn = self.writeFILE(writer=writer, blockLen=blockLen)
+            write_return = self.write_file(writer=writer, block_len=block_len)
 
-            if writeReturn != 0:
-                return writeReturn
+            if write_return != 0:
+                return write_return
 
         return "Model created"
 
-    def createBlockdef(self, blockLen):
-        blockDict = []
-        for idx in range(0, blockLen):
-            blockDef = Block(
+    def create_blockdef(self, block_len):
+        """doc"""
+        block_dict = []
+        for idx in range(0, block_len):
+            block_def = Block(
                 id=1,
                 Name="block_" + str(idx + 1),
-                material=self.matBlock[idx],
-                damageModel=self.damBlock[idx],
-                horizon=self.scal * max([self.dx[0], self.dx[1]]),
-                interface=self.intBlockId[idx],
+                material=self.mat_block[idx],
+                damageModel=self.dam_block[idx],
+                horizon=self.scal * max([self.dx_value[0], self.dx_value[1]]),
+                interface=self.int_block_id[idx],
                 show=False,
             )
-            blockDict.append(blockDef)
+            block_dict.append(block_def)
         # 3d tbd
-        return blockDict
+        return block_dict
 
-    def writeFILE(self, writer, blockLen):
+    def write_file(self, writer, block_len):
+        """doc"""
 
-        if self.blockDef == "":
-            blockDef = self.createBlockdef(blockLen)
+        if self.block_def == "":
+            block_def = self.create_blockdef(block_len)
         else:
-            for idx in range(0, len(self.blockDef)):
-                self.blockDef[idx].horizon = self.scal * max([self.dx[0], self.dx[1]])
-            blockDef = self.blockDef
+            for _, block in enumerate(self.block_def):
+                block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
+            block_def = self.block_def
 
         try:
-            writer.createFile(blockDef)
-        except TypeError as e:
-            return str(e)
+            writer.create_file(block_def)
+        except TypeError as exception:
+            return str(exception)
         return 0
