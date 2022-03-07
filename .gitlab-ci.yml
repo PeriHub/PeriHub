@@ -17,9 +17,15 @@ flake8:
   allow_failure: true
   before_script:
     - pip install -r api/requirements.txt
-    - pip install flake8
+    - pip install flake8 flake8-junit-report
+    - cd api/app
   script:
-    - flake8 --max-line-length=120 api/app/*
+    - flake8 --output-file=flake8.txt
+    - flake8_junit flake8.txt flake8_junit.xml
+  artifacts:
+    when: always
+    reports:
+      junit: api/app/flake8_junit.xml
 
 pylint:
   stage: Static Analysis
@@ -32,9 +38,14 @@ pylint:
   allow_failure: true
   before_script:
     - pip install -r api/requirements.txt
-    - pip install pylint
+    - pip install pylint pylint-junit
+    - cd api/app
   script:
-    - pylint -d C0301,R0801 api/app/*
+    - pylint --output-format=junit:pylint.xml *
+  artifacts:
+    when: always
+    reports:
+      junit: api/app/pylint.xml
 
 unit_test:
   stage: Test
@@ -48,12 +59,13 @@ unit_test:
   before_script:
     - pip install -r api/requirements.txt
     - pip install pytest
+    - cd api/app
   script:
-    - pytest -v --junitxml=report.xml api/app/
+    - python3 -m pytest -v --junitxml=report.xml
   artifacts:
     when: always
     reports:
-      junit: report.xml
+      junit: api/app/report.xml
 
 build_api_job:
   stage: Build
