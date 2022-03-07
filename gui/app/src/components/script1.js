@@ -203,7 +203,7 @@ export default {
       dialogGetPlot: false,
       dialogGetConnections: false,
       dialogDeleteData: false,
-      dialogDeleteModel: false,
+      dialogDeleteFiles: false,
       dialogDeleteCookies: false,
       dialogDeleteUserData: false,
       logInterval: null,
