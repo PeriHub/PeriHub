@@ -3,7 +3,7 @@ doc
 """
 import matplotlib.pyplot as plt
 import numpy as np
-from XFEMdcb import XFEMDCB
+from xfem_dcb import XFEMDCB
 
 if __name__ == "__main__":
     ###################
@@ -69,8 +69,8 @@ if __name__ == "__main__":
     # if run:
     num = 0
     k = 2
-    for _, x_value in enumerate(x_values):
-        for _, y_value in enumerate(y_values):
+    for idx, x_value in enumerate(x_values):
+        for idy, y_value in enumerate(y_values):
             if x_value[0] == length1:
                 if y_value[0] == 0 or y_value[0] == height1 or y_value[0] == height2:
                     continue

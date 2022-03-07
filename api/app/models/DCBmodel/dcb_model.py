@@ -25,19 +25,19 @@ class DCBmodel:
         xend=0.045,
         yend=0.01,
         zend=0.003,
-        dx_value=[0.001, 0.001, 0.001],
+        dx_value=None,
         filename="DCBmodel",
         two_d=False,
         rot="False",
-        angle=[0, 0],
-        material="",
-        damage="",
-        block="",
-        boundary_condition="",
-        bond_filter="",
-        compute="",
-        output="",
-        solver="",
+        angle=None,
+        material=None,
+        damage=None,
+        block=None,
+        boundary_condition=None,
+        bond_filter=None,
+        compute=None,
+        output=None,
+        solver=None,
         username="",
         max_nodes=100000,
         ignore_mesh=False,
@@ -56,7 +56,12 @@ class DCBmodel:
         self.disc_type = "txt"
         self.two_d = two_d
         self.ns_list = [3, 4]
+        if not dx_value:
+            dx_value = [0.001, 0.001, 0.001]
         self.dx_value = dx_value
+        if not angle:
+            angle = [0, 0]
+        self.angle = angle
         self.xbegin = -0.005
         self.ybegin = -yend
         self.xend = xend + dx_value[0]
@@ -80,8 +85,7 @@ class DCBmodel:
         """
         mat_name_list = ["PMMA"]
         self.material_dict = []
-        self.angle = [0, 0]
-        if damage == "":
+        if not damage:
             damage_dict = Damage(
                 id=1,
                 Name="PMMADamage",
@@ -100,7 +104,7 @@ class DCBmodel:
         else:
             self.damage_dict = damage
 
-        if compute == "":
+        if not compute:
             compute_dict1 = Compute(
                 id=1,
                 Name="External_Displacement",
@@ -119,7 +123,7 @@ class DCBmodel:
         else:
             self.compute_dict = compute
 
-        if output == "":
+        if not output:
             output_dict1 = Output(
                 id=1,
                 Name="Output1",
@@ -152,12 +156,12 @@ class DCBmodel:
         else:
             self.output_dict = output
 
-        if material == "":
+        if not material:
             i = 0
-            for material in mat_name_list:
+            for material_name in mat_name_list:
                 mat_dict = Material(
                     id=i + 1,
-                    Name=material,
+                    Name=material_name,
                     MatType="Linear Elastic Correspondence",
                     density=1.95e-07,
                     bulkModulus=None,
@@ -179,10 +183,9 @@ class DCBmodel:
                 i += 1
                 self.material_dict.append(mat_dict)
         else:
-            self.angle = angle
             self.material_dict = material
 
-        if bond_filter == "":
+        if not bond_filter:
             bf1 = BondFilters(
                 id=1,
                 Name="bf_1",
@@ -208,7 +211,7 @@ class DCBmodel:
         else:
             self.bondfilters = bond_filter
 
-        if boundary_condition == "":
+        if not boundary_condition:
             bc1 = BoundaryConditions(
                 id=1,
                 Name="BC_1",
@@ -249,7 +252,7 @@ class DCBmodel:
         else:
             self.bc_dict = boundary_condition
 
-        if solver == "":
+        if not solver:
             self.solver_dict = Solver(
                 verbose=False,
                 initialTime=0.0,

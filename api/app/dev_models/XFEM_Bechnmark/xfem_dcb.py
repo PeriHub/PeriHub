@@ -45,22 +45,22 @@ class XFEMDCB:
         k = np.ones(len(x_value))
         for idx in range(0, len(x_value)):
 
-            if y_value[idx] >= self.yend / 2:
-                k[idx] = self.createLoadBlock(x_value[idx], y_value[idx], k[idx])
-            else:
-                k[idx] = self.createBoundaryConditionBlock(
-                    x_value[idx], y_value[idx], k[idx]
-                )
-            k[idx] = int(self.createBCNode(x_value[idx], y_value[idx], k[idx]))
-            k[idx] = int(self.createLoadIntroNode(x_value[idx], y_value[idx], k[idx]))
-            k[idx] = int(self.createBlock(y_value[idx], k[idx]))
+            # if y_value[idx] >= self.yend / 2:
+            #     k[idx] = self.createLoadBlock(x_value[idx], y_value[idx], k[idx])
+            # else:
+            #     k[idx] = self.createBoundaryConditionBlock(
+            #         x_value[idx], y_value[idx], k[idx]
+            #     )
+            # k[idx] = int(self.createBCNode(x_value[idx], y_value[idx], k[idx]))
+            # k[idx] = int(self.createLoadIntroNode(x_value[idx], y_value[idx], k[idx]))
+            # k[idx] = int(self.createBlock(y_value[idx], k[idx]))
 
             vol[idx] = self.dx_value[0] * self.dx_value[1]
         model = {"x": x_value, "y": y_value, "k": k, "vol": vol}
-        writer = ModelWriter(filename=self.filename)
-        writer.write_node_sets(model, self.ns_list)
-        writer.write_mesh(model)
-        self.writeXML(writer=writer, model=model)
+        # writer = ModelWriter(filename=self.filename)
+        # writer.write_node_sets(model, self.ns_list)
+        # writer.write_mesh(model)
+        # self.writeXML(writer=writer, model=model)
 
         return model
 
@@ -132,7 +132,7 @@ class XFEMDCB:
                 if length <= dxFun[0]:
                     stringBC += str(num) + "\n"
                     kval = 1
-                if length >= self.length - dxFun[-1]:
+                if length >= self.xend - dxFun[-1]:
                     stringBC += str(num) + "\n"
                     kval = 2
                 vol = idx * idy
@@ -156,7 +156,8 @@ class XFEMDCB:
     #     """doc"""
     #     pass
 
-    def write(self, fileName="mesh.txt", string=""):
+    @staticmethod
+    def write(fileName="mesh.txt", string=""):
         """doc"""
         with open(fileName, "w", encoding="UTF-8") as file:
             file.write(string)

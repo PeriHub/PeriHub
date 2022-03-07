@@ -25,19 +25,19 @@ class KalthoffWinkler:
         xend=100,
         yend=100,
         zend=0.003,
-        dx_value=[0.001, 0.001, 0.001],
+        dx_value=None,
         filename="Kalthoff-Winkler",
         two_d=False,
         rot="False",
-        angle=[0, 0],
-        material="",
-        damage="",
-        block="",
-        boundary_condition="",
-        bond_filter="",
-        compute="",
-        output="",
-        solver="",
+        angle=None,
+        material=None,
+        damage=None,
+        block=None,
+        boundary_condition=None,
+        bond_filter=None,
+        compute=None,
+        output=None,
+        solver=None,
         username="",
         max_nodes=10000000,
         ignore_mesh=False,
@@ -56,7 +56,12 @@ class KalthoffWinkler:
         self.disc_type = "txt"
         self.two_d = two_d
         self.ns_list = [3, 4]
+        if not dx_value:
+            dx_value = [0.001, 0.001, 0.001]
         self.dx_value = dx_value
+        if not angle:
+            angle = [0, 0]
+        self.angle = angle
         self.xbegin = 0.0
         self.ybegin = -yend / 2
         self.xend = xend + dx_value[0]
@@ -83,8 +88,7 @@ class KalthoffWinkler:
         """
         mat_name_list = ["PMMA"]
         self.material_dict = []
-        self.angle = [0, 0]
-        if damage == "":
+        if not damage:
             damage_dict = Damage(
                 id=1,
                 Name="PMMADamage",
@@ -103,7 +107,7 @@ class KalthoffWinkler:
         else:
             self.damage_dict = damage
 
-        if compute == "":
+        if not compute:
             compute_dict1 = Compute(
                 id=1,
                 Name="External_Displacement",
@@ -122,7 +126,7 @@ class KalthoffWinkler:
         else:
             self.compute_dict = compute
 
-        if output == "":
+        if not output:
             output_dict1 = Output(
                 id=1,
                 Name="Output1",
@@ -141,7 +145,7 @@ class KalthoffWinkler:
         else:
             self.output_dict = output
 
-        if material == "":
+        if not material:
             i = 0
             for material_name in mat_name_list:
                 mat_dict = Material(
@@ -168,10 +172,9 @@ class KalthoffWinkler:
                 i += 1
                 self.material_dict.append(mat_dict)
         else:
-            self.angle = angle
             self.material_dict = material
 
-        if bond_filter == "":
+        if not bond_filter:
             bf1 = BondFilters(
                 id=1,
                 Name="bf_1",
@@ -218,7 +221,7 @@ class KalthoffWinkler:
         else:
             self.bondfilters = bond_filter
 
-        if boundary_condition == "":
+        if not boundary_condition:
             bc1 = BoundaryConditions(
                 id=1,
                 Name="BC_1",
@@ -250,7 +253,7 @@ class KalthoffWinkler:
         else:
             self.bc_dict = boundary_condition
 
-        if solver == "":
+        if not solver:
             self.solver_dict = Solver(
                 verbose=False,
                 initialTime=0.0,

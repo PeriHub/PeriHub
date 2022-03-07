@@ -1,3 +1,5 @@
 [flake8]
 max-line-length = 120
-exclude = ./support/exodusReader
+exclude = 
+    ./support/exodusReader,
+    ./dev_models

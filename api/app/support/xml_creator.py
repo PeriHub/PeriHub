@@ -5,7 +5,7 @@ import numpy as np
 
 
 class XMLcreator:
-    def __init__(self, model_writer, block_def={}):
+    def __init__(self, model_writer, block_def=None):
         self.filename = model_writer.filename
         self.material_dict = model_writer.material_dict
         self.damage_dict = model_writer.damage_dict

@@ -1,6 +1,7 @@
 """
 doc
 """
+import time
 import numpy as np
 
 # import ast
@@ -21,7 +22,6 @@ from support.base_models import (
 from support.model_writer import ModelWriter
 from support.material import MaterialRoutines
 from support.geometry import Geometry
-import time
 
 
 class GIICmodel:
@@ -30,19 +30,19 @@ class GIICmodel:
         xend=1,
         yend=1,
         zend=1,
-        dx_value=[0.1, 0.1, 0.1],
+        dx_value=None,
         filename="GIICmodel",
         two_d=False,
         rot="False",
-        angle=[0, 0],
-        material="",
-        damage="",
-        block="",
-        boundary_condition="",
-        bond_filter="",
-        compute="",
-        output="",
-        solver="",
+        angle=None,
+        material=None,
+        damage=None,
+        block=None,
+        boundary_condition=None,
+        bond_filter=None,
+        compute=None,
+        output=None,
+        solver=None,
         username="",
         max_nodes=100000,
         ignore_mesh=False,
@@ -73,7 +73,12 @@ class GIICmodel:
         self.a = 20 / 151 * xend
         self.block_def = block
 
+        if not dx_value:
+            dx_value = [0.1, 0.1, 0.1]
         self.dx_value = dx_value
+        if not angle:
+            angle = [0, 0]
+        self.angle = angle
         self.xend = xend
         self.yend = yend
         self.rot = rot
@@ -114,25 +119,24 @@ class GIICmodel:
         self.loadfuncy = interpolate.interp1d(yload, z_value, kind="linear")
 
         z_value = [1, 1, 8, 8, 9, 9, 1, 1]
-        yblock = [
-            0,
-            yend / 2 - 5 * dx_value[1],
-            yend / 2 - 4 * dx_value[1],
-            yend / 2 - dx_value[1] / 4,
-            yend / 2 + dx_value[1] / 4,
-            yend / 2 + 4 * dx_value[1],
-            yend / 2 + 5 * dx_value[1],
-            yend + dx_value[1],
-        ]
+        # yblock = [
+        #     0,
+        #     yend / 2 - 5 * dx_value[1],
+        #     yend / 2 - 4 * dx_value[1],
+        #     yend / 2 - dx_value[1] / 4,
+        #     yend / 2 + dx_value[1] / 4,
+        #     yend / 2 + 4 * dx_value[1],
+        #     yend / 2 + 5 * dx_value[1],
+        #     yend + dx_value[1],
+        # ]
 
-        self.blockfuny = interpolate.interp1d(yblock, z_value, kind="linear")
+        # self.blockfuny = interpolate.interp1d(yblock, z_value, kind="linear")
         """ Definition of model
         """
 
         mat_name_list = ["PMMA"]
         self.material_dict = []
-        self.angle = [0, 0]
-        if damage == "":
+        if not damage:
             damage_dict = Damage(
                 id=1,
                 Name="PMMADamage",
@@ -151,7 +155,7 @@ class GIICmodel:
         else:
             self.damage_dict = damage
 
-        if compute == "":
+        if not compute:
             compute_dict1 = Compute(
                 id=1,
                 Name="External_Displacement",
@@ -170,7 +174,7 @@ class GIICmodel:
         else:
             self.compute_dict = compute
 
-        if output == "":
+        if not output:
             output_dict1 = Output(
                 id=1,
                 Name="Output1",
@@ -203,7 +207,7 @@ class GIICmodel:
         else:
             self.output_dict = output
 
-        if material == "":
+        if not material:
             i = 0
             for material_name in mat_name_list:
                 mat_dict = Material(
@@ -228,7 +232,7 @@ class GIICmodel:
                     Properties=[],
                 )
                 if mat_dict.materialSymmetry == "Anisotropic":
-                    self.angle = [60, -60]
+                    # self.angle = [60, -60]
                     params = [
                         165863.6296530634,  # C11
                         4090.899504376252,  # C12
@@ -254,15 +258,15 @@ class GIICmodel:
                     ]  # C66
                     mat = MaterialRoutines(angle=self.angle)
                     mat_dict.Parameter = mat.stiffnessMatrix(
-                        type="anisotropic", matParam=params
+                        mat_type="anisotropic", matParam=params
                     )
                 i += 1
                 self.material_dict.append(mat_dict)
         else:
-            self.angle = angle
+            # self.angle = angle
             self.material_dict = material
 
-        if bond_filter == "":
+        if not bond_filter:
             bf1 = BondFilters(
                 id=1,
                 Name="bf_1",
@@ -288,7 +292,7 @@ class GIICmodel:
         else:
             self.bondfilters = bond_filter
 
-        if boundary_condition == "":
+        if not boundary_condition:
             bc1 = BoundaryConditions(
                 id=1,
                 Name="BC_1",
@@ -329,7 +333,7 @@ class GIICmodel:
         else:
             self.bc_dict = boundary_condition
 
-        if solver == "":
+        if not solver:
             self.solver_dict = Solver(
                 verbose=False,
                 initialTime=0.0,
@@ -366,7 +370,7 @@ class GIICmodel:
         self.int_block_id[8] = 8
         self.mat_block = ["PMMA"] * number_of_blocks
 
-        print("Initialized in " + "%.2f seconds" % (time.time() - start_time))
+        print(f"Initialized in {(time.time() - start_time):.2f} seconds")
 
     def createLoadBlock(self, x_value, y_value, k):
         k = np.where(
@@ -456,10 +460,8 @@ class GIICmodel:
         if self.ignore_mesh and self.block_def != "":
 
             writer = ModelWriter(model_class=self)
-            for idx in range(0, len(self.block_def)):
-                self.block_def[idx].horizon = self.scal * max(
-                    [self.dx_value[0], self.dx_value[1]]
-                )
+            for _, block in enumerate(self.block_def):
+                block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
             block_def = self.block_def
             try:
                 writer.create_file(block_def)
@@ -476,7 +478,7 @@ class GIICmodel:
                 angle_y = np.zeros(len(x_value))
                 angle_z = np.zeros(len(x_value))
 
-            print("Angles assigned in " + "%.2f seconds" % (time.time() - start_time))
+            print(f"Angles assigned in {(time.time() - start_time):.2f} seconds")
             start_time = time.time()
             if self.rot:
                 angle_x, angle_y, angle_z = self.createAngles(x_value, y_value)
@@ -496,10 +498,7 @@ class GIICmodel:
                 x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
             )
 
-            print(
-                "BC and Blocks created in "
-                + "%.2f seconds" % (time.time() - start_time)
-            )
+            print(f"BC and Blocks created in {(time.time() - start_time):.2f} seconds")
 
             writer = ModelWriter(model_class=self)
 

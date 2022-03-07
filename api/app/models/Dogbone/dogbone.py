@@ -29,20 +29,20 @@ class Dogbone:
         height1=0.02,
         height2=0.01,
         zend=0.001,
-        dx_value=[0.0005, 0.0005, 0.0005],
+        dx_value=None,
         filename="Dogbone",
         two_d=False,
         structured=True,
         rot=False,
-        angle=[0, 0],
-        material="",
-        damage="",
-        block="",
-        boundary_condition="",
-        bond_filter="",
-        compute="",
-        output="",
-        solver="",
+        angle=None,
+        material=None,
+        damage=None,
+        block=None,
+        boundary_condition=None,
+        bond_filter=None,
+        compute=None,
+        output=None,
+        solver=None,
         username="",
         max_nodes=100000,
         ignore_mesh=False,
@@ -63,7 +63,12 @@ class Dogbone:
         self.disc_type = "txt"
         self.two_d = two_d
         self.ns_list = [3, 4]
+        if not dx_value:
+            dx_value = [0.0005, 0.0005, 0.0005]
         self.dx_value = dx_value
+        if not angle:
+            angle = [0, 0]
+        self.angle = angle
         self.xend = xend
         self.height1 = height1
         self.height2 = height2
@@ -86,8 +91,7 @@ class Dogbone:
 
         mat_name_list = ["PMMA"]
         self.material_dict = []
-        self.angle = [0, 0]
-        if damage == "":
+        if not damage:
             damage_dict = Damage(
                 id=1,
                 Name="PMMADamage",
@@ -106,7 +110,7 @@ class Dogbone:
         else:
             self.damage_dict = damage
 
-        if compute == "":
+        if not compute:
             compute_dict1 = Compute(
                 id=1,
                 Name="External_Displacement",
@@ -125,7 +129,7 @@ class Dogbone:
         else:
             self.compute_dict = compute
 
-        if output == "":
+        if not output:
             output_dict1 = Output(
                 id=1,
                 Name="Output1",
@@ -158,7 +162,7 @@ class Dogbone:
         else:
             self.output_dict = output
 
-        if material == "":
+        if not material:
             i = 0
             for material_name in mat_name_list:
                 mat_dict = Material(
@@ -185,15 +189,14 @@ class Dogbone:
                 i += 1
                 self.material_dict.append(mat_dict)
         else:
-            self.angle = angle
             self.material_dict = material
 
-        if bond_filter == "":
+        if not bond_filter:
             self.bondfilters = []
         else:
             self.bondfilters = bond_filter
 
-        if boundary_condition == "":
+        if not boundary_condition:
             bc1 = BoundaryConditions(
                 id=1,
                 Name="BC_1",
@@ -216,7 +219,7 @@ class Dogbone:
         else:
             self.bc_dict = boundary_condition
 
-        if solver == "":
+        if not solver:
             self.solver_dict = Solver(
                 verbose=False,
                 initialTime=0.0,
@@ -303,9 +306,9 @@ class Dogbone:
                 fh2 = (
                     2 * self.dx_value[1] * (num_rows) + self.height2 - self.height1
                 ) / (self.dx_value[1] * (num_rows))
-                x_value = []
-                y_value = []
-                z_value = []
+                x_value = np.array([])
+                y_value = np.array([])
+                z_value = np.array([])
                 k = []
                 for zval in z_value_0:
                     for i in range(0, num_rows):

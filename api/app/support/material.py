@@ -15,7 +15,7 @@ class MaterialRoutines:
         self.angle = angle
 
     def stiffnessMatrix(self, mat_type, matParam=None):
-        parameter = {}
+        parameter = []
         if mat_type == "anisotropic":
             parameter = self.anisotropic(parameter, matParam)
         # def isotropic(self, parameter, E, nu, K, G):
@@ -55,28 +55,28 @@ class MaterialRoutines:
         parameter.append(Parameter(Name="C66", value=matParam[20]))
         return parameter
 
-    def get_transformation_matrix_from_angle(
-        self, angle, transformation_type="epsilon", rotationAxis="z"
-    ):
-        """This method returns the transformation matrix for epsilon for the specified rotation angle.
-        For more information refer to:
-        .. [Alt1996] Einfuehrung in die Mechanik der Laminat- und Sandwichtragwerke:
-        Modellierung und Berechnung von Balken und Platten aus Verbundwerkstoffen,  pages 29f.
+    # def get_transformation_matrix_from_angle(
+    #     self, angle, transformation_type="epsilon", rotationAxis="z"
+    # ):
+    #     """This method returns the transformation matrix for epsilon for the specified rotation angle.
+    #     For more information refer to:
+    #     .. [Alt1996] Einfuehrung in die Mechanik der Laminat- und Sandwichtragwerke:
+    #     Modellierung und Berechnung von Balken und Platten aus Verbundwerkstoffen,  pages 29f.
 
-        .. attention::
+    #     .. attention::
 
-        The right order of the specified tensor components is important.
-        ['s11', 's22', 's33', 's23', 's13', 's12']"""
+    #     The right order of the specified tensor components is important.
+    #     ['s11', 's22', 's33', 's23', 's13', 's12']"""
 
-        rot = np.identity(3, dtype=np.float64)
-        if rotationAxis == "x":
-            rot = rotation_matrix(angle, [1.0, 0.0, 0.0])
-        elif rotationAxis == "y":
-            rot = rotation_matrix(angle, [0.0, 1.0, 0.0])
-        elif rotationAxis == "z":
-            rot = rotation_matrix(angle, [0.0, 0.0, 1.0])
+    #     rot = np.identity(3, dtype=np.float64)
+    #     if rotationAxis == "x":
+    #         rot = rotation_matrix(angle, [1.0, 0.0, 0.0])
+    #     elif rotationAxis == "y":
+    #         rot = rotation_matrix(angle, [0.0, 1.0, 0.0])
+    #     elif rotationAxis == "z":
+    #         rot = rotation_matrix(angle, [0.0, 0.0, 1.0])
 
-        return self.get_transformation_matrix_from_matrix(rot.T, transformation_type)
+    #     return self.get_transformation_matrix_from_matrix(rot.T, transformation_type)
 
     @staticmethod
     def get_transformation_matrix_from_matrix(
@@ -217,40 +217,40 @@ class MaterialRoutines:
         trafo1 = np.reshape(trafo2[maskArray], (3, 3))
         return trafo1, trafo2
 
-    def transformStiffnessMatrixByAngle(
-        self, inputArray, angle, localToGlobal=True, rotationAxis="z"
-    ):
-        """This method is intended to transform the provided array (2-D)
-        according to the specified angle into a new coordinate system."""
-        inputArray = np.asarray(inputArray)
-        if localToGlobal:
-            # CONVERT LOCAL REDUCED STIFFNESS INTO GLOBAL REDUCED STIFFNESS - TRANSFORMATION FOR EPSILON
-            if inputArray.shape == (3, 3):
-                trafo = self.get_transformation_matrix_from_angle(
-                    angle, "epsilon", rotationAxis
-                )[0]
+    # def transformStiffnessMatrixByAngle(
+    #     self, inputArray, angle, localToGlobal=True, rotationAxis="z"
+    # ):
+    #     """This method is intended to transform the provided array (2-D)
+    #     according to the specified angle into a new coordinate system."""
+    #     inputArray = np.asarray(inputArray)
+    #     if localToGlobal:
+    #         # CONVERT LOCAL REDUCED STIFFNESS INTO GLOBAL REDUCED STIFFNESS - TRANSFORMATION FOR EPSILON
+    #         if inputArray.shape == (3, 3):
+    #             trafo = self.get_transformation_matrix_from_angle(
+    #                 angle, "epsilon", rotationAxis
+    #             )[0]
 
-            # CONVERT LOCAL STIFFNESS INTO GLOBAL STIFFNESS - TRANSFORMATION FOR EPSILON
-            elif inputArray.shape == (6, 6):
-                trafo = self.get_transformation_matrix_from_angle(
-                    angle, "epsilon", rotationAxis
-                )[1]
+    #         # CONVERT LOCAL STIFFNESS INTO GLOBAL STIFFNESS - TRANSFORMATION FOR EPSILON
+    #         elif inputArray.shape == (6, 6):
+    #             trafo = self.get_transformation_matrix_from_angle(
+    #                 angle, "epsilon", rotationAxis
+    #             )[1]
 
-            return np.dot(trafo.T, np.dot(inputArray, trafo))
+    #         return np.dot(trafo.T, np.dot(inputArray, trafo))
 
-        # CONVERT GLOBAL REDUCED STIFFNESS INTO LOCAL REDUCED STIFFNESS - TRANSFORMATION FOR SIGMA
-        if inputArray.shape == (3, 3):
-            trafo = self.get_transformation_matrix_from_angle(
-                angle, "sigma", rotationAxis
-            )[0]
+    #     # CONVERT GLOBAL REDUCED STIFFNESS INTO LOCAL REDUCED STIFFNESS - TRANSFORMATION FOR SIGMA
+    #     if inputArray.shape == (3, 3):
+    #         trafo = self.get_transformation_matrix_from_angle(
+    #             angle, "sigma", rotationAxis
+    #         )[0]
 
-        # CONVERT GLOBAL STIFFNESS INTO LOCAL STIFFNESS - TRANSFORMATION FOR SIGMA
-        if inputArray.shape == (6, 6):
-            trafo = self.get_transformation_matrix_from_angle(
-                angle, "sigma", rotationAxis
-            )[1]
+    #     # CONVERT GLOBAL STIFFNESS INTO LOCAL STIFFNESS - TRANSFORMATION FOR SIGMA
+    #     if inputArray.shape == (6, 6):
+    #         trafo = self.get_transformation_matrix_from_angle(
+    #             angle, "sigma", rotationAxis
+    #         )[1]
 
-        return np.dot(trafo, np.dot(inputArray, trafo.T))
+    #     return np.dot(trafo, np.dot(inputArray, trafo.T))
 
     def transformStiffnessMatrixByMatrix(
         self, inputArray, rotation_matrix, localToGlobal=True

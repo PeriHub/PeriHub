@@ -21,7 +21,8 @@ from typing import Optional
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, File, UploadFile
 from fastapi.responses import FileResponse
-from fastapi.responses import JSONResponse
+
+# from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import paramiko
 import requests
@@ -159,7 +160,7 @@ class ModelControl:
         width = model_data.model.width
         height = model_data.model.height
         height2 = model_data.model.height2
-        if model_name in ("Dogbone", "Kalthoff-Winkler"):
+        if model_name in {"Dogbone", "Kalthoff-Winkler"}:
             number_nodes = 2 * int(model_data.model.discretization / 2)
         else:
             number_nodes = 2 * int(model_data.model.discretization / 2) + 1
@@ -633,14 +634,15 @@ class ModelControl:
             "https://129.247.54.235:5000/1/PyCODAC/api/micofam/{zip}", verify=False
         )
         try:
-            zip_file = zipfile.ZipFile(io.BytesIO(r.content))
+            with zipfile.ZipFile(io.BytesIO(r.content)) as zip_file:
 
-            localpath = "./Output/" + os.path.join(username, model_name)
+                localpath = "./Output/" + os.path.join(username, model_name)
 
-            if not os.path.exists(localpath):
-                os.makedirs(localpath)
+                if not os.path.exists(localpath):
+                    os.makedirs(localpath)
 
-            zip_file.extractall(localpath)
+                zip_file.extractall(localpath)
+
         except IOError:
             return "Micofam request failed"
 
@@ -682,7 +684,7 @@ class ModelControl:
             raise IOError  # NotFoundException(name=model_name)
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(
+        with subprocess.Popen(
             [
                 "sh support/read.sh image "
                 + username
@@ -702,8 +704,8 @@ class ModelControl:
                 + str(height)
             ],
             shell=True,
-        )
-        process.wait()
+        ) as process:
+            process.wait()
 
         try:
             return FileResponse(
@@ -716,10 +718,7 @@ class ModelControl:
                 + ".jpg"
             )
         except Exception:
-            raise HTTPException(
-                status_code=404,
-                detail=model_name + " results can not be found on " + cluster,
-            )
+            return model_name + " results can not be found on " + cluster
 
     @app.get("/getLogFile", tags=["Get Methods"])
     def get_log_file(
@@ -738,7 +737,7 @@ class ModelControl:
                 filtered_values = list(
                     filter(lambda v: match(r"^.+\.log$", v), output_files)
                 )
-            except Exception:
+            except IOError:
                 return "LogFile can't be found in " + remotepath
             if len(filtered_values) == 0:
                 return "LogFile can't be found in " + remotepath
@@ -770,7 +769,7 @@ class ModelControl:
             filtered_values = list(
                 filter(lambda v: match(r"^.+\.log$", v), output_files)
             )
-        except Exception:
+        except paramiko.SFTPError:
             return "LogFile can't be found in " + remotepath
         if len(filtered_values) == 0:
             return "LogFile can't be found in " + remotepath
@@ -808,7 +807,7 @@ class ModelControl:
             )
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
-        except Exception:
+        except shutil.Error:
             return model_name + " files can not be found"
 
     @app.get("/getPlot", tags=["Get Methods"])
@@ -830,7 +829,7 @@ class ModelControl:
             )
 
         # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        process = subprocess.Popen(
+        with subprocess.Popen(
             [
                 "sh support/read.sh globalData "
                 + username
@@ -840,8 +839,8 @@ class ModelControl:
                 + output_name
             ],
             shell=True,
-        )
-        process.wait()
+        ) as process:
+            process.wait()
 
         time_string = ""
         displacement_string = ""

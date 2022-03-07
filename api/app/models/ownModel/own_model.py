@@ -4,19 +4,19 @@ from support.model_writer import ModelWriter
 class OwnModel:
     def __init__(
         self,
-        dx_value=[0.0005, 0.0005, 0.0005],
+        dx_value=None,
         disc_type="txt",
         two_d=False,
         horizon=0.1,
         filename="ownModel",
-        material="",
-        damage="",
-        block="",
-        boundary_condition="",
-        bond_filter="",
-        compute="",
-        output="",
-        solver="",
+        material=None,
+        damage=None,
+        block=None,
+        boundary_condition=None,
+        bond_filter=None,
+        compute=None,
+        output=None,
+        solver=None,
         username="",
     ):
 
@@ -25,6 +25,8 @@ class OwnModel:
         self.disc_type = disc_type
         self.two_d = two_d
         self.horizon = horizon
+        if not dx_value:
+            dx_value = [0.0005, 0.0005, 0.0005]
         self.dx_value = dx_value
         self.block_def = block
         self.username = username

@@ -62,11 +62,11 @@ class VerificationModels:
         params = [270000, 7e10, 0.3, 0, 0]
         mat = MaterialRoutines()
         self.material_dict[0]["Parameter"] = mat.stiffnessMatrix(
-            type="isotropic", matParam=params
+            mat_type="isotropic", matParam=params
         )
         params = [270000, 2.1e11, 0.3, 0, 0]
         self.material_dict[1]["Parameter"] = mat.stiffnessMatrix(
-            type="isotropic", matParam=params
+            mat_type="isotropic", matParam=params
         )
         self.angle = [0, 0]
         params = [
@@ -94,7 +94,7 @@ class VerificationModels:
             4200e6,
         ]  # C66
         self.material_dict[2]["Parameter"] = mat.stiffnessMatrix(
-            type="anisotropic", matParam=params
+            mat_type="anisotropic", matParam=params
         )
         self.bc_dict = [
             {
@@ -332,7 +332,7 @@ class VerificationModels:
             two_d=False, angle=[30, -30], filename="twoLayerAniso30m30Bending3D"
         )
 
-    def callModelbuilder(self, two_d=True, angle=[0, 0], filename="isoTension"):
+    def callModelbuilder(self, two_d=True, angle=None, filename="isoTension"):
         self.filename = filename
         self.angle = angle
         self.two_d = two_d
@@ -342,7 +342,7 @@ class VerificationModels:
             yend=self.height,
             zend=self.thickness,
             dx_value=self.dx_value,
-            angle=angle,
+            angle=self.angle,
         )
 
     @staticmethod
@@ -382,7 +382,7 @@ class VerificationModels:
 
         return angle_y
 
-    def create_model(self, two_d, xend, yend, zend, dx_value, angle=[0, 0]):
+    def create_model(self, two_d, xend, yend, zend, dx_value, angle=None):
         geo = Geometry()
         rot = True
         if angle[0] == angle[1] and angle[1] == 0:
