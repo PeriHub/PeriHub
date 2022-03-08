@@ -416,7 +416,7 @@ class ModelControl:
 
         for file in files:
             file_location = localpath + f"/{file.filename}"
-            with open(file_location, "wb+", encoding="UTF-8") as file_object:
+            with open(file_location, "wb+") as file_object:
                 shutil.copyfileobj(file.file, file_object)
 
         return {"info": f"file '{files[0].file.name}' saved at '{file_location}'"}
