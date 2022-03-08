@@ -1581,9 +1581,9 @@ export default {
         }
         // console.log(this[paramName])
         // console.log(jsonFile[paramName])
-        this[paramName] = [...jsonFile[paramName]];
-        // this.$set(this, paramName, jsonFile[paramName])
-        // Object.assign(this[paramName], jsonFile[paramName])
+        // this[paramName] = [...jsonFile[paramName]];
+        // this.$set(this, paramName, jsonFile[paramName]);
+        Object.assign(this[paramName], jsonFile[paramName]);
       }
       // }
       // }

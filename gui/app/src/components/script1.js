@@ -6,6 +6,7 @@ import { Plotly } from "vue-plotly";
 import D3Network from "vue-d3-network";
 import "vue-d3-network/dist/vue-d3-network.css";
 import NetworkTest from "../assets/NetworkTest.json";
+// import * as d3 from "d3";
 // import journalIcon from '../assets/book.svg'
 
 const journalIcon =
@@ -123,15 +124,15 @@ export default {
       keywordList: [
         {
           id: 1,
-          name: "Peridynamics",
-          keywords: ["Peridynamics", "peridynamics"],
-          weight: 3,
+          name: "Peridynamics_comb",
+          keywords: ["/Peridynamics/i"],
+          weight: 1,
         },
         {
           id: 2,
-          name: "Composite",
-          keywords: ["composite", "CFRP"],
-          weight: 10,
+          name: "Correspondence_comb",
+          keywords: ["/Correspondence/i", "non-ordinary"],
+          weight: 1,
         },
       ],
       url: "https://datanalytics-api.fa-services.intra.dlr.de/",
@@ -296,11 +297,11 @@ export default {
       this.snackbar = true;
       this.getStatus();
     },
-    async getConnections(Variable) {
+    async getConnections(Variable, TitleOrText = "Title") {
       this.networkLoading = true;
       this.dialogGetConnections = false;
       if (Variable == "Keys") {
-        this.findKeywords();
+        await this.uploadKeywordList();
       }
       let headersList = {
         "Cache-Control": "no-cache",
@@ -309,7 +310,12 @@ export default {
 
       let reqOptions = {
         url: this.url + "getConnections",
-        params: { file_name: this.analysisModel.fileName, variable: Variable },
+        params: {
+          file_name: this.analysisModel.fileName,
+          variable: Variable,
+          title_or_text: TitleOrText,
+        },
+        data: this.keywordList,
         method: "GET",
         headers: headersList,
       };
@@ -330,6 +336,27 @@ export default {
       this.filterNodes();
       this.resize();
       this.networkLoading = false;
+    },
+    async uploadKeywordList() {
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "uploadKeywordList",
+        params: {
+          file_name: this.analysisModel.fileName,
+        },
+        data: this.keywordList,
+        method: "PUT",
+        headers: headersList,
+      };
+
+      await axios
+        .request(reqOptions)
+        .then((response) => (this.message = response.data));
+      this.snackbar = true;
     },
     async getBibDatabase() {
       let headersList = {
@@ -422,25 +449,6 @@ export default {
       await axios
         .request(reqOptions)
         .then((response) => (this.status = response.data));
-    },
-    async findKeywords() {
-      let headersList = {
-        "Cache-Control": "no-cache",
-        Authorization: this.authToken,
-      };
-
-      let reqOptions = {
-        url: this.url + "findKeywords",
-        params: { file_name: this.analysisModel.fileName },
-        data: this.keywordList,
-        method: "PUT",
-        headers: headersList,
-      };
-
-      await axios
-        .request(reqOptions)
-        .then((response) => (this.message = response.data));
-      this.snackbar = true;
     },
     windowResizedEvent() {
       this.resize();
@@ -831,7 +839,7 @@ export default {
 
       let reqOptions = {
         url: this.url + "deleteUserData",
-        params: { checkDate: false },
+        params: { check_date: false },
         method: "DELETE",
         headers: headersList,
       };

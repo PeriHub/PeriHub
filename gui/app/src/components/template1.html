@@ -136,7 +136,7 @@
                         <v-text-field
                           v-model="keyword.name"
                           :rules="[rules.required, rules.name]"
-                          label="Name"
+                          label="Keyword name"
                           outlined
                         ></v-text-field>
                       </v-col>
@@ -164,9 +164,9 @@
                       <v-row>
                         <v-col class="textfieldlist-col">
                           <v-text-field
-                            v-model="key.value"
+                            v-model="keyword.keywords[subindex]"
                             :rules="[rules.required, rules.float]"
-                            label="Name"
+                            label="Key"
                             outlined
                           ></v-text-field>
                         </v-col>
@@ -447,7 +447,7 @@
       <!-- </div> -->
     </pane>
     <pane min-size="40" style="height: 100%">
-      <splitpanes horizontal style="height: 100%">
+      <splitpanes @resize="resize" horizontal style="height: 100%">
         <pane size="55">
           <!-- <v-container> -->
 
@@ -704,9 +704,16 @@
                   <v-btn
                     color="green darken-1"
                     text
-                    @click="getConnections('Keys')"
+                    @click="getConnections('Keys', 'Title')"
                   >
-                    Keys
+                    Keys / Title
+                  </v-btn>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="getConnections('Keys', 'Text')"
+                  >
+                    Keys / Full text
                   </v-btn>
                   <v-btn
                     color="red darken-1"
