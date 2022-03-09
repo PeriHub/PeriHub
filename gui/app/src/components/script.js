@@ -956,6 +956,9 @@ export default {
         ",\n" +
         '"solver": ' +
         JSON.stringify(this.solver, null, 2) +
+        ",\n" +
+        '"job": ' +
+        JSON.stringify(this.job, null, 2) +
         "}";
       var fileURL = window.URL.createObjectURL(
         new Blob([data], { type: "application/json" })
@@ -1300,7 +1303,12 @@ export default {
         const result = JSON.parse(e.target.result);
         for (var j = 0; j < Object.keys(result).length; j++) {
           var paramName = Object.keys(result)[j];
-          Object.assign(this[paramName], result[paramName]);
+          if (Array.isArray(result[paramName])) {
+            this[paramName] = [...result[paramName]];
+          } else {
+            this[paramName] = { ...result[paramName] };
+          }
+          // this[paramName] = { ...result[paramName] };
         }
       };
       fr.readAsText(files.item(0));
@@ -1847,7 +1855,23 @@ export default {
 
       await axios
         .request(reqOptions)
-        .then((response) => (this.message = response.data));
+        .then((response) => (this.message = response.data))
+        .catch((error) => {
+          if (error.response.status == 422) {
+            this.message = "";
+            for (let i in error.response.data.detail) {
+              this.message += error.response.data.detail[i].loc[1] + " ";
+              this.message += error.response.data.detail[i].loc[2] + ", ";
+              this.message += error.response.data.detail[i].loc[3] + ", ";
+              this.message += error.response.data.detail[i].msg + "\n";
+            }
+            this.message = this.message.slice(0, -2);
+          }
+          // this.message = error,
+          console.log(error.response.data);
+          this.snackbar = true;
+          return;
+        });
       this.getLogFile();
       this.snackbar = true;
       this.monitorStatus(true);
@@ -2419,7 +2443,12 @@ export default {
     },
     getLocalStorage(name) {
       if (localStorage.getItem(name))
-        this[name] = JSON.parse(localStorage.getItem(name));
+        var object = JSON.parse(localStorage.getItem(name));
+      if (Array.isArray(object)) {
+        this[name] = [...JSON.parse(localStorage.getItem(name))];
+      } else {
+        this[name] = { ...JSON.parse(localStorage.getItem(name)) };
+      }
     },
     deleteCookies() {
       this.dialogDeleteCookies = false;
