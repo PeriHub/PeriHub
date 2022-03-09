@@ -143,7 +143,10 @@ class ModelControl:
         if os.path.exists(JsonFile):
             with open(JsonFile, "r", encoding="UTF-8") as file:
                 json_data = json.load(file)
-                if model_data.model == json_data["model"]:
+                if (
+                    model_data.model == json_data["model"]
+                    and model_data.boundaryConditions == json_data["boundaryConditions"]
+                ):
                     print("Model not changed")
                     ignore_mesh = True
 
