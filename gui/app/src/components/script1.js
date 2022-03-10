@@ -29,58 +29,34 @@ export default {
       },
       database: {},
       nodes: [
-        { id: 1, name: "my awesome node 1", _size: 40 },
-        { id: 2, name: "my node 2" },
-        { id: 3, name: "orange node", _color: "orange" },
-        { id: 4, _color: "#4466ff" },
-        { id: 5, _width: 10, _height: 10 },
-        { id: 6 },
-        { id: 7 },
-        { id: 8 },
-        { id: 9 },
+        { id: 1, name: "Author 1", _size: 40 },
+        { id: 2, name: "Author 2" },
+        { id: 3, name: "Author 3", _color: "orange" },
       ],
       filteredNodes: [
-        { id: 1, name: "my awesome node 1", _size: 40 },
-        { id: 2, name: "my node 2" },
-        { id: 3, name: "orange node", _color: "orange" },
-        { id: 4, _color: "#4466ff" },
-        { id: 5, _width: 10, _height: 10 },
-        { id: 6 },
-        { id: 7 },
-        { id: 8 },
-        { id: 9 },
+        { id: 1, name: "Author 1", _size: 40 },
+        { id: 2, name: "Author 2" },
+        { id: 3, name: "Author 3", _color: "orange" },
       ],
       links: [
         { sid: 1, tid: 2 },
-        { sid: 2, tid: 8 },
+        { sid: 2, tid: 3 },
         {
-          sid: 3,
-          tid: 4,
+          sid: 1,
+          tid: 3,
           _svgAttrs: { "stroke-width": 8, opacity: 1 },
           name: "custom link",
         },
-        { sid: 4, tid: 5 },
-        { sid: 5, tid: 6 },
-        { sid: 7, tid: 8 },
-        { sid: 5, tid: 8 },
-        { sid: 3, tid: 8 },
-        { sid: 7, tid: 9 },
       ],
       filteredLinks: [
         { sid: 1, tid: 2 },
-        { sid: 2, tid: 8 },
+        { sid: 2, tid: 3 },
         {
-          sid: 3,
-          tid: 4,
+          sid: 1,
+          tid: 3,
           _svgAttrs: { "stroke-width": 8, opacity: 1 },
           name: "custom link",
         },
-        { sid: 4, tid: 5 },
-        { sid: 5, tid: 6 },
-        { sid: 7, tid: 8 },
-        { sid: 5, tid: 8 },
-        { sid: 3, tid: 8 },
-        { sid: 7, tid: 9 },
       ],
       canvas: false,
       sizeW: 1200,
@@ -125,13 +101,13 @@ export default {
         {
           id: 1,
           name: "Peridynamics_comb",
-          keywords: ["/Peridynamics/i"],
+          keywords: ["Peridynamics"],
           weight: 1,
         },
         {
           id: 2,
           name: "Correspondence_comb",
-          keywords: ["/Correspondence/i", "non-ordinary"],
+          keywords: ["Correspondence", "non-ordinary"],
           weight: 1,
         },
       ],
@@ -145,17 +121,17 @@ export default {
       plotLoading: false,
       plotData: [
         {
-          name: "Displacement",
-          x: ["a", "b", "c", "d"],
-          y: [10, 15, 20, 17],
+          name: "Articles",
+          x: ["2022", "2021", "2020", "2019", "2018", "2017"],
+          y: [20, 17, 12, 8, 6, 4],
           type: "bar",
         },
       ],
       filteredPlotData: [
         {
-          name: "Displacement",
-          x: ["a", "b", "c", "d"],
-          y: [10, 15, 20, 17],
+          name: "Articles",
+          x: ["2022", "2021", "2020", "2019", "2018", "2017"],
+          y: [20, 17, 12, 8, 6, 4],
           type: "bar",
         },
       ],
@@ -866,6 +842,7 @@ export default {
         id: len + 1,
         name: "Keyword" + (len + 1),
         keywords: [],
+        weight: 1,
       });
     },
     removeKeyword(index) {
@@ -873,9 +850,7 @@ export default {
     },
     addKey(index) {
       const len = this.keywordList[index].keywords.length;
-      this.keywordList[index].keywords.push({
-        id: len + 1,
-      });
+      this.keywordList[index].keywords.push("");
       // for (const key in this.keywordList[index].keywords[len-1]) {
       //   if(key!='id' & key!='Name'){
       //     this.$set(this.keywordList[index].keywords[len], key, this.keywordList[index].keywords[len-1][key])

@@ -165,7 +165,7 @@
                         <v-col class="textfieldlist-col">
                           <v-text-field
                             v-model="keyword.keywords[subindex]"
-                            :rules="[rules.required, rules.float]"
+                            :rules="[rules.required, rules.name]"
                             label="Key"
                             outlined
                           ></v-text-field>
@@ -210,7 +210,7 @@
                         <v-text-field
                           class="textfield-col"
                           v-model="keyword.weight"
-                          :rules="[rules.required, rules.float]"
+                          :rules="[rules.required, rules.int]"
                           label="Weight"
                           outlined
                         ></v-text-field>
