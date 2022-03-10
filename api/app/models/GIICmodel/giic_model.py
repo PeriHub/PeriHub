@@ -70,7 +70,7 @@ class GIICmodel:
         self.two_d = two_d
         self.rot = rot
         # anriss
-        self.a = 20 / 151 * xend
+        self.length = 20 / 151 * xend
         self.block_def = block
 
         if not dx_value:
@@ -257,8 +257,8 @@ class GIICmodel:
                         4200.0,
                     ]  # C66
                     mat = MaterialRoutines(angle=self.angle)
-                    mat_dict.Parameter = mat.stiffnessMatrix(
-                        mat_type="anisotropic", matParam=params
+                    mat_dict.Parameter = mat.stiffness_matrix(
+                        mat_type="anisotropic", mat_param=params
                     )
                 i += 1
                 self.material_dict.append(mat_dict)
@@ -280,7 +280,7 @@ class GIICmodel:
                 bottomUnitVectorX=1.0,
                 bottomUnitVectorY=0.0,
                 bottomUnitVectorZ=0.0,
-                bottomLength=self.a,
+                bottomLength=self.length,
                 sideLength=zend + 0.5,
                 centerX=0.0,
                 centerY=1.0,
@@ -372,7 +372,7 @@ class GIICmodel:
 
         print(f"Initialized in {(time.time() - start_time):.2f} seconds")
 
-    def createLoadBlock(self, x_value, y_value, k):
+    def create_load_block(self, x_value, y_value, k):
         k = np.where(
             self.loadfuncx(x_value) == self.loadfuncy(y_value),
             self.loadfuncx(x_value),
@@ -380,13 +380,13 @@ class GIICmodel:
         )
         return k
 
-    def createBoundaryConditionBlock(self, x_value, y_value, k):
+    def create_boundary_condition_block(self, x_value, y_value, k):
         k = np.array(
             ((self.boundfuncx(x_value) - 1) * self.boundfuncy(y_value) + 1), dtype="int"
         )
         return k
 
-    def createLoadIntroNode(self, x_value, y_value, k):
+    def create_load_intro_node(self, x_value, y_value, k):
         k = np.where(
             np.logical_and(
                 (self.xend - self.dx_value[0]) / 2 < x_value,
@@ -400,7 +400,7 @@ class GIICmodel:
         )
         return k
 
-    def createBCNode(self, x_value, y_value, k):
+    def create_bc_node(self, x_value, y_value, k):
         k = np.where(
             np.logical_and(x_value <= 0 + self.dx_value[0], y_value == 0), 5, k
         )
@@ -416,7 +416,7 @@ class GIICmodel:
         )
         return k
 
-    def createBlock(self, y_value, k):
+    def create_block(self, y_value, k):
         k = np.where(
             np.logical_and(
                 self.yend / 2 - 5 * self.dx_value[1] < y_value, y_value < self.yend / 2
@@ -433,7 +433,7 @@ class GIICmodel:
         )
         return k
 
-    def createAngles(self, x_value, y_value):
+    def create_angles(self, x_value, y_value):
         """doc"""
         angle_x = np.zeros_like(x_value)
         angle_y = np.where(y_value < self.yend / 2, self.angle[0], self.angle[1])
@@ -481,18 +481,18 @@ class GIICmodel:
             print(f"Angles assigned in {(time.time() - start_time):.2f} seconds")
             start_time = time.time()
             if self.rot:
-                angle_x, angle_y, angle_z = self.createAngles(x_value, y_value)
+                angle_x, angle_y, angle_z = self.create_angles(x_value, y_value)
 
             k = np.ones_like(x_value)
 
             k = np.where(
                 y_value >= self.yend / 2,
-                self.createLoadBlock(x_value, y_value, k),
-                self.createBoundaryConditionBlock(x_value, y_value, k),
+                self.create_load_block(x_value, y_value, k),
+                self.create_boundary_condition_block(x_value, y_value, k),
             )
-            k = self.createBCNode(x_value, y_value, k)
-            k = self.createLoadIntroNode(x_value, y_value, k)
-            k = self.createBlock(y_value, k)
+            k = self.create_bc_node(x_value, y_value, k)
+            k = self.create_load_intro_node(x_value, y_value, k)
+            k = self.create_block(y_value, k)
 
             vol = np.full_like(
                 x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]

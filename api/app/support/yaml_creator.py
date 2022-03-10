@@ -15,21 +15,23 @@ class YAMLcreator:
 
     @staticmethod
     def translate_xml_to_yaml(string):
-        stringYAML = "Peridigm:\n"
-        splitString = string.split("\n")
-        for spl in splitString:
+        string_yaml = "Peridigm:\n"
+        split_string = string.split("\n")
+        for spl in split_string:
             if "</ParameterList>" not in spl and "<ParameterList>" not in spl:
-                partString = spl.split('"')
+                part_string = spl.split('"')
                 spaces = spl.split("<")
 
-                if len(partString) > 3:
+                if len(part_string) > 3:
 
-                    if "string" in partString[3]:
-                        tempString = '"' + partString[5] + '"'
+                    if "string" in part_string[3]:
+                        temp_string = '"' + part_string[5] + '"'
                     else:
-                        tempString = partString[5]
-                    stringYAML += spaces[0] + partString[1] + ": " + tempString + "\n"
-                elif len(partString) != 1:
-                    stringYAML += spaces[0] + partString[1] + ": \n"
+                        temp_string = part_string[5]
+                    string_yaml += (
+                        spaces[0] + part_string[1] + ": " + temp_string + "\n"
+                    )
+                elif len(part_string) != 1:
+                    string_yaml += spaces[0] + part_string[1] + ": \n"
 
-        return stringYAML
+        return string_yaml

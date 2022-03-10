@@ -55,7 +55,7 @@ class ModelControl:
         # db = Dogbone(dx_value = dx_value, two_d = False, height1=height)
         # model = db.create_model()
         # veri = VerificationModels()
-        # veri.createVerificationModels()
+        # veri.create_verification_models()
 
     def endRunOnError(self):
         pass

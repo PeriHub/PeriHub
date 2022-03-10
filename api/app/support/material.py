@@ -14,10 +14,10 @@ class MaterialRoutines:
     def __init__(self, angle=None):
         self.angle = angle
 
-    def stiffnessMatrix(self, mat_type, matParam=None):
+    def stiffness_matrix(self, mat_type, mat_param=None):
         parameter = []
         if mat_type == "anisotropic":
-            parameter = self.anisotropic(parameter, matParam)
+            parameter = self.anisotropic(parameter, mat_param)
         # def isotropic(self, parameter, E, nu, K, G):
         #     if E !=0: parameter["Young's Modulus"] ={'value': E}
         #     if nu !=0: parameter["Poisson's Ratio"] = {'value':nu}
@@ -26,33 +26,33 @@ class MaterialRoutines:
         return parameter
 
     @staticmethod
-    def anisotropic(parameter, matParam):
+    def anisotropic(parameter, mat_param):
         # CTensor = self.createStiffnessTensor()
         # CTensor = self.rotateStiffnessTensor(self.alpha, self.beta, self.gamma)
         # parameter = self.obtainTensorComponents()
         parameter = []
 
-        parameter.append(Parameter(Name="C11", value=matParam[0]))
-        parameter.append(Parameter(Name="C12", value=matParam[1]))
-        parameter.append(Parameter(Name="C13", value=matParam[2]))
-        parameter.append(Parameter(Name="C14", value=matParam[3]))
-        parameter.append(Parameter(Name="C15", value=matParam[4]))
-        parameter.append(Parameter(Name="C16", value=matParam[5]))
-        parameter.append(Parameter(Name="C22", value=matParam[6]))
-        parameter.append(Parameter(Name="C23", value=matParam[7]))
-        parameter.append(Parameter(Name="C24", value=matParam[8]))
-        parameter.append(Parameter(Name="C25", value=matParam[9]))
-        parameter.append(Parameter(Name="C26", value=matParam[10]))
-        parameter.append(Parameter(Name="C33", value=matParam[11]))
-        parameter.append(Parameter(Name="C34", value=matParam[12]))
-        parameter.append(Parameter(Name="C35", value=matParam[13]))
-        parameter.append(Parameter(Name="C36", value=matParam[14]))
-        parameter.append(Parameter(Name="C44", value=matParam[15]))
-        parameter.append(Parameter(Name="C45", value=matParam[16]))
-        parameter.append(Parameter(Name="C46", value=matParam[17]))
-        parameter.append(Parameter(Name="C55", value=matParam[18]))
-        parameter.append(Parameter(Name="C56", value=matParam[19]))
-        parameter.append(Parameter(Name="C66", value=matParam[20]))
+        parameter.append(Parameter(Name="C11", value=mat_param[0]))
+        parameter.append(Parameter(Name="C12", value=mat_param[1]))
+        parameter.append(Parameter(Name="C13", value=mat_param[2]))
+        parameter.append(Parameter(Name="C14", value=mat_param[3]))
+        parameter.append(Parameter(Name="C15", value=mat_param[4]))
+        parameter.append(Parameter(Name="C16", value=mat_param[5]))
+        parameter.append(Parameter(Name="C22", value=mat_param[6]))
+        parameter.append(Parameter(Name="C23", value=mat_param[7]))
+        parameter.append(Parameter(Name="C24", value=mat_param[8]))
+        parameter.append(Parameter(Name="C25", value=mat_param[9]))
+        parameter.append(Parameter(Name="C26", value=mat_param[10]))
+        parameter.append(Parameter(Name="C33", value=mat_param[11]))
+        parameter.append(Parameter(Name="C34", value=mat_param[12]))
+        parameter.append(Parameter(Name="C35", value=mat_param[13]))
+        parameter.append(Parameter(Name="C36", value=mat_param[14]))
+        parameter.append(Parameter(Name="C44", value=mat_param[15]))
+        parameter.append(Parameter(Name="C45", value=mat_param[16]))
+        parameter.append(Parameter(Name="C46", value=mat_param[17]))
+        parameter.append(Parameter(Name="C55", value=mat_param[18]))
+        parameter.append(Parameter(Name="C56", value=mat_param[19]))
+        parameter.append(Parameter(Name="C66", value=mat_param[20]))
         return parameter
 
     # def get_transformation_matrix_from_angle(
@@ -91,8 +91,8 @@ class MaterialRoutines:
 
         The right order of the specified tensor components is important.
         ['s11', 's22', 's33', 's23', 's13', 's12']"""
-        rM = rotation_matrix
-        maskArray = np.array(
+        rot_m = rotation_matrix
+        mask_array = np.array(
             [
                 [True, True, False, False, False, True],
                 [True, True, False, False, False, True],
@@ -109,52 +109,52 @@ class MaterialRoutines:
             trafo2 = np.array(
                 [
                     [
-                        rM[0, 0] ** 2,
-                        rM[0, 1] ** 2,
-                        rM[0, 2] ** 2,
-                        rM[0, 1] * rM[0, 2],
-                        rM[0, 0] * rM[0, 2],
-                        rM[0, 0] * rM[0, 1],
+                        rot_m[0, 0] ** 2,
+                        rot_m[0, 1] ** 2,
+                        rot_m[0, 2] ** 2,
+                        rot_m[0, 1] * rot_m[0, 2],
+                        rot_m[0, 0] * rot_m[0, 2],
+                        rot_m[0, 0] * rot_m[0, 1],
                     ],
                     [
-                        rM[1, 0] ** 2,
-                        rM[1, 1] ** 2,
-                        rM[1, 2] ** 2,
-                        rM[1, 1] * rM[1, 2],
-                        rM[1, 0] * rM[1, 2],
-                        rM[1, 0] * rM[1, 1],
+                        rot_m[1, 0] ** 2,
+                        rot_m[1, 1] ** 2,
+                        rot_m[1, 2] ** 2,
+                        rot_m[1, 1] * rot_m[1, 2],
+                        rot_m[1, 0] * rot_m[1, 2],
+                        rot_m[1, 0] * rot_m[1, 1],
                     ],
                     [
-                        rM[2, 0] ** 2,
-                        rM[2, 1] ** 2,
-                        rM[2, 2] ** 2,
-                        rM[2, 1] * rM[2, 2],
-                        rM[2, 0] * rM[2, 2],
-                        rM[2, 0] * rM[2, 1],
+                        rot_m[2, 0] ** 2,
+                        rot_m[2, 1] ** 2,
+                        rot_m[2, 2] ** 2,
+                        rot_m[2, 1] * rot_m[2, 2],
+                        rot_m[2, 0] * rot_m[2, 2],
+                        rot_m[2, 0] * rot_m[2, 1],
                     ],
                     [
-                        2.0 * rM[1, 0] * rM[2, 0],
-                        2.0 * rM[1, 1] * rM[2, 1],
-                        2.0 * rM[1, 2] * rM[2, 2],
-                        rM[1, 1] * rM[2, 2] + rM[1, 2] * rM[2, 1],
-                        rM[1, 0] * rM[2, 2] + rM[1, 2] * rM[2, 0],
-                        rM[1, 0] * rM[2, 1] + rM[1, 1] * rM[2, 0],
+                        2.0 * rot_m[1, 0] * rot_m[2, 0],
+                        2.0 * rot_m[1, 1] * rot_m[2, 1],
+                        2.0 * rot_m[1, 2] * rot_m[2, 2],
+                        rot_m[1, 1] * rot_m[2, 2] + rot_m[1, 2] * rot_m[2, 1],
+                        rot_m[1, 0] * rot_m[2, 2] + rot_m[1, 2] * rot_m[2, 0],
+                        rot_m[1, 0] * rot_m[2, 1] + rot_m[1, 1] * rot_m[2, 0],
                     ],
                     [
-                        2.0 * rM[0, 0] * rM[2, 0],
-                        2.0 * rM[0, 1] * rM[2, 1],
-                        2.0 * rM[0, 2] * rM[2, 2],
-                        rM[0, 1] * rM[2, 2] + rM[0, 2] * rM[2, 1],
-                        rM[0, 0] * rM[2, 2] + rM[0, 2] * rM[2, 0],
-                        rM[0, 0] * rM[2, 1] + rM[0, 1] * rM[2, 0],
+                        2.0 * rot_m[0, 0] * rot_m[2, 0],
+                        2.0 * rot_m[0, 1] * rot_m[2, 1],
+                        2.0 * rot_m[0, 2] * rot_m[2, 2],
+                        rot_m[0, 1] * rot_m[2, 2] + rot_m[0, 2] * rot_m[2, 1],
+                        rot_m[0, 0] * rot_m[2, 2] + rot_m[0, 2] * rot_m[2, 0],
+                        rot_m[0, 0] * rot_m[2, 1] + rot_m[0, 1] * rot_m[2, 0],
                     ],
                     [
-                        2.0 * rM[0, 0] * rM[1, 0],
-                        2.0 * rM[0, 1] * rM[1, 1],
-                        2.0 * rM[0, 2] * rM[1, 2],
-                        rM[0, 1] * rM[1, 2] + rM[0, 2] * rM[1, 1],
-                        rM[0, 0] * rM[1, 2] + rM[0, 2] * rM[1, 0],
-                        rM[0, 0] * rM[1, 1] + rM[0, 1] * rM[1, 0],
+                        2.0 * rot_m[0, 0] * rot_m[1, 0],
+                        2.0 * rot_m[0, 1] * rot_m[1, 1],
+                        2.0 * rot_m[0, 2] * rot_m[1, 2],
+                        rot_m[0, 1] * rot_m[1, 2] + rot_m[0, 2] * rot_m[1, 1],
+                        rot_m[0, 0] * rot_m[1, 2] + rot_m[0, 2] * rot_m[1, 0],
+                        rot_m[0, 0] * rot_m[1, 1] + rot_m[0, 1] * rot_m[1, 0],
                     ],
                 ]
             )
@@ -164,125 +164,125 @@ class MaterialRoutines:
             trafo2 = np.array(
                 [
                     [
-                        rM[0, 0] ** 2,
-                        rM[0, 1] ** 2,
-                        rM[0, 2] ** 2,
-                        2.0 * rM[0, 1] * rM[0, 2],
-                        2.0 * rM[0, 0] * rM[0, 2],
-                        2.0 * rM[0, 0] * rM[0, 1],
+                        rot_m[0, 0] ** 2,
+                        rot_m[0, 1] ** 2,
+                        rot_m[0, 2] ** 2,
+                        2.0 * rot_m[0, 1] * rot_m[0, 2],
+                        2.0 * rot_m[0, 0] * rot_m[0, 2],
+                        2.0 * rot_m[0, 0] * rot_m[0, 1],
                     ],
                     [
-                        rM[1, 0] ** 2,
-                        rM[1, 1] ** 2,
-                        rM[1, 2] ** 2,
-                        2.0 * rM[1, 1] * rM[1, 2],
-                        2.0 * rM[1, 0] * rM[1, 2],
-                        2.0 * rM[1, 0] * rM[1, 1],
+                        rot_m[1, 0] ** 2,
+                        rot_m[1, 1] ** 2,
+                        rot_m[1, 2] ** 2,
+                        2.0 * rot_m[1, 1] * rot_m[1, 2],
+                        2.0 * rot_m[1, 0] * rot_m[1, 2],
+                        2.0 * rot_m[1, 0] * rot_m[1, 1],
                     ],
                     [
-                        rM[2, 0] ** 2,
-                        rM[2, 1] ** 2,
-                        rM[2, 2] ** 2,
-                        2.0 * rM[2, 1] * rM[2, 2],
-                        2.0 * rM[2, 0] * rM[2, 2],
-                        2.0 * rM[2, 0] * rM[2, 1],
+                        rot_m[2, 0] ** 2,
+                        rot_m[2, 1] ** 2,
+                        rot_m[2, 2] ** 2,
+                        2.0 * rot_m[2, 1] * rot_m[2, 2],
+                        2.0 * rot_m[2, 0] * rot_m[2, 2],
+                        2.0 * rot_m[2, 0] * rot_m[2, 1],
                     ],
                     [
-                        rM[1, 0] * rM[2, 0],
-                        rM[1, 1] * rM[2, 1],
-                        rM[1, 2] * rM[2, 2],
-                        rM[1, 1] * rM[2, 2] + rM[1, 2] * rM[2, 1],
-                        rM[1, 0] * rM[2, 2] + rM[1, 2] * rM[2, 0],
-                        rM[1, 0] * rM[2, 1] + rM[1, 1] * rM[2, 0],
+                        rot_m[1, 0] * rot_m[2, 0],
+                        rot_m[1, 1] * rot_m[2, 1],
+                        rot_m[1, 2] * rot_m[2, 2],
+                        rot_m[1, 1] * rot_m[2, 2] + rot_m[1, 2] * rot_m[2, 1],
+                        rot_m[1, 0] * rot_m[2, 2] + rot_m[1, 2] * rot_m[2, 0],
+                        rot_m[1, 0] * rot_m[2, 1] + rot_m[1, 1] * rot_m[2, 0],
                     ],
                     [
-                        rM[0, 0] * rM[2, 0],
-                        rM[0, 1] * rM[2, 1],
-                        rM[0, 2] * rM[2, 2],
-                        rM[0, 1] * rM[2, 2] + rM[0, 2] * rM[2, 1],
-                        rM[0, 0] * rM[2, 2] + rM[0, 2] * rM[2, 0],
-                        rM[0, 0] * rM[2, 1] + rM[0, 1] * rM[2, 0],
+                        rot_m[0, 0] * rot_m[2, 0],
+                        rot_m[0, 1] * rot_m[2, 1],
+                        rot_m[0, 2] * rot_m[2, 2],
+                        rot_m[0, 1] * rot_m[2, 2] + rot_m[0, 2] * rot_m[2, 1],
+                        rot_m[0, 0] * rot_m[2, 2] + rot_m[0, 2] * rot_m[2, 0],
+                        rot_m[0, 0] * rot_m[2, 1] + rot_m[0, 1] * rot_m[2, 0],
                     ],
                     [
-                        rM[0, 0] * rM[1, 0],
-                        rM[0, 1] * rM[1, 1],
-                        rM[0, 2] * rM[1, 2],
-                        rM[0, 1] * rM[1, 2] + rM[0, 2] * rM[1, 1],
-                        rM[0, 0] * rM[1, 2] + rM[0, 2] * rM[1, 0],
-                        rM[0, 0] * rM[1, 1] + rM[0, 1] * rM[1, 0],
+                        rot_m[0, 0] * rot_m[1, 0],
+                        rot_m[0, 1] * rot_m[1, 1],
+                        rot_m[0, 2] * rot_m[1, 2],
+                        rot_m[0, 1] * rot_m[1, 2] + rot_m[0, 2] * rot_m[1, 1],
+                        rot_m[0, 0] * rot_m[1, 2] + rot_m[0, 2] * rot_m[1, 0],
+                        rot_m[0, 0] * rot_m[1, 1] + rot_m[0, 1] * rot_m[1, 0],
                     ],
                 ]
             )
 
-        trafo1 = np.reshape(trafo2[maskArray], (3, 3))
+        trafo1 = np.reshape(trafo2[mask_array], (3, 3))
         return trafo1, trafo2
 
     # def transformStiffnessMatrixByAngle(
-    #     self, inputArray, angle, localToGlobal=True, rotationAxis="z"
+    #     self, input_array, angle, local_to_global=True, rotationAxis="z"
     # ):
     #     """This method is intended to transform the provided array (2-D)
     #     according to the specified angle into a new coordinate system."""
-    #     inputArray = np.asarray(inputArray)
-    #     if localToGlobal:
+    #     input_array = np.asarray(input_array)
+    #     if local_to_global:
     #         # CONVERT LOCAL REDUCED STIFFNESS INTO GLOBAL REDUCED STIFFNESS - TRANSFORMATION FOR EPSILON
-    #         if inputArray.shape == (3, 3):
+    #         if input_array.shape == (3, 3):
     #             trafo = self.get_transformation_matrix_from_angle(
     #                 angle, "epsilon", rotationAxis
     #             )[0]
 
     #         # CONVERT LOCAL STIFFNESS INTO GLOBAL STIFFNESS - TRANSFORMATION FOR EPSILON
-    #         elif inputArray.shape == (6, 6):
+    #         elif input_array.shape == (6, 6):
     #             trafo = self.get_transformation_matrix_from_angle(
     #                 angle, "epsilon", rotationAxis
     #             )[1]
 
-    #         return np.dot(trafo.T, np.dot(inputArray, trafo))
+    #         return np.dot(trafo.T, np.dot(input_array, trafo))
 
     #     # CONVERT GLOBAL REDUCED STIFFNESS INTO LOCAL REDUCED STIFFNESS - TRANSFORMATION FOR SIGMA
-    #     if inputArray.shape == (3, 3):
+    #     if input_array.shape == (3, 3):
     #         trafo = self.get_transformation_matrix_from_angle(
     #             angle, "sigma", rotationAxis
     #         )[0]
 
     #     # CONVERT GLOBAL STIFFNESS INTO LOCAL STIFFNESS - TRANSFORMATION FOR SIGMA
-    #     if inputArray.shape == (6, 6):
+    #     if input_array.shape == (6, 6):
     #         trafo = self.get_transformation_matrix_from_angle(
     #             angle, "sigma", rotationAxis
     #         )[1]
 
-    #     return np.dot(trafo, np.dot(inputArray, trafo.T))
+    #     return np.dot(trafo, np.dot(input_array, trafo.T))
 
-    def transformStiffnessMatrixByMatrix(
-        self, inputArray, rotation_matrix, localToGlobal=True
-    ):
-        """This method is intended to transform the provided array (2-D)
-        according to the specified rotation matrix into a new coordinate system."""
-        inputArray = np.asarray(inputArray)
-        if localToGlobal:
-            # CONVERT LOCAL REDUCED STIFFNESS INTO GLOBAL REDUCED STIFFNESS - TRANSFORMATION FOR EPSILON
-            if inputArray.shape == (3, 3):
-                trafo = self.get_transformation_matrix_from_matrix(
-                    rotation_matrix, "epsilon"
-                )[0]
+    # def transform_stiffness_matrix_by_matrix(
+    #     self, input_array, rotation_matrix, local_to_global=True
+    # ):
+    #     """This method is intended to transform the provided array (2-D)
+    #     according to the specified rotation matrix into a new coordinate system."""
+    #     input_array = np.asarray(input_array)
+    #     if local_to_global:
+    #         # CONVERT LOCAL REDUCED STIFFNESS INTO GLOBAL REDUCED STIFFNESS - TRANSFORMATION FOR EPSILON
+    #         if input_array.shape == (3, 3):
+    #             trafo = self.get_transformation_matrix_from_matrix(
+    #                 rotation_matrix, "epsilon"
+    #             )[0]
 
-            # CONVERT LOCAL STIFFNESS INTO GLOBAL STIFFNESS - TRANSFORMATION FOR EPSILON
-            elif inputArray.shape == (6, 6):
-                trafo = self.get_transformation_matrix_from_matrix(
-                    rotation_matrix, "epsilon"
-                )[1]
+    #         # CONVERT LOCAL STIFFNESS INTO GLOBAL STIFFNESS - TRANSFORMATION FOR EPSILON
+    #         elif input_array.shape == (6, 6):
+    #             trafo = self.get_transformation_matrix_from_matrix(
+    #                 rotation_matrix, "epsilon"
+    #             )[1]
 
-            return np.dot(trafo.T, np.dot(inputArray, trafo))
+    #         return np.dot(trafo.T, np.dot(input_array, trafo))
 
-        # CONVERT GLOBAL REDUCED STIFFNESS INTO LOCAL REDUCED STIFFNESS - TRANSFORMATION FOR SIGMA
-        if inputArray.shape == (3, 3):
-            trafo = self.get_transformation_matrix_from_matrix(
-                rotation_matrix, "sigma"
-            )[0]
+    #     # CONVERT GLOBAL REDUCED STIFFNESS INTO LOCAL REDUCED STIFFNESS - TRANSFORMATION FOR SIGMA
+    #     if input_array.shape == (3, 3):
+    #         trafo = self.get_transformation_matrix_from_matrix(
+    #             rotation_matrix, "sigma"
+    #         )[0]
 
-        # CONVERT GLOBAL STIFFNESS INTO LOCAL STIFFNESS - TRANSFORMATION FOR SIGMA
-        if inputArray.shape == (6, 6):
-            trafo = self.get_transformation_matrix_from_matrix(
-                rotation_matrix, "sigma"
-            )[1]
+    #     # CONVERT GLOBAL STIFFNESS INTO LOCAL STIFFNESS - TRANSFORMATION FOR SIGMA
+    #     if input_array.shape == (6, 6):
+    #         trafo = self.get_transformation_matrix_from_matrix(
+    #             rotation_matrix, "sigma"
+    #         )[1]
 
-        return np.dot(trafo, np.dot(inputArray, trafo.T))
+    #     return np.dot(trafo, np.dot(input_array, trafo.T))

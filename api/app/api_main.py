@@ -33,7 +33,7 @@ from models.GIICmodel.giic_model import GIICmodel
 from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
 from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
-from models.ownModel.own_model import OwnModel
+from models.OwnModel.own_model import OwnModel
 from support.sbatch_creator import SbatchCreator
 from support.file_handler import FileHandler
 from support.base_models import ModelData, FileType, RunData, Status
@@ -112,7 +112,7 @@ class ModelControl:
         # model = db.create_model()
         # print('verifcation models')
         veri = VerificationModels()
-        veri.createVerificationModels()
+        veri.create_verification_models()
 
     # @app.exception_handler(NotFoundException)
     # async def notFound_exception_handler(request: Request, exc: NotFoundException):
@@ -137,11 +137,11 @@ class ModelControl:
         if not os.path.exists(localpath):
             os.makedirs(localpath)
 
-        JsonFile = os.path.join(localpath, model_name + ".json")
+        json_file = os.path.join(localpath, model_name + ".json")
         ignore_mesh = False
 
-        if os.path.exists(JsonFile):
-            with open(JsonFile, "r", encoding="UTF-8") as file:
+        if os.path.exists(json_file):
+            with open(json_file, "r", encoding="UTF-8") as file:
                 json_data = json.load(file)
                 if (
                     model_data.model == json_data["model"]
@@ -150,8 +150,8 @@ class ModelControl:
                     print("Model not changed")
                     ignore_mesh = True
 
-        with open(JsonFile, "w", encoding="UTF-8") as file:
-            file.write(model_data.toJSON())
+        with open(json_file, "w", encoding="UTF-8") as file:
+            file.write(model_data.to_json())
 
         # length = 152
         # length = 50
@@ -329,10 +329,8 @@ class ModelControl:
         # + '.g.ascii' + \
         try:
             subprocess.call(command, shell=True)
-        except Exception:
-            raise HTTPException(
-                status_code=404, detail=model_name + " results can not be found"
-            )
+        except subprocess.SubprocessError:
+            return model_name + " results can not be found"
 
         print("Rename mesh File")
         os.rename(
@@ -449,7 +447,7 @@ class ModelControl:
     def run_model(
         model_data: RunData,
         model_name: str = "Dogbone",
-        file_type: FileType = FileType.yaml,
+        file_type: FileType = FileType.YAML,
         request: Request = "",
     ):
         """doc"""
@@ -501,13 +499,13 @@ class ModelControl:
         elif cluster == "Cara":
             initial_jobs = FileHandler.write_get_cara_job_id()
             print(initial_jobs)
-            sb = SbatchCreator(
+            sbatch = SbatchCreator(
                 filename=model_name,
                 output=model_data.outputs,
                 job=model_data.job,
                 usermail=usermail,
             )
-            sbatch_string = sb.create_sbatch()
+            sbatch_string = sbatch.create_sbatch()
             remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
                 username, model_name
             )
@@ -535,7 +533,7 @@ class ModelControl:
             remotepath = "/peridigmJobs/" + os.path.join(username, model_name)
             if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
                 return model_name + " already submitted"
-            sh = SbatchCreator(
+            sbatch = SbatchCreator(
                 filename=model_name,
                 filetype=file_type,
                 remotepath=remotepath,
@@ -543,7 +541,7 @@ class ModelControl:
                 job=model_data.job,
                 usermail=usermail,
             )
-            sh_string = sh.create_sh()
+            sh_string = sbatch.create_sh()
             with open(
                 os.path.join("." + remotepath, "runPeridigm.sh"), "w", encoding="UTF-8"
             ) as file:
@@ -626,18 +624,18 @@ class ModelControl:
         return "Job: " + job_id + " has been canceled"
 
     @app.get("/generateMesh", tags=["Get Methods"])
-    def generate_mesh(model_name: str, Param: str, request: Request):
+    def generate_mesh(model_name: str, param: str, request: Request):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
-        # json=Param,
-        print(Param)
+        # json=param,
+        print(param)
 
-        r = requests.patch(
+        request = requests.patch(
             "https://129.247.54.235:5000/1/PyCODAC/api/micofam/{zip}", verify=False
         )
         try:
-            with zipfile.ZipFile(io.BytesIO(r.content)) as zip_file:
+            with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
 
                 localpath = "./Output/" + os.path.join(username, model_name)
 
@@ -720,7 +718,7 @@ class ModelControl:
                 + axis
                 + ".jpg"
             )
-        except Exception:
+        except IOError:
             return model_name + " results can not be found on " + cluster
 
     @app.get("/getLogFile", tags=["Get Methods"])
@@ -1048,7 +1046,7 @@ class ModelControl:
     @app.get("/viewInputFile", tags=["Get Methods"])
     def view_input_file(
         model_name: str = "Dogbone",
-        file_type: FileType = FileType.yaml,
+        file_type: FileType = FileType.YAML,
         request: Request = "",
     ):
         """doc"""

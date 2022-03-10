@@ -46,14 +46,14 @@ class XFEMDCB:
         for idx in range(0, len(x_value)):
 
             # if y_value[idx] >= self.yend / 2:
-            #     k[idx] = self.createLoadBlock(x_value[idx], y_value[idx], k[idx])
+            #     k[idx] = self.create_load_block(x_value[idx], y_value[idx], k[idx])
             # else:
-            #     k[idx] = self.createBoundaryConditionBlock(
+            #     k[idx] = self.create_boundary_condition_block(
             #         x_value[idx], y_value[idx], k[idx]
             #     )
-            # k[idx] = int(self.createBCNode(x_value[idx], y_value[idx], k[idx]))
-            # k[idx] = int(self.createLoadIntroNode(x_value[idx], y_value[idx], k[idx]))
-            # k[idx] = int(self.createBlock(y_value[idx], k[idx]))
+            # k[idx] = int(self.create_bc_node(x_value[idx], y_value[idx], k[idx]))
+            # k[idx] = int(self.create_load_intro_node(x_value[idx], y_value[idx], k[idx]))
+            # k[idx] = int(self.create_block(y_value[idx], k[idx]))
 
             vol[idx] = self.dx_value[0] * self.dx_value[1]
         model = {"x": x_value, "y": y_value, "k": k, "vol": vol}

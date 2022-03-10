@@ -1070,13 +1070,13 @@ export default {
           var spaces = splitString[i].split("<");
 
           if (partString.length > 3) {
-            var tempString = "";
+            var temp_string = "";
             if (partString[3].includes("string")) {
-              tempString = '"' + partString[5] + '"';
+              temp_string = '"' + partString[5] + '"';
             } else {
-              tempString = partString[5];
+              temp_string = partString[5];
             }
-            stringYAML += spaces[0] + partString[1] + ": " + tempString + "\n";
+            stringYAML += spaces[0] + partString[1] + ": " + temp_string + "\n";
           } else {
             if (partString.length != 1) {
               stringYAML += spaces[0] + partString[1] + ": \n";

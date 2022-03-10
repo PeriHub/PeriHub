@@ -159,8 +159,8 @@ class Adapt(BaseModel):
 
 
 class FileType(str, Enum):
-    yaml = "yaml"
-    xml = "xml"
+    YAML = "yaml"
+    XML = "xml"
 
 
 class Solver(BaseModel):
@@ -328,7 +328,7 @@ class ModelData(BaseModel):
     outputs: List[Output]
     solver: Solver
 
-    def toJSON(self):
+    def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     class Config:

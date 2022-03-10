@@ -288,7 +288,7 @@ class DCBmodel:
         self.int_block_id = [""] * number_of_blocks
         self.mat_block = ["PMMA"] * number_of_blocks
 
-    def createLoadIntroNode(self, x_value, y_value, k):
+    def create_load_intro_node(self, x_value, y_value, k):
         """doc"""
         k = np.where(
             np.logical_and(x_value < self.xbegin + self.dx_value[0] * 3, y_value > 0),
@@ -303,7 +303,7 @@ class DCBmodel:
         return k
 
     @staticmethod
-    def createBlock(y_value, k):
+    def create_block(y_value, k):
         """doc"""
         k = np.where(y_value > 0, 1, k)
         k = np.where(y_value > 0, 2, k)
@@ -354,8 +354,8 @@ class DCBmodel:
                 angle_y = np.zeros(len(x_value))
                 angle_z = np.zeros(len(x_value))
 
-            k = self.createBlock(y_value, k)
-            k = self.createLoadIntroNode(x_value, y_value, k)
+            k = self.create_block(y_value, k)
+            k = self.create_load_intro_node(x_value, y_value, k)
 
             vol = np.full_like(
                 x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]

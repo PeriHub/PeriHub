@@ -21,7 +21,7 @@ class XMLcreator:
         self.two_d = model_writer.two_d
 
     @staticmethod
-    def checkIfDefined(obj):
+    def check_if_defined(obj):
         return obj is not None and obj != 0 and obj != ""
 
     def load_mesh(self):
@@ -169,7 +169,7 @@ class XMLcreator:
                     )
 
                 # needed for time step estimation
-            if self.checkIfDefined(mat.youngsModulus):
+            if self.check_if_defined(mat.youngsModulus):
                 string += (
                     '            <Parameter name="Young'
                     + "'"
@@ -177,19 +177,19 @@ class XMLcreator:
                     + str(np.format_float_scientific(float(mat.youngsModulus)))
                     + '"/>\n'
                 )
-            if self.checkIfDefined(mat.shearModulus):
+            if self.check_if_defined(mat.shearModulus):
                 string += (
                     '            <Parameter name="Shear Modulus" type="double" value="'
                     + str(np.format_float_scientific(float(mat.shearModulus)))
                     + '"/>\n'
                 )
-            if self.checkIfDefined(mat.bulkModulus):
+            if self.check_if_defined(mat.bulkModulus):
                 string += (
                     '            <Parameter name="Bulk Modulus" type="double" value="'
                     + str(np.format_float_scientific(float(mat.bulkModulus)))
                     + '"/>\n'
                 )
-            if self.checkIfDefined(mat.poissonsRatio):
+            if self.check_if_defined(mat.poissonsRatio):
                 string += (
                     '            <Parameter name="Poisson'
                     + "'"
@@ -218,25 +218,25 @@ class XMLcreator:
                     + str(mat.tensionSeparation)
                     + '"/>\n'
                 )
-            if self.checkIfDefined(mat.actualHorizon):
+            if self.check_if_defined(mat.actualHorizon):
                 string += (
                     '            <Parameter name="Actual Horizon" type="double" value="'
                     + str(float(mat.actualHorizon))
                     + '"/>\n'
                 )
-            if self.checkIfDefined(mat.yieldStress):
+            if self.check_if_defined(mat.yieldStress):
                 string += (
                     '            <Parameter name="Yield Stress" type="double" value="'
                     + str(float(mat.yieldStress))
                     + '"/>\n'
                 )
-            if self.checkIfDefined(mat.nonLinear):
+            if self.check_if_defined(mat.nonLinear):
                 string += (
                     '            <Parameter name="Non linear" type="double" value="'
                     + str(mat.nonLinear)
                     + '"/>\n'
                 )
-            if self.checkIfDefined(mat.Properties) and "User" in mat.MatType:
+            if self.check_if_defined(mat.Properties) and "User" in mat.MatType:
                 string += (
                     '            <Parameter name="Number of Properties" type="int" value="'
                     + str(len(mat.Properties))
@@ -369,7 +369,7 @@ class XMLcreator:
         )
         if self.solver_dict.solvertype == "Verlet":
             string += '        <ParameterList name="Verlet">\n'
-            if self.checkIfDefined(self.solver_dict.fixedDt):
+            if self.check_if_defined(self.solver_dict.fixedDt):
                 string += (
                     '            <Parameter name="Fixed dt" type="double" value="'
                     + str(float(self.solver_dict.fixedDt))
@@ -515,14 +515,14 @@ class XMLcreator:
                     + '"/>\n'
                 )
         for boundary_condition in self.boundary_condition:
-            nodeSetId = self.ns_list.index(boundary_condition.blockId)
+            node_set_id = self.ns_list.index(boundary_condition.blockId)
             string += '        <ParameterList name="' + boundary_condition.Name + '">\n'
             string += (
                 '            <Parameter name="Type" type="string" value="'
                 + boundary_condition.boundarytype
                 + '"/>\n'
             )
-            if self.checkIfDefined(boundary_condition.nodeSet):
+            if self.check_if_defined(boundary_condition.nodeSet):
                 string += (
                     '            <Parameter name="Node Set" type="string" value="'
                     + boundary_condition.nodeSet
@@ -531,7 +531,7 @@ class XMLcreator:
             else:
                 string += (
                     '            <Parameter name="Node Set" type="string" value="Node Set '
-                    + str(nodeSetId + 1)
+                    + str(node_set_id + 1)
                     + '"/>\n'
                 )
             string += (

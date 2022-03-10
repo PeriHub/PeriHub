@@ -100,7 +100,7 @@ enable=
 disable=
     attribute-defined-outside-init,
     duplicate-code,
-    invalid-name,
+    #invalid-name,
     missing-docstring,
     protected-access,
     too-few-public-methods,
@@ -239,7 +239,7 @@ expected-line-ending-format=
 [BASIC]
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,ex,Run,_
+good-names=i,j,k,ex,Run,_,id
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted
