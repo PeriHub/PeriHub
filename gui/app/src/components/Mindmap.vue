@@ -26,6 +26,14 @@
         </template>
         <span>Edit node</span>
       </v-tooltip>
+      <!--<v-tooltip bottom
+        ><template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" :disabled="buttonDisabled" @click="screenshot">
+            <v-icon>mdi-camera</v-icon>
+          </v-btn>
+        </template>
+        <span>Screenshot</span>
+      </v-tooltip>-->
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="showDetails = !showDetails">
@@ -37,7 +45,7 @@
         <span v-show="showDetails">Close details</span>
       </v-tooltip>
     </v-card>
-    <svg class="d3-tree width-100-percent">
+    <svg ref="tree" class="d3-tree width-100-percent">
       <g class="container" />
     </svg>
     <v-card v-show="showDetails" class="drawer-container">
@@ -80,6 +88,50 @@ export default {
   name: "TreeVIII",
   data() {
     return {
+      treeData: {
+        name: "flare",
+        value: 1,
+        children: [
+          {
+            name: "util",
+            value: 23,
+            children: [
+              {
+                name: "ssdf",
+                value: 104993,
+              },
+              {
+                name: "Geometry",
+                value: 13033,
+              },
+              {
+                name: "heap",
+                value: 24,
+                children: [
+                  {
+                    name: "FibonacciHeap",
+                    value: 9354,
+                  },
+                ],
+              },
+              {
+                name: "math",
+                value: 49,
+              },
+            ],
+          },
+          {
+            name: "vis",
+            value: 38,
+            children: [
+              {
+                name: "Visualization",
+                value: 16540,
+              },
+            ],
+          },
+        ],
+      },
       showDetails: true,
       nodeId: "",
       nodeName: "",
@@ -102,52 +154,8 @@ export default {
     };
   },
   mounted() {
-    let treeData = {
-      name: "flare",
-      value: 1,
-      children: [
-        {
-          name: "util",
-          value: 23,
-          children: [
-            {
-              name: "ssdf",
-              value: 104993,
-            },
-            {
-              name: "Geometry",
-              value: 13033,
-            },
-            {
-              name: "heap",
-              value: 24,
-              children: [
-                {
-                  name: "FibonacciHeap",
-                  value: 9354,
-                },
-              ],
-            },
-            {
-              name: "math",
-              value: 49,
-            },
-          ],
-        },
-        {
-          name: "vis",
-          value: 38,
-          children: [
-            {
-              name: "Visualization",
-              value: 16540,
-            },
-          ],
-        },
-      ],
-    };
-    this.rootNodeId = treeData.value;
-    this.initSvg(treeData);
+    this.rootNodeId = this.treeData.value;
+    this.initSvg(this.treeData);
   },
   computed: {
     treemap() {
@@ -343,6 +351,8 @@ export default {
               ${d.y} ${d.x}`;
     },
     getNodesAndLinks() {
+      // this.$set(this, "dTreeData", "treemap(this.root)");
+      // Object.assign(this.dTreeData, this.treemap(this.root));
       this.dTreeData = this.treemap(this.root);
       this.nodes = this.dTreeData.descendants();
       this.links = this.dTreeData.descendants().slice(1);
@@ -515,7 +525,43 @@ export default {
         d.y0 = d.y;
       });
     },
+    //   screenshot() {
+    //     this.serialize(this.svg);
+    //   },
+    //   serialize(svg) {
+    //     svg = svg.cloneNode(true);
+    //     const fragment = window.location.href + "#";
+    //     const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT);
+    //     while (walker.nextNode()) {
+    //       for (const attr of walker.currentNode.attributes) {
+    //         if (attr.value.includes(fragment)) {
+    //           attr.value = attr.value.replace(fragment, "#");
+    //         }
+    //       }
+    //     }
+    //     svg.setAttributeNS(xmlns, "xmlns", svgns);
+    //     svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
+    //     const serializer = new window.XMLSerializer();
+    //     const string = serializer.serializeToString(svg);
+    //     return new Blob([string], { type: "image/svg+xml" });
+    //   },
   },
+  // watch: {
+  //   container: {
+  //     handler() {
+  //       // console.log('2 changed!');
+  //       localStorage.setItem("container", JSON.stringify(this.container));
+  //     },
+  //     deep: true,
+  // },
+  // links: {
+  //   handler() {
+  //     // console.log('2 changed!');
+  //     localStorage.setItem("links", JSON.stringify(this.links));
+  //   },
+  //   deep: true,
+  // },
+  // },
 };
 </script>
 <style>

@@ -165,7 +165,7 @@
                         <v-col class="textfieldlist-col">
                           <v-text-field
                             v-model="keyword.keywords[subindex]"
-                            :rules="[rules.required, rules.name]"
+                            :rules="[rules.required, rules.regex]"
                             label="Key"
                             outlined
                           ></v-text-field>

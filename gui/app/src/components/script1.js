@@ -206,6 +206,15 @@ export default {
           const pattern = /^[-]{0,1}(?<!\.)\d+(?!\.)$/;
           return pattern.test(value) || "Invalid number";
         },
+        regex: (value) => {
+          var isValid = true;
+          try {
+            new RegExp(value);
+          } catch (e) {
+            isValid = false;
+          }
+          return isValid || "Invalid regex pattern";
+        },
       },
     };
   },
