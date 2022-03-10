@@ -82,6 +82,18 @@
               </v-img>
             </v-card>
           </router-link>
+          <router-link class="card" to="mindMap">
+            <v-card width="400px">
+              <v-img
+                src="../assets/mindmap.jpg"
+                class="white--text align-end"
+                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                height="200px"
+              >
+                <v-card-title>Mindmap</v-card-title>
+              </v-img>
+            </v-card>
+          </router-link>
           <div class="card">
             <v-card
               width="400px"

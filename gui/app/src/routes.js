@@ -3,6 +3,7 @@ import PeriHub from "./components/PeriHub.vue";
 import LiteratureAnalysis from "./components/LiteratureAnalysis.vue";
 import Publications from "./components/Publications.vue";
 import Conversion from "./components/Conversion.vue";
+import Mindmap from "./components/Mindmap.vue";
 
 import Guide from "./components/Guide.vue";
 import Input from "./components/guides/Input.vue";
@@ -149,5 +150,9 @@ export default [
   {
     path: "/literatureAnalysis",
     components: { a: LiteratureAnalysis },
+  },
+  {
+    path: "/mindMap",
+    components: { a: Mindmap },
   },
 ];
