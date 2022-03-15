@@ -1,6 +1,6 @@
-FROM netcdf
+FROM jthesse/netcdf
 
-LABEL maintainer="John Foster <johntfosterjr@gmail.com>"
+LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
 ENV HOME /root
 

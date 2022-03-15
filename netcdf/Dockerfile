@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-LABEL maintainer="John Foster <johntfosterjr@gmail.com>"
+LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV HOME /root

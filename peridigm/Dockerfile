@@ -1,4 +1,4 @@
-FROM registry.gitlab-test.dlr.de/hess_ja/images/trilinos
+FROM jthesse/trilinos
 
 ARG PERIDOX
 ENV PERIDOX $PERIDOX
