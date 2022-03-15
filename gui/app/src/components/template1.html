@@ -379,8 +379,42 @@
                   style="padding: 0px"
                 >
                   <v-row>
-                    <v-col class="textfieldlist-col"> {{ node.id }} </v-col>
-                    <v-col class="textfieldlist-col"> {{ node.name }} </v-col>
+                    <v-col class="textfieldlist-col">
+                      <v-tooltip bottom
+                        ><template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            class="my-btn"
+                            v-bind="attrs"
+                            v-on="on"
+                            @click="writeBibFile"
+                          >
+                            <i class="fas fa-trash-alt"></i>
+                          </v-btn>
+                        </template>
+                        <span>Get bibfile</span>
+                      </v-tooltip>
+                    </v-col>
+                    <!-- <v-col class="textfieldlist-col" cols="12" sm="2">
+                      <v-tooltip bottom
+                        ><template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            class="my-btn"
+                            v-bind="attrs"
+                            v-on="on"
+                            @click="unSelectNode(node.id)"
+                          >
+                            <i class="fas fa-trash-alt"></i>
+                          </v-btn>
+                        </template>
+                        <span>Unselect</span>
+                      </v-tooltip>
+                    </v-col> -->
+                  </v-row>
+                  <v-row>
+                    <v-col class="textfieldlist-col" cols="12" sm="10">
+                      {{ node.id }}
+                    </v-col>
+                    <!-- <v-col class="textfieldlist-col"> {{ node.name }} </v-col>
                     <v-col class="textfieldlist-col">
                       <v-tooltip bottom
                         ><template v-slot:activator="{ on, attrs }">
@@ -395,8 +429,8 @@
                         </template>
                         <span>Get Name</span>
                       </v-tooltip>
-                    </v-col>
-                    <v-col class="textfieldlist-col">
+                    </v-col> -->
+                    <v-col class="textfieldlist-col" cols="12" sm="2">
                       <v-tooltip bottom
                         ><template v-slot:activator="{ on, attrs }">
                           <v-btn
@@ -418,8 +452,10 @@
                     style="padding: 0px"
                   >
                     <v-row>
-                      <v-col class="textfieldlist-col"> {{ doi }} </v-col>
-                      <v-col class="textfieldlist-col">
+                      <v-col class="textfieldlist-col" cols="12" sm="10">
+                        {{ getEntryByDoi(doi)}}
+                      </v-col>
+                      <v-col class="textfieldlist-col" cols="12" sm="2">
                         <v-tooltip bottom
                           ><template v-slot:activator="{ on, attrs }">
                             <v-btn
@@ -431,7 +467,7 @@
                               <i class="fas fa-external-link-alt"></i>
                             </v-btn>
                           </template>
-                          <span>Get Name</span>
+                          <span>Open article</span>
                         </v-tooltip>
                       </v-col>
                     </v-row>
@@ -479,21 +515,21 @@
                   <v-btn
                     color="green darken-1"
                     text
-                    @click="getBarChart('Journal')"
+                    @click="getBarChart('journal')"
                   >
                     Journal
                   </v-btn>
                   <v-btn
                     color="green darken-1"
                     text
-                    @click="getBarChart('Year')"
+                    @click="getBarChart('year')"
                   >
                     Year
                   </v-btn>
                   <v-btn
                     color="green darken-1"
                     text
-                    @click="getBarChart('Authors')"
+                    @click="getBarChart('authors')"
                   >
                     Authors
                   </v-btn>
@@ -697,21 +733,21 @@
                   <v-btn
                     color="green darken-1"
                     text
-                    @click="getConnections('Journal')"
+                    @click="getConnections('journal')"
                   >
                     Journal
                   </v-btn>
                   <v-btn
                     color="green darken-1"
                     text
-                    @click="getConnections('Keys', 'Title')"
+                    @click="getConnections('keys', 'Title')"
                   >
                     Keys / Title
                   </v-btn>
                   <v-btn
                     color="green darken-1"
                     text
-                    @click="getConnections('Keys', 'Text')"
+                    @click="getConnections('keys', 'Text')"
                   >
                     Keys / Full text
                   </v-btn>

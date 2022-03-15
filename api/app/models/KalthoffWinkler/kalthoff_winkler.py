@@ -443,7 +443,7 @@ class KalthoffWinkler:
     def write_file(self, writer, block_len):
         """doc"""
 
-        if self.block_def == "":
+        if not self.block_def:
             block_def = self.create_blockdef(block_len)
         else:
             for _, block in enumerate(self.block_def):

@@ -275,14 +275,17 @@ export default {
         .request(reqOptions)
         .then((response) => (this.message = response.data));
       await this.getBibDatabase();
-      await this.getConnections("Journal");
-      await this.getBarChart("Journal");
+      await this.getConnections("journal");
+      await this.getBarChart("journal");
       this.plotLoading = false;
       this.networkLoading = false;
       this.snackbar = true;
       this.getStatus();
     },
     async getConnections(Variable, TitleOrText = "Title") {
+      if (Object.entries(this.database).length === 0) {
+        await this.getBibDatabase();
+      }
       this.networkLoading = true;
       this.dialogGetConnections = false;
       if (Variable == "Keys") {
@@ -434,6 +437,52 @@ export default {
       await axios
         .request(reqOptions)
         .then((response) => (this.status = response.data));
+    },
+    async writeBibFile() {
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "writeBibFile",
+        params: { file_name: this.analysisModel.fileName, ids: ["WangY2016"] },
+        method: "POST",
+        headers: headersList,
+      };
+
+      console.log(Object.entries(this.selected));
+
+      await axios
+        .request(reqOptions)
+        .then((response) => {
+          var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+          var fileLink = document.createElement("a");
+          fileLink.href = fileURL;
+          fileLink.setAttribute(
+            "download",
+            this.analysisModel.fileName + ".bib"
+          );
+          document.body.appendChild(fileLink);
+          fileLink.click();
+        })
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+        });
+    },
+    getEntryByDoi(doi) {
+      let entry = this.getEntryByValue(this.database, doi);
+      console.log(entry);
+      return entry[1].title;
+      // for (var i = 0; i < Object.entries(this.database).length; i++) {
+      //   if (Object.values(this.database)[i].doi === doi) {
+      //     return Object.values(this.database)[i].title;
+      //   }
+      // }
+    },
+    getEntryByValue(object, value) {
+      return Object.entries(object).find((pair) => pair[1].doi === value);
     },
     windowResizedEvent() {
       this.resize();
@@ -599,6 +648,7 @@ export default {
     },
     selectNode(node) {
       this.$set(this.selected, node.id, node);
+      console.log(this.selected);
       // this.selected[node.id] = node
     },
     selectLink(link) {

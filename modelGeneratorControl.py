@@ -3,12 +3,12 @@
 import sys
 
 sys.path.insert(0, "/home/jt/perihub/api/app")
-from models.GIICmodel.GIICmodel import GIICmodel
-from models.DCBmodel.DCBmodel import DCBmodel
-from models.KalthoffWinkler.KalthoffWinkler import KalthoffWinkler
-from Verification.verificationModels import VerificationModels
-from models.XFEM_Bechnmark.XFEMdcb import XFEMDCB
-from models.Dogbone.Dogbone import Dogbone
+from models.GIICmodel.giic_model import GIICmodel
+from models.DCBmodel.dcb_model import DCBmodel
+from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
+from Verification.verification_models import VerificationModels
+from dev_models.XFEM_Bechnmark.xfem_dcb import XFEMDCB
+from models.Dogbone.dogbone import Dogbone
 import matplotlib.pyplot as plt
 
 import matplotlib.pyplot as plt
