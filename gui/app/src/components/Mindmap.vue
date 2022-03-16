@@ -580,20 +580,19 @@ export default {
   stroke: #ccc;
   stroke-width: 2px;
 }
-
 .theme--dark text {
-  fill: white !important;
+  fill: white;
   stroke: none;
 }
 text {
-  fill: black !important;
+  fill: black;
   stroke: none;
 }
 .theme--dark .node {
-  fill: #121212 !important;
+  fill: #121212;
 }
 .node {
-  fill: white !important;
+  fill: white;
 }
 .link:hover,
 .node:hover {

@@ -122,7 +122,7 @@ export default {
       plotData: [
         {
           name: "Articles",
-          x: ["2022", "2021", "2020", "2019", "2018", "2017"],
+          x: ["A", "B", "C", "D", "E", "F"],
           y: [20, 17, 12, 8, 6, 4],
           type: "bar",
         },
@@ -130,7 +130,7 @@ export default {
       filteredPlotData: [
         {
           name: "Articles",
-          x: ["2022", "2021", "2020", "2019", "2018", "2017"],
+          x: ["A", "B", "C", "D", "E", "F"],
           y: [20, 17, 12, 8, 6, 4],
           type: "bar",
         },
@@ -288,7 +288,7 @@ export default {
       }
       this.networkLoading = true;
       this.dialogGetConnections = false;
-      if (Variable == "Keys") {
+      if (Variable == "keys") {
         await this.uploadKeywordList();
       }
       let headersList = {
@@ -384,12 +384,12 @@ export default {
       await axios
         .request(reqOptions)
         .then((response) => (jsonResponse = response.data));
-      // console.log(jsonResponse)
+      console.log(jsonResponse);
       let jsonObject = JSON.parse(jsonResponse);
       this.plotData[0].x = [];
-      this.filteredPlotData[0].x = [];
+      // this.filteredPlotData[0].x = [];
       this.plotData[0].y = [];
-      this.filteredPlotData[0].y = [];
+      // this.filteredPlotData[0].y = [];
       this.plotData[0].name = Object.keys(jsonObject[0])[0];
       this.filteredPlotData[0].name = Object.keys(jsonObject[0])[0];
       this.plotData[0].type = "bar";
@@ -403,13 +403,13 @@ export default {
           // console.log(jsonObject[i][paramName])
           if (paramName == "Number") {
             this.plotData[0].y.push(jsonObject[i][paramName]);
-            this.filteredPlotData[0].y.push(jsonObject[i][paramName]);
+            // this.filteredPlotData[0].y.push(jsonObject[i][paramName]);
             if (jsonObject[i][paramName] > maxSize) {
               maxSize = jsonObject[i][paramName];
             }
-          } else {
+          } else if (paramName == Variable) {
             this.plotData[0].x.push(jsonObject[i][paramName]);
-            this.filteredPlotData[0].x.push(jsonObject[i][paramName]);
+            // this.filteredPlotData[0].x.push(jsonObject[i][paramName]);
           }
         }
       }
