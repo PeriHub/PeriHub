@@ -11,8 +11,8 @@ services:
     ports:
       - 6020:80
     volumes:
-      - /mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs:/app/peridigmJobs
-      - /mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/rsaFiles:/app/rsaFiles
+      - ${VOLUME}peridigmJobs:/app/peridigmJobs
+      - ${VOLUME}rsaFiles:/app/rsaFiles
       - paraView_volume:/app/paraView
     networks:
       - backend
@@ -28,12 +28,16 @@ services:
       - backend
 
   peridigm:
+    build:
+      context: peridigm/.
+      args:
+        GITHUB_USER: ${GITHUB_USER}
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: perihub_peridigm
-    image: harbor.fa-services.intra.dlr.de/hess_ja/peridigm_image
     ports:
       - 6030:80
     volumes:
-      - /mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs:/app/peridigmJobs
+      - ${VOLUME}peridigmJobs:/app/peridigmJobs
     networks:
       - backend
 

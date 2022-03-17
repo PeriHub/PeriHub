@@ -263,6 +263,8 @@ class FileHandler:
                 return "Shared libray can not been found"
             for name in files:
                 if name.split(".")[-1] == "so":
+                    print(os.path.join(root, name))
+                    print(os.path.join(remotepath, name))
                     sftp.put(os.path.join(root, name), os.path.join(remotepath, name))
                     return "Success"
 

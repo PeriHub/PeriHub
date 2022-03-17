@@ -124,7 +124,7 @@ build_paraview_job:
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY_PATH
-    - echo -e "GITLAB_TOKEN=$GIT_TOKEN\nGITLAB_USER=f_testpa\nPERIDOX=False\nEXTERNAL=False" >> .env
+    - echo -e "GITHUB_TOKEN=$GIT_TOKEN\nGITHUB_USER=f_testpa\nEXTERNAL=False" >> .env
   after_script:
     - docker logout
 

@@ -1,11 +1,11 @@
 FROM jthesse/trilinos
 
-ARG PERIDOX
-ENV PERIDOX $PERIDOX
-ARG GITLAB_USER
-ENV GITLAB_USER $GITLAB_USER
-ARG GITLAB_TOKEN
-ENV GITLAB_TOKEN $GITLAB_TOKEN
+# ARG PERIDOX
+# ENV PERIDOX $PERIDOX
+ARG GITHUB_USER
+ENV GITHUB_USER $GITHUB_USER
+ARG GITHUB_TOKEN
+ENV GITHUB_TOKEN $GITHUB_TOKEN
 
 ENV HOME /root
 
@@ -16,14 +16,15 @@ RUN apt-get -yq install git
 RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
-RUN if [ "$PERIDOX" = "True" ]; then \
-        git clone https://github.com/peridigm/peridigm.git peridigm; else \
-        git clone https://${GITLAB_USER}:${GITLAB_TOKEN}@gitlab.dlr.de/fa_sw/peridynamik/peridigmDev.git peridigm; \
-    fi
+RUN git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/JTHesse/PeridigmDev.git Peridigm
+# RUN if [ "$PERIDOX" = "True" ]; then \
+#         git clone https://github.com/peridigm/peridigm.git Peridigm; else \
+#         git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@gitlab.dlr.de/fa_sw/peridynamik/peridigmDev.git Peridigm; \
+#     fi
 
-RUN mkdir /peridigm/build
+RUN mkdir /Peridigm/build
 
-WORKDIR /peridigm/build/
+WORKDIR /Peridigm/build/
 RUN cmake \
     -D CMAKE_BUILD_TYPE:STRING=Release \
     -D CMAKE_INSTALL_PREFIX:PATH=/usr/local/peridigm \
@@ -31,6 +32,7 @@ RUN cmake \
     -D TRILINOS_DIR:PATH=/usr/local/trilinos \
     -D CMAKE_CXX_COMPILER:STRING="mpicxx" \
     -D USE_DAKOTA:BOOL=OFF \
+    -D USER_LIBRARY_DIRS=/Peridigm/src/materials/umats \
     ..; \
     make && make install;
 

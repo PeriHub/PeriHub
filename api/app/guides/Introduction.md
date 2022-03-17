@@ -5,17 +5,17 @@ PeriHub enables the generation, editing, execution and evaluation of standard pe
 - API: https://perihub-api.fa-services.intra.dlr.de/docs
 
 ### Generate model
-![drawing](/gif/generateModel.gif)
+![](gui/app/public/gif/generateModel.gif)
 ### View generated mesh
-![drawing](/gif/viewMesh.gif)
+![](gui/app/public/gif/viewMesh.gif)
 ### Edit input deck
-![drawing](/gif/editInputDeck.gif)
+![](gui/app/public/gif/editInputDeck.gif)
 ### Add materials or damage models
-![drawing](/gif/addMaterialDamage.gif)
+![](gui/app/public/gif/addMaterialDamage.gif)
 ### Submit model
-![drawing](/gif/runModel.gif)
+![](gui/app/public/gif/runModel.gif)
 ### Analyse results
-![drawing](/gif/analyseResults.gif)
+![](gui/app/public/gif/analyseResults.gif)
 
 
 ## Building locally
@@ -29,22 +29,11 @@ cd perihub
 ```
 Create a .env file an save your git username and token, in order to get the peridigm code.
 ```
-echo "GITLAB_TOKEN=<YourToken>
-GITLAB_USER=<YourUsername>
-PERIDEV=False
+echo "GITHUB_TOKEN=<YourToken>
+GITHUB_USER=<YourUsername>
 EXTERNAL=False" >> .env
 ```
-Go into the netcdf folder and build the netcdf image.
-```
-cd ../netcdf
-docker build . -t netcdf
-```
-Go into the trilinos folder and build the trilinos image.
-```
-cd ../trilinos
-docker build . -t trilinos
-```
-Go back to perihub folder and run docker-compose.
+Run docker-compose.
 ```
 cd ..
 docker-compose up

@@ -29,22 +29,11 @@ cd perihub
 ```
 Create a .env file an save your git username and token, in order to get the peridigm code.
 ```
-echo "GITLAB_TOKEN=<YourToken>
-GITLAB_USER=<YourUsername>
-PERIDEV=False
+echo "GITHUB_TOKEN=<YourToken>
+GITHUB_USER=<YourUsername>
 EXTERNAL=False" >> .env
 ```
-Go into the netcdf folder and build the netcdf image.
-```
-cd ../netcdf
-docker build . -t netcdf
-```
-Go into the trilinos folder and build the trilinos image.
-```
-cd ../trilinos
-docker build . -t trilinos
-```
-Go back to perihub folder and run docker-compose.
+Run docker-compose.
 ```
 cd ..
 docker-compose up
