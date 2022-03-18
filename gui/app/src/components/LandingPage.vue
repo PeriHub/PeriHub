@@ -12,11 +12,12 @@
         </v-row>
         <v-row dense align="center" justify="center" style="height: 70%">
           <p align="center" justify="center" style="max-width: 870px">
-            Peridynamics is a non-local theory that overcomes discontinuity
-            problems of the classical theory of continuum mechanics. It is an
-            effective method to model fracture mechanics problems. PeriHub is a
-            platform that provides a numerical implementation of the peridynamic
-            theory. It is an extension of the open source Peridigm software.
+            PeriHub is a platform that provides a numerical implementation of
+            the peridynamic theory. It is an extension of the open source
+            Peridigm software. Peridynamics is a non-local theory that overcomes
+            discontinuity problems of the classical theory of continuum
+            mechanics. It is an effective method to model fracture mechanics
+            problems.
           </p>
         </v-row>
       </v-container>

@@ -14,7 +14,12 @@ WORKDIR /app/
 
 EXPOSE 80
 
-COPY ./app /app
+# COPY ./app /app
+COPY ./app/guides /app/guides
+COPY ./app/models /app/models
+COPY ./app/Publications /app/Publications
+COPY ./app/support /app/support
+COPY ./app/api_main.py /app/api_main.py
 
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host 129.247.54.37\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host cara.dlr.de\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi

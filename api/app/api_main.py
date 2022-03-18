@@ -37,7 +37,6 @@ from models.OwnModel.own_model import OwnModel
 from support.sbatch_creator import SbatchCreator
 from support.file_handler import FileHandler
 from support.base_models import ModelData, FileType, RunData, Status
-from Verification.verification_models import VerificationModels
 
 
 # class NotFoundException(Exception):
@@ -90,29 +89,6 @@ if dev:
 
 class ModelControl:
     """doc"""
-
-    @staticmethod
-    def run():
-        """doc"""
-
-        height = 4.95
-        number_nodes = 19
-
-        number_nodes = 2 * int(number_nodes / 2) + 1
-        dx_value = [height / number_nodes, height / number_nodes, height / number_nodes]
-
-        print(dx_value, 4.01 * dx_value[0])
-
-        # giic = GIICmodel(xend = length, yend = height, zend = thickness, dx_value=dx_value,
-        # solvertype = 'Verlet', two_d = True, filetype = 'xml')
-        # model = giic.create_model(rot=True)
-        # xm = XFEMDCB(xend = length, yend = 2*height, dx_value=[0.08,0.08])
-        dx_value = [0.00005, 0.00005, 0.00005]
-        # db = DCBmodel()
-        # model = db.create_model()
-        # print('verifcation models')
-        veri = VerificationModels()
-        veri.create_verification_models()
 
     # @app.exception_handler(NotFoundException)
     # async def notFound_exception_handler(request: Request, exc: NotFoundException):
