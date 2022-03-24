@@ -33,6 +33,7 @@ from models.GIICmodel.giic_model import GIICmodel
 from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
 from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
+from models.PlateWithHole.plate_with_hole import PlateWithHole
 from models.OwnModel.own_model import OwnModel
 from support.sbatch_creator import SbatchCreator
 from support.file_handler import FileHandler
@@ -139,6 +140,7 @@ class ModelControl:
         width = model_data.model.width
         height = model_data.model.height
         height2 = model_data.model.height2
+        radius = model_data.model.radius
         if model_name in {"Dogbone", "Kalthoff-Winkler"}:
             number_nodes = 2 * int(model_data.model.discretization / 2)
         else:
@@ -239,6 +241,30 @@ class ModelControl:
                 ignore_mesh=ignore_mesh,
             )
             result = kalthoff.create_model()
+
+        elif model_name == "PlateWithHole":
+            plate_with_hole = PlateWithHole(
+                xend=length,
+                yend=height,
+                zend=width,
+                radius=radius,
+                dx_value=dx_value,
+                two_d=model_data.model.twoDimensional,
+                rot=model_data.model.rotatedAngles,
+                angle=model_data.model.angles,
+                material=model_data.materials,
+                damage=model_data.damages,
+                block=model_data.blocks,
+                boundary_condition=model_data.boundaryConditions,
+                bond_filter=model_data.bondFilters,
+                compute=model_data.computes,
+                output=model_data.outputs,
+                solver=model_data.solver,
+                username=username,
+                max_nodes=max_nodes,
+                ignore_mesh=ignore_mesh,
+            )
+            result = plate_with_hole.create_model()
 
         elif model_data.model.ownModel:
             if model_data.model.translated:

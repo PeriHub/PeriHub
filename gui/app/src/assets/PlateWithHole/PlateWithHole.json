@@ -1,0 +1,277 @@
+{
+  "model": {
+    "modelNameSelected": "PlateWithHole",
+    "ownModel": false,
+    "translated": false,
+    "length": 50,
+    "width": null,
+    "height": 100,
+    "height2": null,
+    "radius": 1.0,
+    "structured": null,
+    "discretization": 100,
+    "horizon": null,
+    "twoDimensional": true,
+    "rotatedAngles": true,
+    "angles": [
+      0,
+      0
+    ]
+  },
+  "materials": [
+    {
+      "id": 1,
+      "Name": "Aluminum",
+      "density": 2.7e3,
+      "MatType": "Elastic Correspondence",
+      "bulkModulus": null,
+      "shearModulus": null,
+      "youngsModulus": 7.24e10,
+      "poissonsRatio": 0.33,
+      "tensionSeparation": false,
+      "nonLinear": false,
+      "planeStress": true,
+      "materialSymmetry": "Isotropic",
+      "stabilizatonType": "Global Stiffness",
+      "thickness": 10,
+      "hourglassCoefficient": 1,
+      "actualHorizon": null,
+      "yieldStress": null,
+      "Parameter": [
+        {
+          "Name": "C11",
+          "value": null
+        },
+        {
+          "Name": "C12",
+          "value": null
+        },
+        {
+          "Name": "C13",
+          "value": null
+        },
+        {
+          "Name": "C14",
+          "value": null
+        },
+        {
+          "Name": "C14",
+          "value": null
+        },
+        {
+          "Name": "C15",
+          "value": null
+        },
+        {
+          "Name": "C16",
+          "value": null
+        },
+        {
+          "Name": "C22",
+          "value": null
+        },
+        {
+          "Name": "C23",
+          "value": null
+        },
+        {
+          "Name": "C24",
+          "value": null
+        },
+        {
+          "Name": "C25",
+          "value": null
+        },
+        {
+          "Name": "C26",
+          "value": null
+        },
+        {
+          "Name": "C33",
+          "value": null
+        },
+        {
+          "Name": "C34",
+          "value": null
+        },
+        {
+          "Name": "C35",
+          "value": null
+        },
+        {
+          "Name": "C36",
+          "value": null
+        },
+        {
+          "Name": "C44",
+          "value": null
+        },
+        {
+          "Name": "C45",
+          "value": null
+        },
+        {
+          "Name": "C46",
+          "value": null
+        },
+        {
+          "Name": "C55",
+          "value": null
+        },
+        {
+          "Name": "C56",
+          "value": null
+        },
+        {
+          "Name": "C66",
+          "value": null
+        }
+      ],
+      "Properties": [
+        {
+          "id": 1,
+          "Name": "Prop_1",
+          "value": null
+        }
+      ]
+    }
+  ],
+  "damages": [
+    {
+      "id": 1,
+      "Name": "Damage",
+      "damageModel": "Critical Stretch",
+      "criticalStretch": 0.0022170,
+      "criticalEnergy": null,
+      "interblockdamageEnergy": null,
+      "planeStress": true,
+      "onlyTension": false,
+      "detachedNodesCheck": true,
+      "thickness": 10,
+      "hourglassCoefficient": 1,
+      "stabilizatonType": "Global Stiffness"
+    }
+  ],
+  "blocks": [
+    {
+      "id": 1,
+      "Name": "block_1",
+      "material": "Aluminum",
+      "damageModel": "Damage",
+      "interface": "",
+      "show": true
+    },
+    {
+      "id": 2,
+      "Name": "block_2",
+      "material": "Aluminum",
+      "damageModel": "",
+      "interface": "",
+      "show": true
+    },
+    {
+      "id": 3,
+      "Name": "block_3",
+      "material": "Aluminum",
+      "damageModel": "",
+      "interface": "",
+      "show": true
+    }
+  ],
+  "boundaryConditions": [
+    {
+      "id": 1,
+      "Name": "BC_1",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 2,
+      "coordinate": "y",
+      "value": "-1*t"
+    },
+    {
+      "id": 2,
+      "Name": "BC_2",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 3,
+      "coordinate": "y",
+      "value": "1*t"
+    }
+  ],
+  "bondFilters": [
+    {
+      "id": 1,
+      "Name": "bf_1",
+      "type": "Disk",
+      "normalX": 0,
+      "normalY": 0,
+      "normalZ": 1,
+      "lowerLeftCornerX": -0.5,
+      "lowerLeftCornerY": 25,
+      "lowerLeftCornerZ": -5,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": 50.5,
+      "sideLength": 10,
+      "centerX": 25,
+      "centerY": 50,
+      "centerZ": 0,
+      "radius": 10,
+      "show": true
+    }
+  ],
+  "computes": [
+  ],
+  "outputs": [
+    {
+      "id": 1,
+      "Name": "Output1",
+      "Displacement": true,
+      "Force": true,
+      "Damage": true,
+      "Velocity": true,
+      "Partial_Stress": true,
+      "External_Force": false,
+      "External_Displacement": false,
+      "Number_Of_Neighbors": true,
+      "Frequency": "50",
+      "InitStep": 0
+    }
+  ],
+  "solver": {
+    "verbose": false,
+    "initialTime": 0,
+    "finalTime": 0.003,
+    "solvertype": "Verlet",
+    "safetyFactor": 0.95,
+    "numericalDamping": 0.000005,
+    "peridgimPreconditioner": "None",
+    "nonlinearSolver": "Line Search Based",
+    "numberofLoadSteps": 100,
+    "maxSolverIterations": 50,
+    "relativeTolerance": 1e-8,
+    "maxAgeOfPrec": 100,
+    "directionMethod": "Newton",
+    "newton": {
+      "jacobianOperator": "Matrix-Free",
+      "preconditioner": "None"
+    },
+    "lineSearchMethod": "Polynomial",
+    "verletSwitch": true,
+    "verlet": {
+      "safetyFactor": 0.95,
+      "numericalDamping": 0.000005,
+      "outputFrequency": 7500
+    },
+    "stopAfterDamageInitation": false,
+    "stopBeforeDamageInitation": false,
+    "adaptivetimeStepping": false,
+    "adapt": {
+      "stableStepDifference": 4,
+      "maximumBondDifference": 4,
+      "stableBondDifference": 1
+    },
+    "filetype": "yaml"
+  }
+}

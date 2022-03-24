@@ -18,6 +18,8 @@ import DogboneImage from "../assets/Dogbone/Dogbone.jpg";
 import DogboneFile from "../assets/Dogbone/Dogbone.json";
 import KalthoffWinklerImage from "../assets/Kalthoff-Winkler/Kalthoff-Winkler.jpg";
 import KalthoffWinklerFile from "../assets/Kalthoff-Winkler/Kalthoff-Winkler.json";
+import PlateWithHoleImage from "../assets/PlateWithHole/PlateWithHole.jpg";
+import PlateWithHoleFile from "../assets/PlateWithHole/PlateWithHole.json";
 import { Plotly } from "vue-plotly";
 // import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
 
@@ -36,7 +38,13 @@ export default {
   data() {
     return {
       // Model
-      modelName: ["Dogbone", "Kalthoff-Winkler", "GIICmodel", "DCBmodel"], //, 'RVE'],
+      modelName: [
+        "Dogbone",
+        "Kalthoff-Winkler",
+        "PlateWithHole",
+        "GIICmodel",
+        "DCBmodel",
+      ], //, 'RVE'],
       model: {
         modelNameSelected: "Dogbone",
         ownModel: false,
@@ -45,6 +53,7 @@ export default {
         width: 0.003,
         height: 0.019,
         height2: 0.013,
+        radius: 1.0,
         discretization: 21,
         horizon: 0.01,
         structured: true,
@@ -1552,6 +1561,9 @@ export default {
         case "Kalthoff-Winkler":
           Object.assign(jsonFile, KalthoffWinklerFile);
           break;
+        case "PlateWithHole":
+          Object.assign(jsonFile, PlateWithHoleFile);
+          break;
         default:
           return;
       }
@@ -1711,50 +1723,102 @@ export default {
         let bondFilterPointString = [];
         const bondFilter = this.bondFilters[i];
         if (bondFilter.show) {
-          const lx = parseFloat(bondFilter.lowerLeftCornerX);
-          const ly = parseFloat(bondFilter.lowerLeftCornerY);
-          const lz = -parseFloat(bondFilter.lowerLeftCornerZ);
-          const bx = parseFloat(bondFilter.bottomUnitVectorX);
-          const by = parseFloat(bondFilter.bottomUnitVectorY);
-          const bz = parseFloat(bondFilter.bottomUnitVectorZ);
           const nx = parseFloat(bondFilter.normalX);
           const ny = parseFloat(bondFilter.normalY);
           const nz = parseFloat(bondFilter.normalZ);
-          const bl = parseFloat(bondFilter.bottomLength);
-          const sl = parseFloat(bondFilter.sideLength);
 
-          const point1x = lx;
-          const point1y = ly;
-          const point1z = lz;
+          if (bondFilter.type == "Disk") {
+            const cx = parseFloat(bondFilter.centerX);
+            const cy = parseFloat(bondFilter.centerY);
+            const cz = parseFloat(bondFilter.centerZ);
+            const radius = parseFloat(bondFilter.radius);
 
-          let [normx, normy, normz] = this.getVectorNorm(bx, by, bz);
+            let crossVector1 = this.cross(nx, ny, nz, 1.0, 0.0, 0.0);
+            let crossVector2 = this.cross(nx, ny, nz, 0.0, 1.0, 0.0);
+            let crossVector3 = this.cross(nx, ny, nz, -1.0, 0.0, 0.0);
+            let crossVector4 = this.cross(nx, ny, nz, 0.0, -1.0, 0.0);
 
-          const point2x = lx + normx * bl;
-          const point2y = ly + normy * bl;
-          const point2z = lz + normz * bl;
+            let normVector1 = this.getVectorNorm(
+              crossVector1[0],
+              crossVector1[1],
+              crossVector1[2]
+            );
+            let normVector2 = this.getVectorNorm(
+              crossVector2[0],
+              crossVector2[1],
+              crossVector2[2]
+            );
+            let normVector3 = this.getVectorNorm(
+              crossVector3[0],
+              crossVector3[1],
+              crossVector3[2]
+            );
+            let normVector4 = this.getVectorNorm(
+              crossVector4[0],
+              crossVector4[1],
+              crossVector4[2]
+            );
 
-          let crossVector = this.cross(nx, ny, nz, bx, by, bz);
+            const point1x = cx + normVector1[0] * radius;
+            const point1y = cy + normVector1[1] * radius;
+            const point1z = cz + normVector1[2] * radius;
+            const point2x = cx + normVector2[0] * radius;
+            const point2y = cy + normVector2[1] * radius;
+            const point2z = cz + normVector2[2] * radius;
+            const point3x = cx + normVector3[0] * radius;
+            const point3y = cy + normVector3[1] * radius;
+            const point3z = cz + normVector3[2] * radius;
+            const point4x = cx + normVector4[0] * radius;
+            const point4y = cy + normVector4[1] * radius;
+            const point4z = cz + normVector4[2] * radius;
 
-          let normVector = this.getVectorNorm(
-            crossVector[0],
-            crossVector[1],
-            crossVector[2]
-          );
+            bondFilterPointString.push(point1x, point1y, point1z);
+            bondFilterPointString.push(point2x, point2y, point2z);
+            bondFilterPointString.push(point3x, point3y, point3z);
+            bondFilterPointString.push(point4x, point4y, point4z);
+          } else {
+            const lx = parseFloat(bondFilter.lowerLeftCornerX);
+            const ly = parseFloat(bondFilter.lowerLeftCornerY);
+            const lz = -parseFloat(bondFilter.lowerLeftCornerZ);
+            const bx = parseFloat(bondFilter.bottomUnitVectorX);
+            const by = parseFloat(bondFilter.bottomUnitVectorY);
+            const bz = parseFloat(bondFilter.bottomUnitVectorZ);
+            const bl = parseFloat(bondFilter.bottomLength);
+            const sl = parseFloat(bondFilter.sideLength);
 
-          const point4x = lx + normVector[0] * sl;
-          const point4y = ly + normVector[1] * sl;
-          const point4z = lz + normVector[2] * sl;
+            const point1x = lx;
+            const point1y = ly;
+            const point1z = lz;
 
-          const point3x = point2x + normVector[0] * sl;
-          const point3y = point2y + normVector[1] * sl;
-          const point3z = point2z + normVector[2] * sl;
+            let [normx, normy, normz] = this.getVectorNorm(bx, by, bz);
 
-          bondFilterPointString.push(point1x, point1y, point1z);
-          bondFilterPointString.push(point2x, point2y, point2z);
-          bondFilterPointString.push(point3x, point3y, point3z);
-          bondFilterPointString.push(point4x, point4y, point4z);
+            const point2x = lx + normx * bl;
+            const point2y = ly + normy * bl;
+            const point2z = lz + normz * bl;
 
-          // bondFilterPolyString.push(4, 0, 1, 3, 2)
+            let crossVector = this.cross(nx, ny, nz, bx, by, bz);
+
+            let normVector = this.getVectorNorm(
+              crossVector[0],
+              crossVector[1],
+              crossVector[2]
+            );
+
+            const point4x = lx + normVector[0] * sl;
+            const point4y = ly + normVector[1] * sl;
+            const point4z = lz + normVector[2] * sl;
+
+            const point3x = point2x + normVector[0] * sl;
+            const point3y = point2y + normVector[1] * sl;
+            const point3z = point2z + normVector[2] * sl;
+
+            bondFilterPointString.push(point1x, point1y, point1z);
+            bondFilterPointString.push(point2x, point2y, point2z);
+            bondFilterPointString.push(point3x, point3y, point3z);
+            bondFilterPointString.push(point4x, point4y, point4z);
+
+            // bondFilterPolyString.push(4, 0, 1, 3, 2)
+          }
         }
         if (this.bondFilterPoints.length < i + 1) {
           this.bondFilterPoints.push({ id: i + 1, bondFilterPointString: [] });
@@ -2469,6 +2533,9 @@ export default {
           break;
         case "Kalthoff-Winkler":
           this.modelImg = KalthoffWinklerImage;
+          break;
+        case "PlateWithHole":
+          this.modelImg = PlateWithHoleImage;
           break;
       }
       this.viewId = 0;

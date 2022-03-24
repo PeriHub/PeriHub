@@ -202,6 +202,14 @@
                   outlined
                 ></v-text-field>
                 <v-text-field
+                  v-show="model.modelNameSelected=='PlateWithHole' & !model.ownModel"
+                  class="textfield-col"
+                  v-model="model.radius"
+                  :rules="[rules.required, rules.float]"
+                  label="Radius"
+                  outlined
+                ></v-text-field>
+                <v-text-field
                   class="textfield-col"
                   v-model="model.discretization"
                   v-show="!model.ownModel & model.modelNameSelected!='RVE'"
