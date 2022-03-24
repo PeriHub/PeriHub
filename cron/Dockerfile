@@ -1,5 +1,7 @@
 FROM alpine:edge
 
+LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
+
 RUN apk update && apk add curl
 ADD crontab /crontab
 ADD script.sh /script.sh

@@ -26,6 +26,14 @@
             "cwd": "${workspaceFolder}/api/app",
             "program": "${workspaceFolder}/main.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Tram",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/trame-tutorial",
+            "program": "${workspaceFolder}/trame-tutorial/04_application/exodus.py",
+            "console": "integratedTerminal"
         }
     ]
 }

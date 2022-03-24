@@ -1,6 +1,8 @@
 # develop stage
 FROM node:lts-alpine as develop-stage
 
+LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
+
 WORKDIR /app
 
 COPY app/package*.json ./

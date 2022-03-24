@@ -266,7 +266,6 @@ export default {
       let reqOptions = {
         url: this.url + "generateDatabase",
         params: { file_name: this.analysisModel.fileName },
-        data: this.keywordList,
         method: "PUT",
         headers: headersList,
       };
@@ -288,7 +287,7 @@ export default {
       }
       this.networkLoading = true;
       this.dialogGetConnections = false;
-      if (Variable == "keys") {
+      if (Variable == "keywords") {
         await this.uploadKeywordList();
       }
       let headersList = {

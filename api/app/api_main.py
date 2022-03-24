@@ -82,7 +82,7 @@ app.add_middleware(
 
 load_dotenv()
 
-dev = os.environ.get("DEV")
+dev = os.getenv("DEV")
 if dev:
     print("--- Running in development mode ---")
 

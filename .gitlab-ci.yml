@@ -117,6 +117,18 @@ build_paraview_job:
     - docker build -t ${CI_REGISTRY_PATH}paraview_image paraview/.
     - docker push ${CI_REGISTRY_PATH}paraview_image
 
+build_trame_job:
+  stage: Build
+  extends: [.build_before_script_template]
+  only:
+    refs:
+      - main
+    changes:
+      - trame/**/*
+  script:
+    - docker build -t ${CI_REGISTRY_PATH}trame_image trame/.
+    - docker push ${CI_REGISTRY_PATH}trame_image
+
 .build_before_script_template:
   image: docker:latest
   services:

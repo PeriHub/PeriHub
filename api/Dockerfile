@@ -1,6 +1,8 @@
 FROM openjdk:slim
 COPY --from=python:3.7 / /
 
+LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
+
 ARG EXTERNAL
 ENV EXTERNAL $EXTERNAL
 
@@ -19,7 +21,7 @@ COPY ./app/guides /app/guides
 COPY ./app/models /app/models
 COPY ./app/Publications /app/Publications
 COPY ./app/support /app/support
-COPY ./app/api_main.py /app/api_main.py
+COPY ./app/api_main.py ./app/.env* /app
 
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host 129.247.54.37\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host cara.dlr.de\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi

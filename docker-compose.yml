@@ -49,6 +49,22 @@ services:
     volumes:
       - paraView_volume:/app/paraView
 
+  trame:
+    build:
+      context: trame/.
+    container_name: perihub_trame
+    image: trame_image
+    ports:
+      - 6040:80
+      - 6041:6041
+      - 6042:6042
+      - 6043:6043
+      - 6044:6044
+      - 6045:6045
+    volumes:
+      - ${VOLUME}peridigmJobs:/app/peridigmJobs
+      - paraView_volume:/app/paraView
+
   cron:
     build: cron/.
     container_name: perihub_cron

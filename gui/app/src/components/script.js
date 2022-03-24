@@ -21,6 +21,8 @@ import KalthoffWinklerFile from "../assets/Kalthoff-Winkler/Kalthoff-Winkler.jso
 import { Plotly } from "vue-plotly";
 // import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
 
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
 export default {
   name: "PeriHub",
   components: {
@@ -556,6 +558,8 @@ export default {
       cluster: ["Cara", "None"], //'FA-Cluster',
 
       url: "https://perihub-api.fa-services.intra.dlr.de/",
+      // trameUrl: "https://perihub-trame.fa-services.intra.dlr.de/",
+      trameUrl: "http://localhost:6040/",
       textOutput: "",
       pointString: [1, 0, 0],
       filteredPointString: [1, 0, 0],
@@ -602,6 +606,7 @@ export default {
       getImageVariableSelected: "Displacement",
       getImageAxis: ["Magnitude", "X", "Y", "Z"],
       getImageAxisSelected: "Magnitude",
+      dialogShowResults: false,
       dialogGetPlot: false,
       dialogDeleteData: false,
       dialogDeleteModel: false,
@@ -666,6 +671,10 @@ export default {
       monitorToggle: false,
       viewId: 0,
       panel: [0],
+
+      resultPort: null,
+      showResultsOutputName: "Output1",
+
       rules: {
         required: (value) => !!value || value == 0 || "Required",
         name: (value) => {
@@ -2108,8 +2117,80 @@ export default {
       this.viewId = 0;
       this.modelLoading = false;
     },
-    showResults() {
+    openCara() {
       window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");
+    },
+    openResults() {
+      window.open(this.resultPort, "_blank");
+    },
+    async showResults(outputName) {
+      this.dialogShowResults = false;
+      this.modelLoading = true;
+
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      var index = this.outputs.findIndex((o) => o.Name == outputName);
+
+      let output_list = [];
+
+      if (this.outputs[index].Displacement) {
+        output_list.push("Displacement");
+      }
+      if (this.outputs[index].Force) {
+        output_list.push("Force");
+      }
+      if (this.outputs[index].Velocity) {
+        output_list.push("Velocity");
+      }
+      if (this.outputs[index].Damage) {
+        output_list.push("Damage");
+      }
+      if (this.outputs[index].Partial_Stress) {
+        output_list.push("Partial_StressX");
+        output_list.push("Partial_StressY");
+        output_list.push("Partial_StressZ");
+      }
+      if (this.outputs[index].Number_Of_Neighbors) {
+        output_list.push("Number_Of_Neighbors");
+      }
+
+      let reqOptions = {
+        url: this.trameUrl + "launchTrameInstance",
+        params: {
+          model_name: this.model.modelNameSelected,
+          output_name: this.outputs[index].Name,
+          output_list: output_list.toString(),
+          dx_value: this.dx_value,
+        },
+        method: "POST",
+        headers: headersList,
+      };
+
+      console.log(reqOptions);
+
+      await axios
+        .request(reqOptions)
+        .then(
+          (response) =>
+            (this.resultPort =
+              this.trameUrl.slice(0, this.trameUrl.length - 5) + response.data)
+        )
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+          this.modelLoading = false;
+          return;
+        });
+      await sleep(10000);
+      this.modelLoading = false;
+
+      this.viewId = 3;
+      document.querySelectorAll("iframe").forEach(function (e) {
+        e.src += "";
+      });
     },
     monitorLogFile() {
       if (this.monitorToggle) {
@@ -2489,6 +2570,11 @@ export default {
       console.log("changed URL: " + process.env.VUE_APP_ROOT_API);
     } else {
       this.getAuthToken();
+    }
+    console.log(process.env);
+    if (process.env.TRAME_ROOT_API != undefined) {
+      this.trameUrl = process.env.TRAME_ROOT_API;
+      console.log("changed Trame URL: " + process.env.TRAME_ROOT_API);
     }
   },
   mounted() {

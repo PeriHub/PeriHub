@@ -1,5 +1,7 @@
 FROM jthesse/trilinos
 
+LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
+
 # ARG PERIDOX
 # ENV PERIDOX $PERIDOX
 ARG GITHUB_USER
