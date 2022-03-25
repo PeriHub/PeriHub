@@ -586,6 +586,7 @@ export default {
       multiplier: 1,
       snackbar: false,
       message: "Messsages",
+      errorMessage: "Error",
       status: {
         created: false,
         submitted: false,
@@ -620,6 +621,7 @@ export default {
       dialogDeleteModel: false,
       dialogDeleteCookies: false,
       dialogDeleteUserData: false,
+      dialogError: false,
       errors: [],
       plotRawData: "",
       plotData: [
@@ -682,6 +684,7 @@ export default {
 
       resultPort: null,
       showResultsOutputName: "Output1",
+      iframeLoaded: false,
 
       rules: {
         required: (value) => !!value || value == 0 || "Required",
@@ -823,20 +826,20 @@ export default {
           .then((response) => (this.message = response.data))
           .catch((error) => {
             if (error.response.status == 422) {
-              this.message = "";
+              let message = "";
               for (let i in error.response.data.detail) {
-                this.message += error.response.data.detail[i].loc[1] + " ";
-                this.message += error.response.data.detail[i].loc[2] + ", ";
-                this.message += error.response.data.detail[i].loc[3] + ", ";
-                this.message += error.response.data.detail[i].msg + "\n";
+                message += error.response.data.detail[i].loc[1] + " ";
+                message += error.response.data.detail[i].loc[2] + ", ";
+                message += error.response.data.detail[i].loc[3] + ", ";
+                message += error.response.data.detail[i].msg + "\n";
               }
-              this.message = this.message.slice(0, -2);
+              message = message.slice(0, -2);
+              this.openErrorDialog(message);
             }
             this.modelLoading = false;
             this.textLoading = false;
             // this.message = error,
             console.log(error.response.data);
-            this.snackbar = true;
             return;
           });
         this.snackbar = true;
@@ -1610,8 +1613,8 @@ export default {
         // console.log(this[paramName])
         // console.log(jsonFile[paramName])
         // this[paramName] = [...jsonFile[paramName]];
-        // this.$set(this, paramName, jsonFile[paramName]);
-        Object.assign(this[paramName], jsonFile[paramName]);
+        this.$set(this, paramName, jsonFile[paramName]);
+        // Object.assign(this[paramName], jsonFile[paramName]);
       }
       // }
       // }
@@ -2628,6 +2631,10 @@ export default {
         this.panel = [];
       }
     },
+    openErrorDialog(message) {
+      this.errorMessage = message;
+      this.dialogError = true;
+    },
   },
   beforeMount() {
     // console.log("beforeMount")
@@ -2645,7 +2652,7 @@ export default {
   },
   mounted() {
     // console.log("mounted")
-    // this.getCurrentData();
+    this.getCurrentData();
     this.getStatus();
     this.showModelImg();
   },
@@ -2704,7 +2711,7 @@ export default {
     },
     bondFilters: {
       handler() {
-        // console.log('bondFilters changed!');
+        console.log("bondFilters changed!");
         this.showHideBondFilters();
         localStorage.setItem("bondFilters", JSON.stringify(this.bondFilters));
       },

@@ -27,7 +27,7 @@ export default {
     async getDocs() {
       let reqOptions = {
         url: this.url + "getDocs",
-        params: { Name: "Dogbone", model: true },
+        params: { name: "Dogbone", model: true },
         method: "GET",
       };
 
@@ -37,9 +37,9 @@ export default {
     },
   },
   beforeMount() {
-    if (process.env.VUE_APP_ROOT_API != undefined) {
-      this.url = process.env.VUE_APP_ROOT_API;
-      // console.log("changed URL: " + process.env.VUE_APP_ROOT_API)
+    if (process.env.VUE_APP_DEV != undefined) {
+      this.url = "http://localhost:6020/";
+      // console.log("changed URL: " + process.env.VUE_APP_DEV)
     }
     this.getDocs();
   },

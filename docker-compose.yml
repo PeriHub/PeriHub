@@ -6,6 +6,7 @@ services:
       context: api/.
       args:
         EXTERNAL: ${EXTERNAL}
+        DEV: ${DEV}
     container_name: perihub_periHubApi
     image: peri_hub_api_image
     ports:
