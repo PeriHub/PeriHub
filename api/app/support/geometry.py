@@ -33,6 +33,19 @@ class Geometry:
         return grid_x_value, grid_y_value, grid_z_value
 
     @staticmethod
+    def check_val_in_circle(array_x, array_y, array_z, origin_x, origin_y, radius):
+        """doc"""
+        condition = np.where(
+            ((array_x - origin_x) ** 2) + ((array_y - origin_y) ** 2) <= radius, 0, 1.0
+        )
+        return (
+            np.extract(condition, array_x),
+            np.extract(condition, array_y),
+            np.extract(condition, array_z),
+        )
+        # return (x - origin_x**2) + (y - origin_y**2) <= radius
+
+    @staticmethod
     def check_val_lower_new(array, limit):
         """doc"""
         return np.where(array <= limit)

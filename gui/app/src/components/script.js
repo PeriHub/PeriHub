@@ -567,8 +567,7 @@ export default {
       cluster: ["Cara", "None"], //'FA-Cluster',
 
       url: "https://perihub-api.fa-services.intra.dlr.de/",
-      // trameUrl: "https://perihub-trame.fa-services.intra.dlr.de/",
-      trameUrl: "http://localhost:6040/",
+      trameUrl: "https://perihub-trame.fa-services.intra.dlr.de/",
       textOutput: "",
       pointString: [1, 0, 0],
       filteredPointString: [1, 0, 0],
@@ -2632,21 +2631,21 @@ export default {
   },
   beforeMount() {
     // console.log("beforeMount")
-    if (process.env.VUE_APP_ROOT_API != undefined) {
-      this.url = process.env.VUE_APP_ROOT_API;
-      console.log("changed URL: " + process.env.VUE_APP_ROOT_API);
+    if (process.env.VUE_APP_DEV != undefined) {
+      if (process.env.VUE_APP_DEV) {
+        console.log("--- Running in development mode ---");
+        this.url = "http://localhost:6020/";
+        console.log("changed URL: " + this.url);
+        this.trameUrl = "http://localhost:6040/";
+        console.log("changed Trame URL: " + this.trameUrl);
+      }
     } else {
       this.getAuthToken();
-    }
-    console.log(process.env);
-    if (process.env.TRAME_ROOT_API != undefined) {
-      this.trameUrl = process.env.TRAME_ROOT_API;
-      console.log("changed Trame URL: " + process.env.TRAME_ROOT_API);
     }
   },
   mounted() {
     // console.log("mounted")
-    this.getCurrentData();
+    // this.getCurrentData();
     this.getStatus();
     this.showModelImg();
   },
@@ -2674,7 +2673,7 @@ export default {
     },
     materials: {
       handler() {
-        // console.log('materials changed!');
+        console.log("materials changed!");
         localStorage.setItem("materials", JSON.stringify(this.materials));
       },
       deep: true,

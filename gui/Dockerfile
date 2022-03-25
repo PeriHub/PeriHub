@@ -3,7 +3,12 @@ FROM node:lts-alpine as develop-stage
 
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
+ARG DEV
+ENV DEV $DEV
+
 WORKDIR /app
+
+RUN if [ "$DEV" = "True" ]; then echo "VUE_APP_DEV=True" > .env; fi
 
 COPY app/package*.json ./
 RUN npm install

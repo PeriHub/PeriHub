@@ -20,6 +20,8 @@ services:
   periHubGui:
     build:
       context: gui/.
+      args:
+        DEV: ${DEV}
     container_name: perihub_periHubGui
     image: peri_hub_gui_image
     ports:

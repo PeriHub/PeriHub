@@ -25,7 +25,7 @@ class PlateWithHole:
         xend=50,
         yend=100,
         zend=0.003,
-        radius=1.0,
+        radius=10.0,
         dx_value=None,
         filename="PlateWithHole",
         two_d=True,
@@ -176,23 +176,23 @@ class PlateWithHole:
         else:
             self.material_dict = material
 
-        if not bond_filter:
-            bf1 = BondFilters(
-                id=1,
-                Name="bf_1",
-                type="Disk",
-                normalX=0.0,
-                normalY=1.0,
-                normalZ=0.0,
-                centerX=self.xend / 2,
-                centerY=self.yend / 2,
-                centerZ=0.0,
-                radius=self.radius,
-                show=True,
-            )
-            self.bondfilters = [bf1]
-        else:
-            self.bondfilters = bond_filter
+        # if not bond_filter:
+        #     bf1 = BondFilters(
+        #         id=1,
+        #         Name="bf_1",
+        #         type="Disk",
+        #         normalX=0.0,
+        #         normalY=1.0,
+        #         normalZ=0.0,
+        #         centerX=self.xend / 2,
+        #         centerY=self.yend / 2,
+        #         centerZ=0.0,
+        #         radius=self.radius,
+        #         show=True,
+        #     )
+        #     self.bondfilters = [bf1]
+        # else:
+        self.bondfilters = bond_filter
 
         if not boundary_condition:
             bc1 = BoundaryConditions(
@@ -291,6 +291,14 @@ class PlateWithHole:
             dx_value=self.dx_value,
         )
 
+        x_value, y_value, z_value = geo.check_val_in_circle(
+            x_value,
+            y_value,
+            z_value,
+            self.xend / 2,
+            self.yend / 2,
+            self.radius,
+        )
         if len(x_value) > self.max_nodes:
             return (
                 "The number of nodes ("

@@ -7,7 +7,7 @@
     "width": null,
     "height": 100,
     "height2": null,
-    "radius": 1.0,
+    "radius": 10.0,
     "structured": null,
     "discretization": 100,
     "horizon": null,
@@ -48,10 +48,6 @@
         },
         {
           "Name": "C13",
-          "value": null
-        },
-        {
-          "Name": "C14",
           "value": null
         },
         {
@@ -199,27 +195,6 @@
     }
   ],
   "bondFilters": [
-    {
-      "id": 1,
-      "Name": "bf_1",
-      "type": "Disk",
-      "normalX": 0,
-      "normalY": 0,
-      "normalZ": 1,
-      "lowerLeftCornerX": -0.5,
-      "lowerLeftCornerY": 25,
-      "lowerLeftCornerZ": -5,
-      "bottomUnitVectorX": 1,
-      "bottomUnitVectorY": 0,
-      "bottomUnitVectorZ": 0,
-      "bottomLength": 50.5,
-      "sideLength": 10,
-      "centerX": 25,
-      "centerY": 50,
-      "centerZ": 0,
-      "radius": 10,
-      "show": true
-    }
   ],
   "computes": [
   ],
