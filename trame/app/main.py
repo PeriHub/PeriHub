@@ -268,6 +268,11 @@ def rescale():
     html_view.update()
 
 
+def reload():
+    simple.ReloadFiles(Output1)
+    html_view.update()
+
+
 @state.change("nodal")
 def change_nodal(nodal, **kwargs):
     if nodal in ["Displacement", "Force", "Velocity", "GlobalNodeId"]:
@@ -330,6 +335,8 @@ with layout.toolbar:
         hide_details=True,
         dense=True,
     ),
+    with vuetify.VBtn(icon=True, click=reload):
+        vuetify.VIcon("mdi-reload")
     with vuetify.VBtn(icon=True, click=first_time_step):
         vuetify.VIcon("mdi-skip-previous")
     vuetify.VDivider(vertical=True, classes="mx-2")
@@ -349,7 +356,7 @@ with layout.toolbar:
     #     vuetify.VIcon("mdi-vector-square")
     vuetify.VDivider(vertical=True, classes="mx-2")
     with vuetify.VBtn(icon=True, click=rescale):
-        vuetify.VIcon("mdi-undo-variant")
+        vuetify.VIcon("mdi-palette")
     vuetify.VSelect(
         # Representation
         v_model=("nodal", "Displacement"),

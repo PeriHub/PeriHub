@@ -311,7 +311,7 @@ export default {
       await axios
         .request(reqOptions)
         .then((response) => (jsonResponse = response.data));
-      // console.log(jsonResponse)
+      // console.log(jsonResponse);
       let jsonObject = JSON.parse(jsonResponse);
       for (var i = 0; i < Object.keys(jsonObject[0]).length; i++) {
         var paramName = Object.keys(jsonObject[0])[i];
@@ -471,9 +471,13 @@ export default {
         });
     },
     getEntryByDoi(doi) {
-      let entry = this.getEntryByValue(this.database, doi);
-      console.log(entry);
-      return entry[1].title;
+      try {
+        let entry = this.getEntryByValue(this.database, doi);
+        console.log(entry);
+        return entry[1].title;
+      } catch (e) {
+        return "Undefined";
+      }
       // for (var i = 0; i < Object.entries(this.database).length; i++) {
       //   if (Object.values(this.database)[i].doi === doi) {
       //     return Object.values(this.database)[i].title;
@@ -513,9 +517,9 @@ export default {
       for (var i = this.filteredNodes.length - 1; i >= 0; i--) {
         let node = this.filteredNodes[i];
         if (
-          ((node.numDois != undefined) &
-            (node.numDois < this.network.minNodeSizeFilter)) |
-          (node.numDois > this.network.maxNodeSizeFilter)
+          ((node.numIDs != undefined) &
+            (node.numIDs < this.network.minNodeSizeFilter)) |
+          (node.numIDs > this.network.maxNodeSizeFilter)
         ) {
           for (var j = this.filteredLinks.length - 1; j >= 0; j--) {
             let link = this.filteredLinks[j];
@@ -528,7 +532,7 @@ export default {
       }
       for (var i = this.filteredNodes.length - 1; i >= 0; i--) {
         let node = this.filteredNodes[i];
-        if (node.numDois == undefined) {
+        if (node.numIDs == undefined) {
           let nodeLinked = false;
           for (var j = this.filteredLinks.length - 1; j >= 0; j--) {
             let link = this.filteredLinks[j];
@@ -549,7 +553,7 @@ export default {
       for (let node of this.filteredNodes) {
         if (node.svgSym != "journalIcon") {
           let newNode = Object.assign(node, {
-            _size: node.numDois * this.nodeSize,
+            _size: node.numIDs * this.nodeSize,
           });
           Object.assign(this.filteredNodes[id], newNode);
         }
@@ -563,8 +567,8 @@ export default {
     setMaxNodeSize() {
       let maxSize = 0;
       for (let node of this.nodes) {
-        if (node.numDois > maxSize) {
-          maxSize = node.numDois;
+        if (node.numIDs > maxSize) {
+          maxSize = node.numIDs;
         }
       }
       this.maxNodeSize = maxSize;

@@ -684,7 +684,6 @@ export default {
 
       resultPort: null,
       showResultsOutputName: "Output1",
-      iframeLoaded: false,
 
       rules: {
         required: (value) => !!value || value == 0 || "Required",

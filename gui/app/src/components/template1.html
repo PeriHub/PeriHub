@@ -529,7 +529,7 @@
                   <v-btn
                     color="green darken-1"
                     text
-                    @click="getBarChart('authors')"
+                    @click="getBarChart('author')"
                   >
                     Authors
                   </v-btn>
@@ -721,7 +721,7 @@
               <span>Get connections</span>
             </v-tooltip>
 
-            <v-dialog v-model="dialogGetConnections" persistent max-width="400">
+            <v-dialog v-model="dialogGetConnections" persistent max-width="500">
               <v-card>
                 <v-card-title class="text-h5"> Show Connections </v-card-title>
                 <v-card-text
