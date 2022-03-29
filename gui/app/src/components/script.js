@@ -2235,20 +2235,40 @@ export default {
       };
 
       console.log(reqOptions);
-
+      let port = "";
       await axios
         .request(reqOptions)
-        .then(
-          (response) =>
-            (this.resultPort =
-              this.trameUrl.slice(0, this.trameUrl.length - 5) + response.data)
-        )
+        .then((response) => (port = response.data))
         .catch((error) => {
           this.message = error;
           this.snackbar = true;
           this.modelLoading = false;
           return;
         });
+
+      if (process.env.VUE_APP_DEV) {
+        this.resultPort =
+          this.trameUrl.slice(0, this.trameUrl.length - 5) + port;
+      } else {
+        switch (port) {
+          case "6041":
+            this.resultPort = "perihub-trame-gui1.fa-services.intra.dlr.de";
+            break;
+          case "6042":
+            this.resultPort = "perihub-trame-gui2.fa-services.intra.dlr.de";
+            break;
+          case "6043":
+            this.resultPort = "perihub-trame-gui3.fa-services.intra.dlr.de";
+            break;
+          case "6044":
+            this.resultPort = "perihub-trame-gui4.fa-services.intra.dlr.de";
+            break;
+          case "6045":
+            this.resultPort = "perihub-trame-gui5.fa-services.intra.dlr.de";
+            break;
+        }
+      }
+
       await sleep(10000);
       this.modelLoading = false;
 
