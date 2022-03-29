@@ -567,7 +567,7 @@ export default {
       cluster: ["Cara", "None"], //'FA-Cluster',
 
       url: "https://perihub-api.fa-services.intra.dlr.de/",
-      trameUrl: "https://perihub-trame.fa-services.intra.dlr.de/",
+      trameUrl: "https://perihub-trame-api.fa-services.intra.dlr.de",
       textOutput: "",
       pointString: [1, 0, 0],
       filteredPointString: [1, 0, 0],
