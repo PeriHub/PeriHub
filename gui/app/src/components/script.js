@@ -497,7 +497,7 @@ export default {
         numericalDamping: 0.0005,
         peridgimPreconditioner: "None",
         nonlinearSolver: "Line Search Based",
-        numberofLoadSteps: 100,
+        numberOfLoadSteps: 100,
         maxSolverIterations: 50,
         relativeTolerance: 0.00000001,
         maxAgeOfPrec: 100,
@@ -530,7 +530,7 @@ export default {
         numericalDamping: "Numerical Damping",
         peridgimPreconditioner: "Peridgim Preconditioner",
         nonlinearSolver: "Nonlinear Solver",
-        numberofLoadSteps: "Number of Load Steps",
+        numberOfLoadSteps: "Number of Load Steps",
         maxSolverIterations: "Max Solver Iterations",
         relativeTolerance: "Relative Tolerance",
         maxAgeOfPrec: "Max Age Of Prec",
@@ -2252,19 +2252,24 @@ export default {
       } else {
         switch (port) {
           case "6041":
-            this.resultPort = "perihub-trame-gui1.fa-services.intra.dlr.de";
+            this.resultPort =
+              "http://perihub-trame-gui1.fa-services.intra.dlr.de:443";
             break;
           case "6042":
-            this.resultPort = "perihub-trame-gui2.fa-services.intra.dlr.de";
+            this.resultPort =
+              "http://perihub-trame-gui2.fa-services.intra.dlr.de:443";
             break;
           case "6043":
-            this.resultPort = "perihub-trame-gui3.fa-services.intra.dlr.de";
+            this.resultPort =
+              "http://perihub-trame-gui3.fa-services.intra.dlr.de:443";
             break;
           case "6044":
-            this.resultPort = "perihub-trame-gui4.fa-services.intra.dlr.de";
+            this.resultPort =
+              "http://perihub-trame-gui4.fa-services.intra.dlr.de:443";
             break;
           case "6045":
-            this.resultPort = "perihub-trame-gui5.fa-services.intra.dlr.de";
+            this.resultPort =
+              "http://perihub-trame-gui5.fa-services.intra.dlr.de:443";
             break;
         }
       }
