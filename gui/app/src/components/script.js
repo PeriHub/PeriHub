@@ -2245,7 +2245,9 @@ export default {
           this.modelLoading = false;
           return;
         });
-
+      console.log(process.env.VUE_APP_DEV);
+      console.log(response.data);
+      console.log(port);
       if (process.env.VUE_APP_DEV) {
         this.resultPort =
           this.trameUrl.slice(0, this.trameUrl.length - 5) + port;
@@ -2273,6 +2275,9 @@ export default {
             break;
         }
       }
+      console.log(this.resultPort);
+      this.resultPort =
+        "http://perihub-trame-gui1.fa-services.intra.dlr.de:443";
 
       await sleep(10000);
       this.modelLoading = false;
