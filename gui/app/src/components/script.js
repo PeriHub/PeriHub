@@ -2246,7 +2246,6 @@ export default {
           return;
         });
       console.log(process.env.VUE_APP_DEV);
-      console.log(response.data);
       console.log(port);
       if (process.env.VUE_APP_DEV) {
         this.resultPort =
