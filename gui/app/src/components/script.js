@@ -2245,38 +2245,34 @@ export default {
           this.modelLoading = false;
           return;
         });
-      console.log(process.env.VUE_APP_DEV);
-      console.log(port);
+
       if (process.env.VUE_APP_DEV) {
         this.resultPort =
           this.trameUrl.slice(0, this.trameUrl.length - 5) + port;
       } else {
         switch (port) {
-          case "6041":
+          case 6041:
             this.resultPort =
               "http://perihub-trame-gui1.fa-services.intra.dlr.de:443";
             break;
-          case "6042":
+          case 6042:
             this.resultPort =
               "http://perihub-trame-gui2.fa-services.intra.dlr.de:443";
             break;
-          case "6043":
+          case 6043:
             this.resultPort =
               "http://perihub-trame-gui3.fa-services.intra.dlr.de:443";
             break;
-          case "6044":
+          case 6044:
             this.resultPort =
               "http://perihub-trame-gui4.fa-services.intra.dlr.de:443";
             break;
-          case "6045":
+          case 6045:
             this.resultPort =
               "http://perihub-trame-gui5.fa-services.intra.dlr.de:443";
             break;
         }
       }
-      console.log(this.resultPort);
-      this.resultPort =
-        "http://perihub-trame-gui1.fa-services.intra.dlr.de:443";
 
       await sleep(10000);
       this.modelLoading = false;
