@@ -267,6 +267,8 @@
       "value": "0*t"
     }
   ],
+  "bondFilters": [
+  ],
   "computes": [
     {
       "id": 1,

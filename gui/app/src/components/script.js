@@ -1720,6 +1720,8 @@ export default {
     showHideBondFilters() {
       // this.bondFilterPolyString = []
       // let bondFilterPolyString = []
+      this.bondFilterPoints = [];
+
       for (var i = 0; i < this.bondFilters.length; i++) {
         let bondFilterPointString = [];
         const bondFilter = this.bondFilters[i];
@@ -2274,7 +2276,7 @@ export default {
         }
       }
 
-      await sleep(10000);
+      await sleep(17000);
       this.modelLoading = false;
 
       this.viewId = 3;

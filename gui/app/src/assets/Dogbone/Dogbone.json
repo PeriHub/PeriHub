@@ -321,6 +321,8 @@
       "value": "0.05*t"
     }
   ],
+  "bondFilters": [
+  ],
   "computes": [
     {
       "id": 1,
