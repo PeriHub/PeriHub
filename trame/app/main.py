@@ -2,12 +2,136 @@ import os
 import sys
 import venv
 import time
+import asyncio
 
 from trame import state
 from trame.html import vuetify, paraview
 from trame.layouts import SinglePage
 
 from paraview import simple
+
+
+def last_time_step():
+    state.time = state.times
+    update_time(state.time)
+    state.flush("time", "time_value")
+    html_view.update()
+
+
+# @state.change("scale")
+# def update_scale(scale, **kwargs):
+#     glyph1.ScaleFactor = scale
+#     html_view.update()
+
+
+@state.change("raycast")
+def update_scale(raycast, **kwargs):
+    if raycast:
+        renderView1.EnableRayTracing = 1
+    else:
+        renderView1.EnableRayTracing = 0
+    html_view.update()
+
+
+def reset():
+    html_view.reset_camera
+    # html_view.update()
+
+
+def first_time_step():
+    state.time = 0
+    update_time(0)
+    state.flush("time", "time_value")
+    html_view.update()
+
+
+def previous_time_step():
+    state.time -= 1
+    update_time(state.time)
+    state.flush("time", "time_value")
+    html_view.update()
+
+
+# def play():
+#     animationScene1.Play()
+#     html_view.update()
+# starttime = time.time()
+# while True:
+#     html_view.update()
+#     #     next_time_step()
+#     time.sleep(0.5 - time.time() % 0.5)
+
+
+def next_time_step():
+    state.time += 1
+    update_time(state.time)
+    state.flush("time", "time_value")
+    html_view.update()
+    # animationScene1.GoToNext()
+    # html_view.update()
+
+
+def rescale():
+    Output1Display.RescaleTransferFunctionToDataRange(False, True)
+    html_view.update()
+
+
+def reload():
+    simple.ReloadFiles(Output1)
+    html_view.update()
+
+
+@state.change("time")
+def update_time(time, **kwargs):
+    # print("update_time", time)
+    if time >= len(time_values):
+        time = 0
+        state.time = time
+    time_value = time_values[time]
+    time_keeper.Time = time_value
+    state.time_value = time_value
+    html_view.update()
+    # simple.update_view(viewMode)
+
+
+@state.change("play")
+def update_play(play, **kwargs):
+    loop = asyncio.get_event_loop()
+    loop.create_task(animate())
+
+
+async def animate():
+    keep_going = True
+    while keep_going:
+        if state.play:
+            state.time += 1
+            update_time(state.time)
+            state.flush("time", "time_value")
+        await asyncio.sleep(0.1)
+
+
+@state.change("nodal")
+def change_nodal(nodal, **kwargs):
+    if nodal in ["Displacement", "Force", "Velocity", "GlobalNodeId"]:
+        simple.ColorBy(Output1Display, ("POINTS", nodal, "Magnitude"))
+    elif nodal == "Number_Of_Neighbors":
+        simple.ColorBy(Output1Display, ("CELLS", nodal))
+        print(nodal)
+    else:
+        simple.ColorBy(Output1Display, ("CELLS", nodal, "Magnitude"))
+    for output in OutputList:
+        LUT = simple.GetColorTransferFunction(output)
+        simple.HideScalarBarIfNotNeeded(LUT, renderView1)
+    Output1Display.RescaleTransferFunctionToDataRange(False, True)
+    Output1Display.SetScalarBarVisibility(renderView1, True)
+    # velocityLUT = simple.GetColorTransferFunction(nodal)
+    # velocityPWF = simple.GetOpacityTransferFunction(nodal)
+    html_view.update()
+
+
+# def update_reset_resolution():
+#     state.resolution = DEFAULT_RESOLUTION
+
 
 # -----------------------------------------------------------------------------
 # ParaView code
@@ -29,7 +153,7 @@ print(OutputList)
 print(sys.argv)
 
 DEFAULT_RESOLUTION = 6
-
+time_values = []
 # CURRENT_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 
 # parser = get_cli_parser()
@@ -101,10 +225,23 @@ animationScene1 = simple.GetAnimationScene()
 # update animation scene based on data timesteps
 animationScene1.UpdateAnimationUsingDataTimeSteps()
 
-animationScene1.GoToLast()
+# animationScene1.GoToLast()
+
+time_keeper = animationScene1.TimeKeeper
+
+time_values = list(time_keeper.TimestepValues)
+
+state.time_value = time_values[0]
+state.times = len(time_values) - 1
 
 # get display properties
 Output1Display = simple.GetDisplayProperties(Output1, view=renderView1)
+
+# change representation type
+# Output1Display.SetRepresentationType("Point Gaussian")
+
+# Properties modified on Output1Display
+# Output1Display.GaussianRadius = float(dx_value) / 2
 
 # set scalar coloring
 simple.ColorBy(Output1Display, ("POINTS", "Displacement", "Magnitude"))
@@ -130,7 +267,9 @@ colorPalette = simple.GetSettingsProxy("ColorPalette")
 # Properties modified on colorPalette
 colorPalette.Background = [45 / 255, 45 / 255, 45 / 255]
 
-renderView1.EnableRayTracing = 1
+renderView1.EnableRayTracing = 0
+
+renderView1.ResetCamera()
 
 # ================================================================
 # addendum: following script captures some of the application
@@ -213,89 +352,6 @@ renderView1.EnableRayTracing = 1
 # renderView1.CameraParallelScale = 0.06527058722929273
 
 
-# @state.change("scale")
-# def update_scale(scale, **kwargs):
-#     glyph1.ScaleFactor = scale
-#     html_view.update()
-
-
-@state.change("raycast")
-def update_scale(raycast, **kwargs):
-    if raycast:
-        renderView1.EnableRayTracing = 1
-    else:
-        renderView1.EnableRayTracing = 0
-    html_view.update()
-
-
-def reset():
-    html_view.reset_camera
-    # html_view.update()
-
-
-def first_time_step():
-    animationScene1.GoToFirst()
-    html_view.update()
-
-
-def previous_time_step():
-    animationScene1.GoToPrevious()
-    html_view.update()
-
-
-def play():
-    animationScene1.Play()
-    html_view.update()
-    # starttime = time.time()
-    # while True:
-    #     html_view.update()
-    #     #     next_time_step()
-    #     time.sleep(0.5 - time.time() % 0.5)
-
-
-def next_time_step():
-    animationScene1.GoToNext()
-    html_view.update()
-
-
-def last_time_step():
-    animationScene1.GoToLast()
-    html_view.update()
-
-
-def rescale():
-    Output1Display.RescaleTransferFunctionToDataRange(False, True)
-    html_view.update()
-
-
-def reload():
-    simple.ReloadFiles(Output1)
-    html_view.update()
-
-
-@state.change("nodal")
-def change_nodal(nodal, **kwargs):
-    if nodal in ["Displacement", "Force", "Velocity", "GlobalNodeId"]:
-        simple.ColorBy(Output1Display, ("POINTS", nodal, "Magnitude"))
-    elif nodal == "Number_Of_Neighbors":
-        simple.ColorBy(Output1Display, ("CELLS", nodal))
-        print(nodal)
-    else:
-        simple.ColorBy(Output1Display, ("CELLS", nodal, "Magnitude"))
-    for output in OutputList:
-        LUT = simple.GetColorTransferFunction(output)
-        simple.HideScalarBarIfNotNeeded(LUT, renderView1)
-    Output1Display.RescaleTransferFunctionToDataRange(False, True)
-    Output1Display.SetScalarBarVisibility(renderView1, True)
-    # velocityLUT = simple.GetColorTransferFunction(nodal)
-    # velocityPWF = simple.GetOpacityTransferFunction(nodal)
-    html_view.update()
-
-
-# def update_reset_resolution():
-#     state.resolution = DEFAULT_RESOLUTION
-
-
 # -----------------------------------------------------------------------------
 # GUI
 # -----------------------------------------------------------------------------
@@ -305,6 +361,10 @@ renderView1.MakeRenderWindowInteractor(True)
 
 html_view = paraview.VtkRemoteView(renderView1)  # Remote rendering
 # html_view = paraview.VtkLocalView(renderView1)  # Local rendering
+
+last_time_step()
+
+rescale()
 
 layout = SinglePage("ParaView cone", on_ready=reset)
 # layout = SinglePage("ParaView cone", on_ready=html_view.update)
@@ -337,25 +397,48 @@ with layout.toolbar:
     ),
     with vuetify.VBtn(icon=True, click=reload):
         vuetify.VIcon("mdi-reload")
-    with vuetify.VBtn(icon=True, click=first_time_step):
+    vuetify.VTextField(
+        v_model=("time_value", 0),
+        disabled=True,
+        hide_details=True,
+        dense=True,
+        style="max-width: 200px",
+        classes="mx-2",
+    )
+    vuetify.VSlider(
+        v_model=("time", 0),
+        min=0,
+        max=("times", 1),
+        hide_details=True,
+        dense=True,
+        style="max-width: 200px",
+    )
+    with vuetify.VBtn(icon=True, dense=True, click=first_time_step):
         vuetify.VIcon("mdi-skip-previous")
     vuetify.VDivider(vertical=True, classes="mx-2")
-    with vuetify.VBtn(icon=True, click=previous_time_step):
+    with vuetify.VBtn(icon=True, dense=True, click=previous_time_step):
         vuetify.VIcon("mdi-rewind")
     vuetify.VDivider(vertical=True, classes="mx-2")
-    with vuetify.VBtn(icon=True, click=play):
-        vuetify.VIcon("mdi-play")
+    vuetify.VCheckbox(
+        v_model=("play", False),
+        off_icon="mdi-play",
+        on_icon="mdi-stop",
+        hide_details=True,
+        dense=True,
+    )
+    # with vuetify.VBtn(icon=True, click=play):
+    #     vuetify.VIcon("mdi-play")
     vuetify.VDivider(vertical=True, classes="mx-2")
-    with vuetify.VBtn(icon=True, click=next_time_step):
+    with vuetify.VBtn(icon=True, dense=True, click=next_time_step):
         vuetify.VIcon("mdi-fast-forward")
     vuetify.VDivider(vertical=True, classes="mx-2")
-    with vuetify.VBtn(icon=True, click=last_time_step):
+    with vuetify.VBtn(icon=True, dense=True, click=last_time_step):
         vuetify.VIcon("mdi-skip-next")
     # vuetify.VDivider(vertical=True, classes="mx-2")
     # with vuetify.VBtn(icon=True, click=reset):
     #     vuetify.VIcon("mdi-vector-square")
     vuetify.VDivider(vertical=True, classes="mx-2")
-    with vuetify.VBtn(icon=True, click=rescale):
+    with vuetify.VBtn(icon=True, dense=True, click=rescale):
         vuetify.VIcon("mdi-palette")
     vuetify.VSelect(
         # Representation

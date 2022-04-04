@@ -1,8 +1,10 @@
 import os
 import subprocess
+import datetime
 
 import psutil
 from typing import List
+
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException, Request, File, UploadFile
@@ -55,6 +57,7 @@ model_list = []
 output_name_list = []
 user_list = []
 pid_list = []
+time_list = []
 
 
 class Launcher:
@@ -66,6 +69,7 @@ class Launcher:
         output_name: str = "Output1",
         output_list: str = "[Displacement,Force]",
         dx_value: float = 0.1,
+        duration: int = 1000,
         request: Request = "",
     ):  # material: dict, Output: dict):
         """doc"""
@@ -112,38 +116,73 @@ class Launcher:
             output_name_list.append(output_name)
             user_list.append(username)
             pid_list.append(p.pid)
+            time_list.append(datetime.datetime.now() + datetime.timedelta(0, duration))
             print(used_ports)
             print(pid_list)
+            print(time_list)
             # subprocess.call(command, shell=True)
         except subprocess.SubprocessError:
             return " results can not be found"
         return newPort
 
     @app.post("/closeTrameInstance", tags=["Post Methods"])
-    async def close_trame_instance(port: int):  # material: dict, Output: dict):
+    async def close_trame_instance(
+        port: int, cron: bool, request: Request = ""
+    ):  # material: dict, Output: dict):
         """doc"""
-        # username = FileHandler.get_user_name(request, dev)
-        print(used_ports)
-        print(pid_list)
-        index = used_ports.index(port)
-        used_ports.pop(index)
-        model_list.pop(index)
-        output_name_list.pop(index)
-        user_list.pop(index)
-        try:
-            p = psutil.Process(pid_list[index])
-            p1 = psutil.Process(pid_list[index] + 1)
-            p2 = psutil.Process(pid_list[index] + 2)
-            p.terminate()
-            p1.terminate()
-            p2.terminate()
-        except psutil.NoSuchProcess:
-            pid_list.pop(index)
-            print("Process already terminated")
-        except FileNotFoundError:
-            pid_list.pop(index)
-            print("Process not found")
-        pid_list.pop(index)
+
+        if cron:
+            for index, _ in enumerate(used_ports):
+                if time_list[index] < datetime.datetime.now():
+                    print("Close port " + str(used_ports[index]))
+                    used_ports.pop(index)
+                    model_list.pop(index)
+                    output_name_list.pop(index)
+                    user_list.pop(index)
+                    time_list.pop(index)
+                    try:
+                        p = psutil.Process(pid_list[index])
+                        p1 = psutil.Process(pid_list[index] + 1)
+                        p2 = psutil.Process(pid_list[index] + 2)
+                        p.terminate()
+                        p1.terminate()
+                        p2.terminate()
+                    except psutil.NoSuchProcess:
+                        pid_list.pop(index)
+                        print("Process already terminated")
+                    except FileNotFoundError:
+                        pid_list.pop(index)
+                        print("Process not found")
+                    pid_list.pop(index)
+
+        else:
+            username = FileHandler.get_user_name(request, dev)
+
+            print(used_ports)
+            print(pid_list)
+            index = used_ports.index(port)
+            if user_list[index] == username:
+                print("Close port " + str(used_ports[index]))
+                used_ports.pop(index)
+                model_list.pop(index)
+                output_name_list.pop(index)
+                user_list.pop(index)
+                time_list.pop(index)
+                try:
+                    p = psutil.Process(pid_list[index])
+                    p1 = psutil.Process(pid_list[index] + 1)
+                    p2 = psutil.Process(pid_list[index] + 2)
+                    p.terminate()
+                    p1.terminate()
+                    p2.terminate()
+                except psutil.NoSuchProcess:
+                    pid_list.pop(index)
+                    print("Process already terminated")
+                except FileNotFoundError:
+                    pid_list.pop(index)
+                    print("Process not found")
+                pid_list.pop(index)
+
         print(used_ports)
         print(pid_list)
 
