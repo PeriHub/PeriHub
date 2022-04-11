@@ -60,7 +60,7 @@ export default {
       ],
       canvas: false,
       sizeW: 1200,
-      sizeH: 1200,
+      sizeH: 1400,
       barPlot: {
         minBarSizeFilter: 10,
         maxBarSizeFilter: 20,
@@ -145,6 +145,7 @@ export default {
           showgrid: true,
           zeroline: true,
           color: "white",
+          automargin: true,
         },
         yaxis: {
           showgrid: true,
@@ -168,6 +169,10 @@ export default {
           color: "white",
           // color: "#6E6E6E"
         },
+        margin: {
+          autoexpand: true,
+        },
+        height: 800,
       },
       plotOptions: {
         scrollZoom: true,
@@ -576,7 +581,7 @@ export default {
     },
     resize() {
       this.$set(this, "sizeW", this.$refs.networkView.$el.clientWidth);
-      this.$set(this, "sizeH", this.$refs.networkView.$el.clientHeight);
+      this.$set(this, "sizeH", this.$refs.networkView.$el.clientHeight - 57);
     },
     changeIcon() {
       let id = 0;

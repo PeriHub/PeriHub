@@ -151,6 +151,7 @@ export default {
             { Name: "C66", value: 0.0 },
           ],
           Properties: [{ id: 1, Name: "Prop_1", value: 0.0 }],
+          computePartialStress: false,
         },
         {
           id: 2,
@@ -194,6 +195,7 @@ export default {
             { Name: "C66", value: 4200.0 },
           ],
           Properties: [{ id: 1, Name: "Prop_1", value: 0.0 }],
+          computePartialStress: false,
         },
       ],
       materialKeys: {
@@ -462,6 +464,18 @@ export default {
           External_Force: true,
           External_Displacement: true,
           Number_Of_Neighbors: false,
+          Horizon: false,
+          Model_Coordinates: false,
+          Local_Angles: false,
+          Coordinates: false,
+          Acceleration: false,
+          Temperature: false,
+          Temperature_Change: false,
+          Force_Density: false,
+          External_Force_Density: false,
+          Damage_Model_Data: false,
+          Velocity_Gradient: false,
+          PiolaStressTimesInvShapeTensor: false,
           Frequency: 100,
           InitStep: 0,
         },
@@ -475,6 +489,18 @@ export default {
         External_Force: "External_Force",
         External_Displacement: "External_Displacement",
         Number_Of_Neighbors: "Number_Of_Neighbors",
+        Horizon: "Horizon",
+        Model_Coordinates: "Model_Coordinates",
+        Local_Angles: "Local_Angles",
+        Coordinates: "Coordinates",
+        Acceleration: "Acceleration",
+        Temperature: "Temperature",
+        Temperature_Change: "Temperature_Change",
+        Force_Density: "Force_Density",
+        External_Force_Density: "External_Force_Density",
+        Damage_Model_Data: "Damage_Model_Data",
+        Velocity_Gradient: "Velocity_Gradient",
+        PiolaStressTimesInvShapeTensor: "PiolaStressTimesInvShapeTensor",
         Frequency: "Output Frequency",
         InitStep: "Initial Output Step",
       },
@@ -683,6 +709,7 @@ export default {
       panel: [0],
 
       resultPort: null,
+      port: "",
       showResultsOutputName: "Output1",
 
       rules: {
@@ -726,6 +753,7 @@ export default {
         url: this.url + "viewInputFile",
         params: {
           model_name: this.model.modelNameSelected,
+          own_model: this.model.ownModel,
           FileType: this.solver.filetype,
         },
         method: "GET",
@@ -1430,7 +1458,7 @@ export default {
         url: this.url + "translateModel",
         params: {
           model_name: this.model.modelNameSelected,
-          Filetype: filetype,
+          file_type: filetype,
         },
         method: "POST",
         headers: headersList,
@@ -1527,6 +1555,18 @@ export default {
               this.outputs[j].External_Force = false;
               this.outputs[j].External_Displacement = false;
               this.outputs[j].Number_Of_Neighbors = false;
+              this.outputs[j].Horizon = false;
+              this.outputs[j].Model_Coordinates = false;
+              this.outputs[j].Local_Angles = false;
+              this.outputs[j].Coordinates = false;
+              this.outputs[j].Acceleration = false;
+              this.outputs[j].Temperature = false;
+              this.outputs[j].Temperature_Change = false;
+              this.outputs[j].Force_Density = false;
+              this.outputs[j].External_Force_Density = false;
+              this.outputs[j].Damage_Model_Data = false;
+              this.outputs[j].Velocity_Gradient = false;
+              this.outputs[j].PiolaStressTimesInvShapeTensor = false;
             }
             this.getValuesFromJson(
               Param,
@@ -1933,19 +1973,21 @@ export default {
         .request(reqOptions)
         .then((response) => (this.message = response.data))
         .catch((error) => {
+          let message = "";
           if (error.response.status == 422) {
-            this.message = "";
             for (let i in error.response.data.detail) {
-              this.message += error.response.data.detail[i].loc[1] + " ";
-              this.message += error.response.data.detail[i].loc[2] + ", ";
-              this.message += error.response.data.detail[i].loc[3] + ", ";
-              this.message += error.response.data.detail[i].msg + "\n";
+              message += error.response.data.detail[i].loc[1] + " ";
+              message += error.response.data.detail[i].loc[2] + ", ";
+              message += error.response.data.detail[i].loc[3] + ", ";
+              message += error.response.data.detail[i].msg + "\n";
             }
-            this.message = this.message.slice(0, -2);
+            message = message.slice(0, -2);
+          } else {
+            message = error.response.data.detail;
           }
+          this.openErrorDialog(message);
           // this.message = error,
           console.log(error.response.data);
-          this.snackbar = true;
           return;
         });
       this.getLogFile();
@@ -1962,6 +2004,7 @@ export default {
         url: this.url + "getStatus",
         params: {
           model_name: this.model.modelNameSelected,
+          own_model: this.model.ownModel,
           Cluster: this.job.cluster,
         },
         method: "GET",
@@ -2231,16 +2274,16 @@ export default {
           output_name: this.outputs[index].Name,
           output_list: output_list.toString(),
           dx_value: this.dx_value,
+          duration: 600,
         },
         method: "POST",
         headers: headersList,
       };
 
       console.log(reqOptions);
-      let port = "";
       await axios
         .request(reqOptions)
-        .then((response) => (port = response.data))
+        .then((response) => (this.port = response.data))
         .catch((error) => {
           this.message = error;
           this.snackbar = true;
@@ -2250,9 +2293,9 @@ export default {
 
       if (process.env.VUE_APP_DEV) {
         this.resultPort =
-          this.trameUrl.slice(0, this.trameUrl.length - 5) + port;
+          this.trameUrl.slice(0, this.trameUrl.length - 5) + this.port;
       } else {
-        switch (port) {
+        switch (this.port) {
           case 6041:
             this.resultPort =
               "http://perihub-trame-gui1.fa-services.intra.dlr.de:443";
@@ -2331,8 +2374,8 @@ export default {
         url: this.url + "writeInputFile",
         params: {
           model_name: this.model.modelNameSelected,
-          InputString: this.textOutput,
-          FileType: this.solver.filetype,
+          input_string: this.textOutput,
+          file_type: this.solver.filetype,
         },
         method: "PUT",
       };
@@ -2455,6 +2498,11 @@ export default {
     },
     removeDamage(index) {
       this.damages.splice(index, 1);
+      if (this.damages.length == 0) {
+        for (var i = 0; i < this.blocks.length; i++) {
+          this.blocks[i].damageModel = "";
+        }
+      }
     },
     addBlock() {
       const len = this.blocks.length;
@@ -2537,6 +2585,18 @@ export default {
         External_Force: false,
         External_Displacement: false,
         Number_Of_Neighbors: false,
+        Horizon: false,
+        Model_Coordinates: false,
+        Local_Angles: false,
+        Coordinates: false,
+        Acceleration: false,
+        Temperature: false,
+        Temperature_Change: false,
+        Force_Density: false,
+        External_Force_Density: false,
+        Damage_Model_Data: false,
+        Velocity_Gradient: false,
+        PiolaStressTimesInvShapeTensor: false,
         InitStep: 0,
       });
     },
@@ -2695,11 +2755,25 @@ export default {
     // Don't forget to remove the interval before destroying the component
     clearInterval(this.logInterval);
     clearInterval(this.statusInterval);
+
+    if (port != "") {
+      let reqOptions = {
+        url: this.trameUrl + "closeTrameInstance",
+        params: {
+          port: this.port,
+          cron: false,
+        },
+        method: "POST",
+        headers: headersList,
+      };
+
+      axios.request(reqOptions);
+    }
   },
   watch: {
     model: {
       handler() {
-        // console.log('model changed!');
+        console.log("model changed!");
         localStorage.setItem("model", JSON.stringify(this.model));
       },
       deep: true,

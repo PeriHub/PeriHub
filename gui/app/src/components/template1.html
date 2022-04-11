@@ -483,10 +483,11 @@
       <!-- </div> -->
     </pane>
     <pane min-size="40" style="height: 100%">
-      <splitpanes @resize="resize" horizontal style="height: 100%">
-        <pane size="55">
-          <!-- <v-container> -->
-
+      <v-tabs color="deep-purple accent-4" left>
+        <v-tab>Plotly</v-tab>
+        <v-tab>d3-Network</v-tab>
+        <v-tab>Abstract</v-tab>
+        <v-tab-item>
           <v-subheader>
             <v-tooltip bottom
               ><template v-slot:activator="{ on, attrs }">
@@ -624,12 +625,12 @@
             </v-dialog>
 
             <!-- <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteUserData = true">
-                    <i class="fas fa-times"></i>
-                </v-btn>
-              </template>
-                <span>Delete User Data</span>
-              </v-tooltip> -->
+              <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="dialogDeleteUserData = true">
+                  <i class="fas fa-times"></i>
+              </v-btn>
+            </template>
+              <span>Delete User Data</span>
+            </v-tooltip> -->
 
             <v-dialog v-model="dialogDeleteCookies" persistent max-width="400">
               <v-card>
@@ -703,8 +704,8 @@
             >
             </Plotly>
           </v-card>
-        </pane>
-        <pane size="45">
+        </v-tab-item>
+        <v-tab-item>
           <v-subheader>
             <v-tooltip bottom
               ><template v-slot:activator="{ on, attrs }">
@@ -863,8 +864,8 @@
                 </defs>
               </svg> -->
           </v-card>
-        </pane>
-      </splitpanes>
+        </v-tab-item>
+      </v-tabs>
     </pane>
   </splitpanes>
   <v-snackbar style="white-space: pre-wrap" v-model="snackbar">

@@ -489,6 +489,15 @@
                           :label="`Non linear`"
                         ></v-switch>
                       </v-col>
+                      <v-col
+                        class="textfield-col"
+                        v-if="material.MatType=='Elastic'"
+                      >
+                        <v-switch
+                          v-model="material.computePartialStress"
+                          :label="`Compute Partial Stress`"
+                        ></v-switch>
+                      </v-col>
                     </v-row>
                     <v-select
                       :items="materialSymmetry"
@@ -1236,7 +1245,7 @@
                           label="Partial_Stress"
                         ></v-checkbox>
                       </v-col>
-                      <v-col cols="15" sm="5" md="5">
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
                         <v-checkbox
                           class="shrink mr-0 mt-0"
                           v-model="output.Number_Of_Neighbors"
@@ -1251,6 +1260,102 @@
                             v-model=output.External_Displacement
                             label="External_Displacement"></v-checkbox>
                         </v-col> -->
+                    </v-row>
+                    <v-row>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Horizon"
+                          label="Horizon"
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Model_Coordinates"
+                          label="Model_Coordinates"
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Local_Angles"
+                          label="Local_Angles"
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Coordinates"
+                          label="Coordinates"
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Acceleration"
+                          label="Acceleration"
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Temperature"
+                          label="Temperature"
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Temperature_Change"
+                          label="Temperature_Change"
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Force_Density"
+                          label="Force_Density"
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.External_Force_Density"
+                          label="External_Force_Density"
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.PiolaStressTimesInvShapeTensor"
+                          label="PiolaStressTimesInvShapeTensor"
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Damage_Model_Data"
+                          label="Damage_Model_Data"
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Velocity_Gradient"
+                          label="Velocity_Gradient"
+                        ></v-checkbox>
+                      </v-col>
                     </v-row>
                     <v-text-field
                       class="textfield-col"
@@ -1677,7 +1782,7 @@
                   class="my-btn"
                   v-bind="attrs"
                   v-on="on"
-                  @click="dialogShowResults = true"
+                  @click="if(outputs.length==1){showResults(outputs[0].Name)}else{dialogShowResults = true}"
                   :disabled="!status.results"
                 >
                   <i class="fas fa-eye"></i>

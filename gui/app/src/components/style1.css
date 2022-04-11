@@ -39,6 +39,9 @@
   overflow-y: scroll;
 }
 /* .splitpanes {background-color: #f8f8f8;} */
+.tabs__content {
+  min-height: 100vh;
+}
 
 .splitpanes__splitter {
   background-color: #ccc;
