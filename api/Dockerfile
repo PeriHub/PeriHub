@@ -6,6 +6,9 @@ LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 ARG EXTERNAL
 ENV EXTERNAL $EXTERNAL
 
+RUN apt-get update --allow-insecure-repositories
+RUN apt-get install libglapi-mesa
+
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
