@@ -34,7 +34,6 @@ EXTERNAL=True" >> .env
 ```
 Run docker-compose.
 ```
-cd ..
 docker-compose up
 ```
 If docker finished building PeriHub, go to http://localhost:6010
