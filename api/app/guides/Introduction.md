@@ -21,22 +21,22 @@ PeriHub enables the generation, editing, execution and evaluation of standard pe
 ## Building locally
 Clone the repository
 ```
-git clone https://gitlab.dlr.de/fa_sw/perihub.git
+git clone https://github.com/JTHesse/PeriHub.git
 ```
 Go into the perihub folder.
 ```
 cd perihub
 ```
-Create a .env file an save your git username and token, in order to get the peridigm code.
+Create a .env file and save following variables.
 ```
-echo "GITHUB_TOKEN=<YourToken>
-GITHUB_USER=<YourUsername>
-EXTERNAL=False" >> .env
+echo "DEV=True
+EXTERNAL=True" >> .env
 ```
 Run docker-compose.
 ```
 cd ..
 docker-compose up
 ```
+If docker finished building PeriHub, go to http://localhost:6010
 ## Contact
 * [Jan-Timo Hesse](mailto:Jan-Timo.Hesse@dlr.de)
