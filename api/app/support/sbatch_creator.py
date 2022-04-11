@@ -85,8 +85,8 @@ class SbatchCreator:
 
     def create_sh(self):
         """doc"""
-        # if(self.tasks==1):
         string = "#!/bin/sh" + "\n"
+        # if self.tasks == 1:
         string += (
             "/Peridigm/build/src/Peridigm "
             + self.filename
@@ -98,16 +98,28 @@ class SbatchCreator:
         string += "tail --pid=$pid -f /dev/null \n"
         string += "rm pid.txt \n"
         # else:
-        #     string='#!/bin/sh' + '\n'
-        #     string += 'export PATH=$PATH:/usr/local/trilinos/bin \n'
-        #     string += 'mpirun --allow-run-as-root -np ' + self.tasks + ' /peridigm/build/src/Peridigm ' +
-        # self.filename + '.' + self.filetype + '& echo $! > pid.txt \n'
-        #     string += 'pid=`cat pid.txt` \n'
-        #     string += 'tail --pid=$pid -f /dev/null \n'
+        #     string += "export PATH=$PATH:/usr/local/trilinos/bin \n"
+        #     string += (
+        #         "mpirun --allow-run-as-root -np "
+        #         + str(self.tasks)
+        #         + " /peridigm/build/src/Peridigm "
+        #         + self.filename
+        #         + "."
+        #         + self.filetype
+        #         + "& echo $! > pid.txt \n"
+        #     )
+        #     string += "pid=`cat pid.txt` \n"
+        #     string += "tail --pid=$pid -f /dev/null \n"
         #     for out in self.output_dict:
-        #         string += 'python /peridigm/scripts/MergeFiles.py ' + out.Name + ' ' + str(self.tasks) + '\n'
-        #     string += 'rm *.e.' + str(self.tasks) + '.*' +  '\n'
-        #     string += 'rm Output*.log \n'
-        #     string += 'rm pid.txt \n'
+        #         string += (
+        #             "python /peridigm/scripts/MergeFiles.py "
+        #             + out.Name
+        #             + " "
+        #             + str(self.tasks)
+        #             + "\n"
+        #         )
+        #     string += "rm *.e." + str(self.tasks) + ".*" + "\n"
+        #     string += "rm Output*.log \n"
+        #     string += "rm pid.txt \n"
 
         return string

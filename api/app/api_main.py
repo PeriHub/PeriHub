@@ -426,7 +426,10 @@ class ModelControl:
 
     @app.put("/writeInputFile", tags=["Put Methods"])
     def write_input_file(
-        model_name: str, input_string: str, file_type: FileType, request: Request
+        model_name: str,
+        input_string: str,
+        file_type: FileType = FileType.YAML,
+        request: Request = "",
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
@@ -474,7 +477,10 @@ class ModelControl:
                 username, model_name, cluster
             )
             if return_string != "Success":
-                return return_string
+                raise HTTPException(
+                    status_code=404,
+                    detail=return_string,
+                )
 
         if cluster == "FA-Cluster":
             remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
@@ -784,7 +790,7 @@ class ModelControl:
 
         return response
 
-    @app.get("/get_max_fe_size", tags=["Get Methods"])
+    @app.get("/getMaxFeSize", tags=["Get Methods"])
     def get_max_fe_size(request: Request = ""):
         """doc"""
 
@@ -884,7 +890,7 @@ class ModelControl:
         if own_model:
             try:
                 with open(
-                    "./Output/"
+                    "./peridigmJobs/"
                     + os.path.join(username, model_name)
                     + "/"
                     + model_name
@@ -999,14 +1005,18 @@ class ModelControl:
 
     @app.get("/getStatus", tags=["Get Methods"])
     def get_status(
-        model_name: str = "Dogbone", cluster: str = "None", request: Request = ""
+        model_name: str = "Dogbone", own_model: bool = False, cluster: str = "None", request: Request = ""
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
         status = Status(False, False, False)
 
-        localpath = "./Output/" + os.path.join(username, model_name)
+        if own_model:
+            localpath = "./peridigmJobs/" + os.path.join(username, model_name)
+        else:
+            localpath = "./Output/" + os.path.join(username, model_name)
+
         if os.path.exists(localpath):
             status.created = True
 
@@ -1047,21 +1057,32 @@ class ModelControl:
 
     @app.get("/viewInputFile", tags=["Get Methods"])
     def view_input_file(
-        model_name: str = "Dogbone",
+        model_name: str = "Dogbone", 
+        own_model: bool = False, 
         file_type: FileType = FileType.YAML,
         request: Request = "",
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
-        file_path = (
-            "./Output/"
-            + os.path.join(username, model_name)
-            + "/"
-            + model_name
-            + "."
-            + file_type
-        )
+        if own_model:
+            file_path = (
+                "./peridigmJobs/"
+                + os.path.join(username, model_name)
+                + "/"
+                + model_name
+                + "."
+                + file_type
+            )
+        else:
+            file_path = (
+                "./Output/"
+                + os.path.join(username, model_name)
+                + "/"
+                + model_name
+                + "."
+                + file_type
+            )
         if not os.path.exists(file_path):
             return "Inputfile can't be found"
         try:
