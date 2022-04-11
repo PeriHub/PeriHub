@@ -263,7 +263,7 @@ class DCBmodel:
                 numericalDamping=0.000005,
                 peridgimPreconditioner="None",
                 nonlinearSolver="Line Search Based",
-                numberofLoadSteps=100,
+                numberOfLoadSteps=100,
                 maxSolverIterations=50,
                 relativeTolerance=1e-8,
                 maxAgeOfPrec=100,

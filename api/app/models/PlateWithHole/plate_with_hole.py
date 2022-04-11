@@ -5,7 +5,7 @@ import numpy as np
 from support.base_models import (
     Adapt,
     Block,
-    BondFilters,
+    # BondFilters,
     BoundaryConditions,
     Compute,
     Damage,
@@ -228,7 +228,7 @@ class PlateWithHole:
                 numericalDamping=0.000005,
                 peridgimPreconditioner="None",
                 nonlinearSolver="Line Search Based",
-                numberofLoadSteps=100,
+                numberOfLoadSteps=100,
                 maxSolverIterations=50,
                 relativeTolerance=1e-8,
                 maxAgeOfPrec=100,

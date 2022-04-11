@@ -148,7 +148,7 @@ class VerificationModels:
             "initialTime": 0.0,
             "finalTime": 0.002,
             "solvertype": "NOXQuasiStatic",
-            "Tolerance": 1e-5,
+            "relativeTolerance": 1e-5,
             "NumberOfLoadSteps": 1000,
             "safetyFactor": 0.5,
             "numericalDamping": 0.00005,

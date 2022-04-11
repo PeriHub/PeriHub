@@ -60,6 +60,8 @@ class Material(BaseModel):
     yieldStress: Optional[float] = None
     Parameter: List[Parameter]
     Properties: List[Properties]
+    computePartialStress: Optional[bool] = None
+    useCollocationNodes: Optional[bool] = None
 
 
 class Damage(BaseModel):
@@ -138,6 +140,18 @@ class Output(BaseModel):
     External_Force: Optional[bool] = None
     External_Displacement: Optional[bool] = None
     Number_Of_Neighbors: Optional[bool] = None
+    Horizon: Optional[bool] = None
+    Model_Coordinates: Optional[bool] = None
+    Local_Angles: Optional[bool] = None
+    Coordinates: Optional[bool] = None
+    Acceleration: Optional[bool] = None
+    Temperature: Optional[bool] = None
+    Temperature_Change: Optional[bool] = None
+    Force_Density: Optional[bool] = None
+    External_Force_Density: Optional[bool] = None
+    Damage_Model_Data: Optional[bool] = None
+    Velocity_Gradient: Optional[bool] = None
+    PiolaStressTimesInvShapeTensor: Optional[bool] = None
     Frequency: int
     InitStep: int
 
@@ -174,10 +188,10 @@ class Solver(BaseModel):
     numericalDamping: float
     peridgimPreconditioner: Optional[str] = None
     nonlinearSolver: Optional[str] = None
-    numberofLoadSteps: Optional[int] = None
+    numberOfLoadSteps: Optional[int] = None
     maxSolverIterations: Optional[int] = None
     relativeTolerance: Optional[float] = None
-    maxAgeOfPrec: Optional[float] = None
+    maxAgeOfPrec: Optional[int] = None
     directionMethod: Optional[str] = None
     newton: Optional[Newton] = None
     lineSearchMethod: Optional[str] = None
@@ -321,11 +335,11 @@ class RunData(BaseModel):
 class ModelData(BaseModel):
     model: Model
     materials: List[Material]
-    damages: List[Damage]
+    damages: Optional[List[Damage]]
     blocks: List[Block]
     boundaryConditions: List[BoundaryConditions]
-    bondFilters: List[BondFilters]
-    computes: List[Compute]
+    bondFilters: Optional[List[BondFilters]]
+    computes: Optional[List[Compute]]
     outputs: List[Output]
     solver: Solver
 
@@ -579,7 +593,7 @@ class ModelData(BaseModel):
                     "numericalDamping": "0.0005",
                     "peridgimPreconditioner": "None",
                     "nonlinearSolver": "Line Search Based",
-                    "numberofLoadSteps": 100,
+                    "numberOfLoadSteps": 100,
                     "maxSolverIterations": 50,
                     "relativeTolerance": 1e-8,
                     "maxAgeOfPrec": 100,

@@ -232,7 +232,7 @@ class XMLcreator:
                 )
             if self.check_if_defined(mat.nonLinear):
                 string += (
-                    '            <Parameter name="Non linear" type="double" value="'
+                    '            <Parameter name="Non linear" type="bool" value="'
                     + str(mat.nonLinear)
                     + '"/>\n'
                 )
@@ -250,6 +250,18 @@ class XMLcreator:
                         + str(np.format_float_scientific(float(prop.value)))
                         + '"/>\n'
                     )
+            if self.check_if_defined(mat.computePartialStress):
+                string += (
+                    '            <Parameter name="Compute Partial Stress" type="bool" value="'
+                    + str(mat.computePartialStress)
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.useCollocationNodes):
+                string += (
+                    '            <Parameter name="Use Collocation Nodes" type="bool" value="'
+                    + str(mat.useCollocationNodes)
+                    + '"/>\n'
+                )
             string += "        </ParameterList>\n"
         string += "    </ParameterList>\n"
         return string
@@ -419,7 +431,7 @@ class XMLcreator:
             )
             string += (
                 '            <Parameter name="Number of Load Steps" type="int" value="'
-                + str(float(self.solver_dict.NumberOfLoadSteps))
+                + str(self.solver_dict.numberOfLoadSteps)
                 + '"/>\n'
             )
             string += (
@@ -429,7 +441,7 @@ class XMLcreator:
             )
             string += (
                 '            <Parameter name="Relative Tolerance" type="double" value="'
-                + str(float(self.solver_dict.Tolerance))
+                + str(float(self.solver_dict.relativeTolerance))
                 + '"/>\n'
             )
             string += (
@@ -627,6 +639,36 @@ class XMLcreator:
                 string += '            <Parameter name="External_Displacement" type="bool" value="true"/>\n'
             if out.External_Force:
                 string += '            <Parameter name="External_Force" type="bool" value="true"/>\n'
+            if out.Horizon:
+                string += (
+                    '            <Parameter name="Horizon" type="bool" value="true"/>\n'
+                )
+            if out.Model_Coordinates:
+                string += '            <Parameter name="Model_Coordinates" type="bool" value="true"/>\n'
+            if out.Local_Angles:
+                string += '            <Parameter name="Local_Angles" type="bool" value="true"/>\n'
+            if out.Coordinates:
+                string += '            <Parameter name="Coordinates" type="bool" value="true"/>\n'
+            if out.Acceleration:
+                string += '            <Parameter name="Acceleration" type="bool" value="true"/>\n'
+            if out.Temperature:
+                string += '            <Parameter name="Temperature" type="bool" value="true"/>\n'
+            if out.Temperature_Change:
+                string += '            <Parameter name="Temperature_Change" type="bool" value="true"/>\n'
+            if out.Force_Density:
+                string += '            <Parameter name="Force_Density" type="bool" value="true"/>\n'
+            if out.External_Force_Density:
+                string += '            <Parameter name="External_Force_Density" type="bool" value="true"/>\n'
+            if out.Damage_Model_Data:
+                string += '            <Parameter name="Damage_Model_Data" type="bool" value="true"/>\n'
+            if out.Velocity_Gradient:
+                string += '            <Parameter name="Velocity_Gradient_X" type="bool" value="true"/>\n'
+                string += '            <Parameter name="Velocity_Gradient_Y" type="bool" value="true"/>\n'
+                string += '            <Parameter name="Velocity_Gradient_Z" type="bool" value="true"/>\n'
+            if out.PiolaStressTimesInvShapeTensor:
+                string += '            <Parameter name="PiolaStressTimesInvShapeTensorX" type="bool" value="true"/>\n'
+                string += '            <Parameter name="PiolaStressTimesInvShapeTensorY" type="bool" value="true"/>\n'
+                string += '            <Parameter name="PiolaStressTimesInvShapeTensorZ" type="bool" value="true"/>\n'
             string += "        </ParameterList>\n"
             string += "    </ParameterList>\n"
             idx += 1

@@ -20,24 +20,188 @@ from support.geometry import Geometry
 
 
 class KalthoffWinkler:
+
+    bc1 = BoundaryConditions(
+        id=1,
+        Name="BC_1",
+        NodeSets=None,
+        boundarytype="Prescribed Displacement",
+        blockId=2,
+        coordinate="x",
+        value="0*t",
+    )
+    bc2 = BoundaryConditions(
+        id=2,
+        Name="BC_2",
+        NodeSets=None,
+        boundarytype="Prescribed Displacement",
+        blockId=3,
+        coordinate="x",
+        value="0*t",
+    )
+    bc3 = BoundaryConditions(
+        id=3,
+        Name="BC_3",
+        NodeSets=None,
+        boundarytype="Prescribed Displacement",
+        blockId=4,
+        coordinate="x",
+        value="10*t",
+    )
+    mat_dict = Material(
+        id=1,
+        Name="PMMA",
+        MatType="Elastic Bond Based",
+        density=8.0e-6,
+        bulkModulus=1.2666666666666667e5,
+        shearModulus=None,
+        youngsModulus=None,
+        poissonsRatio=None,
+        tensionSeparation=False,
+        nonLinear=True,
+        planeStress=True,
+        materialSymmetry="Isotropic",
+        stabilizatonType="Global Stiffness",
+        thickness=10.0,
+        hourglassCoefficient=1.0,
+        actualHorizon=None,
+        yieldStress=None,
+        Parameter=[],
+        Properties=[],
+        useCollocationNodes=True,
+    )
+
+    damage_dict = Damage(
+        id=1,
+        Name="PMMADamage",
+        damageModel="Critical Stretch",
+        criticalStretch=0.012358773175687088,
+        criticalEnergy=0.0022170,
+        interblockdamageEnergy=0.01,
+        planeStress=True,
+        onlyTension=False,
+        detachedNodesCheck=True,
+        thickness=10,
+        hourglassCoefficient=1.0,
+        stabilizatonType="Global Stiffness",
+    )
+
+    bf1 = BondFilters(
+        id=1,
+        Name="bf_1",
+        type="Rectangular_Plane",
+        normalX=0.0,
+        normalY=1.0,
+        normalZ=0.0,
+        lowerLeftCornerX=-0.5,
+        lowerLeftCornerY=25.125,
+        lowerLeftCornerZ=-0.5,
+        bottomUnitVectorX=1.0,
+        bottomUnitVectorY=0.0,
+        bottomUnitVectorZ=0.0,
+        bottomLength=50.5,
+        sideLength=1.0,
+        centerX=0.0,
+        centerY=1.0,
+        centerZ=0.0,
+        radius=1.0,
+        show=True,
+    )
+    bf2 = BondFilters(
+        id=1,
+        Name="bf_2",
+        type="Rectangular_Plane",
+        normalX=0.0,
+        normalY=1.0,
+        normalZ=0.0,
+        lowerLeftCornerX=-0.5,
+        lowerLeftCornerY=-25.125,
+        lowerLeftCornerZ=-0.5,
+        bottomUnitVectorX=1.0,
+        bottomUnitVectorY=0.0,
+        bottomUnitVectorZ=0.0,
+        bottomLength=50.5,
+        sideLength=1.0,
+        centerX=0.0,
+        centerY=1.0,
+        centerZ=0.0,
+        radius=1.0,
+        show=True,
+    )
+
+    compute_dict1 = Compute(
+        id=1,
+        Name="External_Displacement",
+        variable="Displacement",
+        calculationType="Minimum",
+        blockName="block_3",
+    )
+    compute_dict2 = Compute(
+        id=2,
+        Name="External_Force",
+        variable="Force",
+        calculationType="Sum",
+        blockName="block_3",
+    )
+
+    output_dict1 = Output(
+        id=1,
+        Name="Output1",
+        Displacement=True,
+        Force=True,
+        Damage=True,
+        Velocity=True,
+        Partial_Stress=False,
+        External_Force=False,
+        External_Displacement=False,
+        Number_Of_Neighbors=True,
+        Frequency=1,
+        InitStep=0,
+    )
+    solver_dict = Solver(
+        verbose=False,
+        initialTime=0.0,
+        finalTime=0.03,
+        fixedDt=None,
+        solvertype="Verlet",
+        safetyFactor=0.95,
+        numericalDamping=0.000005,
+        peridgimPreconditioner="None",
+        nonlinearSolver="Line Search Based",
+        numberOfLoadSteps=100,
+        maxSolverIterations=50,
+        relativeTolerance=1e-8,
+        maxAgeOfPrec=100,
+        directionMethod="Newton",
+        newton=Newton(),
+        lineSearchMethod="Polynomial",
+        verletSwitch=False,
+        verlet=Verlet(),
+        stopAfterDamageInitation=False,
+        stopBeforeDamageInitation=False,
+        adaptivetimeStepping=False,
+        adapt=Adapt(),
+        filetype="yaml",
+    )
+
     def __init__(
         self,
         xend=100,
         yend=100,
         zend=0.003,
-        dx_value=None,
+        dx_value=[0.25, 0.25, 0.25],
         filename="Kalthoff-Winkler",
         two_d=False,
-        rot="False",
-        angle=None,
-        material=None,
-        damage=None,
+        rot=False,
+        angle=[0, 0],
+        material=[mat_dict],
+        damage=[damage_dict],
         block=None,
-        boundary_condition=None,
-        bond_filter=None,
-        compute=None,
-        output=None,
-        solver=None,
+        boundary_condition=[bc1, bc2, bc3],
+        bond_filter=[bf1, bf2],
+        compute=[compute_dict1, compute_dict2],
+        output=[output_dict1],
+        solver=solver_dict,
         username="",
         max_nodes=10000000,
         ignore_mesh=False,
@@ -86,210 +250,23 @@ class KalthoffWinkler:
 
         """ Definition of model
         """
-        mat_name_list = ["PMMA"]
-        self.material_dict = []
-        if not damage:
-            damage_dict = Damage(
-                id=1,
-                Name="PMMADamage",
-                damageModel="Critical Stretch",
-                criticalStretch=10,
-                criticalEnergy=0.0022170,
-                interblockdamageEnergy=0.01,
-                planeStress=True,
-                onlyTension=False,
-                detachedNodesCheck=True,
-                thickness=10,
-                hourglassCoefficient=1.0,
-                stabilizatonType="Global Stiffness",
-            )
-            self.damage_dict = [damage_dict]
-        else:
-            self.damage_dict = damage
-
-        if not compute:
-            compute_dict1 = Compute(
-                id=1,
-                Name="External_Displacement",
-                variable="Displacement",
-                calculationType="Minimum",
-                blockName="block_3",
-            )
-            compute_dict2 = Compute(
-                id=2,
-                Name="External_Force",
-                variable="Force",
-                calculationType="Sum",
-                blockName="block_3",
-            )
-            self.compute_dict = [compute_dict1, compute_dict2]
-        else:
-            self.compute_dict = compute
-
-        if not output:
-            output_dict1 = Output(
-                id=1,
-                Name="Output1",
-                Displacement=True,
-                Force=True,
-                Damage=True,
-                Velocity=True,
-                Partial_Stress=False,
-                External_Force=False,
-                External_Displacement=False,
-                Number_Of_Neighbors=True,
-                Frequency=10,
-                InitStep=0,
-            )
-            self.output_dict = [output_dict1]
-        else:
-            self.output_dict = output
-
-        if not material:
-            i = 0
-            for material_name in mat_name_list:
-                mat_dict = Material(
-                    id=i + 1,
-                    Name=material_name,
-                    MatType="Elastic Bond Based",
-                    density=8.0e-6,
-                    bulkModulus=1.2666666666666667e5,
-                    shearModulus=None,
-                    youngsModulus=None,
-                    poissonsRatio=None,
-                    tensionSeparation=False,
-                    nonLinear=True,
-                    planeStress=True,
-                    materialSymmetry="Isotropic",
-                    stabilizatonType="Global Stiffness",
-                    thickness=10.0,
-                    hourglassCoefficient=1.0,
-                    actualHorizon=None,
-                    yieldStress=None,
-                    Parameter=[],
-                    Properties=[],
-                )
-                i += 1
-                self.material_dict.append(mat_dict)
-        else:
-            self.material_dict = material
-
-        if not bond_filter:
-            bf1 = BondFilters(
-                id=1,
-                Name="bf_1",
-                type="Rectangular_Plane",
-                normalX=0.0,
-                normalY=1.0,
-                normalZ=0.0,
-                lowerLeftCornerX=-0.5,
-                lowerLeftCornerY=25.0,
-                lowerLeftCornerZ=-0.5,
-                bottomUnitVectorX=1.0,
-                bottomUnitVectorY=0.0,
-                bottomUnitVectorZ=0.0,
-                bottomLength=50.5,
-                sideLength=1.0,
-                centerX=0.0,
-                centerY=1.0,
-                centerZ=0.0,
-                radius=1.0,
-                show=True,
-            )
-            bf2 = BondFilters(
-                id=1,
-                Name="bf_2",
-                type="Rectangular_Plane",
-                normalX=0.0,
-                normalY=1.0,
-                normalZ=0.0,
-                lowerLeftCornerX=-0.5,
-                lowerLeftCornerY=-25.0,
-                lowerLeftCornerZ=-0.5,
-                bottomUnitVectorX=1.0,
-                bottomUnitVectorY=0.0,
-                bottomUnitVectorZ=0.0,
-                bottomLength=50.5,
-                sideLength=1.0,
-                centerX=0.0,
-                centerY=1.0,
-                centerZ=0.0,
-                radius=1.0,
-                show=True,
-            )
-            self.bondfilters = [bf1, bf2]
-        else:
-            self.bondfilters = bond_filter
-
-        if not boundary_condition:
-            bc1 = BoundaryConditions(
-                id=1,
-                Name="BC_1",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=2,
-                coordinate="x",
-                value="0*t",
-            )
-            bc2 = BoundaryConditions(
-                id=2,
-                Name="BC_2",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=3,
-                coordinate="x",
-                value="0*t",
-            )
-            bc3 = BoundaryConditions(
-                id=3,
-                Name="BC_3",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=4,
-                coordinate="x",
-                value="10*t",
-            )
-            self.bc_dict = [bc1, bc2, bc3]
-        else:
-            self.bc_dict = boundary_condition
-
-        if not solver:
-            self.solver_dict = Solver(
-                verbose=False,
-                initialTime=0.0,
-                finalTime=0.03,
-                fixedDt=None,
-                solvertype="Verlet",
-                safetyFactor=0.95,
-                numericalDamping=0.000005,
-                peridgimPreconditioner="None",
-                nonlinearSolver="Line Search Based",
-                numberofLoadSteps=100,
-                maxSolverIterations=50,
-                relativeTolerance=1e-8,
-                maxAgeOfPrec=100,
-                directionMethod="Newton",
-                newton=Newton(),
-                lineSearchMethod="Polynomial",
-                verletSwitch=False,
-                verlet=Verlet(),
-                stopAfterDamageInitation=False,
-                stopBeforeDamageInitation=False,
-                adaptivetimeStepping=False,
-                adapt=Adapt(),
-                filetype="yaml",
-            )
-        else:
-            self.solver_dict = solver
+        self.damage_dict = damage
+        self.block_def = block
+        self.compute_dict = compute
+        self.output_dict = output
+        self.material_dict = material
+        self.bondfilters = bond_filter
+        self.bc_dict = boundary_condition
+        self.solver_dict = solver
 
         self.dam_block = [""] * number_of_blocks
-        self.dam_block[0] = "PMMADamage"
-        self.dam_block[1] = "PMMADamage"
-        self.dam_block[2] = "PMMADamage"
-        self.dam_block[3] = "PMMADamage"
+        self.dam_block[0] = self.damage_dict[0].Name
+        self.dam_block[1] = self.damage_dict[0].Name
+        self.dam_block[2] = self.damage_dict[0].Name
+        self.dam_block[3] = self.damage_dict[0].Name
 
         self.int_block_id = [""] * number_of_blocks
-        self.mat_block = ["PMMA"] * number_of_blocks
+        self.mat_block = [self.material_dict[0].Name] * number_of_blocks
 
     def create_boundary_condition_block(self, x_value, y_value, k):
         k = np.where(
@@ -321,7 +298,7 @@ class KalthoffWinkler:
         k = np.where(
             np.logical_and(
                 x_value < self.dx_value[0] * 3,
-                np.logical_and(y_value < 25, y_value > -25),
+                np.logical_and(y_value <= 25, y_value >= -25),
             ),
             4,
             k,
