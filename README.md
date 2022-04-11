@@ -30,7 +30,8 @@ cd perihub
 Create a .env file and save following variables.
 ```
 echo "DEV=True
-EXTERNAL=True" >> .env
+EXTERNAL=True
+VOLUME={PATHTOJOBFOLDER}" >> .env
 ```
 Run docker-compose.
 ```
