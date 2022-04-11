@@ -33,9 +33,9 @@ services:
   peridigm:
     build:
       context: peridigm/.
-      args:
-        GITHUB_USER: ${GITHUB_USER}
-        GITHUB_TOKEN: ${GITHUB_TOKEN}
+      # args:
+      #   GITHUB_USER: ${GITHUB_USER}
+      #   GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: perihub_peridigm
     ports:
       - 6030:80

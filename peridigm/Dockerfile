@@ -4,10 +4,10 @@ LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
 # ARG PERIDOX
 # ENV PERIDOX $PERIDOX
-ARG GITHUB_USER
-ENV GITHUB_USER $GITHUB_USER
-ARG GITHUB_TOKEN
-ENV GITHUB_TOKEN $GITHUB_TOKEN
+# ARG GITHUB_USER
+# ENV GITHUB_USER $GITHUB_USER
+# ARG GITHUB_TOKEN
+# ENV GITHUB_TOKEN $GITHUB_TOKEN
 
 ENV HOME /root
 
@@ -18,7 +18,8 @@ RUN apt-get -yq install git
 RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
-RUN git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/JTHesse/PeridigmDev.git Peridigm
+RUN git clone https://github.com/PeriHub/Peridigm.git Peridigm
+# RUN git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/JTHesse/PeridigmDev.git Peridigm
 # RUN if [ "$PERIDOX" = "True" ]; then \
 #         git clone https://github.com/peridigm/peridigm.git Peridigm; else \
 #         git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@gitlab.dlr.de/fa_sw/peridynamik/peridigmDev.git Peridigm; \
