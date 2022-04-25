@@ -1,9 +1,11 @@
 """
 doc
 """
+import math
 import time
 import numpy as np
 from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
 
 
 class Geometry:
@@ -38,6 +40,37 @@ class Geometry:
         condition = np.where(
             ((array_x - origin_x) ** 2) + ((array_y - origin_y) ** 2) <= radius, 0, 1.0
         )
+        return (
+            np.extract(condition, array_x),
+            np.extract(condition, array_y),
+            np.extract(condition, array_z),
+        )
+        # return (x - origin_x**2) + (y - origin_y**2) <= radius
+
+    @staticmethod
+    def check_val_in_notch(
+        array_x, array_y, array_z, origin_x, xend, length, width, dx_value, angle=60
+    ):
+        """doc"""
+        anglelength = math.sin(angle) * width
+        notchend = length + anglelength
+
+        x = np.array([0, notchend, length, xend + dx_value])
+        y = np.array([width / 2, width / 2, 0.0, 0.0])
+
+        f = interp1d(x, y)
+        plt.scatter(array_x, f(array_x))
+        plt.show()
+        print(f(array_x))
+        condition = np.where(
+            np.logical_and(
+                array_x <= origin_x + length,
+                np.logical_and(array_y <= f(array_x), array_y >= -f(array_x)),
+            ),
+            0,
+            1.0,
+        )
+
         return (
             np.extract(condition, array_x),
             np.extract(condition, array_y),

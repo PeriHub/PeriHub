@@ -34,6 +34,7 @@ from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
 from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
 from models.PlateWithHole.plate_with_hole import PlateWithHole
+from models.CompactTension.compact_tension import CompactTension
 from models.OwnModel.own_model import OwnModel
 from support.sbatch_creator import SbatchCreator
 from support.file_handler import FileHandler
@@ -265,6 +266,28 @@ class ModelControl:
                 ignore_mesh=ignore_mesh,
             )
             result = plate_with_hole.create_model()
+
+        elif model_name == "CompactTension":
+            compact_tension = CompactTension(
+                xend=length,
+                zend=width,
+                dx_value=dx_value,
+                two_d=model_data.model.twoDimensional,
+                rot=model_data.model.rotatedAngles,
+                angle=model_data.model.angles,
+                material=model_data.materials,
+                damage=model_data.damages,
+                block=model_data.blocks,
+                boundary_condition=model_data.boundaryConditions,
+                bond_filter=model_data.bondFilters,
+                compute=model_data.computes,
+                output=model_data.outputs,
+                solver=model_data.solver,
+                username=username,
+                max_nodes=max_nodes,
+                ignore_mesh=ignore_mesh,
+            )
+            result = compact_tension.create_model()
 
         elif model_data.model.ownModel:
             if model_data.model.translated:
@@ -1005,7 +1028,10 @@ class ModelControl:
 
     @app.get("/getStatus", tags=["Get Methods"])
     def get_status(
-        model_name: str = "Dogbone", own_model: bool = False, cluster: str = "None", request: Request = ""
+        model_name: str = "Dogbone",
+        own_model: bool = False,
+        cluster: str = "None",
+        request: Request = "",
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
@@ -1057,8 +1083,8 @@ class ModelControl:
 
     @app.get("/viewInputFile", tags=["Get Methods"])
     def view_input_file(
-        model_name: str = "Dogbone", 
-        own_model: bool = False, 
+        model_name: str = "Dogbone",
+        own_model: bool = False,
         file_type: FileType = FileType.YAML,
         request: Request = "",
     ):

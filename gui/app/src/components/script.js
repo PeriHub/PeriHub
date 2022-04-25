@@ -20,6 +20,8 @@ import KalthoffWinklerImage from "../assets/Kalthoff-Winkler/Kalthoff-Winkler.jp
 import KalthoffWinklerFile from "../assets/Kalthoff-Winkler/Kalthoff-Winkler.json";
 import PlateWithHoleImage from "../assets/PlateWithHole/PlateWithHole.jpg";
 import PlateWithHoleFile from "../assets/PlateWithHole/PlateWithHole.json";
+import CompactTensionImage from "../assets/CompactTension/CompactTension.jpg";
+import CompactTensionFile from "../assets/CompactTension/CompactTension.json";
 import { Plotly } from "vue-plotly";
 // import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
 
@@ -44,6 +46,7 @@ export default {
         "PlateWithHole",
         "GIICmodel",
         "DCBmodel",
+        "CompactTension",
       ], //, 'RVE'],
       model: {
         modelNameSelected: "Dogbone",
@@ -1605,6 +1608,9 @@ export default {
         case "PlateWithHole":
           Object.assign(jsonFile, PlateWithHoleFile);
           break;
+        case "CompactTension":
+          Object.assign(jsonFile, CompactTensionFile);
+          break;
         default:
           return;
       }
@@ -2624,6 +2630,9 @@ export default {
           break;
         case "PlateWithHole":
           this.modelImg = PlateWithHoleImage;
+          break;
+        case "CompactTension":
+          this.modelImg = CompactTensionImage;
           break;
       }
       this.viewId = 0;
