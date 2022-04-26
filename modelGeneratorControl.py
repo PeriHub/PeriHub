@@ -35,10 +35,10 @@ class ModelControl:
 
         height = 200
         L = 50
-        number_nodes = 42
 
-        number_nodes = 2 * int(number_nodes / 2) + 1
+        # number_nodes = 2 * int(number_nodes / 2) + 1
 
+        number_nodes = 300
         # number_nodes = 800
         dx_value = [height / number_nodes, height / number_nodes, height / number_nodes]
 

@@ -6,20 +6,6 @@
     "configurations": [
 
         {
-            "name": "modelGeneratorControl",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/api/main.py",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "apiMain",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/api/app/apiMain.py",
-            "console": "integratedTerminal"
-        },
-        {
             "name": "Main",
             "type": "python",
             "request": "launch",
@@ -33,6 +19,13 @@
             "request": "launch",
             "cwd": "${workspaceFolder}/trame-tutorial",
             "program": "${workspaceFolder}/trame-tutorial/04_application/exodus.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
             "console": "integratedTerminal"
         }
     ]
