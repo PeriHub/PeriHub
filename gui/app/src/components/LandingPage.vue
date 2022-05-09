@@ -71,7 +71,7 @@
               </v-img>
             </v-card>
           </router-link>
-          <router-link class="card" to="conversion">
+          <router-link class="card" to="tools">
             <v-card width="400px">
               <v-img
                 src="../assets/math.jpg"
@@ -79,7 +79,7 @@
                 gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
                 height="200px"
               >
-                <v-card-title>Conversion</v-card-title>
+                <v-card-title>Tools</v-card-title>
               </v-img>
             </v-card>
           </router-link>

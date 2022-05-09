@@ -2,7 +2,7 @@ import LandingPage from "./components/LandingPage.vue";
 import PeriHub from "./components/PeriHub.vue";
 import LiteratureAnalysis from "./components/LiteratureAnalysis.vue";
 import Publications from "./components/Publications.vue";
-import Conversion from "./components/Conversion.vue";
+import Tools from "./components/Tools.vue";
 import Mindmap from "./components/Mindmap.vue";
 
 import Guide from "./components/Guide.vue";
@@ -144,8 +144,8 @@ export default [
     components: { a: Publications },
   },
   {
-    path: "/conversion",
-    components: { a: Conversion },
+    path: "/tools",
+    components: { a: Tools },
   },
   {
     path: "/literatureAnalysis",
