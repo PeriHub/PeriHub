@@ -193,6 +193,68 @@ export default {
       monitorToggle: false,
       viewId: 0,
       panel2: [0],
+      summarySearch: "",
+      summaryHeaders: [
+        {
+          text: "year",
+          align: "start",
+          sortable: true,
+          value: "year",
+        },
+        { text: "phdthesis", value: "phdthesis" },
+        { text: "article", value: "article" },
+        { text: "report", value: "report" },
+        { text: "book", value: "book" },
+        { text: "proceedings", value: "proceedings" },
+        { text: "misc", value: "misc" },
+        { text: "unpublished", value: "unpublished" },
+      ],
+      summaryItems: [
+        {
+          year: "2022",
+          phdthesis: 2,
+          article: 5,
+          report: 2,
+          book: 7,
+          proceedings: 1,
+          misc: 0,
+          unpublished: 0,
+        },
+      ],
+      wordSearch: "",
+      wordHeaders: [
+        {
+          text: "Word",
+          align: "start",
+          sortable: true,
+          value: "Words",
+        },
+        { text: "Number", value: "Number" },
+      ],
+      wordItems: [
+        {
+          Word: "Word",
+          Number: 2,
+        },
+      ],
+      journalSearch: "",
+      journalHeaders: [
+        {
+          text: "Journal",
+          align: "start",
+          sortable: true,
+          value: "journal",
+        },
+        { text: "Number", value: "Number" },
+        { text: "References", value: "References" },
+      ],
+      journalItems: [
+        {
+          journal: "Journal",
+          Number: 2,
+          References: ["A", "B"],
+        },
+      ],
       rules: {
         required: (value) => !!value || value == 0 || "Required",
         name: (value) => {
@@ -475,6 +537,84 @@ export default {
           this.snackbar = true;
         });
     },
+    async getSummary() {
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "getSummary",
+        params: { file_name: this.analysisModel.fileName },
+        method: "GET",
+        headers: headersList,
+      };
+
+      let rawData = null;
+      await axios
+        .request(reqOptions)
+        .then((response) => (rawData = response.data))
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+          return;
+        });
+      // console.log(JSON.parse(rawData));
+      this.summaryItems = JSON.parse(rawData);
+    },
+    async getWords() {
+      await this.uploadKeywordList();
+
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "getWords",
+        params: { file_name: this.analysisModel.fileName },
+        method: "GET",
+        headers: headersList,
+      };
+
+      let rawData = null;
+      await axios
+        .request(reqOptions)
+        .then((response) => (rawData = response.data))
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+          return;
+        });
+      // console.log(JSON.parse(rawData));
+      this.wordItems = JSON.parse(rawData);
+    },
+    async getJournals() {
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "getJournals",
+        params: { file_name: this.analysisModel.fileName },
+        method: "GET",
+        headers: headersList,
+      };
+
+      let rawData = null;
+      await axios
+        .request(reqOptions)
+        .then((response) => (rawData = response.data))
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+          return;
+        });
+      console.log(rawData);
+      console.log(JSON.parse(rawData));
+      this.journalItems = JSON.parse(rawData);
+    },
     getEntryByDoi(doi) {
       try {
         let entry = this.getEntryByValue(this.database, doi);
@@ -580,8 +720,10 @@ export default {
       this.network.maxNodeSizeFilter = maxSize;
     },
     resize() {
-      this.$set(this, "sizeW", this.$refs.networkView.$el.clientWidth);
-      this.$set(this, "sizeH", this.$refs.networkView.$el.clientHeight - 57);
+      if (typeof variable !== "undefined") {
+        this.$set(this, "sizeW", this.$refs.networkView.$el.clientWidth);
+        this.$set(this, "sizeH", this.$refs.networkView.$el.clientHeight - 57);
+      }
     },
     changeIcon() {
       let id = 0;

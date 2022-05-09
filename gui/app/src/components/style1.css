@@ -33,7 +33,6 @@
   height: 100%;
   margin: 10px;
 }
-
 .remaining-height {
   height: calc(100% - 48px);
   overflow-y: scroll;
@@ -74,4 +73,9 @@
 .white_label label {
   color: white !important;
   max-width: 200px;
+}
+
+.tab-item-wrapper {
+  /* vuetify sets the v-tabs__container height to 48px */
+  height: calc(100vh - 195px);
 }

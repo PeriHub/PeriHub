@@ -486,7 +486,9 @@
       <v-tabs color="deep-purple accent-4" left>
         <v-tab>Plotly</v-tab>
         <v-tab>d3-Network</v-tab>
-        <v-tab>Abstract</v-tab>
+        <v-tab>Summary</v-tab>
+        <v-tab>Words</v-tab>
+        <v-tab>Journals</v-tab>
         <v-tab-item>
           <v-subheader>
             <v-tooltip bottom
@@ -706,154 +708,162 @@
           </v-card>
         </v-tab-item>
         <v-tab-item>
-          <v-subheader>
-            <v-tooltip bottom
-              ><template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  class="my-btn"
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="dialogGetConnections = true"
-                  :disabled="!status.dumpExist"
-                >
-                  <i class="fas fa-play"></i>
-                </v-btn>
-              </template>
-              <span>Get connections</span>
-            </v-tooltip>
-
-            <v-dialog v-model="dialogGetConnections" persistent max-width="500">
-              <v-card>
-                <v-card-title class="text-h5"> Show Connections </v-card-title>
-                <v-card-text
-                  >Which variable do you want to use for the
-                  x-axis?</v-card-text
-                >
-                <v-card-actions>
-                  <v-spacer></v-spacer>
+          <div class="tab-item-wrapper">
+            <v-subheader>
+              <v-tooltip bottom
+                ><template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    color="green darken-1"
-                    text
-                    @click="getConnections('journal')"
+                    class="my-btn"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="dialogGetConnections = true"
+                    :disabled="!status.dumpExist"
                   >
-                    Journal
+                    <i class="fas fa-play"></i>
                   </v-btn>
+                </template>
+                <span>Get connections</span>
+              </v-tooltip>
+
+              <v-dialog
+                v-model="dialogGetConnections"
+                persistent
+                max-width="500"
+              >
+                <v-card>
+                  <v-card-title class="text-h5">
+                    Show Connections
+                  </v-card-title>
+                  <v-card-text
+                    >Which variable do you want to use for the
+                    x-axis?</v-card-text
+                  >
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="green darken-1"
+                      text
+                      @click="getConnections('journal')"
+                    >
+                      Journal
+                    </v-btn>
+                    <v-btn
+                      color="green darken-1"
+                      text
+                      @click="getConnections('keywords', 'Title')"
+                    >
+                      Keys / Title
+                    </v-btn>
+                    <v-btn
+                      color="green darken-1"
+                      text
+                      @click="getConnections('keywords', 'Text')"
+                    >
+                      Keys / Full text
+                    </v-btn>
+                    <v-btn
+                      color="red darken-1"
+                      text
+                      @click="dialogGetConnections = false"
+                    >
+                      Cancel
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+
+              <v-spacer />
+
+              <v-tooltip bottom class="my-btn"
+                ><template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    color="green darken-1"
-                    text
-                    @click="getConnections('keywords', 'Title')"
+                    class="my-btn"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="pinned = !pinned"
                   >
-                    Keys / Title
+                    <i v-if="pinned" class="fas fa-mouse-pointer"></i>
+                    <i v-if="!pinned" class="fas fa-thumbtack"></i>
                   </v-btn>
+                </template>
+                <span v-if="pinned">Select</span>
+                <span v-if="!pinned">Pin / Unpin</span>
+              </v-tooltip>
+
+              <v-tooltip bottom
+                ><template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    color="green darken-1"
-                    text
-                    @click="getConnections('keywords', 'Text')"
+                    class="my-btn"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="pinAllNodes(true)"
                   >
-                    Keys / Full text
+                    <i class="fas fa-thumbtack"></i>
                   </v-btn>
+                </template>
+                <span>Pin all</span>
+              </v-tooltip>
+
+              <v-tooltip bottom
+                ><template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    color="red darken-1"
-                    text
-                    @click="dialogGetConnections = false"
+                    class="my-btn"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="pinAllNodes(false)"
                   >
-                    Cancel
+                    <i class="fas fa-thumbtack"></i>
                   </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+                </template>
+                <span>Unpin all</span>
+              </v-tooltip>
 
-            <v-spacer />
-
-            <v-tooltip bottom class="my-btn"
-              ><template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  class="my-btn"
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="pinned = !pinned"
-                >
-                  <i v-if="pinned" class="fas fa-mouse-pointer"></i>
-                  <i v-if="!pinned" class="fas fa-thumbtack"></i>
-                </v-btn>
+              <v-tooltip bottom
+                ><template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    class="my-btn"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="screenshot"
+                  >
+                    <i class="fas fa-camera"></i>
+                  </v-btn>
+                </template>
+                <span>Screenshot</span>
+              </v-tooltip>
+            </v-subheader>
+            <v-card
+              class="my-card"
+              title="Network"
+              elevation="0"
+              margin-bottom="-17px"
+              :loading="networkLoading"
+              height="100%"
+              width="100%"
+              margin="10px"
+              ref="networkView"
+            >
+              <v-card-title class="my-title" style="padding-top: 0px">
+              </v-card-title>
+              <template slot="progress">
+                <v-progress-linear
+                  color="deep-purple"
+                  height="10"
+                  indeterminate
+                ></v-progress-linear>
               </template>
-              <span v-if="pinned">Select</span>
-              <span v-if="!pinned">Pin / Unpin</span>
-            </v-tooltip>
-
-            <v-tooltip bottom
-              ><template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  class="my-btn"
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="pinAllNodes(true)"
-                >
-                  <i class="fas fa-thumbtack"></i>
-                </v-btn>
-              </template>
-              <span>Pin all</span>
-            </v-tooltip>
-
-            <v-tooltip bottom
-              ><template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  class="my-btn"
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="pinAllNodes(false)"
-                >
-                  <i class="fas fa-thumbtack"></i>
-                </v-btn>
-              </template>
-              <span>Unpin all</span>
-            </v-tooltip>
-
-            <v-tooltip bottom
-              ><template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  class="my-btn"
-                  v-bind="attrs"
-                  v-on="on"
-                  @click="screenshot"
-                >
-                  <i class="fas fa-camera"></i>
-                </v-btn>
-              </template>
-              <span>Screenshot</span>
-            </v-tooltip>
-          </v-subheader>
-          <v-card
-            class="my-card"
-            title="Network"
-            elevation="0"
-            margin-bottom="-17px"
-            :loading="networkLoading"
-            flex
-            margin="10px"
-            ref="networkView"
-          >
-            <v-card-title class="my-title" style="padding-top: 0px">
-            </v-card-title>
-            <template slot="progress">
-              <v-progress-linear
-                color="deep-purple"
-                height="10"
-                indeterminate
-              ></v-progress-linear>
-            </template>
-            <d3-network
-              ref="net"
-              :net-nodes="filteredNodes"
-              :net-links="filteredLinks"
-              :selection="{nodes: selected, links: linksSelected}"
-              :options="options"
-              :node-sym="nodeSym"
-              @node-click="nodeClick"
-              @link-click="linkClick"
-              @screen-shot="screenShotDone"
-            />
-            <!-- <svg >
+              <d3-network
+                ref="net"
+                :net-nodes="filteredNodes"
+                :net-links="filteredLinks"
+                :selection="{nodes: selected, links: linksSelected}"
+                :options="options"
+                :node-sym="nodeSym"
+                @node-click="nodeClick"
+                @link-click="linkClick"
+                @screen-shot="screenShotDone"
+              />
+              <!-- <svg >
                 <defs>
                   <marker id="m-end" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth" >
                     <path d="M0,0 L0,6 L9,3 z"></path>
@@ -863,7 +873,137 @@
                   </marker>
                 </defs>
               </svg> -->
-          </v-card>
+            </v-card>
+          </div>
+        </v-tab-item>
+        <v-tab-item>
+          <div class="tab-item-wrapper">
+            <v-subheader>
+              <v-tooltip bottom
+                ><template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    class="my-btn"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="getSummary"
+                    :disabled="!status.dumpExist"
+                  >
+                    <i class="fas fa-chart-line"></i>
+                  </v-btn>
+                </template>
+                <span>Show Data</span>
+              </v-tooltip>
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="summarySearch"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+            </v-subheader>
+            <v-card class="remaining-height" title="Summary" elevation="0">
+              <template slot="progress">
+                <v-progress-linear
+                  color="deep-purple"
+                  height="10"
+                  indeterminate
+                ></v-progress-linear>
+              </template>
+              <v-data-table
+                :headers="summaryHeaders"
+                :items="summaryItems"
+                :items-per-page="15"
+                :search="summarySearch"
+              ></v-data-table>
+            </v-card>
+          </div>
+        </v-tab-item>
+        <v-tab-item>
+          <div class="tab-item-wrapper">
+            <v-subheader>
+              <v-tooltip bottom
+                ><template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    class="my-btn"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="getWords"
+                    :disabled="!status.dumpExist"
+                  >
+                    <i class="fas fa-chart-line"></i>
+                  </v-btn>
+                </template>
+                <span>Show Data</span>
+              </v-tooltip>
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="wordSearch"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+            </v-subheader>
+            <v-card class="remaining-height" title="Words" elevation="0">
+              <template slot="progress">
+                <v-progress-linear
+                  color="deep-purple"
+                  height="10"
+                  indeterminate
+                ></v-progress-linear>
+              </template>
+              <v-data-table
+                :headers="wordHeaders"
+                :items="wordItems"
+                :items-per-page="15"
+                :search="wordSearch"
+              ></v-data-table>
+            </v-card>
+          </div>
+        </v-tab-item>
+        <v-tab-item>
+          <div class="tab-item-wrapper">
+            <v-subheader>
+              <v-tooltip bottom
+                ><template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    class="my-btn"
+                    v-bind="attrs"
+                    v-on="on"
+                    @click="getJournals"
+                    :disabled="!status.dumpExist"
+                  >
+                    <i class="fas fa-chart-line"></i>
+                  </v-btn>
+                </template>
+                <span>Show Data</span>
+              </v-tooltip>
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="journalSearch"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+            </v-subheader>
+            <v-card class="remaining-height" title="Journals" elevation="0">
+              <template slot="progress">
+                <v-progress-linear
+                  color="deep-purple"
+                  height="10"
+                  indeterminate
+                ></v-progress-linear>
+              </template>
+              <v-data-table
+                :headers="journalHeaders"
+                :items="journalItems"
+                :items-per-page="15"
+                :search="journalSearch"
+              ></v-data-table>
+            </v-card>
+          </div>
         </v-tab-item>
       </v-tabs>
     </pane>
