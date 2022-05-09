@@ -188,7 +188,7 @@
                 <v-text-field
                   class="textfield-col"
                   v-model="model.height"
-                  v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                  v-show="!model.ownModel & !['RVE','CompactTension'].includes(model.modelNameSelected)"
                   :rules="[rules.required, rules.float]"
                   label="Height"
                   outlined
@@ -784,6 +784,174 @@
             <v-divider></v-divider>
             <v-expansion-panel>
               <v-expansion-panel-header>
+                <h2>Contact</h2>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-col class="textfieldlist-col" cols="12" sm="2">
+                  <v-checkbox
+                    v-model="contact.enabled"
+                    label="Enabled"
+                    outlined
+                  ></v-checkbox>
+                </v-col>
+                <v-container v-if="contact.enabled">
+                  <v-row>
+                    <v-col class="textfield-col" cols="12" sm="3">
+                      <v-text-field
+                        v-model="contact.searchRadius"
+                        label="Search Radius"
+                        :rules="[rules.required, rules.float]"
+                        outlined
+                      ></v-text-field>
+                    </v-col>
+                    <v-col class="textfield-col" cols="12" sm="3">
+                      <v-text-field
+                        v-model="contact.searchFrequency"
+                        label="Search Frequency"
+                        :rules="[rules.required, rules.int]"
+                        outlined
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-divider></v-divider>
+                  <v-list
+                    v-for="contactModel, index in contact.contactModels"
+                    :key="contactModel.id"
+                  >
+                    <!-- <h4>block_{{block.id}}</h4> -->
+                    <v-row>
+                      <v-col class="textfieldlist-col" cols="12" sm="3">
+                        <v-text-field
+                          v-model="contactModel.Name"
+                          label="Name"
+                          outlined
+                        ></v-text-field>
+                      </v-col>
+                      <v-col class="textfieldlist-col" cols="12" sm="3">
+                        <v-select
+                          :items="contactType"
+                          item-text="Name"
+                          v-model="contactModel.contactType"
+                          label="Type"
+                          outlined
+                        ></v-select>
+                      </v-col>
+                      <v-col class="textfieldlist-col" cols="12" sm="2">
+                        <v-text-field
+                          v-model="contactModel.contactRadius"
+                          label="Contact Radius"
+                          outlined
+                        ></v-text-field>
+                      </v-col>
+                      <v-col class="textfieldlist-col" cols="12" sm="2">
+                        <v-text-field
+                          v-model="contactModel.springConstant"
+                          label="Spring Constant"
+                          outlined
+                        ></v-text-field>
+                      </v-col>
+                      <v-col class="textfieldlist-col" cols="12" sm="1">
+                        <v-tooltip bottom
+                          ><template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                              class="my-btn"
+                              v-bind="attrs"
+                              v-on="on"
+                              @click="removeContactModel(index)"
+                            >
+                              <i class="fas fa-trash-alt"></i>
+                            </v-btn>
+                          </template>
+                          <span>Remove Contact Model</span>
+                        </v-tooltip>
+                      </v-col>
+                    </v-row>
+                    <v-divider></v-divider>
+                  </v-list>
+                  <v-tooltip bottom
+                    ><template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        class="my-btn"
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="addContactModel"
+                      >
+                        <i class="fas fa-plus"></i>
+                      </v-btn>
+                    </template>
+                    <span>Add Contact Model</span>
+                  </v-tooltip>
+                  <v-divider></v-divider>
+                  <v-list
+                    v-for="interaction, index in contact.interactions"
+                    :key="interaction.id"
+                  >
+                    <!-- <h4>block_{{block.id}}</h4> -->
+                    <v-row>
+                      <v-col class="textfieldlist-col" cols="12" sm="2">
+                        <v-select
+                          :items="blocks"
+                          item-text="id"
+                          v-model="interaction.firstBlockId"
+                          label="First Block Id"
+                          outlined
+                        ></v-select>
+                      </v-col>
+                      <v-col class="textfieldlist-col" cols="12" sm="2">
+                        <v-select
+                          :items="blocks"
+                          item-text="id"
+                          v-model="interaction.secondBlockId"
+                          label="Second Block Id"
+                          outlined
+                        ></v-select>
+                      </v-col>
+                      <v-col class="textfieldlist-col" cols="12" sm="2">
+                        <v-select
+                          :items="contact.contactModels"
+                          item-text="id"
+                          v-model="interaction.contactModelId"
+                          label="Contact Model Id"
+                          outlined
+                        ></v-select>
+                      </v-col>
+                      <v-col class="textfieldlist-col" cols="12" sm="1">
+                        <v-tooltip bottom
+                          ><template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                              class="my-btn"
+                              v-bind="attrs"
+                              v-on="on"
+                              @click="removeInteraction(index)"
+                            >
+                              <i class="fas fa-trash-alt"></i>
+                            </v-btn>
+                          </template>
+                          <span>Remove Interaction</span>
+                        </v-tooltip>
+                      </v-col>
+                    </v-row>
+                    <v-divider></v-divider>
+                  </v-list>
+                  <v-tooltip bottom
+                    ><template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        class="my-btn"
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="addInteraction"
+                      >
+                        <i class="fas fa-plus"></i>
+                      </v-btn>
+                    </template>
+                    <span>Add Interaction</span>
+                  </v-tooltip>
+                </v-container>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+            <v-divider></v-divider>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
                 <h2>Boundary Conditions</h2>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
@@ -1369,6 +1537,11 @@
                       label="Initial Output Step"
                       outlined
                     ></v-text-field>
+                    <v-checkbox
+                      class="shrink mr-0 mt-0"
+                      v-model="output.Write_Damage_To_File"
+                      label="Write Damage To File"
+                    ></v-checkbox>
                   </v-container>
                   <v-divider></v-divider>
                 </v-list>
@@ -1969,6 +2142,55 @@
                     color="red darken-1"
                     text
                     @click="dialogGetImage = false"
+                  >
+                    Cancel
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+
+            <v-tooltip bottom
+              ><template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="my-btn"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="dialogGetK1c = true"
+                  :disabled="!status.results"
+                >
+                  <i class="fas fa-image"></i>
+                </v-btn>
+              </template>
+              <span>Show K1c</span>
+            </v-tooltip>
+
+            <v-dialog v-model="dialogGetK1c" persistent max-width="800">
+              <v-card>
+                <v-card-title class="text-h5"> Show K1c </v-card-title>
+                <v-card-text
+                  >Which variable do you want to display ?</v-card-text
+                >
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-select
+                    :items="outputs"
+                    item-text="Name"
+                    v-model="getK1cOutput"
+                    label="Output Name"
+                    outlined
+                  ></v-select>
+                  <v-text-field
+                    v-model="getK1cFrequency"
+                    label="Output Frequency"
+                    outlined
+                  ></v-text-field>
+                  <v-btn color="green darken-1" text @click="getK1c">
+                    Show
+                  </v-btn>
+                  <v-btn
+                    color="red darken-1"
+                    text
+                    @click="dialogGetK1c = false"
                   >
                     Cancel
                   </v-btn>

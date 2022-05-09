@@ -25,6 +25,7 @@ class ModelWriter:
         self.compute_dict = model_class.compute_dict
         self.output_dict = model_class.output_dict
         self.solver_dict = model_class.solver_dict
+        self.contact_dict = model_class.contact_dict
         self.bondfilters = model_class.bondfilters
         self.disc_type = model_class.disc_type
         self.two_d = model_class.two_d

@@ -5,14 +5,14 @@
     "translated": false,
     "length": 50,
     "width": null,
-    "height": 100,
+    "height": null,
     "height2": null,
-    "radius": 10.0,
+    "radius": null,
     "structured": null,
-    "discretization": 100,
+    "discretization": 200,
     "horizon": null,
     "twoDimensional": true,
-    "rotatedAngles": true,
+    "rotatedAngles": false,
     "angles": [
       0,
       0
@@ -23,12 +23,12 @@
       "id": 1,
       "Name": "Aluminum",
       "density": 2.7e3,
-      "MatType": "Elastic Correspondence",
+      "MatType": "Linear Elastic Correspondence",
       "bulkModulus": null,
       "shearModulus": null,
       "youngsModulus": 7.24e10,
       "poissonsRatio": 0.33,
-      "tensionSeparation": false,
+      "tensionSeparation": true,
       "nonLinear": false,
       "planeStress": true,
       "materialSymmetry": "Isotropic",
@@ -136,12 +136,12 @@
     {
       "id": 1,
       "Name": "Damage",
-      "damageModel": "Critical Stretch",
-      "criticalStretch": 0.0022170,
-      "criticalEnergy": null,
+      "damageModel": "Critical Energy Correspondence",
+      "criticalStretch": null,
+      "criticalEnergy": 1.0e6,
       "interblockdamageEnergy": null,
       "planeStress": true,
-      "onlyTension": false,
+      "onlyTension": true,
       "detachedNodesCheck": true,
       "thickness": 10,
       "hourglassCoefficient": 1,
@@ -172,8 +172,52 @@
       "damageModel": "",
       "interface": "",
       "show": true
+    },
+    {
+      "id": 4,
+      "Name": "block_4",
+      "material": "Aluminum",
+      "damageModel": "",
+      "interface": "",
+      "show": true
+    },
+    {
+      "id": 5,
+      "Name": "block_5",
+      "material": "Aluminum",
+      "damageModel": "",
+      "interface": "",
+      "show": true
     }
   ],
+  "contact": {
+    "enabled": true,
+    "searchRadius": 0.01,
+    "searchFrequency": 100,
+    "contactModels": [
+      {
+        "id": 1,
+        "Name": "Contact Model",
+        "contactType": "Short Range Force",
+        "contactRadius": 0.000775,
+        "springConstant": 1000000000000.0
+      }
+    ],
+    "interactions":[
+      {
+        "id": 1,
+        "firstBlockId": 4,
+        "secondBlockId": 2,
+        "contactModelId": 1
+      },
+      {
+        "id": 2,
+        "firstBlockId": 5,
+        "secondBlockId": 3,
+        "contactModelId": 1
+      }
+    ]
+  },
   "boundaryConditions": [
     {
       "id": 1,
@@ -182,7 +226,7 @@
       "boundarytype": "Prescribed Displacement",
       "blockId": 2,
       "coordinate": "y",
-      "value": "-1*t"
+      "value": "1*t"
     },
     {
       "id": 2,
@@ -191,12 +235,46 @@
       "boundarytype": "Prescribed Displacement",
       "blockId": 3,
       "coordinate": "y",
-      "value": "1*t"
+      "value": "-1*t"
+    },
+    {
+      "id": 3,
+      "Name": "BC_3",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 2,
+      "coordinate": "x",
+      "value": "0"
+    },
+    {
+      "id": 4,
+      "Name": "BC_4",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 3,
+      "coordinate": "x",
+      "value": "0"
+    },
+    {
+      "id": 5,
+      "Name": "BC_5",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 1,
+      "coordinate": "z",
+      "value": "0"
     }
   ],
   "bondFilters": [
   ],
   "computes": [
+    {
+      "id": 1,
+      "Name": "External_Force",
+      "variable": "Force",
+      "calculationType": "Sum",
+      "blockName": "block_4"
+    }
   ],
   "outputs": [
     {
@@ -207,17 +285,18 @@
       "Damage": true,
       "Velocity": true,
       "Partial_Stress": true,
-      "External_Force": false,
+      "External_Force": true,
       "External_Displacement": false,
       "Number_Of_Neighbors": true,
-      "Frequency": "50",
+      "Write_Damage_To_File": false,
+      "Frequency": 15,
       "InitStep": 0
     }
   ],
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": 0.003,
+    "finalTime": 0.1,
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,

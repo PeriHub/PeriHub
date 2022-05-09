@@ -13,6 +13,7 @@ class XMLcreator:
         self.output_dict = model_writer.output_dict
         self.solver_dict = model_writer.solver_dict
         self.block_def = block_def
+        self.contact_dict = model_writer.contact_dict
         self.bondfilters = model_writer.bondfilters
         self.boundary_condition = model_writer.bc_dict
         self.ns_name = model_writer.ns_name
@@ -318,7 +319,7 @@ class XMLcreator:
                 )
                 if "interblockdamageEnergy" in dam:
                     string += (
-                        '            <Parameter name="Interblock damage energy" type="double" value="'
+                        '            <Parameter name="Interblock Critical Energy" type="double" value="'
                         + str(float(dam.interblockdamageEnergy))
                         + '"/>\n'
                     )
@@ -560,6 +561,68 @@ class XMLcreator:
         string += "    </ParameterList>\n"
         return string
 
+    def contact(self):
+        if self.contact_dict.enabled:
+            string = '    <ParameterList name="Contact">\n'
+            string += (
+                '        <Parameter name="Search Radius" type="double" value="'
+                + str(self.contact_dict.searchRadius)
+                + '"/>\n'
+            )
+            string += (
+                '        <Parameter name="Search Frequency" type="int" value="'
+                + str(self.contact_dict.searchFrequency)
+                + '"/>\n'
+            )
+            string += '        <ParameterList name="Models">\n'
+            for models in self.contact_dict.contactModels:
+                string += '            <ParameterList name="' + models.Name + '">\n'
+                string += (
+                    '               <Parameter name="Contact Model" type="string" value="'
+                    + models.contactType
+                    + '"/>\n'
+                )
+                string += (
+                    '               <Parameter name="Contact Radius" type="double" value="'
+                    + str(models.contactRadius)
+                    + '"/>\n'
+                )
+                string += (
+                    '               <Parameter name="Spring Constant" type="double" value="'
+                    + str(models.springConstant)
+                    + '"/>\n'
+                )
+                string += "                </ParameterList>\n"
+            string += "            </ParameterList>\n"
+            string += '        <ParameterList name="Interactions">\n'
+            for interaction in self.contact_dict.interactions:
+                string += (
+                    '            <ParameterList name="Interaction '
+                    + str(interaction.firstBlockId)
+                    + "_"
+                    + str(interaction.secondBlockId)
+                    + '">\n'
+                )
+                string += (
+                    '               <Parameter name="First Block" type="string" value="'
+                    + self.block_def[interaction.firstBlockId - 1].Name
+                    + '"/>\n'
+                )
+                string += (
+                    '               <Parameter name="Second Block" type="string" value="'
+                    + self.block_def[interaction.secondBlockId - 1].Name
+                    + '"/>\n'
+                )
+                string += (
+                    '               <Parameter name="Contact Model" type="string" value="'
+                    + self.contact_dict.contactModels[interaction.contactModelId - 1].Name
+                    + '"/>\n'
+                )
+                string += "                </ParameterList>\n"
+            string += "            </ParameterList>\n"
+            string += "    </ParameterList>\n"
+        return string
+
     def compute(self):
         string = '    <ParameterList name="Compute Class Parameters">\n'
         for out in self.compute_dict:
@@ -618,6 +681,8 @@ class XMLcreator:
             string += (
                 '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
             )
+            if out.Write_Damage_To_File:
+                string += '        <Parameter name="Write Damage To File" type="bool" value="true"/>\n'
             string += '        <ParameterList name="Output Variables">\n'
             if out.Displacement:
                 string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
@@ -685,6 +750,8 @@ class XMLcreator:
         if len(self.damage_dict) > 0:
             string += self.damage()
         string += self.blocks()
+        if len(self.contact_dict.contactModels) > 0:
+            string += self.contact()
         string += self.create_boundary_condition()
         string += self.solver()
         string += self.compute()

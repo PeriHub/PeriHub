@@ -12,6 +12,7 @@ class OwnModel:
         material=None,
         damage=None,
         block=None,
+        contact=None,
         boundary_condition=None,
         bond_filter=None,
         compute=None,
@@ -35,6 +36,7 @@ class OwnModel:
         self.output_dict = output
         self.material_dict = material
         self.bondfilters = bond_filter
+        self.contact_dict = contact
         self.bc_dict = boundary_condition
         self.solver_dict = solver
 

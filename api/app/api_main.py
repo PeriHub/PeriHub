@@ -39,6 +39,7 @@ from models.OwnModel.own_model import OwnModel
 from support.sbatch_creator import SbatchCreator
 from support.file_handler import FileHandler
 from support.base_models import ModelData, FileType, RunData, Status
+from support.crack_length import CrackLength
 
 
 # class NotFoundException(Exception):
@@ -146,7 +147,18 @@ class ModelControl:
             number_nodes = 2 * int(model_data.model.discretization / 2)
         else:
             number_nodes = 2 * int(model_data.model.discretization / 2) + 1
-        dx_value = [height / number_nodes, height / number_nodes, height / number_nodes]
+        if model_name in {"CompactTension"}:
+            dx_value = [
+                1.25 * length / number_nodes,
+                1.25 * length / number_nodes,
+                1.25 * length / number_nodes,
+            ]
+        else:
+            dx_value = [
+                height / number_nodes,
+                height / number_nodes,
+                height / number_nodes,
+            ]
 
         start_time = time.time()
 
@@ -279,6 +291,7 @@ class ModelControl:
                 damage=model_data.damages,
                 block=model_data.blocks,
                 boundary_condition=model_data.boundaryConditions,
+                contact=model_data.contact,
                 bond_filter=model_data.bondFilters,
                 compute=model_data.computes,
                 output=model_data.outputs,
@@ -749,6 +762,30 @@ class ModelControl:
                 + axis
                 + ".jpg"
             )
+        except IOError:
+            return model_name + " results can not be found on " + cluster
+
+    @app.get("/getK1c", tags=["Get Methods"])
+    def get_k1c(
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        frequency: int = "10",
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False, ".csv"
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        response = CrackLength.getCrackLength(username, model_name, output, frequency)
+        # print(crack_length)
+        # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
+        try:
+            return response
         except IOError:
             return model_name + " results can not be found on " + cluster
 

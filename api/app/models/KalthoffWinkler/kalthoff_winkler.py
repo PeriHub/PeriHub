@@ -7,6 +7,7 @@ from support.base_models import (
     Block,
     BondFilters,
     BoundaryConditions,
+    Contact,
     Compute,
     Damage,
     Material,
@@ -184,6 +185,15 @@ class KalthoffWinkler:
         filetype="yaml",
     )
 
+
+    contact_dict = Contact(
+        enabled=False,
+        searchRadius=0,
+        searchFrequency=0,
+        contactModels=[],
+        interactions=[],
+    ) 
+
     def __init__(
         self,
         xend=100,
@@ -197,6 +207,7 @@ class KalthoffWinkler:
         material=[mat_dict],
         damage=[damage_dict],
         block=None,
+        contact=contact_dict,
         boundary_condition=[bc1, bc2, bc3],
         bond_filter=[bf1, bf2],
         compute=[compute_dict1, compute_dict2],
@@ -256,6 +267,7 @@ class KalthoffWinkler:
         self.output_dict = output
         self.material_dict = material
         self.bondfilters = bond_filter
+        self.contact_dict = contact
         self.bc_dict = boundary_condition
         self.solver_dict = solver
 

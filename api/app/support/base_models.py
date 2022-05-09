@@ -18,7 +18,7 @@ class Model(BaseModel):
     translated: bool
     length: float
     width: Optional[float] = None
-    height: float
+    height: Optional[float] = None
     height2: Optional[float] = None
     radius: Optional[float] = None
     structured: Optional[bool] = None
@@ -30,7 +30,7 @@ class Model(BaseModel):
 
 
 class Properties(BaseModel):
-    id: int
+    id: Optional[int]
     Name: str
     value: Optional[float] = None
 
@@ -41,7 +41,7 @@ class Parameter(BaseModel):
 
 
 class Material(BaseModel):
-    id: int
+    id: Optional[int]
     Name: str
     MatType: str
     density: float
@@ -65,7 +65,7 @@ class Material(BaseModel):
 
 
 class Damage(BaseModel):
-    id: int
+    id: Optional[int]
     Name: str
     damageModel: str
     criticalStretch: Optional[float] = None
@@ -80,7 +80,7 @@ class Damage(BaseModel):
 
 
 class Block(BaseModel):
-    id: int
+    id: Optional[int]
     Name: str
     material: str
     damageModel: Optional[str] = None
@@ -89,8 +89,31 @@ class Block(BaseModel):
     show: Optional[bool] = None
 
 
+class ContactModel(BaseModel):
+    id: Optional[int]
+    Name: str
+    contactType: str
+    contactRadius: float
+    springConstant: float
+
+
+class Interaction(BaseModel):
+    id: Optional[int]
+    firstBlockId: int
+    secondBlockId: int
+    contactModelId: int
+
+
+class Contact(BaseModel):
+    enabled: bool
+    searchRadius: float
+    searchFrequency: int
+    contactModels: List[ContactModel]
+    interactions: List[Interaction]
+
+
 class BoundaryConditions(BaseModel):
-    id: int
+    id: Optional[int]
     Name: str
     nodeSet: Optional[str] = None
     boundarytype: str
@@ -100,7 +123,7 @@ class BoundaryConditions(BaseModel):
 
 
 class BondFilters(BaseModel):
-    id: int
+    id: Optional[int]
     Name: str
     type: str
     normalX: float
@@ -122,7 +145,7 @@ class BondFilters(BaseModel):
 
 
 class Compute(BaseModel):
-    id: int
+    id: Optional[int]
     Name: str
     variable: str
     calculationType: str
@@ -130,7 +153,7 @@ class Compute(BaseModel):
 
 
 class Output(BaseModel):
-    id: int
+    id: Optional[int]
     Name: str
     Displacement: Optional[bool] = None
     Force: Optional[bool] = None
@@ -152,6 +175,7 @@ class Output(BaseModel):
     Damage_Model_Data: Optional[bool] = None
     Velocity_Gradient: Optional[bool] = None
     PiolaStressTimesInvShapeTensor: Optional[bool] = None
+    Write_Damage_To_File: Optional[bool] = None
     Frequency: int
     InitStep: int
 
@@ -337,6 +361,7 @@ class ModelData(BaseModel):
     materials: List[Material]
     damages: Optional[List[Damage]]
     blocks: List[Block]
+    contact: Optional[Contact]
     boundaryConditions: List[BoundaryConditions]
     bondFilters: Optional[List[BondFilters]]
     computes: Optional[List[Compute]]

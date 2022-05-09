@@ -11,3 +11,4 @@ pyjwt
 requests 
 zipfile2 
 python-dotenv 
+sklearn

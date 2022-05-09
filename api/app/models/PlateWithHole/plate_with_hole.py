@@ -7,6 +7,7 @@ from support.base_models import (
     Block,
     # BondFilters,
     BoundaryConditions,
+    Contact,
     Compute,
     Damage,
     Material,
@@ -20,6 +21,15 @@ from support.geometry import Geometry
 
 
 class PlateWithHole:
+
+    contact_dict = Contact(
+        enabled=False,
+        searchRadius=0,
+        searchFrequency=0,
+        contactModels=[],
+        interactions=[],
+    ) 
+
     def __init__(
         self,
         xend=50,
@@ -34,6 +44,7 @@ class PlateWithHole:
         material=None,
         damage=None,
         block=None,
+        contact=contact_dict,
         boundary_condition=None,
         bond_filter=None,
         compute=None,
@@ -193,6 +204,7 @@ class PlateWithHole:
         #     self.bondfilters = [bf1]
         # else:
         self.bondfilters = bond_filter
+        self.contact_dict = contact
 
         if not boundary_condition:
             bc1 = BoundaryConditions(

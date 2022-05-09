@@ -250,7 +250,7 @@ export default {
         damageModel: "Damage Model",
         criticalStretch: "Critical Stretch",
         criticalEnergy: "Critical Energy",
-        interblockdamageEnergy: "Interblock damage energy",
+        interblockdamageEnergy: "Interblock Critical Energy",
         planeStress: "Plane Stress",
         onlyTension: "Only Tension",
         detachedNodesCheck: "Detached Nodes Check",
@@ -429,6 +429,30 @@ export default {
         centerZ: "Center_Z",
         radius: "Radius",
       },
+      //  contact
+      contactType: ["Short Range Force"],
+      contact: {
+        enabled: true,
+        searchRadius: 0.01,
+        searchFrequency: 100,
+        contactModels: [
+          {
+            id: 1,
+            Name: "Contact Model",
+            contactType: "Short Range Force",
+            contactRadius: 0.000775,
+            springConstant: 1000000000000.0,
+          },
+        ],
+        interactions: [
+          {
+            id: 1,
+            firstBlockId: 1,
+            secondBlockId: 2,
+            contactModelId: 1,
+          },
+        ],
+      },
       // Compute
       calculationType: ["Sum", "Maximum", "Minimum"],
       variables: ["Force", "Displacement", "Damage"],
@@ -479,6 +503,7 @@ export default {
           Damage_Model_Data: false,
           Velocity_Gradient: false,
           PiolaStressTimesInvShapeTensor: false,
+          Write_Damage_To_File: false,
           Frequency: 100,
           InitStep: 0,
         },
@@ -504,6 +529,7 @@ export default {
         Damage_Model_Data: "Damage_Model_Data",
         Velocity_Gradient: "Velocity_Gradient",
         PiolaStressTimesInvShapeTensor: "PiolaStressTimesInvShapeTensor",
+        Write_Damage_To_File: "Write Damage To File",
         Frequency: "Output Frequency",
         InitStep: "Initial Output Step",
       },
@@ -644,6 +670,9 @@ export default {
       getImageVariableSelected: "Displacement",
       getImageAxis: ["Magnitude", "X", "Y", "Z"],
       getImageAxisSelected: "Magnitude",
+      dialogGetK1c: false,
+      getK1cOutput: "Output1",
+      getK1cFrequency: 10,
       dialogShowResults: false,
       dialogGetPlot: false,
       dialogDeleteData: false,
@@ -776,6 +805,14 @@ export default {
       //                                     "\"Solver\": " + JSON.stringify(this.solver)+",\n" +
       //                                     "\"Output\": " + JSON.stringify(this.outputs) + "}}")
       if (this.checkInputs()) {
+        if (
+          (this.model.modelNameSelected == "CompactTension") &
+          !this.model.ownModel
+        ) {
+          this.model.height = this.model.length * 1.25;
+          console.log(this.model.height);
+        }
+
         let headersList = {
           "Cache-Control": "no-cache",
           Authorization: this.authToken,
@@ -796,6 +833,9 @@ export default {
               ",\n" +
               '"blocks": ' +
               JSON.stringify(this.blocks) +
+              ",\n" +
+              '"contact": ' +
+              JSON.stringify(this.contact) +
               ",\n" +
               '"boundaryConditions": ' +
               JSON.stringify(this.boundaryConditions) +
@@ -829,6 +869,9 @@ export default {
               ",\n" +
               '"blocks": ' +
               JSON.stringify(this.blocks) +
+              ",\n" +
+              '"contact": ' +
+              JSON.stringify(this.contact) +
               ",\n" +
               '"boundaryConditions": ' +
               JSON.stringify(this.boundaryConditions) +
@@ -991,6 +1034,9 @@ export default {
         ",\n" +
         '"blocks": ' +
         JSON.stringify(this.blocks, null, 2) +
+        ",\n" +
+        '"contact": ' +
+        JSON.stringify(this.contact, null, 2) +
         ",\n" +
         '"boundaryConditions": ' +
         JSON.stringify(this.boundaryConditions, null, 2) +
@@ -1522,6 +1568,16 @@ export default {
               this.removeBlock
             );
             break;
+          case "Contact":
+            console.log("Contact import not supported yet!");
+            // this.getValuesFromJson(
+            //   Param,
+            //   "contact",
+            //   this.blockKeys,
+            //   this.addC,
+            //   this.removeBlock
+            // );
+            break;
           case "Boundary Conditions":
             this.getValuesFromJson(
               Param,
@@ -1570,6 +1626,7 @@ export default {
               this.outputs[j].Damage_Model_Data = false;
               this.outputs[j].Velocity_Gradient = false;
               this.outputs[j].PiolaStressTimesInvShapeTensor = false;
+              this.outputs[j].Write_Damage_To_File = false;
             }
             this.getValuesFromJson(
               Param,
@@ -1622,14 +1679,13 @@ export default {
       // }
       // else{
       // var param = result[i]
-      // console.log(jsonFile)
-      // console.log(jsonFile)
+      // console.log(jsonFile);
       // console.log(Object.keys(jsonFile).length)
       for (var i = 0; i < Object.keys(jsonFile).length; i++) {
         var paramName = Object.keys(jsonFile)[i];
         // console.log(i)
         if ((paramName != "model") & (paramName != "solver")) {
-          // console.log(paramName)
+          // console.log(paramName);
           // console.log(this[paramName].length)
           // console.log(jsonFile[paramName].length)
           // console.log(this[paramName])
@@ -1655,8 +1711,8 @@ export default {
             }
           }
         }
-        // console.log(this[paramName])
-        // console.log(jsonFile[paramName])
+        // console.log(this[paramName]);
+        // console.log(jsonFile[paramName]);
         // this[paramName] = [...jsonFile[paramName]];
         this.$set(this, paramName, jsonFile[paramName]);
         // Object.assign(this[paramName], jsonFile[paramName]);
@@ -2233,6 +2289,45 @@ export default {
       this.viewId = 0;
       this.modelLoading = false;
     },
+    async getK1c() {
+      this.dialogGetK1c = false;
+
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "getK1c",
+        params: {
+          model_name: this.model.modelNameSelected,
+          Cluster: this.job.cluster,
+          Output: this.getK1cOutput,
+          Frequency: this.getK1cFrequency,
+        },
+        method: "GET",
+        responseType: "application/json",
+        headers: headersList,
+      };
+
+      this.modelLoading = true;
+      await axios
+        .request(reqOptions)
+        .then((response) => (this.plotRawData = response.data))
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+          this.modelLoading = false;
+          return;
+        });
+      console.log(this.plotRawData);
+      this.plotData[0].x = this.plotRawData[2];
+      this.plotData[0].name = "Crack length";
+      this.plotData[0].y = this.plotRawData[1];
+
+      this.viewId = 2;
+      this.modelLoading = false;
+    },
     openCara() {
       window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");
     },
@@ -2564,6 +2659,43 @@ export default {
       this.bondFilters.splice(index, 1);
       this.bondFilterPoints.splice(index, 1);
     },
+    addContactModel() {
+      const len = this.contact.contactModels.length;
+      this.contact.contactModels.push({
+        id: len + 1,
+        Name: "Contact Model " + (len + 1),
+      });
+      for (const key in this.contact.contactModels[len - 1]) {
+        if ((key != "id") & (key != "Name")) {
+          this.$set(
+            this.contact.contactModels[len],
+            key,
+            this.contact.contactModels[len - 1][key]
+          );
+        }
+      }
+    },
+    removeContactModel(index) {
+      this.contact.contactModels.splice(index, 1);
+    },
+    addInteraction() {
+      const len = this.contact.interactions.length;
+      this.contact.interactions.push({
+        id: len + 1,
+      });
+      for (const key in this.contact.interactions[len - 1]) {
+        if (key != "id") {
+          this.$set(
+            this.contact.interactions[len],
+            key,
+            this.contact.interactions[len - 1][key]
+          );
+        }
+      }
+    },
+    removeInteraction(index) {
+      this.contact.interactions.splice(index, 1);
+    },
     addCompute() {
       const len = this.computes.length;
       this.computes.push({
@@ -2603,6 +2735,7 @@ export default {
         Damage_Model_Data: false,
         Velocity_Gradient: false,
         PiolaStressTimesInvShapeTensor: false,
+        Write_Damage_To_File: false,
         InitStep: 0,
       });
     },
@@ -2678,6 +2811,7 @@ export default {
       this.getLocalStorage("materials");
       this.getLocalStorage("damages");
       this.getLocalStorage("blocks");
+      this.getLocalStorage("contact");
       this.getLocalStorage("boundaryConditions");
       this.getLocalStorage("bondFilters");
       this.getLocalStorage("computes");
@@ -2689,10 +2823,12 @@ export default {
     getLocalStorage(name) {
       if (localStorage.getItem(name))
         var object = JSON.parse(localStorage.getItem(name));
-      if (Array.isArray(object)) {
-        this[name] = [...JSON.parse(localStorage.getItem(name))];
-      } else {
-        this[name] = { ...JSON.parse(localStorage.getItem(name)) };
+      if (Object.keys(object).length != 0) {
+        if (Array.isArray(object)) {
+          this[name] = [...JSON.parse(localStorage.getItem(name))];
+        } else {
+          this[name] = { ...JSON.parse(localStorage.getItem(name)) };
+        }
       }
     },
     deleteCookies() {
@@ -2702,6 +2838,7 @@ export default {
       localStorage.removeItem("materials");
       localStorage.removeItem("damages");
       localStorage.removeItem("blocks");
+      localStorage.removeItem("contact");
       localStorage.removeItem("boundaryConditions");
       localStorage.removeItem("bondFilters");
       localStorage.removeItem("computes");
@@ -2805,6 +2942,13 @@ export default {
       handler() {
         // console.log('blocks changed!');
         localStorage.setItem("blocks", JSON.stringify(this.blocks));
+      },
+      deep: true,
+    },
+    contact: {
+      handler() {
+        // console.log('contact changed!');
+        localStorage.setItem("contact", JSON.stringify(this.contact));
       },
       deep: true,
     },

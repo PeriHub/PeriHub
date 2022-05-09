@@ -7,8 +7,11 @@ from support.base_models import (
     Block,
     BondFilters,
     BoundaryConditions,
+    Contact,
+    ContactModel,
     Compute,
     Damage,
+    Interaction,
     Material,
     Output,
     Newton,
@@ -54,7 +57,7 @@ class CompactTension:
         NodeSets=None,
         boundarytype="Prescribed Displacement",
         blockId=3,
-        coordinate="x",
+        coordinate="z",
         value="0",
     )
     bc5 = BoundaryConditions(
@@ -62,9 +65,56 @@ class CompactTension:
         Name="BC_5",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
-        blockId=1,
+        blockId=2,
+        coordinate="x",
+        value="0",
+    )
+    bc6 = BoundaryConditions(
+        id=6,
+        Name="BC_6",
+        NodeSets=None,
+        boundarytype="Prescribed Displacement",
+        blockId=3,
         coordinate="z",
         value="0",
+    )
+
+    bf1 = BondFilters(
+        id=1,
+        Name="bf_1",
+        type="Rectangular_Plane",
+        normalX=0.0,
+        normalY=1.0,
+        normalZ=0.0,
+        lowerLeftCornerX=-0.5,
+        lowerLeftCornerY=0,
+        lowerLeftCornerZ=-0.5,
+        bottomUnitVectorX=1.0,
+        bottomUnitVectorY=0.0,
+        bottomUnitVectorZ=0.0,
+        bottomLength=25.5,
+        sideLength=1.0,
+        centerX=0.0,
+        centerY=1.0,
+        centerZ=0.0,
+        radius=1.0,
+        show=True,
+    )
+    contact_model = ContactModel(
+        id=1,
+        Name="Contact Model",
+        contactType="Short Range Force",
+        contactRadius=0.000775,
+        springConstant=1.0e12,
+    )
+    interaction_1 = Interaction(firstBlockId=4, secondBlockId=2, contactModelId=1)
+    interaction_2 = Interaction(firstBlockId=5, secondBlockId=3, contactModelId=1)
+    contact_dict = Contact(
+        enabled=True,
+        searchRadius=0.01,
+        searchFrequency=100,
+        contactModels=[contact_model],
+        interactions=[interaction_1, interaction_2],
     )
     mat_dict = Material(
         id=1,
@@ -86,7 +136,7 @@ class CompactTension:
         yieldStress=None,
         Parameter=[],
         Properties=[],
-        useCollocationNodes=True,
+        useCollocationNodes=False,
     )
 
     damage_dict = Damage(
@@ -104,6 +154,13 @@ class CompactTension:
         stabilizatonType="Global Stiffness",
     )
 
+    compute_dict = Compute(
+        id=1,
+        Name="External_Force",
+        variable="Force",
+        calculationType="Sum",
+        blockName="block_3",
+    )
     output_dict1 = Output(
         id=1,
         Name="Output1",
@@ -111,15 +168,18 @@ class CompactTension:
         Force=True,
         Damage=True,
         Velocity=True,
-        Partial_Stress=False,
+        Partial_Stress=True,
         Number_Of_Neighbors=True,
-        Frequency=2,
+        External_Force=True,
+        Write_Damage_To_File=False,
+        Frequency=15,
         InitStep=0,
     )
+
     solver_dict = Solver(
         verbose=False,
         initialTime=0.0,
-        finalTime=0.05,
+        finalTime=0.1,
         fixedDt=None,
         solvertype="Verlet",
         safetyFactor=0.95,
@@ -154,9 +214,10 @@ class CompactTension:
         material=[mat_dict],
         damage=[damage_dict],
         block=None,
-        boundary_condition=[bc1, bc2, bc3, bc4, bc5],
-        bond_filter=[],
-        compute=[],
+        boundary_condition=[bc1, bc2],
+        contact=contact_dict,
+        bond_filter=[bf1],
+        compute=[compute_dict],
         output=[output_dict1],
         solver=solver_dict,
         username="",
@@ -204,7 +265,7 @@ class CompactTension:
             self.zbegin = -zend
             self.zend = zend + dx_value[2]
 
-        number_of_blocks = 3
+        number_of_blocks = 5
 
         """ Definition of model
         """
@@ -214,13 +275,12 @@ class CompactTension:
         self.output_dict = output
         self.material_dict = material
         self.bondfilters = bond_filter
+        self.contact_dict = contact
         self.bc_dict = boundary_condition
         self.solver_dict = solver
 
         self.dam_block = [""] * number_of_blocks
         self.dam_block[0] = self.damage_dict[0].Name
-        self.dam_block[1] = self.damage_dict[0].Name
-        self.dam_block[2] = self.damage_dict[0].Name
 
         self.int_block_id = [""] * number_of_blocks
         self.mat_block = [self.material_dict[0].Name] * number_of_blocks
@@ -230,31 +290,75 @@ class CompactTension:
         k = np.where(
             np.logical_and(
                 np.logical_and(
-                    x_value <= 0.25 * self.w + 3 * self.dx_value[0],
-                    x_value >= 0.25 * self.w - 3 * self.dx_value[0],
+                    x_value <= 0.45 * self.w,
+                    x_value >= 0,
                 ),
-                np.logical_and(
-                    y_value <= 0.275 * self.w + 3 * self.dx_value[1],
-                    y_value >= 0.275 * self.w - 3 * self.dx_value[1],
-                ),
+                y_value >= 0,
             ),
-            2,
+            4,
             k,
         )
         k = np.where(
             np.logical_and(
                 np.logical_and(
-                    x_value <= 0.25 * self.w + 3 * self.dx_value[0],
-                    x_value >= 0.25 * self.w - 3 * self.dx_value[0],
+                    x_value <= 0.45 * self.w,
+                    x_value >= 0,
                 ),
-                np.logical_and(
-                    y_value <= -0.275 * self.w + 3 * self.dx_value[1],
-                    y_value >= -0.275 * self.w - 3 * self.dx_value[1],
-                ),
+                y_value <= 0,
             ),
+            5,
+            k,
+        )
+        condition = np.where(
+            ((x_value - 0.25 * self.w) ** 2) + ((y_value - 0.275 * self.w) ** 2)
+            <= 0.1 * self.w,
+            1.0,
+            0,
+        )
+        k = np.where(
+            condition,
+            2,
+            k,
+        )
+        condition = np.where(
+            ((x_value - 0.25 * self.w) ** 2) + ((y_value + 0.275 * self.w) ** 2)
+            <= 0.1 * self.w,
+            1.0,
+            0,
+        )
+        k = np.where(
+            condition,
             3,
             k,
         )
+        # k = np.where(
+        #     np.logical_and(
+        #         np.logical_and(
+        #             x_value <= 0.25 * self.w + 3 * self.dx_value[0],
+        #             x_value >= 0.25 * self.w - 3 * self.dx_value[0],
+        #         ),
+        #         np.logical_and(
+        #             y_value <= 0.275 * self.w + 3 * self.dx_value[1],
+        #             y_value >= 0.275 * self.w - 3 * self.dx_value[1],
+        #         ),
+        #     ),
+        #     2,
+        #     k,
+        # )
+        # k = np.where(
+        #     np.logical_and(
+        #         np.logical_and(
+        #             x_value <= 0.25 * self.w + 3 * self.dx_value[0],
+        #             x_value >= 0.25 * self.w - 3 * self.dx_value[0],
+        #         ),
+        #         np.logical_and(
+        #             y_value <= -0.275 * self.w + 3 * self.dx_value[1],
+        #             y_value >= -0.275 * self.w - 3 * self.dx_value[1],
+        #         ),
+        #     ),
+        #     3,
+        #     k,
+        # )
         return k
 
     def create_model(self):
@@ -280,7 +384,7 @@ class CompactTension:
             z_value,
             0.0,
             self.xend,
-            0.45 * self.xend,
+            0.45 * self.w,
             1.6,
             self.dx_value[0],
             60,

@@ -15,6 +15,7 @@ from support.base_models import (
     Newton,
     Solver,
     Verlet,
+    Contact,
 )
 from support.model_writer import ModelWriter
 from support.geometry import Geometry
@@ -130,6 +131,13 @@ class Dogbone:
         adapt=Adapt(),
         filetype="yaml",
     )
+    contact_dict = Contact(
+        enabled=False,
+        searchRadius=0,
+        searchFrequency=0,
+        contactModels=[],
+        interactions=[],
+    )
 
     def __init__(
         self,
@@ -146,6 +154,7 @@ class Dogbone:
         material=[mat_dict],
         damage=[damage_dict],
         block=None,
+        contact=contact_dict,
         boundary_condition=[bc1, bc2],
         bond_filter=[],
         compute=[compute_dict1, compute_dict2],
@@ -198,6 +207,7 @@ class Dogbone:
         self.output_dict = output
         self.material_dict = material
         self.bondfilters = bond_filter
+        self.contact_dict = contact
         self.bc_dict = boundary_condition
         self.solver_dict = solver
 
