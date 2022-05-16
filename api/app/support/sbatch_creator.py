@@ -72,7 +72,7 @@ class SbatchCreator:
                 "python /home/"
                 + self.user
                 + "/peridigm/src/scripts/MergeFiles.py "
-                + out.Name
+                + out.name
                 + " "
                 + str(self.tasks)
                 + "\n"
@@ -113,7 +113,7 @@ class SbatchCreator:
         #     for out in self.output_dict:
         #         string += (
         #             "python /peridigm/scripts/MergeFiles.py "
-        #             + out.Name
+        #             + out.name
         #             + " "
         #             + str(self.tasks)
         #             + "\n"

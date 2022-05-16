@@ -48,7 +48,7 @@ class XMLcreator:
     def create_bond_filter(self):
         string = '        <ParameterList name="Bond Filters">\n'
         for bond_filter in self.bondfilters:
-            string += '            <ParameterList name="' + bond_filter.Name + '">\n'
+            string += '            <ParameterList name="' + bond_filter.name + '">\n'
             string += (
                 '                <Parameter name="Type" type="string" value = "'
                 + bond_filter.type
@@ -138,10 +138,10 @@ class XMLcreator:
     def material(self):
         string = '    <ParameterList name="Materials">\n'
         for mat in self.material_dict:
-            string += '        <ParameterList name="' + mat.Name + '">\n'
+            string += '        <ParameterList name="' + mat.name + '">\n'
             string += (
                 '            <Parameter name="Material Model" type="string" value="'
-                + mat.MatType
+                + mat.matType
                 + '"/>\n'
             )
             string += (
@@ -163,7 +163,7 @@ class XMLcreator:
                 for param in mat.Parameter:
                     string += (
                         '            <Parameter name="'
-                        + param.Name
+                        + param.name
                         + '" type="double" value="'
                         + str(np.format_float_scientific(float(param.value)))
                         + '"/>\n'
@@ -237,16 +237,16 @@ class XMLcreator:
                     + str(mat.nonLinear)
                     + '"/>\n'
                 )
-            if self.check_if_defined(mat.Properties) and "User" in mat.MatType:
+            if self.check_if_defined(mat.properties) and "User" in mat.matType:
                 string += (
-                    '            <Parameter name="Number of Properties" type="int" value="'
-                    + str(len(mat.Properties))
+                    '            <Parameter name="Number of properties" type="int" value="'
+                    + str(len(mat.properties))
                     + '"/>\n'
                 )
-                for prop in mat.Properties:
+                for prop in mat.properties:
                     string += (
                         '            <Parameter name="'
-                        + prop.Name
+                        + prop.name
                         + '" type="double" value="'
                         + str(np.format_float_scientific(float(prop.value)))
                         + '"/>\n'
@@ -270,10 +270,10 @@ class XMLcreator:
     def blocks(self):
         string = '    <ParameterList name="Blocks">\n'
         for block in self.block_def:
-            string += '        <ParameterList name="' + block.Name + '">\n'
+            string += '        <ParameterList name="' + block.name + '">\n'
             string += (
                 '            <Parameter name="Block Names" type="string" value="'
-                + block.Name
+                + block.name
                 + '"/>\n'
             )
             string += (
@@ -292,12 +292,6 @@ class XMLcreator:
                 + str(block.horizon)
                 + '"/>\n'
             )
-            if block.interface != "" and block.interface is not None:
-                string += (
-                    '            <Parameter name="Interface" type="int" value="'
-                    + str(block.interface)
-                    + '"/>\n'
-                )
             string += "        </ParameterList>\n"
         string += "     </ParameterList>\n"
         return string
@@ -305,7 +299,7 @@ class XMLcreator:
     def damage(self):
         string = '    <ParameterList name="Damage Models">\n'
         for dam in self.damage_dict:
-            string += '        <ParameterList name="' + dam.Name + '">\n'
+            string += '        <ParameterList name="' + dam.name + '">\n'
             string += (
                 '            <Parameter name="Damage Model" type="string" value="'
                 + str(dam.damageModel)
@@ -317,12 +311,24 @@ class XMLcreator:
                     + str(float(dam.criticalEnergy))
                     + '"/>\n'
                 )
-                if "interblockdamageEnergy" in dam:
+
+                if dam.interBlockDamage:
+                    string += '            <Parameter name="Interblock Damage" type="bool" value="true"/>\n'
                     string += (
-                        '            <Parameter name="Interblock Critical Energy" type="double" value="'
-                        + str(float(dam.interblockdamageEnergy))
+                        '            <Parameter name="Number of Blocks" type="int" value="'
+                        + str(dam.numberOfBlocks)
                         + '"/>\n'
                     )
+                    for interBlock in dam.interBlocks:
+                        string += (
+                            '            <Parameter name="Interblock Critical Energy'
+                            + str(interBlock.firstBlockId)
+                            + "_"
+                            + str(interBlock.secondBlockId)
+                            + '" type="double" value="'
+                            + str(float(interBlock.value))
+                            + '"/>\n'
+                        )
             else:
                 string += (
                     '            <Parameter name="Critical Stretch" type="double" value="'
@@ -529,7 +535,7 @@ class XMLcreator:
                 )
         for boundary_condition in self.boundary_condition:
             node_set_id = self.ns_list.index(boundary_condition.blockId)
-            string += '        <ParameterList name="' + boundary_condition.Name + '">\n'
+            string += '        <ParameterList name="' + boundary_condition.name + '">\n'
             string += (
                 '            <Parameter name="Type" type="string" value="'
                 + boundary_condition.boundarytype
@@ -576,7 +582,7 @@ class XMLcreator:
             )
             string += '        <ParameterList name="Models">\n'
             for models in self.contact_dict.contactModels:
-                string += '            <ParameterList name="' + models.Name + '">\n'
+                string += '            <ParameterList name="' + models.name + '">\n'
                 string += (
                     '               <Parameter name="Contact Model" type="string" value="'
                     + models.contactType
@@ -605,17 +611,19 @@ class XMLcreator:
                 )
                 string += (
                     '               <Parameter name="First Block" type="string" value="'
-                    + self.block_def[interaction.firstBlockId - 1].Name
+                    + self.block_def[interaction.firstBlockId - 1].name
                     + '"/>\n'
                 )
                 string += (
                     '               <Parameter name="Second Block" type="string" value="'
-                    + self.block_def[interaction.secondBlockId - 1].Name
+                    + self.block_def[interaction.secondBlockId - 1].name
                     + '"/>\n'
                 )
                 string += (
                     '               <Parameter name="Contact Model" type="string" value="'
-                    + self.contact_dict.contactModels[interaction.contactModelId - 1].Name
+                    + self.contact_dict.contactModels[
+                        interaction.contactModelId - 1
+                    ].name
                     + '"/>\n'
                 )
                 string += "                </ParameterList>\n"
@@ -626,7 +634,7 @@ class XMLcreator:
     def compute(self):
         string = '    <ParameterList name="Compute Class Parameters">\n'
         for out in self.compute_dict:
-            string += '        <ParameterList name="' + out.Name + '">\n'
+            string += '        <ParameterList name="' + out.name + '">\n'
             string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
             string += (
                 '            <Parameter name="Calculation Type" type="string" value="'
@@ -645,7 +653,7 @@ class XMLcreator:
             )
             string += (
                 '            <Parameter name="Output Label" type="string" value="'
-                + out.Name
+                + out.name
                 + '"/>\n'
             )
             string += "        </ParameterList>\n"
@@ -664,7 +672,7 @@ class XMLcreator:
                 '        <Parameter name="Output Filename" type="string" value="'
                 + self.filename
                 + "_"
-                + out.Name
+                + out.name
                 + '"/>\n'
             )
             if out.InitStep != 0:
@@ -700,10 +708,12 @@ class XMLcreator:
                 )
             if out.Velocity:
                 string += '            <Parameter name="Velocity" type="bool" value="true"/>\n'
-            if out.External_Displacement:
-                string += '            <Parameter name="External_Displacement" type="bool" value="true"/>\n'
-            if out.External_Force:
-                string += '            <Parameter name="External_Force" type="bool" value="true"/>\n'
+            for compute in self.compute_dict:
+                string += (
+                    '            <Parameter name="'
+                    + compute.name
+                    + '" type="bool" value="true"/>\n'
+                )
             if out.Horizon:
                 string += (
                     '            <Parameter name="Horizon" type="bool" value="true"/>\n'

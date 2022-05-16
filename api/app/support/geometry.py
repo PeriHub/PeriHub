@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 class Geometry:
     @staticmethod
-    def create_points(coor, dx_value):
+    def create_rectangle(coor, dx_value):
         """doc"""
         start_time = time.time()
         if coor[4] == coor[5]:
@@ -35,11 +35,110 @@ class Geometry:
         return grid_x_value, grid_y_value, grid_z_value
 
     @staticmethod
-    def check_val_in_circle(array_x, array_y, array_z, origin_x, origin_y, radius):
+    def create_cylinder(coor, dx_value, radius):
         """doc"""
-        condition = np.where(
-            ((array_x - origin_x) ** 2) + ((array_y - origin_y) ** 2) <= radius, 0, 1.0
-        )
+        start_time = time.time()
+
+        gridx = [coor[0]]
+        gridy = [coor[1]]
+        gridz = [coor[2]]
+
+        max_number_of_nodes = (2 * np.pi * radius) / dx_value[0]
+        max_number_of_nodes = 2 * int(max_number_of_nodes / 2) + 1
+
+        number_of_circles = int(radius / dx_value[1])
+
+        for i in range(0, number_of_circles):
+            number_of_nodes = int(max_number_of_nodes * (i + 1) / number_of_circles)
+            theta = np.linspace(0, 2 * np.pi, number_of_nodes)
+
+            gridx.extend(
+                coor[0] + radius * (i + 1) / number_of_circles * np.cos(theta[:-1])
+            )
+            gridy.extend(
+                coor[1] + radius * (i + 1) / number_of_circles * np.sin(theta[:-1])
+            )
+            gridz.extend(0 * theta[:-1])
+
+        # plt.scatter(gridx, gridy)
+        # plt.show()
+
+        if coor[2] == 0:
+
+            grid_x_value = np.array(gridx).ravel()
+            grid_y_value = np.array(gridy).ravel()
+            grid_z_value = np.array(gridz).ravel()
+
+        else:
+            gridx_3d = []
+            gridy_3d = []
+            gridz_3d = []
+
+            for z in np.arange(0, coor[2] + dx_value[2], dx_value[2]):
+                gridx_3d.extend(gridx)
+                gridy_3d.extend(gridy)
+                gridz_3d.extend(np.full_like(gridx, z))
+
+            grid_x_value = np.array(gridx_3d).ravel()
+            grid_y_value = np.array(gridy_3d).ravel()
+            grid_z_value = np.array(gridz_3d).ravel()
+
+        # if length == 0:
+        #     gridx, gridy = np.meshgrid(
+        #         np.arange(
+        #             coor[0] - radius, coor[0] + radius + dx_value[0], dx_value[0]
+        #         ),
+        #         np.arange(
+        #             coor[1] - radius, coor[1] + radius + dx_value[1], dx_value[1]
+        #         ),
+        #     )
+        #     grid_x_value = gridx.ravel()
+        #     grid_y_value = gridy.ravel()
+        #     grid_z_value = 0 * gridy.ravel()
+        # else:
+        #     gridx, gridy, gridz = np.meshgrid(
+        #         np.arange(
+        #             coor[0] - radius, coor[0] + radius + dx_value[0], dx_value[0]
+        #         ),
+        #         np.arange(
+        #             coor[1] - radius, coor[1] + radius + dx_value[1], dx_value[1]
+        #         ),
+        #         np.arange(coor[2] - length / 2, coor[2] + length / 2, dx_value[2]),
+        #     )
+        #     grid_x_value = gridx.ravel()
+        #     grid_y_value = gridy.ravel()
+        #     grid_z_value = gridz.ravel()
+
+        # grid_x_value, grid_y_value, grid_z_value = Geometry.check_val_in_circle(
+        #     grid_x_value, grid_y_value, grid_z_value, coor[0], coor[1], radius, True
+        # )
+
+        print(f"Points created  in {(time.time() - start_time):.2f} seconds")
+        return grid_x_value, grid_y_value, grid_z_value
+
+    @staticmethod
+    def check_val_in_circle(
+        array_x, array_y, array_z, origin_x, origin_y, radius, in_circle
+    ):
+        """doc"""
+        if in_circle:
+            condition = np.where(
+                np.sqrt(
+                    np.power(array_x - origin_x, 2) + np.power(array_y - origin_y, 2)
+                )
+                <= radius,
+                1.0,
+                0,
+            )
+        else:
+            condition = np.where(
+                np.sqrt(
+                    np.power(array_x - origin_x, 2) + np.power(array_y - origin_y, 2)
+                )
+                <= radius,
+                0,
+                1.0,
+            )
         return (
             np.extract(condition, array_x),
             np.extract(condition, array_y),

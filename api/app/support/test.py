@@ -1,8 +1,9 @@
 # import vtk
 # from vtk.util.numpy_support import vtk_to_numpy
-from http.cookiejar import FileCookieJar
 import math
 import numpy as np
+import re
+import netCDF4
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
@@ -85,13 +86,13 @@ def getCrackLength(points, damage):
     poly_reg = PolynomialFeatures(degree=2)
     x_poly = poly_reg.fit_transform(x)
     regr.fit(x_poly, y, sample_weight)
-    # plt.plot(
-    #     x,
-    #     regr.predict(x_poly),
-    #     color="green",
-    #     linewidth=1,
-    #     label="Polynomial weighted model",
-    # )
+    plt.plot(
+        x,
+        regr.predict(x_poly),
+        color="green",
+        linewidth=1,
+        label="Polynomial weighted model",
+    )
     # X_result.append(x)
     # Y_result.append(regr.predict(x_poly))
     # plt.scatter(x, y, s=damage)
@@ -100,16 +101,14 @@ def getCrackLength(points, damage):
     # plt.yticks(())
     # plt.legend()
 
-    # plt.show()
+    plt.axis([x_min, x_max, y_min, y_max])
+    plt.show()
     # plt.savefig("test.png")
 
     # arc_length = arclength(X[:, 0], regr.predict(X_poly)[:, 0], 0, 100)
     arc_length = arclength(np.array(x), np.array(regr.predict(x_poly)), 0, 100)
     print(arc_length)
     # Crack_length.append(arc_length)
-
-    k1 = calculate_k1(100, 10, 50, arc_length)
-    print(k1)
     # K1.append(k1)
 
     # plt.plot(range(0, len(Crack_length)), Crack_length)
@@ -117,7 +116,7 @@ def getCrackLength(points, damage):
     # plt.savefig(image_file)
     # plt.show
     # response = [time, Crack_length, K1]
-    return arc_length, k1
+    return arc_length
 
 
 def calculate_k1(P, B, W, a):
@@ -136,31 +135,6 @@ def calculate_k1(P, B, W, a):
     )
     return k1
 
-
-resultpath = "/home/jt/perihub/api/app/Output/CompactTension/CompactTension_Output1.e"
-# resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/CompactTension/CompactTension_Output1.e"
-
-x_min = 28
-x_max = 100
-y_min = -100
-y_max = 100
-# # file = os.path.join(resultpath, model_name + "_" + output + ".e")
-# # print(file)
-
-# reader = vtk.vtkExodusIIReader()
-# reader.SetFileName(resultpath)
-# vtk_mesh = _read_exodusii_mesh(reader, 10)
-# points = vtk_to_numpy(vtk_mesh.GetPoints().GetData())
-# cells = _read_cells(vtk_mesh)
-# point_data = _read_data(vtk_mesh.GetPointData())
-# cell_data = _read_data(vtk_mesh.GetCellData())
-# field_data = _read_data(vtk_mesh.GetFieldData())
-
-# # print(points)
-# # print(cells)
-# # print(point_data)
-# # print(cell_data)
-# # print(field_data)
 
 exodus_to_meshio_type = {
     "SPHERE": "vertex",
@@ -269,8 +243,6 @@ def categorize(names):
 
 
 def read(file, timestep):
-    import re
-    import netCDF4
 
     with netCDF4.Dataset(file) as nc:
         # assert nc.version == np.float32(5.1)
@@ -283,8 +255,10 @@ def read(file, timestep):
 
         points = np.zeros((len(nc.dimensions["num_nodes"]), 3))
         point_data_names = []
+        global_data_names = []
         cell_data_names = []
         pd = {}
+        gd = []
         cd = {}
         cells = []
         ns_names = []
@@ -327,6 +301,13 @@ def read(file, timestep):
                 pd[idx] = value[timestep]
                 # if len(value) > 1:
                 # print("Skipping some time data")
+            elif key == "name_glo_var":
+                value.set_auto_mask(False)
+                global_data_names = [b"".join(c).decode("UTF-8") for c in value[:]]
+            elif key[:12] == "vals_glo_var":
+                value.set_auto_mask(False)
+                # For now only take the first value
+                gd = value[timestep]
             elif key == "name_elem_var":
                 value.set_auto_mask(False)
                 cell_data_names = [b"".join(c).decode("UTF-8") for c in value[:]]
@@ -369,6 +350,16 @@ def read(file, timestep):
         for name, idx0, idx1, idx2 in triple:
             point_data[name] = np.column_stack([pd[idx0], pd[idx1], pd[idx2]])
 
+        single, double, triple = categorize(global_data_names)
+
+        global_data = {}
+        for name, idx in single:
+            global_data[name] = gd[idx]
+        for name, idx0, idx1 in double:
+            global_data[name] = [gd[idx0], gd[idx1]]
+        for name, idx0, idx1, idx2 in triple:
+            global_data[name] = [gd[idx0], gd[idx1], gd[idx2]]
+
         cell_data = {}
         block_data = []
         k = 0
@@ -383,50 +374,107 @@ def read(file, timestep):
 
         point_sets = {name: dat for name, dat in zip(ns_names, ns)}
 
-    return points, point_data, cell_data, ns, block_data
+    return points, point_data, global_data, cell_data, ns, block_data
 
+
+P = 3780
+a = 35.0
+d = 0.00000023
+w = 10
+L = 37.1
+
+# resultpath = "/home/jt/perihub/api/app/Output/CompactTension/CompactTension_Output1.e"
+# resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/CompactTension/CompactTension_Output1.e"
+resultpath = "/home/jt/perihub/api/app/Output/GIICmodel/GIICmodel_Output1.e"
+
+# x_min = 28
+# x_max = 100
+# y_min = -100
+# y_max = 100
+x_min = 50.8
+x_max = 90
+y_min = 1
+y_max = 2.8
+# # file = os.path.join(resultpath, model_name + "_" + output + ".e")
+# # print(file)
+
+# reader = vtk.vtkExodusIIReader()
+# reader.SetFileName(resultpath)
+# vtk_mesh = _read_exodusii_mesh(reader, 10)
+# points = vtk_to_numpy(vtk_mesh.GetPoints().GetData())
+# cells = _read_cells(vtk_mesh)
+# point_data = _read_data(vtk_mesh.GetPointData())
+# cell_data = _read_data(vtk_mesh.GetCellData())
+# field_data = _read_data(vtk_mesh.GetFieldData())
+
+# # print(points)
+# # print(cells)
+# # print(point_data)
+# # print(cell_data)
+# # print(field_data)
+
+min_damage = 0.007
 
 Crack_length = []
 K1 = []
+Load = []
 
-for i in range(0, 99):
-    points, point_data, cell_data, ns, block_data = read(resultpath, i)
-    block_ids = block_data[0][:, 0]
+for i in range(24, 25):
+    points, point_data, global_data, cell_data, ns, block_data = read(resultpath, -1)
+    # block_ids = block_data[0][:, 0]
 
-    block_points = points[block_ids]
+    # block_points = points[block_ids]
 
-    filter = (
-        (x_min <= block_points[:, 0])
-        & (block_points[:, 0] <= x_max)
-        & (y_min <= block_points[:, 1])
-        & (block_points[:, 1] <= y_max)
-        & (cell_data["Damage"][0] != 0)
+    # filter = (
+    #     (x_min <= block_points[:, 0])
+    #     & (block_points[:, 0] <= x_max)
+    #     & (y_min <= block_points[:, 1])
+    #     & (block_points[:, 1] <= y_max)
+    #     & (cell_data["Damage"][0] >= min_damage)
+    # )
+    # current_points = block_points + point_data["Displacement"][block_ids]
+
+    # filtered_points = current_points[filter]
+    # filtered_damage = cell_data["Damage"][0][filter]
+    # # print(filtered_points)
+    # # print(filtered_damage)
+
+    # if np.any(filtered_points) and len(filtered_points) >= 25:
+    #     crack_length = getCrackLength(filtered_points, filtered_damage)
+    #     load = global_data["External_Force"][0] * 0.1 * w
+    #     Load.append(load)
+    #     k1 = calculate_k1(load, 10, 50, crack_length)
+    #     # print(k1)
+    #     Crack_length.append(crack_length)
+    #     K1.append(k1)
+    # else:
+    #     Crack_length.append(0)
+    #     K1.append(0)
+    #     Load.append(0)
+
+    # print(global_data["External_Force"][0])
+    P = global_data["Crosshead_Force"][1]
+    d = global_data["Crosshead_Displacement"][0]
+    GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (
+        2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3))
     )
-    current_points = block_points + point_data["Displacement"][block_ids]
+    print(GIIC)
 
-    filtered_points = current_points[filter]
-    filtered_damage = cell_data["Damage"][0][filter]
-    # print(filtered_points)
-    # print(filtered_damage)
-
-    if np.any(filtered_points) and len(filtered_points) >= 25:
-        crack_length, k1 = getCrackLength(filtered_points, filtered_damage)
-        Crack_length.append(crack_length)
-        K1.append(k1)
-    else:
-        Crack_length.append(0)
-        K1.append(0)
-
-idx = 0
-crack_acceleration = [0]
-delta_k1 = [0]
-for idx in range(0, len(Crack_length)):
-    if idx != 0:
-        crack_acceleration.append(Crack_length[idx] - Crack_length[idx - 1])
-        delta_k1.append(K1[idx] - K1[idx - 1])
+# idx = 0
+# crack_acceleration = [0]
+# delta_k1 = [0]
+# delta_load = [0]
+# for idx in range(0, len(Crack_length)):
+#     if idx != 0:
+#         crack_acceleration.append(Crack_length[idx] - Crack_length[idx - 1])
+#         delta_k1.append(K1[idx] - K1[idx - 1])
+#         delta_load.append(Load[idx] - Load[idx - 1])
 
 
-plt.plot(delta_k1, crack_acceleration)
-# plt.plot(K1, Crack_length)
-# plt.plot(range(0, len(Crack_length)), Crack_length)
+plt.plot(Load, Crack_length)
 plt.show
+# plt.plot(range(0, len(Crack_length)), crack_acceleration)
+# plt.plot(range(0, len(Crack_length)), Crack_length)
+# plt.plot(delta_k1, crack_acceleration)
+# plt.plot(range(0, len(Crack_length)), Load)
+# plt.show

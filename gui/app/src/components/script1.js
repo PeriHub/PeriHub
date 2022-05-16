@@ -1061,7 +1061,7 @@ export default {
       const len = this.keywordList[index].keywords.length;
       this.keywordList[index].keywords.push("");
       // for (const key in this.keywordList[index].keywords[len-1]) {
-      //   if(key!='id' & key!='Name'){
+      //   if(key!='id' & key!='name'){
       //     this.$set(this.keywordList[index].keywords[len], key, this.keywordList[index].keywords[len-1][key])
       //   }
       // }

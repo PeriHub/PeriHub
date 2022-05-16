@@ -26,7 +26,7 @@ class CompactTension:
 
     bc1 = BoundaryConditions(
         id=1,
-        Name="BC_1",
+        name="BC_1",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
         blockId=2,
@@ -35,7 +35,7 @@ class CompactTension:
     )
     bc2 = BoundaryConditions(
         id=2,
-        Name="BC_2",
+        name="BC_2",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
         blockId=3,
@@ -44,7 +44,7 @@ class CompactTension:
     )
     bc3 = BoundaryConditions(
         id=3,
-        Name="BC_3",
+        name="BC_3",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
         blockId=2,
@@ -53,7 +53,7 @@ class CompactTension:
     )
     bc4 = BoundaryConditions(
         id=4,
-        Name="BC_4",
+        name="BC_4",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
         blockId=3,
@@ -62,7 +62,7 @@ class CompactTension:
     )
     bc5 = BoundaryConditions(
         id=5,
-        Name="BC_5",
+        name="BC_5",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
         blockId=2,
@@ -71,7 +71,7 @@ class CompactTension:
     )
     bc6 = BoundaryConditions(
         id=6,
-        Name="BC_6",
+        name="BC_6",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
         blockId=3,
@@ -81,7 +81,7 @@ class CompactTension:
 
     bf1 = BondFilters(
         id=1,
-        Name="bf_1",
+        name="bf_1",
         type="Rectangular_Plane",
         normalX=0.0,
         normalY=1.0,
@@ -102,7 +102,7 @@ class CompactTension:
     )
     contact_model = ContactModel(
         id=1,
-        Name="Contact Model",
+        name="Contact Model",
         contactType="Short Range Force",
         contactRadius=0.000775,
         springConstant=1.0e12,
@@ -118,8 +118,8 @@ class CompactTension:
     )
     mat_dict = Material(
         id=1,
-        Name="Aluminum",
-        MatType="Linear Elastic Correspondence",
+        name="Aluminum",
+        matType="Linear Elastic Correspondence",
         density=2700,
         bulkModulus=None,
         shearModulus=None,
@@ -135,13 +135,13 @@ class CompactTension:
         actualHorizon=None,
         yieldStress=None,
         Parameter=[],
-        Properties=[],
+        properties=[],
         useCollocationNodes=False,
     )
 
     damage_dict = Damage(
         id=1,
-        Name="Damage",
+        name="Damage",
         damageModel="Critical Energy Correspondence",
         criticalStretch=None,
         criticalEnergy=1.0e6,
@@ -156,14 +156,14 @@ class CompactTension:
 
     compute_dict = Compute(
         id=1,
-        Name="External_Force",
+        name="External_Force",
         variable="Force",
         calculationType="Sum",
         blockName="block_3",
     )
     output_dict1 = Output(
         id=1,
-        Name="Output1",
+        name="Output1",
         Displacement=True,
         Force=True,
         Damage=True,
@@ -280,10 +280,10 @@ class CompactTension:
         self.solver_dict = solver
 
         self.dam_block = [""] * number_of_blocks
-        self.dam_block[0] = self.damage_dict[0].Name
+        self.dam_block[0] = self.damage_dict[0].name
 
         self.int_block_id = [""] * number_of_blocks
-        self.mat_block = [self.material_dict[0].Name] * number_of_blocks
+        self.mat_block = [self.material_dict[0].name] * number_of_blocks
 
     def create_load_intro_node(self, x_value, y_value, k):
         """doc"""
@@ -366,7 +366,7 @@ class CompactTension:
 
         geo = Geometry()
 
-        x_value, y_value, z_value = geo.create_points(
+        x_value, y_value, z_value = geo.create_rectangle(
             coor=[
                 self.xbegin,
                 self.xend,
@@ -473,11 +473,10 @@ class CompactTension:
         for idx in range(0, block_len):
             block_def = Block(
                 id=1,
-                Name="block_" + str(idx + 1),
+                name="block_" + str(idx + 1),
                 material=self.mat_block[idx],
                 damageModel=self.dam_block[idx],
                 horizon=self.scal * max([self.dx_value[0], self.dx_value[1]]),
-                interface=self.int_block_id[idx],
                 show=False,
             )
             block_dict.append(block_def)

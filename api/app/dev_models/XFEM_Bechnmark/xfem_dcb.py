@@ -38,7 +38,7 @@ class XFEMDCB:
     def create_model(self):
         """doc"""
         geo = Geometry()
-        x_value, y_value, _ = geo.create_points(
+        x_value, y_value, _ = geo.create_rectangle(
             coor=[0, self.xend, 0, self.yend, 0, self.zend], dx_value=self.dx_value
         )
         vol = np.zeros(len(x_value))

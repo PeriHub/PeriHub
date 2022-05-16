@@ -2,7 +2,7 @@
   <v-container fluid class="pa-0" style="height: 100%">
     <div id="app" class="scroll">
       <v-container>
-        <h1>Conversion of elastic isotrpoic constants</h1>
+        <h1>Conversion of elastic isotropic constants</h1>
         <p>Enter two constants to run the calculations</p>
         <v-row>
           <v-card width="400px">
@@ -474,7 +474,7 @@ export default {
     plot() {
       this.plotData[0].x = [];
       this.plotData[0].y = [];
-      var n = 1000;
+      var n = 10 * this.amplitude.frequency;
       var max = parseFloat(this.amplitude.max);
       var min = parseFloat(this.amplitude.min);
       var frequency = parseFloat(this.amplitude.frequency);
@@ -525,37 +525,26 @@ export default {
         ";\n" +
         "double end = " +
         this.amplitude.end.toString() +
-        ";\n";
-      for (var j = 0; j < this.amplitude.frequency; j++) {
-        if (j == 0) {
-          this.valueOutput +=
-            "if (t <= 1 / frequency *end) \\{\n" +
-            "value = (t / ((1 / frequency) * end)) * max;\n" +
-            "\\}\n";
-        } else if (j % 2 != 0) {
-          this.valueOutput +=
-            "if ((" +
-            j.toString() +
-            " / frequency *end < t) && (t <= (" +
-            j.toString() +
-            " + 1) / frequency *end)) \\{\n" +
-            "value = max - ((t - (" +
-            j.toString() +
-            " / frequency) * end) / ((1 / frequency) * end)) * (max - min);\n" +
-            "\\}\n";
-        } else if (j % 2 == 0) {
-          this.valueOutput +=
-            "if ((" +
-            j.toString() +
-            " / frequency *end < t) && (t <= (" +
-            j.toString() +
-            " + 1) / frequency *end)) \\{\n" +
-            "value = min + ((t - (" +
-            j.toString() +
-            " / frequency) * end) / ((1 / frequency) * end)) * (max - min);\n" +
-            "\\}\n";
-        }
-      }
+        ";\n" +
+        "int idx = 0;\n" +
+        "while (idx < frequency) \\{\n" +
+        " if (idx == 0) \\{\n" +
+        "   if (t <= 1 / frequency *end) \\{\n" +
+        "     value = (t / ((1 / frequency) * end)) * max;\n" +
+        "   \\}\n" +
+        " \\}\n" +
+        " else if (idx % 2 != 0) \\{\n" +
+        "   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n" +
+        "     value = max - ((t - (idx / frequency) * end) / ((1 / frequency) * end)) * (max - min);\n" +
+        "   \\}\n" +
+        " \\}\n" +
+        " else if (idx % 2 == 0) \\{\n" +
+        "   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n" +
+        "     value = min + ((t - (idx / frequency) * end) / ((1 / frequency) * end)) * (max - min);\n" +
+        "   \\}\n" +
+        " \\}\n" +
+        " idx = idx + 1;\n" +
+        "\\}\n";
     },
     plot2() {
       this.plotData[0].x = [];
@@ -595,6 +584,7 @@ export default {
         }
       }
       // this.plotData[0].x = time.split(",");
+
       this.valueOutput =
         "double max = " +
         this.amplitude.max.toString() +
@@ -604,39 +594,26 @@ export default {
         ";\n" +
         "double end = " +
         this.amplitude.end.toString() +
-        ";\n";
-      for (var j = 0; j < this.amplitude.frequency; j++) {
-        if (j == 0) {
-          this.valueOutput +=
-            "if (t <= 1 / frequency *end) \\{\n" +
-            "value = (t / end) * max * 2;\n" +
-            "\\}\n";
-        } else if (j % 2 != 0) {
-          this.valueOutput +=
-            "if ((" +
-            j.toString() +
-            " / frequency *end < t) && (t <= (" +
-            j.toString() +
-            " + 1) / frequency *end)) \\{\n" +
-            "value = (" +
-            j.toString() +
-            " / frequency) * max * 2 - ((" +
-            j.toString() +
-            " - 1) / frequency) * max;\n" +
-            "\\}\n";
-        } else if (j % 2 == 0) {
-          this.valueOutput +=
-            "if ((" +
-            j.toString() +
-            " / frequency *end < t) && (t <= (" +
-            j.toString() +
-            " + 1) / frequency *end)) \\{\n" +
-            "value = ((t - ((" +
-            j.toString() +
-            " / 2) * end) / frequency) / end) * max * 2;\n" +
-            "\\}\n";
-        }
-      }
+        ";\n" +
+        "int idx = 0;\n" +
+        "while (idx < frequency) \\{\n" +
+        " if (idx == 0) \\{\n" +
+        "   if (t <= 1 / frequency *end) \\{\n" +
+        "     value = (t / end) * max * 2;\n" +
+        "   \\}\n" +
+        " \\}\n" +
+        " else if (idx % 2 != 0) \\{\n" +
+        "   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n" +
+        "     value = (idx / frequency) * max * 2 - ((idx - 1) / frequency) * max;\n" +
+        "   \\}\n" +
+        " \\}\n" +
+        " else if (idx % 2 == 0) \\{\n" +
+        "   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n" +
+        "     value = ((t - ((idx / 2) * end) / frequency) / end) * max * 2;\n" +
+        "   \\}\n" +
+        " \\}\n" +
+        " idx = idx + 1;\n" +
+        "\\}\n";
     },
     copyText(id) {
       let input = document.getElementById(id);

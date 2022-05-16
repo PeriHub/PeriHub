@@ -5,15 +5,16 @@ import time
 import numpy as np
 
 # import ast
-from scipy import interpolate
 from support.base_models import (
     Adapt,
     Block,
     BondFilters,
     BoundaryConditions,
     Contact,
+    ContactModel,
     Compute,
     Damage,
+    Interaction,
     Material,
     Output,
     Newton,
@@ -21,39 +22,197 @@ from support.base_models import (
     Verlet,
 )
 from support.model_writer import ModelWriter
-from support.material import MaterialRoutines
 from support.geometry import Geometry
 
 
 class GIICmodel:
 
+    bc1 = BoundaryConditions(
+        id=1,
+        name="BC_1",
+        NodeSets=None,
+        boundarytype="Body Force",
+        blockId=4,
+        coordinate="y",
+        value="-10000*t",
+    )
+    bc2 = BoundaryConditions(
+        id=2,
+        name="BC_2",
+        NodeSets=None,
+        boundarytype="Prescribed Displacement",
+        blockId=5,
+        coordinate="y",
+        value="0*t",
+    )
+    bc3 = BoundaryConditions(
+        id=3,
+        name="BC_3",
+        NodeSets=None,
+        boundarytype="Prescribed Displacement",
+        blockId=6,
+        coordinate="y",
+        value="0*t",
+    )
+    bc4 = BoundaryConditions(
+        id=4,
+        name="BC_4",
+        NodeSets=None,
+        boundarytype="Prescribed Displacement",
+        blockId=4,
+        coordinate="x",
+        value="0",
+    )
+    bc5 = BoundaryConditions(
+        id=5,
+        name="BC_5",
+        NodeSets=None,
+        boundarytype="Prescribed Displacement",
+        blockId=5,
+        coordinate="x",
+        value="0",
+    )
+    bc6 = BoundaryConditions(
+        id=6,
+        name="BC_6",
+        NodeSets=None,
+        boundarytype="Prescribed Displacement",
+        blockId=6,
+        coordinate="x",
+        value="0",
+    )
+    contact_model = ContactModel(
+        id=1,
+        name="Contact Model",
+        contactType="Short Range Force",
+        contactRadius=0.000775,
+        springConstant=1.0e12,
+    )
+    interaction_1 = Interaction(firstBlockId=1, secondBlockId=2, contactModelId=1)
+    interaction_2 = Interaction(firstBlockId=4, secondBlockId=3, contactModelId=1)
+    interaction_3 = Interaction(firstBlockId=5, secondBlockId=3, contactModelId=1)
+    interaction_4 = Interaction(firstBlockId=6, secondBlockId=3, contactModelId=1)
     contact_dict = Contact(
-        enabled=False,
-        searchRadius=0,
-        searchFrequency=0,
-        contactModels=[],
-        interactions=[],
+        enabled=True,
+        searchRadius=0.01,
+        searchFrequency=100,
+        contactModels=[contact_model],
+        interactions=[interaction_1, interaction_2, interaction_3, interaction_4],
+    )
+
+    mat_dict = Material(
+        id=1,
+        name="IM7/8552",
+        matType="Linear Elastic Correspondence",
+        density=1570,
+        bulkModulus=None,
+        shearModulus=None,
+        youngsModulus=1.520291e11,
+        poissonsRatio=0.356,
+        tensionSeparation=True,
+        nonLinear=False,
+        planeStress=True,
+        materialSymmetry="Isotropic",
+        stabilizatonType="Global Stiffness",
+        thickness=10.0,
+        hourglassCoefficient=1.0,
+        actualHorizon=None,
+        yieldStress=None,
+        Parameter=[],
+        properties=[],
+        useCollocationNodes=False,
+    )
+
+    damage_dict = Damage(
+        id=1,
+        name="Damage",
+        damageModel="Critical Energy Correspondence",
+        criticalStretch=None,
+        criticalEnergy=0.01,
+        numberOfBlocks=2,
+        interBlockCriticalEnergy=[-1, 0.001, 0.001, -1],
+        planeStress=True,
+        onlyTension=False,
+        detachedNodesCheck=True,
+        thickness=10,
+        hourglassCoefficient=1.0,
+        stabilizatonType="Global Stiffness",
+    )
+
+    compute_dict_1 = Compute(
+        id=1,
+        name="Crosshead_Force",
+        variable="Force",
+        calculationType="Sum",
+        blockName="block_4",
+    )
+    compute_dict_2 = Compute(
+        id=2,
+        name="Crosshead_Displacement",
+        variable="Displacement",
+        calculationType="Maximum",
+        blockName="block_4",
+    )
+    output_dict1 = Output(
+        id=1,
+        name="Output1",
+        Displacement=True,
+        Force=True,
+        Damage=True,
+        Velocity=True,
+        Partial_Stress=True,
+        Number_Of_Neighbors=True,
+        Write_Damage_To_File=False,
+        Frequency=100,
+        InitStep=0,
+    )
+
+    solver_dict = Solver(
+        verbose=False,
+        initialTime=0.0,
+        finalTime=1.0,
+        fixedDt=2.0e-05,
+        solvertype="Verlet",
+        safetyFactor=1.0,
+        numericalDamping=0.000005,
+        peridgimPreconditioner="None",
+        nonlinearSolver="Line Search Based",
+        numberOfLoadSteps=100,
+        maxSolverIterations=50,
+        relativeTolerance=1e-8,
+        maxAgeOfPrec=100,
+        directionMethod="Newton",
+        newton=Newton(),
+        lineSearchMethod="Polynomial",
+        verletSwitch=False,
+        verlet=Verlet(),
+        stopAfterDamageInitation=True,
+        stopBeforeDamageInitation=False,
+        adaptivetimeStepping=False,
+        adapt=Adapt(),
+        filetype="yaml",
     )
 
     def __init__(
         self,
         xend=1,
+        crack_length=1,
         yend=1,
         zend=1,
         dx_value=None,
         filename="GIICmodel",
-        two_d=False,
-        rot="False",
-        angle=None,
-        material=None,
-        damage=None,
+        two_d=True,
+        rot=False,
+        angle=[0, 0],
+        material=[mat_dict],
+        damage=[damage_dict],
         block=None,
         contact=contact_dict,
-        boundary_condition=None,
+        boundary_condition=[bc1, bc2, bc3],
         bond_filter=None,
-        compute=None,
-        output=None,
-        solver=None,
+        compute=[compute_dict_1, compute_dict_2],
+        output=[output_dict1],
+        solver=solver_dict,
         username="",
         max_nodes=100000,
         ignore_mesh=False,
@@ -91,6 +250,7 @@ class GIICmodel:
             angle = [0, 0]
         self.angle = angle
         self.xend = xend
+        self.crack_length = crack_length
         self.yend = yend
         self.rot = rot
         self.username = username
@@ -102,285 +262,76 @@ class GIICmodel:
         else:
             self.zend = zend
 
-        number_of_blocks = 10
-        xbound = [
-            0,
-            4 * dx_value[0],
-            5 * dx_value[0],
-            xend - 4 * dx_value[0],
-            xend - 3 * dx_value[0],
-            xend + dx_value[0],
-        ]
-        ybound = [0, 4 * dx_value[1], 5 * dx_value[1], yend + dx_value[1]]
+        number_of_blocks = 6
 
-        z_value = [2, 2, 1, 1, 3, 3]
-        self.boundfuncx = interpolate.interp1d(xbound, z_value, kind="linear")
-        z_value = [1, 1, 0, 0]
-        self.boundfuncy = interpolate.interp1d(ybound, z_value, kind="linear")
-        xload = [
-            0,
-            xend / 2 - 2 * dx_value[0],
-            xend / 2 + 3 * dx_value[0],
-            xend + dx_value[0],
-        ]
-        z_value = [1, 4, 4, 1]
-        self.loadfuncx = interpolate.interp1d(xload, z_value, kind="linear")
-        yload = [0, yend - 5 * dx_value[1], yend - 4 * dx_value[1], yend + dx_value[1]]
-        z_value = [1, 1, 4, 4]
-        self.loadfuncy = interpolate.interp1d(yload, z_value, kind="linear")
-
-        z_value = [1, 1, 8, 8, 9, 9, 1, 1]
-        # yblock = [
-        #     0,
-        #     yend / 2 - 5 * dx_value[1],
-        #     yend / 2 - 4 * dx_value[1],
-        #     yend / 2 - dx_value[1] / 4,
-        #     yend / 2 + dx_value[1] / 4,
-        #     yend / 2 + 4 * dx_value[1],
-        #     yend / 2 + 5 * dx_value[1],
-        #     yend + dx_value[1],
-        # ]
-
-        # self.blockfuny = interpolate.interp1d(yblock, z_value, kind="linear")
         """ Definition of model
         """
 
-        mat_name_list = ["PMMA"]
-        self.material_dict = []
-        if not damage:
-            damage_dict = Damage(
-                id=1,
-                Name="PMMADamage",
-                damageModel="Critical Energy Correspondence",
-                criticalStretch=10.0,
-                criticalEnergy=5.1,
-                interblockdamageEnergy=0.01,
-                planeStress=True,
-                onlyTension=True,
-                detachedNodesCheck=True,
-                thickness=10,
-                hourglassCoefficient=1.0,
-                stabilizatonType="Global Stiffness",
-            )
-            self.damage_dict = [damage_dict]
-        else:
-            self.damage_dict = damage
-
-        if not compute:
-            compute_dict1 = Compute(
-                id=1,
-                Name="External_Displacement",
-                variable="Displacement",
-                calculationType="Minimum",
-                blockName="block_7",
-            )
-            compute_dict2 = Compute(
-                id=2,
-                Name="External_Force",
-                variable="Force",
-                calculationType="Sum",
-                blockName="block_7",
-            )
-            self.compute_dict = [compute_dict1, compute_dict2]
-        else:
-            self.compute_dict = compute
-
-        if not output:
-            output_dict1 = Output(
-                id=1,
-                Name="Output1",
-                Displacement=True,
-                Force=True,
-                Damage=True,
-                Velocity=True,
-                Partial_Stress=False,
-                External_Force=False,
-                External_Displacement=False,
-                Number_Of_Neighbors=False,
-                Frequency=5000,
-                InitStep=0,
-            )
-            output_dict2 = Output(
-                id=2,
-                Name="Output2",
-                Displacement=False,
-                Force=False,
-                Damage=True,
-                Velocity=False,
-                Partial_Stress=True,
-                External_Force=True,
-                External_Displacement=True,
-                Number_Of_Neighbors=False,
-                Frequency=200,
-                InitStep=0,
-            )
-            self.output_dict = [output_dict1, output_dict2]
-        else:
-            self.output_dict = output
-
-        if not material:
-            i = 0
-            for material_name in mat_name_list:
-                mat_dict = Material(
-                    id=i + 1,
-                    Name=material_name,
-                    MatType="Linear Elastic Correspondence",
-                    density=1.95e-07,
-                    bulkModulus=None,
-                    shearModulus=None,
-                    youngsModulus=210000.0,
-                    poissonsRatio=0.3,
-                    tensionSeparation=False,
-                    nonLinear=True,
-                    planeStress=True,
-                    materialSymmetry="Anisotropic",
-                    stabilizatonType="Global Stiffness",
-                    thickness=10.0,
-                    hourglassCoefficient=1.0,
-                    actualHorizon=None,
-                    yieldStress=None,
-                    Parameter=[],
-                    Properties=[],
-                )
-                if mat_dict.materialSymmetry == "Anisotropic":
-                    # self.angle = [60, -60]
-                    params = [
-                        165863.6296530634,  # C11
-                        4090.899504376252,  # C12
-                        2471.126276093059,  # C13
-                        0.0,  # C14
-                        0.0,  # C15
-                        0.0,  # C16
-                        9217.158022124806,  # C22
-                        2471.126276093059,  # C23
-                        0.0,  # C24
-                        0.0,  # C25
-                        0.0,  # C26
-                        9217.158022124804,  # C33
-                        0.0,  # C34
-                        0.0,  # C35
-                        0.0,  # C36
-                        3360.0,  # C44
-                        0.0,  # C45
-                        0.0,  # C46
-                        4200.0,  # C55
-                        0.0,  # C56
-                        4200.0,
-                    ]  # C66
-                    mat = MaterialRoutines(angle=self.angle)
-                    mat_dict.Parameter = mat.stiffness_matrix(
-                        mat_type="anisotropic", mat_param=params
-                    )
-                i += 1
-                self.material_dict.append(mat_dict)
-        else:
-            # self.angle = angle
-            self.material_dict = material
+        self.damage_dict = damage
+        self.block_def = block
+        self.compute_dict = compute
+        self.output_dict = output
+        self.material_dict = material
+        self.bondfilters = bond_filter
+        self.contact_dict = contact
+        self.bc_dict = boundary_condition
+        self.solver_dict = solver
 
         if not bond_filter:
             bf1 = BondFilters(
                 id=1,
-                Name="bf_1",
+                name="bf_1",
                 type="Rectangular_Plane",
                 normalX=0.0,
                 normalY=1.0,
                 normalZ=0.0,
                 lowerLeftCornerX=0.0,
-                lowerLeftCornerY=self.yend,
+                lowerLeftCornerY=self.yend / 2,
                 lowerLeftCornerZ=-0.1,
                 bottomUnitVectorX=1.0,
                 bottomUnitVectorY=0.0,
                 bottomUnitVectorZ=0.0,
-                bottomLength=self.length,
-                sideLength=zend + 0.5,
+                bottomLength=self.crack_length,
+                sideLength=0.2,
                 centerX=0.0,
                 centerY=1.0,
                 centerZ=0.0,
                 radius=1.0,
                 show=True,
             )
-            self.bondfilters = [bf1]
+            bf2 = BondFilters(
+                id=2,
+                name="bf_2",
+                type="Rectangular_Plane",
+                normalX=0.0,
+                normalY=1.0,
+                normalZ=0.0,
+                lowerLeftCornerX=0.0,
+                lowerLeftCornerY=-0.05,
+                lowerLeftCornerZ=-0.1,
+                bottomUnitVectorX=1.0,
+                bottomUnitVectorY=0.0,
+                bottomUnitVectorZ=0.0,
+                bottomLength=self.xend + 0.1,
+                sideLength=0.2,
+                centerX=0.0,
+                centerY=1.0,
+                centerZ=0.0,
+                radius=1.0,
+                show=True,
+            )
+            self.bondfilters = [bf1, bf2]
         else:
             self.bondfilters = bond_filter
-        self.contact_dict = contact
-
-        if not boundary_condition:
-            bc1 = BoundaryConditions(
-                id=1,
-                Name="BC_1",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=5,
-                coordinate="y",
-                value="0*t",
-            )
-            bc2 = BoundaryConditions(
-                id=2,
-                Name="BC_2",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=6,
-                coordinate="y",
-                value="0*t",
-            )
-            bc3 = BoundaryConditions(
-                id=3,
-                Name="BC_3",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=7,
-                coordinate="y",
-                value="-10*t",
-            )
-            bc4 = BoundaryConditions(
-                id=4,
-                Name="BC_4",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=10,
-                coordinate="y",
-                value="0*t",
-            )
-            self.bc_dict = [bc1, bc2, bc3, bc4]
-        else:
-            self.bc_dict = boundary_condition
-
-        if not solver:
-            self.solver_dict = Solver(
-                verbose=False,
-                initialTime=0.0,
-                finalTime=0.03,
-                fixedDt=None,
-                solvertype="Verlet",
-                safetyFactor=0.95,
-                numericalDamping=0.000005,
-                peridgimPreconditioner="None",
-                nonlinearSolver="Line Search Based",
-                numberOfLoadSteps=100,
-                maxSolverIterations=50,
-                relativeTolerance=1e-8,
-                maxAgeOfPrec=100,
-                directionMethod="Newton",
-                newton=Newton(),
-                lineSearchMethod="Polynomial",
-                verletSwitch=False,
-                verlet=Verlet(),
-                stopAfterDamageInitation=False,
-                stopBeforeDamageInitation=False,
-                adaptivetimeStepping=False,
-                adapt=Adapt(),
-                filetype="yaml",
-            )
-        else:
-            self.solver_dict = solver
 
         self.dam_block = [""] * number_of_blocks
-        self.dam_block[7] = "PMMADamage"
-        self.dam_block[8] = "PMMADamage"
+        self.dam_block[0] = self.damage_dict[0].name
+        self.dam_block[1] = self.damage_dict[0].name
+
         self.int_block_id = [""] * number_of_blocks
-        self.int_block_id[7] = 9
-        self.int_block_id[8] = 8
-        self.mat_block = ["PMMA"] * number_of_blocks
+        self.int_block_id[0] = 2
+        self.int_block_id[1] = 1
+        self.mat_block = [self.material_dict[0].name] * number_of_blocks
 
         print(f"Initialized in {(time.time() - start_time):.2f} seconds")
 
@@ -433,14 +384,14 @@ class GIICmodel:
             np.logical_and(
                 self.yend / 2 - 5 * self.dx_value[1] < y_value, y_value < self.yend / 2
             ),
-            8,
+            1,
             k,
         )
         k = np.where(
             np.logical_and(
                 self.yend / 2 <= y_value, y_value < self.yend / 2 + 5 * self.dx_value[1]
             ),
-            9,
+            2,
             k,
         )
         return k
@@ -457,9 +408,35 @@ class GIICmodel:
         """doc"""
 
         geo = Geometry()
-        x_value, y_value, z_value = geo.create_points(
+        x_value1, y_value1, z_value1 = geo.create_rectangle(
             coor=[0, self.xend, 0, self.yend, 0, self.zend], dx_value=self.dx_value
         )
+        x_value2, y_value2, z_value2 = geo.create_cylinder(
+            coor=[self.xend / 2, self.yend + 12.6, self.zend],
+            dx_value=self.dx_value,
+            radius=12.5,
+        )
+        x_value3, y_value3, z_value3 = geo.create_cylinder(
+            coor=[self.xend / 22, -5.1, self.zend], dx_value=self.dx_value, radius=5
+        )
+        x_value4, y_value4, z_value4 = geo.create_cylinder(
+            coor=[self.xend * 21 / 22, -5.1, self.zend],
+            dx_value=self.dx_value,
+            radius=5,
+        )
+
+        x_value = x_value1
+        x_value = np.concatenate((x_value, x_value2))
+        x_value = np.concatenate((x_value, x_value3))
+        x_value = np.concatenate((x_value, x_value4))
+        y_value = y_value1
+        y_value = np.concatenate((y_value, y_value2))
+        y_value = np.concatenate((y_value, y_value3))
+        y_value = np.concatenate((y_value, y_value4))
+        z_value = z_value1
+        z_value = np.concatenate((z_value, z_value2))
+        z_value = np.concatenate((z_value, z_value3))
+        z_value = np.concatenate((z_value, z_value4))
 
         if len(x_value) > self.max_nodes:
             return (
@@ -469,7 +446,7 @@ class GIICmodel:
                 + str(self.max_nodes)
             )
 
-        if self.ignore_mesh and self.block_def != "":
+        if self.ignore_mesh and self.block_def != "" and self.block_def != None:
 
             writer = ModelWriter(model_class=self)
             for _, block in enumerate(self.block_def):
@@ -483,8 +460,8 @@ class GIICmodel:
         else:
             start_time = time.time()
 
-            vol = np.zeros(len(x_value))
-            k = np.ones(len(x_value))
+            # vol = np.zeros(len(x_value))
+            # k = np.ones(len(x_value))
             if self.rot:
                 angle_x = np.zeros(len(x_value))
                 angle_y = np.zeros(len(x_value))
@@ -495,15 +472,18 @@ class GIICmodel:
             if self.rot:
                 angle_x, angle_y, angle_z = self.create_angles(x_value, y_value)
 
-            k = np.ones_like(x_value)
+            k = np.full_like(x_value1, 3)
+            k = np.concatenate((k, np.full_like(x_value2, 4)))
+            k = np.concatenate((k, np.full_like(x_value3, 5)))
+            k = np.concatenate((k, np.full_like(x_value4, 6)))
 
-            k = np.where(
-                y_value >= self.yend / 2,
-                self.create_load_block(x_value, y_value, k),
-                self.create_boundary_condition_block(x_value, y_value, k),
-            )
-            k = self.create_bc_node(x_value, y_value, k)
-            k = self.create_load_intro_node(x_value, y_value, k)
+            # k = np.where(
+            #     y_value >= self.yend / 2,
+            #     self.create_load_block(x_value, y_value, k),
+            #     self.create_boundary_condition_block(x_value, y_value, k),
+            # )
+            # k = self.create_bc_node(x_value, y_value, k)
+            # k = self.create_load_intro_node(x_value, y_value, k)
             k = self.create_block(y_value, k)
 
             vol = np.full_like(
@@ -560,11 +540,10 @@ class GIICmodel:
         for idx in range(0, block_len):
             block_def = Block(
                 id=1,
-                Name="block_" + str(idx + 1),
+                name="block_" + str(idx + 1),
                 material=self.mat_block[idx],
                 damageModel=self.dam_block[idx],
                 horizon=self.scal * max([self.dx_value[0], self.dx_value[1]]),
-                interface=self.int_block_id[idx],
                 show=False,
             )
             block_dict.append(block_def)
@@ -574,7 +553,7 @@ class GIICmodel:
     def write_file(self, writer, block_len):
         """doc"""
 
-        if self.block_def == "":
+        if self.block_def == "" or self.block_def == None:
             block_def = self.create_blockdef(block_len)
         else:
             for _, block in enumerate(self.block_def):

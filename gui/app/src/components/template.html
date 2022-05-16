@@ -179,6 +179,14 @@
                 ></v-text-field>
                 <v-text-field
                   class="textfield-col"
+                  v-model="model.cracklength"
+                  v-show="model.modelNameSelected=='GIICmodel'"
+                  :rules="[rules.required, rules.float]"
+                  label="Cracklength"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  class="textfield-col"
                   v-model="model.width"
                   v-show="!model.ownModel & model.modelNameSelected!='RVE' & !model.twoDimensional"
                   :rules="[rules.required, rules.float]"
@@ -338,7 +346,7 @@
                     <v-row>
                       <v-col class="textfieldlist-col">
                         <v-text-field
-                          v-model="material.Name"
+                          v-model="material.name"
                           :rules="[rules.required, rules.name]"
                           label="Material Name"
                           outlined
@@ -363,14 +371,14 @@
                     <v-select
                       class="textfield-col"
                       :items="materialModelName"
-                      v-model="material.MatType"
+                      v-model="material.matType"
                       label="Material Model Name"
                       outlined
                     ></v-select>
-                    <template v-if="material.MatType.includes('User')">
+                    <template v-if="material.matType.includes('User')">
                       <v-list
-                        v-for="prop, subindex in material.Properties"
-                        :key="material.Properties.id"
+                        v-for="prop, subindex in material.properties"
+                        :key="material.properties.id"
                         style="padding: 0px"
                       >
                         <v-row>
@@ -378,7 +386,7 @@
                             <v-text-field
                               v-model="prop.value"
                               :rules="[rules.required, rules.float]"
-                              :label="prop.Name"
+                              :label="prop.name"
                               outlined
                             ></v-text-field>
                           </v-col>
@@ -491,7 +499,7 @@
                       </v-col>
                       <v-col
                         class="textfield-col"
-                        v-if="material.MatType=='Elastic'"
+                        v-if="material.matType=='Elastic'"
                       >
                         <v-switch
                           v-model="material.computePartialStress"
@@ -502,12 +510,12 @@
                     <v-select
                       :items="materialSymmetry"
                       v-model="material.materialSymmetry"
-                      v-show="material.MatType=='Linear Elastic Correspondence'"
+                      v-show="material.matType=='Linear Elastic Correspondence'"
                       label="Material Symmetry"
                       outlined
                     ></v-select>
                     <v-container
-                      v-if="material.materialSymmetry=='Anisotropic' & material.MatType=='Linear Elastic Correspondence'"
+                      v-if="material.materialSymmetry=='Anisotropic' & material.matType=='Linear Elastic Correspondence'"
                     >
                       <v-row>
                         <li
@@ -518,7 +526,7 @@
                             class="textfield-col"
                             style="padding-right: 10px"
                             v-model="params.value"
-                            :label="params.Name"
+                            :label="params.name"
                             :rules="[rules.required, rules.float]"
                             outlined
                           ></v-text-field>
@@ -548,7 +556,7 @@
                     ></v-text-field>
                     <v-text-field
                       class="textfield-col"
-                      v-show="material.MatType=='Elastic Plastic Hypoelastic Correspondence'"
+                      v-show="material.matType=='Elastic Plastic Hypoelastic Correspondence'"
                       v-model="material.actualHorizon"
                       :rules="[rules.required, rules.float]"
                       label="Actual Horizon"
@@ -556,7 +564,7 @@
                     ></v-text-field>
                     <v-text-field
                       class="textfield-col"
-                      v-show="material.MatType.includes('Plastic')"
+                      v-show="material.matType.includes('Plastic')"
                       v-model="material.yieldStress"
                       :rules="[rules.required, rules.float]"
                       label="Yield Stress"
@@ -601,7 +609,7 @@
                     <v-row>
                       <v-col class="textfieldlist-col">
                         <v-text-field
-                          v-model="damage.Name"
+                          v-model="damage.name"
                           label="Damage Name"
                           outlined
                         ></v-text-field>
@@ -648,16 +656,79 @@
                           outlined
                         ></v-text-field>
                       </v-col>
-                      <v-col class="textfield-col">
-                        <v-text-field
-                          v-model="damage.interblockdamageEnergy"
-                          :rules="[rules.float]"
-                          label="Interblock Damage Energy"
-                          clearable
-                          outlined
-                        ></v-text-field>
-                      </v-col>
                     </v-row>
+                    <v-switch
+                      v-model="damage.interBlockDamage"
+                      label="Inter Block Damage"
+                    ></v-switch>
+                    <template v-if="damage.interBlockDamage">
+                      <v-list
+                        v-for="prop, subindex in damage.interBlocks"
+                        :key="damage.interBlocks.id"
+                        style="padding: 0px"
+                      >
+                        <v-row>
+                          <v-col class="textfieldlist-col" cols="12" sm="2">
+                            <v-select
+                              :items="blocks"
+                              item-text="id"
+                              v-model="prop.firstBlockId"
+                              label="First Block Id"
+                              outlined
+                            ></v-select>
+                          </v-col>
+                          <v-col class="textfieldlist-col" cols="12" sm="2">
+                            <v-select
+                              :items="blocks"
+                              item-text="id"
+                              v-model="prop.secondBlockId"
+                              label="Second Block Id"
+                              outlined
+                            ></v-select>
+                          </v-col>
+                          <v-col class="textfieldlist-col" cols="12" sm="4">
+                            <v-text-field
+                              v-model="prop.value"
+                              :rules="[rules.required, rules.float]"
+                              label="Critical Energy"
+                              outlined
+                            ></v-text-field>
+                          </v-col>
+                          <v-col class="textfieldlist-col">
+                            <v-tooltip bottom
+                              ><template v-slot:activator="{ on, attrs }">
+                                <v-btn
+                                  class="my-btn"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                  @click="removeInterBlock(index, subindex)"
+                                >
+                                  <i class="fas fa-trash-alt"></i>
+                                </v-btn>
+                              </template>
+                              <span>Remove InterBlock</span>
+                            </v-tooltip>
+                          </v-col>
+                        </v-row>
+                      </v-list>
+                      <v-row>
+                        <v-col class="textfieldlist-col">
+                          <v-tooltip bottom
+                            ><template v-slot:activator="{ on, attrs }">
+                              <v-btn
+                                class="my-btn"
+                                v-bind="attrs"
+                                v-on="on"
+                                @click="addInterBlock(index)"
+                              >
+                                <i class="fas fa-plus"></i>
+                              </v-btn>
+                            </template>
+                            <span>Add InterBlock</span>
+                          </v-tooltip>
+                        </v-col>
+                      </v-row>
+                    </template>
                     <v-switch
                       v-model="damage.onlyTension"
                       label="Only Tension"
@@ -716,7 +787,7 @@
                   <v-row>
                     <v-col class="textfieldlist-col" cols="12" sm="2">
                       <v-text-field
-                        v-model="block.Name"
+                        v-model="block.name"
                         label="Block Name"
                         outlined
                       ></v-text-field>
@@ -736,16 +807,6 @@
                         item-text="Name"
                         v-model="block.damageModel"
                         label="Damage Model"
-                        clearable
-                        outlined
-                      ></v-select>
-                    </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="2">
-                      <v-select
-                        :items="blocks"
-                        item-text="id"
-                        v-model="block.interface"
-                        label="Interface"
                         clearable
                         outlined
                       ></v-select>
@@ -822,7 +883,7 @@
                     <v-row>
                       <v-col class="textfieldlist-col" cols="12" sm="3">
                         <v-text-field
-                          v-model="contactModel.Name"
+                          v-model="contactModel.name"
                           label="Name"
                           outlined
                         ></v-text-field>
@@ -963,7 +1024,7 @@
                   <v-row>
                     <v-col class="textfieldlist-col" cols="12" sm="2">
                       <v-text-field
-                        v-model="boundaryCondition.Name"
+                        v-model="boundaryCondition.name"
                         label="Name"
                         outlined
                       ></v-text-field>
@@ -1057,7 +1118,7 @@
                   <v-row>
                     <v-col class="textfieldlist-col" cols="12" sm="2">
                       <v-text-field
-                        v-model="bondFilter.Name"
+                        v-model="bondFilter.name"
                         label="Name"
                         outlined
                       ></v-text-field>
@@ -1254,7 +1315,7 @@
                     <v-row>
                       <v-col class="textfieldlist-col" cols="12" sm="3">
                         <v-text-field
-                          v-model="compute.Name"
+                          v-model="compute.name"
                           label="Name"
                           outlined
                         ></v-text-field>
@@ -1336,7 +1397,7 @@
                     <v-row>
                       <v-col class="textfield-col">
                         <v-text-field
-                          v-model="output.Name"
+                          v-model="output.name"
                           label="Name"
                           outlined
                         ></v-text-field>
@@ -1955,7 +2016,7 @@
                   class="my-btn"
                   v-bind="attrs"
                   v-on="on"
-                  @click="if(outputs.length==1){showResults(outputs[0].Name)}else{dialogShowResults = true}"
+                  @click="if(outputs.length==1){showResults(outputs[0].name)}else{dialogShowResults = true}"
                   :disabled="!status.results"
                 >
                   <i class="fas fa-eye"></i>

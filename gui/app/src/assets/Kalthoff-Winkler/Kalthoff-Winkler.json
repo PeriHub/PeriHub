@@ -12,18 +12,15 @@
     "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": true,
-    "angles": [
-      0,
-      0
-    ]
+    "angles": [0, 0]
   },
   "materials": [
     {
       "id": 1,
-      "Name": "PMMA",
-      "density": 8.0e-06,
-      "MatType": "Elastic Bond Based",
-      "bulkModulus": 1.27e+06,
+      "name": "PMMA",
+      "density": 8.0e-6,
+      "matType": "Elastic Bond Based",
+      "bulkModulus": 1.27e6,
       "shearModulus": null,
       "youngsModulus": null,
       "poissonsRatio": null,
@@ -38,94 +35,94 @@
       "yieldStress": null,
       "Parameter": [
         {
-          "Name": "C11",
+          "name": "C11",
           "value": null
         },
         {
-          "Name": "C12",
+          "name": "C12",
           "value": null
         },
         {
-          "Name": "C13",
+          "name": "C13",
           "value": null
         },
         {
-          "Name": "C14",
+          "name": "C14",
           "value": null
         },
         {
-          "Name": "C15",
+          "name": "C15",
           "value": null
         },
         {
-          "Name": "C16",
+          "name": "C16",
           "value": null
         },
         {
-          "Name": "C22",
+          "name": "C22",
           "value": null
         },
         {
-          "Name": "C23",
+          "name": "C23",
           "value": null
         },
         {
-          "Name": "C24",
+          "name": "C24",
           "value": null
         },
         {
-          "Name": "C25",
+          "name": "C25",
           "value": null
         },
         {
-          "Name": "C26",
+          "name": "C26",
           "value": null
         },
         {
-          "Name": "C33",
+          "name": "C33",
           "value": null
         },
         {
-          "Name": "C34",
+          "name": "C34",
           "value": null
         },
         {
-          "Name": "C35",
+          "name": "C35",
           "value": null
         },
         {
-          "Name": "C36",
+          "name": "C36",
           "value": null
         },
         {
-          "Name": "C44",
+          "name": "C44",
           "value": null
         },
         {
-          "Name": "C45",
+          "name": "C45",
           "value": null
         },
         {
-          "Name": "C46",
+          "name": "C46",
           "value": null
         },
         {
-          "Name": "C55",
+          "name": "C55",
           "value": null
         },
         {
-          "Name": "C56",
+          "name": "C56",
           "value": null
         },
         {
-          "Name": "C66",
+          "name": "C66",
           "value": null
         }
       ],
-      "Properties": [
+      "properties": [
         {
           "id": 1,
-          "Name": "Prop_1",
+          "name": "Prop_1",
           "value": null
         }
       ]
@@ -134,9 +131,9 @@
   "damages": [
     {
       "id": 1,
-      "Name": "PMMADamage",
+      "name": "PMMADamage",
       "damageModel": "Critical Stretch",
-      "criticalStretch": 0.0022170,
+      "criticalStretch": 0.002217,
       "criticalEnergy": null,
       "interblockdamageEnergy": null,
       "planeStress": true,
@@ -150,41 +147,37 @@
   "blocks": [
     {
       "id": 1,
-      "Name": "block_1",
+      "name": "block_1",
       "material": "PMMA",
       "damageModel": "PMMADamage",
-      "interface": "",
       "show": true
     },
     {
       "id": 2,
-      "Name": "block_2",
+      "name": "block_2",
       "material": "PMMA",
       "damageModel": "",
-      "interface": "",
       "show": true
     },
     {
       "id": 3,
-      "Name": "block_3",
+      "name": "block_3",
       "material": "PMMA",
       "damageModel": "",
-      "interface": "",
       "show": true
     },
     {
       "id": 4,
-      "Name": "block_4",
+      "name": "block_4",
       "material": "PMMA",
       "damageModel": "",
-      "interface": "",
       "show": true
     }
   ],
   "boundaryConditions": [
     {
       "id": 1,
-      "Name": "BC_1",
+      "name": "BC_1",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
       "blockId": 2,
@@ -193,7 +186,7 @@
     },
     {
       "id": 2,
-      "Name": "BC_2",
+      "name": "BC_2",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
       "blockId": 3,
@@ -202,7 +195,7 @@
     },
     {
       "id": 3,
-      "Name": "BC_3",
+      "name": "BC_3",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
       "blockId": 4,
@@ -213,7 +206,7 @@
   "bondFilters": [
     {
       "id": 1,
-      "Name": "bf_1",
+      "name": "bf_1",
       "type": "Rectangular_Plane",
       "normalX": 0,
       "normalY": 1,
@@ -234,7 +227,7 @@
     },
     {
       "id": 2,
-      "Name": "bf_2",
+      "name": "bf_2",
       "type": "Rectangular_Plane",
       "normalX": 0,
       "normalY": 1,
@@ -254,12 +247,11 @@
       "show": true
     }
   ],
-  "computes": [
-  ],
+  "computes": [],
   "outputs": [
     {
       "id": 1,
-      "Name": "Output1",
+      "name": "Output1",
       "Displacement": true,
       "Force": true,
       "Damage": true,

@@ -33,19 +33,20 @@ class ModelControl:
         # height = 0.019
         # number_nodes = 21
 
-        L = 50
-        height = 1.25 * L
+        # L = 50
+        # height = 1.25 * L
 
         # number_nodes = 2 * int(number_nodes / 2) + 1
-
-        number_nodes = 220
+        L = 110
+        height = 3.0
+        number_nodes = 21
         # number_nodes = 800
         dx_value = [height / number_nodes, height / number_nodes, height / number_nodes]
 
         print(dx_value, 4.01 * dx_value[0])
 
-        ct = CompactTension(xend=L, zend=thickness, dx_value=dx_value, two_d=True)
-        model = ct.create_model()
+        # ct = CompactTension(xend=L, zend=thickness, dx_value=dx_value, two_d=True)
+        # model = ct.create_model()
         # pw = PlateWithHole(
         #     xend=L, yend=height, zend=thickness, dx_value=dx_value, two_d=True
         # )
@@ -54,8 +55,15 @@ class ModelControl:
         #     xend=L, yend=height, zend=thickness, dx_value=dx_value, two_d=True
         # )
         # model = kw.create_model()
-        # gc = GIICmodel(xend = L, yend = height, zend = thickness, dx_value=dx_value, two_d = True)
-        # model = gc.create_model()
+        gc = GIICmodel(
+            xend=L,
+            crack_length=40.0,
+            yend=height,
+            zend=thickness,
+            dx_value=dx_value,
+            two_d=True,
+        )
+        model = gc.create_model()
         # xm = XFEMDCB(xend = L, yend = 2*height, dx_value=[0.08,0.08])
         # model = xm.create_model()
         # dcb = DCBmodel(dx_value = dx_value, two_d = True)

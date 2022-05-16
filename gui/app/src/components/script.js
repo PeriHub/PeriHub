@@ -53,6 +53,7 @@ export default {
         ownModel: false,
         translated: false,
         length: 0.115,
+        cracklength: 0.115,
         width: 0.003,
         height: 0.019,
         height2: 0.013,
@@ -114,8 +115,8 @@ export default {
       materials: [
         {
           id: 1,
-          Name: "PMMA",
-          MatType: "Linear Elastic Correspondence",
+          name: "PMMA",
+          matType: "Linear Elastic Correspondence",
           density: 1.4e5,
           bulkModulus: null,
           shearModulus: null,
@@ -131,35 +132,35 @@ export default {
           actualHorizon: null,
           yieldStress: null,
           Parameter: [
-            { Name: "C11", value: 0.0 },
-            { Name: "C12", value: 0.0 },
-            { Name: "C13", value: 0.0 },
-            { Name: "C14", value: 0.0 },
-            { Name: "C15", value: 0.0 },
-            { Name: "C16", value: 0.0 },
-            { Name: "C22", value: 0.0 },
-            { Name: "C23", value: 0.0 },
-            { Name: "C24", value: 0.0 },
-            { Name: "C25", value: 0.0 },
-            { Name: "C26", value: 0.0 },
-            { Name: "C33", value: 0.0 },
-            { Name: "C34", value: 0.0 },
-            { Name: "C35", value: 0.0 },
-            { Name: "C36", value: 0.0 },
-            { Name: "C44", value: 0.0 },
-            { Name: "C45", value: 0.0 },
-            { Name: "C46", value: 0.0 },
-            { Name: "C55", value: 0.0 },
-            { Name: "C56", value: 0.0 },
-            { Name: "C66", value: 0.0 },
+            { name: "C11", value: 0.0 },
+            { name: "C12", value: 0.0 },
+            { name: "C13", value: 0.0 },
+            { name: "C14", value: 0.0 },
+            { name: "C15", value: 0.0 },
+            { name: "C16", value: 0.0 },
+            { name: "C22", value: 0.0 },
+            { name: "C23", value: 0.0 },
+            { name: "C24", value: 0.0 },
+            { name: "C25", value: 0.0 },
+            { name: "C26", value: 0.0 },
+            { name: "C33", value: 0.0 },
+            { name: "C34", value: 0.0 },
+            { name: "C35", value: 0.0 },
+            { name: "C36", value: 0.0 },
+            { name: "C44", value: 0.0 },
+            { name: "C45", value: 0.0 },
+            { name: "C46", value: 0.0 },
+            { name: "C55", value: 0.0 },
+            { name: "C56", value: 0.0 },
+            { name: "C66", value: 0.0 },
           ],
-          Properties: [{ id: 1, Name: "Prop_1", value: 0.0 }],
+          properties: [{ id: 1, name: "Prop_1", value: 0.0 }],
           computePartialStress: false,
         },
         {
           id: 2,
-          Name: "PMMAElast",
-          MatType: "Linear Elastic Correspondence",
+          name: "PMMAElast",
+          matType: "Linear Elastic Correspondence",
           density: 1.4e5,
           bulkModulus: null,
           shearModulus: null,
@@ -175,35 +176,35 @@ export default {
           actualHorizon: null,
           yieldStress: null,
           Parameter: [
-            { Name: "C11", value: 165863.6296530634 },
-            { Name: "C12", value: 4090.899504376252 },
-            { Name: "C13", value: 2471.126276093059 },
-            { Name: "C14", value: 0.0 },
-            { Name: "C15", value: 0.0 },
-            { Name: "C16", value: 0.0 },
-            { Name: "C22", value: 9217.158022124806 },
-            { Name: "C23", value: 2471.126276093059 },
-            { Name: "C24", value: 0.0 },
-            { Name: "C25", value: 0.0 },
-            { Name: "C26", value: 0.0 },
-            { Name: "C33", value: 9217.158022124804 },
-            { Name: "C34", value: 0.0 },
-            { Name: "C35", value: 0.0 },
-            { Name: "C36", value: 0.0 },
-            { Name: "C44", value: 3360.0 },
-            { Name: "C45", value: 0.0 },
-            { Name: "C46", value: 0.0 },
-            { Name: "C55", value: 4200.0 },
-            { Name: "C56", value: 0.0 },
-            { Name: "C66", value: 4200.0 },
+            { name: "C11", value: 165863.6296530634 },
+            { name: "C12", value: 4090.899504376252 },
+            { name: "C13", value: 2471.126276093059 },
+            { name: "C14", value: 0.0 },
+            { name: "C15", value: 0.0 },
+            { name: "C16", value: 0.0 },
+            { name: "C22", value: 9217.158022124806 },
+            { name: "C23", value: 2471.126276093059 },
+            { name: "C24", value: 0.0 },
+            { name: "C25", value: 0.0 },
+            { name: "C26", value: 0.0 },
+            { name: "C33", value: 9217.158022124804 },
+            { name: "C34", value: 0.0 },
+            { name: "C35", value: 0.0 },
+            { name: "C36", value: 0.0 },
+            { name: "C44", value: 3360.0 },
+            { name: "C45", value: 0.0 },
+            { name: "C46", value: 0.0 },
+            { name: "C55", value: 4200.0 },
+            { name: "C56", value: 0.0 },
+            { name: "C66", value: 4200.0 },
           ],
-          Properties: [{ id: 1, Name: "Prop_1", value: 0.0 }],
+          properties: [{ id: 1, name: "Prop_1", value: 0.0 }],
           computePartialStress: false,
         },
       ],
       materialKeys: {
-        Name: "Name",
-        MatType: "Material Model",
+        name: "name",
+        matType: "Material Model",
         density: "Density",
         bulkModulus: "Bulk Modulus",
         shearModulus: "Shear Modulus",
@@ -232,11 +233,20 @@ export default {
       damages: [
         {
           id: 1,
-          Name: "PMMADamage",
+          name: "PMMADamage",
           damageModel: "Critical Energy Correspondence",
           criticalStretch: 10,
           criticalEnergy: 10.1,
-          interblockdamageEnergy: 0.01,
+          interBlockDamage: false,
+          numberOfBlocks: 5,
+          interBlocks: [
+            {
+              id: 1,
+              firstBlockId: 1,
+              secondBlockId: 2,
+              value: 0.1,
+            },
+          ],
           planeStress: true,
           onlyTension: false,
           detachedNodesCheck: true,
@@ -246,11 +256,13 @@ export default {
         },
       ],
       damageKeys: {
-        Name: "Name",
+        name: "name",
         damageModel: "Damage Model",
         criticalStretch: "Critical Stretch",
         criticalEnergy: "Critical Energy",
-        interblockdamageEnergy: "Interblock Critical Energy",
+        interBlockDamage: "Interblock Damage",
+        numberOfBlocks: "Number of Blocks",
+        interBlockCriticalEnergy: "Interblock Critical Energy",
         planeStress: "Plane Stress",
         onlyTension: "Only Tension",
         detachedNodesCheck: "Detached Nodes Check",
@@ -262,55 +274,49 @@ export default {
       blocks: [
         {
           id: 1,
-          Name: "block_1",
+          name: "block_1",
           material: "PMMAElast",
           damageModel: "",
           horizon: null,
-          interface: "",
           show: true,
         },
         {
           id: 2,
-          Name: "block_2",
+          name: "block_2",
           material: "PMMAElast",
           damageModel: "",
           horizon: null,
-          interface: "",
           show: true,
         },
         {
           id: 3,
-          Name: "block_3",
+          name: "block_3",
           material: "PMMA",
           damageModel: "PMMADamage",
           horizon: null,
-          interface: "",
           show: true,
         },
         {
           id: 4,
-          Name: "block_4",
+          name: "block_4",
           material: "PMMAElast",
           damageModel: "",
           horizon: null,
-          interface: "",
           show: true,
         },
         {
           id: 5,
-          Name: "block_5",
+          name: "block_5",
           material: "PMMAElast",
           damageModel: "",
           horizon: null,
-          interface: "",
           show: true,
         },
       ],
       blockKeys: {
-        Name: "Name",
+        name: "name",
         material: "Material",
         damageModel: "Damage Model",
-        interface: "Interface",
       },
       //  boundaryConditions
       boundarytype: [
@@ -328,7 +334,7 @@ export default {
       boundaryConditions: [
         {
           id: 1,
-          Name: "BC_1",
+          name: "BC_1",
           nodeSet: null,
           boundarytype: "Prescribed Displacement",
           blockId: 1,
@@ -337,7 +343,7 @@ export default {
         },
         {
           id: 2,
-          Name: "BC_2",
+          name: "BC_2",
           nodeSet: null,
           boundarytype: "Prescribed Displacement",
           blockId: 5,
@@ -346,7 +352,7 @@ export default {
         },
       ],
       boundaryKeys: {
-        Name: "Name",
+        name: "name",
         nodeSet: "Node Set",
         boundarytype: "Type",
         blockId: 1,
@@ -369,7 +375,7 @@ export default {
       bondFilters: [
         {
           id: 1,
-          Name: "bf_1",
+          name: "bf_1",
           type: "Rectangular_Plane",
           normalX: 0.0,
           normalY: 1.0,
@@ -390,7 +396,7 @@ export default {
         },
         {
           id: 2,
-          Name: "bf_2",
+          name: "bf_2",
           type: "Rectangular_Plane",
           normalX: 0.0,
           normalY: 1.0,
@@ -411,7 +417,7 @@ export default {
         },
       ],
       bondFilterKeys: {
-        Name: "Name",
+        name: "name",
         type: "Type",
         normalX: "Normal_X",
         normalY: "Normal_Y",
@@ -438,7 +444,7 @@ export default {
         contactModels: [
           {
             id: 1,
-            Name: "Contact Model",
+            name: "Contact Model",
             contactType: "Short Range Force",
             contactRadius: 0.000775,
             springConstant: 1000000000000.0,
@@ -459,21 +465,21 @@ export default {
       computes: [
         {
           id: 1,
-          Name: "External_Displacement",
+          name: "External_Displacement",
           variable: "Displacement",
           calculationType: "Maximum",
           blockName: "block_5",
         },
         {
           id: 2,
-          Name: "External_Force",
+          name: "External_Force",
           variable: "Force",
           calculationType: "Sum",
           blockName: "block_5",
         },
       ],
       computeKeys: {
-        Name: "Output Label",
+        name: "Output Label",
         variable: "Variable",
         calculationType: "Calculation Type",
         blockName: "Block",
@@ -482,7 +488,7 @@ export default {
       outputs: [
         {
           id: 1,
-          Name: "Output1",
+          name: "Output1",
           Displacement: true,
           Force: true,
           Damage: true,
@@ -509,7 +515,7 @@ export default {
         },
       ],
       outputKeys: {
-        Name: "Output Filename",
+        name: "Output Filename",
         Displacement: "Displacement",
         Force: "Force",
         Damage: "Damage",
@@ -1232,7 +1238,7 @@ export default {
               console.log("Warning: " + names[i] + " is not supported yet");
               continue;
             } else {
-              if (key == "Name") {
+              if (key == "name") {
                 this[paramName][id - 1][key] = paramObject[names[i]]
                   .split("_")
                   .slice(-1)[0];
@@ -1268,7 +1274,7 @@ export default {
               console.log("Warning: " + names[i] + " is not supported yet");
               continue;
             }
-            if (key == "Name") {
+            if (key == "name") {
               this[paramName][0][key] = paramObject[names[i]]
                 .split("_")
                 .slice(-1)[0];
@@ -1310,7 +1316,7 @@ export default {
             if (this[paramName].length < numberOfItems + 1) {
               addFunction();
             }
-            this[paramName][numberOfItems]["Name"] = names[i];
+            this[paramName][numberOfItems]["name"] = names[i];
             var subNames = Object.keys(paramObject[names[i]]);
             for (var j = 0; j < subNames.length; j++) {
               var key = this.getKeyByValue(paramKeys, subNames[j]);
@@ -1339,21 +1345,21 @@ export default {
           if (this[paramName].length < i + 1) {
             addFunction();
           }
-          this[paramName][i]["Name"] = names[i];
+          this[paramName][i]["name"] = names[i];
           var subNames = Object.keys(paramObject[names[i]]);
           for (var j = 0; j < subNames.length; j++) {
             var key = this.getKeyByValue(paramKeys, subNames[j]);
-            if (subNames[j] == "Number of Properties") {
+            if (subNames[j] == "Number of properties") {
               let numberOfProps = parseInt(paramObject[names[i]][subNames[j]]);
-              if (this.materials[i].Properties.length < numberOfProps) {
-                while (this.materials[i].Properties.length != numberOfProps) {
+              if (this.materials[i].properties.length < numberOfProps) {
+                while (this.materials[i].properties.length != numberOfProps) {
                   this.addProp(i);
                 }
               }
-              if (this.materials[i].Properties.length > numberOfProps) {
+              if (this.materials[i].properties.length > numberOfProps) {
                 for (
                   var j = numberOfProps;
-                  j < this.materials[i].Properties.length;
+                  j < this.materials[i].properties.length;
                   j++
                 ) {
                   this.removeProp(i, j);
@@ -1363,7 +1369,7 @@ export default {
             }
             if (subNames[j].indexOf("Prop_") !== -1) {
               id = parseInt(subNames[j].split("_")[1]);
-              this.materials[i].Properties[id - 1].value =
+              this.materials[i].properties[id - 1].value =
                 paramObject[names[i]][subNames[j]];
               continue;
             }
@@ -2195,7 +2201,7 @@ export default {
           this.outputs[i]["External_Force"] |
           this.outputs[i]["External_Displacement"]
         ) {
-          OutputName = this.outputs[i]["Name"];
+          OutputName = this.outputs[i]["name"];
           break;
         }
       }
@@ -2343,7 +2349,7 @@ export default {
         Authorization: this.authToken,
       };
 
-      var index = this.outputs.findIndex((o) => o.Name == outputName);
+      var index = this.outputs.findIndex((o) => o.name == outputName);
 
       let output_list = [];
 
@@ -2372,7 +2378,7 @@ export default {
         url: this.trameUrl + "launchTrameInstance",
         params: {
           model_name: this.model.modelNameSelected,
-          output_name: this.outputs[index].Name,
+          output_name: this.outputs[index].name,
           output_list: output_list.toString(),
           dx_value: this.dx_value,
           duration: 600,
@@ -2555,10 +2561,10 @@ export default {
       const len = this.materials.length;
       this.materials.push({
         id: len + 1,
-        Name: "Material" + (len + 1),
+        name: "Material" + (len + 1),
       });
       for (const key in this.materials[len - 1]) {
-        if ((key != "id") & (key != "Name")) {
+        if ((key != "id") & (key != "name")) {
           this.$set(this.materials[len], key, this.materials[len - 1][key]);
         }
       }
@@ -2567,32 +2573,32 @@ export default {
       this.materials.splice(index, 1);
     },
     addProp(index) {
-      const len = this.materials[index].Properties.length;
-      this.materials[index].Properties.push({
+      const len = this.materials[index].properties.length;
+      this.materials[index].properties.push({
         id: len + 1,
-        Name: "Prop_" + (len + 1),
+        name: "Prop_" + (len + 1),
       });
-      for (const key in this.materials[index].Properties[len - 1]) {
-        if ((key != "id") & (key != "Name")) {
+      for (const key in this.materials[index].properties[len - 1]) {
+        if ((key != "id") & (key != "name")) {
           this.$set(
-            this.materials[index].Properties[len],
+            this.materials[index].properties[len],
             key,
-            this.materials[index].Properties[len - 1][key]
+            this.materials[index].properties[len - 1][key]
           );
         }
       }
     },
     removeProp(index, subindex) {
-      this.materials[index].Properties.splice(subindex, 1);
+      this.materials[index].properties.splice(subindex, 1);
     },
     addDamage() {
       const len = this.damages.length;
       this.damages.push({
         id: len + 1,
-        Name: "Damage" + (len + 1),
+        name: "Damage" + (len + 1),
       });
       for (const key in this.damages[len - 1]) {
-        if ((key != "id") & (key != "Name")) {
+        if ((key != "id") & (key != "name")) {
           this.$set(this.damages[len], key, this.damages[len - 1][key]);
         }
       }
@@ -2605,14 +2611,34 @@ export default {
         }
       }
     },
+    addInterBlock(index) {
+      const len = this.damages[index].interBlocks.length;
+      this.damages[index].interBlocks.push({
+        id: len + 1,
+        firtsId: 1,
+        secondId: len + 1,
+      });
+      for (const key in this.damages[index].interBlocks[len - 1]) {
+        if (key == "value") {
+          this.$set(
+            this.damages[index].interBlocks[len],
+            key,
+            this.damages[index].interBlocks[len - 1][key]
+          );
+        }
+      }
+    },
+    removeInterBlock(index, subindex) {
+      this.damages[index].interBlocks.splice(subindex, 1);
+    },
     addBlock() {
       const len = this.blocks.length;
       this.blocks.push({
         id: len + 1,
-        Name: "block_" + (len + 1),
+        name: "block_" + (len + 1),
       });
       for (const key in this.blocks[len - 1]) {
-        if ((key != "id") & (key != "Name")) {
+        if ((key != "id") & (key != "name")) {
           this.$set(this.blocks[len], key, this.blocks[len - 1][key]);
         }
       }
@@ -2624,10 +2650,10 @@ export default {
       const len = this.boundaryConditions.length;
       this.boundaryConditions.push({
         id: len + 1,
-        Name: "BC_" + (len + 1),
+        name: "BC_" + (len + 1),
       });
       for (const key in this.boundaryConditions[len - 1]) {
-        if ((key != "id") & (key != "Name")) {
+        if ((key != "id") & (key != "name")) {
           this.$set(
             this.boundaryConditions[len],
             key,
@@ -2647,10 +2673,10 @@ export default {
       });
       this.bondFilters.push({
         id: len + 1,
-        Name: "bf_" + (len + 1),
+        name: "bf_" + (len + 1),
       });
       for (const key in this.bondFilters[len - 1]) {
-        if ((key != "id") & (key != "Name")) {
+        if ((key != "id") & (key != "name")) {
           this.$set(this.bondFilters[len], key, this.bondFilters[len - 1][key]);
         }
       }
@@ -2663,10 +2689,10 @@ export default {
       const len = this.contact.contactModels.length;
       this.contact.contactModels.push({
         id: len + 1,
-        Name: "Contact Model " + (len + 1),
+        name: "Contact Model " + (len + 1),
       });
       for (const key in this.contact.contactModels[len - 1]) {
-        if ((key != "id") & (key != "Name")) {
+        if ((key != "id") & (key != "name")) {
           this.$set(
             this.contact.contactModels[len],
             key,
@@ -2700,10 +2726,10 @@ export default {
       const len = this.computes.length;
       this.computes.push({
         id: len + 1,
-        Name: "Compute" + (len + 1),
+        name: "Compute" + (len + 1),
       });
       for (const key in this.computes[len - 1]) {
-        if ((key != "id") & (key != "Name")) {
+        if ((key != "id") & (key != "name")) {
           this.$set(this.computes[len], key, this.computes[len - 1][key]);
         }
       }
@@ -2715,7 +2741,7 @@ export default {
       const len = this.outputs.length;
       this.outputs.push({
         id: len + 1,
-        Name: "Output" + (len + 1),
+        name: "Output" + (len + 1),
         Displacement: false,
         Force: false,
         Damage: false,

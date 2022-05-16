@@ -7,5 +7,4 @@ Configuration | Description
 Block Name | Current used Block
 Material | Used Material for the block
 Damage Model | Used Damage Model for the block
-Interface | Block id of shared interface
 Show | Switch to show block in the VTK view

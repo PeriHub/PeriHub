@@ -28,7 +28,7 @@ class PlateWithHole:
         searchFrequency=0,
         contactModels=[],
         interactions=[],
-    ) 
+    )
 
     def __init__(
         self,
@@ -104,7 +104,7 @@ class PlateWithHole:
         if not damage:
             damage_dict = Damage(
                 id=1,
-                Name="PMMADamage",
+                name="PMMADamage",
                 damageModel="Critical Stretch",
                 criticalStretch=10,
                 criticalEnergy=0.0022170,
@@ -123,14 +123,14 @@ class PlateWithHole:
         if not compute:
             compute_dict1 = Compute(
                 id=1,
-                Name="External_Displacement",
+                name="External_Displacement",
                 variable="Displacement",
                 calculationType="Minimum",
                 blockName="block_3",
             )
             compute_dict2 = Compute(
                 id=2,
-                Name="External_Force",
+                name="External_Force",
                 variable="Force",
                 calculationType="Sum",
                 blockName="block_3",
@@ -142,7 +142,7 @@ class PlateWithHole:
         if not output:
             output_dict1 = Output(
                 id=1,
-                Name="Output1",
+                name="Output1",
                 Displacement=True,
                 Force=True,
                 Damage=True,
@@ -163,8 +163,8 @@ class PlateWithHole:
             for material_name in mat_name_list:
                 mat_dict = Material(
                     id=i + 1,
-                    Name=material_name,
-                    MatType="Elastic Bond Based",
+                    name=material_name,
+                    matType="Elastic Bond Based",
                     density=8.0e-6,
                     bulkModulus=1.2666666666666667e5,
                     shearModulus=None,
@@ -180,7 +180,7 @@ class PlateWithHole:
                     actualHorizon=None,
                     yieldStress=None,
                     Parameter=[],
-                    Properties=[],
+                    properties=[],
                 )
                 i += 1
                 self.material_dict.append(mat_dict)
@@ -190,7 +190,7 @@ class PlateWithHole:
         # if not bond_filter:
         #     bf1 = BondFilters(
         #         id=1,
-        #         Name="bf_1",
+        #         name="bf_1",
         #         type="Disk",
         #         normalX=0.0,
         #         normalY=1.0,
@@ -209,7 +209,7 @@ class PlateWithHole:
         if not boundary_condition:
             bc1 = BoundaryConditions(
                 id=1,
-                Name="BC_1",
+                name="BC_1",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
                 blockId=2,
@@ -218,7 +218,7 @@ class PlateWithHole:
             )
             bc2 = BoundaryConditions(
                 id=2,
-                Name="BC_2",
+                name="BC_2",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
                 blockId=3,
@@ -291,7 +291,7 @@ class PlateWithHole:
         print(self.ybegin)
         print(self.yend)
 
-        x_value, y_value, z_value = geo.create_points(
+        x_value, y_value, z_value = geo.create_rectangle(
             coor=[
                 self.xbegin,
                 self.xend,
@@ -304,12 +304,7 @@ class PlateWithHole:
         )
 
         x_value, y_value, z_value = geo.check_val_in_circle(
-            x_value,
-            y_value,
-            z_value,
-            self.xend / 2,
-            self.yend / 2,
-            self.radius,
+            x_value, y_value, z_value, self.xend / 2, self.yend / 2, self.radius, False
         )
         if len(x_value) > self.max_nodes:
             return (
@@ -394,11 +389,10 @@ class PlateWithHole:
         for idx in range(0, block_len):
             block_def = Block(
                 id=1,
-                Name="block_" + str(idx + 1),
+                name="block_" + str(idx + 1),
                 material=self.mat_block[idx],
                 damageModel=self.dam_block[idx],
                 horizon=self.scal * max([self.dx_value[0], self.dx_value[1]]),
-                interface=self.int_block_id[idx],
                 show=False,
             )
             block_dict.append(block_def)

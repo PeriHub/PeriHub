@@ -25,13 +25,13 @@ class VerificationModels:
 
         self.damage_dict = ""
 
-        self.bondfilters = {"Name": []}
+        self.bondfilters = {"name": []}
         self.solver_dict = {}
         self.two_d = True
 
         self.output_dict = [{}] * 1
         self.output_dict[0] = {
-            "Name": "Output1",
+            "name": "Output1",
             "Displacement": True,
             "Force": True,
             "Damage": False,
@@ -48,8 +48,8 @@ class VerificationModels:
         i = 0
         for material in mat_name_list:
             self.material_dict[i] = {
-                "Name": material,
-                "MatType": "Linear Elastic Correspondence",
+                "name": material,
+                "matType": "Linear Elastic Correspondence",
                 "youngsModulus": 2.1e11,
                 "poissonsRatio": 0.3,
                 "tensionSeparation": False,
@@ -98,50 +98,50 @@ class VerificationModels:
         )
         self.bc_dict = [
             {
-                "Name": "BC_1",
+                "name": "BC_1",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 3,
                 "coordinate": "x",
                 "value": str(self.amp) + "*t",
             },
             {
-                "Name": "BC_2",
+                "name": "BC_2",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 4,
                 "coordinate": "x",
                 "value": str(self.amp) + "*t",
             },
             {
-                "Name": "BC_3",
+                "name": "BC_3",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 5,
                 "coordinate": "x",
                 "value": "0",
             },
             {
-                "Name": "BC_4",
+                "name": "BC_4",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "x",
                 "value": "0",
             },
             {
-                "Name": "BC_5",
+                "name": "BC_5",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 5,
                 "coordinate": "y",
                 "value": "0",
             },
             {
-                "Name": "BC_6",
+                "name": "BC_6",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "y",
                 "value": "0",
             },
         ]
-        # {'Name': 'BC_5', 'boundarytype': 'Prescribed Displacement', 'blockId': 7, 'coordinate': 'x', 'value': '0'},
-        # {'Name': 'BC_6', 'boundarytype': 'Prescribed Displacement', 'blockId': 7, 'coordinate': 'y', 'value': '0'}]
+        # {'name': 'BC_5', 'boundarytype': 'Prescribed Displacement', 'blockId': 7, 'coordinate': 'x', 'value': '0'},
+        # {'name': 'BC_6', 'boundarytype': 'Prescribed Displacement', 'blockId': 7, 'coordinate': 'y', 'value': '0'}]
 
         self.solver_dict = {
             "verbose": False,
@@ -176,7 +176,7 @@ class VerificationModels:
 
         self.bc_dict.append(
             {
-                "Name": "BC_7",
+                "name": "BC_7",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "z",
@@ -199,7 +199,7 @@ class VerificationModels:
         )
         self.bc_dict.append(
             {
-                "Name": "BC_7",
+                "name": "BC_7",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "z",
@@ -224,7 +224,7 @@ class VerificationModels:
         self.call_modelbuilder(two_d=True, angle=[0, 0], filename="isoBending2D")
         self.bc_dict.append(
             {
-                "Name": "BC_7",
+                "name": "BC_7",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "z",
@@ -247,7 +247,7 @@ class VerificationModels:
         )
         self.bc_dict.append(
             {
-                "Name": "BC_7",
+                "name": "BC_7",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "z",
@@ -274,7 +274,7 @@ class VerificationModels:
         )
         self.bc_dict.append(
             {
-                "Name": "BC_7",
+                "name": "BC_7",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "z",
@@ -290,7 +290,7 @@ class VerificationModels:
         )
         self.bc_dict.append(
             {
-                "Name": "BC_7",
+                "name": "BC_7",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "z",
@@ -309,7 +309,7 @@ class VerificationModels:
         )
         self.bc_dict.append(
             {
-                "Name": "BC_7",
+                "name": "BC_7",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "z",
@@ -325,7 +325,7 @@ class VerificationModels:
         )
         self.bc_dict.append(
             {
-                "Name": "BC_7",
+                "name": "BC_7",
                 "boundarytype": "Prescribed Displacement",
                 "blockId": 6,
                 "coordinate": "z",
@@ -393,12 +393,12 @@ class VerificationModels:
             rot = False
 
         if two_d:
-            x_value, y_value, z_value = geo.create_points(
+            x_value, y_value, z_value = geo.create_rectangle(
                 coor=[-3 * dx_value[0], xend + 3 * dx_value[0], 0, yend, 0, 0],
                 dx_value=[dx_value[0], dx_value[1], 1],
             )
         else:
-            x_value, y_value, z_value = geo.create_points(
+            x_value, y_value, z_value = geo.create_rectangle(
                 coor=[-3 * dx_value[0], xend + 3 * dx_value[0], 0, yend, 0, zend],
                 dx_value=[dx_value[0], dx_value[1], dx_value[2]],
             )
@@ -447,16 +447,15 @@ class VerificationModels:
         if self.damage_dict == "":
             for idx in range(0, block_len):
                 block_def[idx] = {
-                    "Name": "block_" + str(idx + 1),
+                    "name": "block_" + str(idx + 1),
                     "material": self.mat_block[idx],
                     "horizon": self.scal * max([self.dx_value[0], self.dx_value[1]]),
                     "damageModel": "",
-                    "interface": "",
                 }
         else:
             for idx in range(0, block_len):
                 block_def[idx] = {
-                    "Name": "block_" + str(idx + 1),
+                    "name": "block_" + str(idx + 1),
                     "material": self.mat_block[idx],
                     "horizon": self.scal * max([self.dx_value[0], self.dx_value[1]]),
                     "damageModel": self.damage_dict[idx],

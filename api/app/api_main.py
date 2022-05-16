@@ -39,7 +39,7 @@ from models.OwnModel.own_model import OwnModel
 from support.sbatch_creator import SbatchCreator
 from support.file_handler import FileHandler
 from support.base_models import ModelData, FileType, RunData, Status
-from support.crack_length import CrackLength
+from support.analysis import Analysis
 
 
 # class NotFoundException(Exception):
@@ -139,6 +139,7 @@ class ModelControl:
         # number_nodes = 12
 
         length = model_data.model.length
+        cracklength = model_data.model.cracklength
         width = model_data.model.width
         height = model_data.model.height
         height2 = model_data.model.height2
@@ -165,6 +166,7 @@ class ModelControl:
         if model_name == "GIICmodel":
             giic = GIICmodel(
                 xend=length,
+                crack_length=cracklength,
                 yend=height,
                 zend=width,
                 dx_value=dx_value,
@@ -499,7 +501,7 @@ class ModelControl:
 
         user_mat = False
         for mat in material:
-            if mat.MatType == "User Correspondence":
+            if mat.matType == "User Correspondence":
                 user_mat = True
                 break
 
@@ -781,7 +783,32 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        response = CrackLength.getCrackLength(username, model_name, output, frequency)
+        response = Analysis.get_k1c(username, model_name, output, model_data)
+        # print(crack_length)
+        # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
+        try:
+            return response
+        except IOError:
+            return model_name + " results can not be found on " + cluster
+
+    @app.post("/calculateG2c", tags=["Post Methods"])
+    def calculate_g2c(
+        model_data: ModelData,
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        frequency: int = "10",
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False, ".csv"
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        response = Analysis.get_g2c(username, model_name, output, model_data)
         # print(crack_length)
         # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
         try:

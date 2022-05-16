@@ -3,34 +3,32 @@
     "modelNameSelected": "GIICmodel",
     "ownModel": false,
     "translated": false,
-    "length": 50,
-    "width": 10,
-    "height": 4.95,
+    "length": 110,
+    "cracklength": 40,
+    "width": 25,
+    "height": 3,
     "height2": 0.013,
     "structured": false,
     "discretization": 11,
     "horizon": 0.01,
-    "twoDimensional": true,
+    "twoDimensional": false,
     "rotatedAngles": true,
-    "angles": [
-      0,
-      0
-    ]
+    "angles": [0, 0]
   },
   "materials": [
     {
       "id": 1,
-      "Name": "PMMA",
-      "MatType": "Linear Elastic Correspondence",
-      "density": 1.95e-7,
+      "name": "IM7/8552",
+      "matType": "Linear Elastic Correspondence",
+      "density": 1.57e3,
       "bulkModulus": null,
       "shearModulus": null,
-      "youngsModulus": 210000,
-      "poissonsRatio": 0.3,
+      "youngsModulus": 1.520291e11,
+      "poissonsRatio": 0.356,
       "tensionSeparation": false,
       "nonLinear": false,
       "planeStress": true,
-      "materialSymmetry": "Anisotropic",
+      "materialSymmetry": "Isotropic",
       "stabilizatonType": "Global Stiffness",
       "thickness": 10,
       "hourglassCoefficient": 1,
@@ -38,94 +36,94 @@
       "yieldStress": null,
       "Parameter": [
         {
-          "Name": "C11",
+          "name": "C11",
           "value": 165863.6296530634
         },
         {
-          "Name": "C12",
+          "name": "C12",
           "value": 4090.899504376252
         },
         {
-          "Name": "C13",
+          "name": "C13",
           "value": 2471.126276093059
         },
         {
-          "Name": "C14",
+          "name": "C14",
           "value": 0.0
         },
         {
-          "Name": "C15",
+          "name": "C15",
           "value": 0.0
         },
         {
-          "Name": "C16",
+          "name": "C16",
           "value": 0.0
         },
         {
-          "Name": "C22",
+          "name": "C22",
           "value": 9217.158022124806
         },
         {
-          "Name": "C23",
+          "name": "C23",
           "value": 2471.126276093059
         },
         {
-          "Name": "C24",
+          "name": "C24",
           "value": 0.0
         },
         {
-          "Name": "C25",
+          "name": "C25",
           "value": 0.0
         },
         {
-          "Name": "C26",
+          "name": "C26",
           "value": 0.0
         },
         {
-          "Name": "C33",
+          "name": "C33",
           "value": 9217.158022124804
         },
         {
-          "Name": "C34",
+          "name": "C34",
           "value": 0.0
         },
         {
-          "Name": "C35",
+          "name": "C35",
           "value": 0.0
         },
         {
-          "Name": "C36",
+          "name": "C36",
           "value": 0.0
         },
         {
-          "Name": "C44",
+          "name": "C44",
           "value": 3360
         },
         {
-          "Name": "C45",
+          "name": "C45",
           "value": 0.0
         },
         {
-          "Name": "C46",
+          "name": "C46",
           "value": 0.0
         },
         {
-          "Name": "C55",
+          "name": "C55",
           "value": 4200
         },
         {
-          "Name": "C56",
+          "name": "C56",
           "value": 0.0
         },
         {
-          "Name": "C66",
+          "name": "C66",
           "value": 4200
         }
       ],
-      "Properties": [
+      "properties": [
         {
           "id": 1,
-          "Name": "Prop_1",
+          "name": "Prop_1",
           "value": null
         }
       ]
@@ -134,11 +132,28 @@
   "damages": [
     {
       "id": 1,
-      "Name": "PMMADamage",
+      "name": "Damage",
       "damageModel": "Critical Energy Correspondence",
       "criticalStretch": 10,
-      "criticalEnergy": 5.1,
-      "interblockdamageEnergy": 0.01,
+      "criticalEnergy": 0.1,
+      "interBlockDamage": true,
+      "numberOfBlocks": 6,
+      "interBlocks": [
+        {
+          "id": 1,
+          "name": "Interblock Critical Energy 1_2",
+          "firstBlockId": 1,
+          "secondBlockId": 2,
+          "value": 0.01
+        },
+        {
+          "id": 2,
+          "name": "Interblock Critical Energy 2_1",
+          "firstBlockId": 2,
+          "secondBlockId": 1,
+          "value": 0.01
+        }
+      ],
       "planeStress": true,
       "onlyTension": true,
       "detachedNodesCheck": true,
@@ -150,177 +165,197 @@
   "blocks": [
     {
       "id": 1,
-      "Name": "block_1",
-      "material": "PMMA",
-      "damageModel": "",
-      "interface": "",
+      "name": "block_1",
+      "material": "IM7/8552",
+      "damageModel": "Damage",
       "show": true
     },
     {
       "id": 2,
-      "Name": "block_2",
-      "material": "PMMA",
-      "damageModel": "",
-      "interface": "",
+      "name": "block_2",
+      "material": "IM7/8552",
+      "damageModel": "Damage",
       "show": true
     },
     {
       "id": 3,
-      "Name": "block_3",
-      "material": "PMMA",
+      "name": "block_3",
+      "material": "IM7/8552",
       "damageModel": "",
-      "interface": "",
       "show": true
     },
     {
       "id": 4,
-      "Name": "block_4",
-      "material": "PMMA",
+      "name": "block_4",
+      "material": "IM7/8552",
       "damageModel": "",
-      "interface": "",
       "show": true
     },
     {
       "id": 5,
-      "Name": "block_5",
-      "material": "PMMA",
+      "name": "block_5",
+      "material": "IM7/8552",
       "damageModel": "",
-      "interface": "",
       "show": true
     },
     {
       "id": 6,
-      "Name": "block_6",
-      "material": "PMMA",
+      "name": "block_6",
+      "material": "IM7/8552",
       "damageModel": "",
-      "interface": "",
-      "show": true
-    },
-    {
-      "id": 7,
-      "Name": "block_7",
-      "material": "PMMA",
-      "damageModel": "",
-      "interface": "",
-      "show": true
-    },
-    {
-      "id": 8,
-      "Name": "block_8",
-      "material": "PMMA",
-      "damageModel": "PMMADamage",
-      "interface": 9,
-      "show": true
-    },
-    {
-      "id": 9,
-      "Name": "block_9",
-      "material": "PMMA",
-      "damageModel": "PMMADamage",
-      "interface": 8,
-      "show": true
-    },
-    {
-      "id": 10,
-      "Name": "block_10",
-      "material": "PMMA",
-      "damageModel": "",
-      "interface": "",
       "show": true
     }
   ],
   "boundaryConditions": [
     {
       "id": 1,
-      "Name": "BC_1",
+      "name": "BC_1",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 4,
+      "coordinate": "y",
+      "value": "-1*t"
+    },
+    {
+      "id": 2,
+      "name": "BC_2",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
       "blockId": 5,
       "coordinate": "y",
-      "value": "0*t"
+      "value": "0"
     },
     {
-      "id": 2,
-      "Name": "BC_2",
+      "id": 3,
+      "name": "BC_3",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
       "blockId": 6,
       "coordinate": "y",
-      "value": "0*t"
-    },
-    {
-      "id": 3,
-      "Name": "BC_3",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 7,
-      "coordinate": "y",
-      "value": "-10*t"
-    },
-    {
-      "id": 4,
-      "Name": "BC_4",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 10,
-      "coordinate": "y",
-      "value": "0*t"
+      "value": "0"
     }
   ],
   "bondFilters": [
-  ],
-  "computes": [
     {
       "id": 1,
-      "Name": "External_Displacement",
-      "variable": "Displacement",
-      "calculationType": "Minimum",
-      "blockName": "block_7"
+      "name": "bf_1",
+      "type": "Rectangular_Plane",
+      "normalX": 0,
+      "normalY": 1,
+      "normalZ": 0,
+      "lowerLeftCornerX": 0.0,
+      "lowerLeftCornerY": 1.5,
+      "lowerLeftCornerZ": -0.1,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": 40.0,
+      "sideLength": 0.2,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true
     },
     {
       "id": 2,
-      "Name": "External_Force",
+      "name": "bf_2",
+      "type": "Rectangular_Plane",
+      "normalX": 0,
+      "normalY": 1,
+      "normalZ": 0,
+      "lowerLeftCornerX": 0.0,
+      "lowerLeftCornerY": -0.05,
+      "lowerLeftCornerZ": -0.1,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": 110.1,
+      "sideLength": 0.2,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true
+    }
+  ],
+  "contact": {
+    "enabled": true,
+    "searchRadius": 0.01,
+    "searchFrequency": 100,
+    "contactModels": [
+      {
+        "id": 1,
+        "name": "Contact Model",
+        "contactType": "Short Range Force",
+        "contactRadius": 0.000775,
+        "springConstant": 1000000000000.0
+      }
+    ],
+    "interactions": [
+      {
+        "id": 1,
+        "firstBlockId": 1,
+        "secondBlockId": 2,
+        "contactModelId": 1
+      },
+      {
+        "id": 2,
+        "firstBlockId": 4,
+        "secondBlockId": 3,
+        "contactModelId": 1
+      },
+      {
+        "id": 3,
+        "firstBlockId": 5,
+        "secondBlockId": 3,
+        "contactModelId": 1
+      },
+      {
+        "id": 4,
+        "firstBlockId": 6,
+        "secondBlockId": 3,
+        "contactModelId": 1
+      }
+    ]
+  },
+  "computes": [
+    {
+      "id": 1,
+      "name": "Crosshead_Force",
       "variable": "Force",
       "calculationType": "Sum",
-      "blockName": "block_7"
+      "blockName": "block_4"
+    },
+    {
+      "id": 2,
+      "name": "Crosshead_Displacement",
+      "variable": "Displacement",
+      "calculationType": "Maximum",
+      "blockName": "block_4"
     }
   ],
   "outputs": [
     {
       "id": 1,
-      "Name": "Output1",
+      "name": "Output1",
       "Displacement": true,
       "Force": true,
       "Damage": true,
       "Velocity": true,
       "Partial_Stress": true,
-      "External_Force": false,
-      "External_Displacement": false,
-      "Number_Of_Neighbors": false,
-      "Frequency": 4000,
-      "InitStep": 0
-    },
-    {
-      "id": 2,
-      "Name": "Output2",
-      "Displacement": false,
-      "Force": false,
-      "Damage": true,
-      "Velocity": false,
-      "Partial_Stress": false,
-      "External_Force": true,
-      "External_Displacement": true,
-      "Number_Of_Neighbors": false,
-      "Frequency": 200,
+      "Number_Of_Neighbors": true,
+      "Frequency": 100,
       "InitStep": 0
     }
   ],
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": 0.03,
+    "finalTime": 1.0,
     "solvertype": "Verlet",
-    "safetyFactor": 0.95,
+    "safetyFactor": 1.0,
+    "fixedDt": 2e-5,
     "numericalDamping": 0.000005,
     "peridgimPreconditioner": "None",
     "nonlinearSolver": "Line Search Based",
@@ -340,7 +375,7 @@
       "numericalDamping": 0.000005,
       "outputFrequency": 7500
     },
-    "stopAfterDamageInitation": false,
+    "stopAfterDamageInitation": true,
     "stopBeforeDamageInitation": false,
     "adaptivetimeStepping": false,
     "adapt": {

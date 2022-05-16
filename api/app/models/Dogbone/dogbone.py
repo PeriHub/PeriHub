@@ -26,7 +26,7 @@ class Dogbone:
 
     bc1 = BoundaryConditions(
         id=1,
-        Name="BC_1",
+        name="BC_1",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
         blockId=1,
@@ -35,7 +35,7 @@ class Dogbone:
     )
     bc2 = BoundaryConditions(
         id=2,
-        Name="BC_2",
+        name="BC_2",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
         blockId=5,
@@ -44,8 +44,8 @@ class Dogbone:
     )
     mat_dict = Material(
         id=1,
-        Name="Aluminum",
-        MatType="Linear Elastic Correspondence",
+        name="Aluminum",
+        matType="Linear Elastic Correspondence",
         density=2.7e3,
         bulkModulus=None,
         shearModulus=None,
@@ -61,11 +61,11 @@ class Dogbone:
         actualHorizon=None,
         yieldStress=None,
         Parameter=[],
-        Properties=[],
+        properties=[],
     )
     damage_dict = Damage(
         id=1,
-        Name="Damage",
+        name="Damage",
         damageModel="Critical Energy Correspondence",
         criticalStretch=10,
         criticalEnergy=5.1,
@@ -80,21 +80,21 @@ class Dogbone:
 
     compute_dict1 = Compute(
         id=1,
-        Name="External_Displacement",
+        name="External_Displacement",
         variable="Displacement",
         calculationType="Minimum",
         blockName="block_3",
     )
     compute_dict2 = Compute(
         id=2,
-        Name="External_Force",
+        name="External_Force",
         variable="Force",
         calculationType="Sum",
         blockName="block_3",
     )
     output_dict1 = Output(
         id=1,
-        Name="Output1",
+        name="Output1",
         Displacement=True,
         Force=True,
         Damage=True,
@@ -212,10 +212,10 @@ class Dogbone:
         self.solver_dict = solver
 
         self.dam_block = [""] * number_of_blocks
-        self.dam_block[2] = self.damage_dict[0].Name
+        self.dam_block[2] = self.damage_dict[0].name
 
         self.int_block_id = [""] * number_of_blocks
-        self.mat_block = [self.material_dict[0].Name] * number_of_blocks
+        self.mat_block = [self.material_dict[0].name] * number_of_blocks
 
         print(f"Initialized in {(time.time() - start_time):.2f} seconds")
 
@@ -453,11 +453,10 @@ class Dogbone:
         for idx in range(0, block_len):
             block_def = Block(
                 id=1,
-                Name="block_" + str(idx + 1),
+                name="block_" + str(idx + 1),
                 material=self.mat_block[idx],
                 damageModel=self.dam_block[idx],
                 horizon=self.scal * max([self.dx_value[0], self.dx_value[1]]),
-                interface=self.int_block_id[idx],
                 show=False,
             )
             block_dict.append(block_def)

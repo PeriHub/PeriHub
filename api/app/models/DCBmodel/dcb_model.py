@@ -28,7 +28,7 @@ class DCBmodel:
         searchFrequency=0,
         contactModels=[],
         interactions=[],
-    ) 
+    )
 
     def __init__(
         self,
@@ -99,7 +99,7 @@ class DCBmodel:
         if not damage:
             damage_dict = Damage(
                 id=1,
-                Name="PMMADamage",
+                name="PMMADamage",
                 damageModel="Critical Energy Correspondence",
                 criticalStretch=10,
                 criticalEnergy=5.1,
@@ -118,14 +118,14 @@ class DCBmodel:
         if not compute:
             compute_dict1 = Compute(
                 id=1,
-                Name="External_Displacement",
+                name="External_Displacement",
                 variable="Displacement",
                 calculationType="Minimum",
                 blockName="block_3",
             )
             compute_dict2 = Compute(
                 id=2,
-                Name="External_Force",
+                name="External_Force",
                 variable="Force",
                 calculationType="Sum",
                 blockName="block_3",
@@ -137,7 +137,7 @@ class DCBmodel:
         if not output:
             output_dict1 = Output(
                 id=1,
-                Name="Output1",
+                name="Output1",
                 Displacement=True,
                 Force=True,
                 Damage=True,
@@ -151,7 +151,7 @@ class DCBmodel:
             )
             output_dict2 = Output(
                 id=2,
-                Name="Output2",
+                name="Output2",
                 Displacement=False,
                 Force=False,
                 Damage=True,
@@ -172,8 +172,8 @@ class DCBmodel:
             for material_name in mat_name_list:
                 mat_dict = Material(
                     id=i + 1,
-                    Name=material_name,
-                    MatType="Linear Elastic Correspondence",
+                    name=material_name,
+                    matType="Linear Elastic Correspondence",
                     density=1.95e-07,
                     bulkModulus=None,
                     shearModulus=None,
@@ -189,7 +189,7 @@ class DCBmodel:
                     actualHorizon=None,
                     yieldStress=None,
                     Parameter=[],
-                    Properties=[],
+                    properties=[],
                 )
                 i += 1
                 self.material_dict.append(mat_dict)
@@ -199,7 +199,7 @@ class DCBmodel:
         if not bond_filter:
             bf1 = BondFilters(
                 id=1,
-                Name="bf_1",
+                name="bf_1",
                 type="Rectangular_Plane",
                 normalX=0.0,
                 normalY=1.0,
@@ -226,7 +226,7 @@ class DCBmodel:
         if not boundary_condition:
             bc1 = BoundaryConditions(
                 id=1,
-                Name="BC_1",
+                name="BC_1",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
                 blockId=3,
@@ -235,7 +235,7 @@ class DCBmodel:
             )
             bc2 = BoundaryConditions(
                 id=2,
-                Name="BC_2",
+                name="BC_2",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
                 blockId=4,
@@ -244,7 +244,7 @@ class DCBmodel:
             )
             bc3 = BoundaryConditions(
                 id=3,
-                Name="BC_3",
+                name="BC_3",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
                 blockId=1,
@@ -253,7 +253,7 @@ class DCBmodel:
             )
             bc4 = BoundaryConditions(
                 id=3,
-                Name="BC_4",
+                name="BC_4",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
                 blockId=2,
@@ -325,7 +325,7 @@ class DCBmodel:
         """doc"""
 
         geo = Geometry()
-        x_value, y_value, z_value = geo.create_points(
+        x_value, y_value, z_value = geo.create_rectangle(
             coor=[
                 self.xbegin,
                 self.xend,
@@ -421,11 +421,10 @@ class DCBmodel:
         for idx in range(0, block_len):
             block_def = Block(
                 id=1,
-                Name="block_" + str(idx + 1),
+                name="block_" + str(idx + 1),
                 material=self.mat_block[idx],
                 damageModel=self.dam_block[idx],
                 horizon=self.scal * max([self.dx_value[0], self.dx_value[1]]),
-                interface=self.int_block_id[idx],
                 show=False,
             )
             block_dict.append(block_def)

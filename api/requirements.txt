@@ -12,3 +12,4 @@ requests
 zipfile2 
 python-dotenv 
 sklearn
+netCDF4

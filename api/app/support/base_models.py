@@ -17,6 +17,7 @@ class Model(BaseModel):
     ownModel: bool
     translated: bool
     length: float
+    cracklength: Optional[float] = None
     width: Optional[float] = None
     height: Optional[float] = None
     height2: Optional[float] = None
@@ -29,21 +30,21 @@ class Model(BaseModel):
     angles: List[float]
 
 
-class Properties(BaseModel):
+class properties(BaseModel):
     id: Optional[int]
-    Name: str
+    name: str
     value: Optional[float] = None
 
 
 class Parameter(BaseModel):
-    Name: str
+    name: str
     value: Optional[float] = None
 
 
 class Material(BaseModel):
     id: Optional[int]
-    Name: str
-    MatType: str
+    name: str
+    matType: str
     density: float
     bulkModulus: Optional[float] = None
     shearModulus: Optional[float] = None
@@ -59,18 +60,27 @@ class Material(BaseModel):
     actualHorizon: Optional[float] = None
     yieldStress: Optional[float] = None
     Parameter: List[Parameter]
-    Properties: List[Properties]
+    properties: List[properties]
     computePartialStress: Optional[bool] = None
     useCollocationNodes: Optional[bool] = None
 
 
+class InterBlock(BaseModel):
+    id: Optional[int]
+    firstBlockId: int
+    secondBlockId: int
+    value: float
+
+
 class Damage(BaseModel):
     id: Optional[int]
-    Name: str
+    name: str
     damageModel: str
     criticalStretch: Optional[float] = None
     criticalEnergy: Optional[float] = None
-    interblockdamageEnergy: Optional[float] = None
+    interBlockDamage: Optional[bool] = None
+    numberOfBlocks: Optional[int] = None
+    interBlocks: Optional[List[InterBlock]] = None
     planeStress: bool
     onlyTension: bool
     detachedNodesCheck: bool
@@ -81,17 +91,16 @@ class Damage(BaseModel):
 
 class Block(BaseModel):
     id: Optional[int]
-    Name: str
+    name: str
     material: str
     damageModel: Optional[str] = None
     horizon: Optional[float] = None
-    interface: Optional[str] = None
     show: Optional[bool] = None
 
 
 class ContactModel(BaseModel):
     id: Optional[int]
-    Name: str
+    name: str
     contactType: str
     contactRadius: float
     springConstant: float
@@ -114,7 +123,7 @@ class Contact(BaseModel):
 
 class BoundaryConditions(BaseModel):
     id: Optional[int]
-    Name: str
+    name: str
     nodeSet: Optional[str] = None
     boundarytype: str
     blockId: int
@@ -124,7 +133,7 @@ class BoundaryConditions(BaseModel):
 
 class BondFilters(BaseModel):
     id: Optional[int]
-    Name: str
+    name: str
     type: str
     normalX: float
     normalY: float
@@ -146,7 +155,7 @@ class BondFilters(BaseModel):
 
 class Compute(BaseModel):
     id: Optional[int]
-    Name: str
+    name: str
     variable: str
     calculationType: str
     blockName: str
@@ -154,14 +163,12 @@ class Compute(BaseModel):
 
 class Output(BaseModel):
     id: Optional[int]
-    Name: str
+    name: str
     Displacement: Optional[bool] = None
     Force: Optional[bool] = None
     Damage: Optional[bool] = None
     Velocity: Optional[bool] = None
     Partial_Stress: Optional[bool] = None
-    External_Force: Optional[bool] = None
-    External_Displacement: Optional[bool] = None
     Number_Of_Neighbors: Optional[bool] = None
     Horizon: Optional[bool] = None
     Model_Coordinates: Optional[bool] = None
@@ -231,8 +238,8 @@ class Solver(BaseModel):
 class Job(BaseModel):
     cluster: str
     tasks: int
-    time: str
-    account: int
+    time: Optional[str] = None
+    account: Optional[int] = None
 
 
 class RunData(BaseModel):
@@ -252,8 +259,8 @@ class RunData(BaseModel):
                 "materials": [
                     {
                         "id": 1,
-                        "Name": "PMMA",
-                        "MatType": "Linear Elastic Correspondence",
+                        "name": "PMMA",
+                        "matType": "Linear Elastic Correspondence",
                         "density": "1.4e5",
                         "bulkModulus": None,
                         "shearModulus": None,
@@ -269,34 +276,34 @@ class RunData(BaseModel):
                         "actualHorizon": None,
                         "yieldStress": None,
                         "Parameter": [
-                            {"Name": "C11", "value": None},
-                            {"Name": "C12", "value": None},
-                            {"Name": "C13", "value": None},
-                            {"Name": "C14", "value": None},
-                            {"Name": "C15", "value": None},
-                            {"Name": "C16", "value": None},
-                            {"Name": "C22", "value": None},
-                            {"Name": "C23", "value": None},
-                            {"Name": "C24", "value": None},
-                            {"Name": "C25", "value": None},
-                            {"Name": "C26", "value": None},
-                            {"Name": "C33", "value": None},
-                            {"Name": "C34", "value": None},
-                            {"Name": "C35", "value": None},
-                            {"Name": "C36", "value": None},
-                            {"Name": "C44", "value": None},
-                            {"Name": "C45", "value": None},
-                            {"Name": "C46", "value": None},
-                            {"Name": "C55", "value": None},
-                            {"Name": "C56", "value": None},
-                            {"Name": "C66", "value": None},
+                            {"name": "C11", "value": None},
+                            {"name": "C12", "value": None},
+                            {"name": "C13", "value": None},
+                            {"name": "C14", "value": None},
+                            {"name": "C15", "value": None},
+                            {"name": "C16", "value": None},
+                            {"name": "C22", "value": None},
+                            {"name": "C23", "value": None},
+                            {"name": "C24", "value": None},
+                            {"name": "C25", "value": None},
+                            {"name": "C26", "value": None},
+                            {"name": "C33", "value": None},
+                            {"name": "C34", "value": None},
+                            {"name": "C35", "value": None},
+                            {"name": "C36", "value": None},
+                            {"name": "C44", "value": None},
+                            {"name": "C45", "value": None},
+                            {"name": "C46", "value": None},
+                            {"name": "C55", "value": None},
+                            {"name": "C56", "value": None},
+                            {"name": "C66", "value": None},
                         ],
-                        "Properties": [{"id": 1, "Name": "Prop_1", "value": None}],
+                        "properties": [{"id": 1, "name": "Prop_1", "value": None}],
                     },
                     {
                         "id": 2,
-                        "Name": "PMMAElast",
-                        "MatType": "Linear Elastic Correspondence",
+                        "name": "PMMAElast",
+                        "matType": "Linear Elastic Correspondence",
                         "density": "1.4e5",
                         "bulkModulus": None,
                         "shearModulus": None,
@@ -312,35 +319,35 @@ class RunData(BaseModel):
                         "actualHorizon": None,
                         "yieldStress": None,
                         "Parameter": [
-                            {"Name": "C11", "value": None},
-                            {"Name": "C12", "value": None},
-                            {"Name": "C13", "value": None},
-                            {"Name": "C14", "value": None},
-                            {"Name": "C15", "value": None},
-                            {"Name": "C16", "value": None},
-                            {"Name": "C22", "value": None},
-                            {"Name": "C23", "value": None},
-                            {"Name": "C24", "value": None},
-                            {"Name": "C25", "value": None},
-                            {"Name": "C26", "value": None},
-                            {"Name": "C33", "value": None},
-                            {"Name": "C34", "value": None},
-                            {"Name": "C35", "value": None},
-                            {"Name": "C36", "value": None},
-                            {"Name": "C44", "value": None},
-                            {"Name": "C45", "value": None},
-                            {"Name": "C46", "value": None},
-                            {"Name": "C55", "value": None},
-                            {"Name": "C56", "value": None},
-                            {"Name": "C66", "value": None},
+                            {"name": "C11", "value": None},
+                            {"name": "C12", "value": None},
+                            {"name": "C13", "value": None},
+                            {"name": "C14", "value": None},
+                            {"name": "C15", "value": None},
+                            {"name": "C16", "value": None},
+                            {"name": "C22", "value": None},
+                            {"name": "C23", "value": None},
+                            {"name": "C24", "value": None},
+                            {"name": "C25", "value": None},
+                            {"name": "C26", "value": None},
+                            {"name": "C33", "value": None},
+                            {"name": "C34", "value": None},
+                            {"name": "C35", "value": None},
+                            {"name": "C36", "value": None},
+                            {"name": "C44", "value": None},
+                            {"name": "C45", "value": None},
+                            {"name": "C46", "value": None},
+                            {"name": "C55", "value": None},
+                            {"name": "C56", "value": None},
+                            {"name": "C66", "value": None},
                         ],
-                        "Properties": [{"id": 1, "Name": "Prop_1", "value": None}],
+                        "properties": [{"id": 1, "name": "Prop_1", "value": None}],
                     },
                 ],
                 "outputs": [
                     {
                         "id": 1,
-                        "Name": "Output1",
+                        "name": "Output1",
                         "Displacement": True,
                         "Force": True,
                         "Damage": True,
@@ -391,8 +398,8 @@ class ModelData(BaseModel):
                 "materials": [
                     {
                         "id": 1,
-                        "Name": "PMMA",
-                        "MatType": "Linear Elastic Correspondence",
+                        "name": "PMMA",
+                        "matType": "Linear Elastic Correspondence",
                         "density": "1.4e5",
                         "bulkModulus": None,
                         "shearModulus": None,
@@ -408,34 +415,34 @@ class ModelData(BaseModel):
                         "actualHorizon": None,
                         "yieldStress": None,
                         "Parameter": [
-                            {"Name": "C11", "value": None},
-                            {"Name": "C12", "value": None},
-                            {"Name": "C13", "value": None},
-                            {"Name": "C14", "value": None},
-                            {"Name": "C15", "value": None},
-                            {"Name": "C16", "value": None},
-                            {"Name": "C22", "value": None},
-                            {"Name": "C23", "value": None},
-                            {"Name": "C24", "value": None},
-                            {"Name": "C25", "value": None},
-                            {"Name": "C26", "value": None},
-                            {"Name": "C33", "value": None},
-                            {"Name": "C34", "value": None},
-                            {"Name": "C35", "value": None},
-                            {"Name": "C36", "value": None},
-                            {"Name": "C44", "value": None},
-                            {"Name": "C45", "value": None},
-                            {"Name": "C46", "value": None},
-                            {"Name": "C55", "value": None},
-                            {"Name": "C56", "value": None},
-                            {"Name": "C66", "value": None},
+                            {"name": "C11", "value": None},
+                            {"name": "C12", "value": None},
+                            {"name": "C13", "value": None},
+                            {"name": "C14", "value": None},
+                            {"name": "C15", "value": None},
+                            {"name": "C16", "value": None},
+                            {"name": "C22", "value": None},
+                            {"name": "C23", "value": None},
+                            {"name": "C24", "value": None},
+                            {"name": "C25", "value": None},
+                            {"name": "C26", "value": None},
+                            {"name": "C33", "value": None},
+                            {"name": "C34", "value": None},
+                            {"name": "C35", "value": None},
+                            {"name": "C36", "value": None},
+                            {"name": "C44", "value": None},
+                            {"name": "C45", "value": None},
+                            {"name": "C46", "value": None},
+                            {"name": "C55", "value": None},
+                            {"name": "C56", "value": None},
+                            {"name": "C66", "value": None},
                         ],
-                        "Properties": [{"id": 1, "Name": "Prop_1", "value": None}],
+                        "properties": [{"id": 1, "name": "Prop_1", "value": None}],
                     },
                     {
                         "id": 2,
-                        "Name": "PMMAElast",
-                        "MatType": "Linear Elastic Correspondence",
+                        "name": "PMMAElast",
+                        "matType": "Linear Elastic Correspondence",
                         "density": "1.4e5",
                         "bulkModulus": None,
                         "shearModulus": None,
@@ -451,35 +458,35 @@ class ModelData(BaseModel):
                         "actualHorizon": None,
                         "yieldStress": None,
                         "Parameter": [
-                            {"Name": "C11", "value": None},
-                            {"Name": "C12", "value": None},
-                            {"Name": "C13", "value": None},
-                            {"Name": "C14", "value": None},
-                            {"Name": "C15", "value": None},
-                            {"Name": "C16", "value": None},
-                            {"Name": "C22", "value": None},
-                            {"Name": "C23", "value": None},
-                            {"Name": "C24", "value": None},
-                            {"Name": "C25", "value": None},
-                            {"Name": "C26", "value": None},
-                            {"Name": "C33", "value": None},
-                            {"Name": "C34", "value": None},
-                            {"Name": "C35", "value": None},
-                            {"Name": "C36", "value": None},
-                            {"Name": "C44", "value": None},
-                            {"Name": "C45", "value": None},
-                            {"Name": "C46", "value": None},
-                            {"Name": "C55", "value": None},
-                            {"Name": "C56", "value": None},
-                            {"Name": "C66", "value": None},
+                            {"name": "C11", "value": None},
+                            {"name": "C12", "value": None},
+                            {"name": "C13", "value": None},
+                            {"name": "C14", "value": None},
+                            {"name": "C15", "value": None},
+                            {"name": "C16", "value": None},
+                            {"name": "C22", "value": None},
+                            {"name": "C23", "value": None},
+                            {"name": "C24", "value": None},
+                            {"name": "C25", "value": None},
+                            {"name": "C26", "value": None},
+                            {"name": "C33", "value": None},
+                            {"name": "C34", "value": None},
+                            {"name": "C35", "value": None},
+                            {"name": "C36", "value": None},
+                            {"name": "C44", "value": None},
+                            {"name": "C45", "value": None},
+                            {"name": "C46", "value": None},
+                            {"name": "C55", "value": None},
+                            {"name": "C56", "value": None},
+                            {"name": "C66", "value": None},
                         ],
-                        "Properties": [{"id": 1, "Name": "Prop_1", "value": None}],
+                        "properties": [{"id": 1, "name": "Prop_1", "value": None}],
                     },
                 ],
                 "damages": [
                     {
                         "id": 1,
-                        "Name": "PMMADamage",
+                        "name": "PMMADamage",
                         "damageModel": "Critical Energy Correspondence",
                         "criticalStretch": 10,
                         "criticalEnergy": "10.1",
@@ -495,49 +502,44 @@ class ModelData(BaseModel):
                 "blocks": [
                     {
                         "id": 1,
-                        "Name": "block_1",
+                        "name": "block_1",
                         "material": "PMMAElast",
                         "damageModel": "",
-                        "interface": "",
                         "show": True,
                     },
                     {
                         "id": 2,
-                        "Name": "block_2",
+                        "name": "block_2",
                         "material": "PMMAElast",
                         "damageModel": "",
-                        "interface": "",
                         "show": True,
                     },
                     {
                         "id": 3,
-                        "Name": "block_3",
+                        "name": "block_3",
                         "material": "PMMA",
                         "damageModel": "PMMADamage",
-                        "interface": "",
                         "show": True,
                     },
                     {
                         "id": 4,
-                        "Name": "block_4",
+                        "name": "block_4",
                         "material": "PMMAElast",
                         "damageModel": "",
-                        "interface": "",
                         "show": True,
                     },
                     {
                         "id": 5,
-                        "Name": "block_5",
+                        "name": "block_5",
                         "material": "PMMAElast",
                         "damageModel": "",
-                        "interface": "",
                         "show": True,
                     },
                 ],
                 "boundaryConditions": [
                     {
                         "id": 1,
-                        "Name": "BC_1",
+                        "name": "BC_1",
                         "nodeSet": None,
                         "boundarytype": "Prescribed Displacement",
                         "blockId": 1,
@@ -546,7 +548,7 @@ class ModelData(BaseModel):
                     },
                     {
                         "id": 2,
-                        "Name": "BC_2",
+                        "name": "BC_2",
                         "nodeSet": None,
                         "boundarytype": "Prescribed Displacement",
                         "blockId": 5,
@@ -557,7 +559,7 @@ class ModelData(BaseModel):
                 "bondFilters": [
                     {
                         "id": 1,
-                        "Name": "bf_1",
+                        "name": "bf_1",
                         "type": "Rectangular_Plane",
                         "normalX": 0,
                         "normalY": 1,
@@ -580,14 +582,14 @@ class ModelData(BaseModel):
                 "computes": [
                     {
                         "id": 1,
-                        "Name": "External_Displacement",
+                        "name": "External_Displacement",
                         "variable": "Displacement",
                         "calculationType": "Maximum",
                         "blockName": "block_5",
                     },
                     {
                         "id": 2,
-                        "Name": "External_Force",
+                        "name": "External_Force",
                         "variable": "Force",
                         "calculationType": "Sum",
                         "blockName": "block_5",
@@ -596,7 +598,7 @@ class ModelData(BaseModel):
                 "outputs": [
                     {
                         "id": 1,
-                        "Name": "Output1",
+                        "name": "Output1",
                         "Displacement": True,
                         "Force": True,
                         "Damage": True,
