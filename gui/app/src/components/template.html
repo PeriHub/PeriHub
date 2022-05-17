@@ -795,7 +795,7 @@
                     <v-col class="textfieldlist-col" cols="12" sm="2">
                       <v-select
                         :items="materials"
-                        item-text="Name"
+                        item-text="name"
                         v-model="block.material"
                         label="Material"
                         outlined
@@ -804,7 +804,7 @@
                     <v-col class="textfieldlist-col" cols="12" sm="3">
                       <v-select
                         :items="damages"
-                        item-text="Name"
+                        item-text="name"
                         v-model="block.damageModel"
                         label="Damage Model"
                         clearable
@@ -891,7 +891,7 @@
                       <v-col class="textfieldlist-col" cols="12" sm="3">
                         <v-select
                           :items="contactType"
-                          item-text="Name"
+                          item-text="name"
                           v-model="contactModel.contactType"
                           label="Type"
                           outlined
@@ -1032,7 +1032,7 @@
                     <v-col class="textfieldlist-col" cols="12" sm="2">
                       <v-select
                         :items="boundarytype"
-                        item-text="Name"
+                        item-text="name"
                         v-model="boundaryCondition.boundarytype"
                         label="Type"
                         outlined
@@ -1126,7 +1126,7 @@
                     <v-col class="textfieldlist-col" cols="12" sm="3">
                       <v-select
                         :items="bondFiltertype"
-                        item-text="Name"
+                        item-text="name"
                         v-model="bondFilter.type"
                         label="Type"
                         outlined
@@ -1339,7 +1339,7 @@
                       <v-col class="textfieldlist-col" cols="12" sm="2">
                         <v-select
                           :items="blocks"
-                          item-text="Name"
+                          item-text="name"
                           v-model="compute.blockName"
                           label="Block Id"
                           clearable
@@ -2033,7 +2033,7 @@
                   <v-spacer></v-spacer>
                   <v-select
                     :items="outputs"
-                    item-text="Name"
+                    item-text="name"
                     v-model="showResultsOutputName"
                     label="Output Name"
                     outlined
@@ -2157,7 +2157,7 @@
                   <v-spacer></v-spacer>
                   <v-select
                     :items="outputs"
-                    item-text="Name"
+                    item-text="name"
                     v-model="getImageOutput"
                     label="Output Name"
                     outlined
@@ -2235,7 +2235,7 @@
                   <v-spacer></v-spacer>
                   <v-select
                     :items="outputs"
-                    item-text="Name"
+                    item-text="name"
                     v-model="getK1cOutput"
                     label="Output Name"
                     outlined
@@ -2258,6 +2258,21 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
+            
+            <v-tooltip bottom v-if="model.modelNameSelected=='GIICmodel'"
+            ><template v-slot:activator="{ on, attrs }">
+              <v-btn
+                class="my-btn"
+                v-bind="attrs"
+                v-on="on"
+                @click="getG2c"
+                :disabled="!status.results"
+              >
+                <i class="fas fa-image"></i>
+              </v-btn>
+            </template>
+            <span>Get GIIC</span>
+          </v-tooltip>
 
             <v-tooltip bottom
               ><template v-slot:activator="{ on, attrs }">

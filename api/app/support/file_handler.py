@@ -304,7 +304,9 @@ class FileHandler:
         return "Success"
 
     @staticmethod
-    def copy_results_from_cluster(username, model_name, cluster, all_data, filetype='.e'):
+    def copy_results_from_cluster(
+        username, model_name, cluster, all_data, filetype=".e"
+    ):
         """doc"""
         resultpath = "./Results/" + os.path.join(username, model_name)
         if not os.path.exists(resultpath):

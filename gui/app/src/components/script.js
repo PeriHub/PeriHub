@@ -2334,6 +2334,42 @@ export default {
       this.viewId = 2;
       this.modelLoading = false;
     },
+    async getG2c() {
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "calculateG2c",
+        params: {
+          model_name: this.model.modelNameSelected,
+          cluster: this.job.cluster,
+          output: this.getK1cOutput,
+        },
+        data: this.model,
+        method: "POST",
+        responseType: "application/json",
+        headers: headersList,
+      };
+
+      this.modelLoading = true;
+      var giic = 0;
+      await axios
+        .request(reqOptions)
+        .then((response) => (giic = response.data))
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+          this.modelLoading = false;
+          return;
+        });
+      console.log(giic);
+      this.message = "GIIC = " + giic;
+      this.snackbar = true;
+
+      this.modelLoading = false;
+    },
     openCara() {
       window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");
     },

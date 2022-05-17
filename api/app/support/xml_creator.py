@@ -404,6 +404,10 @@ class XMLcreator:
                 + str(float(self.solver_dict.numericalDamping))
                 + '"/>\n'
             )
+            if self.solver_dict.stopAfterDamageInitation:
+                string += '            <Parameter name="Stop after damage initiation" type="bool" value="true"/>\n'
+            if self.solver_dict.stopBeforeDamageInitation:
+                string += '            <Parameter name="Stop before damage initiation" type="bool" value="true"/>\n'
             if (
                 "adaptivetimeStepping" in self.solver_dict
                 and self.solver_dict.adaptivetimeStepping

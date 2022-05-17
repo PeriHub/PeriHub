@@ -1,16 +1,16 @@
 import os
 import math
-from support.base_models import ModelData
+from support.base_models import Model
 from support.exodus_reader import ExodusReader
 
 
 class Analysis:
     @staticmethod
-    def get_g2c(username, model_name, output, model_data: ModelData):
+    def get_g2c(username, model_name, output, model: Model):
 
-        w = model_data.model.width
-        a = model_data.model.cracklength - model_data.model.length / 22
-        L = model_data.model.length / 2.2
+        w = model.width
+        a = model.cracklength - model.length / 22
+        L = model.length / 2.2
 
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
@@ -29,11 +29,11 @@ class Analysis:
         return GIIC
 
     @staticmethod
-    def get_k1c(username, model_name, output, model_data: ModelData):
+    def get_k1c(username, model_name, output, model: Model):
 
-        w = model_data.model.length
-        a = model_data.model.cracklength - model_data.model.length / 22
-        L = model_data.model.length / 2.2
+        w = model.model.length
+        a = model.model.cracklength - model.model.length / 22
+        L = model.model.length / 2.2
 
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")

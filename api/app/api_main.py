@@ -38,7 +38,7 @@ from models.CompactTension.compact_tension import CompactTension
 from models.OwnModel.own_model import OwnModel
 from support.sbatch_creator import SbatchCreator
 from support.file_handler import FileHandler
-from support.base_models import ModelData, FileType, RunData, Status
+from support.base_models import ModelData, FileType, RunData, Status, Model
 from support.analysis import Analysis
 
 
@@ -177,6 +177,7 @@ class ModelControl:
                 damage=model_data.damages,
                 block=model_data.blocks,
                 boundary_condition=model_data.boundaryConditions,
+                contact=model_data.contact,
                 bond_filter=model_data.bondFilters,
                 compute=model_data.computes,
                 output=model_data.outputs,
@@ -199,6 +200,7 @@ class ModelControl:
                 damage=model_data.damages,
                 block=model_data.blocks,
                 boundary_condition=model_data.boundaryConditions,
+                contact=model_data.contact,
                 bond_filter=model_data.bondFilters,
                 compute=model_data.computes,
                 output=model_data.outputs,
@@ -224,6 +226,7 @@ class ModelControl:
                 damage=model_data.damages,
                 block=model_data.blocks,
                 boundary_condition=model_data.boundaryConditions,
+                contact=model_data.contact,
                 bond_filter=model_data.bondFilters,
                 compute=model_data.computes,
                 output=model_data.outputs,
@@ -247,6 +250,7 @@ class ModelControl:
                 damage=model_data.damages,
                 block=model_data.blocks,
                 boundary_condition=model_data.boundaryConditions,
+                contact=model_data.contact,
                 bond_filter=model_data.bondFilters,
                 compute=model_data.computes,
                 output=model_data.outputs,
@@ -271,6 +275,7 @@ class ModelControl:
                 damage=model_data.damages,
                 block=model_data.blocks,
                 boundary_condition=model_data.boundaryConditions,
+                contact=model_data.contact,
                 bond_filter=model_data.bondFilters,
                 compute=model_data.computes,
                 output=model_data.outputs,
@@ -320,6 +325,7 @@ class ModelControl:
                 damage=model_data.damages,
                 block=model_data.blocks,
                 boundary_condition=model_data.boundaryConditions,
+                contact=model_data.contact,
                 bond_filter=model_data.bondFilters,
                 compute=model_data.computes,
                 output=model_data.outputs,
@@ -769,6 +775,7 @@ class ModelControl:
 
     @app.get("/getK1c", tags=["Get Methods"])
     def get_k1c(
+        model: Model,
         model_name: str = "Dogbone",
         cluster: str = "None",
         output: str = "Output1",
@@ -779,11 +786,11 @@ class ModelControl:
         username = FileHandler.get_user_name(request, dev)
 
         if not FileHandler.copy_results_from_cluster(
-            username, model_name, cluster, False, ".csv"
+            username, model_name, cluster, False
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        response = Analysis.get_k1c(username, model_name, output, model_data)
+        response = Analysis.get_k1c(username, model_name, output, model)
         # print(crack_length)
         # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
         try:
@@ -793,22 +800,21 @@ class ModelControl:
 
     @app.post("/calculateG2c", tags=["Post Methods"])
     def calculate_g2c(
-        model_data: ModelData,
+        model: Model,
         model_name: str = "Dogbone",
         cluster: str = "None",
         output: str = "Output1",
-        frequency: int = "10",
         request: Request = "",
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
         if not FileHandler.copy_results_from_cluster(
-            username, model_name, cluster, False, ".csv"
+            username, model_name, cluster, False
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        response = Analysis.get_g2c(username, model_name, output, model_data)
+        response = Analysis.get_g2c(username, model_name, output, model)
         # print(crack_length)
         # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
         try:
