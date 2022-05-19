@@ -17,6 +17,7 @@
     "core-js": "^3.18.2",
     "d3": "^7.3.0",
     "dotenv": "^10.0.0",
+    "driver.js": "^0.9.8",
     "js-yaml": "^4.1.0",
     "markdown-it-vue": "^1.1.6",
     "prismjs": "^1.25.0",

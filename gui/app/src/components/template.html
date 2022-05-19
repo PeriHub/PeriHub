@@ -1,6 +1,6 @@
 <v-container fluid style="height: 100%">
   <splitpanes style="height: 100%">
-    <pane min-size="15" style="height: 100%">
+    <pane id="model-configuration" min-size="15" style="height: 100%">
       <v-subheader>
         <v-tooltip bottom
           ><template v-slot:activator="{ on, attrs }">
@@ -134,6 +134,20 @@
             </v-btn>
           </template>
           <span>Collapse/Expand all panels</span>
+        </v-tooltip>
+
+        <v-tooltip bottom
+          ><template v-slot:activator="{ on, attrs }">
+            <v-btn
+              class="my-btn"
+              v-bind="attrs"
+              v-on="on"
+              @click="showTutorial"
+            >
+              <i class="fas fa-info"></i>
+            </v-btn>
+          </template>
+          <span>Show Tutorial</span>
         </v-tooltip>
       </v-subheader>
       <!-- <v-virtual-scroll
@@ -1923,7 +1937,7 @@
       </v-list>
       <!-- </div> -->
     </pane>
-    <pane min-size="40" style="height: 100%">
+    <pane id="model-output" min-size="40" style="height: 100%">
       <splitpanes horizontal style="height: 100%">
         <pane size="55">
           <!-- <v-container> -->
@@ -1940,6 +1954,7 @@
             <v-tooltip bottom
               ><template v-slot:activator="{ on, attrs }">
                 <v-btn
+                  id="button-runModel"
                   class="my-btn"
                   v-bind="attrs"
                   v-on="on"
@@ -2258,21 +2273,21 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            
+
             <v-tooltip bottom v-if="model.modelNameSelected=='GIICmodel'"
-            ><template v-slot:activator="{ on, attrs }">
-              <v-btn
-                class="my-btn"
-                v-bind="attrs"
-                v-on="on"
-                @click="getG2c"
-                :disabled="!status.results"
-              >
-                <i class="fas fa-image"></i>
-              </v-btn>
-            </template>
-            <span>Get GIIC</span>
-          </v-tooltip>
+              ><template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="my-btn"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="getG2c"
+                  :disabled="!status.results"
+                >
+                  <i class="fas fa-image"></i>
+                </v-btn>
+              </template>
+              <span>Get GIIC</span>
+            </v-tooltip>
 
             <v-tooltip bottom
               ><template v-slot:activator="{ on, attrs }">

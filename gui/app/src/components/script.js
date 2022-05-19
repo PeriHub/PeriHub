@@ -24,6 +24,8 @@ import CompactTensionImage from "../assets/CompactTension/CompactTension.jpg";
 import CompactTensionFile from "../assets/CompactTension/CompactTension.json";
 import { Plotly } from "vue-plotly";
 // import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
+import Driver from "driver.js";
+import "driver.js/dist/driver.min.css";
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -2928,6 +2930,54 @@ export default {
     openErrorDialog(message) {
       this.errorMessage = message;
       this.dialogError = true;
+    },
+    showTutorial() {
+      var color = "gray";
+      if (this.$cookie.get("darkMode") == "true") {
+        color = "gray";
+      } else {
+        color = "white";
+      }
+      console.log(this.$cookie.get("darkMode"));
+      console.log(color);
+
+      const driver = new Driver({
+        animate: true, // Animate while changing highlighted element
+        opacity: 0.5,
+        stageBackground: color,
+      });
+
+      // Define the steps for introduction
+      driver.defineSteps([
+        {
+          element: "#model-configuration",
+          popover: {
+            className: "first-step-popover-class",
+            title: "Title on Popover",
+            description: "Body of the popover",
+            position: "right",
+          },
+        },
+        {
+          element: "#model-output",
+          popover: {
+            title: "Title on Popover",
+            description: "Body of the popover",
+            position: "left",
+          },
+        },
+        {
+          element: "#button-runModel",
+          popover: {
+            title: "Title on Popover",
+            description: "Body of the popover",
+            position: "bottom",
+          },
+        },
+      ]);
+
+      // Start the introduction
+      driver.start();
     },
   },
   beforeMount() {

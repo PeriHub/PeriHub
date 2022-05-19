@@ -14,6 +14,7 @@ from support.base_models import (
     ContactModel,
     Compute,
     Damage,
+    InterBlock,
     Interaction,
     Material,
     Output,
@@ -89,15 +90,15 @@ class GIICmodel:
         springConstant=1.0e12,
     )
     interaction_1 = Interaction(firstBlockId=1, secondBlockId=2, contactModelId=1)
-    interaction_2 = Interaction(firstBlockId=4, secondBlockId=3, contactModelId=1)
-    interaction_3 = Interaction(firstBlockId=5, secondBlockId=3, contactModelId=1)
-    interaction_4 = Interaction(firstBlockId=6, secondBlockId=3, contactModelId=1)
+    # interaction_2 = Interaction(firstBlockId=4, secondBlockId=3, contactModelId=1)
+    # interaction_3 = Interaction(firstBlockId=5, secondBlockId=3, contactModelId=1)
+    # interaction_4 = Interaction(firstBlockId=6, secondBlockId=3, contactModelId=1)
     contact_dict = Contact(
         enabled=True,
         searchRadius=0.01,
         searchFrequency=100,
         contactModels=[contact_model],
-        interactions=[interaction_1, interaction_2, interaction_3, interaction_4],
+        interactions=[interaction_1],
     )
 
     mat_dict = Material(
@@ -123,14 +124,26 @@ class GIICmodel:
         useCollocationNodes=False,
     )
 
+    inter_block1 = InterBlock(
+        firstBlockId=1,
+        secondBlockId=2,
+        value=0.01,
+    )
+    inter_block2 = InterBlock(
+        firstBlockId=2,
+        secondBlockId=1,
+        value=0.01,
+    )
+
     damage_dict = Damage(
         id=1,
         name="Damage",
         damageModel="Critical Energy Correspondence",
         criticalStretch=None,
         criticalEnergy=0.01,
-        numberOfBlocks=2,
-        interBlockCriticalEnergy=[-1, 0.001, 0.001, -1],
+        interBlockDamage=True,
+        numberOfBlocks=6,
+        interBlocks=[inter_block1, inter_block2],
         planeStress=True,
         onlyTension=False,
         detachedNodesCheck=True,
@@ -277,6 +290,9 @@ class GIICmodel:
         self.bc_dict = boundary_condition
         self.solver_dict = solver
 
+        self.contact_dict.searchRadius = self.dx_value[1] * 3
+        self.contact_dict.contactModels[0].contactRadius = self.dx_value[1] * 0.95
+
         if not bond_filter:
             bf1 = BondFilters(
                 id=1,
@@ -299,28 +315,28 @@ class GIICmodel:
                 radius=1.0,
                 show=True,
             )
-            bf2 = BondFilters(
-                id=2,
-                name="bf_2",
-                type="Rectangular_Plane",
-                normalX=0.0,
-                normalY=1.0,
-                normalZ=0.0,
-                lowerLeftCornerX=0.0,
-                lowerLeftCornerY=-0.05,
-                lowerLeftCornerZ=-0.1,
-                bottomUnitVectorX=1.0,
-                bottomUnitVectorY=0.0,
-                bottomUnitVectorZ=0.0,
-                bottomLength=self.xend + 0.1,
-                sideLength=0.2,
-                centerX=0.0,
-                centerY=1.0,
-                centerZ=0.0,
-                radius=1.0,
-                show=True,
-            )
-            self.bondfilters = [bf1, bf2]
+            # bf2 = BondFilters(
+            #     id=2,
+            #     name="bf_2",
+            #     type="Rectangular_Plane",
+            #     normalX=0.0,
+            #     normalY=1.0,
+            #     normalZ=0.0,
+            #     lowerLeftCornerX=0.0,
+            #     lowerLeftCornerY=-0.05,
+            #     lowerLeftCornerZ=-0.1,
+            #     bottomUnitVectorX=1.0,
+            #     bottomUnitVectorY=0.0,
+            #     bottomUnitVectorZ=0.0,
+            #     bottomLength=self.xend + 0.1,
+            #     sideLength=0.2,
+            #     centerX=0.0,
+            #     centerY=1.0,
+            #     centerZ=0.0,
+            #     radius=1.0,
+            #     show=True,
+            # )
+            self.bondfilters = [bf1]
         else:
             self.bondfilters = bond_filter
 
@@ -352,31 +368,45 @@ class GIICmodel:
     def create_load_intro_node(self, x_value, y_value, k):
         k = np.where(
             np.logical_and(
-                (self.xend - self.dx_value[0]) / 2 < x_value,
                 np.logical_and(
-                    x_value < (self.xend + self.dx_value[0]) / 2,
-                    y_value > self.yend - self.dx_value[1] / 2,
+                    x_value <= self.xend / 2 + self.dx_value[0] * 2,
+                    x_value >= self.xend / 2 - self.dx_value[0] * 2,
                 ),
+                y_value > self.yend - self.dx_value[1] / 2,
             ),
-            7,
+            4,
             k,
         )
         return k
 
     def create_bc_node(self, x_value, y_value, k):
         k = np.where(
-            np.logical_and(x_value <= 0 + self.dx_value[0], y_value == 0), 5, k
+            np.logical_and(
+                np.logical_and(
+                    x_value <= (self.xend / 22) + self.dx_value[0] * 2,
+                    x_value >= (self.xend / 22) - self.dx_value[0] * 2,
+                ),
+                y_value == 0,
+            ),
+            5,
+            k,
         )
         k = np.where(
-            np.logical_and(x_value > self.xend - self.dx_value[0] / 3, y_value == 0),
+            np.logical_and(
+                np.logical_and(
+                    x_value <= (self.xend * 21 / 22) + self.dx_value[0] * 2,
+                    x_value >= (self.xend * 21 / 22) - self.dx_value[0] * 2,
+                ),
+                y_value == 0,
+            ),
             6,
             k,
         )
-        k = np.where(
-            np.logical_and(x_value == 0, y_value > self.yend - self.dx_value[1] / 3),
-            10,
-            k,
-        )
+        # k = np.where(
+        #     np.logical_and(x_value == 0, y_value > self.yend - self.dx_value[1] / 3),
+        #     10,
+        #     k,
+        # )
         return k
 
     def create_block(self, y_value, k):
@@ -416,14 +446,34 @@ class GIICmodel:
             dx_value=self.dx_value,
             radius=12.5,
         )
+
+        condition = np.where(y_value2 <= self.yend + self.dx_value[0] * 5, 1.0, 0)
+
+        x_value2 = np.extract(condition, x_value2)
+        y_value2 = np.extract(condition, y_value2)
+        z_value2 = np.extract(condition, z_value2)
+
         x_value3, y_value3, z_value3 = geo.create_cylinder(
             coor=[self.xend / 22, -5.1, self.zend], dx_value=self.dx_value, radius=5
         )
+
+        condition = np.where(y_value3 >= -self.dx_value[0] * 5, 1.0, 0)
+
+        x_value3 = np.extract(condition, x_value3)
+        y_value3 = np.extract(condition, y_value3)
+        z_value3 = np.extract(condition, z_value3)
+
         x_value4, y_value4, z_value4 = geo.create_cylinder(
             coor=[self.xend * 21 / 22, -5.1, self.zend],
             dx_value=self.dx_value,
             radius=5,
         )
+
+        condition = np.where(y_value4 >= -self.dx_value[0] * 5, 1.0, 0)
+
+        x_value4 = np.extract(condition, x_value4)
+        y_value4 = np.extract(condition, y_value4)
+        z_value4 = np.extract(condition, z_value4)
 
         x_value = x_value1
         x_value = np.concatenate((x_value, x_value2))

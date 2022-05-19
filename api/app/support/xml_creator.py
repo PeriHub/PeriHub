@@ -321,7 +321,7 @@ class XMLcreator:
                     )
                     for interBlock in dam.interBlocks:
                         string += (
-                            '            <Parameter name="Interblock Critical Energy'
+                            '            <Parameter name="Interblock Critical Energy '
                             + str(interBlock.firstBlockId)
                             + "_"
                             + str(interBlock.secondBlockId)
@@ -572,67 +572,64 @@ class XMLcreator:
         return string
 
     def contact(self):
-        if self.contact_dict.enabled:
-            string = '    <ParameterList name="Contact">\n'
+        string = '    <ParameterList name="Contact">\n'
+        string += (
+            '        <Parameter name="Search Radius" type="double" value="'
+            + str(self.contact_dict.searchRadius)
+            + '"/>\n'
+        )
+        string += (
+            '        <Parameter name="Search Frequency" type="int" value="'
+            + str(self.contact_dict.searchFrequency)
+            + '"/>\n'
+        )
+        string += '        <ParameterList name="Models">\n'
+        for models in self.contact_dict.contactModels:
+            string += '            <ParameterList name="' + models.name + '">\n'
             string += (
-                '        <Parameter name="Search Radius" type="double" value="'
-                + str(self.contact_dict.searchRadius)
+                '               <Parameter name="Contact Model" type="string" value="'
+                + models.contactType
                 + '"/>\n'
             )
             string += (
-                '        <Parameter name="Search Frequency" type="int" value="'
-                + str(self.contact_dict.searchFrequency)
+                '               <Parameter name="Contact Radius" type="double" value="'
+                + str(models.contactRadius)
                 + '"/>\n'
             )
-            string += '        <ParameterList name="Models">\n'
-            for models in self.contact_dict.contactModels:
-                string += '            <ParameterList name="' + models.name + '">\n'
-                string += (
-                    '               <Parameter name="Contact Model" type="string" value="'
-                    + models.contactType
-                    + '"/>\n'
-                )
-                string += (
-                    '               <Parameter name="Contact Radius" type="double" value="'
-                    + str(models.contactRadius)
-                    + '"/>\n'
-                )
-                string += (
-                    '               <Parameter name="Spring Constant" type="double" value="'
-                    + str(models.springConstant)
-                    + '"/>\n'
-                )
-                string += "                </ParameterList>\n"
-            string += "            </ParameterList>\n"
-            string += '        <ParameterList name="Interactions">\n'
-            for interaction in self.contact_dict.interactions:
-                string += (
-                    '            <ParameterList name="Interaction '
-                    + str(interaction.firstBlockId)
-                    + "_"
-                    + str(interaction.secondBlockId)
-                    + '">\n'
-                )
-                string += (
-                    '               <Parameter name="First Block" type="string" value="'
-                    + self.block_def[interaction.firstBlockId - 1].name
-                    + '"/>\n'
-                )
-                string += (
-                    '               <Parameter name="Second Block" type="string" value="'
-                    + self.block_def[interaction.secondBlockId - 1].name
-                    + '"/>\n'
-                )
-                string += (
-                    '               <Parameter name="Contact Model" type="string" value="'
-                    + self.contact_dict.contactModels[
-                        interaction.contactModelId - 1
-                    ].name
-                    + '"/>\n'
-                )
-                string += "                </ParameterList>\n"
-            string += "            </ParameterList>\n"
-            string += "    </ParameterList>\n"
+            string += (
+                '               <Parameter name="Spring Constant" type="double" value="'
+                + str(models.springConstant)
+                + '"/>\n'
+            )
+            string += "                </ParameterList>\n"
+        string += "            </ParameterList>\n"
+        string += '        <ParameterList name="Interactions">\n'
+        for interaction in self.contact_dict.interactions:
+            string += (
+                '            <ParameterList name="Interaction '
+                + str(interaction.firstBlockId)
+                + "_"
+                + str(interaction.secondBlockId)
+                + '">\n'
+            )
+            string += (
+                '               <Parameter name="First Block" type="string" value="'
+                + self.block_def[interaction.firstBlockId - 1].name
+                + '"/>\n'
+            )
+            string += (
+                '               <Parameter name="Second Block" type="string" value="'
+                + self.block_def[interaction.secondBlockId - 1].name
+                + '"/>\n'
+            )
+            string += (
+                '               <Parameter name="Contact Model" type="string" value="'
+                + self.contact_dict.contactModels[interaction.contactModelId - 1].name
+                + '"/>\n'
+            )
+            string += "                </ParameterList>\n"
+        string += "            </ParameterList>\n"
+        string += "    </ParameterList>\n"
         return string
 
     def compute(self):
@@ -764,7 +761,7 @@ class XMLcreator:
         if len(self.damage_dict) > 0:
             string += self.damage()
         string += self.blocks()
-        if len(self.contact_dict.contactModels) > 0:
+        if len(self.contact_dict.contactModels) > 0 and self.contact_dict.enabled:
             string += self.contact()
         string += self.create_boundary_condition()
         string += self.solver()

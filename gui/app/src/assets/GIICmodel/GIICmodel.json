@@ -11,7 +11,7 @@
     "structured": false,
     "discretization": 11,
     "horizon": 0.01,
-    "twoDimensional": false,
+    "twoDimensional": true,
     "rotatedAngles": true,
     "angles": [0, 0]
   },
@@ -214,7 +214,7 @@
       "boundarytype": "Prescribed Displacement",
       "blockId": 4,
       "coordinate": "y",
-      "value": "-1*t"
+      "value": "-0.001*t"
     },
     {
       "id": 2,
@@ -256,69 +256,8 @@
       "centerZ": 0,
       "radius": 1,
       "show": true
-    },
-    {
-      "id": 2,
-      "name": "bf_2",
-      "type": "Rectangular_Plane",
-      "normalX": 0,
-      "normalY": 1,
-      "normalZ": 0,
-      "lowerLeftCornerX": 0.0,
-      "lowerLeftCornerY": -0.05,
-      "lowerLeftCornerZ": -0.1,
-      "bottomUnitVectorX": 1,
-      "bottomUnitVectorY": 0,
-      "bottomUnitVectorZ": 0,
-      "bottomLength": 110.1,
-      "sideLength": 0.2,
-      "centerX": 0,
-      "centerY": 1,
-      "centerZ": 0,
-      "radius": 1,
-      "show": true
     }
   ],
-  "contact": {
-    "enabled": true,
-    "searchRadius": 0.01,
-    "searchFrequency": 100,
-    "contactModels": [
-      {
-        "id": 1,
-        "name": "Contact Model",
-        "contactType": "Short Range Force",
-        "contactRadius": 0.000775,
-        "springConstant": 1000000000000.0
-      }
-    ],
-    "interactions": [
-      {
-        "id": 1,
-        "firstBlockId": 1,
-        "secondBlockId": 2,
-        "contactModelId": 1
-      },
-      {
-        "id": 2,
-        "firstBlockId": 4,
-        "secondBlockId": 3,
-        "contactModelId": 1
-      },
-      {
-        "id": 3,
-        "firstBlockId": 5,
-        "secondBlockId": 3,
-        "contactModelId": 1
-      },
-      {
-        "id": 4,
-        "firstBlockId": 6,
-        "secondBlockId": 3,
-        "contactModelId": 1
-      }
-    ]
-  },
   "computes": [
     {
       "id": 1,
@@ -345,7 +284,7 @@
       "Velocity": true,
       "Partial_Stress": true,
       "Number_Of_Neighbors": true,
-      "Frequency": 100,
+      "Frequency": 1,
       "InitStep": 0
     }
   ],
