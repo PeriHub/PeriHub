@@ -170,6 +170,7 @@ class Output(BaseModel):
     Velocity: Optional[bool] = None
     Partial_Stress: Optional[bool] = None
     Number_Of_Neighbors: Optional[bool] = None
+    Contact_Force: Optional[bool] = None
     Horizon: Optional[bool] = None
     Model_Coordinates: Optional[bool] = None
     Local_Angles: Optional[bool] = None
@@ -182,7 +183,7 @@ class Output(BaseModel):
     Damage_Model_Data: Optional[bool] = None
     Velocity_Gradient: Optional[bool] = None
     PiolaStressTimesInvShapeTensor: Optional[bool] = None
-    Write_Damage_To_File: Optional[bool] = None
+    Write_After_Damage: Optional[bool] = None
     Frequency: int
     InitStep: int
 
@@ -352,8 +353,6 @@ class RunData(BaseModel):
                         "Force": True,
                         "Damage": True,
                         "Partial_Stress": True,
-                        "External_Force": True,
-                        "External_Displacement": True,
                         "Number_Of_Neighbors": False,
                         "Frequency": "100",
                         "InitStep": 0,
@@ -603,8 +602,6 @@ class ModelData(BaseModel):
                         "Force": True,
                         "Damage": True,
                         "Partial_Stress": True,
-                        "External_Force": True,
-                        "External_Displacement": True,
                         "Number_Of_Neighbors": False,
                         "Frequency": "100",
                         "InitStep": 0,

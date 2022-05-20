@@ -100,8 +100,6 @@ class Dogbone:
         Damage=True,
         Velocity=True,
         Partial_Stress=False,
-        External_Force=False,
-        External_Displacement=False,
         Number_Of_Neighbors=False,
         Frequency=500,
         InitStep=0,

@@ -175,7 +175,7 @@ class GIICmodel:
         Velocity=True,
         Partial_Stress=True,
         Number_Of_Neighbors=True,
-        Write_Damage_To_File=False,
+        Write_After_Damage=True,
         Frequency=100,
         InitStep=0,
     )
@@ -293,52 +293,31 @@ class GIICmodel:
         self.contact_dict.searchRadius = self.dx_value[1] * 3
         self.contact_dict.contactModels[0].contactRadius = self.dx_value[1] * 0.95
 
+        bf1 = BondFilters(
+            id=1,
+            name="bf_1",
+            type="Rectangular_Plane",
+            normalX=0.0,
+            normalY=1.0,
+            normalZ=0.0,
+            lowerLeftCornerX=0.0,
+            lowerLeftCornerY=self.yend / 2,
+            lowerLeftCornerZ=-0.1,
+            bottomUnitVectorX=1.0,
+            bottomUnitVectorY=0.0,
+            bottomUnitVectorZ=0.0,
+            bottomLength=self.crack_length + 0.1,
+            sideLength=0.2,
+            centerX=0.0,
+            centerY=1.0,
+            centerZ=0.0,
+            radius=1.0,
+            show=True,
+        )
         if not bond_filter:
-            bf1 = BondFilters(
-                id=1,
-                name="bf_1",
-                type="Rectangular_Plane",
-                normalX=0.0,
-                normalY=1.0,
-                normalZ=0.0,
-                lowerLeftCornerX=0.0,
-                lowerLeftCornerY=self.yend / 2,
-                lowerLeftCornerZ=-0.1,
-                bottomUnitVectorX=1.0,
-                bottomUnitVectorY=0.0,
-                bottomUnitVectorZ=0.0,
-                bottomLength=self.crack_length,
-                sideLength=0.2,
-                centerX=0.0,
-                centerY=1.0,
-                centerZ=0.0,
-                radius=1.0,
-                show=True,
-            )
-            # bf2 = BondFilters(
-            #     id=2,
-            #     name="bf_2",
-            #     type="Rectangular_Plane",
-            #     normalX=0.0,
-            #     normalY=1.0,
-            #     normalZ=0.0,
-            #     lowerLeftCornerX=0.0,
-            #     lowerLeftCornerY=-0.05,
-            #     lowerLeftCornerZ=-0.1,
-            #     bottomUnitVectorX=1.0,
-            #     bottomUnitVectorY=0.0,
-            #     bottomUnitVectorZ=0.0,
-            #     bottomLength=self.xend + 0.1,
-            #     sideLength=0.2,
-            #     centerX=0.0,
-            #     centerY=1.0,
-            #     centerZ=0.0,
-            #     radius=1.0,
-            #     show=True,
-            # )
             self.bondfilters = [bf1]
         else:
-            self.bondfilters = bond_filter
+            self.bondfilters = bond_filter.append(bf1)
 
         self.dam_block = [""] * number_of_blocks
         self.dam_block[0] = self.damage_dict[0].name

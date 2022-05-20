@@ -690,8 +690,8 @@ class XMLcreator:
             string += (
                 '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
             )
-            if out.Write_Damage_To_File:
-                string += '        <Parameter name="Write Damage To File" type="bool" value="true"/>\n'
+            if out.Write_After_Damage:
+                string += '        <Parameter name="Write After Damage" type="bool" value="true"/>\n'
             string += '        <ParameterList name="Output Variables">\n'
             if out.Displacement:
                 string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
@@ -703,6 +703,8 @@ class XMLcreator:
                 )
             if out.Number_Of_Neighbors:
                 string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
+            if out.Contact_Force:
+                string += '            <Parameter name="Contact_Force" type="bool" value="true"/>\n'
             if out.Force:
                 string += (
                     '            <Parameter name="Force" type="bool" value="true"/>\n'

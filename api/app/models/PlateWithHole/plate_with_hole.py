@@ -148,8 +148,6 @@ class PlateWithHole:
                 Damage=True,
                 Velocity=True,
                 Partial_Stress=False,
-                External_Force=False,
-                External_Displacement=False,
                 Number_Of_Neighbors=True,
                 Frequency=10,
                 InitStep=0,

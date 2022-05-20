@@ -496,9 +496,8 @@ export default {
           Damage: true,
           Velocity: false,
           Partial_Stress: true,
-          External_Force: true,
-          External_Displacement: true,
           Number_Of_Neighbors: false,
+          Contact_Force: false,
           Horizon: false,
           Model_Coordinates: false,
           Local_Angles: false,
@@ -511,7 +510,7 @@ export default {
           Damage_Model_Data: false,
           Velocity_Gradient: false,
           PiolaStressTimesInvShapeTensor: false,
-          Write_Damage_To_File: false,
+          Write_After_Damage: false,
           Frequency: 100,
           InitStep: 0,
         },
@@ -522,9 +521,8 @@ export default {
         Force: "Force",
         Damage: "Damage",
         Partial_Stress: "Partial_Stress",
-        External_Force: "External_Force",
-        External_Displacement: "External_Displacement",
         Number_Of_Neighbors: "Number_Of_Neighbors",
+        Contact_Force: "Contact_Force",
         Horizon: "Horizon",
         Model_Coordinates: "Model_Coordinates",
         Local_Angles: "Local_Angles",
@@ -537,7 +535,7 @@ export default {
         Damage_Model_Data: "Damage_Model_Data",
         Velocity_Gradient: "Velocity_Gradient",
         PiolaStressTimesInvShapeTensor: "PiolaStressTimesInvShapeTensor",
-        Write_Damage_To_File: "Write Damage To File",
+        Write_After_Damage: "Write After Damage",
         Frequency: "Output Frequency",
         InitStep: "Initial Output Step",
       },
@@ -1619,9 +1617,8 @@ export default {
               this.outputs[j].Force = false;
               this.outputs[j].Damage = false;
               this.outputs[j].Partial_Stress = false;
-              this.outputs[j].External_Force = false;
-              this.outputs[j].External_Displacement = false;
               this.outputs[j].Number_Of_Neighbors = false;
+              this.outputs[j].Contact_Force = false;
               this.outputs[j].Horizon = false;
               this.outputs[j].Model_Coordinates = false;
               this.outputs[j].Local_Angles = false;
@@ -1634,7 +1631,7 @@ export default {
               this.outputs[j].Damage_Model_Data = false;
               this.outputs[j].Velocity_Gradient = false;
               this.outputs[j].PiolaStressTimesInvShapeTensor = false;
-              this.outputs[j].Write_Damage_To_File = false;
+              this.outputs[j].Write_After_Damage = false;
             }
             this.getValuesFromJson(
               Param,
@@ -2513,6 +2510,8 @@ export default {
         .request(reqOptions)
         .then((response) => (this.textOutput = response.data));
       this.textLoading = false;
+
+      this.getStatus();
     },
     writeInputFile() {
       let reqOptions = {
@@ -2784,9 +2783,8 @@ export default {
         Force: false,
         Damage: false,
         Partial_Stress: false,
-        External_Force: false,
-        External_Displacement: false,
         Number_Of_Neighbors: false,
+        Contact_Force: false,
         Horizon: false,
         Model_Coordinates: false,
         Local_Angles: false,
@@ -2799,7 +2797,7 @@ export default {
         Damage_Model_Data: false,
         Velocity_Gradient: false,
         PiolaStressTimesInvShapeTensor: false,
-        Write_Damage_To_File: false,
+        Write_After_Damage: false,
         InitStep: 0,
       });
     },

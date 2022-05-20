@@ -276,10 +276,8 @@
       "Damage": true,
       "Velocity": true,
       "Partial_Stress": true,
-      "External_Force": true,
-      "External_Displacement": false,
       "Number_Of_Neighbors": true,
-      "Write_Damage_To_File": false,
+      "Write_After_Damage": false,
       "Frequency": 15,
       "InitStep": 0
     }

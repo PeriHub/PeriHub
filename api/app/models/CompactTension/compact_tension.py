@@ -170,8 +170,7 @@ class CompactTension:
         Velocity=True,
         Partial_Stress=True,
         Number_Of_Neighbors=True,
-        External_Force=True,
-        Write_Damage_To_File=False,
+        Write_After_Damage=False,
         Frequency=15,
         InitStep=0,
     )

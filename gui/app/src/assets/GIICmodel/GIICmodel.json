@@ -155,7 +155,7 @@
         }
       ],
       "planeStress": true,
-      "onlyTension": true,
+      "onlyTension": false,
       "detachedNodesCheck": true,
       "thickness": 10,
       "hourglassCoefficient": 1,
@@ -236,27 +236,6 @@
     }
   ],
   "bondFilters": [
-    {
-      "id": 1,
-      "name": "bf_1",
-      "type": "Rectangular_Plane",
-      "normalX": 0,
-      "normalY": 1,
-      "normalZ": 0,
-      "lowerLeftCornerX": 0.0,
-      "lowerLeftCornerY": 1.5,
-      "lowerLeftCornerZ": -0.1,
-      "bottomUnitVectorX": 1,
-      "bottomUnitVectorY": 0,
-      "bottomUnitVectorZ": 0,
-      "bottomLength": 40.0,
-      "sideLength": 0.2,
-      "centerX": 0,
-      "centerY": 1,
-      "centerZ": 0,
-      "radius": 1,
-      "show": true
-    }
   ],
   "computes": [
     {
@@ -284,6 +263,8 @@
       "Velocity": true,
       "Partial_Stress": true,
       "Number_Of_Neighbors": true,
+      "Contact_Force": true,
+      "Write_After_Damage": false,
       "Frequency": 1,
       "InitStep": 0
     }
@@ -294,7 +275,7 @@
     "finalTime": 1.0,
     "solvertype": "Verlet",
     "safetyFactor": 1.0,
-    "fixedDt": 2e-5,
+    "fixedDt": null,
     "numericalDamping": 0.000005,
     "peridgimPreconditioner": "None",
     "nonlinearSolver": "Line Search Based",

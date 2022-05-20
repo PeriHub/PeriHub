@@ -1468,22 +1468,6 @@
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
                         <v-checkbox
                           class="shrink mr-0 mt-0"
-                          v-model="output.External_Force"
-                          label="External_Force"
-                        ></v-checkbox>
-                      </v-col>
-                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
-                        <v-checkbox
-                          class="shrink mr-0 mt-0"
-                          v-model="output.External_Displacement"
-                          label="External_Displacement"
-                        ></v-checkbox>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
-                        <v-checkbox
-                          class="shrink mr-0 mt-0"
                           v-model="output.Partial_Stress"
                           label="Partial_Stress"
                         ></v-checkbox>
@@ -1503,6 +1487,15 @@
                             v-model=output.External_Displacement
                             label="External_Displacement"></v-checkbox>
                         </v-col> -->
+                    </v-row>
+                    <v-row>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Contact_Force"
+                          label="Contact_Force"
+                        ></v-checkbox>
+                      </v-col>
                     </v-row>
                     <v-row>
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
@@ -1614,8 +1607,8 @@
                     ></v-text-field>
                     <v-checkbox
                       class="shrink mr-0 mt-0"
-                      v-model="output.Write_Damage_To_File"
-                      label="Write Damage To File"
+                      v-model="output.Write_After_Damage"
+                      label="Write After Damage"
                     ></v-checkbox>
                   </v-container>
                   <v-divider></v-divider>

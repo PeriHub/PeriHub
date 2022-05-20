@@ -339,8 +339,6 @@
       "Damage": true,
       "Velocity": true,
       "Partial_Stress": true,
-      "External_Force": true,
-      "External_Displacement": true,
       "Number_Of_Neighbors": false,
       "Frequency": "100",
       "InitStep": 0

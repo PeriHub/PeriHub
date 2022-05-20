@@ -242,8 +242,6 @@
       "Damage": true,
       "Velocity": true,
       "Partial_Stress": true,
-      "External_Force": false,
-      "External_Displacement": false,
       "Number_Of_Neighbors": false,
       "Frequency": "500",
       "InitStep": 0
@@ -256,8 +254,6 @@
       "Damage": true,
       "Velocity": false,
       "Partial_Stress": false,
-      "External_Force": true,
-      "External_Displacement": true,
       "Number_Of_Neighbors": false,
       "Frequency": 200,
       "InitStep": 0
