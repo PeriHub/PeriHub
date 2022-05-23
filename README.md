@@ -4,7 +4,7 @@ PeriHub enables the generation, editing, execution and evaluation of standard pe
 - FA-Services: https://perihub.fa-services.intra.dlr.de/
 - API: https://perihub-api.fa-services.intra.dlr.de/docs
 
-![](gui/app/public/images/PeriHub.drawio.pdf)
+![](gui/app/public/images/PeriHub.drawio.png)
 
 ### Generate model
 ![](gui/app/public/gif/generateModel.gif)
