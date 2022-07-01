@@ -547,6 +547,21 @@
               </v-card>
             </v-dialog>
 
+            <v-tooltip bottom
+              ><template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="my-btn"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="downloadPlot"
+                  :disabled="!status.dumpExist"
+                >
+                  <i class="fas fa-download"></i>
+                </v-btn>
+              </template>
+              <span>Download Plot</span>
+            </v-tooltip>
+
             <v-spacer />
 
             <v-tooltip bottom

@@ -487,6 +487,50 @@ export default {
       // this.filteredPlotData = [...this.plotData]
       this.plotLoading = false;
     },
+    downloadPlot() {
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let sortX = false;
+      let xLabel = "";
+      if (this.filteredPlotData[0].name == "year") {
+        sortX = true;
+        xLabel = this.filteredPlotData[0].name;
+      }
+
+      let reqOptions = {
+        url: this.url + "downloadPlot",
+        params: {
+          file_name: this.analysisModel.fileName,
+          x: this.filteredPlotData[0].x.join(";"),
+          y: this.filteredPlotData[0].y.join(";"),
+          x_label: xLabel,
+          y_label: "Number of articles",
+          sort_x: sortX,
+          type: "bar",
+        },
+        method: "GET",
+        responseType: "blob",
+        headers: headersList,
+      };
+
+      axios
+        .request(reqOptions)
+        .then((response) => {
+          var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+          var fileLink = document.createElement("a");
+          fileLink.href = fileURL;
+          fileLink.setAttribute("download", "plot.png");
+          document.body.appendChild(fileLink);
+          fileLink.click();
+        })
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+        });
+    },
     async getStatus() {
       let headersList = {
         "Cache-Control": "no-cache",
