@@ -42,6 +42,9 @@ COPY ./app/api_main.py /app/api_main.py
 RUN if [ "$DEV" = "True" ]; then echo "DEV=True" > .env; fi
 RUN if [ "$SMETANA" = "True" ]; then echo "SMETANA=True" > .env; fi
 
+RUN if [ "$DEV" = "True" ]; then echo "DEV"; fi
+RUN if [ "$SMETANA" = "True" ]; then echo "smetana"; fi
+
 # COPY setup.sh /app/setup.sh
 
 # RUN chmod +x /app/setup.sh
