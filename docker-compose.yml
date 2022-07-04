@@ -6,6 +6,8 @@ services:
       context: api/.
       args:
         EXTERNAL: ${EXTERNAL}
+        SMETANA: ${SMETANA}
+        GITLAB_TOKEN: ${GITLAB_TOKEN}
         DEV: ${DEV}
     container_name: perihub_periHubApi
     image: peri_hub_api_image

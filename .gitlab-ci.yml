@@ -76,7 +76,7 @@ build_api_job:
     changes:
       - api/**/*
   script:
-    - docker build --build-arg EXTERNAL=False -t peri_hub_api_image api/. #--no-cache
+    - docker build -t peri_hub_api_image api/. #--no-cache
     - docker tag peri_hub_api_image ${CI_REGISTRY_PATH}peri_hub_api_image
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
@@ -136,7 +136,7 @@ build_trame_job:
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY_PATH
-    - echo -e "GITHUB_TOKEN=$GIT_TOKEN\nGITHUB_USER=f_testpa\nEXTERNAL=False" >> .env
+    - echo -e "GITHUB_TOKEN=$GIT_TOKEN\nGITHUB_USER=f_testpa\nEXTERNAL=False\nSMETANA=True" >> .env
   after_script:
     - docker logout
 

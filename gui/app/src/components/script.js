@@ -22,6 +22,8 @@ import PlateWithHoleImage from "../assets/PlateWithHole/PlateWithHole.jpg";
 import PlateWithHoleFile from "../assets/PlateWithHole/PlateWithHole.json";
 import CompactTensionImage from "../assets/CompactTension/CompactTension.jpg";
 import CompactTensionFile from "../assets/CompactTension/CompactTension.json";
+import SmetanaImage from "../assets/Smetana/Smetana.jpg";
+import SmetanaFile from "../assets/Smetana/Smetana.json";
 import { Plotly } from "vue-plotly";
 // import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons';
 import Driver from "driver.js";
@@ -49,6 +51,7 @@ export default {
         "GIICmodel",
         "DCBmodel",
         "CompactTension",
+        "Smetana",
       ], //, 'RVE'],
       model: {
         modelNameSelected: "Dogbone",
@@ -663,6 +666,7 @@ export default {
       vtkFile: "",
       dialog: false,
       dialogGetImage: false,
+      dialogGetImagePython: false,
       getImageOutput: "Output1",
       getImageVariable: [
         "Displacement",
@@ -676,6 +680,8 @@ export default {
       getImageVariableSelected: "Displacement",
       getImageAxis: ["Magnitude", "X", "Y", "Z"],
       getImageAxisSelected: "Magnitude",
+      getImageDisplFactor: 20,
+      getImageMarkerSize: 16,
       dialogGetK1c: false,
       getK1cOutput: "Output1",
       getK1cFrequency: 10,
@@ -1690,11 +1696,11 @@ export default {
         var paramName = Object.keys(jsonFile)[i];
         // console.log(i)
         if ((paramName != "model") & (paramName != "solver")) {
-          // console.log(paramName);
-          // console.log(this[paramName].length)
-          // console.log(jsonFile[paramName].length)
-          // console.log(this[paramName])
-          // console.log(jsonFile[paramName])
+          console.log(paramName);
+          console.log(this[paramName].length);
+          console.log(jsonFile[paramName].length);
+          console.log(this[paramName]);
+          console.log(jsonFile[paramName]);
           if (this[paramName].length > jsonFile[paramName].length) {
             for (
               var j = this[paramName].length;
@@ -1716,8 +1722,8 @@ export default {
             }
           }
         }
-        // console.log(this[paramName]);
-        // console.log(jsonFile[paramName]);
+        console.log(this[paramName]);
+        console.log(jsonFile[paramName]);
         // this[paramName] = [...jsonFile[paramName]];
         this.$set(this, paramName, jsonFile[paramName]);
         // Object.assign(this[paramName], jsonFile[paramName]);
@@ -1989,6 +1995,21 @@ export default {
           parseFloat(this.pointString[4]) - parseFloat(this.pointString[1]),
           parseFloat(this.pointString[5]) - parseFloat(this.pointString[2])
         );
+      }
+
+      if (this.model.modelNameSelected == "Smetana") {
+        var blockIdInt = this.blockIdString.map(Number);
+        let numberOfBlocks = Math.max(...blockIdInt);
+        for (var i = 0; i < numberOfBlocks; i++) {
+          if (this.blocks.length < i + 1) {
+            this.addBlock();
+          }
+        }
+        if (this.blocks.length > numberOfBlocks) {
+          for (var j = numberOfBlocks; j < this.blocks.length; j++) {
+            this.removeBlock(j);
+          }
+        }
       }
     },
     // async copyModelToCluster() {
@@ -2294,6 +2315,50 @@ export default {
       this.viewId = 0;
       this.modelLoading = false;
     },
+    async getImagePython() {
+      this.dialogGetImagePython = false;
+
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "getImagePython",
+        params: {
+          model_name: this.model.modelNameSelected,
+          cluster: this.job.cluster,
+          output: this.getImageOutput,
+          variable: this.getImageVariableSelected,
+          axis: this.getImageAxisSelected,
+          displ_factor: this.getImageDisplFactor,
+          marker_size: this.getImageMarkerSize,
+          length: this.model.length,
+          height: this.model.height,
+        },
+        method: "GET",
+        responseType: "blob",
+        headers: headersList,
+      };
+
+      this.modelLoading = true;
+      await axios
+        .request(reqOptions)
+        .then(
+          (response) =>
+            (this.modelImg = window.URL.createObjectURL(
+              new Blob([response.data])
+            ))
+        )
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+          this.modelLoading = false;
+          return;
+        });
+      this.viewId = 0;
+      this.modelLoading = false;
+    },
     async getK1c() {
       this.dialogGetK1c = false;
 
@@ -2499,7 +2564,7 @@ export default {
         url: this.url + "getLogFile",
         params: {
           model_name: this.model.modelNameSelected,
-          Cluster: this.job.cluster,
+          cluster: this.job.cluster,
         },
         method: "GET",
         headers: headersList,
