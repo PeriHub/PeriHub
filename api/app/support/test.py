@@ -5,6 +5,7 @@ import numpy as np
 import re
 import netCDF4
 import matplotlib.pyplot as plt
+import pandas as pd
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 
@@ -376,6 +377,23 @@ def read(file, timestep):
 
     return points, point_data, global_data, cell_data, ns, block_data
 
+def createFigure(xE,yE, name = 'Strain_belt.pdf'):
+    fig = plt.figure(figsize=(14/2.54, 12/2.54))
+    plt.plot(xE,yE, color='black', linestyle='solid')
+    plt.grid(which='major', axis='both')
+    plt.xlabel(r'$u_y$ [m]')
+    plt.ylabel(r'$F_y$ [N]')
+    
+    plt.rcParams.update({'font.size': 8})
+    plt.tight_layout()
+
+    ax=plt.gca()
+    ax.legend(loc='best')
+    ax.xaxis.set
+    # ax.set_xlim([min(xE), max(xE)])
+
+    fig.savefig(name,bbox_inches='tight')
+    plt.show()
 
 P = 3780
 a = 35.0
@@ -383,9 +401,9 @@ d = 0.00000023
 w = 10
 L = 37.1
 
-# resultpath = "/home/jt/perihub/api/app/Output/CompactTension/CompactTension_Output1.e"
+resultpath = "/home/jt/perihub/api/app/Output/CompactTension/CompactTension_Output1.e"
 # resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/CompactTension/CompactTension_Output1.e"
-resultpath = "/home/jt/perihub/api/app/Output/GIICmodel/GIICmodel_Output1.e"
+# resultpath = "/home/jt/perihub/api/app/Output/GIICmodel/GIICmodel_Output1.e"
 
 # x_min = 28
 # x_max = 100
@@ -418,9 +436,11 @@ min_damage = 0.007
 Crack_length = []
 K1 = []
 Load = []
+Force = []
+Displacement = []
 
-for i in range(24, 25):
-    points, point_data, global_data, cell_data, ns, block_data = read(resultpath, -1)
+for i in range(0, 100):
+    points, point_data, global_data, cell_data, ns, block_data = read(resultpath, i)
     # block_ids = block_data[0][:, 0]
 
     # block_points = points[block_ids]
@@ -453,12 +473,16 @@ for i in range(24, 25):
     #     Load.append(0)
 
     # print(global_data["External_Force"][0])
-    P = global_data["Crosshead_Force"][1]
-    d = global_data["Crosshead_Displacement"][0]
+    # Force.append(global_data["Crosshead_Force"][1])
+    # Displacement.append(-global_data["Crosshead_Displacement"][1])
+    Force.append(-global_data["External_Force_2"][1])
+    Displacement.append(global_data["External_Displacement_2"][1])
+    # P = global_data["Crosshead_Force"][1]
+    # d = global_data["Crosshead_Displacement"][1]
     GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (
         2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3))
     )
-    print(GIIC)
+    # print(GIIC)
 
 # idx = 0
 # crack_acceleration = [0]
@@ -471,10 +495,18 @@ for i in range(24, 25):
 #         delta_load.append(Load[idx] - Load[idx - 1])
 
 
-plt.plot(Load, Crack_length)
-plt.show
+# plt.plot(Load, Crack_length)
+# plt.show
 # plt.plot(range(0, len(Crack_length)), crack_acceleration)
-# plt.plot(range(0, len(Crack_length)), Crack_length)
+# plt.plot(Displacement, Force)
 # plt.plot(delta_k1, crack_acceleration)
 # plt.plot(range(0, len(Crack_length)), Load)
 # plt.show
+
+# data = {'Force_Y':Force,'Displacement_Y':Displacement}
+
+# df = pd.DataFrame(data)
+
+# df.to_csv('Curve.csv')
+
+createFigure(Displacement, Force, 'Displ_Force_CT.pdf')

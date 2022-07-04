@@ -71,7 +71,7 @@ class SbatchCreator:
             string += (
                 "python /home/"
                 + self.user
-                + "/peridigm/src/scripts/MergeFiles.py "
+                + "/Peridigm/src/scripts/MergeFiles.py "
                 + out.name
                 + " "
                 + str(self.tasks)
