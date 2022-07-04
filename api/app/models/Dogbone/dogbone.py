@@ -20,6 +20,8 @@ from support.base_models import (
 from support.model_writer import ModelWriter
 from support.geometry import Geometry
 
+from support.globals import log
+
 
 class Dogbone:
     """doc"""
@@ -215,7 +217,7 @@ class Dogbone:
         self.int_block_id = [""] * number_of_blocks
         self.mat_block = [self.material_dict[0].name] * number_of_blocks
 
-        print(f"Initialized in {(time.time() - start_time):.2f} seconds")
+        log.info(f"Initialized in {(time.time() - start_time):.2f} seconds")
 
     def create_model(self):
         """doc"""

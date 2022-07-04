@@ -134,7 +134,7 @@ class Launcher:
         if cron:
             for index, _ in enumerate(used_ports):
                 if time_list[index] < datetime.datetime.now():
-                    print("Close port " + str(used_ports[index]))
+                    log.info("Close port " + str(used_ports[index]))
                     used_ports.pop(index)
                     model_list.pop(index)
                     output_name_list.pop(index)
@@ -162,7 +162,7 @@ class Launcher:
             print(pid_list)
             index = used_ports.index(port)
             if user_list[index] == username:
-                print("Close port " + str(used_ports[index]))
+                log.info("Close port " + str(used_ports[index]))
                 used_ports.pop(index)
                 model_list.pop(index)
                 output_name_list.pop(index)
@@ -177,10 +177,10 @@ class Launcher:
                     p2.terminate()
                 except psutil.NoSuchProcess:
                     pid_list.pop(index)
-                    print("Process already terminated")
+                    log.warn("Process already terminated")
                 except FileNotFoundError:
                     pid_list.pop(index)
-                    print("Process not found")
+                    log.warn("Process not found")
                 pid_list.pop(index)
 
         print(used_ports)

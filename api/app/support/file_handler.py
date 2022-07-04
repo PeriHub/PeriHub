@@ -172,9 +172,11 @@ class FileHandler:
                 os.makedirs(remotepath)
                 # os.chown(remotepath, 'test')
             if not os.path.exists(localpath):
+                log.warn(model_name + " has not been created yet")
                 return model_name + " has not been created yet"
             for root, _, files in os.walk(localpath):
                 if len(files) == 0:
+                    log.warn(model_name + " has not been created yet")
                     return model_name + " has not been created yet"
                 input_exist = False
                 mesh_exist = False
@@ -189,9 +191,11 @@ class FileHandler:
                         mesh_exist = True
 
                 if not input_exist:
+                    log.warn("Inputfile of " + model_name + " has not been created yet")
                     return "Inputfile of " + model_name + " has not been created yet"
 
                 if not mesh_exist:
+                    log.warn("Meshfile of " + model_name + " has not been created yet")
                     return "Meshfile of " + model_name + " has not been created yet"
 
                 for name in files:
@@ -219,9 +223,11 @@ class FileHandler:
             sftp.mkdir(model_name)  # Create remote_path
             sftp.chdir(model_name)
         if not os.path.exists(localpath):
+            log.warn(model_name + " has not been created yet")
             return model_name + " has not been created yet"
         for root, _, files in os.walk(localpath):
             if len(files) == 0:
+                log.warn(model_name + " has not been created yet")
                 return model_name + " has not been created yet"
             input_exist = False
             mesh_exist = False
@@ -232,9 +238,11 @@ class FileHandler:
                     mesh_exist = True
 
             if not input_exist:
+                log.warn("Inputfile of " + model_name + " has not been created yet")
                 return "Inputfile of " + model_name + " has not been created yet"
 
             if not mesh_exist:
+                log.warn("Meshfile of " + model_name + " has not been created yet")
                 return "Meshfile of " + model_name + " has not been created yet"
 
             for name in files:
@@ -254,13 +262,15 @@ class FileHandler:
         try:
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         except paramiko.SFTPError:
+            log.error("ssh connection to " + cluster + " failed!")
             return "ssh connection to " + cluster + " failed!"
 
         if not os.path.exists(localpath):
+            log.error("Shared libray can not been found")
             return "Shared libray can not been found"
         for root, _, files in os.walk(localpath):
             if len(files) == 0:
-                return "Shared libray can not been found"
+                log.error("Shared libray can not been found")
             for name in files:
                 if name.split(".")[-1] == "so":
                     print(os.path.join(root, name))
@@ -271,6 +281,7 @@ class FileHandler:
         sftp.close()
         ssh.close()
 
+        log.error("Shared libray can not been found")
         return "Shared libray can not been found"
 
     @staticmethod
@@ -285,6 +296,7 @@ class FileHandler:
             os.makedirs(remotepath)
             # os.chown(remotepath, 'test')
         if not os.path.exists(localpath):
+            log.error(model_name + " has not been created yet")
             return model_name + " has not been created yet"
 
         try:
@@ -299,6 +311,7 @@ class FileHandler:
                     os.path.join(localpath, file_name),
                 )
         except IOError:
+            log.error("File not found")
             return "File not found"
 
         return "Success"
@@ -351,9 +364,9 @@ class FileHandler:
                             "compare "
                             + filename
                             + " remote_size: "
-                            + remote_size
+                            + str(remote_size)
                             + ", localsize: "
-                            + local_size
+                            + str(local_size)
                         )
                         if abs(remote_size - local_size) > 5:
                             sftp.get(
@@ -387,6 +400,7 @@ class FileHandler:
                     server, username=username, allow_agent=False, key_filename=keypath
                 )
             except paramiko.SSHException:
+                log.error("ssh connection to " + server + " failed!")
                 return "ssh connection to " + server + " failed!"
 
         elif cluster == "Cara":
@@ -398,6 +412,7 @@ class FileHandler:
                     server, username=username, allow_agent=False, key_filename=keypath
                 )
             except paramiko.SSHException:
+                log.error("ssh connection to " + server + " failed!")
                 return "ssh connection to " + server + " failed!"
 
         elif cluster == "None":
@@ -408,6 +423,7 @@ class FileHandler:
                     server, username=username, allow_agent=False, password="root"
                 )
             except paramiko.SSHException:
+                log.error("ssh connection to " + server + " failed!")
                 return "ssh connection to " + server + " failed!"
 
         sftp = ssh.open_sftp()
@@ -434,6 +450,7 @@ class FileHandler:
                 server, username=username, allow_agent=False, key_filename=keypath
             )
         except paramiko.SSHException:
+            log.error("ssh connection to " + server + " failed!")
             return "ssh connection to " + server + " failed!"
         return ssh
 
@@ -469,6 +486,7 @@ class FileHandler:
         job_id_path = os.path.join(localpath, "jobId.txt")
 
         if not os.path.exists(job_id_path):
+            log.error("No pid")
             return "No pid"
 
         with open(job_id_path, "r", encoding="UTF-8") as file:

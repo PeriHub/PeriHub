@@ -1,7 +1,10 @@
 import os
 import math
+import matplotlib.pyplot as plt
 from support.base_models import Model
 from support.exodus_reader import ExodusReader
+
+from support.globals import log
 
 
 class Analysis:
@@ -20,11 +23,19 @@ class Analysis:
         )
 
         P = global_data["Crosshead_Force"][1]
-        d = global_data["Crosshead_Displacement"][0]
+        d = -global_data["Crosshead_Displacement"][1]
+
+        # print(P)
+        # print(a)
+        # print(d)
+        # print(w)
+        # print(L)
 
         GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (
             2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3))
         )
+
+        log.info(GIIC)
 
         return GIIC
 

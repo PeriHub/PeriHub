@@ -35,11 +35,18 @@ from models.Dogbone.dogbone import Dogbone
 from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
 from models.PlateWithHole.plate_with_hole import PlateWithHole
 from models.CompactTension.compact_tension import CompactTension
+from models.Smetana.smetana import Smetana
 from models.OwnModel.own_model import OwnModel
 from support.sbatch_creator import SbatchCreator
 from support.file_handler import FileHandler
 from support.base_models import ModelData, FileType, RunData, Status, Model
 from support.analysis import Analysis
+from support.image_export import ImageExport
+from support.globals import MYGLOBAL, log
+
+from fa_pyutils.sshtools import cara
+import fa_pyutils.service.duration as duration
+
 
 
 # class NotFoundException(Exception):
@@ -86,8 +93,13 @@ app.add_middleware(
 load_dotenv()
 
 dev = os.getenv("DEV")
-if dev:
-    print("--- Running in development mode ---")
+smetana = os.getenv("SMETANA")
+if dev == "True":
+    log.info("--- Running in development mode ---")
+if smetana == "True":
+    MYGLOBAL.smetana_enabled = True
+else:
+    log.warn("Smetana is not enabled")
 
 
 class ModelControl:
@@ -126,7 +138,7 @@ class ModelControl:
                     model_data.model == json_data["model"]
                     and model_data.boundaryConditions == json_data["boundaryConditions"]
                 ):
-                    print("Model not changed")
+                    log.info("Model not changed")
                     ignore_mesh = True
 
         with open(json_file, "w", encoding="UTF-8") as file:
@@ -162,6 +174,8 @@ class ModelControl:
             ]
 
         start_time = time.time()
+
+        log.infoHeadline("Create " + model_name)
 
         if model_name == "GIICmodel":
             giic = GIICmodel(
@@ -309,6 +323,23 @@ class ModelControl:
             )
             result = compact_tension.create_model()
 
+        elif model_name == "Smetana":
+            if MYGLOBAL.smetana_enabled:
+                smetana = Smetana(
+                    damage=model_data.damages,
+                    contact=model_data.contact,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    ignore_mesh=ignore_mesh,
+                    mesh_res=model_data.model.discretization,
+                )
+                result = smetana.create_model()
+            else:
+                log.warning("Smetana is not enabled")
+                return("Smetana is not enabled")
+
         elif model_data.model.ownModel:
             if model_data.model.translated:
                 disc_type = "e"
@@ -334,11 +365,10 @@ class ModelControl:
             )
             result = own.create_model()
         else:
+            log.error("Model Name unknown")
             return "Model Name unknown"
 
-        print(
-            f"{model_name} has been created in {(time.time() - start_time):.2f} seconds"
-        )
+        log.info(f"{model_name} has been created in {(time.time() - start_time):.2f} seconds")
 
         if result != "Model created":
             return result
@@ -376,35 +406,38 @@ class ModelControl:
         try:
             subprocess.call(command, shell=True)
         except subprocess.SubprocessError:
+            log.error( model_name + " results can not be found")
             return model_name + " results can not be found"
 
-        print("Rename mesh File")
+        log.info("Rename mesh File")
         os.rename(
             os.path.join(localpath, "mesh.g.ascii"),
             os.path.join(localpath, model_name + ".g.ascii"),
         )
-        print("Rename peridigm File")
+        log.info("Rename peridigm File")
         os.rename(
             os.path.join(localpath, "model.peridigm"),
             os.path.join(localpath, model_name + ".peridigm"),
         )
 
-        print("Copy mesh File")
+        log.info("Copy mesh File")
         if (
             FileHandler.copy_file_to_from_peridigm_container(
                 username, model_name, model_name + ".g.ascii", True
             )
             != "Success"
         ):
+            log.error(model_name + " can not be translated")
             return model_name + " can not be translated"
 
-        print("Copy peridigm File")
+        log.info("Copy peridigm File")
         if (
             FileHandler.copy_file_to_from_peridigm_container(
                 username, model_name, model_name + ".peridigm", True
             )
             != "Success"
         ):
+            log.error(model_name + " can not be translated")
             return model_name + " can not be translated"
 
         # if return_string!='Success':
@@ -417,6 +450,7 @@ class ModelControl:
         try:
             ssh.connect(server, username="root", allow_agent=False, password="root")
         except paramiko.SSHException:
+            log.error("ssh connection to " + server + " failed!")
             return "ssh connection to " + server + " failed!"
         command = (
             "/usr/local/netcdf/bin/ncgen "
@@ -432,21 +466,22 @@ class ModelControl:
             + ".peridigm"
         )
         # ' && rm ' +  os.path.join(remotepath, model_name) + '.g.ascii' + \
-        print("Peridigm to yaml")
+        log.info("Peridigm to yaml")
         _, stdout, _ = ssh.exec_command(command)
         stdout.channel.set_combine_stderr(True)
         # output = stdout.readlines()
         ssh.close()
 
-        print("Copy mesh File")
+        log.info("Copy mesh File")
         FileHandler.copy_file_to_from_peridigm_container(
             username, model_name, model_name + ".g", False
         )
-        print("Copy yaml File")
+        log.info("Copy yaml File")
         FileHandler.copy_file_to_from_peridigm_container(
             username, model_name, model_name + ".yaml", False
         )
 
+        log.info(f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds")
         return f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds"
 
     @app.post("/uploadfiles", tags=["Post Methods"])
@@ -490,6 +525,7 @@ class ModelControl:
         ) as file:
             file.write(input_string)
 
+        log.info(model_name + "-InputFile has been saved")
         return model_name + "-InputFile has been saved"
 
     @app.put("/runModel", tags=["Put Methods"])
@@ -546,11 +582,12 @@ class ModelControl:
             ssh.exec_command(command)
             ssh.close()
 
+            log.info(model_name + " has been submitted")
             return model_name + " has been submitted"
 
         elif cluster == "Cara":
             initial_jobs = FileHandler.write_get_cara_job_id()
-            print(initial_jobs)
+            log.info(initial_jobs)
             sbatch = SbatchCreator(
                 filename=model_name,
                 output=model_data.outputs,
@@ -562,7 +599,7 @@ class ModelControl:
                 username, model_name
             )
             ssh, sftp = FileHandler.sftp_to_cluster("Cara")
-            file = sftp.file(remotepath + "/" + model_name + ".sbatch", "a", -1)
+            file = sftp.file(remotepath + "/" + model_name + ".sbatch", "w", -1)
             file.write(sbatch_string)
             file.flush()
             sftp.close()
@@ -571,19 +608,23 @@ class ModelControl:
             ssh.exec_command(command)
             ssh.close()
 
+            # job_id=cara.sshClusterJob(command)
+
             current_jobs = FileHandler.write_get_cara_job_id()
-            print(current_jobs)
+            log.info(current_jobs)
 
             job_id = current_jobs.replace(initial_jobs, "").strip()
 
             FileHandler.write_cara_job_id_to_model(username, model_name, job_id)
 
+            log.info(model_name + " has been submitted with Job Id: " + job_id)
             return model_name + " has been submitted with Job Id: " + job_id
 
         elif cluster == "None":
             server = "perihub_peridigm"
             remotepath = "/peridigmJobs/" + os.path.join(username, model_name)
             if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
+                log.warn(model_name + " already submitted")
                 return model_name + " already submitted"
             sbatch = SbatchCreator(
                 filename=model_name,
@@ -604,6 +645,7 @@ class ModelControl:
             try:
                 ssh.connect(server, username="root", allow_agent=False, password="root")
             except paramiko.SSHException:
+                log.error("ssh connection to " + server + " failed!")
                 return "ssh connection to " + server + " failed!"
             command = (
                 "cd /app"
@@ -623,8 +665,10 @@ class ModelControl:
             ssh.close()
 
             # return stdout + stderr
+            log.info(model_name + " has been submitted")
             return model_name + " has been submitted"
 
+        log.error(cluster + " unknown")
         return cluster + " unknown"
 
     @app.put("/cancelJob", tags=["Put Methods"])
@@ -642,6 +686,7 @@ class ModelControl:
             try:
                 ssh.connect(server, username="root", allow_agent=False, password="root")
             except paramiko.SSHException:
+                log.error("ssh connection to " + server + " failed!")
                 return "ssh connection to " + server + " failed!"
             command = (
                 "kill -9 `cat /app"
@@ -654,6 +699,7 @@ class ModelControl:
             stderr = stderr.readlines()
             ssh.close()
 
+            log.info("Job has been canceled")
             return "Job has been canceled"
 
         remotepath = FileHandler.get_remote_model_path(cluster, username, model_name)
@@ -664,15 +710,16 @@ class ModelControl:
                 filter(lambda v: match(r"^.+\.log$", v), output_files)
             )
         except paramiko.SFTPError:
-            print("LogFile can't be found")
+            log.warn("LogFile can't be found")
         if len(filtered_values) == 0:
-            print("LogFile can't be found")
+            log.warn("LogFile can't be found")
 
         job_id = filtered_values[-1].split("-")[-1][:-4]
         command = "scancel " + job_id
         ssh.exec_command(command)
         ssh.close()
 
+        log.info("Job: " + job_id + " has been canceled")
         return "Job: " + job_id + " has been canceled"
 
     @app.get("/generateMesh", tags=["Get Methods"])
@@ -697,6 +744,7 @@ class ModelControl:
                 zip_file.extractall(localpath)
 
         except IOError:
+            log.error("Micofam request failed")
             return "Micofam request failed"
 
         output_files = os.listdir(localpath)
@@ -714,6 +762,7 @@ class ModelControl:
         # try:
         #     return FileResponse(file_path)
         # except Exception:
+        log.info("Mesh generated")
         return "Mesh generated"
 
     @app.get("/getImage", tags=["Get Methods"])
@@ -771,6 +820,41 @@ class ModelControl:
                 + ".jpg"
             )
         except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
+            return model_name + " results can not be found on " + cluster
+
+    @app.get("/getImagePython", tags=["Get Methods"])
+    def get_image_python(
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        variable: str = "Displacement",
+        axis: str = "X",
+        displ_factor: int = 20,
+        marker_size: int = 16,
+        length: float = 0.13,
+        height: float = 0.02,
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        ImageExport.get_result_image_from_exodus(username, model_name, output, displ_factor, marker_size, variable, axis, length, height)
+
+        try:
+            return FileResponse(
+                "./Results/"
+                + os.path.join(username, model_name)
+                + "/" +
+                model_name + '_' + output + '_' + variable + '_' + axis + '.png'
+            )
+        except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
 
     @app.get("/getK1c", tags=["Get Methods"])
@@ -796,6 +880,7 @@ class ModelControl:
         try:
             return response
         except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
 
     @app.post("/calculateG2c", tags=["Post Methods"])
@@ -820,6 +905,7 @@ class ModelControl:
         try:
             return response
         except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
 
     @app.get("/getLogFile", tags=["Get Methods"])
@@ -840,8 +926,10 @@ class ModelControl:
                     filter(lambda v: match(r"^.+\.log$", v), output_files)
                 )
             except IOError:
+                log.error("LogFile can't be found in " + remotepath)
                 return "LogFile can't be found in " + remotepath
             if len(filtered_values) == 0:
+                log.error("LogFile can't be found in " + remotepath)
                 return "LogFile can't be found in " + remotepath
 
             with open(
@@ -862,6 +950,7 @@ class ModelControl:
             )
 
         else:
+            log.error(cluster + " unknown")
             return cluster + " unknown"
 
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -872,8 +961,10 @@ class ModelControl:
                 filter(lambda v: match(r"^.+\.log$", v), output_files)
             )
         except paramiko.SFTPError:
+            log.error("LogFile can't be found in " + remotepath)
             return "LogFile can't be found in " + remotepath
         if len(filtered_values) == 0:
+            log.error("LogFile can't be found in " + remotepath)
             return "LogFile can't be found in " + remotepath
         sftp.chdir(remotepath)
         logfile = sftp.file(filtered_values[-1], "r")
@@ -910,6 +1001,7 @@ class ModelControl:
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
         except shutil.Error:
+            log.error(model_name + " files can not be found")
             return model_name + " files can not be found"
 
     @app.get("/getPlot", tags=["Get Methods"])
@@ -969,6 +1061,7 @@ class ModelControl:
             ]
             return response
         except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
 
     @app.get("/getPointData", tags=["Get Methods"])
@@ -1017,6 +1110,7 @@ class ModelControl:
                 ]
                 return response
             except IOError:
+                log.error(model_name + " results can not be found")
                 return model_name + " results can not be found"
         else:
             first_row = True
@@ -1036,7 +1130,7 @@ class ModelControl:
                     for row in rows:
                         if not first_row:
                             str1 = "".join(row)
-                            parts = str1.split(" ")
+                            parts = str1.split()
                             point_string += (
                                 parts[0] + "," + parts[1] + "," + parts[2] + ","
                             )
@@ -1047,7 +1141,7 @@ class ModelControl:
                     for row in rows:
                         if not first_row:
                             str1 = "".join(row)
-                            parts = str1.split(" ")
+                            parts = str1.split()
                             block_id_string += str(int(parts[3]) / max_block_id) + ","
                         first_row = False
                 response = [
@@ -1056,6 +1150,7 @@ class ModelControl:
                 ]
                 return response
             except IOError:
+                log.error(model_name + " results can not be found")
                 return model_name + " results can not be found"
 
     @app.get("/getResults", tags=["Get Methods"])
@@ -1094,6 +1189,7 @@ class ModelControl:
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
         except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
 
     @app.get("/getStatus", tags=["Get Methods"])
@@ -1180,10 +1276,12 @@ class ModelControl:
                 + file_type
             )
         if not os.path.exists(file_path):
+            log.error("Inputfile can't be found")
             return "Inputfile can't be found"
         try:
             return FileResponse(file_path)
         except IOError:
+            log.error("Inputfile can't be found")
             return "Inputfile can't be found"
 
     @app.delete("/deleteModel", tags=["Delete Methods"])
@@ -1194,6 +1292,7 @@ class ModelControl:
         localpath = "./Output/" + os.path.join(username, model_name)
         if os.path.exists(localpath):
             shutil.rmtree(localpath)
+        log.info(model_name + " has been deleted")
         return model_name + " has been deleted"
 
     @app.delete("/deleteModelFromCluster", tags=["Delete Methods"])
@@ -1207,6 +1306,7 @@ class ModelControl:
             remotepath = "./peridigmJobs/" + os.path.join(username, model_name)
             if os.path.exists(remotepath):
                 shutil.rmtree(remotepath)
+            log.info(model_name + " has been deleted")
             return model_name + " has been deleted"
 
         if cluster == "FA-Cluster":
@@ -1220,6 +1320,7 @@ class ModelControl:
             )
 
         else:
+            log.error(cluster + " unknown")
             return cluster + " unknown"
 
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -1229,6 +1330,7 @@ class ModelControl:
         sftp.rmdir(remotepath)
         sftp.close()
         ssh.close()
+        log.info(model_name + " has been deleted")
         return model_name + " has been deleted"
 
     @app.delete("/deleteUserData", tags=["Delete Methods"])
@@ -1239,13 +1341,16 @@ class ModelControl:
             if os.path.exists(localpath):
                 names = FileHandler.remove_folder_if_older(localpath, days, True)
                 if len(names) != 0:
+                    log.info("Data of " + ", ".join(names) + " has been deleted")
                     return "Data of " + ", ".join(names) + " has been deleted"
+            log.info("Nothing has been deleted")
             return "Nothing has been deleted"
 
         username = FileHandler.get_user_name(request, dev)
 
         localpath = "./Output/" + username
         shutil.rmtree(localpath)
+        log.info("Data of " + username + " has been deleted")
         return "Data of " + username + " has been deleted"
 
     @app.delete("/deleteUserDataFromCluster", tags=["Delete Methods"])
@@ -1270,6 +1375,7 @@ class ModelControl:
                 sftp.close()
                 ssh.close()
 
+            log.info("Data of " + names + " has been deleted")
             return "Data of " + names + " has been deleted"
 
         username = FileHandler.get_user_name(request, dev)
@@ -1278,6 +1384,7 @@ class ModelControl:
             remotepath = "./peridigmJobs/" + username
             if os.path.exists(remotepath):
                 shutil.rmtree(remotepath)
+            log.info("Data of " + username + " has been deleted")
             return "Data of " + username + " has been deleted"
 
         remotepath = FileHandler.get_remote_user_path(cluster, username)
@@ -1289,6 +1396,7 @@ class ModelControl:
         sftp.close()
         ssh.close()
 
+        log.info("Data of " + username + " has been deleted")
         return "Data of " + username + " has been deleted"
 
     @app.get("/getDocs", tags=["Documentation Methods"])

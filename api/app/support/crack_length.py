@@ -10,6 +10,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 
+from support.globals import log
+
 # from sklearn import datasets
 # import statsmodels.api as sm
 # from patsy import dmatrix
@@ -239,7 +241,7 @@ class CrackLength:
             Crack_length.append(arc_length)
 
             k1 = CrackLength.calculate_k1(100, 10, 50, arc_length)
-            print(k1)
+            log.info(k1)
             K1.append(k1)
 
         # plt.plot(range(0, len(Crack_length)), Crack_length)

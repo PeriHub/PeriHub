@@ -25,6 +25,7 @@ from support.base_models import (
 from support.model_writer import ModelWriter
 from support.geometry import Geometry
 
+from support.globals import log
 
 class GIICmodel:
 
@@ -317,7 +318,8 @@ class GIICmodel:
         if not bond_filter:
             self.bondfilters = [bf1]
         else:
-            self.bondfilters = bond_filter.append(bf1)
+            bond_filter.append(bf1)
+            self.bondfilters = bond_filter
 
         self.dam_block = [""] * number_of_blocks
         self.dam_block[0] = self.damage_dict[0].name
@@ -328,7 +330,7 @@ class GIICmodel:
         self.int_block_id[1] = 1
         self.mat_block = [self.material_dict[0].name] * number_of_blocks
 
-        print(f"Initialized in {(time.time() - start_time):.2f} seconds")
+        log.info(f"Initialized in {(time.time() - start_time):.2f} seconds")
 
     def create_load_block(self, x_value, y_value, k):
         k = np.where(
@@ -420,52 +422,52 @@ class GIICmodel:
         x_value1, y_value1, z_value1 = geo.create_rectangle(
             coor=[0, self.xend, 0, self.yend, 0, self.zend], dx_value=self.dx_value
         )
-        x_value2, y_value2, z_value2 = geo.create_cylinder(
-            coor=[self.xend / 2, self.yend + 12.6, self.zend],
-            dx_value=self.dx_value,
-            radius=12.5,
-        )
+        # x_value2, y_value2, z_value2 = geo.create_cylinder(
+        #     coor=[self.xend / 2, self.yend + 13.0, self.zend],
+        #     dx_value=self.dx_value,
+        #     radius=12.5,
+        # )
 
-        condition = np.where(y_value2 <= self.yend + self.dx_value[0] * 5, 1.0, 0)
+        # condition = np.where(y_value2 <= self.yend + self.dx_value[0] * 5, 1.0, 0)
 
-        x_value2 = np.extract(condition, x_value2)
-        y_value2 = np.extract(condition, y_value2)
-        z_value2 = np.extract(condition, z_value2)
+        # x_value2 = np.extract(condition, x_value2)
+        # y_value2 = np.extract(condition, y_value2)
+        # z_value2 = np.extract(condition, z_value2)
 
-        x_value3, y_value3, z_value3 = geo.create_cylinder(
-            coor=[self.xend / 22, -5.1, self.zend], dx_value=self.dx_value, radius=5
-        )
+        # x_value3, y_value3, z_value3 = geo.create_cylinder(
+        #     coor=[self.xend / 22, -5.1, self.zend], dx_value=self.dx_value, radius=5
+        # )
 
-        condition = np.where(y_value3 >= -self.dx_value[0] * 5, 1.0, 0)
+        # condition = np.where(y_value3 >= -self.dx_value[0] * 5, 1.0, 0)
 
-        x_value3 = np.extract(condition, x_value3)
-        y_value3 = np.extract(condition, y_value3)
-        z_value3 = np.extract(condition, z_value3)
+        # x_value3 = np.extract(condition, x_value3)
+        # y_value3 = np.extract(condition, y_value3)
+        # z_value3 = np.extract(condition, z_value3)
 
-        x_value4, y_value4, z_value4 = geo.create_cylinder(
-            coor=[self.xend * 21 / 22, -5.1, self.zend],
-            dx_value=self.dx_value,
-            radius=5,
-        )
+        # x_value4, y_value4, z_value4 = geo.create_cylinder(
+        #     coor=[self.xend * 21 / 22, -5.1, self.zend],
+        #     dx_value=self.dx_value,
+        #     radius=5,
+        # )
 
-        condition = np.where(y_value4 >= -self.dx_value[0] * 5, 1.0, 0)
+        # condition = np.where(y_value4 >= -self.dx_value[0] * 5, 1.0, 0)
 
-        x_value4 = np.extract(condition, x_value4)
-        y_value4 = np.extract(condition, y_value4)
-        z_value4 = np.extract(condition, z_value4)
+        # x_value4 = np.extract(condition, x_value4)
+        # y_value4 = np.extract(condition, y_value4)
+        # z_value4 = np.extract(condition, z_value4)
 
         x_value = x_value1
-        x_value = np.concatenate((x_value, x_value2))
-        x_value = np.concatenate((x_value, x_value3))
-        x_value = np.concatenate((x_value, x_value4))
+        # x_value = np.concatenate((x_value, x_value2))
+        # x_value = np.concatenate((x_value, x_value3))
+        # x_value = np.concatenate((x_value, x_value4))
         y_value = y_value1
-        y_value = np.concatenate((y_value, y_value2))
-        y_value = np.concatenate((y_value, y_value3))
-        y_value = np.concatenate((y_value, y_value4))
+        # y_value = np.concatenate((y_value, y_value2))
+        # y_value = np.concatenate((y_value, y_value3))
+        # y_value = np.concatenate((y_value, y_value4))
         z_value = z_value1
-        z_value = np.concatenate((z_value, z_value2))
-        z_value = np.concatenate((z_value, z_value3))
-        z_value = np.concatenate((z_value, z_value4))
+        # z_value = np.concatenate((z_value, z_value2))
+        # z_value = np.concatenate((z_value, z_value3))
+        # z_value = np.concatenate((z_value, z_value4))
 
         if len(x_value) > self.max_nodes:
             return (
@@ -496,30 +498,30 @@ class GIICmodel:
                 angle_y = np.zeros(len(x_value))
                 angle_z = np.zeros(len(x_value))
 
-            print(f"Angles assigned in {(time.time() - start_time):.2f} seconds")
+            log.info(f"Angles assigned in {(time.time() - start_time):.2f} seconds")
             start_time = time.time()
             if self.rot:
                 angle_x, angle_y, angle_z = self.create_angles(x_value, y_value)
 
             k = np.full_like(x_value1, 3)
-            k = np.concatenate((k, np.full_like(x_value2, 4)))
-            k = np.concatenate((k, np.full_like(x_value3, 5)))
-            k = np.concatenate((k, np.full_like(x_value4, 6)))
+            # k = np.concatenate((k, np.full_like(x_value2, 4)))
+            # k = np.concatenate((k, np.full_like(x_value3, 5)))
+            # k = np.concatenate((k, np.full_like(x_value4, 6)))
 
             # k = np.where(
             #     y_value >= self.yend / 2,
             #     self.create_load_block(x_value, y_value, k),
             #     self.create_boundary_condition_block(x_value, y_value, k),
             # )
-            # k = self.create_bc_node(x_value, y_value, k)
-            # k = self.create_load_intro_node(x_value, y_value, k)
+            k = self.create_bc_node(x_value, y_value, k)
+            k = self.create_load_intro_node(x_value, y_value, k)
             k = self.create_block(y_value, k)
 
             vol = np.full_like(
                 x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
             )
 
-            print(f"BC and Blocks created in {(time.time() - start_time):.2f} seconds")
+            log.info(f"BC and Blocks created in {(time.time() - start_time):.2f} seconds")
 
             writer = ModelWriter(model_class=self)
 

@@ -7,6 +7,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
+from support.globals import log
 
 class Geometry:
     @staticmethod
@@ -31,7 +32,7 @@ class Geometry:
             grid_y_value = gridy.ravel()
             grid_z_value = gridz.ravel()
 
-        print(f"Points created  in {(time.time() - start_time):.2f} seconds")
+        log.info(f"Points created  in {(time.time() - start_time):.2f} seconds")
         return grid_x_value, grid_y_value, grid_z_value
 
     @staticmethod
@@ -113,7 +114,7 @@ class Geometry:
         #     grid_x_value, grid_y_value, grid_z_value, coor[0], coor[1], radius, True
         # )
 
-        print(f"Points created  in {(time.time() - start_time):.2f} seconds")
+        log.info(f"Points created  in {(time.time() - start_time):.2f} seconds")
         return grid_x_value, grid_y_value, grid_z_value
 
     @staticmethod
@@ -160,7 +161,7 @@ class Geometry:
         f = interp1d(x, y)
         plt.scatter(array_x, f(array_x))
         plt.show()
-        print(f(array_x))
+        # print(f(array_x))
         condition = np.where(
             np.logical_and(
                 array_x <= origin_x + length,

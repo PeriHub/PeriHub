@@ -19,6 +19,8 @@ from support.base_models import (
 from support.model_writer import ModelWriter
 from support.geometry import Geometry
 
+from support.globals import log
+
 
 class PlateWithHole:
 
@@ -284,10 +286,10 @@ class PlateWithHole:
 
         geo = Geometry()
 
-        print(self.xbegin)
-        print(self.xend)
-        print(self.ybegin)
-        print(self.yend)
+        log.info(self.xbegin)
+        log.info(self.xend)
+        log.info(self.ybegin)
+        log.info(self.yend)
 
         x_value, y_value, z_value = geo.create_rectangle(
             coor=[

@@ -7,6 +7,8 @@ import numpy as np
 from support.xml_creator import XMLcreator
 from support.yaml_creator import YAMLcreator
 
+from support.globals import log
+
 # from numba import jit
 
 
@@ -58,7 +60,7 @@ class ModelWriter:
 
     def mesh_file_writer(self, filename, string, mesh_array, mesh_format):
         """doc"""
-        print("Write mesh file")
+        log.info("Write mesh file")
         if not os.path.exists(self.path):
             os.makedirs(self.path)
         with open(self.path + "/" + filename, "w", encoding="UTF-8") as file:
@@ -72,7 +74,7 @@ class ModelWriter:
         self.mesh_file_writer(
             self.filename + ".txt", string, model, "%.18e %.18e %.18e %d %.18e"
         )
-        print(f"Mesh written  in {(time.time() - start_time):.2f} seconds")
+        log.info(f"Mesh written  in {(time.time() - start_time):.2f} seconds")
 
     def write_mesh_with_angles(self, model):
         """doc"""
@@ -84,7 +86,7 @@ class ModelWriter:
             model,
             "%.18e %.18e %.18e %d %.18e %.18e %.18e %.18e",
         )
-        print(f"Mesh written  in {(time.time() - start_time):.2f} seconds")
+        log.info(f"Mesh written  in {(time.time() - start_time):.2f} seconds")
 
     def create_file(self, block_def):
         """doc"""
