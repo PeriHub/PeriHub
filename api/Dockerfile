@@ -26,7 +26,7 @@ RUN if [ "$SMETANA" = "False" ]; then pip install -r requirements.txt && pip ins
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh
 
-COPY id_rsa_cara /root/.ssh/id_rsa
+# COPY id_rsa_cara /root/.ssh/id_rsa
 
 WORKDIR /app/
 
