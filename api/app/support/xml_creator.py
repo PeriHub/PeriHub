@@ -763,8 +763,9 @@ class XMLcreator:
         if len(self.damage_dict) > 0:
             string += self.damage()
         string += self.blocks()
-        if len(self.contact_dict.contactModels) > 0 and self.contact_dict.enabled:
-            string += self.contact()
+        if self.check_if_defined(self.contact_dict):
+            if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
+                string += self.contact()
         string += self.create_boundary_condition()
         string += self.solver()
         string += self.compute()
