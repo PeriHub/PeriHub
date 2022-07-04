@@ -2224,6 +2224,73 @@
                   class="my-btn"
                   v-bind="attrs"
                   v-on="on"
+                  @click="dialogGetImagePython = true"
+                  :disabled="!status.results"
+                >
+                  <i class="fas fa-image"></i>
+                </v-btn>
+              </template>
+              <span>Show Image</span>
+            </v-tooltip>
+
+            <v-dialog v-model="dialogGetImagePython" persistent max-width="800">
+              <v-card>
+                <v-card-title class="text-h5"> Show Image </v-card-title>
+                <v-card-text
+                  >Which variable do you want to display ?</v-card-text
+                >
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-select
+                    :items="outputs"
+                    item-text="name"
+                    v-model="getImageOutput"
+                    label="Output Name"
+                    outlined
+                  ></v-select>
+                  <v-select
+                    :items="getImageVariable"
+                    v-model="getImageVariableSelected"
+                    label="Variable"
+                    outlined
+                  ></v-select>
+                  <v-select
+                    :items="getImageAxis"
+                    :disabled="getImageVariableSelected=='Damage'"
+                    v-model="getImageAxisSelected"
+                    label="Axis"
+                    outlined
+                  ></v-select>
+                  <v-text-field
+                    v-model="getImageDisplFactor"
+                    label="Displacement Factor"
+                    outlined
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="getImageMarkerSize"
+                    label="Marker Size"
+                    outlined
+                  ></v-text-field>
+                  <v-btn color="green darken-1" text @click="getImagePython">
+                    Show
+                  </v-btn>
+                  <v-btn
+                    color="red darken-1"
+                    text
+                    @click="dialogGetImagePython = false"
+                  >
+                    Cancel
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+
+            <v-tooltip bottom
+              ><template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="my-btn"
+                  v-bind="attrs"
+                  v-on="on"
                   @click="dialogGetK1c = true"
                   :disabled="!status.results"
                 >
