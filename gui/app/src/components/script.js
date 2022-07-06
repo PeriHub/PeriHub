@@ -1696,11 +1696,11 @@ export default {
         var paramName = Object.keys(jsonFile)[i];
         // console.log(i)
         if ((paramName != "model") & (paramName != "solver")) {
-          console.log(paramName);
-          console.log(this[paramName].length);
-          console.log(jsonFile[paramName].length);
-          console.log(this[paramName]);
-          console.log(jsonFile[paramName]);
+          // console.log(paramName);
+          // console.log(this[paramName].length)
+          // console.log(jsonFile[paramName].length)
+          // console.log(this[paramName])
+          // console.log(jsonFile[paramName])
           if (this[paramName].length > jsonFile[paramName].length) {
             for (
               var j = this[paramName].length;
@@ -1722,8 +1722,8 @@ export default {
             }
           }
         }
-        console.log(this[paramName]);
-        console.log(jsonFile[paramName]);
+        // console.log(this[paramName]);
+        // console.log(jsonFile[paramName]);
         // this[paramName] = [...jsonFile[paramName]];
         this.$set(this, paramName, jsonFile[paramName]);
         // Object.assign(this[paramName], jsonFile[paramName]);
