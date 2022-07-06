@@ -72,8 +72,8 @@ RUN if [ "$SMETANA" = "True" ]; then conda update --name base conda &&\
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host 129.247.54.37\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 RUN if [ "$EXTERNAL" = "False" ]; then echo "Host cara.dlr.de\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
-# CMD if [ "$SMETANA" = "True" ]; then conda run -n app --no-capture-output uvicorn api_main:app --host 0.0.0.0 --port 80 --proxy-headers --forwarded-allow-ips='*' --reload --reload-dir /app; else uvicorn api_main:app --host 0.0.0.0 --port 80 --proxy-headers --forwarded-allow-ips='*' --reload --reload-dir /app; fi
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
+CMD if [ "$SMETANA" = "True" ]; then conda run -n app --no-capture-output uvicorn api_main:app --host 0.0.0.0 --port 80 --proxy-headers --forwarded-allow-ips='*' --reload --reload-dir /app; else uvicorn api_main:app --host 0.0.0.0 --port 80 --proxy-headers --forwarded-allow-ips='*' --reload --reload-dir /app; fi
 # CMD ["/bin/sh", "-c", "conda run -n app --no-capture-output uvicorn api_main:app --host 0.0.0.0 --port 80 --proxy-headers --forwarded-allow-ips='*' --reload --reload-dir /app"]
 # CMD ["conda", "run", "--name", "app", "uvicorn", "api_main:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app"]
 # CMD ["uvicorn", "api_main:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app"]
