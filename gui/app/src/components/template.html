@@ -14,7 +14,7 @@
           type="file"
           style="display: none"
           ref="fileInput"
-          accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp"
+          accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp,.gcode"
           @change="onFilePicked"
         />
         <input
@@ -33,6 +33,69 @@
           accept=".so"
           @change="onMultiFilePicked"
         />
+
+        <v-dialog v-model="dialogGcode" persistent max-width="800">
+          <v-card>
+            <v-card-title class="text-h5"> Gcode Translator </v-card-title>
+            <v-card-text
+              >Which variable do you want to display ?</v-card-text
+            >
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="gcodeDiscretization"
+                :rules="[rules.float]"
+                label="Discretization"
+                clearable
+                outlined
+              ></v-text-field>
+              <!-- <v-select
+                :items="getImageVariable"
+                v-model="getImageVariableSelected"
+                label="Variable"
+                outlined
+              ></v-select>
+              <v-select
+                :items="getImageAxis"
+                :disabled="getImageVariableSelected=='Damage'"
+                v-model="getImageAxisSelected"
+                label="Axis"
+                outlined
+              ></v-select> -->
+              <v-btn color="green darken-1" text @click="loadGcodeModel">
+                Ok
+              </v-btn>
+              <!-- <v-btn
+                    color="green darken-1"
+                    text
+                    @click="getImage('Damage')"
+                  >
+                    Damage
+                  </v-btn>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="getImage('Partial_StressX')"
+                  >
+                    Partial_StressX
+                  </v-btn>
+                  <v-btn
+                    color="green darken-1"
+                    text
+                    @click="getImage('Force')"
+                  >
+                    Force
+                  </v-btn> -->
+              <v-btn
+                color="red darken-1"
+                text
+                @click="dialogGcode = false"
+              >
+                Cancel
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
         <v-tooltip bottom
           ><template v-slot:activator="{ on, attrs }">
@@ -833,7 +896,7 @@
                         outlined
                       ></v-checkbox>
                     </v-col>
-                    <!-- <v-col class="textfieldlist-col"
+                    <v-col class="textfieldlist-col" v-if="model.ownModel"
                           cols="12"
                           sm="1">
                           <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
@@ -843,17 +906,17 @@
                             </template>
                               <span>Remove Block</span>
                           </v-tooltip>
-                        </v-col> -->
+                        </v-col>
                   </v-row>
                   <v-divider></v-divider>
                 </v-list>
-                <!-- <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
+                <v-tooltip bottom v-if="model.ownModel"><template v-slot:activator="{ on, attrs }">
                         <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addBlock">
                             <i class="fas fa-plus"></i>
                         </v-btn>
                       </template>
                         <span>Add Block</span>
-                    </v-tooltip> -->
+                    </v-tooltip>
               </v-expansion-panel-content>
             </v-expansion-panel>
             <v-divider></v-divider>

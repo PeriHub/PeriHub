@@ -8,6 +8,7 @@ import shutil
 import filecmp
 import paramiko
 import jwt
+from support.globals import log
 
 
 class FileHandler:

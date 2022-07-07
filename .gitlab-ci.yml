@@ -136,7 +136,7 @@ build_trame_job:
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY_PATH
-    - echo -e "GITHUB_TOKEN=$GIT_TOKEN\nGITHUB_USER=f_testpa\nEXTERNAL=False\nSMETANA=True\nGITLAB_TOKEN=$GITLAB_TOKEN" >> .env
+    - echo -e "EXTERNAL=False\nSMETANA=True\nGITLAB_TOKEN=$GITLAB_TOKEN" >> .env
   after_script:
     - docker logout
 

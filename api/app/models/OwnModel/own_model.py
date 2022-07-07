@@ -52,6 +52,6 @@ class OwnModel:
         """doc"""
 
         for _, block in enumerate(self.block_def):
-            block["horizon"] = self.horizon
+            block.horizon = self.horizon
 
         writer.create_file(self.block_def)

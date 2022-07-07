@@ -42,6 +42,7 @@ from support.file_handler import FileHandler
 from support.base_models import ModelData, FileType, RunData, Status, Model
 from support.analysis import Analysis
 from support.image_export import ImageExport
+from support.gcode_reader import GcodeReader
 from support.globals import MYGLOBAL, log
 
 from fa_pyutils.sshtools import cara
@@ -480,6 +481,20 @@ class ModelControl:
         FileHandler.copy_file_to_from_peridigm_container(
             username, model_name, model_name + ".yaml", False
         )
+
+        log.info(f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds")
+        return f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds"
+
+    @app.post("/translatGcode", tags=["Post Methods"])
+    def translate_gcode(model_name: str, discretization: int, request: Request):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        start_time = time.time()
+
+        localpath = "./Output/" + os.path.join(username, model_name)
+
+        GcodeReader.gcode_to_peridigm(model_name, localpath, discretization)
 
         log.info(f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds")
         return f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds"
@@ -1066,14 +1081,14 @@ class ModelControl:
 
     @app.get("/getPointData", tags=["Get Methods"])
     def get_point_data(
-        model_name: str = "Dogbone", own_model: bool = False, request: Request = ""
+        model_name: str = "Dogbone", own_mesh: bool = False, request: Request = ""
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
         point_string = ""
         block_id_string = ""
-        if own_model:
+        if own_mesh:
             try:
                 with open(
                     "./peridigmJobs/"
@@ -1195,7 +1210,7 @@ class ModelControl:
     @app.get("/getStatus", tags=["Get Methods"])
     def get_status(
         model_name: str = "Dogbone",
-        own_model: bool = False,
+        own_mesh: bool = False,
         cluster: str = "None",
         request: Request = "",
     ):
@@ -1204,7 +1219,7 @@ class ModelControl:
 
         status = Status(False, False, False)
 
-        if own_model:
+        if own_mesh:
             localpath = "./peridigmJobs/" + os.path.join(username, model_name)
         else:
             localpath = "./Output/" + os.path.join(username, model_name)
@@ -1250,14 +1265,14 @@ class ModelControl:
     @app.get("/viewInputFile", tags=["Get Methods"])
     def view_input_file(
         model_name: str = "Dogbone",
-        own_model: bool = False,
+        own_mesh: bool = False,
         file_type: FileType = FileType.YAML,
         request: Request = "",
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
-        if own_model:
+        if own_mesh:
             file_path = (
                 "./peridigmJobs/"
                 + os.path.join(username, model_name)

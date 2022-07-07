@@ -20,7 +20,7 @@ RUN apt-get update --allow-insecure-repositories
 # RUN apt-get install libglapi-mesa
 
 COPY requirements.txt requirements.txt
-# RUN if [ "$SMETANA" = "False" ]; then pip install -r requirements.txt && pip install fa-pyutils --extra-index-url https://__token__:$GITLAB_TOKEN@gitlab.dlr.de/api/v4/projects/4593/packages/pypi/simple ; fi
+RUN if [ "$SMETANA" = "False" ]; then pip install -r requirements.txt && pip install fa-pyutils --extra-index-url https://__token__:$GITLAB_TOKEN@gitlab.dlr.de/api/v4/projects/4593/packages/pypi/simple ; fi
 
 
 RUN mkdir -p /root/.ssh && \

@@ -56,6 +56,7 @@ export default {
       model: {
         modelNameSelected: "Dogbone",
         ownModel: false,
+        ownMesh: false,
         translated: false,
         length: 0.115,
         cracklength: 0.115,
@@ -691,8 +692,11 @@ export default {
       dialogDeleteModel: false,
       dialogDeleteCookies: false,
       dialogDeleteUserData: false,
+      dialogGcode: false,
       dialogError: false,
       errors: [],
+      gcodeFile: {},
+      gcodeDiscretization: 1,
       plotRawData: "",
       plotData: [
         {
@@ -797,7 +801,7 @@ export default {
         url: this.url + "viewInputFile",
         params: {
           model_name: this.model.modelNameSelected,
-          own_model: this.model.ownModel,
+          own_mesh: this.model.ownMesh,
           FileType: this.solver.filetype,
         },
         method: "GET",
@@ -1103,6 +1107,9 @@ export default {
         this.loadXmlModel(fr, files);
       } else if (filetype == ".peridigm") {
         this.loadPeridigmModel(fr, files);
+      } else if (files[0].name.includes(".gcode")) {
+        this.gcodeFile = files;
+        this.dialogGcode = true;
       } else {
         this.loadFeModel(files);
       }
@@ -1404,6 +1411,7 @@ export default {
       }
     },
     loadJsonFile(fr, files) {
+      this.model.ownMesh = false;
       this.model.ownModel = false;
       this.model.translated = false;
 
@@ -1422,6 +1430,7 @@ export default {
       fr.readAsText(files.item(0));
     },
     loadYamlModel(fr, files) {
+      this.model.ownMesh = false;
       this.model.ownModel = true;
       this.model.translated = false;
 
@@ -1434,6 +1443,7 @@ export default {
       fr.readAsText(files.item(0));
     },
     loadXmlModel(fr, files) {
+      this.model.ownMesh = false;
       this.model.ownModel = true;
       this.model.translated = false;
 
@@ -1447,6 +1457,7 @@ export default {
       fr.readAsText(files.item(0));
     },
     async loadFeModel(files) {
+      this.model.ownMesh = true;
       this.model.ownModel = true;
       this.model.translated = true;
 
@@ -1466,6 +1477,24 @@ export default {
         this.modelLoading = false;
         this.textLoading = false;
       }
+    },
+    async loadGcodeModel() {
+      this.dialogGcode = false;
+      this.model.ownMesh = false;
+      this.model.ownModel = true;
+      // this.model.translated = true;
+
+      this.modelLoading = true;
+      // this.textLoading = true;
+
+      if (this.gcodeFile.length <= 0) {
+        return false;
+      }
+
+      this.model.modelNameSelected = this.gcodeFile[0].name.split(".")[0];
+      const filetype = this.gcodeFile[0].name.split(".")[1];
+
+      await this.translatGcode(this.gcodeFile, true);
     },
     async checkFeSize(files) {
       let headersList = {
@@ -1535,6 +1564,40 @@ export default {
 
       this.modelLoading = false;
       this.textLoading = false;
+
+      this.snackbar = true;
+    },
+    async translatGcode(files, upload) {
+      const formData = new FormData();
+      if (upload) {
+        await this.uploadfiles(files);
+      }
+      let headersList = {
+        "Cache-Control": "no-cache",
+        "Content-Type": "multipart/form-data",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "translatGcode",
+        params: {
+          model_name: this.model.modelNameSelected,
+          discretization: this.gcodeDiscretization,
+        },
+        method: "POST",
+        headers: headersList,
+      };
+
+      await axios
+        .request(reqOptions)
+        .then((response) => (this.message = response.data));
+
+      // this.viewInputFile(true);
+      // this.loadYamlString(this.textOutput)
+      this.viewPointData();
+
+      this.modelLoading = false;
+      // this.textLoading = false;
 
       this.snackbar = true;
     },
@@ -1655,6 +1718,7 @@ export default {
       }
     },
     switchModels() {
+      this.model.ownMesh = false;
       this.model.ownModel = false;
       this.model.translated = false;
     },
@@ -1964,7 +2028,7 @@ export default {
         url: this.url + "getPointData",
         params: {
           model_name: this.model.modelNameSelected,
-          OwnModel: this.model.ownModel,
+          own_mesh: this.model.owMmesh,
         },
         method: "GET",
         headers: headersList,
@@ -2950,11 +3014,13 @@ export default {
     getLocalStorage(name) {
       if (localStorage.getItem(name))
         var object = JSON.parse(localStorage.getItem(name));
-      if (Object.keys(object).length != 0) {
-        if (Array.isArray(object)) {
-          this[name] = [...JSON.parse(localStorage.getItem(name))];
-        } else {
-          this[name] = { ...JSON.parse(localStorage.getItem(name)) };
+      if (object != undefined) {
+        if (Object.keys(object).length != 0) {
+          if (Array.isArray(object)) {
+            this[name] = [...JSON.parse(localStorage.getItem(name))];
+          } else {
+            this[name] = { ...JSON.parse(localStorage.getItem(name)) };
+          }
         }
       }
     },
