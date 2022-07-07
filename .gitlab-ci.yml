@@ -3,7 +3,7 @@ variables: &globals
 
 stages:
   - Static Analysis
-  - Test
+  # - Test
   - Build
 
 flake8:
@@ -47,25 +47,25 @@ pylint:
     reports:
       junit: api/app/pylint.xml
 
-unit_test:
-  stage: Test
-  image: "python:3.8"
-  only:
-    refs:
-      - main
-    changes:
-      - api/**/*
-  allow_failure: true
-  before_script:
-    - pip install -r api/requirements.txt
-    - pip install pytest
-    - cd api/app
-  script:
-    - python3 -m pytest -v --junitxml=report.xml
-  artifacts:
-    when: always
-    reports:
-      junit: api/app/report.xml
+# unit_test:
+#   stage: Test
+#   image: "python:3.8"
+#   only:
+#     refs:
+#       - main
+#     changes:
+#       - api/**/*
+#   allow_failure: true
+#   before_script:
+#     - pip install -r api/requirements.txt
+#     - pip install pytest
+#     - cd api/app
+#   script:
+#     - python3 -m pytest -v --junitxml=report.xml
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: api/app/report.xml
 
 build_api_job:
   stage: Build
@@ -76,8 +76,7 @@ build_api_job:
     changes:
       - api/**/*
   script:
-    - docker build -t peri_hub_api_image api/. #--no-cache
-    - docker tag peri_hub_api_image ${CI_REGISTRY_PATH}peri_hub_api_image
+    - docker build --build-arg SMETANA=True --build-arg GITLAB_TOKEN=$GITLAB_TOKEN -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
 build_gui_job:
@@ -89,8 +88,7 @@ build_gui_job:
     changes:
       - gui/**/*
   script:
-    - docker build -t peri_hub_gui_image gui/.
-    - docker tag peri_hub_gui_image ${CI_REGISTRY_PATH}peri_hub_gui_image
+    - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_cron_job:
@@ -136,7 +134,7 @@ build_trame_job:
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY_PATH
-    - echo -e "EXTERNAL=False\nSMETANA=True\nGITLAB_TOKEN=$GITLAB_TOKEN" >> .env
+    # - echo -e "EXTERNAL=False\nSMETANA=True\nGITLAB_TOKEN=$GITLAB_TOKEN" >> .env
   after_script:
     - docker logout
 

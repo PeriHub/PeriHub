@@ -112,7 +112,6 @@ class GcodeReader:
         y1 = 0
         z1 = 0
 
-        # dx_value = [0.1, 0.1, 0.1]
         dx_value = [discretization, discretization, discretization]
 
         for i in range(1, len(x)):
@@ -153,7 +152,6 @@ class GcodeReader:
             distance = math.sqrt(
                 math.pow(x1 - x0, 2) + math.pow(y1 - y0, 2) + math.pow(z1 - z0, 2)
             )
-            # print(str(distance))
 
             if distance != 0.0:
 
