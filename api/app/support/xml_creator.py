@@ -2,6 +2,7 @@
 doc
 """
 import numpy as np
+from support.globals import log
 
 
 class XMLcreator:
@@ -765,7 +766,11 @@ class XMLcreator:
         string += self.blocks()
         if self.check_if_defined(self.contact_dict):
             if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
-                string += self.contact()
+                try:
+                    string += self.contact()
+                except IndexError:
+                    log.error("Error in contact definition")
+
         string += self.create_boundary_condition()
         string += self.solver()
         string += self.compute()
