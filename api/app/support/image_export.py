@@ -104,10 +104,15 @@ class ImageExport:
 
         fig.set_size_inches(18.5, 18.5 * (height/length))
         
+        filepath = ''
         if 'Partial_Stress' in variable:
-            fig.savefig(file + '_' + variable[:len(variable)-1] + '_' + axis + '.png', dpi=400)
+            filepath = file[:-2] + '_' + variable[:-1] + '_' + axis + '.png'
+            fig.savefig(filepath, dpi=400)
         else:
-            fig.savefig(file + '_' + variable + '_' + axis + '.png', dpi=400)
+            filepath = file[:-2] + '_' + variable + '_' + axis + '.png'
+            fig.savefig(filepath, dpi=400)
 
         # plt.colorbar()
         plt.show()
+
+        return filepath

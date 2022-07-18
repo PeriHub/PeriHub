@@ -862,15 +862,10 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        ImageExport.get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height)
+        filepath = ImageExport.get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height)
 
         try:
-            return FileResponse(
-                "./Results/"
-                + os.path.join(username, model_name)
-                + "/" +
-                model_name + '_' + output + '_' + variable + '_' + axis + '.png'
-            )
+            return FileResponse(filepath)
         except IOError:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
