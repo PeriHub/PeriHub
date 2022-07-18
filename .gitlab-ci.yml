@@ -6,7 +6,7 @@ stages:
   # - Test
   - Build
 
-flake8:
+# flake8:
 #   stage: Static Analysis
 #   image: "python:3.8"
 #   only:
