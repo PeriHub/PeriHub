@@ -859,7 +859,10 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        ImageExport.get_result_image_from_exodus(username, model_name, output, displ_factor, marker_size, variable, axis, length, height)
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+        ImageExport.get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height)
 
         try:
             return FileResponse(

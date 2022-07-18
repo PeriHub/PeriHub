@@ -21,9 +21,9 @@ class ImageExport:
         # resultpath = "./Results/" + os.path.join(username, model_name)
         # file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        first_points, first_point_data, first_global_data, first_cell_data, first_ns, first_block_data = ExodusReader.read(
-            file, 1
-        )
+        # first_points, first_point_data, first_global_data, first_cell_data, first_ns, first_block_data = ExodusReader.read(
+        #     file, 1
+        # )
         points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(
             file, -1
         )
