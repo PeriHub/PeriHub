@@ -10,7 +10,7 @@
 
 <script>
 import axios from "axios";
-// import DogboneMd from '../assets/Dogbone/Dogbone.md'
+// import DogboneMd from '../assets/models/Dogbone/Dogbone.md'
 
 export default {
   name: "PeriHub",
