@@ -2,50 +2,50 @@ variables: &globals
   CI_REGISTRY_PATH: "harbor.fa-services.intra.dlr.de/hess_ja/"
 
 stages:
-  - Static Analysis
+  # - Static Analysis
   # - Test
   - Build
 
 flake8:
-  stage: Static Analysis
-  image: "python:3.8"
-  only:
-    refs:
-      - main
-    changes:
-      - api/**/*
-  allow_failure: true
-  before_script:
-    - pip install -r api/requirements.txt
-    - pip install flake8 flake8-junit-report
-    - cd api/app
-  script:
-    - flake8 --output-file=flake8.txt
-    - flake8_junit flake8.txt flake8_junit.xml
-  artifacts:
-    when: always
-    reports:
-      junit: api/app/flake8_junit.xml
+#   stage: Static Analysis
+#   image: "python:3.8"
+#   only:
+#     refs:
+#       - main
+#     changes:
+#       - api/**/*
+#   allow_failure: true
+#   before_script:
+#     - pip install -r api/requirements.txt
+#     - pip install flake8 flake8-junit-report
+#     - cd api/app
+#   script:
+#     - flake8 --output-file=flake8.txt
+#     - flake8_junit flake8.txt flake8_junit.xml
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: api/app/flake8_junit.xml
 
-pylint:
-  stage: Static Analysis
-  image: "python:3.8"
-  only:
-    refs:
-      - main
-    changes:
-      - api/**/*
-  allow_failure: true
-  before_script:
-    - pip install -r api/requirements.txt
-    - pip install pylint pylint-junit
-    - cd api/app
-  script:
-    - pylint --output-format=junit:pylint.xml *
-  artifacts:
-    when: always
-    reports:
-      junit: api/app/pylint.xml
+# pylint:
+#   stage: Static Analysis
+#   image: "python:3.8"
+#   only:
+#     refs:
+#       - main
+#     changes:
+#       - api/**/*
+#   allow_failure: true
+#   before_script:
+#     - pip install -r api/requirements.txt
+#     - pip install pylint pylint-junit
+#     - cd api/app
+#   script:
+#     - pylint --output-format=junit:pylint.xml *
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: api/app/pylint.xml
 
 # unit_test:
 #   stage: Test
