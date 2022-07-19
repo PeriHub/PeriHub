@@ -69,7 +69,7 @@ class FileHandler:
         with open("./support/allowedMaxNodes.json", "r", encoding="UTF-8") as file:
             data = json.load(file)
 
-        if data[username]:
+        if username in data:
             return data[username]["allowedNodes"]
 
         return data["guest"]["allowedNodes"]
@@ -81,7 +81,7 @@ class FileHandler:
         with open("./support/allowedMaxNodes.json", "r", encoding="UTF-8") as file:
             data = json.load(file)
 
-        if data[username]:
+        if username in data:
             return data[username]["allowedFeSize"]
 
         return data["guest"]["allowedFeSize"]
