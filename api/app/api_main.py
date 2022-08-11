@@ -15,6 +15,7 @@ import subprocess
 import zipfile
 import io
 import json
+import magicattr
 from re import match
 from typing import List
 from typing import Optional
@@ -120,6 +121,21 @@ class ModelControl:
     ):  # material: dict, Output: dict):
         """doc"""
 
+
+        if model_data.probabilistic != None:
+            for entry in model_data.probabilistic:
+                keys = entry.key.split(".")
+                print(*keys)
+                print(magicattr.get(model_data, entry.key))
+                if type(magicattr.get(model_data, entry.key)) is bool:
+                    magicattr.set(model_data, entry.key, eval(entry.value))
+                elif type(magicattr.get(model_data, entry.key)) is int:
+                    magicattr.set(model_data, entry.key, int(entry.value))
+                elif type(magicattr.get(model_data, entry.key)) is float:
+                    magicattr.set(model_data, entry.key, float(entry.value))
+                elif type(magicattr.get(model_data, entry.key)) is str:
+                    magicattr.set(model_data, entry.key, str(entry.value))
+
         username = FileHandler.get_user_name(request, dev)
 
         max_nodes = FileHandler.get_max_nodes(username)
@@ -135,6 +151,7 @@ class ModelControl:
         if os.path.exists(json_file):
             with open(json_file, "r", encoding="UTF-8") as file:
                 json_data = json.load(file)
+                print(model_data.model)
                 if (
                     model_data.model == json_data["model"]
                     and model_data.boundaryConditions == json_data["boundaryConditions"]

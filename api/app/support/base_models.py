@@ -12,6 +12,9 @@ class Status:
         self.submitted = submitted
         self.results = results
 
+class probabilistic(BaseModel):
+    key: Optional[str] = None
+    value: Optional[str] = None
 
 class Model(BaseModel):
     ownModel: bool
@@ -373,6 +376,7 @@ class ModelData(BaseModel):
     computes: Optional[List[Compute]]
     outputs: List[Output]
     solver: Solver
+    probabilistic : Optional[List[probabilistic]]
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

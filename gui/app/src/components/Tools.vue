@@ -678,6 +678,6 @@ export default {
   overflow-y: scroll;
 }
 .textfield-col {
-  height: 80px;
+  height: 60px;
 }
 </style>

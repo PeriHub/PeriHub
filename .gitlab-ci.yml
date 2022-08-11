@@ -137,9 +137,3 @@ build_trame_job:
     # - echo -e "EXTERNAL=False\nSMETANA=True\nGITLAB_TOKEN=$GITLAB_TOKEN" >> .env
   after_script:
     - docker logout
-
-.deploy_before_script_template:
-  before_script:
-    - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY_PATH
-  after_script:
-    - docker logout

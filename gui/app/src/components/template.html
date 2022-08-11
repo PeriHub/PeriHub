@@ -37,9 +37,7 @@
         <v-dialog v-model="dialogGcode" persistent max-width="800">
           <v-card>
             <v-card-title class="text-h5"> Gcode Translator </v-card-title>
-            <v-card-text
-              >Which variable do you want to display ?</v-card-text
-            >
+            <v-card-text>Which variable do you want to display ?</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-text-field
@@ -86,11 +84,7 @@
                   >
                     Force
                   </v-btn> -->
-              <v-btn
-                color="red darken-1"
-                text
-                @click="dialogGcode = false"
-              >
+              <v-btn color="red darken-1" text @click="dialogGcode = false">
                 Cancel
               </v-btn>
             </v-card-actions>
@@ -237,6 +231,7 @@
                   @change="modelNameChangedEvent"
                   label="Model Name"
                   outlined
+                  dense
                 ></v-select>
                 <v-text-field
                   class="textfield-col"
@@ -245,6 +240,7 @@
                   :rules="[rules.required]"
                   label="Model Name"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-text-field
                   class="textfield-col"
@@ -253,6 +249,7 @@
                   :rules="[rules.required, rules.float]"
                   label="Length"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-text-field
                   class="textfield-col"
@@ -261,6 +258,7 @@
                   :rules="[rules.required, rules.float]"
                   label="Cracklength"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-text-field
                   class="textfield-col"
@@ -269,6 +267,7 @@
                   :rules="[rules.required, rules.float]"
                   label="Width"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-text-field
                   class="textfield-col"
@@ -277,6 +276,7 @@
                   :rules="[rules.required, rules.float]"
                   label="Height"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-text-field
                   v-show="model.modelNameSelected=='Dogbone' & !model.ownModel"
@@ -285,6 +285,7 @@
                   :rules="[rules.required, rules.float]"
                   label="Inner Height"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-text-field
                   v-show="model.modelNameSelected=='PlateWithHole' & !model.ownModel"
@@ -293,6 +294,7 @@
                   :rules="[rules.required, rules.float]"
                   label="Radius"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-text-field
                   class="textfield-col"
@@ -301,6 +303,7 @@
                   :rules="[rules.required, rules.int]"
                   label="Discretization"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-text-field
                   class="textfield-col"
@@ -309,23 +312,27 @@
                   :rules="[rules.required, rules.posFloat]"
                   label="Horizon"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-switch
                   v-show="model.modelNameSelected=='Dogbone' & !model.ownModel"
                   class="checkbox-col"
                   v-model="model.structured"
                   label="Structured"
+                  dense
                 ></v-switch>
                 <v-switch
                   v-show="!model.ownModel & model.modelNameSelected!='RVE'"
                   class="checkbox-col"
                   v-model="model.twoDimensional"
                   label="Two Dimensional"
+                  dense
                 ></v-switch>
                 <v-switch
                   v-model="model.rotatedAngles"
                   v-show="!model.ownModel & model.modelNameSelected!='RVE' & model.modelNameSelected!='Dogbone'"
                   label="Rotated Angles"
+                  dense
                 ></v-switch>
                 <v-row
                   v-show="model.rotatedAngles & !model.ownModel & model.modelNameSelected!='RVE' & model.modelNameSelected!='Dogbone'"
@@ -335,6 +342,7 @@
                       v-model="model.angles[0]"
                       label="Angle 0"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col">
@@ -342,6 +350,7 @@
                       v-model="model.angles[1]"
                       label="Angle 1"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -352,6 +361,7 @@
                     :rules="[rules.required, rules.float]"
                     label="rve_fvc"
                     outlined
+                    dense
                   ></v-text-field>
                   <v-text-field
                     class="textfield-col"
@@ -359,6 +369,7 @@
                     :rules="[rules.required, rules.float]"
                     label="rve_radius"
                     outlined
+                    dense
                   ></v-text-field>
                   <v-text-field
                     class="textfield-col"
@@ -366,6 +377,7 @@
                     :rules="[rules.required, rules.float]"
                     label="rve_lgth"
                     outlined
+                    dense
                   ></v-text-field>
                   <v-text-field
                     class="textfield-col"
@@ -373,6 +385,7 @@
                     :rules="[rules.required, rules.float]"
                     label="rve_dpth"
                     outlined
+                    dense
                   ></v-text-field>
                   <v-text-field
                     class="textfield-col"
@@ -380,6 +393,7 @@
                     :rules="[rules.required, rules.float]"
                     label="mesh_fib"
                     outlined
+                    dense
                   ></v-text-field>
                   <v-text-field
                     class="textfield-col"
@@ -387,6 +401,7 @@
                     :rules="[rules.required, rules.float]"
                     label="mesh_lgth"
                     outlined
+                    dense
                   ></v-text-field>
                   <v-text-field
                     class="textfield-col"
@@ -394,6 +409,7 @@
                     :rules="[rules.required, rules.float]"
                     label="mesh_dpth"
                     outlined
+                    dense
                   ></v-text-field>
                   <v-text-field
                     class="textfield-col"
@@ -401,6 +417,7 @@
                     :rules="[rules.required]"
                     label="mesh_aa"
                     outlined
+                    dense
                   ></v-text-field>
                 </div>
               </v-expansion-panel-content>
@@ -421,15 +438,16 @@
                   >
                     <h4>Material {{material.id}}</h4>
                     <v-row>
-                      <v-col class="textfieldlist-col">
+                      <v-col class="textfield-col">
                         <v-text-field
                           v-model="material.name"
                           :rules="[rules.required, rules.name]"
                           label="Material Name"
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
-                      <v-col class="textfieldlist-col">
+                      <v-col class="textfield-col">
                         <v-tooltip bottom
                           ><template v-slot:activator="{ on, attrs }">
                             <v-btn
@@ -445,13 +463,18 @@
                         </v-tooltip>
                       </v-col>
                     </v-row>
-                    <v-select
-                      class="textfield-col"
-                      :items="materialModelName"
-                      v-model="material.matType"
-                      label="Material Model Name"
-                      outlined
-                    ></v-select>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-select
+                          class="textfield-col"
+                          :items="materialModelName"
+                          v-model="material.matType"
+                          label="Material Model Name"
+                          outlined
+                          dense
+                        ></v-select>
+                      </v-col>
+                    </v-row>
                     <template v-if="material.matType.includes('User')">
                       <v-list
                         v-for="prop, subindex in material.properties"
@@ -465,6 +488,7 @@
                               :rules="[rules.required, rules.float]"
                               :label="prop.name"
                               outlined
+                              dense
                             ></v-text-field>
                           </v-col>
                           <v-col class="textfieldlist-col">
@@ -524,6 +548,7 @@
                           v-model="material.density"
                           :label="materialKeys.density"
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfield-col">
@@ -532,6 +557,7 @@
                           :label="materialKeys.poissonsRatio"
                           clearable
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -542,6 +568,7 @@
                           :label="materialKeys.bulkModulus"
                           clearable
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfield-col">
@@ -550,6 +577,7 @@
                           :label="materialKeys.shearModulus"
                           clearable
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfield-col">
@@ -558,6 +586,7 @@
                           :label="materialKeys.youngsModulus"
                           clearable
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -566,12 +595,14 @@
                         <v-switch
                           v-model="material.tensionSeparation"
                           :label="`Tension Separation`"
+                          dense
                         ></v-switch>
                       </v-col>
                       <v-col class="textfield-col">
                         <v-switch
                           v-model="material.nonLinear"
                           :label="`Non linear`"
+                          dense
                         ></v-switch>
                       </v-col>
                       <v-col
@@ -581,16 +612,22 @@
                         <v-switch
                           v-model="material.computePartialStress"
                           :label="`Compute Partial Stress`"
+                          dense
                         ></v-switch>
                       </v-col>
                     </v-row>
-                    <v-select
-                      :items="materialSymmetry"
-                      v-model="material.materialSymmetry"
-                      v-show="material.matType=='Linear Elastic Correspondence'"
-                      label="Material Symmetry"
-                      outlined
-                    ></v-select>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-select
+                          :items="materialSymmetry"
+                          v-model="material.materialSymmetry"
+                          v-show="material.matType=='Linear Elastic Correspondence'"
+                          label="Material Symmetry"
+                          outlined
+                          dense
+                        ></v-select>
+                      </v-col>
+                    </v-row>
                     <v-container
                       v-if="material.materialSymmetry=='Anisotropic' & material.matType=='Linear Elastic Correspondence'"
                     >
@@ -606,47 +643,72 @@
                             :label="params.name"
                             :rules="[rules.required, rules.float]"
                             outlined
+                            dense
                           ></v-text-field>
                         </li>
                       </v-row>
                     </v-container>
-                    <v-select
-                      class="textfield-col"
-                      :items="stabilizatonType"
-                      v-model="material.stabilizatonType"
-                      label="Stabilizaton Type"
-                      outlined
-                    ></v-select>
-                    <v-text-field
-                      class="textfield-col"
-                      v-model="material.thickness"
-                      :rules="[rules.required, rules.float]"
-                      label="Thickness"
-                      outlined
-                    ></v-text-field>
-                    <v-text-field
-                      class="textfield-col"
-                      v-model="material.hourglassCoefficient"
-                      :rules="[rules.required, rules.float]"
-                      label="Hourglass Coefficient"
-                      outlined
-                    ></v-text-field>
-                    <v-text-field
-                      class="textfield-col"
-                      v-show="material.matType=='Elastic Plastic Hypoelastic Correspondence'"
-                      v-model="material.actualHorizon"
-                      :rules="[rules.required, rules.float]"
-                      label="Actual Horizon"
-                      outlined
-                    ></v-text-field>
-                    <v-text-field
-                      class="textfield-col"
-                      v-show="material.matType.includes('Plastic')"
-                      v-model="material.yieldStress"
-                      :rules="[rules.required, rules.float]"
-                      label="Yield Stress"
-                      outlined
-                    ></v-text-field>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-select
+                          :items="stabilizatonType"
+                          v-model="material.stabilizatonType"
+                          label="Stabilizaton Type"
+                          outlined
+                          dense
+                        ></v-select>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          v-model="material.thickness"
+                          :rules="[rules.required, rules.float]"
+                          label="Thickness"
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          v-model="material.hourglassCoefficient"
+                          :rules="[rules.required, rules.float]"
+                          label="Hourglass Coefficient"
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col
+                        class="textfield-col"
+                        v-show="material.matType=='Elastic Plastic Hypoelastic Correspondence'"
+                      >
+                        <v-text-field
+                          v-model="material.actualHorizon"
+                          :rules="[rules.required, rules.float]"
+                          label="Actual Horizon"
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col
+                        class="textfield-col"
+                        v-show="material.matType.includes('Plastic')"
+                      >
+                        <v-text-field
+                          v-model="material.yieldStress"
+                          :rules="[rules.required, rules.float]"
+                          label="Yield Stress"
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
                     <!-- </template> -->
                   </v-container>
                   <v-divider></v-divider>
@@ -689,6 +751,7 @@
                           v-model="damage.name"
                           label="Damage Name"
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfieldlist-col">
@@ -713,6 +776,7 @@
                       v-model="damage.damageModel"
                       label="Damage Model Name"
                       outlined
+                      dense
                     ></v-select>
                     <v-row>
                       <v-col class="textfield-col">
@@ -722,6 +786,7 @@
                           label="Critical Stretch"
                           clearable
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfield-col">
@@ -731,12 +796,15 @@
                           label="Critical Energy"
                           clearable
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                     </v-row>
                     <v-switch
+                      class="checkbox-col"
                       v-model="damage.interBlockDamage"
                       label="Inter Block Damage"
+                      dense
                     ></v-switch>
                     <template v-if="damage.interBlockDamage">
                       <v-list
@@ -752,6 +820,7 @@
                               v-model="prop.firstBlockId"
                               label="First Block Id"
                               outlined
+                              dense
                             ></v-select>
                           </v-col>
                           <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -761,6 +830,7 @@
                               v-model="prop.secondBlockId"
                               label="Second Block Id"
                               outlined
+                              dense
                             ></v-select>
                           </v-col>
                           <v-col class="textfieldlist-col" cols="12" sm="4">
@@ -769,6 +839,7 @@
                               :rules="[rules.required, rules.float]"
                               label="Critical Energy"
                               outlined
+                              dense
                             ></v-text-field>
                           </v-col>
                           <v-col class="textfieldlist-col">
@@ -807,34 +878,54 @@
                       </v-row>
                     </template>
                     <v-switch
+                      class="checkbox-col"
                       v-model="damage.onlyTension"
                       label="Only Tension"
+                      dense
                     ></v-switch>
-                    <v-select
-                      class="textfield-col"
-                      :items="stabilizatonType"
-                      v-model="damage.stabilizatonType"
-                      label="Stabilizaton Type"
-                      outlined
-                    ></v-select>
+                    <v-row class="mb-2"></v-row>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-select
+                          :items="stabilizatonType"
+                          v-model="damage.stabilizatonType"
+                          label="Stabilizaton Type"
+                          outlined
+                          dense
+                        ></v-select>
+                      </v-col>
+                    </v-row>
                     <v-switch
+                      class="checkbox-col"
                       v-model="damage.detachedNodesCheck"
                       label="Detached Nodes Check"
+                      dense
                     ></v-switch>
-                    <v-text-field
-                      class="textfield-col"
-                      v-model="damage.thickness"
-                      :rules="[rules.required, rules.float]"
-                      label="Thickness"
-                      outlined
-                    ></v-text-field>
-                    <v-text-field
-                      class="textfield-col"
-                      v-model="damage.hourglassCoefficient"
-                      :rules="[rules.required, rules.float]"
-                      label="Hourglass Coefficient"
-                      outlined
-                    ></v-text-field>
+                    <v-row class="mb-2"></v-row>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          class="textfield-col"
+                          v-model="damage.thickness"
+                          :rules="[rules.required, rules.float]"
+                          label="Thickness"
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          class="textfield-col"
+                          v-model="damage.hourglassCoefficient"
+                          :rules="[rules.required, rules.float]"
+                          label="Hourglass Coefficient"
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
                   </v-container>
                   <v-divider></v-divider>
                 </v-list>
@@ -867,6 +958,7 @@
                         v-model="block.name"
                         label="Block Name"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                     <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -876,6 +968,7 @@
                         v-model="block.material"
                         label="Material"
                         outlined
+                        dense
                       ></v-select>
                     </v-col>
                     <v-col class="textfieldlist-col" cols="12" sm="3">
@@ -886,6 +979,7 @@
                         label="Damage Model"
                         clearable
                         outlined
+                        dense
                       ></v-select>
                     </v-col>
                     <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -894,29 +988,45 @@
                         label="Show"
                         @change="filterPointData"
                         outlined
+                        dense
                       ></v-checkbox>
                     </v-col>
-                    <v-col class="textfieldlist-col" v-if="model.ownModel"
-                          cols="12"
-                          sm="1">
-                          <v-tooltip bottom><template v-slot:activator="{ on, attrs }">
-                            <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="removeBlock(index)">
-                                <i class="fas fa-trash-alt"></i>
-                            </v-btn>
-                            </template>
-                              <span>Remove Block</span>
-                          </v-tooltip>
-                        </v-col>
+                    <v-col
+                      class="textfieldlist-col"
+                      v-if="model.ownModel"
+                      cols="12"
+                      sm="1"
+                    >
+                      <v-tooltip bottom
+                        ><template v-slot:activator="{ on, attrs }">
+                          <v-btn
+                            class="my-btn"
+                            v-bind="attrs"
+                            v-on="on"
+                            @click="removeBlock(index)"
+                          >
+                            <i class="fas fa-trash-alt"></i>
+                          </v-btn>
+                        </template>
+                        <span>Remove Block</span>
+                      </v-tooltip>
+                    </v-col>
                   </v-row>
                   <v-divider></v-divider>
                 </v-list>
-                <v-tooltip bottom v-if="model.ownModel"><template v-slot:activator="{ on, attrs }">
-                        <v-btn class="my-btn" v-bind="attrs" v-on="on" @click="addBlock">
-                            <i class="fas fa-plus"></i>
-                        </v-btn>
-                      </template>
-                        <span>Add Block</span>
-                    </v-tooltip>
+                <v-tooltip bottom v-if="model.ownModel"
+                  ><template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      class="my-btn"
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="addBlock"
+                    >
+                      <i class="fas fa-plus"></i>
+                    </v-btn>
+                  </template>
+                  <span>Add Block</span>
+                </v-tooltip>
               </v-expansion-panel-content>
             </v-expansion-panel>
             <v-divider></v-divider>
@@ -925,13 +1035,16 @@
                 <h2>Contact</h2>
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <v-col class="textfieldlist-col" cols="12" sm="2">
+                <v-col class="checkbox-col" cols="12" sm="2">
                   <v-checkbox
                     v-model="contact.enabled"
                     label="Enabled"
                     outlined
+                    dense
                   ></v-checkbox>
                 </v-col>
+
+                <v-row class="mb-8"></v-row>
                 <v-container v-if="contact.enabled">
                   <v-row>
                     <v-col class="textfield-col" cols="12" sm="3">
@@ -940,6 +1053,7 @@
                         label="Search Radius"
                         :rules="[rules.required, rules.float]"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                     <v-col class="textfield-col" cols="12" sm="3">
@@ -948,9 +1062,11 @@
                         label="Search Frequency"
                         :rules="[rules.required, rules.int]"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                   </v-row>
+                  <v-row class="mb-2"></v-row>
                   <v-divider></v-divider>
                   <v-list
                     v-for="contactModel, index in contact.contactModels"
@@ -963,6 +1079,7 @@
                           v-model="contactModel.name"
                           label="Name"
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="3">
@@ -972,6 +1089,7 @@
                           v-model="contactModel.contactType"
                           label="Type"
                           outlined
+                          dense
                         ></v-select>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -979,6 +1097,7 @@
                           v-model="contactModel.contactRadius"
                           label="Contact Radius"
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -986,6 +1105,7 @@
                           v-model="contactModel.springConstant"
                           label="Spring Constant"
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="1">
@@ -1019,6 +1139,7 @@
                     </template>
                     <span>Add Contact Model</span>
                   </v-tooltip>
+                  <v-row class="mb-6"></v-row>
                   <v-divider></v-divider>
                   <v-list
                     v-for="interaction, index in contact.interactions"
@@ -1033,6 +1154,7 @@
                           v-model="interaction.firstBlockId"
                           label="First Block Id"
                           outlined
+                          dense
                         ></v-select>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -1042,6 +1164,7 @@
                           v-model="interaction.secondBlockId"
                           label="Second Block Id"
                           outlined
+                          dense
                         ></v-select>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -1051,6 +1174,7 @@
                           v-model="interaction.contactModelId"
                           label="Contact Model Id"
                           outlined
+                          dense
                         ></v-select>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="1">
@@ -1104,6 +1228,7 @@
                         v-model="boundaryCondition.name"
                         label="Name"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                     <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -1113,6 +1238,7 @@
                         v-model="boundaryCondition.boundarytype"
                         label="Type"
                         outlined
+                        dense
                       ></v-select>
                     </v-col>
                     <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -1121,6 +1247,7 @@
                         v-model="boundaryCondition.nodeSet"
                         :label="boundaryKeys.nodeSet"
                         outlined
+                        dense
                       ></v-text-field>
                       <v-select
                         v-if="!model.ownModel"
@@ -1130,6 +1257,7 @@
                         label="Block Id"
                         clearable
                         outlined
+                        dense
                       ></v-select>
                     </v-col>
                     <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -1139,6 +1267,7 @@
                         label="Coordinate"
                         clearable
                         outlined
+                        dense
                       ></v-select>
                     </v-col>
                     <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -1146,6 +1275,7 @@
                         v-model="boundaryCondition.value"
                         label="Value"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                     <v-col class="textfieldlist-col" cols="12" sm="1">
@@ -1193,24 +1323,26 @@
                 >
                   <!-- <h4>block_{{block.id}}</h4> -->
                   <v-row>
-                    <v-col class="textfieldlist-col" cols="12" sm="2">
+                    <v-col class="textfield-col" cols="12" sm="2">
                       <v-text-field
                         v-model="bondFilter.name"
                         label="Name"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="3">
+                    <v-col class="textfield-col" cols="12" sm="3">
                       <v-select
                         :items="bondFiltertype"
                         item-text="name"
                         v-model="bondFilter.type"
                         label="Type"
                         outlined
+                        dense
                       ></v-select>
                     </v-col>
                     <v-col
-                      class="textfieldlist-col"
+                      class="textfield-col"
                       cols="12"
                       sm="3"
                       v-if="bondFilter.type=='Rectangular_Plane'"
@@ -1219,10 +1351,11 @@
                         v-model="bondFilter.bottomLength"
                         label="Bottom Length"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                     <v-col
-                      class="textfieldlist-col"
+                      class="textfield-col"
                       cols="12"
                       sm="3"
                       v-if="bondFilter.type=='Rectangular_Plane'"
@@ -1231,10 +1364,11 @@
                         v-model="bondFilter.sideLength"
                         label="Side Length"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                     <v-col
-                      class="textfieldlist-col"
+                      class="textfield-col"
                       cols="12"
                       sm="3"
                       v-if="bondFilter.type=='Disk'"
@@ -1243,9 +1377,10 @@
                         v-model="bondFilter.radius"
                         label="Radius"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="1">
+                    <v-col class="textfield-col" cols="12" sm="1">
                       <v-tooltip bottom
                         ><template v-slot:activator="{ on, attrs }">
                           <v-btn
@@ -1262,105 +1397,119 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col class="textfieldlist-col" cols="12" sm="3">
+                    <v-col class="textfield-col" cols="12" sm="3">
                       <v-text-field
                         v-model="bondFilter.normalX"
                         label="Normal X"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="3">
+                    <v-col class="textfield-col" cols="12" sm="3">
                       <v-text-field
                         v-model="bondFilter.normalY"
                         label="Normal Y"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="3">
+                    <v-col class="textfield-col" cols="12" sm="3">
                       <v-text-field
                         v-model="bondFilter.normalZ"
                         label="Normal Z"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="2">
+                    <v-col class="textfield-col" cols="12" sm="2">
                       <v-checkbox
                         v-model="bondFilter.show"
                         label="Show"
                         @change="showHideBondFilters"
                         outlined
+                        dense
                       ></v-checkbox>
                     </v-col>
                   </v-row>
                   <v-row v-show="bondFilter.type=='Rectangular_Plane'">
-                    <v-col class="textfieldlist-col" cols="12" sm="4">
+                    <v-col class="textfield-col" cols="12" sm="4">
                       <v-text-field
                         v-model="bondFilter.lowerLeftCornerX"
                         label="Lower Left Corner X"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="4">
+                    <v-col class="textfield-col" cols="12" sm="4">
                       <v-text-field
                         v-model="bondFilter.lowerLeftCornerY"
                         label="Lower Left Corner Y"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="4">
+                    <v-col class="textfield-col" cols="12" sm="4">
                       <v-text-field
                         v-model="bondFilter.lowerLeftCornerZ"
                         label="Lower Left Corner Z"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                   </v-row>
                   <v-row v-show="bondFilter.type=='Rectangular_Plane'">
-                    <v-col class="textfieldlist-col" cols="12" sm="4">
+                    <v-col class="textfield-col" cols="12" sm="4">
                       <v-text-field
                         v-model="bondFilter.bottomUnitVectorX"
                         label="Bottom Unit Vector X"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="4">
+                    <v-col class="textfield-col" cols="12" sm="4">
                       <v-text-field
                         v-model="bondFilter.bottomUnitVectorY"
                         label="Bottom Unit Vector Y"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="4">
+                    <v-col class="textfield-col" cols="12" sm="4">
                       <v-text-field
                         v-model="bondFilter.bottomUnitVectorZ"
                         label="Bottom Unit Vector Z"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                   </v-row>
                   <v-row v-show="bondFilter.type=='Disk'">
-                    <v-col class="textfieldlist-col" cols="12" sm="4">
+                    <v-col class="textfield-col" cols="12" sm="4">
                       <v-text-field
                         v-model="bondFilter.centerX"
                         label="Center X"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="4">
+                    <v-col class="textfield-col" cols="12" sm="4">
                       <v-text-field
                         v-model="bondFilter.centerY"
                         label="Center Y"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
-                    <v-col class="textfieldlist-col" cols="12" sm="4">
+                    <v-col class="textfield-col" cols="12" sm="4">
                       <v-text-field
                         v-model="bondFilter.centerZ"
                         label="Center Z"
                         outlined
+                        dense
                       ></v-text-field>
                     </v-col>
                   </v-row>
+                  <v-row class="mb-2"></v-row>
                   <v-divider></v-divider>
                 </v-list>
                 <v-tooltip bottom
@@ -1390,11 +1539,12 @@
                 <v-container>
                   <v-list v-for="compute, index in computes" :key="compute.id">
                     <v-row>
-                      <v-col class="textfieldlist-col" cols="12" sm="3">
+                      <v-col class="textfield-col" cols="12" sm="3">
                         <v-text-field
                           v-model="compute.name"
                           label="Name"
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -1403,6 +1553,7 @@
                           v-model="compute.variable"
                           label="Variable"
                           outlined
+                          dense
                         ></v-select>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -1411,6 +1562,7 @@
                           v-model="compute.calculationType"
                           label="Calculation Type"
                           outlined
+                          dense
                         ></v-select>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="2">
@@ -1421,6 +1573,7 @@
                           label="Block Id"
                           clearable
                           outlined
+                          dense
                         ></v-select>
                       </v-col>
                       <v-col class="textfieldlist-col" cols="12" sm="1">
@@ -1477,6 +1630,7 @@
                           v-model="output.name"
                           label="Name"
                           outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                       <v-col class="textfield-col">
@@ -1501,6 +1655,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Displacement"
                           label="Displacement"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
@@ -1508,6 +1663,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Force"
                           label="Force"
+                          dense
                         ></v-checkbox>
                       </v-col>
                     </v-row>
@@ -1517,6 +1673,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Damage"
                           label="Damage"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
@@ -1524,6 +1681,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Velocity"
                           label="Velocity"
+                          dense
                         ></v-checkbox>
                       </v-col>
                     </v-row>
@@ -1533,6 +1691,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Partial_Stress"
                           label="Partial_Stress"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
@@ -1540,6 +1699,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Number_Of_Neighbors"
                           label="Number_Of_Neighbors"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <!-- <v-col
@@ -1557,6 +1717,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Contact_Force"
                           label="Contact_Force"
+                          dense
                         ></v-checkbox>
                       </v-col>
                     </v-row>
@@ -1566,6 +1727,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Horizon"
                           label="Horizon"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
@@ -1573,6 +1735,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Model_Coordinates"
                           label="Model_Coordinates"
+                          dense
                         ></v-checkbox>
                       </v-col>
                     </v-row>
@@ -1582,6 +1745,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Local_Angles"
                           label="Local_Angles"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
@@ -1589,6 +1753,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Coordinates"
                           label="Coordinates"
+                          dense
                         ></v-checkbox>
                       </v-col>
                     </v-row>
@@ -1598,6 +1763,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Acceleration"
                           label="Acceleration"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
@@ -1605,6 +1771,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Temperature"
                           label="Temperature"
+                          dense
                         ></v-checkbox>
                       </v-col>
                     </v-row>
@@ -1614,6 +1781,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Temperature_Change"
                           label="Temperature_Change"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
@@ -1621,6 +1789,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Force_Density"
                           label="Force_Density"
+                          dense
                         ></v-checkbox>
                       </v-col>
                     </v-row>
@@ -1630,6 +1799,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.External_Force_Density"
                           label="External_Force_Density"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
@@ -1637,6 +1807,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.PiolaStressTimesInvShapeTensor"
                           label="PiolaStressTimesInvShapeTensor"
+                          dense
                         ></v-checkbox>
                       </v-col>
                     </v-row>
@@ -1646,6 +1817,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Damage_Model_Data"
                           label="Damage_Model_Data"
+                          dense
                         ></v-checkbox>
                       </v-col>
                       <v-col cols="15" sm="5" md="5">
@@ -1653,6 +1825,7 @@
                           class="shrink mr-0 mt-0"
                           v-model="output.Velocity_Gradient"
                           label="Velocity_Gradient"
+                          dense
                         ></v-checkbox>
                       </v-col>
                     </v-row>
@@ -1661,17 +1834,20 @@
                       v-model="output.Frequency"
                       label="Output Frequency"
                       outlined
+                      dense
                     ></v-text-field>
                     <v-text-field
                       class="textfield-col"
                       v-model="output.InitStep"
                       label="Initial Output Step"
                       outlined
+                      dense
                     ></v-text-field>
                     <v-checkbox
                       class="shrink mr-0 mt-0"
                       v-model="output.Write_After_Damage"
                       label="Write After Damage"
+                      dense
                     ></v-checkbox>
                   </v-container>
                   <v-divider></v-divider>
@@ -1704,6 +1880,7 @@
                       label="Initial Time"
                       :rules="[rules.required, rules.float]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1712,6 +1889,7 @@
                       label="Final Time"
                       :rules="[rules.required, rules.float]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col
@@ -1725,6 +1903,7 @@
                       label="Fixed dt"
                       clearable
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1732,6 +1911,7 @@
                       v-model="solver.verbose"
                       label="Verbose"
                       outlined
+                      dense
                     ></v-checkbox>
                   </v-col>
                 </v-row>
@@ -1742,6 +1922,7 @@
                       v-model="solver.solvertype"
                       label="Solvertype"
                       outlined
+                      dense
                     ></v-select>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1750,6 +1931,7 @@
                       label="Safety Factor"
                       :rules="[rules.required, rules.float]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1758,6 +1940,7 @@
                       label="Numerical Damping"
                       :rules="[rules.required, rules.float]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -1768,6 +1951,7 @@
                       v-model="solver.peridgimPreconditioner"
                       label="Peridgim Preconditioner"
                       outlined
+                      dense
                     ></v-select>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1776,6 +1960,7 @@
                       v-model="solver.nonlinearSolver"
                       label="Nonlinear Solver"
                       outlined
+                      dense
                     ></v-select>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1784,6 +1969,7 @@
                       label="Number of Load Steps"
                       :rules="[rules.required, rules.int]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1792,6 +1978,7 @@
                       label="Max Solver Iterations"
                       :rules="[rules.required, rules.int]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1800,6 +1987,7 @@
                       label="Relative Tolerance"
                       :rules="[rules.required, rules.float]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1807,6 +1995,7 @@
                       v-model="solver.maxAgeOfPrec"
                       label="Max Age Of Prec"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1815,6 +2004,7 @@
                       v-model="solver.directionMethod"
                       label="Direction Method"
                       outlined
+                      dense
                     ></v-select>
                   </v-col>
                 </v-row>
@@ -1825,6 +2015,7 @@
                       v-model="solver.newton.jacobianOperator"
                       label="Jacobian Operator"
                       outlined
+                      dense
                     ></v-select>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1833,6 +2024,7 @@
                       v-model="solver.newton.preconditioner"
                       label="Preconditioner"
                       outlined
+                      dense
                     ></v-select>
                   </v-col>
                 </v-row>
@@ -1843,6 +2035,7 @@
                       v-model="solver.lineSearchMethod"
                       label="Line Search Method"
                       outlined
+                      dense
                     ></v-select>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1850,6 +2043,7 @@
                       v-model="solver.verletSwitch"
                       label="Switch to Verlet"
                       outlined
+                      dense
                     ></v-checkbox>
                   </v-col>
                 </v-row>
@@ -1862,6 +2056,7 @@
                       label="Safety Factor"
                       :rules="[rules.required, rules.float]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1870,6 +2065,7 @@
                       label="Numerical Damping"
                       :rules="[rules.required, rules.float]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1878,6 +2074,7 @@
                       label="Output Frequency"
                       :rules="[rules.required, rules.int]"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -1887,6 +2084,7 @@
                       v-model="solver.adaptivetimeStepping"
                       label="Adaptive Time Stepping"
                       outlined
+                      dense
                     ></v-checkbox>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1894,6 +2092,7 @@
                       v-model="solver.stopAfterDamageInitation"
                       label="Stop after damage initiation"
                       outlined
+                      dense
                     ></v-checkbox>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1901,6 +2100,7 @@
                       v-model="solver.stopBeforeDamageInitation"
                       label="Stop before damage initiation"
                       outlined
+                      dense
                     ></v-checkbox>
                   </v-col>
                 </v-row>
@@ -1912,6 +2112,7 @@
                       v-model="solver.adapt.stableStepDifference"
                       label="Stable Step Difference"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1919,6 +2120,7 @@
                       v-model="solver.adapt.maximumBondDifference"
                       label="Maximum Bond Difference"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
@@ -1926,6 +2128,7 @@
                       v-model="solver.adapt.stableBondDifference"
                       label="Stable Bond Difference"
                       outlined
+                      dense
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -1937,6 +2140,7 @@
                       v-show="job.cluster=='Cara'"
                       label="Filetype"
                       outlined
+                      dense
                     ></v-select>
                   </v-col>
                 </v-row>
@@ -1954,6 +2158,7 @@
                   @change="changeToXml(); changeNumberOfTasks();"
                   label="Cluster"
                   outlined
+                  dense
                 ></v-select>
                 <v-text-field
                   class="textfield-col"
@@ -1961,6 +2166,7 @@
                   :disabled="job.cluster=='None'"
                   label="Tasks"
                   outlined
+                  dense
                 ></v-text-field>
                 <v-text-field
                   class="textfield-col"
@@ -1968,6 +2174,7 @@
                   v-show="job.cluster=='Cara'"
                   label="Time"
                   outlined
+                  dense
                 ></v-text-field>
                 <!-- <v-text-field class="textfield-col"
                       v-model="job.user"
@@ -1979,6 +2186,7 @@
                   v-show="job.cluster=='Cara'"
                   label="Account"
                   outlined
+                  dense
                 ></v-text-field>
                 <!-- <v-text-field class="textfield-col"
                       v-model="job.mail"
