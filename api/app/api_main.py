@@ -15,7 +15,6 @@ import subprocess
 import zipfile
 import io
 import json
-import magicattr
 from re import match
 from typing import List
 from typing import Optional
@@ -120,21 +119,6 @@ class ModelControl:
         model_data: ModelData, model_name: str = "Dogbone", request: Request = ""
     ):  # material: dict, Output: dict):
         """doc"""
-
-
-        if model_data.probabilistic != None:
-            for entry in model_data.probabilistic:
-                keys = entry.key.split(".")
-                print(*keys)
-                print(magicattr.get(model_data, entry.key))
-                if type(magicattr.get(model_data, entry.key)) is bool:
-                    magicattr.set(model_data, entry.key, eval(entry.value))
-                elif type(magicattr.get(model_data, entry.key)) is int:
-                    magicattr.set(model_data, entry.key, int(entry.value))
-                elif type(magicattr.get(model_data, entry.key)) is float:
-                    magicattr.set(model_data, entry.key, float(entry.value))
-                elif type(magicattr.get(model_data, entry.key)) is str:
-                    magicattr.set(model_data, entry.key, str(entry.value))
 
         username = FileHandler.get_user_name(request, dev)
 
