@@ -70,6 +70,8 @@ export default {
         twoDimensional: true,
         rotatedAngles: false,
         angles: [0, 0],
+        amplitudeFactor: 0.75,
+        wavelength: 3.0,
       },
       // Material
       materialModelName: [
@@ -120,7 +122,7 @@ export default {
       },
       materials: [
         {
-          id: 1,
+          materialsId: 1,
           name: "PMMA",
           matType: "Linear Elastic Correspondence",
           density: 1.4e5,
@@ -160,11 +162,11 @@ export default {
             { name: "C56", value: 0.0 },
             { name: "C66", value: 0.0 },
           ],
-          properties: [{ id: 1, name: "Prop_1", value: 0.0 }],
+          properties: [{ materialsPropId: 1, name: "Prop_1", value: 0.0 }],
           computePartialStress: false,
         },
         {
-          id: 2,
+          materialsId: 2,
           name: "PMMAElast",
           matType: "Linear Elastic Correspondence",
           density: 1.4e5,
@@ -204,7 +206,7 @@ export default {
             { name: "C56", value: 0.0 },
             { name: "C66", value: 4200.0 },
           ],
-          properties: [{ id: 1, name: "Prop_1", value: 0.0 }],
+          properties: [{ materialsPropId: 1, name: "Prop_1", value: 0.0 }],
           computePartialStress: false,
         },
       ],
@@ -238,7 +240,7 @@ export default {
       ],
       damages: [
         {
-          id: 1,
+          damagesId: 1,
           name: "PMMADamage",
           damageModel: "Critical Energy Correspondence",
           criticalStretch: 10,
@@ -247,7 +249,7 @@ export default {
           numberOfBlocks: 5,
           interBlocks: [
             {
-              id: 1,
+              damagesInterId: 1,
               firstBlockId: 1,
               secondBlockId: 2,
               value: 0.1,
@@ -279,7 +281,7 @@ export default {
       // Blocks
       blocks: [
         {
-          id: 1,
+          blocksId: 1,
           name: "block_1",
           material: "PMMAElast",
           damageModel: "",
@@ -287,7 +289,7 @@ export default {
           show: true,
         },
         {
-          id: 2,
+          blocksId: 2,
           name: "block_2",
           material: "PMMAElast",
           damageModel: "",
@@ -295,7 +297,7 @@ export default {
           show: true,
         },
         {
-          id: 3,
+          blocksId: 3,
           name: "block_3",
           material: "PMMA",
           damageModel: "PMMADamage",
@@ -303,7 +305,7 @@ export default {
           show: true,
         },
         {
-          id: 4,
+          blocksId: 4,
           name: "block_4",
           material: "PMMAElast",
           damageModel: "",
@@ -311,7 +313,7 @@ export default {
           show: true,
         },
         {
-          id: 5,
+          blocksId: 5,
           name: "block_5",
           material: "PMMAElast",
           damageModel: "",
@@ -339,7 +341,7 @@ export default {
       coordinate: ["x", "y", "z"],
       boundaryConditions: [
         {
-          id: 1,
+          boundaryConditionsId: 1,
           name: "BC_1",
           nodeSet: null,
           boundarytype: "Prescribed Displacement",
@@ -348,7 +350,7 @@ export default {
           value: "0*t",
         },
         {
-          id: 2,
+          boundaryConditionsId: 2,
           name: "BC_2",
           nodeSet: null,
           boundarytype: "Prescribed Displacement",
@@ -380,7 +382,7 @@ export default {
       bondFiltertype: ["Rectangular_Plane", "Disk"],
       bondFilters: [
         {
-          id: 1,
+          bondFiltersId: 1,
           name: "bf_1",
           type: "Rectangular_Plane",
           normalX: 0.0,
@@ -401,7 +403,7 @@ export default {
           show: true,
         },
         {
-          id: 2,
+          bondFiltersId: 2,
           name: "bf_2",
           type: "Rectangular_Plane",
           normalX: 0.0,
@@ -449,7 +451,7 @@ export default {
         searchFrequency: 100,
         contactModels: [
           {
-            id: 1,
+            contactModelsId: 1,
             name: "Contact Model",
             contactType: "Short Range Force",
             contactRadius: 0.000775,
@@ -458,7 +460,7 @@ export default {
         ],
         interactions: [
           {
-            id: 1,
+            contactInteractionsId: 1,
             firstBlockId: 1,
             secondBlockId: 2,
             contactModelId: 1,
@@ -470,14 +472,14 @@ export default {
       variables: ["Force", "Displacement", "Damage"],
       computes: [
         {
-          id: 1,
+          computesId: 1,
           name: "External_Displacement",
           variable: "Displacement",
           calculationType: "Maximum",
           blockName: "block_5",
         },
         {
-          id: 2,
+          computesId: 2,
           name: "External_Force",
           variable: "Force",
           calculationType: "Sum",
@@ -493,7 +495,7 @@ export default {
       // Output
       outputs: [
         {
-          id: 1,
+          outputsId: 1,
           name: "Output1",
           Displacement: true,
           Force: true,
@@ -640,7 +642,7 @@ export default {
       filteredBlockIdString: [1],
       bondFilterPoints: [
         {
-          id: 1,
+          bondFilterPointsId: 1,
           bondFilterPointString: [],
           // bondFilterPolyString: []
         },
@@ -1743,6 +1745,9 @@ export default {
         case "CompactTension":
           Object.assign(jsonFile, CompactTensionFile);
           break;
+        case "Smetana":
+          Object.assign(jsonFile, SmetanaFile);
+          break;
         default:
           return;
       }
@@ -2001,7 +2006,10 @@ export default {
           }
         }
         if (this.bondFilterPoints.length < i + 1) {
-          this.bondFilterPoints.push({ id: i + 1, bondFilterPointString: [] });
+          this.bondFilterPoints.push({
+            bondFilterPointsId: i + 1,
+            bondFilterPointString: [],
+          });
         }
         this.bondFilterPoints[i].bondFilterPointString = bondFilterPointString;
 
@@ -2061,20 +2069,20 @@ export default {
         );
       }
 
-      if (this.model.modelNameSelected == "Smetana") {
-        var blockIdInt = this.blockIdString.map(Number);
-        let numberOfBlocks = Math.max(...blockIdInt);
-        for (var i = 0; i < numberOfBlocks; i++) {
-          if (this.blocks.length < i + 1) {
-            this.addBlock();
-          }
-        }
-        if (this.blocks.length > numberOfBlocks) {
-          for (var j = numberOfBlocks; j < this.blocks.length; j++) {
-            this.removeBlock(j);
-          }
-        }
-      }
+      // if (this.model.modelNameSelected == "Smetana") {
+      //   var blockIdInt = this.blockIdString.map(Number);
+      //   let numberOfBlocks = Math.max(...blockIdInt);
+      //   for (var i = 0; i < numberOfBlocks; i++) {
+      //     if (this.blocks.length < i + 1) {
+      //       this.addBlock();
+      //     }
+      //   }
+      //   if (this.blocks.length > numberOfBlocks) {
+      //     for (var j = numberOfBlocks; j < this.blocks.length; j++) {
+      //       this.removeBlock(j);
+      //     }
+      //   }
+      // }
     },
     // async copyModelToCluster() {
     //   let headersList = {
@@ -2726,11 +2734,11 @@ export default {
     addMaterial() {
       const len = this.materials.length;
       this.materials.push({
-        id: len + 1,
+        materialsId: len + 1,
         name: "Material" + (len + 1),
       });
       for (const key in this.materials[len - 1]) {
-        if ((key != "id") & (key != "name")) {
+        if ((key != "materialsId") & (key != "name")) {
           this.$set(this.materials[len], key, this.materials[len - 1][key]);
         }
       }
@@ -2741,11 +2749,11 @@ export default {
     addProp(index) {
       const len = this.materials[index].properties.length;
       this.materials[index].properties.push({
-        id: len + 1,
+        materialsPropId: len + 1,
         name: "Prop_" + (len + 1),
       });
       for (const key in this.materials[index].properties[len - 1]) {
-        if ((key != "id") & (key != "name")) {
+        if ((key != "materialsPropId") & (key != "name")) {
           this.$set(
             this.materials[index].properties[len],
             key,
@@ -2760,11 +2768,11 @@ export default {
     addDamage() {
       const len = this.damages.length;
       this.damages.push({
-        id: len + 1,
+        damagesId: len + 1,
         name: "Damage" + (len + 1),
       });
       for (const key in this.damages[len - 1]) {
-        if ((key != "id") & (key != "name")) {
+        if ((key != "damagesId") & (key != "name")) {
           this.$set(this.damages[len], key, this.damages[len - 1][key]);
         }
       }
@@ -2780,7 +2788,7 @@ export default {
     addInterBlock(index) {
       const len = this.damages[index].interBlocks.length;
       this.damages[index].interBlocks.push({
-        id: len + 1,
+        damagesInterId: len + 1,
         firtsId: 1,
         secondId: len + 1,
       });
@@ -2800,11 +2808,11 @@ export default {
     addBlock() {
       const len = this.blocks.length;
       this.blocks.push({
-        id: len + 1,
+        blocksId: len + 1,
         name: "block_" + (len + 1),
       });
       for (const key in this.blocks[len - 1]) {
-        if ((key != "id") & (key != "name")) {
+        if ((key != "blocksId") & (key != "name")) {
           this.$set(this.blocks[len], key, this.blocks[len - 1][key]);
         }
       }
@@ -2815,11 +2823,11 @@ export default {
     addCondition() {
       const len = this.boundaryConditions.length;
       this.boundaryConditions.push({
-        id: len + 1,
+        boundaryConditionsId: len + 1,
         name: "BC_" + (len + 1),
       });
       for (const key in this.boundaryConditions[len - 1]) {
-        if ((key != "id") & (key != "name")) {
+        if ((key != "boundaryConditionsId") & (key != "name")) {
           this.$set(
             this.boundaryConditions[len],
             key,
@@ -2834,15 +2842,15 @@ export default {
     addBondFilter() {
       const len = this.bondFilters.length;
       this.bondFilterPoints.push({
-        id: len + 1,
+        bondFilterPointsId: len + 1,
         bondFilterPointString: [],
       });
       this.bondFilters.push({
-        id: len + 1,
+        bondFilterId: len + 1,
         name: "bf_" + (len + 1),
       });
       for (const key in this.bondFilters[len - 1]) {
-        if ((key != "id") & (key != "name")) {
+        if ((key != "bondFilterId") & (key != "name")) {
           this.$set(this.bondFilters[len], key, this.bondFilters[len - 1][key]);
         }
       }
@@ -2854,11 +2862,11 @@ export default {
     addContactModel() {
       const len = this.contact.contactModels.length;
       this.contact.contactModels.push({
-        id: len + 1,
+        contactModelsId: len + 1,
         name: "Contact Model " + (len + 1),
       });
       for (const key in this.contact.contactModels[len - 1]) {
-        if ((key != "id") & (key != "name")) {
+        if ((key != "contactModelsId") & (key != "name")) {
           this.$set(
             this.contact.contactModels[len],
             key,
@@ -2873,10 +2881,10 @@ export default {
     addInteraction() {
       const len = this.contact.interactions.length;
       this.contact.interactions.push({
-        id: len + 1,
+        contactInteractionsId: len + 1,
       });
       for (const key in this.contact.interactions[len - 1]) {
-        if (key != "id") {
+        if (key != "contactInteractionsId") {
           this.$set(
             this.contact.interactions[len],
             key,
@@ -2891,11 +2899,11 @@ export default {
     addCompute() {
       const len = this.computes.length;
       this.computes.push({
-        id: len + 1,
+        computesId: len + 1,
         name: "Compute" + (len + 1),
       });
       for (const key in this.computes[len - 1]) {
-        if ((key != "id") & (key != "name")) {
+        if ((key != "computesId") & (key != "name")) {
           this.$set(this.computes[len], key, this.computes[len - 1][key]);
         }
       }
@@ -2906,7 +2914,7 @@ export default {
     addOutput() {
       const len = this.outputs.length;
       this.outputs.push({
-        id: len + 1,
+        outputsId: len + 1,
         name: "Output" + (len + 1),
         Displacement: false,
         Force: false,

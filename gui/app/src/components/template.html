@@ -314,6 +314,24 @@
                   outlined
                   dense
                 ></v-text-field>
+                <v-text-field
+                  class="textfield-col"
+                  v-model="model.amplitudeFactor"
+                  v-show="!model.ownModel & model.modelNameSelected=='Smetana'"
+                  :rules="[rules.required, rules.posFloat]"
+                  label="Amplitude Factor"
+                  outlined
+                  dense
+                ></v-text-field>
+                <v-text-field
+                  class="textfield-col"
+                  v-model="model.wavelength"
+                  v-show="!model.ownModel & model.modelNameSelected=='Smetana'"
+                  :rules="[rules.required, rules.posFloat]"
+                  label="Wavelength"
+                  outlined
+                  dense
+                ></v-text-field>
                 <v-switch
                   v-show="model.modelNameSelected=='Dogbone' & !model.ownModel"
                   class="checkbox-col"

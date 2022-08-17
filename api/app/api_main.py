@@ -336,6 +336,8 @@ class ModelControl:
                     username=username,
                     ignore_mesh=ignore_mesh,
                     mesh_res=model_data.model.discretization,
+                    amplitude_factor=model_data.model.amplitudeFactor,
+                    wavelength=model_data.model.wavelength,
                 )
                 result = smetana.create_model()
             else:

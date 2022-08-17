@@ -26,6 +26,8 @@ class Model(BaseModel):
     twoDimensional: bool
     rotatedAngles: bool
     angles: List[float]
+    amplitudeFactor: Optional[float] = None
+    wavelength: Optional[float] = None
 
 
 class properties(BaseModel):

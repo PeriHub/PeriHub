@@ -1,19 +1,21 @@
 {
   "model": {
-    "modelNameSelected": "CompactTension",
+    "modelNameSelected": "Smetana",
     "ownModel": false,
     "translated": false,
     "length": 50,
     "width": null,
-    "height": null,
+    "height": 10,
     "height2": null,
     "radius": null,
     "structured": null,
-    "discretization": 200,
+    "discretization": 30,
     "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [0, 0]
+    "angles": [0, 0],
+    "amplitudeFactor": 0.75,
+    "wavelength": 3.0
   },
   "materials": [
     {
@@ -132,15 +134,60 @@
   "damages": [
     {
       "id": 1,
-      "name": "Damage",
+      "name": "dam_1",
       "damageModel": "Critical Energy Correspondence",
       "criticalStretch": null,
-      "criticalEnergy": 1.0e6,
-      "interblockdamageEnergy": null,
+      "criticalEnergy": 0.25,
+      "interBlockDamage": true,
+      "numberOfBlocks": 12,
+      "interBlocks": [
+        {
+          "id": 1,
+          "firstBlockId": 1,
+          "secondBlockId": 2,
+          "value": 0.1
+        },
+        {
+          "id": 2,
+          "firstBlockId": 2,
+          "secondBlockId": 3,
+          "value": 0.1
+        },
+        {
+          "id": 3,
+          "firstBlockId": 3,
+          "secondBlockId": 4,
+          "value": 0.1
+        },
+        {
+          "id": 4,
+          "firstBlockId": 4,
+          "secondBlockId": 5,
+          "value": 0.1
+        },
+        {
+          "id": 5,
+          "firstBlockId": 5,
+          "secondBlockId": 6,
+          "value": 0.1
+        },
+        {
+          "id": 6,
+          "firstBlockId": 6,
+          "secondBlockId": 7,
+          "value": 0.1
+        },
+        {
+          "id": 7,
+          "firstBlockId": 7,
+          "secondBlockId": 8,
+          "value": 0.1
+        }
+      ],
       "planeStress": true,
-      "onlyTension": true,
+      "onlyTension": false,
       "detachedNodesCheck": true,
-      "thickness": 10,
+      "thickness": 1,
       "hourglassCoefficient": 1,
       "stabilizatonType": "Global Stiffness"
     }
@@ -150,40 +197,89 @@
       "id": 1,
       "name": "block_1",
       "material": "Aluminum",
-      "damageModel": "Damage",
+      "damageModel": "dam_1",
       "show": true
     },
     {
       "id": 2,
       "name": "block_2",
       "material": "Aluminum",
-      "damageModel": "",
+      "damageModel": "dam_1",
       "show": true
     },
     {
       "id": 3,
       "name": "block_3",
       "material": "Aluminum",
-      "damageModel": "",
+      "damageModel": "dam_1",
       "show": true
     },
     {
       "id": 4,
       "name": "block_4",
       "material": "Aluminum",
-      "damageModel": "",
+      "damageModel": "dam_1",
       "show": true
     },
     {
       "id": 5,
       "name": "block_5",
       "material": "Aluminum",
+      "damageModel": "dam_1",
+      "show": true
+    },
+    {
+      "id": 6,
+      "name": "block_6",
+      "material": "Aluminum",
+      "damageModel": "dam_1",
+      "show": true
+    },
+    {
+      "id": 7,
+      "name": "block_7",
+      "material": "Aluminum",
+      "damageModel": "dam_1",
+      "show": true
+    },
+    {
+      "id": 8,
+      "name": "block_8",
+      "material": "Aluminum",
+      "damageModel": "dam_1",
+      "show": true
+    },
+    {
+      "id": 9,
+      "name": "block_9",
+      "material": "Aluminum",
+      "damageModel": "",
+      "show": true
+    },
+    {
+      "id": 10,
+      "name": "block_10",
+      "material": "Aluminum",
+      "damageModel": "",
+      "show": true
+    },
+    {
+      "id": 11,
+      "name": "block_11",
+      "material": "Aluminum",
+      "damageModel": "",
+      "show": true
+    },
+    {
+      "id": 12,
+      "name": "block_12",
+      "material": "Aluminum",
       "damageModel": "",
       "show": true
     }
   ],
   "contact": {
-    "enabled": true,
+    "enabled": false,
     "searchRadius": 0.01,
     "searchFrequency": 100,
     "contactModels": [
@@ -216,45 +312,18 @@
       "name": "BC_1",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
-      "blockId": 2,
-      "coordinate": "y",
-      "value": "1*t"
+      "blockId": 1,
+      "coordinate": "x",
+      "value": "3*t"
     },
     {
       "id": 2,
       "name": "BC_2",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
-      "blockId": 3,
-      "coordinate": "y",
-      "value": "-1*t"
-    },
-    {
-      "id": 3,
-      "name": "BC_3",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 2,
+      "blockId": 4,
       "coordinate": "x",
-      "value": "0"
-    },
-    {
-      "id": 4,
-      "name": "BC_4",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 3,
-      "coordinate": "x",
-      "value": "0"
-    },
-    {
-      "id": 5,
-      "name": "BC_5",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 1,
-      "coordinate": "z",
-      "value": "0"
+      "value": "0.0"
     }
   ],
   "bondFilters": [],
@@ -278,14 +347,14 @@
       "Partial_Stress": true,
       "Number_Of_Neighbors": true,
       "Write_After_Damage": false,
-      "Frequency": 15,
+      "Frequency": 50,
       "InitStep": 0
     }
   ],
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": 0.1,
+    "finalTime": 0.002,
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,

@@ -10,6 +10,7 @@ except ImportError:
     pass
 from support.base_models import (
     Adapt,
+    BoundaryConditions,
     Contact,
     ContactModel,
     Compute,
@@ -26,6 +27,25 @@ from support.geometry import Geometry
 
 class Smetana:
 
+    bc1 = BoundaryConditions(
+        id=1,
+        name="BC_1",
+        nodeSet=None,
+        boundarytype="Prescribed Displacement",
+        blockId=1,
+        coordinate="x",
+        value="3*t",
+    )
+
+    bc2 = BoundaryConditions(
+        id=2,
+        name="BC_2",
+        nodeSet=None,
+        boundarytype="Prescribed Displacement",
+        blockId=4,
+        coordinate="x",
+        value="0",
+    )
     contact_model = ContactModel(
         id=1,
         name="Contact Model",
@@ -36,7 +56,7 @@ class Smetana:
     interaction_1 = Interaction(firstBlockId=4, secondBlockId=2, contactModelId=1)
     interaction_2 = Interaction(firstBlockId=5, secondBlockId=3, contactModelId=1)
     contact_dict = Contact(
-        enabled=True,
+        enabled=False,
         searchRadius=0.01,
         searchFrequency=100,
         contactModels=[contact_model],
@@ -45,7 +65,7 @@ class Smetana:
 
     damage_dict = Damage(
         id=1,
-        name="Damage",
+        name="dam_1",
         damageModel="Critical Energy Correspondence",
         criticalStretch=None,
         criticalEnergy=1.0e6,
@@ -65,6 +85,7 @@ class Smetana:
         calculationType="Sum",
         blockName="block_3",
     )
+    
     output_dict1 = Output(
         id=1,
         name="Output1",
@@ -82,7 +103,7 @@ class Smetana:
     solver_dict = Solver(
         verbose=False,
         initialTime=0.0,
-        finalTime=0.1,
+        finalTime=0.002,
         fixedDt=None,
         solvertype="Verlet",
         safetyFactor=0.95,
@@ -104,24 +125,31 @@ class Smetana:
         adapt=Adapt(),
         filetype="yaml",
     )
+
     def __init__(
         self,  
         filename="Smetana",
         damage=[damage_dict],
         contact=contact_dict,
+        boundary_condition=[bc1, bc2],
         compute=[compute_dict],
         output=[output_dict1],
         solver=solver_dict,
         username="",
         ignore_mesh=False,
         mesh_res=30,
+        amplitude_factor=0.75,
+        wavelength=3.0,
         ):
         self.filename = filename
         self.username = username
         self.ignore_mesh = ignore_mesh
         self.mesh_res = mesh_res
+        self.amplitude_factor = amplitude_factor
+        self.wavelength = wavelength
         self.path = "Output/" + os.path.join(username, filename)
 
+        self.bc_dict = boundary_condition
         self.damage_dict = damage
         self.compute_dict = compute
         self.output_dict = output
@@ -133,6 +161,6 @@ class Smetana:
         """doc"""
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-        PeridigmControl.generateModel(self.filename, self.path, self.mesh_res, True, self.damage_dict, self.contact_dict, self.compute_dict, self.output_dict, self.solver_dict)
+        PeridigmControl.generateModel(self.filename, self.path, self.mesh_res, True, self.amplitude_factor, self.wavelength, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict)
         
         return "Model created"
