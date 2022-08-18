@@ -330,10 +330,10 @@
   "computes": [
     {
       "id": 1,
-      "name": "External_Force",
-      "variable": "Force",
-      "calculationType": "Sum",
-      "blockName": "block_4"
+      "name": "External_Displacement",
+      "variable": "Displacement",
+      "calculationType": "Maximum",
+      "blockName": "block_9"
     }
   ],
   "outputs": [
@@ -360,7 +360,7 @@
       "Partial_Stress": true,
       "Number_Of_Neighbors": true,
       "Write_After_Damage": true,
-      "Frequency": 50,
+      "Frequency": 10,
       "InitStep": 0
     }
   ],

@@ -9,6 +9,8 @@ import pandas as pd
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 
+from exodus_reader import ExodusReader
+
 
 def arclength(X, Y, a, b):
     """
@@ -438,6 +440,8 @@ K1 = []
 Load = []
 Force = []
 Displacement = []
+
+points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(resultpath,-1)
 
 for i in range(0, 100):
     points, point_data, global_data, cell_data, ns, block_data = read(resultpath, i)

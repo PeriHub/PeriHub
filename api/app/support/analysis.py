@@ -1,5 +1,6 @@
 import os
 import math
+import json
 import matplotlib.pyplot as plt
 from support.base_models import Model
 from support.exodus_reader import ExodusReader
@@ -61,3 +62,35 @@ class Analysis:
         )
 
         return GIIC
+
+    @staticmethod
+    def get_result_file(username, model_name, output):
+
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, -1)
+
+        first_displ = global_data["External_Displacement"][0]
+
+        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, 0)
+
+        last_displ = global_data["External_Displacement"][0]
+
+        result_dict = {
+            # "wavelength": model.model.wavelength,
+            # "amplitudeFactor": model.model.amplitudeFactor,
+            "first_ply_failure": {
+                "displacement": first_displ
+            },
+            "last_ply_failure": {
+                "displacement": last_displ
+            }
+        }
+
+        json_path = os.path.join(resultpath, model_name + "_" + output + ".json")
+
+        with open(json_path, "w") as file:
+	        json.dump(result_dict, file)
+
+        return json_path

@@ -203,7 +203,7 @@ class ModelControl:
                 ignore_mesh=ignore_mesh,
             )
             result = giic.create_model()
-            
+
         elif model_name == "DCBmodel":
             dcb = DCBmodel(
                 xend=length,
@@ -896,6 +896,31 @@ class ModelControl:
         # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
         try:
             return response
+        except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
+            return model_name + " results can not be found on " + cluster
+
+    @app.get("/getResultFile", tags=["Get Methods"])
+    def get_result_file(
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        filepath = Analysis.get_result_file(username, model_name, output)
+        # print(crack_length)
+        # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
+
+        try:
+            return FileResponse(filepath)
         except IOError:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
