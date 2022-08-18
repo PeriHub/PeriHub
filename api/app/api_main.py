@@ -203,6 +203,7 @@ class ModelControl:
                 ignore_mesh=ignore_mesh,
             )
             result = giic.create_model()
+            
         elif model_name == "DCBmodel":
             dcb = DCBmodel(
                 xend=length,
