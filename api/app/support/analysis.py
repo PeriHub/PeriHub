@@ -1,6 +1,7 @@
 import os
 import math
 import json
+import numpy as np
 import matplotlib.pyplot as plt
 from support.base_models import Model
 from support.exodus_reader import ExodusReader
@@ -72,19 +73,36 @@ class Analysis:
         points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, -1)
 
         first_displ = global_data["External_Displacement"][0]
+        first_force = global_data["External_Force"][0]
+        damage_blocks = cell_data["Damage"]
+
+        for id, damage_block in enumerate(damage_blocks):
+            if np.max(damage_block) > 0:
+                first_damage_id = id
 
         points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, 0)
 
         last_displ = global_data["External_Displacement"][0]
+        last_force = global_data["External_Force"][0]
+        damage_blocks = cell_data["Damage"]
+
+        last_damage_id = []
+        for id, damage_block in enumerate(damage_blocks):
+            if np.max(damage_block) > 0:
+                last_damage_id.append(id)
 
         result_dict = {
             # "wavelength": model.model.wavelength,
             # "amplitudeFactor": model.model.amplitudeFactor,
             "first_ply_failure": {
-                "displacement": first_displ
+                "block_id": first_damage_id,
+                "displacement": first_displ,
+                "force": first_force
             },
             "last_ply_failure": {
-                "displacement": last_displ
+                "block_id": last_damage_id,
+                "displacement": last_displ,
+                "force": last_force
             }
         }
 
