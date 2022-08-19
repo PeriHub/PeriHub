@@ -145,43 +145,43 @@
           "id": 1,
           "firstBlockId": 1,
           "secondBlockId": 2,
-          "value": 0.1
+          "value": 0.025
         },
         {
           "id": 2,
           "firstBlockId": 2,
           "secondBlockId": 3,
-          "value": 0.1
+          "value": 0.025
         },
         {
           "id": 3,
           "firstBlockId": 3,
           "secondBlockId": 4,
-          "value": 0.1
+          "value": 0.025
         },
         {
           "id": 4,
           "firstBlockId": 4,
           "secondBlockId": 5,
-          "value": 0.1
+          "value": 0.025
         },
         {
           "id": 5,
           "firstBlockId": 5,
           "secondBlockId": 6,
-          "value": 0.1
+          "value": 0.025
         },
         {
           "id": 6,
           "firstBlockId": 6,
           "secondBlockId": 7,
-          "value": 0.1
+          "value": 0.025
         },
         {
           "id": 7,
           "firstBlockId": 7,
           "secondBlockId": 8,
-          "value": 0.1
+          "value": 0.025
         }
       ],
       "planeStress": true,
@@ -334,6 +334,13 @@
       "variable": "Displacement",
       "calculationType": "Maximum",
       "blockName": "block_9"
+    },
+    {
+      "id": 2,
+      "name": "External_Force",
+      "variable": "Force",
+      "calculationType": "Sum",
+      "blockName": "block_9"
     }
   ],
   "outputs": [
@@ -358,7 +365,6 @@
       "Damage": true,
       "Velocity": true,
       "Partial_Stress": true,
-      "Number_Of_Neighbors": true,
       "Write_After_Damage": true,
       "Frequency": 10,
       "InitStep": 0

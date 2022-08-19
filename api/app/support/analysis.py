@@ -70,17 +70,19 @@ class Analysis:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, -1)
+        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, 0)
 
         first_displ = global_data["External_Displacement"][0]
         first_force = global_data["External_Force"][0]
         damage_blocks = cell_data["Damage"]
 
+        first_damage_id = []
         for id, damage_block in enumerate(damage_blocks):
-            if np.max(damage_block) > 0:
-                first_damage_id = id
+            if len(damage_block)!=0:
+                if np.max(damage_block) > 0:
+                    first_damage_id.append(id)
 
-        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, 0)
+        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, -1)
 
         last_displ = global_data["External_Displacement"][0]
         last_force = global_data["External_Force"][0]
@@ -88,8 +90,9 @@ class Analysis:
 
         last_damage_id = []
         for id, damage_block in enumerate(damage_blocks):
-            if np.max(damage_block) > 0:
-                last_damage_id.append(id)
+            if len(damage_block)!=0:
+                if np.max(damage_block) > 0:
+                    last_damage_id.append(id)
 
         result_dict = {
             # "wavelength": model.model.wavelength,
