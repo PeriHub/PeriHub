@@ -405,6 +405,7 @@ L = 37.1
 
 resultpath = "/home/jt/perihub/api/app/Output/CompactTension/CompactTension_Output1.e"
 # resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/CompactTension/CompactTension_Output1.e"
+resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/GICmodel/GICmodel_Output1.e"
 # resultpath = "/home/jt/perihub/api/app/Output/GIICmodel/GIICmodel_Output1.e"
 
 # x_min = 28

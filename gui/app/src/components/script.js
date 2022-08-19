@@ -12,6 +12,8 @@ import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
 import GIICmodelImage from "../assets/models/GIICmodel/GIICmodel.jpg";
 import GIICmodelFile from "../assets/models/GIICmodel/GIICmodel.json";
+import GICmodelImage from "../assets/models/GICmodel/GICmodel.jpg";
+import GICmodelFile from "../assets/models/GICmodel/GICmodel.json";
 import DCBmodelImage from "../assets/models/DCBmodel/DCBmodel.jpg";
 import DCBmodelFile from "../assets/models/DCBmodel/DCBmodel.json";
 import DogboneImage from "../assets/models/Dogbone/Dogbone.jpg";
@@ -48,6 +50,7 @@ export default {
         "Dogbone",
         "Kalthoff-Winkler",
         "PlateWithHole",
+        "GICmodel",
         "GIICmodel",
         "DCBmodel",
         "CompactTension",
@@ -1727,6 +1730,9 @@ export default {
     async resetData() {
       const jsonFile = {};
       switch (this.model.modelNameSelected) {
+        case "GICmodel":
+          Object.assign(jsonFile, GICmodelFile);
+          break;
         case "GIICmodel":
           Object.assign(jsonFile, GIICmodelFile);
           break;
@@ -2431,7 +2437,7 @@ export default {
       this.viewId = 0;
       this.modelLoading = false;
     },
-    async getK1c() {
+    async getG1c() {
       this.dialogGetK1c = false;
 
       let headersList = {
@@ -2440,7 +2446,7 @@ export default {
       };
 
       let reqOptions = {
-        url: this.url + "getK1c",
+        url: this.url + "getG1c",
         params: {
           model_name: this.model.modelNameSelected,
           Cluster: this.job.cluster,
@@ -2948,6 +2954,9 @@ export default {
     },
     showModelImg() {
       switch (this.model.modelNameSelected) {
+        case "GICmodel":
+          this.modelImg = GICmodelImage;
+          break;
         case "GIICmodel":
           this.modelImg = GIICmodelImage;
           break;

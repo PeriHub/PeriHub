@@ -10,6 +10,44 @@ from support.globals import log
 
 
 class Analysis:
+
+    @staticmethod
+    def get_g1c(username, model_name, output, model: Model):
+
+        w = model.width
+        a = model.cracklength
+        L = model.length / 2.2
+
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(
+            file, -1
+        )
+
+        P_low = global_data["Lower_Load_Force"][1]
+        P_up = global_data["Upper_Load_Force"][1]
+        d_low = global_data["Lower_Load_Displacement"][1]
+        d_up = global_data["Upper_Load_Displacement"][1]
+
+        delta = d_up + abs(d_low)
+
+        Delta = 1
+
+        print(P_low)
+        print(P_up)
+        print(d_low)
+        print(d_up)
+        print(delta)
+        print(w)
+        print(a)
+
+        GIC = (3 * P_up * delta) / (
+            2 * w * (a + abs(Delta))
+        )
+
+        return GIC
+
     @staticmethod
     def get_g2c(username, model_name, output, model: Model):
 
@@ -27,40 +65,11 @@ class Analysis:
         P = global_data["Crosshead_Force"][1]
         d = -global_data["Crosshead_Displacement"][1]
 
-        # print(P)
-        # print(a)
-        # print(d)
-        # print(w)
-        # print(L)
-
         GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (
             2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3))
         )
 
         log.info(GIIC)
-
-        return GIIC
-
-    @staticmethod
-    def get_k1c(username, model_name, output, model: Model):
-
-        w = model.model.length
-        a = model.model.cracklength - model.model.length / 22
-        L = model.model.length / 2.2
-
-        resultpath = "./Results/" + os.path.join(username, model_name)
-        file = os.path.join(resultpath, model_name + "_" + output + ".e")
-
-        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(
-            file, -1
-        )
-
-        P = global_data["Crosshead_Force"][1]
-        d = global_data["Crosshead_Displacement"][0]
-
-        GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (
-            2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3))
-        )
 
         return GIIC
 

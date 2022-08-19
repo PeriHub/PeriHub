@@ -363,8 +363,6 @@
       "Displacement": true,
       "Force": true,
       "Damage": true,
-      "Velocity": true,
-      "Partial_Stress": true,
       "Write_After_Damage": true,
       "Frequency": 10,
       "InitStep": 0

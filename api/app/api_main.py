@@ -29,6 +29,7 @@ import requests
 
 # from fastapi.responses import HTMLResponse
 # from fastapi.responses import StreamingResponse
+from models.GICmodel.gic_model import GICmodel
 from models.GIICmodel.giic_model import GIICmodel
 from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
@@ -179,7 +180,32 @@ class ModelControl:
 
         log.infoHeadline("Create " + model_name)
 
-        if model_name == "GIICmodel":
+        if model_name == "GICmodel":
+            gic = GICmodel(
+                xend=length,
+                crack_length=cracklength,
+                yend=height,
+                zend=width,
+                dx_value=dx_value,
+                two_d=model_data.model.twoDimensional,
+                rot=model_data.model.rotatedAngles,
+                angle=model_data.model.angles,
+                material=model_data.materials,
+                damage=model_data.damages,
+                block=model_data.blocks,
+                boundary_condition=model_data.boundaryConditions,
+                contact=model_data.contact,
+                bond_filter=model_data.bondFilters,
+                compute=model_data.computes,
+                output=model_data.outputs,
+                solver=model_data.solver,
+                username=username,
+                max_nodes=max_nodes,
+                ignore_mesh=ignore_mesh,
+            )
+            result = gic.create_model()
+
+        elif model_name == "GIICmodel":
             giic = GIICmodel(
                 xend=length,
                 crack_length=cracklength,
@@ -874,32 +900,6 @@ class ModelControl:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
 
-    @app.get("/getK1c", tags=["Get Methods"])
-    def get_k1c(
-        model: Model,
-        model_name: str = "Dogbone",
-        cluster: str = "None",
-        output: str = "Output1",
-        frequency: int = "10",
-        request: Request = "",
-    ):
-        """doc"""
-        username = FileHandler.get_user_name(request, dev)
-
-        if not FileHandler.copy_results_from_cluster(
-            username, model_name, cluster, False
-        ):
-            raise IOError  # NotFoundException(name=model_name)
-
-        response = Analysis.get_k1c(username, model_name, output, model)
-        # print(crack_length)
-        # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
-        try:
-            return response
-        except IOError:
-            log.error(model_name + " results can not be found on " + cluster)
-            return model_name + " results can not be found on " + cluster
-
     @app.get("/getResultFile", tags=["Get Methods"])
     def get_result_file(
         model_name: str = "Dogbone",
@@ -921,6 +921,31 @@ class ModelControl:
 
         try:
             return FileResponse(filepath)
+        except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
+            return model_name + " results can not be found on " + cluster
+
+    @app.post("/calculateG1c", tags=["Post Methods"])
+    def calculate_g1c(
+        model: Model,
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        response = Analysis.get_g1c(username, model_name, output, model)
+        # print(crack_length)
+        # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
+        try:
+            return response
         except IOError:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster

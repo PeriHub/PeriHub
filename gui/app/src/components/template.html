@@ -254,7 +254,7 @@
                 <v-text-field
                   class="textfield-col"
                   v-model="model.cracklength"
-                  v-show="model.modelNameSelected=='GIICmodel'"
+                  v-show="['GICmodel','GIICmodel'].includes(model.modelNameSelected)"
                   :rules="[rules.required, rules.float]"
                   label="Cracklength"
                   outlined
