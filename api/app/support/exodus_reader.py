@@ -225,11 +225,11 @@ class ExodusReader:
 
             global_data = {}
             for name, idx in single:
-                global_data[name] = gd[timestep,idx]
+                global_data[name] = gd[idx]
             for name, idx0, idx1 in double:
-                global_data[name] = np.column_stack([gd[timestep,idx0], gd[timestep,idx1]])
+                global_data[name] = np.column_stack([gd[idx0], gd[idx1]])
             for name, idx0, idx1, idx2 in triple:
-                global_data[name] = np.column_stack([gd[timestep,idx0], gd[timestep,idx1], gd[timestep,idx2]])
+                global_data[name] = np.column_stack([gd[idx0], gd[idx1], gd[idx2]])
 
             cell_data = {}
             block_data = []

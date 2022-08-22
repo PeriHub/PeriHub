@@ -128,6 +128,8 @@ class ImageExport:
         fig, ax = plt.subplots()
 
         ax.plot(x_data,y_data)
+        ax.set_xlabel(x_variable)
+        ax.set_ylabel(y_variable)
 
         fig.set_size_inches(18.5, 18.5)
         

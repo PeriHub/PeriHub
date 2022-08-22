@@ -575,7 +575,7 @@ class ModelControl:
 
     @app.put("/runModel", tags=["Put Methods"])
     def run_model(
-        model_data: RunData,
+        model_data: ModelData,
         model_name: str = "Dogbone",
         file_type: FileType = FileType.YAML,
         request: Request = "",

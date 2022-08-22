@@ -2121,14 +2121,23 @@ export default {
           FileType: this.solver.filetype,
         },
         data: JSON.parse(
-          '{"job": ' +
-            JSON.stringify(this.job) +
+          '{"model": ' +
+            JSON.stringify(this.model) +
+            ",\n" +
+            '"materials": ' +
+            JSON.stringify(this.materials) +
+            ",\n" +
+            '"blocks": ' +
+            JSON.stringify(this.blocks) +
+            ",\n" +
+            '"boundaryConditions": ' +
+            JSON.stringify(this.boundaryConditions) +
             ",\n" +
             '"outputs": ' +
             JSON.stringify(this.outputs) +
             ",\n" +
-            '"materials": ' +
-            JSON.stringify(this.materials) +
+            '"solver": ' +
+            JSON.stringify(this.solver) +
             "}"
         ),
         method: "PUT",

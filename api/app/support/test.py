@@ -405,7 +405,7 @@ L = 37.1
 
 resultpath = "/home/jt/perihub/api/app/Output/CompactTension/CompactTension_Output1.e"
 # resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/CompactTension/CompactTension_Output1.e"
-resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/GICmodel/GICmodel_Output1.e"
+resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/Smetana/Smetana_Output2.e"
 # resultpath = "/home/jt/perihub/api/app/Output/GIICmodel/GIICmodel_Output1.e"
 
 # x_min = 28
@@ -442,7 +442,33 @@ Load = []
 Force = []
 Displacement = []
 
-global_data, time = ExodusReader.read(resultpath)
+points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(resultpath, 0)
+
+first_displ = global_data["External_Displacement"][0]
+first_force = global_data["External_Force"][0]
+damage_blocks = cell_data["Damage"]
+
+first_damage_id = []
+for id, damage_block in enumerate(damage_blocks):
+    if len(damage_block)!=0:
+        if np.max(damage_block) > 0:
+            first_damage_id.append(id)
+            
+            block_ids = block_data[id][:, 0]
+            block_points = points[block_ids]
+            filter = (cell_data["Damage"][id] > 0.0)
+            current_points = block_points + point_data["Displacement"][block_ids]
+
+            filtered_points = current_points[filter]
+
+result_dict = {
+            "first_ply_failure": {
+                "block_id": first_damage_id,
+                "displacement": first_displ,
+                "force": first_force,
+                "points": filtered_points
+            }
+        }
 
 for i in range(0, 100):
     points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(resultpath, i)

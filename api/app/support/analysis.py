@@ -108,6 +108,13 @@ class Analysis:
             if len(damage_block)!=0:
                 if np.max(damage_block) > 0:
                     first_damage_id.append(id)
+            
+                    block_ids = block_data[id][:, 0]
+                    block_points = points[block_ids]
+                    filter = (cell_data["Damage"][id] > 0.0)
+                    current_points = block_points + point_data["Displacement"][block_ids]
+
+                    filtered_points = current_points[filter]
 
         points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(file, -1)
 
@@ -130,7 +137,8 @@ class Analysis:
             "first_ply_failure": {
                 "block_id": first_damage_id,
                 "displacement": first_displ,
-                "force": first_force
+                "force": first_force,
+                "points": filtered_points
             },
             "last_ply_failure": {
                 "block_id": last_damage_id,
