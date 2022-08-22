@@ -402,5 +402,11 @@
       "stableBondDifference": 1
     },
     "filetype": "yaml"
+  },
+  "job":{
+      "cluster": "Cara",
+      "tasks": 10,
+      "time": "40:00:00",
+      "account": 2263032
   }
 }

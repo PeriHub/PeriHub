@@ -373,6 +373,7 @@ class ModelData(BaseModel):
     computes: Optional[List[Compute]]
     outputs: List[Output]
     solver: Solver
+    job: Job
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -643,5 +644,11 @@ class ModelData(BaseModel):
                     },
                     "filetype": "yaml",
                 },
+                "job":{
+                    "cluster": "None",
+                    "tasks": 1,
+                    "time": "40:00:00",
+                    "account": 2263032
+                }
             }
         }
