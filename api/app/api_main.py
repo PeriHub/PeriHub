@@ -900,6 +900,36 @@ class ModelControl:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
 
+    @app.get("/getPlotPython", tags=["Get Methods"])
+    def get_plot_python(
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        x_variable: str = "Time",
+        x_axis: str = "",
+        y_variable: str = "External_Displacement",
+        y_axis: str = "X",
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+        filepath = ImageExport.get_plot_image_from_exodus(file, x_variable, x_axis, y_variable, y_axis)
+
+        try:
+            return FileResponse(filepath)
+        except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
+            return model_name + " results can not be found on " + cluster
+
     @app.get("/getResultFile", tags=["Get Methods"])
     def get_result_file(
         model_name: str = "Dogbone",

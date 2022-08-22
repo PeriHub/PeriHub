@@ -688,9 +688,9 @@ export default {
       getImageAxisSelected: "Magnitude",
       getImageDisplFactor: 20,
       getImageMarkerSize: 16,
-      dialogGetK1c: false,
-      getK1cOutput: "Output1",
-      getK1cFrequency: 10,
+      dialogGetG1c: false,
+      getG1cOutput: "Output1",
+      getG1cFrequency: 10,
       dialogShowResults: false,
       dialogGetPlot: false,
       dialogDeleteData: false,
@@ -2294,12 +2294,12 @@ export default {
         Authorization: this.authToken,
       };
       let OutputName = "";
-      for (var i = 0; i < this.outputs.length; i++) {
+      for (var i = 0; i < this.computes.length; i++) {
         if (
-          this.outputs[i]["External_Force"] |
-          this.outputs[i]["External_Displacement"]
+          (this.computes[i]["variable"] == "External_Force") |
+          this.computes[i]["variable"]
         ) {
-          OutputName = this.outputs[i]["name"];
+          OutputName = this.computes[i]["name"];
           break;
         }
       }
@@ -2438,7 +2438,7 @@ export default {
       this.modelLoading = false;
     },
     async getG1c() {
-      this.dialogGetK1c = false;
+      this.dialogGetG1c = false;
 
       let headersList = {
         "Cache-Control": "no-cache",
@@ -2450,8 +2450,8 @@ export default {
         params: {
           model_name: this.model.modelNameSelected,
           Cluster: this.job.cluster,
-          Output: this.getK1cOutput,
-          Frequency: this.getK1cFrequency,
+          Output: this.getG1cOutput,
+          Frequency: this.getG1cFrequency,
         },
         method: "GET",
         responseType: "application/json",
@@ -2487,7 +2487,7 @@ export default {
         params: {
           model_name: this.model.modelNameSelected,
           cluster: this.job.cluster,
-          output: this.getK1cOutput,
+          output: this.getG1cOutput,
         },
         data: this.model,
         method: "POST",

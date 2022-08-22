@@ -442,10 +442,10 @@ Load = []
 Force = []
 Displacement = []
 
-points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(resultpath,-1)
+global_data, time = ExodusReader.read(resultpath)
 
 for i in range(0, 100):
-    points, point_data, global_data, cell_data, ns, block_data = read(resultpath, i)
+    points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(resultpath, i)
     # block_ids = block_data[0][:, 0]
 
     # block_points = points[block_ids]

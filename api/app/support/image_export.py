@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from support.base_models import Model
 from support.exodus_reader import ExodusReader
+from support.analysis import Analysis
 
 class ImageExport:
     @staticmethod
@@ -21,10 +22,10 @@ class ImageExport:
         # resultpath = "./Results/" + os.path.join(username, model_name)
         # file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        # first_points, first_point_data, first_global_data, first_cell_data, first_ns, first_block_data = ExodusReader.read(
+        # first_points, first_point_data, first_global_data, first_cell_data, first_ns, first_block_data, time = ExodusReader.read_timestep(
         #     file, 1
         # )
-        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(
+        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
             file, -1
         )
 
@@ -111,6 +112,27 @@ class ImageExport:
         else:
             filepath = file[:-2] + '_' + variable + '_' + axis + '.png'
             fig.savefig(filepath, dpi=400)
+
+        # plt.colorbar()
+        plt.show()
+
+        return filepath
+
+
+    @staticmethod
+    def get_plot_image_from_exodus(file, x_variable, x_axis, y_variable, y_axis):
+
+        x_data = Analysis.get_global_data(file, x_variable, x_axis)
+        y_data = Analysis.get_global_data(file, y_variable, y_axis)
+
+        fig, ax = plt.subplots()
+
+        ax.plot(x_data,y_data)
+
+        fig.set_size_inches(18.5, 18.5)
+        
+        filepath = file[:-2] + '_' + x_variable + '_' + x_axis + '_' + y_variable + '_' + y_axis +'.png'
+        fig.savefig(filepath, dpi=400)
 
         # plt.colorbar()
         plt.show()

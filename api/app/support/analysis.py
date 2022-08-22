@@ -12,6 +12,24 @@ from support.globals import log
 class Analysis:
 
     @staticmethod
+    def get_global_data(file, variable, axis):
+
+        global_data, time = ExodusReader.read(file)
+
+        if variable == "Time":
+            data = time
+        else:
+            if axis == "X":
+                data = [item[0] for item in global_data[variable]]
+            elif axis == "Y":
+                data = [item[1] for item in global_data[variable]]
+            elif axis == "Z":
+                data = [item[2] for item in global_data[variable]]
+            elif axis == "Magnitude":
+                data = [item[0] for item in global_data[variable]]
+        return data
+
+    @staticmethod
     def get_g1c(username, model_name, output, model: Model):
 
         w = model.width
@@ -21,7 +39,7 @@ class Analysis:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(
+        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
             file, -1
         )
 
@@ -58,7 +76,7 @@ class Analysis:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(
+        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
             file, -1
         )
 
@@ -79,7 +97,7 @@ class Analysis:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, 0)
+        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(file, 0)
 
         first_displ = global_data["External_Displacement"][0]
         first_force = global_data["External_Force"][0]
@@ -91,7 +109,7 @@ class Analysis:
                 if np.max(damage_block) > 0:
                     first_damage_id.append(id)
 
-        points, point_data, global_data, cell_data, ns, block_data = ExodusReader.read(file, -1)
+        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(file, -1)
 
         last_displ = global_data["External_Displacement"][0]
         last_force = global_data["External_Force"][0]
@@ -106,6 +124,9 @@ class Analysis:
         result_dict = {
             # "wavelength": model.model.wavelength,
             # "amplitudeFactor": model.model.amplitudeFactor,
+            # xy koordinate
+            # kraftabfall 
+            # kraftverformungskurve
             "first_ply_failure": {
                 "block_id": first_damage_id,
                 "displacement": first_displ,

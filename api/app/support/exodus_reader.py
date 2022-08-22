@@ -108,7 +108,7 @@ class ExodusReader:
             raise ReadError()
         return single, double, triple
 
-    def read(file, timestep):
+    def read_timestep(file, timestep):
 
         with netCDF4.Dataset(file) as nc:
             # assert nc.version == np.float32(5.1)
@@ -120,6 +120,7 @@ class ExodusReader:
             # assert b''.join(nc.variables['coor_names'][2]) == b'Z'
 
             points = np.zeros((len(nc.dimensions["num_nodes"]), 3))
+            time = 0.0
             point_data_names = []
             global_data_names = []
             cell_data_names = []
@@ -151,6 +152,8 @@ class ExodusReader:
                         value.elem_type.upper()
                     ]
                     cells.append((meshio_type, value[:] - 1))
+                elif key == "time_whole":
+                    time = value[timestep]
                 elif key == "coord":
                     points = nc.variables["coord"][:].T
                 elif key == "coordx":
@@ -222,11 +225,11 @@ class ExodusReader:
 
             global_data = {}
             for name, idx in single:
-                global_data[name] = gd[idx]
+                global_data[name] = gd[timestep,idx]
             for name, idx0, idx1 in double:
-                global_data[name] = [gd[idx0], gd[idx1]]
+                global_data[name] = np.column_stack([gd[timestep,idx0], gd[timestep,idx1]])
             for name, idx0, idx1, idx2 in triple:
-                global_data[name] = [gd[idx0], gd[idx1], gd[idx2]]
+                global_data[name] = np.column_stack([gd[timestep,idx0], gd[timestep,idx1], gd[timestep,idx2]])
 
             cell_data = {}
             block_data = []
@@ -242,4 +245,37 @@ class ExodusReader:
 
             point_sets = {name: dat for name, dat in zip(ns_names, ns)}
 
-        return points, point_data, global_data, cell_data, ns, block_data
+        return points, point_data, global_data, cell_data, ns, block_data, time
+
+
+
+    def read(file):
+
+        with netCDF4.Dataset(file) as nc:
+
+            time = []
+            global_data_names = []
+            gd = []
+
+            for key, value in nc.variables.items():
+                if key == "time_whole":
+                    time = value[:]
+                elif key == "name_glo_var":
+                    value.set_auto_mask(False)
+                    global_data_names = [b"".join(c).decode("UTF-8") for c in value[:]]
+                elif key[:12] == "vals_glo_var":
+                    value.set_auto_mask(False)
+                    # For now only take the first value
+                    gd = value[:,:]
+
+            single, double, triple = ExodusReader.categorize(global_data_names)
+
+            global_data = {}
+            for name, idx in single:
+                global_data[name] = gd[:,idx]
+            for name, idx0, idx1 in double:
+                global_data[name] = np.column_stack([gd[:,idx0], gd[:,idx1]])
+            for name, idx0, idx1, idx2 in triple:
+                global_data[name] = np.column_stack([gd[:,idx0], gd[:,idx1], gd[:,idx2]])
+
+        return global_data, time
