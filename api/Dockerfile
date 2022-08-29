@@ -8,8 +8,6 @@ ENV DEV $DEV
 ARG EXTERNAL
 ENV EXTERNAL $EXTERNAL
 
-RUN pip install shepard-client --extra-index-url https://gitlab.com/api/v4/projects/27250272/packages/pypi/simple
-
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh
 
