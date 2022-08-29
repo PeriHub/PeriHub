@@ -14,7 +14,24 @@ from shepard_client.models.timeseries_reference import TimeseriesReference
 
 from api.app.support.exodus_reader import ExodusReader
 
+class Analysis:
+    @staticmethod
+    def get_global_data(file, variable, axis):
 
+        global_data, time = ExodusReader.read(file)
+
+        if variable == "Time":
+            data = time
+        else:
+            if axis == "X":
+                data = [item[0] for item in global_data[variable]]
+            elif axis == "Y":
+                data = [item[1] for item in global_data[variable]]
+            elif axis == "Z":
+                data = [item[2] for item in global_data[variable]]
+            elif axis == "Magnitude":
+                data = [item[0] for item in global_data[variable]]
+        return data
 
 HOST = "https://shepard-api.fa-services.intra.dlr.de/shepard/api"
 APIKEY = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4NTM1NzE5MS0xZTFiLTQ2MmEtYmQ5OS0xNTUyMGNlZTBjMGEiLCJpc3MiOiJodHRwczovL3NoZXBhcmQtYXBpLmZhLXNlcnZpY2VzLmludHJhLmRsci5kZS9zaGVwYXJkL2FwaS8iLCJuYmYiOjE2NTgxNTAwMTYsImlhdCI6MTY1ODE1MDAxNiwianRpIjoiYjVjOGU2MTEtY2ZmOS00NDI0LWJjMDEtNjE1ZTVmYzFhYjRjIn0.pxDk81-_EI2rF0HJf68yBx7dDO57bDl8WMr1O6-PHmVoompisb3daTQTuf0uPR3bxSFoSNkfRZpTypM6NoOSGmJ94eQPcRZo331MS1vNrhcPqz38tx4J0BiL_2idmh1aSmIDsbzsG8Zcv97mSL5Euh6kWe2DtDnlu-2i1LZmdcTpKbeFI2ixCJMtIy-YL4eNzdUtR41nBsRJpT-vkjeyCoN0zYLnV6DIWf6NnnxJycgZO027MHHcLbovIffNjDSiVgr37BoGQisRazV07bsOfUIjc14qvQlK3CaCP9JLOQ_oJy6tv9SUe00-prMG6U-y1iu1Tzt5EYQ5oApkhIS0_w"
@@ -39,15 +56,17 @@ timeseries_api = TimeseriesApi(client)
 
 resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/GICmodel/GICmodel_Output2.e"
 
-global_data, global_time = ExodusReader.read(resultpath)
+variable= "Lower_Load_Force"
+
+global_data = Analysis.get_global_data(resultpath, variable,  "X")
+global_time = Analysis.get_global_data(resultpath, "Time", "")
 
 factor = int(1e9)
 
 points = []
-variable= "Lower_Load_Force"
 
 for i, seconds in enumerate(global_time):
-    value = global_data[variable][i][0]
+    value = global_data[i]
     timestamp = seconds * factor
     points.append(InfluxPoint(value=value, timestamp=timestamp))
 

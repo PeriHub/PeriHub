@@ -86,7 +86,7 @@ origins = [
     "http://fa-jenkins2:6010",
     "https://fa-jenkins2:6010",
     "https://perihub.fa-services.intra.dlr.de",
-    "https://sy_bpmn.fa-services.intra.dlr.de",
+    "https://bpmn.nimbus.dlr.de",
 ]
 
 app.add_middleware(
@@ -986,9 +986,8 @@ class ModelControl:
         factor = int(1e9)
 
         points = []
-
         for i, seconds in enumerate(global_time):
-            value = global_data[variable][i][0]
+            value = global_data[i]
             timestamp = seconds * factor
             points.append(InfluxPoint(value=value, timestamp=timestamp))
 
@@ -1002,7 +1001,7 @@ class ModelControl:
 
         payload = TimeseriesPayload(timeseries=timeseries, points=points)
 
-        return payload
+        return payload.to_dict(True)
 
     @app.post("/calculateG1c", tags=["Post Methods"])
     def calculate_g1c(
