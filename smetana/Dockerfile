@@ -14,6 +14,7 @@ RUN conda update --name base conda &&\
     conda env create --file environment.yaml &&\
     conda install --name app -c dlr-sc pythonocc-core=0.17.3 &&\
     conda run -n app pip install fa-pyutils --extra-index-url https://__token__:$GITLAB_TOKEN@gitlab.dlr.de/api/v4/projects/4593/packages/pypi/simple &&\
+    conda run -n app pip install shepard-client --extra-index-url https://gitlab.com/api/v4/projects/27250272/packages/pypi/simple &&\
     conda install conda-build &&\
     git clone https://__token__:$GITLAB_TOKEN@gitlab.dlr.de/fa_sw/composite-companion/backend/smetana.git /app/support/smetana &&\
     conda develop /app/support/smetana/src/ -n app &&\

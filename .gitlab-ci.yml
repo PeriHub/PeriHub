@@ -91,6 +91,18 @@ build_gui_job:
     - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
+build_smetana_job:
+  stage: Build
+  extends: [.build_before_script_template]
+  only:
+    refs:
+      - main
+    changes:
+      - smetana/**/*
+  script:
+    - docker build --build-arg GITLAB_TOKEN=$GITLAB_TOKEN -t ${CI_REGISTRY_PATH}smetana smetana/.
+    - docker push ${CI_REGISTRY_PATH}smetana
+
 build_cron_job:
   stage: Build
   extends: [.build_before_script_template]
