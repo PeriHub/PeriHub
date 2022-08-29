@@ -21,11 +21,11 @@ client = ApiClient(configuration=conf)
 structureddata_api = StructureddataApi(client)
 
 collection_id = 12187
-dataobject_id = 12196
+dataobject_id = 12211
 container_id = 12189
 
 # Read local json data
-model = "Smetana"
+model = "Kalthoff-Winkler"
 path = "gui/app/src/assets/models"
 # for model in next(os.walk(path))[1]:
     

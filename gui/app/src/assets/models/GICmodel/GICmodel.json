@@ -20,13 +20,13 @@
 "materials": [
   {
     "id": 1,
-    "name": "IM7/8552",
+    "name": "Aluminum",
+    "density": 2.7e3,
     "matType": "Linear Elastic Correspondence",
-    "density": "1",
     "bulkModulus": null,
     "shearModulus": null,
-    "youngsModulus": "50000",
-    "poissonsRatio": 0.356,
+    "youngsModulus": 7.24e10,
+    "poissonsRatio": 0.33,
     "tensionSeparation": false,
     "nonLinear": false,
     "planeStress": true,
@@ -137,8 +137,8 @@
     "name": "Damage",
     "damageModel": "Critical Energy Correspondence",
     "criticalStretch": 10,
-    "criticalEnergy": "1000.0",
-    "interBlockDamage": true,
+    "criticalEnergy": "20.0",
+    "interBlockDamage": false,
     "numberOfBlocks": 6,
     "interBlocks": [
       {
@@ -159,7 +159,7 @@
     "planeStress": true,
     "onlyTension": false,
     "detachedNodesCheck": true,
-    "thickness": 10,
+    "thickness": 1,
     "hourglassCoefficient": 1,
     "stabilizatonType": "Global Stiffness"
   }
@@ -168,42 +168,42 @@
   {
     "id": 1,
     "name": "block_1",
-    "material": "IM7/8552",
+    "material": "Aluminum",
     "damageModel": "Damage",
     "show": true
   },
   {
     "id": 2,
     "name": "block_2",
-    "material": "IM7/8552",
+    "material": "Aluminum",
     "damageModel": "Damage",
     "show": true
   },
   {
     "id": 3,
     "name": "block_3",
-    "material": "IM7/8552",
+    "material": "Aluminum",
     "damageModel": "",
     "show": true
   },
   {
     "id": 4,
     "name": "block_4",
-    "material": "IM7/8552",
+    "material": "Aluminum",
     "damageModel": "",
     "show": true
   },
   {
     "id": 5,
     "name": "block_5",
-    "material": "IM7/8552",
+    "material": "Aluminum",
     "damageModel": "",
     "show": true
   },
   {
     "id": 6,
     "name": "block_6",
-    "material": "IM7/8552",
+    "material": "Aluminum",
     "damageModel": "",
     "show": true
   }
@@ -293,14 +293,25 @@
     "Number_Of_Neighbors": true,
     "Contact_Force": true,
     "Write_After_Damage": false,
-    "Frequency": "1",
+    "Frequency": "20",
+    "InitStep": 0
+  },
+  {
+    "id": 2,
+    "name": "Output2",
+    "Displacement": true,
+    "Force": true,
+    "Damage": true,
+    "Partial_Stress": true,
+    "Write_After_Damage": true,
+    "Frequency": "10",
     "InitStep": 0
   }
 ],
 "solver": {
   "verbose": false,
   "initialTime": 0,
-  "finalTime": 1,
+  "finalTime": 0.1,
   "solvertype": "Verlet",
   "safetyFactor": 1,
   "fixedDt": null,

@@ -46,6 +46,10 @@ from support.image_export import ImageExport
 from support.gcode_reader import GcodeReader
 from support.globals import MYGLOBAL, log
 
+from shepard_client.models.timeseries import Timeseries
+from shepard_client.models.influx_point import InfluxPoint
+from shepard_client.models.timeseries_payload import TimeseriesPayload
+
 from fa_pyutils.sshtools import cara
 import fa_pyutils.service.duration as duration
 
@@ -955,6 +959,50 @@ class ModelControl:
         except IOError:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
+            
+    @app.get("/getGlobalDataTimeseries", tags=["Post Methods"])
+    def get_global_data_timeseries(
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        variable: str = "External_Force",
+        axis: str = "X",
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+        global_data = Analysis.get_global_data(file, variable,  axis)
+        global_time = Analysis.get_global_data(file, "Time", "")
+
+        factor = int(1e9)
+
+        points = []
+
+        for i, seconds in enumerate(global_time):
+            value = global_data[variable][i][0]
+            timestamp = seconds * factor
+            points.append(InfluxPoint(value=value, timestamp=timestamp))
+
+        timeseries = Timeseries(
+            measurement=variable,
+            location=cluster,
+            device="Peridigm",
+            symbolic_name= model_name + "_" + output + "_" + variable,
+            field="value",
+        )
+
+        payload = TimeseriesPayload(timeseries=timeseries, points=points)
+
+        return payload
 
     @app.post("/calculateG1c", tags=["Post Methods"])
     def calculate_g1c(

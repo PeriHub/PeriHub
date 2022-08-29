@@ -872,6 +872,9 @@ export default {
               ",\n" +
               '"solver": ' +
               JSON.stringify(this.solver) +
+              ",\n" +
+              '"job": ' +
+              JSON.stringify(this.job) +
               "}"
           ),
           method: "POST",
@@ -908,6 +911,9 @@ export default {
               ",\n" +
               '"solver": ' +
               JSON.stringify(this.solver) +
+              ",\n" +
+              '"job": ' +
+              JSON.stringify(this.job) +
               "}"
           )
         );
@@ -2122,22 +2128,37 @@ export default {
         },
         data: JSON.parse(
           '{"model": ' +
-            JSON.stringify(this.model) +
+            JSON.stringify(this.model, null, 2) +
             ",\n" +
             '"materials": ' +
-            JSON.stringify(this.materials) +
+            JSON.stringify(this.materials, null, 2) +
+            ",\n" +
+            '"damages": ' +
+            JSON.stringify(this.damages, null, 2) +
             ",\n" +
             '"blocks": ' +
-            JSON.stringify(this.blocks) +
+            JSON.stringify(this.blocks, null, 2) +
+            ",\n" +
+            '"contact": ' +
+            JSON.stringify(this.contact, null, 2) +
             ",\n" +
             '"boundaryConditions": ' +
-            JSON.stringify(this.boundaryConditions) +
+            JSON.stringify(this.boundaryConditions, null, 2) +
+            ",\n" +
+            '"bondFilters": ' +
+            JSON.stringify(this.bondFilters, null, 2) +
+            ",\n" +
+            '"computes": ' +
+            JSON.stringify(this.computes, null, 2) +
             ",\n" +
             '"outputs": ' +
-            JSON.stringify(this.outputs) +
+            JSON.stringify(this.outputs, null, 2) +
             ",\n" +
             '"solver": ' +
-            JSON.stringify(this.solver) +
+            JSON.stringify(this.solver, null, 2) +
+            ",\n" +
+            '"job": ' +
+            JSON.stringify(this.job, null, 2) +
             "}"
         ),
         method: "PUT",
