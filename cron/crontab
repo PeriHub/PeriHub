@@ -1,1 +1,1 @@
-* * * * * /script.sh >> /var/log/cron.log
+0 0 * * * /script.sh >> /var/log/cron.log
