@@ -57,10 +57,11 @@ class ImageExport:
             min_value = min(cell_data[variable][0])
             max_value = max(cell_data[variable][0])
             for block_id in range(0,len(block_data)):
-                if min(cell_data[variable][block_id]) < min_value:
-                    min_value = min(cell_data[variable][block_id])
-                if max(cell_data[variable][block_id]) < max_value:
-                    max_value = max(cell_data[variable][block_id])
+                if len(cell_data[variable][block_id])>0:
+                    if min(cell_data[variable][block_id]) < min_value:
+                        min_value = min(cell_data[variable][block_id])
+                    if max(cell_data[variable][block_id]) < max_value:
+                        max_value = max(cell_data[variable][block_id])
             for block_id in range(0,len(block_data)):
 
                 block_ids = block_data[block_id][:, 0]
