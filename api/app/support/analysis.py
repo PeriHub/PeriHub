@@ -129,11 +129,6 @@ class Analysis:
                     last_damage_id.append(id)
 
         result_dict = {
-            # "wavelength": model.model.wavelength,
-            # "amplitudeFactor": model.model.amplitudeFactor,
-            # xy koordinate
-            # kraftabfall 
-            # kraftverformungskurve
             "first_ply_failure": {
                 "block_id": first_damage_id,
                 "displacement": first_displ,
