@@ -131,14 +131,34 @@ class Analysis:
         result_dict = {
             "first_ply_failure": {
                 "block_id": first_damage_id,
-                "displacement": first_displ,
-                "force": first_force,
-                "points": filtered_points
+                "displacement": {
+                    "x": first_displ[0],
+                    "y": first_displ[1],
+                    "z": first_displ[2]
+                },
+                "force": {
+                    "x": first_force[0],
+                    "y": first_force[1],
+                    "z": first_force[2]
+                },
+                "points": {
+                    "x": filtered_points[0][0],
+                    "y": filtered_points[0][1],
+                    "z": filtered_points[0][2]
+                }
             },
             "last_ply_failure": {
                 "block_id": last_damage_id,
-                "displacement": last_displ,
-                "force": last_force
+                "displacement": {
+                    "x": last_displ[0],
+                    "y": last_displ[1],
+                    "z": last_displ[2]
+                },
+                "force": {
+                    "x": last_force[0],
+                    "y": last_force[1],
+                    "z": last_force[2]
+                }
             }
         }
 

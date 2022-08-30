@@ -3,6 +3,7 @@
 import math
 import numpy as np
 import re
+import json
 import netCDF4
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -464,11 +465,27 @@ for id, damage_block in enumerate(damage_blocks):
 result_dict = {
             "first_ply_failure": {
                 "block_id": first_damage_id,
-                "displacement": first_displ,
-                "force": first_force,
-                "points": filtered_points
+                "displacement": {
+                    "x": first_displ[0],
+                    "y": first_displ[1],
+                    "z": first_displ[2],
+                },
+                "force": {
+                    "x": first_force[0],
+                    "y": first_force[1],
+                    "z": first_force[2],
+                },
+                "points": {
+                    "x": filtered_points[0][0],
+                    "y": filtered_points[0][1],
+                    "z": filtered_points[0][2],
+                }
             }
         }
+json_path = "Test.json"
+
+with open(json_path, "w") as file:
+    json.dump(result_dict, file)
 
 for i in range(0, 100):
     points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(resultpath, i)
