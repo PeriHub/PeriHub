@@ -404,7 +404,7 @@
     "filetype": "yaml"
   },
   "job":{
-      "cluster": "Cara",
+      "cluster": "None",
       "tasks": 10,
       "time": "40:00:00",
       "account": 2263032

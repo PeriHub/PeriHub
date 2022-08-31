@@ -54,14 +54,14 @@ class ImageExport:
         fig, ax = plt.subplots()
 
         if use_cell_data:
-            min_value = min(cell_data[variable][0])
-            max_value = max(cell_data[variable][0])
+            min_value = min(cell_data[variable][0][0])
+            max_value = max(cell_data[variable][0][0])
             for block_id in range(0,len(block_data)):
-                if len(cell_data[variable][block_id])>0:
-                    if min(cell_data[variable][block_id]) < min_value:
-                        min_value = min(cell_data[variable][block_id])
-                    if max(cell_data[variable][block_id]) < max_value:
-                        max_value = max(cell_data[variable][block_id])
+                if block_id in cell_data[variable][0]:
+                    if min(cell_data[variable][0][block_id]) < min_value:
+                        min_value = min(cell_data[variable][0][block_id])
+                    if max(cell_data[variable][0][block_id]) > max_value:
+                        max_value = max(cell_data[variable][0][block_id])
             for block_id in range(0,len(block_data)):
 
                 block_ids = block_data[block_id][:, 0]
@@ -76,10 +76,10 @@ class ImageExport:
                 np_points_x = np.add(np_first_points_x, np.multiply(np_displacement_x, displ_factor))
                 np_points_y = np.add(np_first_points_y, np.multiply(np_displacement_y, displ_factor))
                 
-                if len(cell_data[variable][block_id])>0:
-                    scatter = ax.scatter(np_points_x, np_points_y, c=cell_data[variable][block_id], cmap=cm.jet, s=marker_size, vmin=min_value, vmax=max_value)
+                if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
+                    scatter = ax.scatter(np_points_x, np_points_y, c=cell_data[variable][0][block_id], cmap=cm.jet, s=marker_size, vmin=min_value, vmax=max_value)
                 else:
-                    scatter = ax.scatter(np_points_x, np_points_y, cmap=cm.jet, s=marker_size)
+                    scatter = ax.scatter(np_points_x, np_points_y, c=np.full_like(np_points_x,0), cmap=cm.jet, s=marker_size)
 
         else:
             np_first_points_x = np.array(points[:, 0])

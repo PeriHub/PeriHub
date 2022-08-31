@@ -206,8 +206,8 @@ class ExodusReader:
                     ns.append(value[:] - 1)  # Exodus is 1-based
 
             # merge element block data; can't handle blocks yet
-            for k, value in cd.items():
-                cd[k] = np.concatenate(list(value.values()))
+            # for k, value in cd.items():
+                # cd[k] = np.concatenate(list(value.values()))
 
             # Check if there are any <name>R, <name>Z tuples or <name>X, <name>Y, <name>Z
             # triplets in the point data. If yes, they belong together.
@@ -237,10 +237,11 @@ class ExodusReader:
             for _, cell in cells:
                 n = len(cell)
                 block_data.append(cell)
-                for name, data in zip(cell_data_names, cd.values()):
-                    if name not in cell_data:
-                        cell_data[name] = []
-                    cell_data[name].append(data[k : k + n])
+            for name, data in zip(cell_data_names, cd.values()):
+                if name not in cell_data:
+                    cell_data[name] = []
+                # cell_data[name].append(data[k : k + n])
+                cell_data[name].append(data)
                 k += n
 
             point_sets = {name: dat for name, dat in zip(ns_names, ns)}

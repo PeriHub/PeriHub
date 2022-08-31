@@ -6,6 +6,7 @@ import re
 import json
 import netCDF4
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import pandas as pd
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
@@ -139,247 +140,6 @@ def calculate_k1(P, B, W, a):
     )
     return k1
 
-
-exodus_to_meshio_type = {
-    "SPHERE": "vertex",
-    # curves
-    "BEAM": "line",
-    "BEAM2": "line",
-    "BEAM3": "line3",
-    "BAR2": "line",
-    # surfaces
-    "SHELL": "quad",
-    "SHELL4": "quad",
-    "SHELL8": "quad8",
-    "SHELL9": "quad9",
-    "QUAD": "quad",
-    "QUAD4": "quad",
-    "QUAD5": "quad5",
-    "QUAD8": "quad8",
-    "QUAD9": "quad9",
-    #
-    "TRI": "triangle",
-    "TRIANGLE": "triangle",
-    "TRI3": "triangle",
-    "TRI6": "triangle6",
-    "TRI7": "triangle7",
-    # 'TRISHELL': 'triangle',
-    # 'TRISHELL3': 'triangle',
-    # 'TRISHELL6': 'triangle6',
-    # 'TRISHELL7': 'triangle',
-    #
-    # volumes
-    "HEX": "hexahedron",
-    "HEXAHEDRON": "hexahedron",
-    "HEX8": "hexahedron",
-    "HEX9": "hexahedron9",
-    "HEX20": "hexahedron20",
-    "HEX27": "hexahedron27",
-    #
-    "TETRA": "tetra",
-    "TETRA4": "tetra4",
-    "TET4": "tetra4",
-    "TETRA8": "tetra8",
-    "TETRA10": "tetra10",
-    "TETRA14": "tetra14",
-    #
-    "PYRAMID": "pyramid",
-    "WEDGE": "wedge",
-}
-meshio_to_exodus_type = {v: k for k, v in exodus_to_meshio_type.items()}
-
-
-def categorize(names):
-    # Check if there are any <name>R, <name>Z tuples or <name>X, <name>Y, <name>Z
-    # triplets in the point data. If yes, they belong together.
-    single = []
-    double = []
-    triple = []
-    is_accounted_for = [False] * len(names)
-    k = 0
-    while True:
-        if k == len(names):
-            break
-        if is_accounted_for[k]:
-            k += 1
-            continue
-        name = names[k]
-        if name[-1] == "X":
-            ix = k
-            try:
-                iy = names.index(name[:-1] + "Y")
-            except ValueError:
-                iy = None
-            try:
-                iz = names.index(name[:-1] + "Z")
-            except ValueError:
-                iz = None
-            if iy and iz:
-                triple.append((name[:-1], ix, iy, iz))
-                is_accounted_for[ix] = True
-                is_accounted_for[iy] = True
-                is_accounted_for[iz] = True
-            else:
-                single.append((name, ix))
-                is_accounted_for[ix] = True
-        elif name[-2:] == "_R":
-            ir = k
-            try:
-                iz = names.index(name[:-2] + "_Z")
-            except ValueError:
-                iz = None
-            if iz:
-                double.append((name[:-2], ir, iz))
-                is_accounted_for[ir] = True
-                is_accounted_for[iz] = True
-            else:
-                single.append((name, ir))
-                is_accounted_for[ir] = True
-        else:
-            single.append((name, k))
-            is_accounted_for[k] = True
-
-        k += 1
-
-    if not all(is_accounted_for):
-        raise ReadError()
-    return single, double, triple
-
-
-def read(file, timestep):
-
-    with netCDF4.Dataset(file) as nc:
-        # assert nc.version == np.float32(5.1)
-        # assert nc.api_version == np.float32(5.1)
-        # assert nc.floating_point_word_size == 8
-
-        # assert b''.join(nc.variables['coor_names'][0]) == b'X'
-        # assert b''.join(nc.variables['coor_names'][1]) == b'Y'
-        # assert b''.join(nc.variables['coor_names'][2]) == b'Z'
-
-        points = np.zeros((len(nc.dimensions["num_nodes"]), 3))
-        point_data_names = []
-        global_data_names = []
-        cell_data_names = []
-        pd = {}
-        gd = []
-        cd = {}
-        cells = []
-        ns_names = []
-        # eb_names = []
-        ns = []
-        point_sets = {}
-        info = []
-
-        for key, value in nc.variables.items():
-            if key == "info_records":
-                value.set_auto_mask(False)
-                for c in value[:]:
-                    try:
-                        info += [b"".join(c).decode("UTF-8")]
-                    except UnicodeDecodeError:
-                        # https://github.com/nschloe/meshio/issues/983
-                        pass
-            elif key == "qa_records":
-                value.set_auto_mask(False)
-                for val in value:
-                    info += [b"".join(c).decode("UTF-8") for c in val[:]]
-            elif key[:7] == "connect":
-                meshio_type = exodus_to_meshio_type[value.elem_type.upper()]
-                cells.append((meshio_type, value[:] - 1))
-            elif key == "coord":
-                points = nc.variables["coord"][:].T
-            elif key == "coordx":
-                points[:, 0] = value[:]
-            elif key == "coordy":
-                points[:, 1] = value[:]
-            elif key == "coordz":
-                points[:, 2] = value[:]
-            elif key == "name_nod_var":
-                value.set_auto_mask(False)
-                point_data_names = [b"".join(c).decode("UTF-8") for c in value[:]]
-            elif key[:12] == "vals_nod_var":
-                idx = 0 if len(key) == 12 else int(key[12:]) - 1
-                value.set_auto_mask(False)
-                # For now only take the first value
-                pd[idx] = value[timestep]
-                # if len(value) > 1:
-                # print("Skipping some time data")
-            elif key == "name_glo_var":
-                value.set_auto_mask(False)
-                global_data_names = [b"".join(c).decode("UTF-8") for c in value[:]]
-            elif key[:12] == "vals_glo_var":
-                value.set_auto_mask(False)
-                # For now only take the first value
-                gd = value[timestep]
-            elif key == "name_elem_var":
-                value.set_auto_mask(False)
-                cell_data_names = [b"".join(c).decode("UTF-8") for c in value[:]]
-            elif key[:13] == "vals_elem_var":
-                # eb: element block
-                m = re.match("vals_elem_var(\\d+)?(?:eb(\\d+))?", key)
-                idx = 0 if m.group(1) is None else int(m.group(1)) - 1
-                block = 0 if m.group(2) is None else int(m.group(2)) - 1
-
-                value.set_auto_mask(False)
-                # For now only take the first value
-                if idx not in cd:
-                    cd[idx] = {}
-                cd[idx][block] = value[timestep]
-
-                # if len(value) > 1:
-                # print("Skipping some time data")
-            elif key == "ns_names":
-                value.set_auto_mask(False)
-                ns_names = [b"".join(c).decode("UTF-8") for c in value[:]]
-            # elif key == "eb_names":
-            #     value.set_auto_mask(False)
-            #     eb_names = [b"".join(c).decode("UTF-8") for c in value[:]]
-            elif key.startswith("node_ns"):  # Expected keys: node_ns1, node_ns2
-                ns.append(value[:] - 1)  # Exodus is 1-based
-
-        # merge element block data; can't handle blocks yet
-        for k, value in cd.items():
-            cd[k] = np.concatenate(list(value.values()))
-
-        # Check if there are any <name>R, <name>Z tuples or <name>X, <name>Y, <name>Z
-        # triplets in the point data. If yes, they belong together.
-        single, double, triple = categorize(point_data_names)
-
-        point_data = {}
-        for name, idx in single:
-            point_data[name] = pd[idx]
-        for name, idx0, idx1 in double:
-            point_data[name] = np.column_stack([pd[idx0], pd[idx1]])
-        for name, idx0, idx1, idx2 in triple:
-            point_data[name] = np.column_stack([pd[idx0], pd[idx1], pd[idx2]])
-
-        single, double, triple = categorize(global_data_names)
-
-        global_data = {}
-        for name, idx in single:
-            global_data[name] = gd[idx]
-        for name, idx0, idx1 in double:
-            global_data[name] = [gd[idx0], gd[idx1]]
-        for name, idx0, idx1, idx2 in triple:
-            global_data[name] = [gd[idx0], gd[idx1], gd[idx2]]
-
-        cell_data = {}
-        block_data = []
-        k = 0
-        for _, cell in cells:
-            n = len(cell)
-            block_data.append(cell)
-            for name, data in zip(cell_data_names, cd.values()):
-                if name not in cell_data:
-                    cell_data[name] = []
-                cell_data[name].append(data[k : k + n])
-            k += n
-
-        point_sets = {name: dat for name, dat in zip(ns_names, ns)}
-
-    return points, point_data, global_data, cell_data, ns, block_data
-
 def createFigure(xE,yE, name = 'Strain_belt.pdf'):
     fig = plt.figure(figsize=(14/2.54, 12/2.54))
     plt.plot(xE,yE, color='black', linestyle='solid')
@@ -445,47 +205,214 @@ Displacement = []
 
 points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(resultpath, 0)
 
+first_time = time.data.item()
 first_displ = global_data["External_Displacement"][0]
 first_force = global_data["External_Force"][0]
-damage_blocks = cell_data["Damage"]
+damage_blocks = cell_data["Damage"][0]
 
 first_damage_id = []
-for id, damage_block in enumerate(damage_blocks):
-    if len(damage_block)!=0:
-        if np.max(damage_block) > 0:
-            first_damage_id.append(id)
-            
-            block_ids = block_data[id][:, 0]
+for block_id, _ in enumerate(block_data):
+    if block_id in damage_blocks:
+        if np.max(damage_blocks[block_id]) > 0:
+            first_damage_id.append(block_id)
+    
+            block_ids = block_data[block_id][:, 0]
             block_points = points[block_ids]
-            filter = (cell_data["Damage"][id] > 0.0)
+            filter = (damage_blocks[block_id] > 0.0)
             current_points = block_points + point_data["Displacement"][block_ids]
 
             filtered_points = current_points[filter]
 
+points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(resultpath, -1)
+
+last_time = time.data.item()
+last_displ = global_data["External_Displacement"][0]
+last_force = global_data["External_Force"][0]
+damage_blocks = cell_data["Damage"][0]
+
+last_damage_id = []
+for block_id, _ in enumerate(block_data):
+    if block_id in damage_blocks:
+        if np.max(damage_blocks[block_id]) > 0:
+            last_damage_id.append(block_id)
+
 result_dict = {
-            "first_ply_failure": {
-                "block_id": first_damage_id,
-                "displacement": {
-                    "x": first_displ[0],
-                    "y": first_displ[1],
-                    "z": first_displ[2],
-                },
-                "force": {
-                    "x": first_force[0],
-                    "y": first_force[1],
-                    "z": first_force[2],
-                },
-                "points": {
-                    "x": filtered_points[0][0],
-                    "y": filtered_points[0][1],
-                    "z": filtered_points[0][2],
-                }
-            }
+    "first_damage": {
+        "time": first_time,
+        "block_id": first_damage_id,
+        "displacement": {
+            "x": first_displ[0],
+            "y": first_displ[1],
+            "z": first_displ[2]
+        },
+        "force": {
+            "x": first_force[0],
+            "y": first_force[1],
+            "z": first_force[2]
+        },
+        "points": {
+            "x": filtered_points[0][0],
+            "y": filtered_points[0][1],
+            "z": filtered_points[0][2]
         }
+    },
+    "last_ply_failure": {
+        "time": last_time,
+        "block_id": last_damage_id,
+        "displacement": {
+            "x": last_displ[0],
+            "y": last_displ[1],
+            "z": last_displ[2]
+        },
+        "force": {
+            "x": last_force[0],
+            "y": last_force[1],
+            "z": last_force[2]
+        }
+    }
+}
+
 json_path = "Test.json"
 
 with open(json_path, "w") as file:
     json.dump(result_dict, file)
+
+variable = "Damage"
+axis = "x"
+displ_factor=0
+marker_size= 47
+height=10
+length=50
+use_cell_data=False
+
+if variable in ['Damage','Partial_StressX','Partial_StressY','Partial_StressZ', 'Number_Of_Neighbors']:
+    use_cell_data=True
+
+axis_id=0
+
+if axis == 'x':
+    axis_id=0
+    if 'Partial_Stress' in variable:
+        variable = variable + 'X'
+elif axis == 'y':
+    axis_id=1
+    if 'Partial_Stress' in variable:
+        variable = variable + 'Y'
+elif axis == 'z':
+    axis_id=2
+    if 'Partial_Stress' in variable:
+        variable = variable + 'Z'
+elif axis == 'Magnitude':
+    axis_id=0
+
+fig, ax = plt.subplots()
+
+if use_cell_data:
+    min_value = min(cell_data[variable][0][0])
+    max_value = max(cell_data[variable][0][0])
+    for block_id in range(1,len(block_data)):
+        if block_id in cell_data[variable][0]:
+        # if len(cell_data[variable][0][block_id])>0:
+            if min(cell_data[variable][0][block_id]) < min_value:
+                min_value = min(cell_data[variable][0][block_id])
+            if max(cell_data[variable][0][block_id]) > max_value:
+                max_value = max(cell_data[variable][0][block_id])
+    for block_id in range(0,len(block_data)):
+
+        block_ids = block_data[block_id][:, 0]
+
+        block_points = points[block_ids]
+
+        np_first_points_x = np.array(block_points[:, 0])
+        np_first_points_y = np.array(block_points[:, 1])
+        np_displacement_x = np.array(point_data['Displacement'][block_ids,0])
+        np_displacement_y = np.array(point_data['Displacement'][block_ids,1])
+
+        np_points_x = np.add(np_first_points_x, np.multiply(np_displacement_x, displ_factor))
+        np_points_y = np.add(np_first_points_y, np.multiply(np_displacement_y, displ_factor))
+        
+        if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
+            scatter = ax.scatter(np_points_x, np_points_y, c=cell_data[variable][0][block_id], cmap=cm.jet, s=marker_size, vmin=min_value, vmax=max_value)
+        else:
+            scatter = ax.scatter(np_points_x, np_points_y, c=np.full_like(np_points_x,0), cmap=cm.jet, s=marker_size)
+
+else:
+    np_first_points_x = np.array(points[:, 0])
+    np_first_points_y = np.array(points[:, 1])
+    np_displacement_x = np.array(point_data['Displacement'][:,0])
+    np_displacement_y = np.array(point_data['Displacement'][:,1])
+
+    np_points_x = np.add(np_first_points_x, np.multiply(np_displacement_x, displ_factor))
+    np_points_y = np.add(np_first_points_y, np.multiply(np_displacement_y, displ_factor))
+
+    scatter = ax.scatter(np_points_x, np_points_y, c=point_data[variable][:,axis_id], cmap=cm.jet, s=marker_size)
+
+# COLORBAR
+cbar = fig.colorbar(scatter, ax=ax)
+
+# set colorbar label plus label color
+cbar.set_label(variable + '_' + axis, color='black')
+
+# set colorbar tick color
+cbar.ax.yaxis.set_tick_params(color='black')
+
+# set colorbar edgecolor 
+cbar.outline.set_edgecolor('black')
+
+fig.set_size_inches(18.5, 18.5 * (height/length))
+
+# filepath = ''
+# if 'Partial_Stress' in variable:
+#     filepath = file[:-2] + '_' + variable[:-1] + '_' + axis + '.png'
+#     fig.savefig(filepath, dpi=400)
+# else:
+#     filepath = file[:-2] + '_' + variable + '_' + axis + '.png'
+#     fig.savefig(filepath, dpi=400)
+
+# plt.colorbar()
+plt.show()
+
+# first_displ = global_data["External_Displacement"][0]
+# first_force = global_data["External_Force"][0]
+# damage_blocks = cell_data["Damage"]
+
+# first_damage_id = []
+# for id, damage_block in enumerate(damage_blocks):
+#     if len(damage_block)!=0:
+#         if np.max(damage_block) > 0:
+#             first_damage_id.append(id)
+            
+#             block_ids = block_data[id][:, 0]
+#             block_points = points[block_ids]
+#             filter = (cell_data["Damage"][id] > 0.0)
+#             current_points = block_points + point_data["Displacement"][block_ids]
+
+#             filtered_points = current_points[filter]
+
+# result_dict = {
+#             "first_ply_failure": {
+#                 "block_id": first_damage_id,
+#                 "displacement": {
+#                     "x": first_displ[0],
+#                     "y": first_displ[1],
+#                     "z": first_displ[2],
+#                 },
+#                 "force": {
+#                     "x": first_force[0],
+#                     "y": first_force[1],
+#                     "z": first_force[2],
+#                 },
+#                 "points": {
+#                     "x": filtered_points[0][0],
+#                     "y": filtered_points[0][1],
+#                     "z": filtered_points[0][2],
+#                 }
+#             }
+#         }
+# json_path = "Test.json"
+
+# with open(json_path, "w") as file:
+#     json.dump(result_dict, file)
 
 for i in range(0, 100):
     points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(resultpath, i)

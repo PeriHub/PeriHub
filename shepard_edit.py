@@ -26,6 +26,7 @@ container_id = 12189
 
 # Read local json data
 model = "Kalthoff-Winkler"
+model = "Smetana"
 path = "gui/app/src/assets/models"
 # for model in next(os.walk(path))[1]:
     

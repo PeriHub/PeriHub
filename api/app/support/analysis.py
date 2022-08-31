@@ -99,37 +99,40 @@ class Analysis:
 
         points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(file, 0)
 
+        first_time = time.data.item()
         first_displ = global_data["External_Displacement"][0]
         first_force = global_data["External_Force"][0]
-        damage_blocks = cell_data["Damage"]
+        damage_blocks = cell_data["Damage"][0]
 
         first_damage_id = []
-        for id, damage_block in enumerate(damage_blocks):
-            if len(damage_block)!=0:
-                if np.max(damage_block) > 0:
-                    first_damage_id.append(id)
+        for block_id, _ in enumerate(block_data):
+            if block_id in damage_blocks:
+                if np.max(damage_blocks[block_id]) > 0:
+                    first_damage_id.append(block_id)
             
-                    block_ids = block_data[id][:, 0]
+                    block_ids = block_data[block_id][:, 0]
                     block_points = points[block_ids]
-                    filter = (cell_data["Damage"][id] > 0.0)
+                    filter = (damage_blocks[block_id] > 0.0)
                     current_points = block_points + point_data["Displacement"][block_ids]
 
                     filtered_points = current_points[filter]
 
         points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(file, -1)
 
+        last_time = time.data.item()
         last_displ = global_data["External_Displacement"][0]
         last_force = global_data["External_Force"][0]
-        damage_blocks = cell_data["Damage"]
+        damage_blocks = cell_data["Damage"][0]
 
         last_damage_id = []
-        for id, damage_block in enumerate(damage_blocks):
-            if len(damage_block)!=0:
-                if np.max(damage_block) > 0:
-                    last_damage_id.append(id)
+        for block_id, _ in enumerate(block_data):
+            if block_id in damage_blocks:
+                if np.max(damage_blocks[block_id]) > 0:
+                    last_damage_id.append(block_id)
 
         result_dict = {
-            "first_ply_failure": {
+            "first_damage": {
+                "time": first_time,
                 "block_id": first_damage_id,
                 "displacement": {
                     "x": first_displ[0],
@@ -148,6 +151,7 @@ class Analysis:
                 }
             },
             "last_ply_failure": {
+                "time": last_time,
                 "block_id": last_damage_id,
                 "displacement": {
                     "x": last_displ[0],
