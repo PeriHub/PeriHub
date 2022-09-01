@@ -9,7 +9,7 @@
     "height2": null,
     "radius": null,
     "structured": null,
-    "discretization": 30,
+    "discretization": 50,
     "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": false,

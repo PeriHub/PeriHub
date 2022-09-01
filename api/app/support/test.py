@@ -166,9 +166,24 @@ L = 37.1
 
 resultpath = "/home/jt/perihub/api/app/Output/CompactTension/CompactTension_Output1.e"
 # resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/CompactTension/CompactTension_Output1.e"
-resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/Smetana/Smetana_Output2.e"
+resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev/Smetana_Output1.e"
 # resultpath = "/home/jt/perihub/api/app/Output/GIICmodel/GIICmodel_Output1.e"
 
+variable= "External_Force"
+axis = "X"
+global_data, time = ExodusReader.read(resultpath)
+
+if variable == "Time":
+    data = time
+else:
+    if axis == "X":
+        data = [item[0] for item in global_data[variable]]
+    elif axis == "Y":
+        data = [item[1] for item in global_data[variable]]
+    elif axis == "Z":
+        data = [item[2] for item in global_data[variable]]
+    elif axis == "Magnitude":
+        data = [item[0] for item in global_data[variable]]
 # x_min = 28
 # x_max = 100
 # y_min = -100

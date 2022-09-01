@@ -21,7 +21,7 @@ client = ApiClient(configuration=conf)
 structureddata_api = StructureddataApi(client)
 
 collection_id = 12187
-dataobject_id = 12211
+dataobject_id = 12196
 container_id = 12189
 
 # Read local json data

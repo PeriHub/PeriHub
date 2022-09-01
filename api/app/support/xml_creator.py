@@ -409,10 +409,7 @@ class XMLcreator:
                 string += '            <Parameter name="Stop after damage initiation" type="bool" value="true"/>\n'
             if self.solver_dict.stopBeforeDamageInitation:
                 string += '            <Parameter name="Stop before damage initiation" type="bool" value="true"/>\n'
-            if (
-                "adaptivetimeStepping" in self.solver_dict
-                and self.solver_dict.adaptivetimeStepping
-            ):
+            if (self.check_if_defined(self.solver_dict.adaptivetimeStepping) and self.solver_dict.adaptivetimeStepping):
                 string += '            <Parameter name="Adaptive Time Stepping" type="bool" value="true"/>\n'
                 string += (
                     '            <Parameter name="Stable Step Difference" type="int" value="'
