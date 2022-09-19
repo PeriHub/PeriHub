@@ -5,6 +5,7 @@ from shepard_client.api.timeseries_api import TimeseriesApi
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib.ticker import MaxNLocator
 
 HOST = "https://shepard-api.fa-services.intra.dlr.de/shepard/api"
 APIKEY = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4NTM1NzE5MS0xZTFiLTQ2MmEtYmQ5OS0xNTUyMGNlZTBjMGEiLCJpc3MiOiJodHRwczovL3NoZXBhcmQtYXBpLmZhLXNlcnZpY2VzLmludHJhLmRsci5kZS9zaGVwYXJkL2FwaS8iLCJuYmYiOjE2NTgxNTAwMTYsImlhdCI6MTY1ODE1MDAxNiwianRpIjoiYjVjOGU2MTEtY2ZmOS00NDI0LWJjMDEtNjE1ZTVmYzFhYjRjIn0.pxDk81-_EI2rF0HJf68yBx7dDO57bDl8WMr1O6-PHmVoompisb3daTQTuf0uPR3bxSFoSNkfRZpTypM6NoOSGmJ94eQPcRZo331MS1vNrhcPqz38tx4J0BiL_2idmh1aSmIDsbzsG8Zcv97mSL5Euh6kWe2DtDnlu-2i1LZmdcTpKbeFI2ixCJMtIy-YL4eNzdUtR41nBsRJpT-vkjeyCoN0zYLnV6DIWf6NnnxJycgZO027MHHcLbovIffNjDSiVgr37BoGQisRazV07bsOfUIjc14qvQlK3CaCP9JLOQ_oJy6tv9SUe00-prMG6U-y1iu1Tzt5EYQ5oApkhIS0_w"
@@ -27,11 +28,14 @@ CONTAINER_ID = 13985
 # reference_ids = [[13846,13847],[13854,13855],[13862,13863]]
 
 
-measurements = ["amp_75_wvl_1", "amp_75_wvl_2", "amp_75_wvl_3", "amp_75_wvl_4", "amp_75_wvl_5"]
+measurements = ["amp_0_wvl_0", "amp_75_wvl_1", "amp_75_wvl_2", "amp_75_wvl_3", "amp_75_wvl_4", "amp_75_wvl_5"]
 # measurements = ["amp_75_wvl_1", "amp_75_wvl_2", "amp_75_wvl_3", "amp_75_wvl_4", "amp_75_wvl_5", "amp_50_wvl_3", "amp_75_wvl_3", "amp_100_wvl_3", "amp_200_wvl_3"]
 
+plt.rcParams.update({'font.size': 18})
+
 fig = plt.figure()
-fig.set_size_inches(18.5, 18.5)
+# fig.set_size_inches(11.69,8.27)
+fig.set_size_inches(9,6)
 ax = plt.subplot(111)
 
 for id,measurement in enumerate(measurements):
@@ -84,37 +88,35 @@ for id,measurement in enumerate(measurements):
     displacement = []
     force = []
 
-
-    # for displ_point, force_point in zip(displacement_timeseries2.points, force_timeseries2.points):
-    #     time.append(force_point.timestamp / factor)
-    #     displacement.append(displ_point.value)
-    #     force.append(force_point.value)
-
-    # ax.plot(displacement, force, label=measurement)
-    # displacement = []
-    # force = []
-
     for displ_point, force_point in zip(displacement_timeseries1.points, force_timeseries1.points):
-        # if force_point.timestamp / factor < time[0]:
         time.append(force_point.timestamp / factor)
         displacement.append(displ_point.value)
-        force.append(force_point.value)
+        force.append(abs(force_point.value))
+
+    for displ_point, force_point in zip(displacement_timeseries2.points, force_timeseries2.points):
+        if force_point.timestamp / factor > time[-1]:
+            time.append(force_point.timestamp / factor)
+            displacement.append(displ_point.value)
+            force.append(abs(force_point.value))
 
     ax.plot(displacement, force, label=measurement)
+    ax.xaxis.set_major_locator(MaxNLocator(5)) 
     # ax.plot(displacement, force, linestyle="dashed")
 
 ax.legend()
 
-plt.xlabel("Displacement")
-plt.ylabel("Force")
+plt.xlabel("Displacement [mm]")
+plt.ylabel("Force [N]")
 
 plt.show()
+fig.savefig("DisplForceWvl.png")
 
 
-measurements = ["amp_50_wvl_3", "amp_75_wvl_3", "amp_100_wvl_3", "amp_200_wvl_3"]
+measurements = ["amp_0_wvl_0", "amp_50_wvl_3", "amp_75_wvl_3", "amp_100_wvl_3", "amp_200_wvl_3"]
 
 fig = plt.figure()
-fig.set_size_inches(18.5, 18.5)
+# fig.set_size_inches(11.69,8.27)
+fig.set_size_inches(9,6)
 ax = plt.subplot(111)
 
 for id,measurement in enumerate(measurements):
@@ -167,28 +169,29 @@ for id,measurement in enumerate(measurements):
     displacement = []
     force = []
 
-
-    # for displ_point, force_point in zip(displacement_timeseries2.points, force_timeseries2.points):
-    #     time.append(force_point.timestamp / factor)
-    #     displacement.append(displ_point.value)
-    #     force.append(force_point.value)
-
     # ax.plot(displacement, force, label=measurement)
     # displacement = []
     # force = []
 
     for displ_point, force_point in zip(displacement_timeseries1.points, force_timeseries1.points):
-        # if force_point.timestamp / factor < time[0]:
         time.append(force_point.timestamp / factor)
         displacement.append(displ_point.value)
-        force.append(force_point.value)
+        force.append(abs(force_point.value))
+
+    for displ_point, force_point in zip(displacement_timeseries2.points, force_timeseries2.points):
+        if force_point.timestamp / factor > time[-1]:
+            time.append(force_point.timestamp / factor)
+            displacement.append(displ_point.value)
+            force.append(abs(force_point.value))
 
     ax.plot(displacement, force, label=measurement)
+    ax.xaxis.set_major_locator(MaxNLocator(5)) 
     # ax.plot(displacement, force, linestyle="dashed")
 
 ax.legend()
 
-plt.xlabel("Displacement")
-plt.ylabel("Force")
+plt.xlabel("Displacement [mm]")
+plt.ylabel("Force [N]")
 
 plt.show()
+fig.savefig("DisplForceAmp.png")

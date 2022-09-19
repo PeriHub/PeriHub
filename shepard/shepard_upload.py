@@ -54,7 +54,7 @@ file_container = file_api.create_file_container(file_container=container_to_crea
 
 # Read local json data
 models_data = []
-path = "gui/app/src/assets/models"
+path = "../gui/app/src/assets/models"
 for model in next(os.walk(path))[1]:
     
     with open(os.path.join(path, model, model + ".json"), "r", encoding="UTF-8") as file:
