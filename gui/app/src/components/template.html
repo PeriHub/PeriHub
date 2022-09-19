@@ -254,7 +254,7 @@
                 <v-text-field
                   class="textfield-col"
                   v-model="model.cracklength"
-                  v-show="['GICmodel','GIICmodel'].includes(model.modelNameSelected)"
+                  v-show="['GICmodel','GIICmodel','CompactTension'].includes(model.modelNameSelected)"
                   :rules="[rules.required, rules.float]"
                   label="Cracklength"
                   outlined
@@ -2580,7 +2580,7 @@
                   class="my-btn"
                   v-bind="attrs"
                   v-on="on"
-                  @click="dialogGetG1c = true"
+                  @click="getG1c"
                   :disabled="!status.results"
                 >
                   <i class="fas fa-image"></i>
@@ -2589,7 +2589,7 @@
               <span>Show G1c</span>
             </v-tooltip>
 
-            <v-dialog v-model="dialogGetG1c" persistent max-width="800">
+            <!-- <v-dialog v-model="dialogGetG1c" persistent max-width="800">
               <v-card>
                 <v-card-title class="text-h5"> Show G1c </v-card-title>
                 <v-card-text
@@ -2621,7 +2621,7 @@
                   </v-btn>
                 </v-card-actions>
               </v-card>
-            </v-dialog>
+            </v-dialog> -->
 
             <v-tooltip bottom v-if="model.modelNameSelected=='GIICmodel'"
               ><template v-slot:activator="{ on, attrs }">

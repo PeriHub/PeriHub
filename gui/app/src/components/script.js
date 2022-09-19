@@ -2476,34 +2476,34 @@ export default {
       };
 
       let reqOptions = {
-        url: this.url + "getG1c",
+        url: this.url + "calculateG1c",
         params: {
+          youngs_modulus: this.materials[0].youngsModulus,
           model_name: this.model.modelNameSelected,
-          Cluster: this.job.cluster,
-          Output: this.getG1cOutput,
-          Frequency: this.getG1cFrequency,
+          cluster: this.job.cluster,
         },
-        method: "GET",
-        responseType: "application/json",
+        data: this.model,
+        method: "POST",
+        responseType: "blob",
         headers: headersList,
       };
 
       this.modelLoading = true;
       await axios
         .request(reqOptions)
-        .then((response) => (this.plotRawData = response.data))
+        .then(
+          (response) =>
+            (this.modelImg = window.URL.createObjectURL(
+              new Blob([response.data])
+            ))
+        )
         .catch((error) => {
           this.message = error;
           this.snackbar = true;
           this.modelLoading = false;
           return;
         });
-      console.log(this.plotRawData);
-      this.plotData[0].x = this.plotRawData[2];
-      this.plotData[0].name = "Crack length";
-      this.plotData[0].y = this.plotRawData[1];
-
-      this.viewId = 2;
+      this.viewId = 0;
       this.modelLoading = false;
     },
     async getG2c() {

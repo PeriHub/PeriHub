@@ -3,7 +3,7 @@ import math
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-from support.base_models import Model
+from support.base_models import Model, Material
 from support.exodus_reader import ExodusReader
 
 from support.globals import log
@@ -12,29 +12,139 @@ from support.globals import log
 class Analysis:
 
     @staticmethod
-    def get_global_data(file, variable, axis):
+    def calculate_calibration_factor_f(alpha):
 
-        global_data, time = ExodusReader.read(file)
+
+        f = ((2 + alpha)/math.pow((1 - alpha),3/2))*(0.886 + (4.64 * alpha) - (13.32 * math.pow(alpha, 2)) + (14.72 * math.pow(alpha, 3)) - (5.6 * math.pow(alpha, 4)))
+
+        return f
+
+    @staticmethod
+    def calculate_calibration_factor_phi(alpha):
+
+        A = (1.9118 + (19.118 * alpha) - (2.5122 * math.pow(alpha, 2)) - (23.226 * math.pow(alpha, 3)) + (20.54 * math.pow(alpha, 4)))
+        B = (19.118 - (5.0244 * alpha) - (69.678 * math.pow(alpha, 2)) + (82.16 * math.pow(alpha, 3))) * (1 - alpha)
+
+        phi = (A * (1-alpha)) / (B + (2 * A))
+
+        return phi
+
+    @staticmethod
+    def calculate_k1(P, B, W, f):
+
+        k1 = f * (P/(B*math.sqrt(W))) 
+        return k1
+
+    @staticmethod
+    def calculate_g1(Energy, B, W, phi):
+
+        g1 = Energy / (B * W  * phi) 
+        return g1
+
+    @staticmethod
+    def get_global_data(file, variable, axis, absolute):
+
+        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read(file)
 
         if variable == "Time":
             data = time
         else:
-            if axis == "X":
-                data = [item[0] for item in global_data[variable]]
-            elif axis == "Y":
-                data = [item[1] for item in global_data[variable]]
-            elif axis == "Z":
-                data = [item[2] for item in global_data[variable]]
-            elif axis == "Magnitude":
-                data = [item[0] for item in global_data[variable]]
-        return data
+            if absolute:
+                if axis == "X":
+                    data = [item[0] for item in abs(global_data[variable])]
+                elif axis == "Y":
+                    data = [item[1] for item in abs(global_data[variable])]
+                elif axis == "Z":
+                    data = [item[2] for item in abs(global_data[variable])]
+                elif axis == "Magnitude":
+                    data = [item[0] for item in abs(global_data[variable])]
+            else:
+                if axis == "X":
+                    data = [item[0] for item in global_data[variable]]
+                elif axis == "Y":
+                    data = [item[1] for item in global_data[variable]]
+                elif axis == "Z":
+                    data = [item[2] for item in global_data[variable]]
+                elif axis == "Magnitude":
+                    data = [item[0] for item in global_data[variable]]
+            return data
+
+    
+    @staticmethod
+    def get_g1c_k1c(username, model_name, model: Model, youngs_modulus):
+
+        B = model.width
+        a = model.cracklength
+        W = model.length
+        E = youngs_modulus
+
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_Output1.e")
+        file2 = os.path.join(resultpath, model_name + "_Output2.e")
+
+        # points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read(file)
+
+        Force = Analysis.get_global_data(file, "External_Force", "Y", True)
+        Displ = Analysis.get_global_data(file, "External_Displacement", "Y", True)
+
+        Force2 = Analysis.get_global_data(file2, "External_Force", "Y", True)
+        Displ2 = Analysis.get_global_data(file2, "External_Displacement", "Y", True)
+
+        fig, ax = plt.subplots()
+
+        ax.plot(Displ,Force)
+        ax.set_xlabel("Displacement [mm]")
+        ax.set_ylabel("Force [N]")
+
+        fig.set_size_inches(18.5, 18.5)
+        ax.fill_between(Displ, Force, 0, where=Displ<Displ2[0] ,color='gray', alpha=0.5)
+
+        imagepath = os.path.join(resultpath, "Energy.png")
+        fig.savefig(imagepath)
+
+        print(Force)
+        print(Displ)
+
+        from scipy import integrate
+        # x = np.linspace(-2, 2, num=20)
+        # y = x
+        Energy = -integrate.simpson(Force, Displ)
+
+        print("Energy: " + str(Energy))
+
+        P = Force2[0]
+
+        print(P)
+        print(B)
+        print(W)
+        print(a)
+
+        alpha = a/W
+        print("alpha: " + str(alpha))
+
+        f = Analysis.calculate_calibration_factor_f(alpha)
+        print("f: " + str(f))
+        phi = Analysis.calculate_calibration_factor_phi(alpha)
+        print("phi: " + str(phi))
+
+        KIC = Analysis.calculate_k1(P,B,W,f)
+        print("KIC: " + str(KIC))
+
+        GIC = Analysis.calculate_g1(Energy,B,W,phi)
+        print("GIC: " + str(GIC))
+
+        E_test = math.pow(KIC,2)/GIC
+        print("E_test: " + str(E_test))
+
+        return imagepath
 
     @staticmethod
-    def get_g1c(username, model_name, output, model: Model):
+    def get_g1c(username, model_name, output, model: Model, material: Material):
 
         w = model.width
         a = model.cracklength
-        L = model.length / 2.2
+        L = model.length
+        E = material.youngsModulus
 
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
@@ -43,26 +153,31 @@ class Analysis:
             file, -1
         )
 
-        P_low = global_data["Lower_Load_Force"][1]
-        P_up = global_data["Upper_Load_Force"][1]
-        d_low = global_data["Lower_Load_Displacement"][1]
-        d_up = global_data["Upper_Load_Displacement"][1]
+        GIC = 0
 
-        delta = d_up + abs(d_low)
+        if model_name == "GICmodel":
 
-        Delta = 1
+            P_low = global_data["Lower_Load_Force"][1]
+            P_up = global_data["Upper_Load_Force"][1]
+            d_low = global_data["Lower_Load_Displacement"][1]
+            d_up = global_data["Upper_Load_Displacement"][1]
 
-        print(P_low)
-        print(P_up)
-        print(d_low)
-        print(d_up)
-        print(delta)
-        print(w)
-        print(a)
+            delta = d_up + abs(d_low)
 
-        GIC = (3 * P_up * delta) / (
-            2 * w * (a + abs(Delta))
-        )
+            Delta = 1
+
+            print(P_low)
+            print(P_up)
+            print(d_low)
+            print(d_up)
+            print(delta)
+            print(w)
+            print(a)
+
+            GIC = (3 * P_up * delta) / (
+                2 * w * (a + abs(Delta))
+            )
+
 
         return GIC
 
@@ -80,8 +195,8 @@ class Analysis:
             file, -1
         )
 
-        P = global_data["Crosshead_Force"][1]
-        d = -global_data["Crosshead_Displacement"][1]
+        P = global_data["Crosshead_Force"][0][1]
+        d = -global_data["Crosshead_Displacement"][0][1]
 
         GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (
             2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3))

@@ -205,6 +205,7 @@ class CompactTension:
         self,
         xend=50,
         zend=0.003,
+        crack_length=25,
         dx_value=[0.25, 0.25, 0.25],
         filename="CompactTension",
         two_d=True,
@@ -261,8 +262,8 @@ class CompactTension:
             self.zend = 0
             self.dx_value[2] = 1
         else:
-            self.zbegin = -zend
-            self.zend = zend + dx_value[2]
+            self.zbegin = -zend / 2
+            self.zend = zend / 2
 
         number_of_blocks = 5
 
@@ -273,6 +274,9 @@ class CompactTension:
         self.compute_dict = compute
         self.output_dict = output
         self.material_dict = material
+        bond_filter[0].bottomLength = crack_length + 0.5 + 0.25 * self.w
+        bond_filter[0].sideLength = zend + 0.5
+        bond_filter[0].lowerLeftCornerZ = -zend / 2 - 0.5
         self.bondfilters = bond_filter
         self.contact_dict = contact
         self.bc_dict = boundary_condition
@@ -310,7 +314,7 @@ class CompactTension:
         )
         condition = np.where(
             ((x_value - 0.25 * self.w) ** 2) + ((y_value - 0.275 * self.w) ** 2)
-            <= 0.1 * self.w,
+            <= 0.125 * self.w,
             1.0,
             0,
         )
@@ -321,7 +325,7 @@ class CompactTension:
         )
         condition = np.where(
             ((x_value - 0.25 * self.w) ** 2) + ((y_value + 0.275 * self.w) ** 2)
-            <= 0.1 * self.w,
+            <= 0.125 * self.w,
             1.0,
             0,
         )
