@@ -2,11 +2,32 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.tri as mtri
 from support.base_models import Model
 from support.exodus_reader import ExodusReader
 from support.analysis import Analysis
+from support.globals import log
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 class ImageExport:
+    
+    @staticmethod
+    def long_edges(x, y, triangles, radio=0.75):
+        out = []
+        for points in triangles:
+            #print points
+            a,b,c = points
+            d0 = np.sqrt( (x[a] - x[b]) **2 + (y[a] - y[b])**2 )
+            d1 = np.sqrt( (x[b] - x[c]) **2 + (y[b] - y[c])**2 )
+            d2 = np.sqrt( (x[c] - x[a]) **2 + (y[c] - y[a])**2 )
+            max_edge = max([d0, d1, d2])
+            #print points, max_edge
+            if max_edge > radio:
+                out.append(True)
+            else:
+                out.append(False)
+        return out
+
     @staticmethod
     def numpy_line_plot(x,y):
         plt.title("Matplotlib demo") 
@@ -17,7 +38,7 @@ class ImageExport:
         return
         
     @staticmethod
-    def get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height):
+    def get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height, triangulate, step, cb_left, transparent):
 
         # resultpath = "./Results/" + os.path.join(username, model_name)
         # file = os.path.join(resultpath, model_name + "_" + output + ".e")
@@ -25,13 +46,18 @@ class ImageExport:
         # first_points, first_point_data, first_global_data, first_cell_data, first_ns, first_block_data, time = ExodusReader.read_timestep(
         #     file, 1
         # )
-        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
-            file, -1
-        )
+        try:
+            points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
+                file, step)
+        except IndexError:
+            number_of_steps = ExodusReader.get_number_of_steps(file)
+            log.warn("Step can't be found, last step " + str(number_of_steps) + " used!")
+            points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
+                file, number_of_steps)
 
         use_cell_data=False
 
-        if variable in ['Damage','Partial_StressX','Partial_StressY','Partial_StressZ', 'Number_Of_Neighbors']:
+        if variable in ['Damage','Partial_StressX','Partial_StressY','Partial_StressZ', 'Number_Of_Neighbors', 'Block']:
             use_cell_data=True
 
         axis_id=0
@@ -51,17 +77,23 @@ class ImageExport:
         elif axis == 'Magnitude':
             axis_id=0
 
-        fig, ax = plt.subplots()
+        fig = plt.figure(figsize=(20, 20*(height/length)))
+        ax = fig.add_subplot(111)
+
+        # I like to position my colorbars this way, but you don't have to
+        div = make_axes_locatable(ax)
+        if cb_left:
+            cax = div.append_axes('left', '5%', '10%')
+        else:
+            cax = div.append_axes('right', '5%', '5%')
 
         if use_cell_data:
-            min_value = min(cell_data[variable][0][0])
-            max_value = max(cell_data[variable][0][0])
-            for block_id in range(0,len(block_data)):
-                if block_id in cell_data[variable][0]:
-                    if min(cell_data[variable][0][block_id]) < min_value:
-                        min_value = min(cell_data[variable][0][block_id])
-                    if max(cell_data[variable][0][block_id]) > max_value:
-                        max_value = max(cell_data[variable][0][block_id])
+                   
+            np_points_all_x = np.array([])
+            np_points_all_y = np.array([])
+
+            cell_value = np.array([])
+
             for block_id in range(0,len(block_data)):
 
                 block_ids = block_data[block_id][:, 0]
@@ -76,10 +108,55 @@ class ImageExport:
                 np_points_x = np.add(np_first_points_x, np.multiply(np_displacement_x, displ_factor))
                 np_points_y = np.add(np_first_points_y, np.multiply(np_displacement_y, displ_factor))
                 
-                if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
-                    scatter = ax.scatter(np_points_x, np_points_y, c=cell_data[variable][0][block_id], cmap=cm.jet, s=marker_size, vmin=min_value, vmax=max_value)
+                np_points_all_x = np.concatenate([np_points_all_x,np_points_x])
+                np_points_all_y = np.concatenate([np_points_all_y,np_points_y])
+
+                if variable == 'Block':
+                    cell_value = np.concatenate([cell_value, np.full_like(np_points_x,block_id)])
                 else:
-                    scatter = ax.scatter(np_points_x, np_points_y, c=np.full_like(np_points_x,0), cmap=cm.jet, s=marker_size)
+                    if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
+                        cell_value = np.concatenate([cell_value, cell_data[variable][0][block_id]])
+                    else:
+                        cell_value = np.concatenate([cell_value, np.full_like(np_points_x,0)])
+
+            if triangulate:
+
+                try:
+                    triang = mtri.Triangulation(np_points_all_x, np_points_all_y)
+
+                except RuntimeError:
+                    print("Failed to triangulate, displ_factor set to zero!")
+
+                    np_points_all_x = np.array([])
+                    np_points_all_y = np.array([])
+
+                    for block_id in range(0,len(block_data)):
+
+                        block_ids = block_data[block_id][:, 0]
+
+                        block_points = points[block_ids]
+
+                        np_first_points_x = np.array(block_points[:, 0])
+                        np_first_points_y = np.array(block_points[:, 1])
+                        
+                        np_points_all_x = np.concatenate([np_points_all_x,np_first_points_x])
+                        np_points_all_y = np.concatenate([np_points_all_y,np_first_points_y])
+
+                    triang = mtri.Triangulation(np_points_all_x, np_points_all_y)
+                    
+                mask = ImageExport.long_edges(np_points_all_x, np_points_all_y, triang.triangles)
+                triang.set_mask(mask)
+            
+                # plt.triplot(triang)
+                tcf = ax.tricontourf(triang, cell_value, levels=100, cmap=cm.jet)
+                
+                cbar = fig.colorbar(tcf, cax=cax)
+
+            else:
+
+                scatter = ax.scatter(np_points_all_x, np_points_all_y, c=cell_value, cmap=cm.jet, s=marker_size)
+
+                cbar = fig.colorbar(scatter, cax=cax)
 
         else:
             np_first_points_x = np.array(points[:, 0])
@@ -90,29 +167,69 @@ class ImageExport:
             np_points_x = np.add(np_first_points_x, np.multiply(np_displacement_x, displ_factor))
             np_points_y = np.add(np_first_points_y, np.multiply(np_displacement_y, displ_factor))
 
-            scatter = ax.scatter(np_points_x, np_points_y, c=point_data[variable][:,axis_id], cmap=cm.jet, s=marker_size)
+            if triangulate:
+            
+                try:
+                    triang = mtri.Triangulation(np_points_x, np_points_y)
+                except RuntimeError:
+                    print("Failed to triangulate, displ_factor set to zero!")
 
-        # COLORBAR
-        cbar = fig.colorbar(scatter, ax=ax)
+                    np_first_points_x = np.array(points[:, 0])
+                    np_first_points_y = np.array(points[:, 1])
+                    triang = mtri.Triangulation(np_first_points_x, np_first_points_y)
 
+                mask = ImageExport.long_edges(np_points_x, np_points_y, triang.triangles)
+                triang.set_mask(mask)
+
+                tcf = ax.tricontourf(triang, point_data[variable][:,axis_id], levels=100, cmap=cm.jet)
+                
+                cbar = fig.colorbar(tcf, cax=cax)
+
+            else:
+
+                scatter = ax.scatter(np_points_x, np_points_y, c=point_data[variable][:,axis_id], cmap=cm.jet, s=marker_size)
+
+                cbar = fig.colorbar(scatter, cax=cax)
+
+        ax.set_title('Time: ' + "{:.6f}".format(time))
+
+        x_min=0
+        x_max=0
+        y_min=0
+        y_max=0
         # set colorbar label plus label color
-        cbar.set_label(variable + '_' + axis, color='black')
+        if use_cell_data:
+            cbar.set_label(variable, color='black')
+            x_min=np.min(np_points_all_x)
+            x_max=np.max(np_points_all_x)
+            y_min=np.min(np_points_all_y)
+            y_max=np.max(np_points_all_y)
+        else:
+            cbar.set_label(variable + '_' + axis, color='black')
+            x_min=np.min(np_points_x)
+            x_max=np.max(np_points_x)
+            y_min=np.min(np_points_y)
+            y_max=np.max(np_points_y)
+
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(y_min, y_max)
 
         # set colorbar tick color
         cbar.ax.yaxis.set_tick_params(color='black')
 
         # set colorbar edgecolor 
         cbar.outline.set_edgecolor('black')
-
-        fig.set_size_inches(18.5, 18.5 * (height/length))
         
         filepath = ''
-        if 'Partial_Stress' in variable:
-            filepath = file[:-2] + '_' + variable[:-1] + '_' + axis + '.png'
-            fig.savefig(filepath, dpi=400)
+        if use_cell_data:
+            if 'Partial_Stress' in variable:
+                filepath = file[:-2] + '_' + variable[:-1] + '_' + axis + '.png'
+            else:
+                filepath = file[:-2] + '_' + variable + '.png'
         else:
             filepath = file[:-2] + '_' + variable + '_' + axis + '.png'
-            fig.savefig(filepath, dpi=400)
+
+        fig.savefig(filepath, dpi=400, transparent=transparent)
 
         # plt.colorbar()
         plt.show()

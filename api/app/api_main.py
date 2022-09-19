@@ -40,9 +40,10 @@ from models.Smetana.smetana import Smetana
 from models.OwnModel.own_model import OwnModel
 from support.sbatch_creator import SbatchCreator
 from support.file_handler import FileHandler
-from support.base_models import ModelData, FileType, RunData, Status, Model
+from support.base_models import ModelData, FileType, RunData, Status, Model, Material
 from support.analysis import Analysis
 from support.image_export import ImageExport
+from support.video_export import VideoExport
 from support.gcode_reader import GcodeReader
 from support.globals import MYGLOBAL, log
 
@@ -338,6 +339,7 @@ class ModelControl:
             compact_tension = CompactTension(
                 xend=length,
                 zend=width,
+                crack_length=model_data.model.cracklength,
                 dx_value=dx_value,
                 two_d=model_data.model.twoDimensional,
                 rot=model_data.model.rotatedAngles,
@@ -347,7 +349,6 @@ class ModelControl:
                 block=model_data.blocks,
                 boundary_condition=model_data.boundaryConditions,
                 contact=model_data.contact,
-                bond_filter=model_data.bondFilters,
                 compute=model_data.computes,
                 output=model_data.outputs,
                 solver=model_data.solver,
@@ -494,7 +495,7 @@ class ModelControl:
             + ".g.ascii -o "
             + os.path.join(remotepath, model_name)
             + ".g"
-            + " && python3 /Peridigm/scripts/peridigm_to_yaml.py "
+            + " && python3 /peridigm/scripts/peridigm_to_yaml.py "
             + os.path.join(remotepath, model_name)
             + ".peridigm"
             + " && rm "
@@ -884,6 +885,10 @@ class ModelControl:
         marker_size: int = 16,
         length: float = 0.13,
         height: float = 0.02,
+        triangulate: bool = False,
+        step: int = -1,
+        cb_left: Optional[bool]= False,
+        transparent: Optional[bool]= True,
         request: Request = "",
     ):
         """doc"""
@@ -897,7 +902,7 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        filepath = ImageExport.get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height)
+        filepath = ImageExport.get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height, triangulate, step, cb_left, transparent)
 
         try:
             return FileResponse(filepath)
@@ -935,6 +940,79 @@ class ModelControl:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
 
+    @app.get("/getGif", tags=["Get Methods"])
+    def get_gif(
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        variable: str = "Displacement",
+        axis: str = "X",
+        apply_displacements: bool = False,
+        displ_factor: int = 200,
+        max_edge_distance: float = 0.02,
+        length: float = 4.4,
+        height: float = 1.1,
+        fps: int = 2,
+        dpi: int = 100,
+        x_min: Optional[float] = None,
+        x_max: Optional[float] = None,
+        y_min: Optional[float] = None,
+        y_max: Optional[float] = None,
+        size: Optional[float] = None,
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+        filepath = VideoExport.get_gif_from_exodus(file, apply_displacements, displ_factor, max_edge_distance, variable, axis, length, height, fps, dpi, x_min, x_max, y_min, y_max, size)
+
+        try:
+            return FileResponse(filepath)
+        except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
+            return model_name + " results can not be found on " + cluster
+
+    
+
+    @app.get("/getTriangulatedMeshFromExodus", tags=["Get Methods"])
+    def get_triangulated_mesh_from_exodus(
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        displ_factor: int = 10,
+        timestep: int = -1,
+        max_edge_distance: float = 0.5,
+        length: float = 0.13,
+        height: float = 0.02,
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+        filepath = VideoExport.get_triangulated_mesh_from_exodus(file, displ_factor, timestep, max_edge_distance, length, height)
+
+        try:
+            return FileResponse(filepath)
+        except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
+            return model_name + " results can not be found on " + cluster
+
     @app.get("/getResultFile", tags=["Get Methods"])
     def get_result_file(
         model_name: str = "Dogbone",
@@ -960,7 +1038,7 @@ class ModelControl:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
             
-    @app.get("/getGlobalDataTimeseries", tags=["Post Methods"])
+    @app.get("/getGlobalDataTimeseries", tags=["Get Methods"])
     def get_global_data_timeseries(
         model_name: str = "Dogbone",
         cluster: str = "None",
@@ -1006,9 +1084,9 @@ class ModelControl:
     @app.post("/calculateG1c", tags=["Post Methods"])
     def calculate_g1c(
         model: Model,
+        youngs_modulus: float = 2974,
         model_name: str = "Dogbone",
         cluster: str = "None",
-        output: str = "Output1",
         request: Request = "",
     ):
         """doc"""
@@ -1019,11 +1097,11 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        response = Analysis.get_g1c(username, model_name, output, model)
+        response = Analysis.get_g1c_k1c(username, model_name, model, youngs_modulus)
         # print(crack_length)
         # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
         try:
-            return response
+            return FileResponse(response)
         except IOError:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
