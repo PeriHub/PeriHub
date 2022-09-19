@@ -32,7 +32,7 @@ class FileHandler:
 
         if cluster == "None":
             return "/Peridigm/src/materials/umats/"
-        return "./Peridigm/src/src/materials/umats/"
+        return "./peridigm/src/src/materials/umats/"
 
     @staticmethod
     def get_remote_user_path(username):
