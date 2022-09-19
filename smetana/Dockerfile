@@ -22,3 +22,4 @@ RUN conda update --name base conda &&\
     conda develop /app/support/stepp/src/ -n app &&\
     git clone https://__token__:$GITLAB_TOKEN@gitlab.dlr.de/fa_sw/vampire.git /app/support/vampire &&\
     conda develop /app/support/vampire/src/ -n app
+    
