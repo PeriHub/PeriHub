@@ -1,6 +1,7 @@
 import numpy as np
 import re
 import netCDF4
+import numpy.ma as ma
 
 
 class ExodusReader:
@@ -385,7 +386,7 @@ class ExodusReader:
 
             point_sets = {name: dat for name, dat in zip(ns_names, ns)}
 
-        return points, point_data, global_data, cell_data, ns, block_data, time
+        return points, point_data, global_data, cell_data, ns, block_data, ma.getdata(time).tolist()
 
     def get_number_of_steps(file):
 

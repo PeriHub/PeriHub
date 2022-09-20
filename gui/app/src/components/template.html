@@ -2405,31 +2405,103 @@
                 <v-card-text
                   >Which variable do you want to use for the
                   x-axis?</v-card-text
-                >
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="green darken-1" text @click="getPlot('Time')">
-                    Time
-                  </v-btn>
-                  <v-btn
-                    color="green darken-1"
-                    text
-                    @click="getPlot('Displacement')"
-                  >
-                    Displacement
-                  </v-btn>
-                  <v-btn
-                    color="red darken-1"
-                    text
-                    @click="dialogGetPlot = false"
-                  >
-                    Cancel
-                  </v-btn>
-                </v-card-actions>
+                ><v-card-text>
+                  <v-row>
+                    <v-col class="textfield-col">
+                      <v-select
+                        :items="outputs"
+                        item-text="name"
+                        v-model="getPlotOutput"
+                        label="Output Name"
+                        outlined
+                        dense
+                      ></v-select>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col class="textfield-col">
+                      <v-select
+                        :items="getPlotVariables"
+                        v-model="getPlotVariableX"
+                        label="Variable"
+                        outlined
+                        dense
+                      ></v-select>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-select
+                        :items="getImageAxis"
+                        :disabled="getPlotVariableX=='Damage'"
+                        v-model="getPlotAxisX"
+                        label="Axis"
+                        outlined
+                        dense
+                      ></v-select>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-checkbox
+                        v-model="getPlotAbsoluteX"
+                        label="Absolute"
+                        outlined
+                        dense
+                      ></v-checkbox>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col class="textfield-col">
+                      <v-select
+                        :items="getPlotVariables"
+                        v-model="getPlotVariableY"
+                        label="Variable"
+                        outlined
+                        dense
+                      ></v-select>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-select
+                        :items="getImageAxis"
+                        :disabled="getPlotVariableY=='Damage'"
+                        v-model="getPlotAxisY"
+                        label="Axis"
+                        outlined
+                        dense
+                      ></v-select>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-checkbox
+                        v-model="getPlotAbsoluteY"
+                        label="Absolute"
+                        outlined
+                        dense
+                      ></v-checkbox>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col class="textfield-col">
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getPlot(false)"
+                      >
+                        Show
+                      </v-btn>
+                      <v-btn color="green darken-1" text @click="getPlot(true)">
+                        Append
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogGetPlot = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
               </v-card>
             </v-dialog>
 
-            <v-tooltip bottom
+            <!-- <v-tooltip bottom
               ><template v-slot:activator="{ on, attrs }">
                 <v-btn
                   class="my-btn"
@@ -2475,7 +2547,7 @@
                   <v-btn color="green darken-1" text @click="getImage">
                     Show
                   </v-btn>
-                  <!-- <v-btn
+                  <v-btn
                         color="green darken-1"
                         text
                         @click="getImage('Damage')"
@@ -2495,7 +2567,7 @@
                         @click="getImage('Force')"
                       >
                         Force
-                      </v-btn> -->
+                      </v-btn>
                   <v-btn
                     color="red darken-1"
                     text
@@ -2505,7 +2577,7 @@
                   </v-btn>
                 </v-card-actions>
               </v-card>
-            </v-dialog>
+            </v-dialog> -->
 
             <v-tooltip bottom
               ><template v-slot:activator="{ on, attrs }">
@@ -2523,54 +2595,96 @@
             </v-tooltip>
 
             <v-dialog v-model="dialogGetImagePython" persistent max-width="800">
-              <v-card>
+              <v-card height="300">
                 <v-card-title class="text-h5"> Show Image </v-card-title>
                 <v-card-text
                   >Which variable do you want to display ?</v-card-text
                 >
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-select
-                    :items="outputs"
-                    item-text="name"
-                    v-model="getImageOutput"
-                    label="Output Name"
-                    outlined
-                  ></v-select>
-                  <v-select
-                    :items="getImageVariable"
-                    v-model="getImageVariableSelected"
-                    label="Variable"
-                    outlined
-                  ></v-select>
-                  <v-select
-                    :items="getImageAxis"
-                    :disabled="getImageVariableSelected=='Damage'"
-                    v-model="getImageAxisSelected"
-                    label="Axis"
-                    outlined
-                  ></v-select>
-                  <v-text-field
-                    v-model="getImageDisplFactor"
-                    label="Displacement Factor"
-                    outlined
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="getImageMarkerSize"
-                    label="Marker Size"
-                    outlined
-                  ></v-text-field>
-                  <v-btn color="green darken-1" text @click="getImagePython">
-                    Show
-                  </v-btn>
-                  <v-btn
-                    color="red darken-1"
-                    text
-                    @click="dialogGetImagePython = false"
-                  >
-                    Cancel
-                  </v-btn>
-                </v-card-actions>
+                <v-card-text>
+                  <v-row>
+                    <v-col class="textfield-col">
+                      <v-select
+                        :items="outputs"
+                        item-text="name"
+                        v-model="getImageOutput"
+                        label="Output Name"
+                        outlined
+                        dense
+                      ></v-select>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-select
+                        :items="getImageVariable"
+                        v-model="getImageVariableSelected"
+                        label="Variable"
+                        outlined
+                        dense
+                      ></v-select>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-select
+                        :items="getImageAxis"
+                        :disabled="getImageVariableSelected=='Damage'"
+                        v-model="getImageAxisSelected"
+                        label="Axis"
+                        outlined
+                        dense
+                      ></v-select>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col class="textfield-col">
+                      <v-text-field
+                        v-model="getImageDisplFactor"
+                        label="Displacement Factor"
+                        outlined
+                        dense
+                      ></v-text-field>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-text-field
+                        v-model="getImageMarkerSize"
+                        label="Marker Size"
+                        outlined
+                        dense
+                      ></v-text-field>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-text-field
+                        v-model="getImageStep"
+                        label="Time Step"
+                        outlined
+                        dense
+                      ></v-text-field>
+                    </v-col>
+                    <v-col class="textfield-col">
+                      <v-checkbox
+                        v-model="getImageTriangulate"
+                        label="Triangulate"
+                        outlined
+                        dense
+                      ></v-checkbox>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col class="textfield-col">
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="getImagePython"
+                      >
+                        Show
+                      </v-btn>
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="dialogGetImagePython = false"
+                      >
+                        Cancel
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
               </v-card>
             </v-dialog>
 

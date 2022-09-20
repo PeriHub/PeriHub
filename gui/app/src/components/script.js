@@ -672,6 +672,7 @@ export default {
       vtkFile: "",
       dialog: false,
       dialogGetImage: false,
+
       dialogGetImagePython: false,
       getImageOutput: "Output1",
       getImageVariable: [
@@ -688,11 +689,23 @@ export default {
       getImageAxisSelected: "Magnitude",
       getImageDisplFactor: 20,
       getImageMarkerSize: 16,
+      getImageTriangulate: true,
+      getImageStep: -1,
       dialogGetG1c: false,
       getG1cOutput: "Output1",
       getG1cFrequency: 10,
       dialogShowResults: false,
+
       dialogGetPlot: false,
+      getPlotVariables: [],
+      getPlotOutput: "Output1",
+      getPlotVariableX: "Time",
+      getPlotAxisX: "X",
+      getPlotAbsoluteX: true,
+      getPlotVariableY: "External_Displacement",
+      getPlotAxisY: "X",
+      getPlotAbsoluteY: true,
+
       dialogDeleteData: false,
       dialogDeleteModel: false,
       dialogDeleteCookies: false,
@@ -708,12 +721,6 @@ export default {
           name: "Displacement",
           x: [1, 2, 3, 4],
           y: [10, 15, 20, 17],
-          type: "scatter",
-        },
-        {
-          name: "Force",
-          x: [1, 2, 3, 4],
-          y: [10, 15, 5, 17],
           type: "scatter",
         },
       ],
@@ -2317,36 +2324,25 @@ export default {
 
       this.resultsLoading = false;
     },
-    async getPlot(Variable) {
+    async getPlot(append) {
       this.dialogGetPlot = false;
       let headersList = {
         "Cache-Control": "no-cache",
         Authorization: this.authToken,
       };
-      let OutputName = "";
-      for (var i = 0; i < this.computes.length; i++) {
-        if (
-          (this.computes[i]["variable"] == "External_Force") |
-          this.computes[i]["variable"]
-        ) {
-          OutputName = this.computes[i]["name"];
-          break;
-        }
-      }
-      if (OutputName == "") {
-        this.message =
-          "No Output was defined with External_Force or External_Displacement";
-        this.snackbar = true;
-        this.modelLoading = false;
-        return;
-      }
 
       let reqOptions = {
         url: this.url + "getPlot",
         params: {
           model_name: this.model.modelNameSelected,
-          Cluster: this.job.cluster,
-          OutputName: OutputName,
+          cluster: this.job.cluster,
+          output: this.getPlotOutput,
+          x_variable: this.getPlotVariableX,
+          x_axis: this.getPlotAxisX,
+          x_absolute: this.getPlotAbsoluteX,
+          y_variable: this.getPlotVariableY,
+          y_axis: this.getPlotAxisY,
+          y_absolute: this.getPlotAbsoluteY,
         },
         method: "GET",
         headers: headersList,
@@ -2363,15 +2359,24 @@ export default {
           return;
         });
 
-      if (Variable == "Time") {
-        this.plotData[0].x = this.plotRawData[0].split(",");
-        this.plotData[1].x = this.plotRawData[0].split(",");
-      } else if (Variable == "Displacement") {
-        this.plotData[0].x = this.plotRawData[1].split(",");
-        this.plotData[1].x = this.plotRawData[1].split(",");
+      let newPlot = {
+        name: "",
+        x: [],
+        y: [],
+        type: "scatter",
+      };
+
+      newPlot.x = this.plotRawData[0];
+      newPlot.y = this.plotRawData[1];
+      newPlot.name = this.getPlotVariableY;
+
+      if (append) {
+        this.plotData.push(newPlot);
+      } else {
+        let newPlotData = [newPlot];
+        this.plotData = newPlotData;
       }
-      this.plotData[0].y = this.plotRawData[1].split(",");
-      this.plotData[1].y = this.plotRawData[2].split(",");
+
       this.viewId = 2;
       this.modelLoading = false;
     },
@@ -2443,6 +2448,8 @@ export default {
           marker_size: this.getImageMarkerSize,
           length: this.model.length,
           height: this.model.height,
+          triangulate: this.getImageTriangulate,
+          step: this.getImageStep,
         },
         method: "GET",
         responseType: "blob",
@@ -3008,6 +3015,15 @@ export default {
       }
       this.viewId = 0;
     },
+    updatePlotVariables() {
+      let items = [];
+
+      for (var i = 0; i < this.computes.length; i++) {
+        items.push(this.computes[i].name);
+      }
+      items.push("Time");
+      this.getPlotVariables = items;
+    },
     changeToXml() {
       if (this.job.cluster == "FA-Cluster") {
         this.solver.filetype = "xml";
@@ -3262,6 +3278,7 @@ export default {
       handler() {
         // console.log('computes changed!');
         localStorage.setItem("computes", JSON.stringify(this.computes));
+        this.updatePlotVariables();
       },
       deep: true,
     },

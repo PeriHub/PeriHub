@@ -916,7 +916,7 @@ class ModelControl:
         cluster: str = "None",
         output: str = "Output1",
         x_variable: str = "Time",
-        x_axis: str = "",
+        x_axis: str = "X",
         y_variable: str = "External_Displacement",
         y_axis: str = "X",
         request: Request = "",
@@ -1231,7 +1231,13 @@ class ModelControl:
     def get_plot(
         model_name: str = "Dogbone",
         cluster: str = "None",
-        output_name: str = "Output1",
+        output: str = "Output1",
+        x_variable: str = "Time",
+        x_axis: str = "X",
+        x_absolute: bool = True,
+        y_variable: str = "External_Displacement",
+        y_axis: str = "X",
+        y_absolute: bool = True,
         request: Request = "",
     ):
         """doc"""
@@ -1240,52 +1246,15 @@ class ModelControl:
         if not FileHandler.copy_results_from_cluster(
             username, model_name, cluster, False
         ):
-            raise HTTPException(
-                status_code=404,
-                detail=model_name + " results can not be found on " + cluster,
-            )
+            raise IOError  # NotFoundException(name=model_name)
 
-        # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        with subprocess.Popen(
-            [
-                "sh support/read.sh globalData "
-                + username
-                + " "
-                + model_name
-                + " "
-                + output_name
-            ],
-            shell=True,
-        ) as process:
-            process.wait()
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        time_string = ""
-        displacement_string = ""
-        force_string = ""
-        first_row = True
-        try:
-            with open(
-                "./Results/" + os.path.join(username, model_name) + "/" + "dat.csv",
-                "r",
-                encoding="UTF-8",
-            ) as file:
-                reader = csv.reader(file)
-                for row in reader:
-                    # print(row)
-                    if not first_row:
-                        time_string += row[-1] + ","
-                        displacement_string += row[4] + ","
-                        force_string += row[8] + ","
-                    first_row = False
-            response = [
-                time_string.rstrip(time_string[-1]),
-                displacement_string.rstrip(displacement_string[-1]),
-                force_string.rstrip(force_string[-1]),
-            ]
-            return response
-        except IOError:
-            log.error(model_name + " results can not be found on " + cluster)
-            return model_name + " results can not be found on " + cluster
+        x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
+        y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
+
+        return x_data, y_data
 
     @app.get("/getPointData", tags=["Get Methods"])
     def get_point_data(

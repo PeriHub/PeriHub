@@ -67,7 +67,7 @@ class Analysis:
                     data = [item[2] for item in global_data[variable]]
                 elif axis == "Magnitude":
                     data = [item[0] for item in global_data[variable]]
-            return data
+        return data
 
     
     @staticmethod
