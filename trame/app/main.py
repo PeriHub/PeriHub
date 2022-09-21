@@ -1,27 +1,30 @@
 import os
 import sys
-import venv
+import paraview.web.venv
 import time
 import asyncio
 
-from trame import state
-from trame.html import vuetify, paraview
-from trame.layouts import SinglePage
+from trame.app import get_server, asynchronous
+from trame.widgets import vuetify, paraview
+from trame.ui.vuetify import SinglePageLayout
 
 from paraview import simple
 
+server = get_server()
+state, ctrl = server.state, server.controller
 
 def last_time_step():
     state.time = state.times
     update_time(state.time)
-    state.flush("time", "time_value")
-    html_view.update()
+    # state.flush("time", "time_value")
+    # state.flush("time")
+    update_view()
 
 
 # @state.change("scale")
 # def update_scale(scale, **kwargs):
 #     glyph1.ScaleFactor = scale
-#     html_view.update()
+#     update_view()
 
 
 @state.change("raycast")
@@ -30,34 +33,34 @@ def update_scale(raycast, **kwargs):
         renderView1.EnableRayTracing = 1
     else:
         renderView1.EnableRayTracing = 0
-    html_view.update()
+    update_view()
 
 
 def reset():
     html_view.reset_camera
-    # html_view.update()
+    # update_view()
 
 
 def first_time_step():
     state.time = 0
     update_time(0)
     state.flush("time", "time_value")
-    html_view.update()
+    update_view()
 
 
 def previous_time_step():
     state.time -= 1
     update_time(state.time)
     state.flush("time", "time_value")
-    html_view.update()
+    update_view()
 
 
 # def play():
 #     animationScene1.Play()
-#     html_view.update()
+#     update_view()
 # starttime = time.time()
 # while True:
-#     html_view.update()
+#     update_view()
 #     #     next_time_step()
 #     time.sleep(0.5 - time.time() % 0.5)
 
@@ -66,19 +69,19 @@ def next_time_step():
     state.time += 1
     update_time(state.time)
     state.flush("time", "time_value")
-    html_view.update()
+    update_view()
     # animationScene1.GoToNext()
-    # html_view.update()
+    # update_view()
 
 
 def rescale():
     Output1Display.RescaleTransferFunctionToDataRange(False, True)
-    html_view.update()
+    update_view()
 
 
 def reload():
     simple.ReloadFiles(Output1)
-    html_view.update()
+    update_view()
 
 
 @state.change("time")
@@ -90,7 +93,7 @@ def update_time(time, **kwargs):
     time_value = time_values[time]
     time_keeper.Time = time_value
     state.time_value = time_value
-    html_view.update()
+    update_view()
     # simple.update_view(viewMode)
 
 
@@ -98,7 +101,12 @@ def update_time(time, **kwargs):
 def update_play(play, **kwargs):
     loop = asyncio.get_event_loop()
     loop.create_task(animate())
-
+    
+@state.change("viewMode")
+def update_view(**kwargs):
+    ctrl.view_update()
+    # if viewMode == "local":
+    #     ctrl.view_update_geometry()
 
 async def animate():
     keep_going = True
@@ -126,7 +134,7 @@ def change_nodal(nodal, **kwargs):
     Output1Display.SetScalarBarVisibility(renderView1, True)
     # velocityLUT = simple.GetColorTransferFunction(nodal)
     # velocityPWF = simple.GetOpacityTransferFunction(nodal)
-    html_view.update()
+    update_view()
 
 
 # def update_reset_resolution():
@@ -356,118 +364,130 @@ renderView1.ResetCamera()
 # GUI
 # -----------------------------------------------------------------------------
 # view = simple.GetActiveView()
-renderView1.MakeRenderWindowInteractor(True)
+# renderView1.MakeRenderWindowInteractor(True)
+view = simple.GetRenderView()
+view.UseColorPaletteForBackground = 1
+# view.Background = [45 / 255, 45 / 255, 45 / 255]]
+view.OrientationAxesVisibility = 1
+view = simple.Render()
 
-
-html_view = paraview.VtkRemoteView(renderView1)  # Remote rendering
+# html_view = paraview.VtkRemoteView(renderView1)  # Remote rendering
 # html_view = paraview.VtkLocalView(renderView1)  # Local rendering
 
-last_time_step()
+# last_time_step()
 
-rescale()
+# rescale()
 
-layout = SinglePage("ParaView cone", on_ready=reset)
-# layout = SinglePage("ParaView cone", on_ready=html_view.update)
-# layout.content.children[0].add_child(html_view)
-# layout.flush_content()
-layout.logo.click = html_view.reset_camera
-layout.title.set_text(OutputName)
-# layout.content.add_child(vuetify.VContainer(fluid=True, classes="pa-0 fill-height"))
+# ctrl.on_server_ready.add(rescale())
 
-with layout.toolbar:
-    vuetify.VSpacer()
-    # vuetify.VSlider(
-    #     v_model=("scale", 0.01),
-    #     min=0.001,
-    #     max=1,
-    #     step=0.001,
-    #     hide_details=True,
-    #     dense=True,
-    #     style="max-width: 300px",
-    # )
-    vuetify.VSwitch(
-        v_model=("$vuetify.theme.dark", True),
-        hide_details=True,
-        dense=True,
-    ),
-    vuetify.VSwitch(
-        v_model=("raycast", False),
-        hide_details=True,
-        dense=True,
-    ),
-    with vuetify.VBtn(icon=True, click=reload):
-        vuetify.VIcon("mdi-reload")
-    vuetify.VTextField(
-        v_model=("time_value", 0),
-        disabled=True,
-        hide_details=True,
-        dense=True,
-        style="max-width: 200px",
-        classes="mx-2",
-    )
-    vuetify.VSlider(
-        v_model=("time", 0),
-        min=0,
-        max=("times", 1),
-        hide_details=True,
-        dense=True,
-        style="max-width: 200px",
-    )
-    with vuetify.VBtn(icon=True, dense=True, click=first_time_step):
-        vuetify.VIcon("mdi-skip-previous")
-    vuetify.VDivider(vertical=True, classes="mx-2")
-    with vuetify.VBtn(icon=True, dense=True, click=previous_time_step):
-        vuetify.VIcon("mdi-rewind")
-    vuetify.VDivider(vertical=True, classes="mx-2")
-    vuetify.VCheckbox(
-        v_model=("play", False),
-        off_icon="mdi-play",
-        on_icon="mdi-stop",
-        hide_details=True,
-        dense=True,
-    )
-    # with vuetify.VBtn(icon=True, click=play):
-    #     vuetify.VIcon("mdi-play")
-    vuetify.VDivider(vertical=True, classes="mx-2")
-    with vuetify.VBtn(icon=True, dense=True, click=next_time_step):
-        vuetify.VIcon("mdi-fast-forward")
-    vuetify.VDivider(vertical=True, classes="mx-2")
-    with vuetify.VBtn(icon=True, dense=True, click=last_time_step):
-        vuetify.VIcon("mdi-skip-next")
-    # vuetify.VDivider(vertical=True, classes="mx-2")
-    # with vuetify.VBtn(icon=True, click=reset):
-    #     vuetify.VIcon("mdi-vector-square")
-    vuetify.VDivider(vertical=True, classes="mx-2")
-    with vuetify.VBtn(icon=True, dense=True, click=rescale):
-        vuetify.VIcon("mdi-palette")
-    vuetify.VSelect(
-        # Representation
-        v_model=("nodal", "Displacement"),
-        items=(
-            "representations",
-            OutputList,
-            # [
-            #     "Force",
-            #     "Displacement",
-            # ],
+with SinglePageLayout(server) as layout:
+
+    # layout = SinglePage("ParaView cone", on_ready=html_view.update)
+    # layout.content.children[0].add_child(html_view)
+    # layout.flush_content()
+    layout.icon.click = ctrl.view_reset_camera
+    layout.title.set_text(OutputName)
+    # layout.content.add_child(vuetify.VContainer(fluid=True, classes="pa-0 fill-height"))
+    with layout.toolbar:
+        vuetify.VSpacer()
+        # vuetify.VSlider(
+        #     v_model=("scale", 0.01),
+        #     min=0.001,
+        #     max=1,
+        #     step=0.001,
+        #     hide_details=True,
+        #     dense=True,
+        #     style="max-width: 300px",
+        # )
+        vuetify.VSwitch(
+            v_model=("$vuetify.theme.dark", True),
+            hide_details=True,
+            dense=True,
         ),
-        label="Nodal",
-        hide_details=True,
-        dense=True,
-        outlined=True,
-        classes="pt-1",
-    )
+        vuetify.VSwitch(
+            v_model=("raycast", False),
+            hide_details=True,
+            dense=True,
+        ),
+        with vuetify.VBtn(icon=True, click=reload):
+            vuetify.VIcon("mdi-reload")
+        vuetify.VTextField(
+            v_model=("time_value", 0),
+            disabled=True,
+            hide_details=True,
+            dense=True,
+            style="max-width: 200px",
+            classes="mx-2",
+        )
+        vuetify.VSlider(
+            v_model=("time", 0),
+            min=0,
+            max=("times", 1),
+            hide_details=True,
+            dense=True,
+            style="max-width: 200px",
+        )
+        with vuetify.VBtn(icon=True, dense=True, click=first_time_step):
+            vuetify.VIcon("mdi-skip-previous")
+        vuetify.VDivider(vertical=True, classes="mx-2")
+        with vuetify.VBtn(icon=True, dense=True, click=previous_time_step):
+            vuetify.VIcon("mdi-rewind")
+        vuetify.VDivider(vertical=True, classes="mx-2")
+        vuetify.VCheckbox(
+            v_model=("play", False),
+            off_icon="mdi-play",
+            on_icon="mdi-stop",
+            hide_details=True,
+            dense=True,
+        )
+        # with vuetify.VBtn(icon=True, click=play):
+        #     vuetify.VIcon("mdi-play")
+        vuetify.VDivider(vertical=True, classes="mx-2")
+        with vuetify.VBtn(icon=True, dense=True, click=next_time_step):
+            vuetify.VIcon("mdi-fast-forward")
+        vuetify.VDivider(vertical=True, classes="mx-2")
+        with vuetify.VBtn(icon=True, dense=True, click=last_time_step):
+            vuetify.VIcon("mdi-skip-next")
+        # vuetify.VDivider(vertical=True, classes="mx-2")
+        # with vuetify.VBtn(icon=True, click=reset):
+        #     vuetify.VIcon("mdi-vector-square")
+        vuetify.VDivider(vertical=True, classes="mx-2")
+        with vuetify.VBtn(icon=True, dense=True, click=rescale):
+            vuetify.VIcon("mdi-palette")
+        vuetify.VSelect(
+            # Representation
+            v_model=("nodal", "Displacement"),
+            items=(
+                "representations",
+                OutputList,
+                # [
+                #     "Force",
+                #     "Displacement",
+                # ],
+            ),
+            label="Nodal",
+            hide_details=True,
+            dense=True,
+            outlined=True,
+            classes="pt-1",
+        )
 
-with layout.content:
-    vuetify.VContainer(
-        fluid=True,
-        classes="pa-0 fill-height",
-        children=[html_view],
-    )
+    with layout.content:
+        with vuetify.VContainer(fluid=True, classes="pa-0 fill-height"):
+            html_view = paraview.VtkRemoteView(view, namespace="view")
+            ctrl.view_update = html_view.update
+            ctrl.view_update_geometry = html_view.update_geometry
+            ctrl.view_update_image = html_view.update_image
+            ctrl.view_reset_camera = html_view.reset_camera
+        # vuetify.VContainer(
+        #     fluid=True,
+        #     classes="pa-0 fill-height",
+        #     children=[html_view],
+        # )
 
 # -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    layout.start()
+    server.start()
