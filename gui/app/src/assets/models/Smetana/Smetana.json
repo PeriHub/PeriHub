@@ -395,10 +395,10 @@
     },
     "stopAfterDamageInitation": false,
     "stopBeforeDamageInitation": false,
-    "adaptivetimeStepping": false,
+    "adaptivetimeStepping": true,
     "adapt": {
-      "stableStepDifference": 4,
-      "maximumBondDifference": 4,
+      "stableStepDifference": 6,
+      "maximumBondDifference": 2,
       "stableBondDifference": 1
     },
     "filetype": "yaml"

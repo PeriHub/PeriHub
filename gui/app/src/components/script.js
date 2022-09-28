@@ -1742,6 +1742,7 @@ export default {
     },
     async resetData() {
       const jsonFile = {};
+      // console.log(this.model.modelNameSelected);
       switch (this.model.modelNameSelected) {
         case "GICmodel":
           Object.assign(jsonFile, GICmodelFile);
@@ -1771,33 +1772,20 @@ export default {
           return;
       }
 
-      // for(var i = 0; i < Object.keys(this.jsonFile).length; i++) {
-      // var name = Object.keys(this.jsonFile)[i]
-      // if (name!='Param'){
-      //   this.model[name] = this.jsonFile[name];
-      // }
-      // else{
-      // var param = result[i]
-      // console.log(jsonFile);
-      // console.log(Object.keys(jsonFile).length)
       for (var i = 0; i < Object.keys(jsonFile).length; i++) {
         var paramName = Object.keys(jsonFile)[i];
-        // console.log(i)
-        if ((paramName != "model") & (paramName != "solver")) {
-          // console.log(paramName);
-          // console.log(this[paramName].length)
-          // console.log(jsonFile[paramName].length)
-          // console.log(this[paramName])
-          // console.log(jsonFile[paramName])
+        // console.log(this[paramName]);
+        // console.log(jsonFile[paramName]);
+
+        // this[paramName] = [...jsonFile[paramName]];
+        if (Array.isArray(jsonFile[paramName])) {
           if (this[paramName].length > jsonFile[paramName].length) {
             for (
               var j = this[paramName].length;
               j >= jsonFile[paramName].length;
               j--
             ) {
-              // for(var j = jsonFile[paramName].length; j < this[paramName].length; j++) {
               this[paramName].splice(j, 1);
-              // console.log('Remove'+ j)
             }
           }
           if (this[paramName].length < jsonFile[paramName].length) {
@@ -1809,15 +1797,11 @@ export default {
               this[paramName].push({});
             }
           }
+          this[paramName] = [...jsonFile[paramName]];
+        } else {
+          this[paramName] = { ...jsonFile[paramName] };
         }
-        // console.log(this[paramName]);
-        // console.log(jsonFile[paramName]);
-        // this[paramName] = [...jsonFile[paramName]];
-        this.$set(this, paramName, jsonFile[paramName]);
-        // Object.assign(this[paramName], jsonFile[paramName]);
       }
-      // }
-      // }
     },
     // saveCurrentData() {
     // this.$store.commit('saveModelName', this.model.modelNameSelected);
@@ -2984,10 +2968,10 @@ export default {
     removeOutput(index) {
       this.outputs.splice(index, 1);
     },
-    modelNameChangedEvent() {
+    async modelNameChangedEvent() {
       this.showModelImg();
       this.getStatus();
-      this.resetData();
+      await this.resetData();
     },
     showModelImg() {
       switch (this.model.modelNameSelected) {
@@ -3011,6 +2995,9 @@ export default {
           break;
         case "CompactTension":
           this.modelImg = CompactTensionImage;
+          break;
+        case "Smetana":
+          this.modelImg = SmetanaImage;
           break;
       }
       this.viewId = 0;
