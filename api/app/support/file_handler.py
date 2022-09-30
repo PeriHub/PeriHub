@@ -32,6 +32,8 @@ class FileHandler:
 
         if cluster == "None":
             return "/Peridigm/src/materials/umats/"
+        if cluster == "Cara":
+            return "/home/f_peridi/software/peridigm/"
         return "./peridigm/src/src/materials/umats/"
 
     @staticmethod

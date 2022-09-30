@@ -306,7 +306,7 @@ class KalthoffWinkler:
         """doc"""
         k = np.where(
             np.logical_and(
-                x_value < self.dx_value[0] * 3,
+                x_value < self.dx_value[0] * 5,
                 np.logical_and(y_value <= 25, y_value >= -25),
             ),
             4,
