@@ -5,13 +5,14 @@ LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
 ARG DEV
 ENV DEV $DEV
+ENV NODE_OPTIONS=--openssl-legacy-provider
 
 WORKDIR /app
 
 RUN if [ "$DEV" = "True" ]; then echo "VUE_APP_DEV=True" > .env; fi
 
 COPY app/package*.json ./
-RUN export NODE_OPTIONS=--openssl-legacy-provider
+
 RUN npm install
 COPY app/. .
 
