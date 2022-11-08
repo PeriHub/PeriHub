@@ -11,6 +11,7 @@ WORKDIR /app
 RUN if [ "$DEV" = "True" ]; then echo "VUE_APP_DEV=True" > .env; fi
 
 COPY app/package*.json ./
+RUN export NODE_OPTIONS=--openssl-legacy-provider
 RUN npm install
 COPY app/. .
 
