@@ -194,4 +194,4 @@ plt.xlabel("Displacement [mm]")
 plt.ylabel("Force [N]")
 
 plt.show()
-fig.savefig("DisplForceAmp.png")
+# fig.savefig("DisplForceAmp.png")

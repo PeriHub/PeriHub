@@ -55,6 +55,7 @@ export default {
         "DCBmodel",
         "CompactTension",
         "Smetana",
+        "OwnModel",
       ], //, 'RVE'],
       model: {
         modelNameSelected: "Dogbone",
@@ -230,6 +231,27 @@ export default {
         hourglassCoefficient: "Hourglass Coefficient",
         actualHorizon: "Actual Horizon",
         yieldStress: "Yield Stress",
+        Parameter_0: "C11",
+        Parameter_1: "C12",
+        Parameter_2: "C13",
+        Parameter_3: "C14",
+        Parameter_4: "C15",
+        Parameter_5: "C16",
+        Parameter_6: "C22",
+        Parameter_7: "C23",
+        Parameter_8: "C24",
+        Parameter_9: "C25",
+        Parameter_10: "C26",
+        Parameter_11: "C33",
+        Parameter_12: "C34",
+        Parameter_13: "C35",
+        Parameter_14: "C36",
+        Parameter_15: "C44",
+        Parameter_16: "C45",
+        Parameter_17: "C46",
+        Parameter_18: "C55",
+        Parameter_19: "C56",
+        Parameter_20: "C66",
       },
       // Damage
       damageModelName: [
@@ -325,9 +347,10 @@ export default {
         },
       ],
       blockKeys: {
-        name: "name",
+        name: "Block Names",
         material: "Material",
         damageModel: "Damage Model",
+        horizon: "Horizon",
       },
       //  boundaryConditions
       boundarytype: [
@@ -510,6 +533,7 @@ export default {
           Horizon: false,
           Model_Coordinates: false,
           Local_Angles: false,
+          Orientations: false,
           Coordinates: false,
           Acceleration: false,
           Temperature: false,
@@ -535,6 +559,7 @@ export default {
         Horizon: "Horizon",
         Model_Coordinates: "Model_Coordinates",
         Local_Angles: "Local_Angles",
+        Orientations: "Orientations",
         Coordinates: "Coordinates",
         Acceleration: "Acceleration",
         Temperature: "Temperature",
@@ -1197,7 +1222,8 @@ export default {
       for (var i = 0; i < splitString.length; i++) {
         if (
           !splitString[i].includes("</ParameterList>") &&
-          !splitString[i].includes("<ParameterList>")
+          !splitString[i].includes("<ParameterList>") &&
+          !splitString[i].includes("<?xml")
         ) {
           var partString = splitString[i].split('"');
           var spaces = splitString[i].split("<");
@@ -1418,7 +1444,12 @@ export default {
                 this.model.horizon = -1.0;
               }
             }
-            this[paramName][i][key] = paramObject[names[i]][subNames[j]];
+            if (key.includes("Parameter_")) {
+              this.materials[i].Parameter[key.split("_")[1]].value =
+                paramObject[names[i]][subNames[j]];
+            } else {
+              this[paramName][i][key] = paramObject[names[i]][subNames[j]];
+            }
           }
         }
         if (this[paramName].length > names.length) {
@@ -1624,6 +1655,7 @@ export default {
       var json = convert.load(yaml);
       // this.message = json
       // this.snackbar =true
+      console.log(json);
       var names = Object.keys(json.Peridigm);
       for (var i = 0; i < names.length; i++) {
         var Param = json.Peridigm[names[i]];
@@ -1709,6 +1741,7 @@ export default {
               this.outputs[j].Horizon = false;
               this.outputs[j].Model_Coordinates = false;
               this.outputs[j].Local_Angles = false;
+              this.outputs[j].Orientations = false;
               this.outputs[j].Coordinates = false;
               this.outputs[j].Acceleration = false;
               this.outputs[j].Temperature = false;
@@ -2039,7 +2072,7 @@ export default {
         url: this.url + "getPointData",
         params: {
           model_name: this.model.modelNameSelected,
-          own_mesh: this.model.owMmesh,
+          own_mesh: this.model.ownMesh,
         },
         method: "GET",
         headers: headersList,
@@ -2952,6 +2985,7 @@ export default {
         Horizon: false,
         Model_Coordinates: false,
         Local_Angles: false,
+        Orientations: false,
         Coordinates: false,
         Acceleration: false,
         Temperature: false,
@@ -2969,6 +3003,9 @@ export default {
       this.outputs.splice(index, 1);
     },
     async modelNameChangedEvent() {
+      if (this.model.modelNameSelected == "OwnModel") {
+        this.model.ownModel = true;
+      }
       this.showModelImg();
       this.getStatus();
       await this.resetData();

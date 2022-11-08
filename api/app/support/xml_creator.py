@@ -723,6 +723,8 @@ class XMLcreator:
                 string += '            <Parameter name="Model_Coordinates" type="bool" value="true"/>\n'
             if out.Local_Angles:
                 string += '            <Parameter name="Local_Angles" type="bool" value="true"/>\n'
+            if out.Orientations:
+                string += '            <Parameter name="Orientations" type="bool" value="true"/>\n'
             if out.Coordinates:
                 string += '            <Parameter name="Coordinates" type="bool" value="true"/>\n'
             if out.Acceleration:

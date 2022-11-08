@@ -186,198 +186,203 @@ class ModelControl:
 
         log.infoHeadline("Create " + model_name)
 
-        if model_name == "GICmodel":
-            gic = GICmodel(
-                xend=length,
-                crack_length=cracklength,
-                yend=height,
-                zend=width,
-                dx_value=dx_value,
-                two_d=model_data.model.twoDimensional,
-                rot=model_data.model.rotatedAngles,
-                angle=model_data.model.angles,
-                material=model_data.materials,
-                damage=model_data.damages,
-                block=model_data.blocks,
-                boundary_condition=model_data.boundaryConditions,
-                contact=model_data.contact,
-                bond_filter=model_data.bondFilters,
-                compute=model_data.computes,
-                output=model_data.outputs,
-                solver=model_data.solver,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-            )
-            result = gic.create_model()
-
-        elif model_name == "GIICmodel":
-            giic = GIICmodel(
-                xend=length,
-                crack_length=cracklength,
-                yend=height,
-                zend=width,
-                dx_value=dx_value,
-                two_d=model_data.model.twoDimensional,
-                rot=model_data.model.rotatedAngles,
-                angle=model_data.model.angles,
-                material=model_data.materials,
-                damage=model_data.damages,
-                block=model_data.blocks,
-                boundary_condition=model_data.boundaryConditions,
-                contact=model_data.contact,
-                bond_filter=model_data.bondFilters,
-                compute=model_data.computes,
-                output=model_data.outputs,
-                solver=model_data.solver,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-            )
-            result = giic.create_model()
-
-        elif model_name == "DCBmodel":
-            dcb = DCBmodel(
-                xend=length,
-                yend=height,
-                zend=width,
-                dx_value=dx_value,
-                two_d=model_data.model.twoDimensional,
-                rot=model_data.model.rotatedAngles,
-                angle=model_data.model.angles,
-                material=model_data.materials,
-                damage=model_data.damages,
-                block=model_data.blocks,
-                boundary_condition=model_data.boundaryConditions,
-                contact=model_data.contact,
-                bond_filter=model_data.bondFilters,
-                compute=model_data.computes,
-                output=model_data.outputs,
-                solver=model_data.solver,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-            )
-            result = dcb.create_model()
-
-        elif model_name == "Dogbone":
-            dogbone = Dogbone(
-                xend=length,
-                height1=height,
-                height2=height2,
-                zend=width,
-                dx_value=dx_value,
-                structured=model_data.model.structured,
-                two_d=model_data.model.twoDimensional,
-                rot=model_data.model.rotatedAngles,
-                angle=model_data.model.angles,
-                material=model_data.materials,
-                damage=model_data.damages,
-                block=model_data.blocks,
-                boundary_condition=model_data.boundaryConditions,
-                contact=model_data.contact,
-                bond_filter=model_data.bondFilters,
-                compute=model_data.computes,
-                output=model_data.outputs,
-                solver=model_data.solver,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-            )
-            result = dogbone.create_model()
-
-        elif model_name == "Kalthoff-Winkler":
-            kalthoff = KalthoffWinkler(
-                xend=length,
-                yend=height,
-                zend=width,
-                dx_value=dx_value,
-                two_d=model_data.model.twoDimensional,
-                rot=model_data.model.rotatedAngles,
-                angle=model_data.model.angles,
-                material=model_data.materials,
-                damage=model_data.damages,
-                block=model_data.blocks,
-                boundary_condition=model_data.boundaryConditions,
-                contact=model_data.contact,
-                bond_filter=model_data.bondFilters,
-                compute=model_data.computes,
-                output=model_data.outputs,
-                solver=model_data.solver,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-            )
-            result = kalthoff.create_model()
-
-        elif model_name == "PlateWithHole":
-            plate_with_hole = PlateWithHole(
-                xend=length,
-                yend=height,
-                zend=width,
-                radius=radius,
-                dx_value=dx_value,
-                two_d=model_data.model.twoDimensional,
-                rot=model_data.model.rotatedAngles,
-                angle=model_data.model.angles,
-                material=model_data.materials,
-                damage=model_data.damages,
-                block=model_data.blocks,
-                boundary_condition=model_data.boundaryConditions,
-                contact=model_data.contact,
-                bond_filter=model_data.bondFilters,
-                compute=model_data.computes,
-                output=model_data.outputs,
-                solver=model_data.solver,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-            )
-            result = plate_with_hole.create_model()
-
-        elif model_name == "CompactTension":
-            compact_tension = CompactTension(
-                xend=length,
-                zend=width,
-                crack_length=model_data.model.cracklength,
-                dx_value=dx_value,
-                two_d=model_data.model.twoDimensional,
-                rot=model_data.model.rotatedAngles,
-                angle=model_data.model.angles,
-                material=model_data.materials,
-                damage=model_data.damages,
-                block=model_data.blocks,
-                boundary_condition=model_data.boundaryConditions,
-                contact=model_data.contact,
-                compute=model_data.computes,
-                output=model_data.outputs,
-                solver=model_data.solver,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-            )
-            result = compact_tension.create_model()
-
-        elif model_name == "Smetana":
-            if MYGLOBAL.smetana_enabled:
-                smetana = Smetana(
+        if model_data.model.ownModel == False:
+            if model_name == "GICmodel":
+                gic = GICmodel(
+                    xend=length,
+                    crack_length=cracklength,
+                    yend=height,
+                    zend=width,
+                    dx_value=dx_value,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
                     damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
+                    contact=model_data.contact,
+                    bond_filter=model_data.bondFilters,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                )
+                result = gic.create_model()
+
+            elif model_name == "GIICmodel":
+                giic = GIICmodel(
+                    xend=length,
+                    crack_length=cracklength,
+                    yend=height,
+                    zend=width,
+                    dx_value=dx_value,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
+                    damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
+                    contact=model_data.contact,
+                    bond_filter=model_data.bondFilters,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                )
+                result = giic.create_model()
+
+            elif model_name == "DCBmodel":
+                dcb = DCBmodel(
+                    xend=length,
+                    yend=height,
+                    zend=width,
+                    dx_value=dx_value,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
+                    damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
+                    contact=model_data.contact,
+                    bond_filter=model_data.bondFilters,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                )
+                result = dcb.create_model()
+
+            elif model_name == "Dogbone":
+                dogbone = Dogbone(
+                    xend=length,
+                    height1=height,
+                    height2=height2,
+                    zend=width,
+                    dx_value=dx_value,
+                    structured=model_data.model.structured,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
+                    damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
+                    contact=model_data.contact,
+                    bond_filter=model_data.bondFilters,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                )
+                result = dogbone.create_model()
+
+            elif model_name == "Kalthoff-Winkler":
+                kalthoff = KalthoffWinkler(
+                    xend=length,
+                    yend=height,
+                    zend=width,
+                    dx_value=dx_value,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
+                    damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
+                    contact=model_data.contact,
+                    bond_filter=model_data.bondFilters,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                )
+                result = kalthoff.create_model()
+
+            elif model_name == "PlateWithHole":
+                plate_with_hole = PlateWithHole(
+                    xend=length,
+                    yend=height,
+                    zend=width,
+                    radius=radius,
+                    dx_value=dx_value,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
+                    damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
+                    contact=model_data.contact,
+                    bond_filter=model_data.bondFilters,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                )
+                result = plate_with_hole.create_model()
+
+            elif model_name == "CompactTension":
+                compact_tension = CompactTension(
+                    xend=length,
+                    zend=width,
+                    crack_length=model_data.model.cracklength,
+                    dx_value=dx_value,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
+                    damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
                     contact=model_data.contact,
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
                     username=username,
+                    max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
-                    mesh_res=model_data.model.discretization,
-                    amplitude_factor=model_data.model.amplitudeFactor,
-                    wavelength=model_data.model.wavelength,
                 )
-                result = smetana.create_model()
-            else:
-                log.warning("Smetana is not enabled")
-                return("Smetana is not enabled")
+                result = compact_tension.create_model()
 
-        elif model_data.model.ownModel:
+            elif model_name == "Smetana":
+                if MYGLOBAL.smetana_enabled:
+                    smetana = Smetana(
+                        damage=model_data.damages,
+                        contact=model_data.contact,
+                        compute=model_data.computes,
+                        output=model_data.outputs,
+                        solver=model_data.solver,
+                        username=username,
+                        ignore_mesh=ignore_mesh,
+                        mesh_res=model_data.model.discretization,
+                        amplitude_factor=model_data.model.amplitudeFactor,
+                        wavelength=model_data.model.wavelength,
+                    )
+                    result = smetana.create_model()
+                else:
+                    log.warning("Smetana is not enabled")
+                    return("Smetana is not enabled")
+                    
+            else:
+                log.error("Model Name unknown")
+                return "Model Name unknown"
+
+        else:
             if model_data.model.translated:
                 disc_type = "e"
             else:
@@ -401,9 +406,6 @@ class ModelControl:
                 username=username,
             )
             result = own.create_model()
-        else:
-            log.error("Model Name unknown")
-            return "Model Name unknown"
 
         log.info(f"{model_name} has been created in {(time.time() - start_time):.2f} seconds")
 

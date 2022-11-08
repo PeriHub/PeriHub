@@ -371,7 +371,7 @@
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": 0.002,
+    "finalTime": 0.00002,
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,

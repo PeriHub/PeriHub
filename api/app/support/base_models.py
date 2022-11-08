@@ -174,6 +174,7 @@ class Output(BaseModel):
     Horizon: Optional[bool] = None
     Model_Coordinates: Optional[bool] = None
     Local_Angles: Optional[bool] = None
+    Orientations: Optional[bool] = None
     Coordinates: Optional[bool] = None
     Acceleration: Optional[bool] = None
     Temperature: Optional[bool] = None
