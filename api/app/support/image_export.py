@@ -38,7 +38,7 @@ class ImageExport:
         return
         
     @staticmethod
-    def get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height, triangulate, step, cb_left, transparent):
+    def get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height, triangulate, dx_value, step, cb_left, transparent):
 
         # resultpath = "./Results/" + os.path.join(username, model_name)
         # file = os.path.join(resultpath, model_name + "_" + output + ".e")
@@ -144,7 +144,7 @@ class ImageExport:
 
                     triang = mtri.Triangulation(np_points_all_x, np_points_all_y)
                     
-                mask = ImageExport.long_edges(np_points_all_x, np_points_all_y, triang.triangles)
+                mask = ImageExport.long_edges(np_points_all_x, np_points_all_y, triang.triangles, dx_value)
                 triang.set_mask(mask)
             
                 # plt.triplot(triang)
@@ -178,7 +178,7 @@ class ImageExport:
                     np_first_points_y = np.array(points[:, 1])
                     triang = mtri.Triangulation(np_first_points_x, np_first_points_y)
 
-                mask = ImageExport.long_edges(np_points_x, np_points_y, triang.triangles)
+                mask = ImageExport.long_edges(np_points_x, np_points_y, triang.triangles, dx_value)
                 triang.set_mask(mask)
 
                 tcf = ax.tricontourf(triang, point_data[variable][:,axis_id], levels=100, cmap=cm.jet)

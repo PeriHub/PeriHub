@@ -371,6 +371,22 @@
                       dense
                     ></v-text-field>
                   </v-col>
+                  <v-col class="textfield-col">
+                    <v-text-field
+                      v-model="model.angles[2]"
+                      label="Angle 2"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </v-col>
+                  <v-col class="textfield-col">
+                    <v-text-field
+                      v-model="model.angles[3]"
+                      label="Angle 3"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </v-col>
                 </v-row>
                 <div v-show="model.modelNameSelected=='RVE' & !model.ownModel">
                   <v-text-field

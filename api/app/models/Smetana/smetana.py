@@ -6,6 +6,7 @@ import numpy as np
 # import smetana
 try:
     from smetana.control.peridigmcontrol import PeridigmControl
+    from smetana.control.peridigmcontrol3D import PeridigmControl3D
 except ImportError:
     pass
 from support.base_models import (
@@ -140,6 +141,8 @@ class Smetana:
         mesh_res=30,
         amplitude_factor=0.75,
         wavelength=3.0,
+        angle=[45, 90, -45, 0],
+        two_d=True,
         ):
         self.filename = filename
         self.username = username
@@ -147,6 +150,8 @@ class Smetana:
         self.mesh_res = mesh_res
         self.amplitude_factor = amplitude_factor
         self.wavelength = wavelength
+        self.angle = angle
+        self.two_d = two_d
         self.path = "Output/" + os.path.join(username, filename)
 
         self.bc_dict = boundary_condition
@@ -161,6 +166,8 @@ class Smetana:
         """doc"""
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-        PeridigmControl.generateModel(self.filename, self.path, self.mesh_res, True, self.amplitude_factor, self.wavelength, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict)
-        
+        if self.two_d:
+            PeridigmControl.generateModel(self.filename, self.path, self.mesh_res, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict)
+        else:
+            PeridigmControl3D.generateModel(self.filename, self.path, self.mesh_res, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict)
         return "Model created"
