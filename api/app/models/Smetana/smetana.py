@@ -144,6 +144,7 @@ class Smetana:
         angle=[45, 90, -45, 0],
         two_d=True,
         ):
+        
         self.filename = filename
         self.username = username
         self.ignore_mesh = ignore_mesh

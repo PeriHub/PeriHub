@@ -12,8 +12,8 @@
     "discretization": 50,
     "horizon": null,
     "twoDimensional": true,
-    "rotatedAngles": false,
-    "angles": [0, 0],
+    "rotatedAngles": true,
+    "angles": [45, 90, -45, 0],
     "amplitudeFactor": 0.75,
     "wavelength": 3.0
   },
