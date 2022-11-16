@@ -130,6 +130,11 @@ class Smetana:
     def __init__(
         self,  
         filename="Smetana",
+        mesh_res=30,
+        xend=4.0,
+        plyThickness=0.125,
+        zend=1.5,
+        dx_value=[0.1,0.1,0.1],
         damage=[damage_dict],
         contact=contact_dict,
         boundary_condition=[bc1, bc2],
@@ -138,17 +143,20 @@ class Smetana:
         solver=solver_dict,
         username="",
         ignore_mesh=False,
-        mesh_res=30,
         amplitude_factor=0.75,
         wavelength=3.0,
         angle=[45, 90, -45, 0],
         two_d=True,
         ):
-        
+
         self.filename = filename
+        self.mesh_res = mesh_res
+        self.xend=xend
+        self.plyThickness=plyThickness
+        self.zend=zend
+        self.dx_value=dx_value
         self.username = username
         self.ignore_mesh = ignore_mesh
-        self.mesh_res = mesh_res
         self.amplitude_factor = amplitude_factor
         self.wavelength = wavelength
         self.angle = angle
@@ -168,7 +176,7 @@ class Smetana:
         if not os.path.exists(self.path):
             os.makedirs(self.path)
         if self.two_d:
-            PeridigmControl.generateModel(self.filename, self.path, self.mesh_res, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict)
+            PeridigmControl.generateModel(self.filename, self.path, self.mesh_res, self.xend, self.plyThicknes, self.zend, self.dx_value, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict, self.ignore_mesh)
         else:
-            PeridigmControl3D.generateModel(self.filename, self.path, self.mesh_res, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict)
+            PeridigmControl3D.generateModel(self.filename, self.path, self.mesh_res, self.xend, self.plyThicknes, self.zend, self.dx_value, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict, self.ignore_mesh)
         return "Model created"

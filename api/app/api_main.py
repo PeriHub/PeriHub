@@ -362,6 +362,11 @@ class ModelControl:
             elif model_name == "Smetana":
                 if MYGLOBAL.smetana_enabled:
                     smetana = Smetana(
+                        mesh_res=model_data.model.discretization,
+                        xend=length,
+                        plyThickness=height,
+                        zend=width,
+                        dx_value=dx_value,
                         damage=model_data.damages,
                         contact=model_data.contact,
                         compute=model_data.computes,
@@ -369,7 +374,6 @@ class ModelControl:
                         solver=model_data.solver,
                         username=username,
                         ignore_mesh=ignore_mesh,
-                        mesh_res=model_data.model.discretization,
                         amplitude_factor=model_data.model.amplitudeFactor,
                         wavelength=model_data.model.wavelength,
                         angle=model_data.model.angles,
