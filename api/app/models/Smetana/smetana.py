@@ -54,9 +54,10 @@ class Smetana:
         contactRadius=0.000775,
         springConstant=1.0e12,
     )
-    
+
     interaction_1 = Interaction(firstBlockId=4, secondBlockId=2, contactModelId=1)
     interaction_2 = Interaction(firstBlockId=5, secondBlockId=3, contactModelId=1)
+    
     contact_dict = Contact(
         enabled=False,
         searchRadius=0.01,
