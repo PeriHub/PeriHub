@@ -175,6 +175,12 @@ class ModelControl:
                 1.25 * length / number_nodes,
                 1.25 * length / number_nodes,
             ]
+        elif model_name in {"Smetana"}:
+            dx_value = [
+                8 * height / number_nodes,
+                8 * height / number_nodes,
+                8 * height / number_nodes,
+            ]
         else:
             dx_value = [
                 height / number_nodes,
