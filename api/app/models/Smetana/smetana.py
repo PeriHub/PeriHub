@@ -56,7 +56,6 @@ class Smetana:
     )
 
     interaction_1 = Interaction(firstBlockId=4, secondBlockId=2, contactModelId=1)
-    
     interaction_2 = Interaction(firstBlockId=5, secondBlockId=3, contactModelId=1)
 
     contact_dict = Contact(
