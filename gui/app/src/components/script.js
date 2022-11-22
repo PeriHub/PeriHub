@@ -2097,6 +2097,11 @@ export default {
       if (!this.model.ownModel) {
         this.dx_value =
           this.model.height / (2 * parseInt(this.model.discretization / 2) + 1);
+      } else if (this.model.modelNameSelected == "Smetana") {
+        let numOfPlys = 8;
+        this.dx_value =
+          (this.model.height * numOfPlys) /
+          (2 * parseInt(this.model.discretization / 2) + 1);
       } else {
         this.dx_value = Math.hypot(
           parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),

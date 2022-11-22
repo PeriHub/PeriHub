@@ -272,9 +272,18 @@
                 <v-text-field
                   class="textfield-col"
                   v-model="model.height"
-                  v-show="!model.ownModel & !['RVE','CompactTension'].includes(model.modelNameSelected)"
+                  v-show="!model.ownModel & !['RVE','CompactTension','Smetana'].includes(model.modelNameSelected)"
                   :rules="[rules.required, rules.float]"
                   label="Height"
+                  outlined
+                  dense
+                ></v-text-field>
+                <v-text-field
+                  class="textfield-col"
+                  v-model="model.height"
+                  v-show="!model.ownModel & ['Smetana'].includes(model.modelNameSelected)"
+                  :rules="[rules.required, rules.float]"
+                  label="Ply height"
                   outlined
                   dense
                 ></v-text-field>
