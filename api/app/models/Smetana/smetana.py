@@ -177,9 +177,10 @@ class Smetana:
         """doc"""
         if not os.path.exists(self.path):
             os.makedirs(self.path)
-            
+
         if self.two_d:
             PeridigmControl.generateModel(self.filename, self.path, self.mesh_res, self.xend, self.plyThickness, self.zend, self.dx_value, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict, self.ignore_mesh)
         else:
             PeridigmControl3D.generateModel(self.filename, self.path, self.mesh_res, self.xend, self.plyThickness, self.zend, self.dx_value, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict, self.ignore_mesh)
+        
         return "Model created"
