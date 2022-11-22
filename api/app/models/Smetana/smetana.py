@@ -163,7 +163,7 @@ class Smetana:
         self.wavelength = wavelength
         self.angle = angle
         self.two_d = two_d
-        self.path = "Output/" + os.path.join(username, filename)
+        self.path = "/app/Output/" + os.path.join(username, filename)
 
         self.bc_dict = boundary_condition
         self.damage_dict = damage
