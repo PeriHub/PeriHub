@@ -55,7 +55,7 @@ export default {
         "DCBmodel",
         "CompactTension",
         "Smetana",
-        "OwnModel",
+        // "OwnModel",
       ], //, 'RVE'],
       model: {
         modelNameSelected: "Dogbone",
@@ -76,6 +76,7 @@ export default {
         angles: [0, 0, 0, 0],
         amplitudeFactor: 0.75,
         wavelength: 3.0,
+        meshFile: "Dogbone.txt",
       },
       // Material
       materialModelName: [
@@ -168,6 +169,20 @@ export default {
           ],
           properties: [{ materialsPropId: 1, name: "Prop_1", value: 0.0 }],
           computePartialStress: false,
+          useCollocationNodes: false,
+          // Thermal
+          specificHeatCapacity: null,
+          thermalConductivity: null,
+          heatTransferCoefficient: null,
+          applyThermalFlow: false,
+          applyThermalStrain: false,
+          applyHeatTransfer: false,
+          thermalExpansionCoefficient: null,
+          environmentalTemperature: null,
+          // 3dPrint
+          volumeFactor: null,
+          volumeLimit: null,
+          surfaceCorrection: null,
         },
         {
           materialsId: 2,
@@ -212,6 +227,20 @@ export default {
           ],
           properties: [{ materialsPropId: 1, name: "Prop_1", value: 0.0 }],
           computePartialStress: false,
+          useCollocationNodes: false,
+          // Thermal
+          specificHeatCapacity: null,
+          thermalConductivity: null,
+          heatTransferCoefficient: null,
+          applyThermalFlow: false,
+          applyThermalStrain: false,
+          applyHeatTransfer: false,
+          thermalExpansionCoefficient: null,
+          environmentalTemperature: null,
+          // 3dPrint
+          volumeFactor: null,
+          volumeLimit: null,
+          surfaceCorrection: null,
         },
       ],
       materialKeys: {
@@ -252,6 +281,21 @@ export default {
         Parameter_18: "C55",
         Parameter_19: "C56",
         Parameter_20: "C66",
+        computePartialStress: "Compute Partial Stress",
+        useCollocationNodes: "Use Collocation Nodes",
+        // Thermal
+        specificHeatCapacity: "Specific Heat Capacity",
+        thermalConductivity: "Thermal Conductivity",
+        heatTransferCoefficient: "Heat Transfer Coefficient",
+        applyThermalFlow: "Apply Thermal Flow",
+        applyThermalStrain: "Apply Thermal Strain",
+        applyHeatTransfer: "Apply Heat Transfer",
+        thermalExpansionCoefficient: "Thermal Expansion Coefficient",
+        environmentalTemperature: "Environmental Temperature",
+        // 3dPrint
+        volumeFactor: "Volume Factor",
+        volumeLimit: "Volume Limit",
+        surfaceCorrection: "Surface Correction",
       },
       // Damage
       damageModelName: [
@@ -365,26 +409,38 @@ export default {
         "Body Force",
       ],
       coordinate: ["x", "y", "z"],
-      boundaryConditions: [
-        {
-          boundaryConditionsId: 1,
-          name: "BC_1",
-          nodeSet: null,
-          boundarytype: "Prescribed Displacement",
-          blockId: 1,
-          coordinate: "x",
-          value: "0*t",
-        },
-        {
-          boundaryConditionsId: 2,
-          name: "BC_2",
-          nodeSet: null,
-          boundarytype: "Prescribed Displacement",
-          blockId: 5,
-          coordinate: "x",
-          value: "0.05*t",
-        },
-      ],
+      boundaryConditions: {
+        conditions: [
+          {
+            conditionsId: 1,
+            name: "BC_1",
+            nodeSet: 1,
+            boundarytype: "Prescribed Displacement",
+            blockId: 1,
+            coordinate: "x",
+            value: "0*t",
+          },
+          {
+            conditionsId: 2,
+            name: "BC_2",
+            nodeSet: 2,
+            boundarytype: "Prescribed Displacement",
+            blockId: 5,
+            coordinate: "x",
+            value: "0.05*t",
+          },
+        ],
+        nodeSets: [
+          {
+            id: 1,
+            file: "ns_Dogbone_1.txt",
+          },
+          {
+            id: 2,
+            file: "ns_Dogbone_2.txt",
+          },
+        ],
+      },
       boundaryKeys: {
         name: "name",
         nodeSet: "Node Set",
@@ -494,29 +550,42 @@ export default {
         ],
       },
       // Compute
+      computeClass: ["Block_Data", "Nearest_Point_Data"],
       calculationType: ["Sum", "Maximum", "Minimum"],
-      variables: ["Force", "Displacement", "Damage"],
+      variables: ["Force", "Displacement", "Damage", "Temperature"],
       computes: [
         {
           computesId: 1,
+          computeClass: "Block_Data",
           name: "External_Displacement",
           variable: "Displacement",
           calculationType: "Maximum",
           blockName: "block_5",
+          x: null,
+          y: null,
+          z: null,
         },
         {
           computesId: 2,
+          computeClass: "Block_Data",
           name: "External_Force",
           variable: "Force",
           calculationType: "Sum",
           blockName: "block_5",
+          x: null,
+          y: null,
+          z: null,
         },
       ],
       computeKeys: {
+        computeClass: "Compute Class",
         name: "Output Label",
         variable: "Variable",
         calculationType: "Calculation Type",
         blockName: "Block",
+        x: "X",
+        y: "Y",
+        z: "Z",
       },
       // Output
       outputs: [
@@ -544,6 +613,7 @@ export default {
           Velocity_Gradient: false,
           PiolaStressTimesInvShapeTensor: false,
           Write_After_Damage: false,
+          Specific_Volume: false,
           Frequency: 100,
           InitStep: 0,
         },
@@ -570,6 +640,7 @@ export default {
         Velocity_Gradient: "Velocity_Gradient",
         PiolaStressTimesInvShapeTensor: "PiolaStressTimesInvShapeTensor",
         Write_After_Damage: "Write After Damage",
+        Specific_Volume: "Specific_Volume",
         Frequency: "Output Frequency",
         InitStep: "Initial Output Step",
       },
@@ -704,6 +775,7 @@ export default {
         "Displacement",
         "Force",
         "Damage",
+        "Temperature",
         "Partial_StressX",
         "Partial_StressY",
         "Partial_StressZ",
@@ -863,7 +935,7 @@ export default {
           !this.model.ownModel
         ) {
           this.model.height = this.model.length * 1.25;
-          console.log(this.model.height);
+          // console.log(this.model.height);
         }
 
         let headersList = {
@@ -1227,6 +1299,12 @@ export default {
         ) {
           var partString = splitString[i].split('"');
           var spaces = splitString[i].split("<");
+          // let newSpaces = spaces[0].replace("\t", " ");
+          // console.log(spaces);
+          // console.log(newSpaces);
+
+          // console.log(partString);
+          // console.log(spaces);
 
           if (partString.length > 3) {
             var temp_string = "";
@@ -1243,6 +1321,7 @@ export default {
           }
         }
       }
+      stringYAML = stringYAML.replaceAll("\t", " ");
       return stringYAML;
     },
     getValuesFromJson(
@@ -1268,9 +1347,9 @@ export default {
                 );
                 continue;
               }
-              console.log(subNames[j]);
-              console.log(key);
-              console.log(paramObject[names[i]][subNames[j]]);
+              // console.log(subNames[j]);
+              // console.log(key);
+              // console.log(paramObject[names[i]][subNames[j]]);
               this[paramName][key] = paramObject[names[i]][subNames[j]];
             }
             continue;
@@ -1283,80 +1362,45 @@ export default {
           this[paramName][key] = paramObject[names[i]];
         }
       } else if (paramName == "outputs") {
-        if (id.length >= 1) {
-          if (this[paramName].length < id) {
-            addFunction();
-          }
-          for (var i = 0; i < names.length; i++) {
-            var key = this.getKeyByValue(paramKeys, names[i]);
-            // console.log(key)
-            // console.log(paramObject[names[i]])
-            if ((key == undefined) & (names[i] != "Output Variables")) {
-              console.log("Warning: " + names[i] + " is not supported yet");
-              continue;
-            } else {
-              if (key == "name") {
-                this[paramName][id - 1][key] = paramObject[names[i]]
-                  .split("_")
-                  .slice(-1)[0];
-                continue;
-              } else {
-                this[paramName][id - 1][key] = paramObject[names[i]];
-              }
-              var subNames = Object.keys(paramObject[names[i]]);
-              for (var j = 0; j < subNames.length; j++) {
-                var key = this.getKeyByValue(paramKeys, subNames[j]);
-                // console.log(key)
-                // console.log(paramObject[names[i]][subNames[j]])
-                if (key == undefined) {
-                  console.log(
-                    "Warning: subname " + subNames[j] + " is not supported yet"
-                  );
-                  continue;
-                }
-                this[paramName][id - 1][key] =
-                  paramObject[names[i]][subNames[j]];
-              }
-            }
-          }
-          if (this[paramName].length > id) {
-            for (var j = id; j < this[paramName].length; j++) {
-              removeFunction(j);
-            }
-          }
-        } else {
-          for (var i = 0; i < names.length; i++) {
-            var key = this.getKeyByValue(paramKeys, names[i]);
-            if (key == undefined) {
-              console.log("Warning: " + names[i] + " is not supported yet");
-              continue;
-            }
+        if (this[paramName].length < id) {
+          addFunction();
+        }
+        for (var i = 0; i < names.length; i++) {
+          var key = this.getKeyByValue(paramKeys, names[i]);
+          // console.log(paramName);
+          // console.log(id - 1);
+          // console.log(key);
+          // console.log(paramObject[names[i]]);
+          if ((key == undefined) & (names[i] != "Output Variables")) {
+            console.log("Warning: " + names[i] + " is not supported yet");
+            continue;
+          } else {
             if (key == "name") {
-              this[paramName][0][key] = paramObject[names[i]]
+              this[paramName][id - 1][key] = paramObject[names[i]]
                 .split("_")
                 .slice(-1)[0];
+              continue;
             } else {
-              this[paramName][0][key] = paramObject[names[i]];
+              this[paramName][id - 1][key] = paramObject[names[i]];
             }
             var subNames = Object.keys(paramObject[names[i]]);
             for (var j = 0; j < subNames.length; j++) {
               var key = this.getKeyByValue(paramKeys, subNames[j]);
+              // console.log(key)
+              // console.log(paramObject[names[i]][subNames[j]])
               if (key == undefined) {
                 console.log(
-                  "Warning: " + subNames[j] + " is not supported yet"
+                  "Warning: subname " + subNames[j] + " is not supported yet"
                 );
                 continue;
               }
-              Object.assign(
-                this[paramName][0][key],
-                paramObject[names[i]][subNames[j]]
-              );
+              this[paramName][id - 1][key] = paramObject[names[i]][subNames[j]];
             }
           }
-          if (this[paramName].length > 1) {
-            for (var j = 1; j < this[paramName].length; j++) {
-              removeFunction(j);
-            }
+        }
+        if (this[paramName].length > id) {
+          for (var j = id; j < this[paramName].length; j++) {
+            removeFunction(j);
           }
         }
       } else if (paramName == "boundaryConditions") {
@@ -1368,32 +1412,52 @@ export default {
         //     filteredNames.push(names[i])
         //   }
         // }
+        let nodeSetNames = [];
         for (var i = 0; i < names.length; i++) {
-          if (!names[i].includes("Node Set")) {
-            if (this[paramName].length < numberOfItems + 1) {
-              addFunction();
-            }
-            this[paramName][numberOfItems]["name"] = names[i];
+          // console.log(numberOfItems);
+          if (this[paramName].conditions.length < numberOfItems + 1) {
+            addFunction();
+          }
+          if (names[i].includes("Node Set")) {
+            this[paramName].nodeSets[numberOfItems].file =
+              paramObject[names[i]];
+            nodeSetNames.push(names[i]);
+          } else {
+            this[paramName].conditions[numberOfItems]["name"] = names[i];
             var subNames = Object.keys(paramObject[names[i]]);
             for (var j = 0; j < subNames.length; j++) {
               var key = this.getKeyByValue(paramKeys, subNames[j]);
-              if (key == undefined) {
-                console.log(
-                  "Warning: " + subNames[j] + " is not supported yet"
-                );
-                continue;
+
+              if (subNames[j].includes("Node Set")) {
+                for (var k = 0; k < nodeSetNames.length; k++) {
+                  if (nodeSetNames[k] == paramObject[names[i]][subNames[j]]) {
+                    this[paramName].conditions[numberOfItems][key] = k + 1;
+                    break;
+                  }
+                }
+              } else {
+                if (key == undefined) {
+                  console.log(
+                    "Warning: " + subNames[j] + " is not supported yet"
+                  );
+                  continue;
+                }
+                // Object.assign(this[paramName][i][key], paramObject[names[i]][subNames[j]])
+                // var temp =
+                this[paramName].conditions[numberOfItems][key] =
+                  paramObject[names[i]][subNames[j]];
+                // Object.assign(this[paramName][i][key], temp)
               }
-              // Object.assign(this[paramName][i][key], paramObject[names[i]][subNames[j]])
-              // var temp =
-              this[paramName][numberOfItems][key] =
-                paramObject[names[i]][subNames[j]];
-              // Object.assign(this[paramName][i][key], temp)
             }
             numberOfItems++;
           }
         }
-        if (this[paramName].length > numberOfItems) {
-          for (var j = numberOfItems; j < this[paramName].length; j++) {
+        if (this[paramName].conditions.length > numberOfItems) {
+          for (
+            var j = numberOfItems;
+            j < this[paramName].conditions.length;
+            j++
+          ) {
             removeFunction(j);
           }
         }
@@ -1452,9 +1516,10 @@ export default {
             }
           }
         }
-        if (this[paramName].length > names.length) {
-          for (var j = names.length; j < this[paramName].length; j++) {
-            removeFunction(j);
+        let currenLength = this[paramName].length;
+        if (currenLength > names.length) {
+          for (var j = currenLength; j > names.length; j--) {
+            removeFunction(j - 1);
           }
         }
       }
@@ -1657,6 +1722,18 @@ export default {
       // this.snackbar =true
       console.log(json);
       var names = Object.keys(json.Peridigm);
+      if (!("Bond Filters" in names)) {
+        this.bondFilters = [];
+      }
+      if (!("Compute Class Parameters" in names)) {
+        this.computes = [];
+      }
+      if (!("Contact" in names)) {
+        this.contact.enabled = false;
+      }
+      if (!("Damage Models" in names)) {
+        this.damages = [];
+      }
       for (var i = 0; i < names.length; i++) {
         var Param = json.Peridigm[names[i]];
         switch (names[i].replace(/[0-9]/g, "")) {
@@ -1749,9 +1826,15 @@ export default {
               this.outputs[j].Force_Density = false;
               this.outputs[j].External_Force_Density = false;
               this.outputs[j].Damage_Model_Data = false;
+              this.outputs[j].Velocity = false;
               this.outputs[j].Velocity_Gradient = false;
               this.outputs[j].PiolaStressTimesInvShapeTensor = false;
               this.outputs[j].Write_After_Damage = false;
+              this.outputs[j].Specific_Volume = false;
+            }
+            let id = names[i].replace(/\D/g, "");
+            if (id == "") {
+              id = 1;
             }
             this.getValuesFromJson(
               Param,
@@ -1759,11 +1842,14 @@ export default {
               this.outputKeys,
               this.addOutput,
               this.removeOutput,
-              names[i].replace(/\D/g, "")
+              id
             );
             break;
           case "Solver":
             this.getValuesFromJson(Param, "solver", this.solverKeys);
+            break;
+          case "Discretization":
+            this.model.meshFile = Param["Input Mesh File"];
             break;
         }
       }
@@ -2072,7 +2158,9 @@ export default {
         url: this.url + "getPointData",
         params: {
           model_name: this.model.modelNameSelected,
+          own_model: this.model.ownModel,
           own_mesh: this.model.ownMesh,
+          mesh_file: this.model.meshFile,
         },
         method: "GET",
         headers: headersList,
@@ -2412,8 +2500,8 @@ export default {
         Authorization: this.authToken,
       };
 
-      console.log(this.$refs.modelView.$el.clientWidth);
-      console.log(this.$refs.modelView.$el.clientHeight);
+      // console.log(this.$refs.modelView.$el.clientWidth);
+      // console.log(this.$refs.modelView.$el.clientHeight);
 
       let reqOptions = {
         url: this.url + "getImage",
@@ -2887,23 +2975,28 @@ export default {
       this.blocks.splice(index, 1);
     },
     addCondition() {
-      const len = this.boundaryConditions.length;
-      this.boundaryConditions.push({
+      const len = this.boundaryConditions.conditions.length;
+      this.boundaryConditions.conditions.push({
         boundaryConditionsId: len + 1,
         name: "BC_" + (len + 1),
       });
-      for (const key in this.boundaryConditions[len - 1]) {
+      for (const key in this.boundaryConditions.conditions[len - 1]) {
         if ((key != "boundaryConditionsId") & (key != "name")) {
           this.$set(
-            this.boundaryConditions[len],
+            this.boundaryConditions.conditions[len],
             key,
-            this.boundaryConditions[len - 1][key]
+            this.boundaryConditions.conditions[len - 1][key]
           );
         }
       }
+      this.boundaryConditions.nodeSets.push({
+        id: len,
+        file: "ns_bc" + len,
+      });
     },
     removeCondition(index) {
-      this.boundaryConditions.splice(index, 1);
+      this.boundaryConditions.conditions.splice(index, 1);
+      this.boundaryConditions.nodeSets.splice(index, 1);
     },
     addBondFilter() {
       const len = this.bondFilters.length;
@@ -3009,9 +3102,9 @@ export default {
       this.outputs.splice(index, 1);
     },
     async modelNameChangedEvent() {
-      if (this.model.modelNameSelected == "OwnModel") {
-        this.model.ownModel = true;
-      }
+      // if (this.model.modelNameSelected == "OwnModel") {
+      //   this.model.ownModel = true;
+      // }
       this.showModelImg();
       this.getStatus();
       await this.resetData();
