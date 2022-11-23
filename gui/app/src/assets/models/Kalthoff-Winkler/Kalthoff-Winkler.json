@@ -174,9 +174,32 @@
       "show": true
     }
   ],
-  "boundaryConditions": [
+  "contact": {
+    "enabled": false,
+    "searchRadius": "0.02",
+    "searchFrequency": "1",
+    "contactModels": [
+      {
+        "id": 1,
+        "name": "Contact Model",
+        "contactType": "Short Range Force",
+        "contactRadius": 0.000775,
+        "springConstant": 1000000000000
+      }
+    ],
+    "interactions": [
+      {
+        "id": 1,
+        "firstBlockId": 5,
+        "secondBlockId": 3,
+        "contactModelId": 1
+      }
+    ]
+  },
+  "boundaryConditions": {
+    "conditions": [
     {
-      "id": 1,
+      "conditionsId": 1,
       "name": "BC_1",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
@@ -185,7 +208,7 @@
       "value": "0*t"
     },
     {
-      "id": 2,
+      "conditionsId": 2,
       "name": "BC_2",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
@@ -194,7 +217,7 @@
       "value": "0*t"
     },
     {
-      "id": 3,
+      "conditionsId": 3,
       "name": "BC_3",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
@@ -202,7 +225,7 @@
       "coordinate": "x",
       "value": "100*t"
     }
-  ],
+  ]},
   "bondFilters": [
     {
       "id": 1,

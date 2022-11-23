@@ -293,30 +293,43 @@
       "show": true
     }
   ],
-  "boundaryConditions": [
-    {
-      "id": 1,
-      "name": "BC_1",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 1,
-      "coordinate": "x",
-      "value": "0*t"
-    },
-    {
-      "id": 2,
-      "name": "BC_2",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 5,
-      "coordinate": "x",
-      "value": "0.05*t"
-    }
-  ],
+  "boundaryConditions": {
+    "conditions": [
+      {
+        "conditionsId": 1,
+        "name": "BC_1",
+        "nodeSet": 1,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 1,
+        "coordinate": "x",
+        "value": "0*t"
+      },
+      {
+        "conditionsId": 2,
+        "name": "BC_2",
+        "nodeSet": 2,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 5,
+        "coordinate": "x",
+        "value": "0.05*t"
+      }
+    ],
+    "nodeSets": [
+      {
+        "nodeSetId": 1,
+        "file": "ns_Dogbone_1.txt"
+      },
+      {
+        "nodeSetsId": 2,
+        "file": "ns_Dogbone_2.txt"
+      }
+    ]
+  },
   "bondFilters": [],
   "computes": [
     {
       "id": 1,
+      "computeClass": "Block_Data",
       "name": "External_Displacement",
       "variable": "Displacement",
       "calculationType": "Maximum",
@@ -324,6 +337,7 @@
     },
     {
       "id": 2,
+      "computeClass": "Block_Data",
       "name": "External_Force",
       "variable": "Force",
       "calculationType": "Sum",

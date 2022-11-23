@@ -230,9 +230,10 @@
     }
   ]
 },
-"boundaryConditions": [
+"boundaryConditions": {
+  "conditions": [
   {
-    "id": 1,
+    "conditionsId": 1,
     "name": "BC_1",
     "nodeSet": null,
     "boundarytype": "Prescribed Displacement",
@@ -241,7 +242,7 @@
     "value": "-1*t"
   },
   {
-    "id": 2,
+    "conditionsId": 2,
     "name": "BC_2",
     "nodeSet": null,
     "boundarytype": "Prescribed Displacement",
@@ -250,7 +251,7 @@
     "value": "0"
   },
   {
-    "id": 3,
+    "conditionsId": 3,
     "name": "BC_3",
     "nodeSet": null,
     "boundarytype": "Prescribed Displacement",
@@ -259,7 +260,7 @@
     "value": "0"
   },
   {
-    "id": 4,
+    "conditionsId": 4,
     "name": "BC_4",
     "nodeSet": null,
     "boundarytype": "Prescribed Displacement",
@@ -268,7 +269,7 @@
     "value": "0"
   },
   {
-    "id": 5,
+    "conditionsId": 5,
     "name": "BC_5",
     "nodeSet": null,
     "boundarytype": "Prescribed Displacement",
@@ -277,7 +278,7 @@
     "value": "0"
   },
   {
-    "id": 6,
+    "conditionsId": 6,
     "name": "BC_6",
     "nodeSet": null,
     "boundarytype": "Prescribed Displacement",
@@ -285,11 +286,12 @@
     "coordinate": "z",
     "value": "0"
   }
-],
+]},
 "bondFilters": [],
 "computes": [
   {
     "id": 1,
+    "computeClass": "Block_Data",
     "name": "Crosshead_Force",
     "variable": "Force",
     "calculationType": "Sum",
@@ -297,6 +299,7 @@
   },
   {
     "id": 2,
+    "computeClass": "Block_Data",
     "name": "Crosshead_Displacement",
     "variable": "Displacement",
     "calculationType": "Minimum",

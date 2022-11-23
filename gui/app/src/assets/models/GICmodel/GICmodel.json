@@ -230,9 +230,10 @@
     }
   ]
 },
-"boundaryConditions": [
+"boundaryConditions": {
+  "conditions": [
   {
-    "id": 1,
+    "conditionsId": 1,
     "name": "BC_1",
     "nodeSet": null,
     "boundarytype": "Prescribed Displacement",
@@ -241,7 +242,7 @@
     "value": "-1*t"
   },
   {
-    "id": 2,
+    "conditionsId": 2,
     "name": "BC_2",
     "nodeSet": null,
     "boundarytype": "Prescribed Displacement",
@@ -249,11 +250,12 @@
     "coordinate": "y",
     "value": "1*t"
   }
-],
+]},
 "bondFilters": [],
 "computes": [
   {
     "id": 1,
+    "computeClass": "Block_Data",
     "name": "Lower_Load_Force",
     "variable": "Force",
     "calculationType": "Sum",
@@ -261,6 +263,7 @@
   },
   {
     "id": 2,
+    "computeClass": "Block_Data",
     "name": "Lower_Load_Displacement",
     "variable": "Displacement",
     "calculationType": "Minimum",
@@ -268,6 +271,7 @@
   },
   {
     "id": 3,
+    "computeClass": "Block_Data",
     "name": "Upper_Load_Force",
     "variable": "Force",
     "calculationType": "Sum",
@@ -275,6 +279,7 @@
   },
   {
     "id": 4,
+    "computeClass": "Block_Data",
     "name": "Upper_Load_Displacement",
     "variable": "Displacement",
     "calculationType": "Maximum",

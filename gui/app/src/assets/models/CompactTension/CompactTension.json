@@ -210,57 +210,60 @@
       }
     ]
   },
-  "boundaryConditions": [
-    {
-      "id": 1,
-      "name": "BC_1",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 2,
-      "coordinate": "y",
-      "value": "1*t"
-    },
-    {
-      "id": 2,
-      "name": "BC_2",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 3,
-      "coordinate": "y",
-      "value": "-1*t"
-    },
-    {
-      "id": 3,
-      "name": "BC_3",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 2,
-      "coordinate": "x",
-      "value": "0"
-    },
-    {
-      "id": 4,
-      "name": "BC_4",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 3,
-      "coordinate": "x",
-      "value": "0"
-    },
-    {
-      "id": 5,
-      "name": "BC_5",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 1,
-      "coordinate": "z",
-      "value": "0"
-    }
-  ],
+  "boundaryConditions": {
+    "conditions": [
+      {
+        "conditionsId": 1,
+        "name": "BC_1",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 2,
+        "coordinate": "y",
+        "value": "1*t"
+      },
+      {
+        "conditionsId": 2,
+        "name": "BC_2",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 3,
+        "coordinate": "y",
+        "value": "-1*t"
+      },
+      {
+        "conditionsId": 3,
+        "name": "BC_3",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 2,
+        "coordinate": "x",
+        "value": "0"
+      },
+      {
+        "conditionsId": 4,
+        "name": "BC_4",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 3,
+        "coordinate": "x",
+        "value": "0"
+      },
+      {
+        "conditionsId": 5,
+        "name": "BC_5",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 1,
+        "coordinate": "z",
+        "value": "0"
+      }
+    ]
+  },
   "bondFilters": [],
   "computes": [
     {
       "id": 1,
+      "computeClass": "Block_Data",
       "name": "External_Force",
       "variable": "Force",
       "calculationType": "Sum",
