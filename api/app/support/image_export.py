@@ -161,11 +161,18 @@ class ImageExport:
         else:
             np_first_points_x = np.array(points[:, 0])
             np_first_points_y = np.array(points[:, 1])
-            np_displacement_x = np.array(point_data['Displacement'][:,0])
-            np_displacement_y = np.array(point_data['Displacement'][:,1])
 
-            np_points_x = np.add(np_first_points_x, np.multiply(np_displacement_x, displ_factor))
-            np_points_y = np.add(np_first_points_y, np.multiply(np_displacement_y, displ_factor))
+            try:
+                np_displacement_x = np.array(point_data['Displacement'][:,0])
+                np_displacement_y = np.array(point_data['Displacement'][:,1])
+
+                np_points_x = np.add(np_first_points_x, np.multiply(np_displacement_x, displ_factor))
+                np_points_y = np.add(np_first_points_y, np.multiply(np_displacement_y, displ_factor))
+                
+            except:
+                np_points_x = np_first_points_x
+                np_points_y = np_first_points_y
+
 
             if triangulate:
             
