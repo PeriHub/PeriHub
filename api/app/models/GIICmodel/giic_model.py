@@ -9,6 +9,7 @@ from support.base_models import (
     Adapt,
     Block,
     BondFilters,
+    BoundaryCondition,
     BoundaryConditions,
     Contact,
     ContactModel,
@@ -29,8 +30,8 @@ from support.globals import log
 
 class GIICmodel:
 
-    bc1 = BoundaryConditions(
-        id=1,
+    bc1 = BoundaryCondition(
+        conditionsId=1,
         name="BC_1",
         NodeSets=None,
         boundarytype="Body Force",
@@ -38,8 +39,8 @@ class GIICmodel:
         coordinate="y",
         value="-10000*t",
     )
-    bc2 = BoundaryConditions(
-        id=2,
+    bc2 = BoundaryCondition(
+        conditionsId=2,
         name="BC_2",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -47,8 +48,8 @@ class GIICmodel:
         coordinate="y",
         value="0*t",
     )
-    bc3 = BoundaryConditions(
-        id=3,
+    bc3 = BoundaryCondition(
+        conditionsId=3,
         name="BC_3",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -56,8 +57,8 @@ class GIICmodel:
         coordinate="y",
         value="0*t",
     )
-    bc4 = BoundaryConditions(
-        id=4,
+    bc4 = BoundaryCondition(
+        conditionsId=4,
         name="BC_4",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -65,8 +66,8 @@ class GIICmodel:
         coordinate="x",
         value="0",
     )
-    bc5 = BoundaryConditions(
-        id=5,
+    bc5 = BoundaryCondition(
+        conditionsId=5,
         name="BC_5",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -74,8 +75,8 @@ class GIICmodel:
         coordinate="x",
         value="0",
     )
-    bc6 = BoundaryConditions(
-        id=6,
+    bc6 = BoundaryCondition(
+        conditionsId=6,
         name="BC_6",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -155,6 +156,7 @@ class GIICmodel:
 
     compute_dict_1 = Compute(
         id=1,
+        computeClass="Block_Data",
         name="Crosshead_Force",
         variable="Force",
         calculationType="Sum",
@@ -162,6 +164,7 @@ class GIICmodel:
     )
     compute_dict_2 = Compute(
         id=2,
+        computeClass="Block_Data",
         name="Crosshead_Displacement",
         variable="Displacement",
         calculationType="Maximum",
@@ -215,6 +218,7 @@ class GIICmodel:
         zend=1,
         dx_value=None,
         filename="GIICmodel",
+        meshFile=None,
         two_d=True,
         rot=False,
         angle=[0, 0],
@@ -222,7 +226,7 @@ class GIICmodel:
         damage=[damage_dict],
         block=None,
         contact=contact_dict,
-        boundary_condition=[bc1, bc2, bc3],
+        boundary_condition=BoundaryConditions(conditions=[bc1, bc2, bc3]),
         bond_filter=None,
         compute=[compute_dict_1, compute_dict_2],
         output=[output_dict1],
@@ -249,6 +253,7 @@ class GIICmodel:
         start_time = time.time()
 
         self.filename = filename
+        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d

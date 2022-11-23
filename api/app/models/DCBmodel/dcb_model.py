@@ -6,6 +6,7 @@ from support.base_models import (
     Adapt,
     Block,
     BondFilters,
+    BoundaryCondition,
     BoundaryConditions,
     Contact,
     Compute,
@@ -37,6 +38,7 @@ class DCBmodel:
         zend=0.003,
         dx_value=None,
         filename="DCBmodel",
+        meshFile=None,
         two_d=False,
         rot="False",
         angle=None,
@@ -63,6 +65,7 @@ class DCBmodel:
         """
 
         self.filename = filename
+        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d
@@ -220,8 +223,8 @@ class DCBmodel:
         self.contact_dict = contact
 
         if not boundary_condition:
-            bc1 = BoundaryConditions(
-                id=1,
+            bc1 = BoundaryCondition(
+                conditionsId=1,
                 name="BC_1",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
@@ -229,8 +232,8 @@ class DCBmodel:
                 coordinate="y",
                 value="0.004*t",
             )
-            bc2 = BoundaryConditions(
-                id=2,
+            bc2 = BoundaryCondition(
+                conditionsId=2,
                 name="BC_2",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
@@ -238,8 +241,8 @@ class DCBmodel:
                 coordinate="y",
                 value="-0.004*t",
             )
-            bc3 = BoundaryConditions(
-                id=3,
+            bc3 = BoundaryCondition(
+                conditionsId=3,
                 name="BC_3",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
@@ -247,8 +250,8 @@ class DCBmodel:
                 coordinate="z",
                 value="0*t",
             )
-            bc4 = BoundaryConditions(
-                id=3,
+            bc4 = BoundaryCondition(
+                conditionsId=4,
                 name="BC_4",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
@@ -256,7 +259,7 @@ class DCBmodel:
                 coordinate="z",
                 value="0*t",
             )
-            self.bc_dict = [bc1, bc2, bc3, bc4]
+            self.bc_dict = BoundaryConditions(conditions=[bc1, bc2, bc3, bc4])
         else:
             self.bc_dict = boundary_condition
 

@@ -11,6 +11,7 @@ except ImportError:
     pass
 from support.base_models import (
     Adapt,
+    BoundaryCondition,
     BoundaryConditions,
     Contact,
     ContactModel,
@@ -28,8 +29,8 @@ from support.geometry import Geometry
 
 class Smetana:
 
-    bc1 = BoundaryConditions(
-        id=1,
+    bc1 = BoundaryCondition(
+        conditionsId=1,
         name="BC_1",
         nodeSet=None,
         boundarytype="Prescribed Displacement",
@@ -38,8 +39,8 @@ class Smetana:
         value="3*t",
     )
 
-    bc2 = BoundaryConditions(
-        id=2,
+    bc2 = BoundaryCondition(
+        conditionsId=2,
         name="BC_2",
         nodeSet=None,
         boundarytype="Prescribed Displacement",
@@ -83,6 +84,7 @@ class Smetana:
 
     compute_dict = Compute(
         id=1,
+        computeClass="Block_Data",
         name="External_Force",
         variable="Force",
         calculationType="Sum",
@@ -139,7 +141,7 @@ class Smetana:
         dx_value=[0.1,0.1,0.1],
         damage=[damage_dict],
         contact=contact_dict,
-        boundary_condition=[bc1, bc2],
+        boundary_condition=BoundaryConditions(conditions=[bc1, bc2]),
         compute=[compute_dict],
         output=[output_dict1],
         solver=solver_dict,

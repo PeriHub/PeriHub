@@ -6,6 +6,7 @@ from support.base_models import (
     Adapt,
     Block,
     BondFilters,
+    BoundaryCondition,
     BoundaryConditions,
     Contact,
     Compute,
@@ -22,8 +23,8 @@ from support.geometry import Geometry
 
 class KalthoffWinkler:
 
-    bc1 = BoundaryConditions(
-        id=1,
+    bc1 = BoundaryCondition(
+        conditionsId=1,
         name="BC_1",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -31,8 +32,8 @@ class KalthoffWinkler:
         coordinate="x",
         value="0*t",
     )
-    bc2 = BoundaryConditions(
-        id=2,
+    bc2 = BoundaryCondition(
+        conditionsId=2,
         name="BC_2",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -40,8 +41,8 @@ class KalthoffWinkler:
         coordinate="x",
         value="0*t",
     )
-    bc3 = BoundaryConditions(
-        id=3,
+    bc3 = BoundaryCondition(
+        conditionsId=3,
         name="BC_3",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -132,6 +133,7 @@ class KalthoffWinkler:
 
     compute_dict1 = Compute(
         id=1,
+        computeClass="Block_Data",
         name="External_Displacement",
         variable="Displacement",
         calculationType="Minimum",
@@ -139,6 +141,7 @@ class KalthoffWinkler:
     )
     compute_dict2 = Compute(
         id=2,
+        computeClass="Block_Data",
         name="External_Force",
         variable="Force",
         calculationType="Sum",
@@ -198,6 +201,7 @@ class KalthoffWinkler:
         zend=0.003,
         dx_value=[0.25, 0.25, 0.25],
         filename="Kalthoff-Winkler",
+        meshFile=None,
         two_d=False,
         rot=False,
         angle=[0, 0],
@@ -205,7 +209,7 @@ class KalthoffWinkler:
         damage=[damage_dict],
         block=None,
         contact=contact_dict,
-        boundary_condition=[bc1, bc2, bc3],
+        boundary_condition=BoundaryConditions(conditions=[bc1, bc2, bc3]),
         bond_filter=[bf1, bf2],
         compute=[compute_dict1, compute_dict2],
         output=[output_dict1],
@@ -224,6 +228,7 @@ class KalthoffWinkler:
         """
 
         self.filename = filename
+        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d
@@ -403,7 +408,7 @@ class KalthoffWinkler:
             block_len = int(max(k))
 
             write_return = self.write_file(writer=writer, block_len=block_len)
-
+            print(write_return)
             if write_return != 0:
                 return write_return
 
@@ -435,8 +440,8 @@ class KalthoffWinkler:
                 block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
             block_def = self.block_def
 
-        try:
-            writer.create_file(block_def)
-        except TypeError as exception:
-            return str(exception)
+        # try:
+        writer.create_file(block_def)
+        # except TypeError as exception:
+        #     return str(exception)
         return 0

@@ -6,6 +6,7 @@ from support.base_models import (
     Adapt,
     Block,
     # BondFilters,
+    BoundaryCondition,
     BoundaryConditions,
     Contact,
     Compute,
@@ -40,6 +41,7 @@ class PlateWithHole:
         radius=10.0,
         dx_value=None,
         filename="PlateWithHole",
+        meshFile=None,
         two_d=True,
         rot="False",
         angle=None,
@@ -66,6 +68,7 @@ class PlateWithHole:
         """
 
         self.filename = filename
+        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d
@@ -125,6 +128,7 @@ class PlateWithHole:
         if not compute:
             compute_dict1 = Compute(
                 id=1,
+                computeClass="Block_Data",
                 name="External_Displacement",
                 variable="Displacement",
                 calculationType="Minimum",
@@ -132,6 +136,7 @@ class PlateWithHole:
             )
             compute_dict2 = Compute(
                 id=2,
+                computeClass="Block_Data",
                 name="External_Force",
                 variable="Force",
                 calculationType="Sum",
@@ -207,8 +212,8 @@ class PlateWithHole:
         self.contact_dict = contact
 
         if not boundary_condition:
-            bc1 = BoundaryConditions(
-                id=1,
+            bc1 = BoundaryCondition(
+                conditionsId=1,
                 name="BC_1",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
@@ -216,8 +221,8 @@ class PlateWithHole:
                 coordinate="y",
                 value="-1*t",
             )
-            bc2 = BoundaryConditions(
-                id=2,
+            bc2 = BoundaryCondition(
+                conditionsId=2,
                 name="BC_2",
                 NodeSets=None,
                 boundarytype="Prescribed Displacement",
@@ -225,7 +230,7 @@ class PlateWithHole:
                 coordinate="y",
                 value="1*t",
             )
-            self.bc_dict = [bc1, bc2]
+            self.bc_dict = BoundaryConditions(conditions=[bc1, bc2])
         else:
             self.bc_dict = boundary_condition
 
@@ -286,10 +291,10 @@ class PlateWithHole:
 
         geo = Geometry()
 
-        log.info(self.xbegin)
-        log.info(self.xend)
-        log.info(self.ybegin)
-        log.info(self.yend)
+        log.info(str(self.xbegin))
+        log.info(str(self.xend))
+        log.info(str(self.ybegin))
+        log.info(str(self.yend))
 
         x_value, y_value, z_value = geo.create_rectangle(
             coor=[

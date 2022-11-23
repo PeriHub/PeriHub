@@ -6,6 +6,7 @@ from support.base_models import (
     Adapt,
     Block,
     BondFilters,
+    BoundaryCondition,
     BoundaryConditions,
     Contact,
     ContactModel,
@@ -24,8 +25,8 @@ from support.geometry import Geometry
 
 class CompactTension:
 
-    bc1 = BoundaryConditions(
-        id=1,
+    bc1 = BoundaryCondition(
+        conditionsId=1,
         name="BC_1",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -33,8 +34,8 @@ class CompactTension:
         coordinate="y",
         value="1*t",
     )
-    bc2 = BoundaryConditions(
-        id=2,
+    bc2 = BoundaryCondition(
+        conditionsId=2,
         name="BC_2",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -42,8 +43,8 @@ class CompactTension:
         coordinate="y",
         value="-1*t",
     )
-    bc3 = BoundaryConditions(
-        id=3,
+    bc3 = BoundaryCondition(
+        conditionsId=3,
         name="BC_3",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -51,8 +52,8 @@ class CompactTension:
         coordinate="x",
         value="0",
     )
-    bc4 = BoundaryConditions(
-        id=4,
+    bc4 = BoundaryCondition(
+        conditionsId=4,
         name="BC_4",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -60,8 +61,8 @@ class CompactTension:
         coordinate="z",
         value="0",
     )
-    bc5 = BoundaryConditions(
-        id=5,
+    bc5 = BoundaryCondition(
+        conditionsId=5,
         name="BC_5",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -69,8 +70,8 @@ class CompactTension:
         coordinate="x",
         value="0",
     )
-    bc6 = BoundaryConditions(
-        id=6,
+    bc6 = BoundaryCondition(
+        conditionsId=6,
         name="BC_6",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -78,7 +79,7 @@ class CompactTension:
         coordinate="z",
         value="0",
     )
-
+    
     bf1 = BondFilters(
         id=1,
         name="bf_1",
@@ -156,6 +157,7 @@ class CompactTension:
 
     compute_dict = Compute(
         id=1,
+        computeClass="Block_Data",
         name="External_Force",
         variable="Force",
         calculationType="Sum",
@@ -208,13 +210,14 @@ class CompactTension:
         crack_length=25,
         dx_value=[0.25, 0.25, 0.25],
         filename="CompactTension",
+        meshFile=None,
         two_d=True,
         rot=False,
         angle=[0, 0],
         material=[mat_dict],
         damage=[damage_dict],
         block=None,
-        boundary_condition=[bc1, bc2],
+        boundary_condition=BoundaryConditions(conditions=[bc1, bc2]),
         contact=contact_dict,
         bond_filter=[bf1],
         compute=[compute_dict],
@@ -234,6 +237,7 @@ class CompactTension:
         """
 
         self.filename = filename
+        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d

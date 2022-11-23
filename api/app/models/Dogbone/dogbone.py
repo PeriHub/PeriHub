@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from support.base_models import (
     Adapt,
     Block,
+    BoundaryCondition,
     BoundaryConditions,
     Compute,
     Damage,
@@ -26,8 +27,8 @@ from support.globals import log
 class Dogbone:
     """doc"""
 
-    bc1 = BoundaryConditions(
-        id=1,
+    bc1 = BoundaryCondition(
+        conditionsId=1,
         name="BC_1",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -35,8 +36,8 @@ class Dogbone:
         coordinate="x",
         value="0*t",
     )
-    bc2 = BoundaryConditions(
-        id=2,
+    bc2 = BoundaryCondition(
+        conditionsId=2,
         name="BC_2",
         NodeSets=None,
         boundarytype="Prescribed Displacement",
@@ -82,6 +83,7 @@ class Dogbone:
 
     compute_dict1 = Compute(
         id=1,
+        computeClass="Block_Data",
         name="External_Displacement",
         variable="Displacement",
         calculationType="Minimum",
@@ -89,6 +91,7 @@ class Dogbone:
     )
     compute_dict2 = Compute(
         id=2,
+        computeClass="Block_Data",
         name="External_Force",
         variable="Force",
         calculationType="Sum",
@@ -147,6 +150,7 @@ class Dogbone:
         zend=0.001,
         dx_value=[0.0005, 0.0005, 0.0005],
         filename="Dogbone",
+        meshFile=None,
         two_d=False,
         structured=True,
         rot=False,
@@ -155,7 +159,7 @@ class Dogbone:
         damage=[damage_dict],
         block=None,
         contact=contact_dict,
-        boundary_condition=[bc1, bc2],
+        boundary_condition=BoundaryConditions(conditions=[bc1, bc2]),
         bond_filter=[],
         compute=[compute_dict1, compute_dict2],
         output=[output_dict1],
@@ -176,6 +180,7 @@ class Dogbone:
         start_time = time.time()
 
         self.filename = filename
+        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d
