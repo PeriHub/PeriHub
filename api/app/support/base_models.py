@@ -28,6 +28,7 @@ class Model(BaseModel):
     angles: List[float]
     amplitudeFactor: Optional[float] = None
     wavelength: Optional[float] = None
+    meshFile: Optional[str] = None
 
 
 class properties(BaseModel):
@@ -63,6 +64,21 @@ class Material(BaseModel):
     properties: List[properties]
     computePartialStress: Optional[bool] = None
     useCollocationNodes: Optional[bool] = None
+
+    #Thermal
+    specificHeatCapacity: Optional[float] = None
+    thermalConductivity: Optional[float] = None
+    heatTransferCoefficient: Optional[float] = None
+    applyThermalFlow: Optional[bool] = None
+    applyThermalStrain: Optional[bool] = None
+    applyHeatTransfer: Optional[bool] = None
+    thermalExpansionCoefficient: Optional[float] = None
+    environmentalTemperature: Optional[float] = None
+
+    # 3dPrint
+    volumeFactor: Optional[float] = None
+    volumeLimit: Optional[float] = None
+    surfaceCorrection: Optional[float] = None
 
 
 class InterBlock(BaseModel):
@@ -120,15 +136,21 @@ class Contact(BaseModel):
     contactModels: List[ContactModel]
     interactions: List[Interaction]
 
-
-class BoundaryConditions(BaseModel):
-    id: Optional[int]
+class BoundaryCondition(BaseModel):
+    conditionsId: Optional[int]
     name: str
     nodeSet: Optional[str] = None
     boundarytype: str
     blockId: int
     coordinate: str
     value: str
+
+class NodeSet(BaseModel):
+    nodeSetId: Optional[int]
+    file: str
+class BoundaryConditions(BaseModel):
+    conditions: List[BoundaryCondition]
+    nodeSets: Optional[List[NodeSet]]
 
 
 class BondFilters(BaseModel):
@@ -155,10 +177,14 @@ class BondFilters(BaseModel):
 
 class Compute(BaseModel):
     id: Optional[int]
+    computeClass: str
     name: str
     variable: str
-    calculationType: str
-    blockName: str
+    calculationType: Optional[str] = None
+    blockName: Optional[str] = None
+    x: Optional[float] = None
+    y: Optional[float] = None
+    z: Optional[float] = None
 
 
 class Output(BaseModel):
@@ -185,6 +211,7 @@ class Output(BaseModel):
     Velocity_Gradient: Optional[bool] = None
     PiolaStressTimesInvShapeTensor: Optional[bool] = None
     Write_After_Damage: Optional[bool] = None
+    Specific_Volume: Optional[bool] = None
     Frequency: int
     InitStep: int
 
@@ -369,7 +396,7 @@ class ModelData(BaseModel):
     damages: Optional[List[Damage]]
     blocks: List[Block]
     contact: Optional[Contact]
-    boundaryConditions: List[BoundaryConditions]
+    boundaryConditions: BoundaryConditions
     bondFilters: Optional[List[BondFilters]]
     computes: Optional[List[Compute]]
     outputs: List[Output]
@@ -539,7 +566,7 @@ class ModelData(BaseModel):
                 ],
                 "boundaryConditions": [
                     {
-                        "id": 1,
+                        "conditionsId": 1,
                         "name": "BC_1",
                         "nodeSet": None,
                         "boundarytype": "Prescribed Displacement",
@@ -548,7 +575,7 @@ class ModelData(BaseModel):
                         "value": "0*t",
                     },
                     {
-                        "id": 2,
+                        "conditionsId": 2,
                         "name": "BC_2",
                         "nodeSet": None,
                         "boundarytype": "Prescribed Displacement",
@@ -583,6 +610,7 @@ class ModelData(BaseModel):
                 "computes": [
                     {
                         "id": 1,
+                        "computeClass": "Block_Data",
                         "name": "External_Displacement",
                         "variable": "Displacement",
                         "calculationType": "Maximum",
@@ -590,6 +618,7 @@ class ModelData(BaseModel):
                     },
                     {
                         "id": 2,
+                        "computeClass": "Block_Data",
                         "name": "External_Force",
                         "variable": "Force",
                         "calculationType": "Sum",

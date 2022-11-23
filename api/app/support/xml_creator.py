@@ -8,6 +8,7 @@ from support.globals import log
 class XMLcreator:
     def __init__(self, model_writer, block_def=None):
         self.filename = model_writer.filename
+        self.meshFile = model_writer.meshFile
         self.material_dict = model_writer.material_dict
         self.damage_dict = model_writer.damage_dict
         self.compute_dict = model_writer.compute_dict
@@ -26,17 +27,31 @@ class XMLcreator:
     def check_if_defined(obj):
         return obj is not None and obj != 0 and obj != ""
 
+    @staticmethod
+    def temp_enabled(material_dict):
+        for mat in material_dict:
+            if mat.thermalConductivity!= None:
+                return True
+        return False
+
     def load_mesh(self):
         string = '    <ParameterList name="Discretization">\n'
         if self.disc_type == "txt":
             string += (
                 '        <Parameter name="Type" type="string" value="Text File" />\n'
             )
-            string += (
-                '        <Parameter name="Input Mesh File" type="string" value="'
-                + self.filename
-                + '.txt"/>\n'
-            )
+            if self.check_if_defined(self.meshFile):
+                string += (
+                    '        <Parameter name="Input Mesh File" type="string" value="'
+                    + self.meshFile
+                    + '"/>\n'
+                )
+            else:
+                string += (
+                    '        <Parameter name="Input Mesh File" type="string" value="'
+                    + self.filename
+                    + '.txt"/>\n'
+                )
         elif self.disc_type == "e":
             string += '        <Parameter name="Type" type="string" value="Exodus" />\n'
             string += (
@@ -44,6 +59,18 @@ class XMLcreator:
                 + self.filename
                 + '.g"/>\n'
             )
+            if self.check_if_defined(self.meshFile):
+                string += (
+                    '        <Parameter name="Input Mesh File" type="string" value="'
+                    + self.meshFile
+                    + '"/>\n'
+                )
+            else:
+                string += (
+                    '        <Parameter name="Input Mesh File" type="string" value="'
+                    + self.filename
+                    + '.g"/>\n'
+                )
         return string
 
     def create_bond_filter(self):
@@ -262,6 +289,72 @@ class XMLcreator:
                 string += (
                     '            <Parameter name="Use Collocation Nodes" type="bool" value="'
                     + str(mat.useCollocationNodes)
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.specificHeatCapacity):
+                string += (
+                    '            <Parameter name="Specific Heat Capacity" type="double" value="'
+                    + str(float(mat.specificHeatCapacity))
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.thermalConductivity):
+                string += (
+                    '            <Parameter name="Thermal Conductivity" type="double" value="'
+                    + str(float(mat.thermalConductivity))
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.heatTransferCoefficient):
+                string += (
+                    '            <Parameter name="Heat Transfer Coefficient" type="double" value="'
+                    + str(float(mat.heatTransferCoefficient))
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.applyThermalFlow):
+                string += (
+                    '            <Parameter name="Apply Thermal Flow" type="bool" value="'
+                    + str(mat.applyThermalFlow)
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.applyThermalStrain):
+                string += (
+                    '            <Parameter name="Apply Thermal Strain" type="bool" value="'
+                    + str(mat.applyThermalStrain)
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.applyHeatTransfer):
+                string += (
+                    '            <Parameter name="Apply Heat Transfer" type="bool" value="'
+                    + str(mat.applyHeatTransfer)
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.thermalExpansionCoefficient):
+                string += (
+                    '            <Parameter name="Thermal Expansion Coefficient" type="double" value="'
+                    + str(float(mat.thermalExpansionCoefficient))
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.environmentalTemperature):
+                string += (
+                    '            <Parameter name="Environmental Temperature" type="double" value="'
+                    + str(float(mat.environmentalTemperature))
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.volumeFactor):
+                string += (
+                    '            <Parameter name="Volume Factor" type="double" value="'
+                    + str(float(mat.volumeFactor))
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.volumeLimit):
+                string += (
+                    '            <Parameter name="Volume Limit" type="double" value="'
+                    + str(float(mat.volumeLimit))
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.surfaceCorrection):
+                string += (
+                    '            <Parameter name="Surface Correction" type="double" value="'
+                    + str(float(mat.surfaceCorrection))
                     + '"/>\n'
                 )
             string += "        </ParameterList>\n"
@@ -524,29 +617,39 @@ class XMLcreator:
     def create_boundary_condition(self):
         string = '    <ParameterList name="Boundary Conditions">\n'
         if self.disc_type == "txt":
-            for idx in range(0, len(self.ns_list)):
-                string += (
-                    '        <Parameter name="Node Set '
-                    + str(idx + 1)
-                    + '" type="string" value="'
-                    + self.ns_name
-                    + "_"
-                    + str(idx + 1)
-                    + ".txt"
-                    + '"/>\n'
-                )
-        for boundary_condition in self.boundary_condition:
-            node_set_id = self.ns_list.index(boundary_condition.blockId)
-            string += '        <ParameterList name="' + boundary_condition.name + '">\n'
+            if self.check_if_defined(self.boundary_condition.nodeSets):
+                for nodeSet in self.boundary_condition.nodeSets:
+                    string += (
+                        '        <Parameter name="Node Set '
+                        + str(nodeSet.nodeSetId)
+                        + '" type="string" value="'
+                        + nodeSet.file
+                        + '"/>\n'
+                    )
+            else:
+                for idx in range(0, len(self.ns_list)):
+                    string += (
+                        '        <Parameter name="Node Set '
+                        + str(idx + 1)
+                        + '" type="string" value="'
+                        + self.ns_name
+                        + "_"
+                        + str(idx + 1)
+                        + ".txt"
+                        + '"/>\n'
+                    )
+        for condition in self.boundary_condition.conditions:
+            node_set_id = self.ns_list.index(condition.blockId)
+            string += '        <ParameterList name="' + condition.name + '">\n'
             string += (
                 '            <Parameter name="Type" type="string" value="'
-                + boundary_condition.boundarytype
+                + condition.boundarytype
                 + '"/>\n'
             )
-            if self.check_if_defined(boundary_condition.nodeSet):
+            if self.check_if_defined(condition.nodeSet):
                 string += (
-                    '            <Parameter name="Node Set" type="string" value="'
-                    + boundary_condition.nodeSet
+                    '            <Parameter name="Node Set" type="string" value="Node Set '
+                    + str(condition.nodeSet)
                     + '"/>\n'
                 )
             else:
@@ -555,14 +658,15 @@ class XMLcreator:
                     + str(node_set_id + 1)
                     + '"/>\n'
                 )
-            string += (
-                '            <Parameter name="Coordinate" type="string" value="'
-                + boundary_condition.coordinate
-                + '"/>\n'
-            )
+            if "Temperature" not in condition.boundarytype:
+                string += (
+                    '            <Parameter name="Coordinate" type="string" value="'
+                    + condition.coordinate
+                    + '"/>\n'
+                )
             string += (
                 '            <Parameter name="Value" type="string" value="'
-                + str(boundary_condition.value)
+                + str(condition.value)
                 + '"/>\n'
             )
             string += "        </ParameterList>\n"
@@ -634,17 +738,35 @@ class XMLcreator:
         string = '    <ParameterList name="Compute Class Parameters">\n'
         for out in self.compute_dict:
             string += '        <ParameterList name="' + out.name + '">\n'
-            string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
-            string += (
-                '            <Parameter name="Calculation Type" type="string" value="'
-                + out.calculationType
-                + '"/>\n'
-            )
-            string += (
-                '            <Parameter name="Block" type="string" value="'
-                + out.blockName
-                + '"/>\n'
-            )
+            if out.computeClass == "Nearest_Point_Data":
+                string += '            <Parameter name="Compute Class" type="string" value="Nearest_Point_Data"/>\n'
+                string += (
+                    '            <Parameter name="X" type="double" value="'
+                    + str(out.x)
+                    + '"/>\n'
+                ) 
+                string += (
+                    '            <Parameter name="Y" type="double" value="'
+                    + str(out.y)
+                    + '"/>\n'
+                ) 
+                string += (
+                    '            <Parameter name="Z" type="double" value="'
+                    + str(out.z)
+                    + '"/>\n'
+                ) 
+            else:
+                string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
+                string += (
+                    '            <Parameter name="Calculation Type" type="string" value="'
+                    + out.calculationType
+                    + '"/>\n'
+                )
+                string += (
+                    '            <Parameter name="Block" type="string" value="'
+                    + out.blockName
+                    + '"/>\n'
+                )
             string += (
                 '            <Parameter name="Variable" type="string" value="'
                 + out.variable
@@ -747,6 +869,8 @@ class XMLcreator:
                 string += '            <Parameter name="PiolaStressTimesInvShapeTensorX" type="bool" value="true"/>\n'
                 string += '            <Parameter name="PiolaStressTimesInvShapeTensorY" type="bool" value="true"/>\n'
                 string += '            <Parameter name="PiolaStressTimesInvShapeTensorZ" type="bool" value="true"/>\n'
+            if out.Specific_Volume:
+                string += '            <Parameter name="Specific_Volume" type="bool" value="true"/>\n'
             string += "        </ParameterList>\n"
             string += "    </ParameterList>\n"
             idx += 1
@@ -754,6 +878,8 @@ class XMLcreator:
 
     def create_xml(self):
         string = "<ParameterList>\n"
+        if self.temp_enabled(self.material_dict):
+            string += '    <Parameter name="Solve For Temperature" type="bool" value="true"/>\n'
         string += self.load_mesh()
 
         if len(self.bondfilters) > 0:
@@ -765,10 +891,10 @@ class XMLcreator:
         string += self.blocks()
         if self.check_if_defined(self.contact_dict):
             if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
-                try:
-                    string += self.contact()
-                except IndexError:
-                    log.error("Error in contact definition")
+                # try:
+                string += self.contact()
+                # except IndexError:
+                #     log.error("Error in contact definition")
 
         string += self.create_boundary_condition()
         string += self.solver()

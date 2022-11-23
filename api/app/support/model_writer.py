@@ -19,6 +19,7 @@ class ModelWriter:
         """doc"""
 
         self.filename = model_class.filename
+        self.meshFile = model_class.meshFile
         self.ns_name = "ns_" + model_class.filename
         self.path = "Output/" + os.path.join(model_class.username, model_class.filename)
         self.bc_dict = model_class.bc_dict
@@ -36,7 +37,7 @@ class ModelWriter:
 
         number_of_ns = 0
         node_set_ids = []
-        for bcs in self.bc_dict:
+        for bcs in self.bc_dict.conditions:
             if bcs.blockId not in node_set_ids:
                 number_of_ns += 1
                 node_set_ids.append(bcs.blockId)
