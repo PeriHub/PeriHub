@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from support.file_handler import FileHandler
+from support.globals import log
 
 tags_metadata = [
     {"name": "Post Methods", "description": "Generate, translate or upload models"},

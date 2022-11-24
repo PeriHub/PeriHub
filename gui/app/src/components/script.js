@@ -2699,6 +2699,9 @@ export default {
       if (this.outputs[index].Number_Of_Neighbors) {
         output_list.push("Number_Of_Neighbors");
       }
+      if (this.outputs[index].Temperature) {
+        output_list.push("Temperature");
+      }
 
       let reqOptions = {
         url: this.trameUrl + "launchTrameInstance",
@@ -2728,28 +2731,11 @@ export default {
         this.resultPort =
           this.trameUrl.slice(0, this.trameUrl.length - 5) + this.port;
       } else {
-        switch (this.port) {
-          case 6041:
-            this.resultPort =
-              "http://perihub-trame-gui1.fa-services.intra.dlr.de:443";
-            break;
-          case 6042:
-            this.resultPort =
-              "http://perihub-trame-gui2.fa-services.intra.dlr.de:443";
-            break;
-          case 6043:
-            this.resultPort =
-              "http://perihub-trame-gui3.fa-services.intra.dlr.de:443";
-            break;
-          case 6044:
-            this.resultPort =
-              "http://perihub-trame-gui4.fa-services.intra.dlr.de:443";
-            break;
-          case 6045:
-            this.resultPort =
-              "http://perihub-trame-gui5.fa-services.intra.dlr.de:443";
-            break;
-        }
+        let id = parseInt(this.port) - 6040;
+        this.resultPort =
+          "http://perihub-trame-gui" +
+          id.toString() +
+          ".fa-services.intra.dlr.de:443";
       }
 
       await sleep(17000);
@@ -2759,6 +2745,25 @@ export default {
       document.querySelectorAll("iframe").forEach(function (e) {
         e.src += "";
       });
+    },
+    closeTrame() {
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.trameUrl + "closeTrameInstance",
+        params: {
+          port: this.port,
+          cron: false,
+        },
+        method: "POST",
+        headers: headersList,
+      };
+      axios.request(reqOptions);
+      console.log(reqOptions);
+      this.port = "";
     },
     monitorLogFile() {
       if (this.monitorToggle) {
@@ -3328,6 +3333,11 @@ export default {
     // Don't forget to remove the interval before destroying the component
     clearInterval(this.logInterval);
     clearInterval(this.statusInterval);
+
+    let headersList = {
+      "Cache-Control": "no-cache",
+      Authorization: this.authToken,
+    };
 
     if (port != "") {
       let reqOptions = {

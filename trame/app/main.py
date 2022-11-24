@@ -44,14 +44,14 @@ def reset():
 def first_time_step():
     state.time = 0
     update_time(0)
-    state.flush("time", "time_value")
+    # state.flush("time", "time_value")
     update_view()
 
 
 def previous_time_step():
     state.time -= 1
     update_time(state.time)
-    state.flush("time", "time_value")
+    # state.flush("time", "time_value")
     update_view()
 
 
@@ -68,7 +68,7 @@ def previous_time_step():
 def next_time_step():
     state.time += 1
     update_time(state.time)
-    state.flush("time", "time_value")
+    # state.flush("time", "time_value")
     update_view()
     # animationScene1.GoToNext()
     # update_view()
@@ -120,7 +120,7 @@ async def animate():
 
 @state.change("nodal")
 def change_nodal(nodal, **kwargs):
-    if nodal in ["Displacement", "Force", "Velocity", "GlobalNodeId"]:
+    if nodal in ["Displacement", "Force", "Velocity", "GlobalNodeId", "Temperature"]:
         simple.ColorBy(Output1Display, ("POINTS", nodal, "Magnitude"))
     elif nodal == "Number_Of_Neighbors":
         simple.ColorBy(Output1Display, ("CELLS", nodal))
@@ -201,7 +201,7 @@ Output1.ElementVariables = [
     "Damage",
     "Number_Of_Neighbors",
 ]
-Output1.PointVariables = ["Displacement", "Force", "Velocity"]
+Output1.PointVariables = ["Displacement", "Force", "Velocity", "Temperature"]
 Output1.GlobalVariables = ["External_Displacement", "External_Force"]
 Output1.NodeSetArrayStatus = []
 

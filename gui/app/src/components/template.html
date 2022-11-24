@@ -2538,6 +2538,20 @@
               <span>Show Results</span>
             </v-tooltip>
 
+            <v-tooltip bottom v-if="port!=''"
+              ><template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="my-btn"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click="closeTrame"
+                >
+                  <i class="fas fa-times"></i>
+                </v-btn>
+              </template>
+              <span>Close Trame</span>
+            </v-tooltip>
+
             <v-dialog v-model="dialogShowResults" persistent max-width="400">
               <v-card>
                 <v-card-title class="text-h5"> Show Results </v-card-title>

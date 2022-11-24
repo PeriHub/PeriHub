@@ -2,10 +2,15 @@ FROM python:3.9
 
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
+ARG GITLAB_TOKEN
+ENV GITLAB_TOKEN $GITLAB_TOKEN
+
 RUN apt-get update --allow-insecure-repositories
 RUN apt-get install libglapi-mesa
+
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
+RUN pip install fa-pyutils --extra-index-url https://__token__:$GITLAB_TOKEN@gitlab.dlr.de/api/v4/projects/4593/packages/pypi/simple
 
 WORKDIR /app/
 
