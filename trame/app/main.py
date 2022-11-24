@@ -20,7 +20,6 @@ def last_time_step():
     # state.flush("time")
     update_view()
 
-
 # @state.change("scale")
 # def update_scale(scale, **kwargs):
 #     glyph1.ScaleFactor = scale
@@ -35,11 +34,9 @@ def update_scale(raycast, **kwargs):
         renderView1.EnableRayTracing = 0
     update_view()
 
-
 def reset():
     html_view.reset_camera
     # update_view()
-
 
 def first_time_step():
     state.time = 0
@@ -47,13 +44,11 @@ def first_time_step():
     # state.flush("time", "time_value")
     update_view()
 
-
 def previous_time_step():
     state.time -= 1
     update_time(state.time)
     # state.flush("time", "time_value")
     update_view()
-
 
 # def play():
 #     animationScene1.Play()
@@ -64,7 +59,6 @@ def previous_time_step():
 #     #     next_time_step()
 #     time.sleep(0.5 - time.time() % 0.5)
 
-
 def next_time_step():
     state.time += 1
     update_time(state.time)
@@ -73,16 +67,13 @@ def next_time_step():
     # animationScene1.GoToNext()
     # update_view()
 
-
 def rescale():
     Output1Display.RescaleTransferFunctionToDataRange(False, True)
     update_view()
 
-
 def reload():
     simple.ReloadFiles(Output1)
     update_view()
-
 
 @state.change("time")
 def update_time(time, **kwargs):
@@ -95,7 +86,6 @@ def update_time(time, **kwargs):
     state.time_value = time_value
     update_view()
     # simple.update_view(viewMode)
-
 
 @state.change("play")
 def update_play(play, **kwargs):
@@ -116,7 +106,6 @@ async def animate():
             update_time(state.time)
             state.flush("time", "time_value")
         await asyncio.sleep(0.1)
-
 
 @state.change("nodal")
 def change_nodal(nodal, **kwargs):
