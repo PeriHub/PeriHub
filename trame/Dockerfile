@@ -23,6 +23,6 @@ COPY ./app/api_main.py ./app/.env* /app
 
 
 RUN virtualenv pvenv
-RUN . pvenv/bin/activate && pip install "trame"
+RUN . pvenv/bin/activate && pip install trame
 
 CMD ["uvicorn", "api_main:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app"]
