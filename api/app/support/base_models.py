@@ -198,6 +198,7 @@ class Output(BaseModel):
     Number_Of_Neighbors: Optional[bool] = None
     Contact_Force: Optional[bool] = None
     Horizon: Optional[bool] = None
+    Volume: Optional[bool] = None
     Model_Coordinates: Optional[bool] = None
     Local_Angles: Optional[bool] = None
     Orientations: Optional[bool] = None

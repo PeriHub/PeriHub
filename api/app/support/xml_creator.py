@@ -2,7 +2,6 @@
 doc
 """
 import numpy as np
-from support.globals import log
 
 
 class XMLcreator:
@@ -841,6 +840,10 @@ class XMLcreator:
                 string += (
                     '            <Parameter name="Horizon" type="bool" value="true"/>\n'
                 )
+            if out.Volume:
+                string += (
+                    '            <Parameter name="Volume" type="bool" value="true"/>\n'
+                )
             if out.Model_Coordinates:
                 string += '            <Parameter name="Model_Coordinates" type="bool" value="true"/>\n'
             if out.Local_Angles:
@@ -891,10 +894,7 @@ class XMLcreator:
         string += self.blocks()
         if self.check_if_defined(self.contact_dict):
             if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
-                # try:
                 string += self.contact()
-                # except IndexError:
-                #     log.error("Error in contact definition")
 
         string += self.create_boundary_condition()
         string += self.solver()
