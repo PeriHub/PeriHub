@@ -150,7 +150,6 @@ class Dogbone:
         zend=0.001,
         dx_value=[0.0005, 0.0005, 0.0005],
         filename="Dogbone",
-        meshFile=None,
         two_d=False,
         structured=True,
         rot=False,
@@ -180,7 +179,6 @@ class Dogbone:
         start_time = time.time()
 
         self.filename = filename
-        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d

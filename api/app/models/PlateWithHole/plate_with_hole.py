@@ -41,7 +41,6 @@ class PlateWithHole:
         radius=10.0,
         dx_value=None,
         filename="PlateWithHole",
-        meshFile=None,
         two_d=True,
         rot="False",
         angle=None,
@@ -68,7 +67,6 @@ class PlateWithHole:
         """
 
         self.filename = filename
-        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d

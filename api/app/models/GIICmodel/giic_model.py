@@ -218,7 +218,6 @@ class GIICmodel:
         zend=1,
         dx_value=None,
         filename="GIICmodel",
-        meshFile=None,
         two_d=True,
         rot=False,
         angle=[0, 0],
@@ -253,7 +252,6 @@ class GIICmodel:
         start_time = time.time()
 
         self.filename = filename
-        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d

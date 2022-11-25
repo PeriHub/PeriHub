@@ -195,7 +195,6 @@ class ModelControl:
         if model_data.model.ownModel == False:
             if model_name == "GICmodel":
                 gic = GICmodel(
-                    meshFile=model_data.model.meshFile,
                     xend=length,
                     crack_length=cracklength,
                     yend=height,
@@ -221,7 +220,6 @@ class ModelControl:
 
             elif model_name == "GIICmodel":
                 giic = GIICmodel(
-                    meshFile=model_data.model.meshFile,
                     xend=length,
                     crack_length=cracklength,
                     yend=height,
@@ -247,7 +245,6 @@ class ModelControl:
 
             elif model_name == "DCBmodel":
                 dcb = DCBmodel(
-                    meshFile=model_data.model.meshFile,
                     xend=length,
                     yend=height,
                     zend=width,
@@ -272,7 +269,6 @@ class ModelControl:
 
             elif model_name == "Dogbone":
                 dogbone = Dogbone(
-                    meshFile=model_data.model.meshFile,
                     xend=length,
                     height1=height,
                     height2=height2,
@@ -299,7 +295,6 @@ class ModelControl:
 
             elif model_name == "Kalthoff-Winkler":
                 kalthoff = KalthoffWinkler(
-                    meshFile=model_data.model.meshFile,
                     xend=length,
                     yend=height,
                     zend=width,
@@ -324,7 +319,6 @@ class ModelControl:
 
             elif model_name == "PlateWithHole":
                 plate_with_hole = PlateWithHole(
-                    meshFile=model_data.model.meshFile,
                     xend=length,
                     yend=height,
                     zend=width,
@@ -350,7 +344,6 @@ class ModelControl:
 
             elif model_name == "CompactTension":
                 compact_tension = CompactTension(
-                    meshFile=model_data.model.meshFile,
                     xend=length,
                     zend=width,
                     crack_length=model_data.model.cracklength,
@@ -375,7 +368,6 @@ class ModelControl:
             elif model_name == "Smetana":
                 if MYGLOBAL.smetana_enabled:
                     smetana = Smetana(
-                        meshFile=model_data.model.meshFile,
                         mesh_res=model_data.model.discretization,
                         xend=length,
                         plyThickness=height,

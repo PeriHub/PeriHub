@@ -210,7 +210,6 @@ class CompactTension:
         crack_length=25,
         dx_value=[0.25, 0.25, 0.25],
         filename="CompactTension",
-        meshFile=None,
         two_d=True,
         rot=False,
         angle=[0, 0],
@@ -237,7 +236,6 @@ class CompactTension:
         """
 
         self.filename = filename
-        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d

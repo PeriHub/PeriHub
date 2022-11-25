@@ -201,7 +201,6 @@ class KalthoffWinkler:
         zend=0.003,
         dx_value=[0.25, 0.25, 0.25],
         filename="Kalthoff-Winkler",
-        meshFile=None,
         two_d=False,
         rot=False,
         angle=[0, 0],
@@ -228,7 +227,6 @@ class KalthoffWinkler:
         """
 
         self.filename = filename
-        self.meshFile = meshFile
         self.scal = 4.01
         self.disc_type = "txt"
         self.two_d = two_d
