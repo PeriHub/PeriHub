@@ -69,6 +69,7 @@ class PlateWithHole:
         self.filename = filename
         self.scal = 4.01
         self.disc_type = "txt"
+        self.meshFile = None
         self.two_d = two_d
         self.ns_list = [3, 4]
         if not dx_value:

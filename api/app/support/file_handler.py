@@ -277,8 +277,8 @@ class FileHandler:
             for name in files:
                 if name.split(".")[-1] == "so":
                     print(os.path.join(root, name))
-                    print(os.path.join(remotepath, name))
-                    sftp.put(os.path.join(root, name), os.path.join(remotepath, name))
+                    print(os.path.join(remotepath, "libusermat.so"))
+                    sftp.put(os.path.join(root, name), os.path.join(remotepath, "libusermat.so"))
                     return "Success"
 
         sftp.close()

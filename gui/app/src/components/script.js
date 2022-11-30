@@ -79,6 +79,7 @@ export default {
         meshFile: "Dogbone.txt",
       },
       // Material
+      selectedMaterial:0,
       materialModelName: [
         "Diffusion",
         "Elastic",
@@ -1202,6 +1203,10 @@ export default {
     uploadMesh() {
       this.$refs.multifileInput.click();
     },
+    uploadProps(id) {
+      this.$refs.propsInput.click();
+      this.selectedMaterial = id
+    },
     uploadSo() {
       this.$refs.multiSoInput.click();
     },
@@ -1228,6 +1233,34 @@ export default {
       } else {
         this.loadFeModel(files);
       }
+    },
+    onPropsFilePicked(event){
+      const files = event.target.files;
+      
+      const fr = new FileReader();
+      fr.onload = (e) => {
+        const input_string = e.target.result;
+
+        let filtered_string = input_string.match(/\*User([\D\S]*?)\*/gi);
+        let propsArray = filtered_string[0].split(/[\n,]/ig)
+        propsArray = propsArray.slice(0, propsArray.length - 1)
+
+        if (propsArray[1].match(/\d+/)==propsArray.length-2){
+          this.materials[0].properties=[]
+          for (var i = 2; i < propsArray.length; i++) {
+            this.addProp(0)
+            this.materials[0].properties[i-2].value =propsArray[i].trim()
+          }
+        }
+        else{
+          console.log("Length of Propsarray unexpected")
+        }
+      };
+      fr.readAsText(files.item(0));
+
+      // console.log(input_string)
+      // let filtered_string = input_string.search(/\*User([\D\S]*?)\*/i);
+
     },
     onMultiFilePicked(event) {
       const files = event.target.files;

@@ -28,6 +28,14 @@
         <input
           type="file"
           style="display: none"
+          ref="propsInput"
+          multiple
+          accept=".inp"
+          @change="onPropsFilePicked"
+        />
+        <input
+          type="file"
+          style="display: none"
           ref="multiSoInput"
           multiple
           accept=".so"
@@ -574,6 +582,21 @@
                               </v-btn>
                             </template>
                             <span>Add Property</span>
+                          </v-tooltip>
+                        </v-col>
+                        <v-col class="textfieldlist-col">
+                          <v-tooltip bottom
+                            ><template v-slot:activator="{ on, attrs }">
+                              <v-btn
+                                class="my-btn"
+                                v-bind="attrs"
+                                v-on="on"
+                                @click="uploadProps(index)"
+                              >
+                                <i class="fas fa-upload"></i>
+                              </v-btn>
+                            </template>
+                            <span>Upload Property</span>
                           </v-tooltip>
                         </v-col>
                         <v-col class="textfieldlist-col">

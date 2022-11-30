@@ -254,6 +254,7 @@ class GICmodel:
         self.filename = filename
         self.scal = 4.01
         self.disc_type = "txt"
+        self.meshFile = None
         self.two_d = two_d
         self.rot = rot
         # anriss

@@ -266,7 +266,7 @@ class XMLcreator:
                 )
             if self.check_if_defined(mat.properties) and "User" in mat.matType:
                 string += (
-                    '            <Parameter name="Number of properties" type="int" value="'
+                    '            <Parameter name="Number of Properties" type="int" value="'
                     + str(len(mat.properties))
                     + '"/>\n'
                 )
