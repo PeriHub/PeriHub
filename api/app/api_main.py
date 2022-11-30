@@ -595,7 +595,7 @@ class ModelControl:
         return model_name + "-InputFile has been saved"
 
     @app.put("/runModel", tags=["Put Methods"])
-    def run_model(
+    async def run_model(
         model_data: ModelData,
         model_name: str = "Dogbone",
         file_type: FileType = FileType.YAML,
@@ -673,7 +673,8 @@ class ModelControl:
             command = "cd " + remotepath + " \n sbatch " + model_name + ".sbatch"
             ssh.exec_command(command)
             ssh.close()
-
+            
+            await asyncio.sleep(5)
             # job_id=cara.sshClusterJob(command)
 
             current_jobs = FileHandler.write_get_cara_job_id()
@@ -1417,6 +1418,8 @@ class ModelControl:
         else:
             localpath = "./Output/" + os.path.join(username, model_name)
 
+        log.info("localpath: " + localpath)
+        
         if os.path.exists(localpath):
             status.created = True
 
