@@ -46,11 +46,17 @@ class ModelWriter:
     def write_node_sets(self, model):
         """doc"""
         for idx, k in enumerate(self.ns_list):
-            points = np.where(model[:, 3] == k)
+            if k == 0:
+                points = np.where(model[:, 3] >= 0)
+            else:
+                points = np.where(model[:, 3] == k)
             string = ""
             for point in points[0]:
                 string += str(int(point) + 1) + "\n"
-            self.file_writer(self.ns_name + "_" + str(idx + 1) + ".txt", string)
+            if k == 0:
+                self.file_writer(self.ns_name + "_all.txt", string)
+            else:
+                self.file_writer(self.ns_name + "_" + str(idx + 1) + ".txt", string)
 
     def file_writer(self, filename, string):
         """doc"""

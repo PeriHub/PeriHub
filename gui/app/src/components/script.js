@@ -433,11 +433,11 @@ export default {
         ],
         nodeSets: [
           {
-            id: 1,
+            nodeSetId: 1,
             file: "ns_Dogbone_1.txt",
           },
           {
-            id: 2,
+            nodeSetId: 2,
             file: "ns_Dogbone_2.txt",
           },
         ],
@@ -3028,7 +3028,7 @@ export default {
         }
       }
       this.boundaryConditions.nodeSets.push({
-        id: len,
+        nodeSetId: len + 1,
         file: "ns_bc" + len,
       });
     },

@@ -141,7 +141,7 @@ class BoundaryCondition(BaseModel):
     name: str
     nodeSet: Optional[str] = None
     boundarytype: str
-    blockId: int
+    blockId: Optional[int] = None
     coordinate: str
     value: str
 
