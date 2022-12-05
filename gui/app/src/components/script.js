@@ -726,7 +726,7 @@ export default {
       job: {
         cluster: "None",
         tasks: 1,
-        time: "40:00:00",
+        time: "00:20:00",
         // user: 'hess_ja',
         account: "2263032",
         // mail: 'jan-timo.hesse@dlr.de',

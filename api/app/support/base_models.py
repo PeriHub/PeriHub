@@ -283,7 +283,7 @@ class RunData(BaseModel):
                 "job": {
                     "cluster": "None",
                     "tasks": 1,
-                    "time": "40:00:00",
+                    "time": "00:20:00",
                     "account": "2263032",
                 },
                 "materials": [
@@ -678,7 +678,7 @@ class ModelData(BaseModel):
                 "job":{
                     "cluster": "None",
                     "tasks": 1,
-                    "time": "40:00:00",
+                    "time": "00:20:00",
                     "account": 2263032
                 }
             }
