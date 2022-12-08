@@ -14,3 +14,4 @@ python-dotenv
 sklearn
 netCDF4
 magicattr
+asyncio
