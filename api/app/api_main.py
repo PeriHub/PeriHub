@@ -722,9 +722,9 @@ class ModelControl:
                 + model_name
                 + ".log \n sh /app"
                 + remotepath
-                + "/runPeridigm.sh >> "
+                + "/runPeridigm.sh > "
                 + model_name
-                + ".log &"
+                + ".log 2>&1"
             )
             ssh.exec_command(command)
             # stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
