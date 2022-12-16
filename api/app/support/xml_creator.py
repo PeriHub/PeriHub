@@ -811,59 +811,93 @@ class XMLcreator:
             )
             if out.Write_After_Damage:
                 string += '        <Parameter name="Write After Damage" type="bool" value="true"/>\n'
+
             string += '        <ParameterList name="Output Variables">\n'
-            if out.Displacement:
-                string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
-            if out.Partial_Stress:
-                string += '            <Parameter name="Partial_Stress" type="bool" value="true"/>\n'
-            if out.Damage:
-                string += (
-                    '            <Parameter name="Damage" type="bool" value="true"/>\n'
-                )
-            if out.Number_Of_Neighbors:
-                string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
-            if out.Contact_Force:
-                string += '            <Parameter name="Contact_Force" type="bool" value="true"/>\n'
-            if out.Force:
-                string += (
-                    '            <Parameter name="Force" type="bool" value="true"/>\n'
-                )
+            if out.Element_Id:
+                string += '            <Parameter name="Element_Id" type="bool" value="true"/>\n'
+            if out.Block_Id:
+                string += '            <Parameter name="Block_Id" type="bool" value="true"/>\n'
+            if out.Horizon:
+                string += '            <Parameter name="Horizon" type="bool" value="true"/>\n'
+            if out.Volume:
+                string += '            <Parameter name="Volume" type="bool" value="true"/>\n'
+            if out.Point_Time:
+                string += '            <Parameter name="Point_Time" type="bool" value="true"/>\n'
+            if out.Node_Type:
+                string += '            <Parameter name="Node_Type" type="bool" value="true"/>\n'
+            if out.Model_Coordinates:
+                string += '            <Parameter name="Model_Coordinates" type="bool" value="true"/>\n'
+            if out.Local_Angles:
+                string += '            <Parameter name="Local_Angles" type="bool" value="true"/>\n'
             if out.Velocity:
                 string += '            <Parameter name="Velocity" type="bool" value="true"/>\n'
+            if out.Acceleration:
+                string += '            <Parameter name="Acceleration" type="bool" value="true"/>\n'
+            if out.Temperature:
+                string += '            <Parameter name="Temperature" type="bool" value="true"/>\n'
+            if out.Concentration:
+                string += '            <Parameter name="Concentration" type="bool" value="true"/>\n'
+            if out.Temperature_Change:
+                string += '            <Parameter name="Temperature_Change" type="bool" value="true"/>\n'
+            if out.Flux_Divergence:
+                string += '            <Parameter name="Flux_Divergence" type="bool" value="true"/>\n'
+            if out.Force_Density:
+                string += '            <Parameter name="Force_Density" type="bool" value="true"/>\n'
+            if out.Contact_Force_Density:
+                string += '            <Parameter name="Contact_Force_Density" type="bool" value="true"/>\n'
+            if out.External_Force_Density:
+                string += '            <Parameter name="External_Force_Density" type="bool" value="true"/>\n'
+            if out.Damage_Model_Data:
+                string += '            <Parameter name="Damage_Model_Data" type="bool" value="true"/>\n'
+            if out.Damage:
+                string += '            <Parameter name="Damage" type="bool" value="true"/>\n'
+            if out.Detached_Nodes:
+                string += '            <Parameter name="Detached_Nodes" type="bool" value="true"/>\n'
+            if out.Bond_Damage_Diff:
+                string += '            <Parameter name="Bond_Damage_Diff" type="bool" value="true"/>\n'
+            if out.Specific_Volume:
+                string += '            <Parameter name="Specific_Volume" type="bool" value="true"/>\n'
+            if out.Proc_Num:
+                string += '            <Parameter name="Proc_Num" type="bool" value="true"/>\n'
+            if out.Hourglass_Force_Density:
+                string += '            <Parameter name="Hourglass_Force_Density" type="bool" value="true"/>\n'
+            if out.Deformation_Gradient:
+                string += '            <Parameter name="Deformation_Gradient" type="bool" value="true"/>\n'
+            if out.Left_Stretch_Tensor:
+                string += '            <Parameter name="Left_Stretch_Tensor" type="bool" value="true"/>\n'
+            if out.Rotation_Tensor:
+                string += '            <Parameter name="Rotation_Tensor" type="bool" value="true"/>\n'
+            if out.Shape_Tensor_Inverse:
+                string += '            <Parameter name="Shape_Tensor_Inverse" type="bool" value="true"/>\n'
+            if out.Unrotated_Cauchy_Stress:
+                string += '            <Parameter name="Unrotated_Cauchy_Stress" type="bool" value="true"/>\n'
+            if out.Unrotated_Rate_Of_Deformation:
+                string += '            <Parameter name="Unrotated_Rate_Of_Deformation" type="bool" value="true"/>\n'
+            if out.Unrotated_Plastic_Cauchy_Stress:
+                string += '            <Parameter name="Unrotated_Plastic_Cauchy_Stress" type="bool" value="true"/>\n'
+            if out.Cauchy_Stress:
+                string += '            <Parameter name="Cauchy_Stress" type="bool" value="true"/>\n'
+            if out.Partial_Stress:
+                string += '            <Parameter name="Partial_Stress" type="bool" value="true"/>\n'
+            if out.Hourglass_Stiffness:
+                string += '            <Parameter name="Hourglass_Stiffness" type="bool" value="true"/>\n'
+            if out.Unrotated_Strain:
+                string += '            <Parameter name="Unrotated_Strain" type="bool" value="true"/>\n'
+            if out.Weighted_Volume:
+                string += '            <Parameter name="Weighted_Volume" type="bool" value="true"/>\n'
+            if out.Dilatation:
+                string += '            <Parameter name="Dilatation" type="bool" value="true"/>\n'
+            if out.Number_Of_Neighbors:
+                string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
+            if out.Force:
+                string += '            <Parameter name="Force" type="bool" value="true"/>\n'
+
             for compute in self.compute_dict:
                 string += (
                     '            <Parameter name="'
                     + compute.name
                     + '" type="bool" value="true"/>\n'
                 )
-            if out.Horizon:
-                string += (
-                    '            <Parameter name="Horizon" type="bool" value="true"/>\n'
-                )
-            if out.Volume:
-                string += (
-                    '            <Parameter name="Volume" type="bool" value="true"/>\n'
-                )
-            if out.Model_Coordinates:
-                string += '            <Parameter name="Model_Coordinates" type="bool" value="true"/>\n'
-            if out.Local_Angles:
-                string += '            <Parameter name="Local_Angles" type="bool" value="true"/>\n'
-            if out.Orientations:
-                string += '            <Parameter name="Orientations" type="bool" value="true"/>\n'
-            if out.Coordinates:
-                string += '            <Parameter name="Coordinates" type="bool" value="true"/>\n'
-            if out.Acceleration:
-                string += '            <Parameter name="Acceleration" type="bool" value="true"/>\n'
-            if out.Temperature:
-                string += '            <Parameter name="Temperature" type="bool" value="true"/>\n'
-            if out.Temperature_Change:
-                string += '            <Parameter name="Temperature_Change" type="bool" value="true"/>\n'
-            if out.Force_Density:
-                string += '            <Parameter name="Force_Density" type="bool" value="true"/>\n'
-            if out.External_Force_Density:
-                string += '            <Parameter name="External_Force_Density" type="bool" value="true"/>\n'
-            if out.Damage_Model_Data:
-                string += '            <Parameter name="Damage_Model_Data" type="bool" value="true"/>\n'
             if out.Velocity_Gradient:
                 string += '            <Parameter name="Velocity_Gradient_X" type="bool" value="true"/>\n'
                 string += '            <Parameter name="Velocity_Gradient_Y" type="bool" value="true"/>\n'
@@ -872,8 +906,6 @@ class XMLcreator:
                 string += '            <Parameter name="PiolaStressTimesInvShapeTensorX" type="bool" value="true"/>\n'
                 string += '            <Parameter name="PiolaStressTimesInvShapeTensorY" type="bool" value="true"/>\n'
                 string += '            <Parameter name="PiolaStressTimesInvShapeTensorZ" type="bool" value="true"/>\n'
-            if out.Specific_Volume:
-                string += '            <Parameter name="Specific_Volume" type="bool" value="true"/>\n'
             string += "        </ParameterList>\n"
             string += "    </ParameterList>\n"
             idx += 1

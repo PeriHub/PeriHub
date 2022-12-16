@@ -593,55 +593,106 @@ export default {
         {
           outputsId: 1,
           name: "Output1",
-          Displacement: true,
-          Force: true,
-          Damage: true,
-          Velocity: false,
-          Partial_Stress: true,
-          Number_Of_Neighbors: false,
-          Contact_Force: false,
-          Horizon: false,
-          Model_Coordinates: false,
-          Local_Angles: false,
-          Orientations: false,
-          Coordinates: false,
-          Acceleration: false,
-          Temperature: false,
-          Temperature_Change: false,
-          Force_Density: false,
-          External_Force_Density: false,
-          Damage_Model_Data: false,
-          Velocity_Gradient: false,
-          PiolaStressTimesInvShapeTensor: false,
+
+          Element_Id: false,  
+          Block_Id: false,  
+          Horizon: false, 
+          Volume: false,  
+          Point_Time: false,  
+          Node_Type: false, 
+          Model_Coordinates: false, 
+          Local_Angles: false,  
+          Orientations: false,  
+          Coordinates: false, 
+          Displacement: false,  
+          Velocity: false,  
+          Acceleration: false,  
+          Temperature: false, 
+          Concentration: false, 
+          Temperature_Change: false,  
+          Flux_Divergence: false, 
+          Concentration_Flux_Divergence: false, 
+          Force_Density: false, 
+          Contact_Force_Density: false, 
+          External_Force_Density: false,  
+          Damage_Model_Data: false, 
+          Damage: false,  
+          Detached_Nodes: false,  
+          Bond_Damage_Diff: false,  
+          Specific_Volume: false, 
+          Proc_Num: false,  
+          Hourglass_Force_Density: false, 
+          Deformation_Gradient: false,  
+          Left_Stretch_Tensor: false, 
+          Rotation_Tensor: false, 
+          Shape_Tensor_Inverse: false,  
+          Unrotated_Cauchy_Stress: false, 
+          Unrotated_Rate_Of_Deformation: false, 
+          Unrotated_Plastic_Cauchy_Stress: false, 
+          Cauchy_Stress: false, 
+          Partial_Stress: false,  
+          Hourglass_Stiffness: false, 
+          Unrotated_Strain: false,  
+          Weighted_Volume: false, 
+          Dilatation: false,  
+          Number_Of_Neighbors: false, 
+          Force: false, 
+
+          Velocity_Gradient: false, 
+          PiolaStressTimesInvShapeTensor: false,  
+
           Write_After_Damage: false,
-          Specific_Volume: false,
           Frequency: 100,
           InitStep: 0,
         },
       ],
       outputKeys: {
         name: "Output Filename",
-        Displacement: "Displacement",
-        Force: "Force",
-        Damage: "Damage",
-        Partial_Stress: "Partial_Stress",
-        Number_Of_Neighbors: "Number_Of_Neighbors",
-        Contact_Force: "Contact_Force",
+        Element_Id: "Element_Id",
+        Block_Id: "Block_Id",
         Horizon: "Horizon",
+        Volume: "Volume",
+        Point_Time: "Point_Time",
+        Node_Type: "Node_Type",
         Model_Coordinates: "Model_Coordinates",
         Local_Angles: "Local_Angles",
         Orientations: "Orientations",
         Coordinates: "Coordinates",
+        Displacement: "Displacement",
+        Velocity: "Velocity",
         Acceleration: "Acceleration",
         Temperature: "Temperature",
+        Concentration: "Concentration",
         Temperature_Change: "Temperature_Change",
+        Flux_Divergence: "Flux_Divergence",
+        Concentration_Flux_Divergence: "Concentration_Flux_Divergence",
         Force_Density: "Force_Density",
+        Contact_Force_Density: "Contact_Force_Density",
         External_Force_Density: "External_Force_Density",
         Damage_Model_Data: "Damage_Model_Data",
+        Damage: "Damage",
+        Detached_Nodes: "Detached_Nodes",
+        Bond_Damage_Diff: "Bond_Damage_Diff",
+        Specific_Volume: "Specific_Volume",
+        Proc_Num: "Proc_Num",
+        Hourglass_Force_Density: "Hourglass_Force_Density",
+        Deformation_Gradient: "Deformation_Gradient",
+        Left_Stretch_Tensor: "Left_Stretch_Tensor",
+        Rotation_Tensor: "Rotation_Tensor",
+        Shape_Tensor_Inverse: "Shape_Tensor_Inverse",
+        Unrotated_Cauchy_Stress: "Unrotated_Cauchy_Stress",
+        Unrotated_Rate_Of_Deformation: "Unrotated_Rate_Of_Deformation",
+        Unrotated_Plastic_Cauchy_Stress: "Unrotated_Plastic_Cauchy_Stress",
+        Cauchy_Stress: "Cauchy_Stress",
+        Partial_Stress: "Partial_Stress",
+        Hourglass_Stiffness: "Hourglass_Stiffness",
+        Unrotated_Strain: "Unrotated_Strain",
+        Weighted_Volume: "Weighted_Volume",
+        Dilatation: "Dilatation",
+        Number_Of_Neighbors: "Number_Of_Neighbors",
+        Force: "Force",
         Velocity_Gradient: "Velocity_Gradient",
         PiolaStressTimesInvShapeTensor: "PiolaStressTimesInvShapeTensor",
-        Write_After_Damage: "Write After Damage",
-        Specific_Volume: "Specific_Volume",
         Frequency: "Output Frequency",
         InitStep: "Initial Output Step",
       },
@@ -1842,28 +1893,54 @@ export default {
             break;
           case "Output":
             for (var j = 0; j < this.outputs.length; j++) {
-              this.outputs[j].Displacement = false;
-              this.outputs[j].Force = false;
-              this.outputs[j].Damage = false;
-              this.outputs[j].Partial_Stress = false;
-              this.outputs[j].Number_Of_Neighbors = false;
-              this.outputs[j].Contact_Force = false;
+              this.outputs[j].Element_Id = false;
+              this.outputs[j].Block_Id = false;
               this.outputs[j].Horizon = false;
+              this.outputs[j].Volume = false;
+              this.outputs[j].Point_Time = false;
+              this.outputs[j].Node_Type = false;
               this.outputs[j].Model_Coordinates = false;
               this.outputs[j].Local_Angles = false;
               this.outputs[j].Orientations = false;
               this.outputs[j].Coordinates = false;
+              this.outputs[j].Displacement = false;
+              this.outputs[j].Velocity = false;
               this.outputs[j].Acceleration = false;
               this.outputs[j].Temperature = false;
+              this.outputs[j].Concentration = false;
               this.outputs[j].Temperature_Change = false;
+              this.outputs[j].Flux_Divergence = false;
+              this.outputs[j].Concentration_Flux_Divergence = false;
               this.outputs[j].Force_Density = false;
+              this.outputs[j].Contact_Force_Density = false;
               this.outputs[j].External_Force_Density = false;
               this.outputs[j].Damage_Model_Data = false;
-              this.outputs[j].Velocity = false;
+              this.outputs[j].Damage = false;
+              this.outputs[j].Detached_Nodes = false;
+              this.outputs[j].Bond_Damage_Diff = false;
+              this.outputs[j].Specific_Volume = false;
+              this.outputs[j].Proc_Num = false;
+              this.outputs[j].Hourglass_Force_Density = false;
+              this.outputs[j].Deformation_Gradient = false;
+              this.outputs[j].Left_Stretch_Tensor = false;
+              this.outputs[j].Rotation_Tensor = false;
+              this.outputs[j].Shape_Tensor_Inverse = false;
+              this.outputs[j].Unrotated_Cauchy_Stress = false;
+              this.outputs[j].Unrotated_Rate_Of_Deformation = false;
+              this.outputs[j].Unrotated_Plastic_Cauchy_Stress = false;
+              this.outputs[j].Cauchy_Stress = false;
+              this.outputs[j].Partial_Stress = false;
+              this.outputs[j].Hourglass_Stiffness = false;
+              this.outputs[j].Unrotated_Strain = false;
+              this.outputs[j].Weighted_Volume = false;
+              this.outputs[j].Dilatation = false;
+              this.outputs[j].Number_Of_Neighbors = false;
+              this.outputs[j].Force = false;
+
               this.outputs[j].Velocity_Gradient = false;
               this.outputs[j].PiolaStressTimesInvShapeTensor = false;
+
               this.outputs[j].Write_After_Damage = false;
-              this.outputs[j].Specific_Volume = false;
             }
             let id = names[i].replace(/\D/g, "");
             if (id == "") {
@@ -3113,25 +3190,54 @@ export default {
       this.outputs.push({
         outputsId: len + 1,
         name: "Output" + (len + 1),
-        Displacement: false,
-        Force: false,
-        Damage: false,
-        Partial_Stress: false,
-        Number_Of_Neighbors: false,
-        Contact_Force: false,
-        Horizon: false,
-        Model_Coordinates: false,
-        Local_Angles: false,
-        Orientations: false,
-        Coordinates: false,
-        Acceleration: false,
-        Temperature: false,
-        Temperature_Change: false,
-        Force_Density: false,
-        External_Force_Density: false,
-        Damage_Model_Data: false,
-        Velocity_Gradient: false,
-        PiolaStressTimesInvShapeTensor: false,
+
+        Element_Id: false,  
+        Block_Id: false,  
+        Horizon: false, 
+        Volume: false,  
+        Point_Time: false,  
+        Node_Type: false, 
+        Model_Coordinates: false, 
+        Local_Angles: false,  
+        Orientations: false,  
+        Coordinates: false, 
+        Displacement: false,  
+        Velocity: false,  
+        Acceleration: false,  
+        Temperature: false, 
+        Concentration: false, 
+        Temperature_Change: false,  
+        Flux_Divergence: false, 
+        Concentration_Flux_Divergence: false, 
+        Force_Density: false, 
+        Contact_Force_Density: false, 
+        External_Force_Density: false,  
+        Damage_Model_Data: false, 
+        Damage: false,  
+        Detached_Nodes: false,  
+        Bond_Damage_Diff: false,  
+        Specific_Volume: false, 
+        Proc_Num: false,  
+        Hourglass_Force_Density: false, 
+        Deformation_Gradient: false,  
+        Left_Stretch_Tensor: false, 
+        Rotation_Tensor: false, 
+        Shape_Tensor_Inverse: false,  
+        Unrotated_Cauchy_Stress: false, 
+        Unrotated_Rate_Of_Deformation: false, 
+        Unrotated_Plastic_Cauchy_Stress: false, 
+        Cauchy_Stress: false, 
+        Partial_Stress: false,  
+        Hourglass_Stiffness: false, 
+        Unrotated_Strain: false,  
+        Weighted_Volume: false, 
+        Dilatation: false,  
+        Number_Of_Neighbors: false, 
+        Force: false, 
+
+        Velocity_Gradient: false, 
+        PiolaStressTimesInvShapeTensor: false,  
+        
         Write_After_Damage: false,
         InitStep: 0,
       });
