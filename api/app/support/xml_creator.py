@@ -829,6 +829,12 @@ class XMLcreator:
                 string += '            <Parameter name="Model_Coordinates" type="bool" value="true"/>\n'
             if out.Local_Angles:
                 string += '            <Parameter name="Local_Angles" type="bool" value="true"/>\n'
+            if out.Orientations:
+                string += '            <Parameter name="Orientations" type="bool" value="true"/>\n'
+            if out.Coordinates:
+                string += '            <Parameter name="Coordinates" type="bool" value="true"/>\n'
+            if out.Displacement:
+                string += '            <Parameter name="Displacement" type="bool" value="true"/>\n'
             if out.Velocity:
                 string += '            <Parameter name="Velocity" type="bool" value="true"/>\n'
             if out.Acceleration:
@@ -841,6 +847,8 @@ class XMLcreator:
                 string += '            <Parameter name="Temperature_Change" type="bool" value="true"/>\n'
             if out.Flux_Divergence:
                 string += '            <Parameter name="Flux_Divergence" type="bool" value="true"/>\n'
+            if out.Concentration_Flux_Divergence:
+                string += '            <Parameter name="Concentration_Flux_Divergence" type="bool" value="true"/>\n'
             if out.Force_Density:
                 string += '            <Parameter name="Force_Density" type="bool" value="true"/>\n'
             if out.Contact_Force_Density:
