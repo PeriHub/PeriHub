@@ -2707,7 +2707,7 @@ export default {
         params: {
           model_name: this.model.modelNameSelected,
           cluster: this.job.cluster,
-          output: this.getImageOutput,
+          output: "Output2",
         },
         method: "GET",
         responseType: "blob",

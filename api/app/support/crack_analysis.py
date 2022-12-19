@@ -14,7 +14,7 @@ from crackpy.structure_elements.material import Material
 from exodusreader.exodusreader import ExodusReader
 import numpy as np
 
-class FractureAnalysis:
+class CrackAnalysis:
 
     @staticmethod
     def write_nodemap(file):
@@ -81,7 +81,7 @@ class FractureAnalysis:
         temp = np.multiply(4/3,Y2)
         eps_eqv = np.sqrt(np.abs(temp))
 
-        nodemap_path = os.path.join(os.path.abspath(file), "nodemap.txt")
+        nodemap_path = os.path.join(os.path.dirname(file), "nodemap.txt")
         np.savetxt(
             nodemap_path,
             np.c_[
@@ -102,7 +102,7 @@ class FractureAnalysis:
             comments="",
         )
 
-        return "nodemap.txt", os.path.abspath(file)
+        return "nodemap.txt", os.path.dirname(file)
 
     @staticmethod
     def fracture_analysis(nodemap_filename, nodemap_folder):
@@ -155,7 +155,7 @@ class FractureAnalysis:
 
         # fracture analysis
         analysis = FractureAnalysis(
-            material=Material(),
+            material=material,
             nodemap=nodemap,
             data=input_data,
             crack_tip_info=ct,

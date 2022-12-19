@@ -46,7 +46,7 @@ from support.analysis import Analysis
 from support.image_export import ImageExport
 from support.video_export import VideoExport
 from support.gcode_reader import GcodeReader
-from support.fracture_analysis import FractureAnalysis
+from support.crack_analysis import CrackAnalysis
 from support.globals import MYGLOBAL, log
 
 from shepard_client.models.timeseries import Timeseries
@@ -977,9 +977,9 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        file_name, filepath = FractureAnalysis.write_nodemap(file)
+        file_name, filepath = CrackAnalysis.write_nodemap(file)
 
-        filepath = FractureAnalysis.fracture_analysis(file_name, filepath)
+        filepath = CrackAnalysis.fracture_analysis(file_name, filepath)
 
         try:
             return FileResponse(filepath)
