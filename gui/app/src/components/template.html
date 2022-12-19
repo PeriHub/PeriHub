@@ -2845,7 +2845,22 @@
               <span>CARA Enginframe</span>
             </v-tooltip>
 
-            <v-tooltip bottom
+            <v-tooltip bottom v-if="model.modelNameSelected=='CompactTension'"
+              ><template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="my-btn"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click=getFractureAnalysis()
+                  :disabled="!status.results"
+                >
+                  <i class="fas fa-image"></i>
+                </v-btn>
+              </template>
+              <span>Show Fracture Analysis</span>
+            </v-tooltip>
+
+            <v-tooltip bottom 
               ><template v-slot:activator="{ on, attrs }">
                 <v-btn
                   class="my-btn"

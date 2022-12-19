@@ -3,7 +3,8 @@
     "modelNameSelected": "CompactTension",
     "ownModel": false,
     "translated": false,
-    "length": 50,
+    "length": 35.0,
+    "cracklength": 17.5,
     "width": null,
     "height": null,
     "height2": null,
@@ -19,12 +20,12 @@
     {
       "id": 1,
       "name": "Aluminum",
-      "density": 2.7e3,
-      "matType": "Linear Elastic Correspondence",
+      "density": 7.7e-08,
+      "matType": "Elastic Plastic Correspondence",
       "bulkModulus": null,
       "shearModulus": null,
-      "youngsModulus": 7.24e10,
-      "poissonsRatio": 0.33,
+      "youngsModulus": 2974.0,
+      "poissonsRatio": 0.3,
       "tensionSeparation": true,
       "nonLinear": false,
       "planeStress": true,
@@ -33,7 +34,7 @@
       "thickness": 10,
       "hourglassCoefficient": 1,
       "actualHorizon": null,
-      "yieldStress": null,
+      "yieldStress": 74.0,
       "Parameter": [
         {
           "name": "C11",
@@ -135,7 +136,7 @@
       "name": "Damage",
       "damageModel": "Critical Energy Correspondence",
       "criticalStretch": null,
-      "criticalEnergy": 1.0e6,
+      "criticalEnergy": 0.0166,
       "interblockdamageEnergy": null,
       "planeStress": true,
       "onlyTension": true,
@@ -183,7 +184,7 @@
     }
   ],
   "contact": {
-    "enabled": true,
+    "enabled": false,
     "searchRadius": 0.01,
     "searchFrequency": 100,
     "contactModels": [
@@ -219,7 +220,7 @@
         "boundarytype": "Prescribed Displacement",
         "blockId": 2,
         "coordinate": "y",
-        "value": "1*t"
+        "value": "10*t"
       },
       {
         "conditionsId": 2,
@@ -228,7 +229,7 @@
         "boundarytype": "Prescribed Displacement",
         "blockId": 3,
         "coordinate": "y",
-        "value": "-1*t"
+        "value": "-10*t"
       },
       {
         "conditionsId": 3,
@@ -268,6 +269,14 @@
       "variable": "Force",
       "calculationType": "Sum",
       "blockName": "block_4"
+    },
+    {
+      "id": 2,
+      "computeClass": "Block_Data",
+      "name": "External_Displacement",
+      "variable": "Displacement",
+      "calculationType": "Sum",
+      "blockName": "block_4"
     }
   ],
   "outputs": [
@@ -281,7 +290,17 @@
       "Partial_Stress": true,
       "Number_Of_Neighbors": true,
       "Write_After_Damage": false,
-      "Frequency": 15,
+      "Frequency": 100,
+      "InitStep": 0
+    },
+    {
+      "id": 2,
+      "name": "Output2",
+      "Displacement": true,
+      "Damage": true,
+      "Partial_Stress": true,
+      "Write_After_Damage": true,
+      "Frequency": 10,
       "InitStep": 0
     }
   ],
@@ -312,7 +331,7 @@
     },
     "stopAfterDamageInitation": false,
     "stopBeforeDamageInitation": false,
-    "adaptivetimeStepping": false,
+    "adaptivetimeStepping": true,
     "adapt": {
       "stableStepDifference": 4,
       "maximumBondDifference": 4,

@@ -2695,6 +2695,43 @@ export default {
       this.viewId = 0;
       this.modelLoading = false;
     },
+    async getFractureAnalysis() {
+
+      let headersList = {
+        "Cache-Control": "no-cache",
+        Authorization: this.authToken,
+      };
+
+      let reqOptions = {
+        url: this.url + "getFractureAnalysis",
+        params: {
+          model_name: this.model.modelNameSelected,
+          cluster: this.job.cluster,
+          output: this.getImageOutput,
+        },
+        method: "GET",
+        responseType: "blob",
+        headers: headersList,
+      };
+
+      this.modelLoading = true;
+      await axios
+        .request(reqOptions)
+        .then(
+          (response) =>
+            (this.modelImg = window.URL.createObjectURL(
+              new Blob([response.data])
+            ))
+        )
+        .catch((error) => {
+          this.message = error;
+          this.snackbar = true;
+          this.modelLoading = false;
+          return;
+        });
+      this.viewId = 0;
+      this.modelLoading = false;
+    },
     async getG1c() {
       this.dialogGetG1c = false;
 

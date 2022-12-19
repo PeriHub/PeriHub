@@ -278,8 +278,8 @@ class CompactTension:
         self.output_dict = output
         self.material_dict = material
         bond_filter[0].bottomLength = crack_length + 0.5 + 0.25 * self.w
-        bond_filter[0].sideLength = zend + 0.5
-        bond_filter[0].lowerLeftCornerZ = -zend / 2 - 0.5
+        bond_filter[0].sideLength = self.zend + 1.0
+        bond_filter[0].lowerLeftCornerZ = -self.zend / 2 - 0.5
         self.bondfilters = bond_filter
         self.contact_dict = contact
         self.bc_dict = boundary_condition

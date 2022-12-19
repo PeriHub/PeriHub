@@ -46,6 +46,7 @@ from support.analysis import Analysis
 from support.image_export import ImageExport
 from support.video_export import VideoExport
 from support.gcode_reader import GcodeReader
+from support.fracture_analysis import FractureAnalysis
 from support.globals import MYGLOBAL, log
 
 from shepard_client.models.timeseries import Timeseries
@@ -951,6 +952,34 @@ class ModelControl:
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
         filepath = ImageExport.get_plot_image_from_exodus(file, x_variable, x_axis, y_variable, y_axis)
+
+        try:
+            return FileResponse(filepath)
+        except IOError:
+            log.error(model_name + " results can not be found on " + cluster)
+            return model_name + " results can not be found on " + cluster
+
+    @app.get("/getFractureAnalysis", tags=["Get Methods"])
+    def get_fracture_analysis(
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        output: str = "Output1",
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        if not FileHandler.copy_results_from_cluster(
+            username, model_name, cluster, False
+        ):
+            raise IOError  # NotFoundException(name=model_name)
+
+        resultpath = "./Results/" + os.path.join(username, model_name)
+        file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+        file_name, filepath = FractureAnalysis.write_nodemap(file)
+
+        filepath = FractureAnalysis.fracture_analysis(file_name, filepath)
 
         try:
             return FileResponse(filepath)
