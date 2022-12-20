@@ -632,6 +632,8 @@ export default {
           Cauchy_Stress: false, 
           Partial_Stress: false,  
           Hourglass_Stiffness: false, 
+          Von_Mises_Stress: false, 
+          Equivalent_Plastic_Strain: false, 
           Unrotated_Strain: false,  
           Weighted_Volume: false, 
           Dilatation: false,  
@@ -686,6 +688,8 @@ export default {
         Cauchy_Stress: "Cauchy_Stress",
         Partial_Stress: "Partial_Stress",
         Hourglass_Stiffness: "Hourglass_Stiffness",
+        Von_Mises_Stress: "Von_Mises_Stress", 
+        Equivalent_Plastic_Strain: "Equivalent_Plastic_Strain", 
         Unrotated_Strain: "Unrotated_Strain",
         Weighted_Volume: "Weighted_Volume",
         Dilatation: "Dilatation",
@@ -1931,6 +1935,8 @@ export default {
               this.outputs[j].Cauchy_Stress = false;
               this.outputs[j].Partial_Stress = false;
               this.outputs[j].Hourglass_Stiffness = false;
+              this.outputs[j].Von_Mises_Stress = false;
+              this.outputs[j].Equivalent_Plastic_Strain = false;
               this.outputs[j].Unrotated_Strain = false;
               this.outputs[j].Weighted_Volume = false;
               this.outputs[j].Dilatation = false;
@@ -3265,7 +3271,9 @@ export default {
         Unrotated_Plastic_Cauchy_Stress: false, 
         Cauchy_Stress: false, 
         Partial_Stress: false,  
-        Hourglass_Stiffness: false, 
+        Hourglass_Stiffness: false,
+        Von_Mises_Stress: false,
+        Equivalent_Plastic_Strain: false,
         Unrotated_Strain: false,  
         Weighted_Volume: false, 
         Dilatation: false,  

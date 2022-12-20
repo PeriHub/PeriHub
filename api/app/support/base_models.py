@@ -229,6 +229,8 @@ class Output(BaseModel):
     Cauchy_Stress: Optional[bool] = None
     Partial_Stress: Optional[bool] = None
     Hourglass_Stiffness: Optional[bool] = None
+    Von_Mises_Stress: Optional[bool] = None
+    Equivalent_Plastic_Strain: Optional[bool] = None
     Unrotated_Strain: Optional[bool] = None
     Weighted_Volume: Optional[bool] = None
     Dilatation: Optional[bool] = None

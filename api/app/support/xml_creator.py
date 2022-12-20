@@ -889,6 +889,10 @@ class XMLcreator:
                 string += '            <Parameter name="Partial_Stress" type="bool" value="true"/>\n'
             if out.Hourglass_Stiffness:
                 string += '            <Parameter name="Hourglass_Stiffness" type="bool" value="true"/>\n'
+            if out.Von_Mises_Stress:
+                string += '            <Parameter name="Von_Mises_Stress" type="bool" value="true"/>\n'
+            if out.Equivalent_Plastic_Strain:
+                string += '            <Parameter name="Equivalent_Plastic_Strain" type="bool" value="true"/>\n'
             if out.Unrotated_Strain:
                 string += '            <Parameter name="Unrotated_Strain" type="bool" value="true"/>\n'
             if out.Weighted_Volume:

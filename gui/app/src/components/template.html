@@ -2234,6 +2234,24 @@
                       <v-col class="checkbox-col" cols="15" sm="5" md="5">
                         <v-checkbox
                           class="shrink mr-0 mt-0"
+                          v-model="output.Von_Mises_Stress"
+                          :label="outputKeys.Von_Mises_Stress"
+                          dense
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
+                          v-model="output.Equivalent_Plastic_Strain"
+                          :label="outputKeys.Equivalent_Plastic_Strain"
+                          dense
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col class="checkbox-col" cols="15" sm="5" md="5">
+                        <v-checkbox
+                          class="shrink mr-0 mt-0"
                           v-model="output.Unrotated_Strain"
                           :label="outputKeys.Unrotated_Strain"
                           dense
