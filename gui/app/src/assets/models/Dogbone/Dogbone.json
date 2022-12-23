@@ -253,7 +253,12 @@
       "detachedNodesCheck": true,
       "thickness": 10,
       "hourglassCoefficient": 1,
-      "stabilizatonType": "Global Stiffness"
+      "stabilizatonType": "Global Stiffness",
+      "criticalEnergyCalc":{
+        "calculateCriticalEnergy": false,
+        "k1c": null,
+        "youngsModulus": null
+      }
     }
   ],
   "blocks": [

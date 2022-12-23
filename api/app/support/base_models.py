@@ -553,7 +553,12 @@ class ModelData(BaseModel):
                         "detachedNodesCheck": True,
                         "thickness": 10,
                         "hourglassCoefficient": 1,
-                        "stabilizatonType": "Global Stiffness",
+                        "stabilizatonType": "Global Stiffness",,
+                        "criticalEnergyCalc":{
+                            "calculateCriticalEnergy": False,
+                            "k1c": None,
+                            "youngsModulus": None
+                        }
                     }
                 ],
                 "blocks": [
@@ -711,3 +716,13 @@ class ModelData(BaseModel):
                 }
             }
         }
+
+class SmetanaData(BaseModel):
+    dx_value: List[float]
+    angleList: List[float]
+    damage: Optional[List[Damage]]
+    contact: Optional[Contact]
+    boundary_condition: BoundaryConditions
+    compute: Optional[List[Compute]]
+    output: List[Output]
+    solver: Solver
