@@ -1,5 +1,5 @@
 import math
-from exodus_reader import ExodusReader
+from exodusreader.exodusreader import ExodusReader
 
 w=2
 a=5

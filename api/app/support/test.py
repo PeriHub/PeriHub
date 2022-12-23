@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 
-from exodus_reader import ExodusReader
+from exodusreader.exodusreader import ExodusReader
 
 def get_global_data(file, variable, axis, absolute):
 

@@ -11,7 +11,7 @@ pyjwt
 requests 
 zipfile2 
 python-dotenv 
-sklearn
+scikit-learn
 netCDF4
 magicattr
 asyncio

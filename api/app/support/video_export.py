@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
-from support.exodus_reader import ExodusReader
+from exodusreader.exodusreader import ExodusReader
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm

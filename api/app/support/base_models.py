@@ -553,7 +553,7 @@ class ModelData(BaseModel):
                         "detachedNodesCheck": True,
                         "thickness": 10,
                         "hourglassCoefficient": 1,
-                        "stabilizatonType": "Global Stiffness",,
+                        "stabilizatonType": "Global Stiffness",
                         "criticalEnergyCalc":{
                             "calculateCriticalEnergy": False,
                             "k1c": None,

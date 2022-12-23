@@ -1,0 +1,3 @@
+#Ignore pdf and pub files
+.pdf
+.pub

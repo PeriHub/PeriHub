@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.tri as mtri
 from support.base_models import Model
-from support.exodus_reader import ExodusReader
+from exodusreader.exodusreader import ExodusReader
 from support.analysis import Analysis
 from support.globals import log
 from mpl_toolkits.axes_grid1 import make_axes_locatable

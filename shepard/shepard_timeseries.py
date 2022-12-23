@@ -12,7 +12,7 @@ from shepard_client.models.influx_point import InfluxPoint
 from shepard_client.api.timeseries_reference_api import TimeseriesReferenceApi
 from shepard_client.models.timeseries_reference import TimeseriesReference
 
-from api.app.support.exodus_reader import ExodusReader
+from exodusreader.exodusreader import ExodusReader
 
 class Analysis:
     @staticmethod

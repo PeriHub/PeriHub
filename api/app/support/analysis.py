@@ -4,7 +4,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from support.base_models import Model, Material
-from support.exodus_reader import ExodusReader
+from exodusreader.exodusreader import ExodusReader
 
 from support.globals import log
 
