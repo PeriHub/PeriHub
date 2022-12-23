@@ -976,6 +976,37 @@
                           clearable
                           outlined
                           dense
+                          :readonly="damage.criticalEnergyCalc.calculateCriticalEnergy"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-switch
+                      class="checkbox-col"
+                      v-model="damage.criticalEnergyCalc.calculateCriticalEnergy"
+                      label="Calculate Critical Energy"
+                      dense
+                    ></v-switch>
+                    <v-row v-if="damage.criticalEnergyCalc.calculateCriticalEnergy">
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          v-model="damage.criticalEnergyCalc.k1c"
+                          :rules="[rules.float]"
+                          label="Fracture Toughness (K1C)"
+                          @change="calculateCriticalEnergy(index)"
+                          clearable
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          v-model="damage.criticalEnergyCalc.youngsModulus"
+                          :rules="[rules.float]"
+                          label="Young's Modulus"
+                          @change="calculateCriticalEnergy(index)"
+                          clearable
+                          outlined
+                          dense
                         ></v-text-field>
                       </v-col>
                     </v-row>

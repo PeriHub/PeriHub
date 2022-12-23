@@ -331,6 +331,11 @@ export default {
           thickness: 10.0,
           hourglassCoefficient: 1.0,
           stabilizatonType: "Global Stiffness",
+          criticalEnergyCalc:{
+            calculateCriticalEnergy: false,
+            k1c: null,
+            youngsModulus: null,
+          },
         },
       ],
       damageKeys: {
@@ -2812,6 +2817,18 @@ export default {
       this.snackbar = true;
 
       this.modelLoading = false;
+    },
+    calculateCriticalEnergy(damageId) {
+      console.log(damageId)
+      if(this.damages[damageId].criticalEnergyCalc.calculateCriticalEnergy){
+        const k1c = this.damages[damageId].criticalEnergyCalc.k1c;
+        const E = this.damages[damageId].criticalEnergyCalc.youngsModulus
+        if(k1c!=null & E!=null){
+          const k1c = this.damages[damageId].criticalEnergyCalc.k1c;
+          const E = this.damages[damageId].criticalEnergyCalc.youngsModulus
+          this.damages[damageId].criticalEnergy = (+k1c * +k1c) / +E
+        }
+      }
     },
     openCara() {
       window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");

@@ -2,13 +2,10 @@
 doc
 """
 import os
-import numpy as np
+import io
+import requests
+import zipfile
 # import smetana
-try:
-    from smetana.control.peridigmcontrol import PeridigmControl
-    from smetana.control.peridigmcontrol3D import PeridigmControl3D
-except ImportError:
-    pass
 from support.base_models import (
     Adapt,
     BoundaryCondition,
@@ -22,9 +19,10 @@ from support.base_models import (
     Newton,
     Solver,
     Verlet,
+    SmetanaData
 )
-from support.model_writer import ModelWriter
-from support.geometry import Geometry
+
+from support.globals import log
 
 
 class Smetana:
@@ -180,9 +178,64 @@ class Smetana:
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
+
+        prop_params = {
+            "filename": self.filename,
+            "username": self.username,
+            "meshResolution": self.mesh_res,
+            "xlength": self.xend,
+            "plyThickness": self.plyThickness,
+            "yLength": self.zend,
+            "use_perihub": True,
+            "amplitudeFactor": self.amplitude_factor,
+            "wavelength": self.wavelength,
+            "ignore_mesh": self.ignore_mesh
+        }
+
+        data_params = SmetanaData(
+            dx_value = self.dx_value,
+            angleList = self.angle,
+            damage = self.damage_dict,
+            contact = self.contact_dict,
+            boundary_condition = self.bc_dict,
+            compute = self.compute_dict,
+            output = self.output_dict,
+            solver = self.solver_dict
+        )
+
         if self.two_d:
-            PeridigmControl.generateModel(self.filename, self.path, self.mesh_res, self.xend, self.plyThickness, self.zend, self.dx_value, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict, self.ignore_mesh)
+
+            url = "https://smetana-api.nimbus.dlr.de/generatePeridigm2DModel"
+
         else:
-            PeridigmControl3D.generateModel(self.filename, self.path, self.mesh_res, self.xend, self.plyThickness, self.zend, self.dx_value, True, self.amplitude_factor, self.wavelength, self.angle, self.damage_dict, self.contact_dict, self.bc_dict, self.compute_dict, self.output_dict, self.solver_dict, self.ignore_mesh)
-        
+
+            url = "https://smetana-api.nimbus.dlr.de/generatePeridigm3DModel"
+            
+        response = requests.post(url, params=prop_params, data=data_params.json())
+        log.info(response.text)
+
+
+        prop_params = {
+            "filename": self.filename,
+            "username": self.username
+        }
+
+        url = "https://smetana-api.nimbus.dlr.de/getModel"
+
+        request = requests.get(url, params=prop_params)
+
+        try:
+            with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
+
+                localpath = "./Output/" + os.path.join(self.username, self.filename)
+
+                if not os.path.exists(localpath):
+                    os.makedirs(localpath)
+
+                zip_file.extractall(localpath)
+
+        except IOError:
+            log.error("Smetana request failed")
+            return "Smetana request failed"
+
         return "Model created"
