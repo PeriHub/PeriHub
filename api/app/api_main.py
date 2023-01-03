@@ -834,64 +834,6 @@ class ModelControl:
         log.info("Mesh generated")
         return "Mesh generated"
 
-    @app.get("/getImage", tags=["Get Methods"])
-    def get_image(
-        model_name: str = "Dogbone",
-        cluster: str = "None",
-        output: str = "Output1",
-        variable: str = "Displacement",
-        axis: str = "Magnitude",
-        dx_value: float = 0.0009,
-        width: int = 1920,
-        height: int = 1080,
-        request: Request = "",
-    ):
-        """doc"""
-        username = FileHandler.get_user_name(request, dev)
-
-        if not FileHandler.copy_results_from_cluster(
-            username, model_name, cluster, False
-        ):
-            raise IOError  # NotFoundException(name=model_name)
-
-        # subprocess.run(['./api/app/support/read.sh'], shell=True)
-        with subprocess.Popen(
-            [
-                "sh support/read.sh image "
-                + username
-                + " "
-                + model_name
-                + " "
-                + output
-                + " "
-                + variable
-                + " "
-                + axis
-                + " "
-                + str(dx_value)
-                + " "
-                + str(width)
-                + " "
-                + str(height)
-            ],
-            shell=True,
-        ) as process:
-            process.wait()
-
-        try:
-            return FileResponse(
-                "./Results/"
-                + os.path.join(username, model_name)
-                + "/"
-                + variable
-                + "_"
-                + axis
-                + ".jpg"
-            )
-        except IOError:
-            log.error(model_name + " results can not be found on " + cluster)
-            return model_name + " results can not be found on " + cluster
-
     @app.get("/getImagePython", tags=["Get Methods"])
     def get_image_python(
         model_name: str = "Dogbone",

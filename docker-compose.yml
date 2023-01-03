@@ -16,7 +16,6 @@ services:
     volumes:
       - ${VOLUME}peridigmJobs:/app/peridigmJobs
       - ${VOLUME}rsaFiles:/app/rsaFiles
-      - paraView_volume:/app/paraView
     networks:
       - backend
 
