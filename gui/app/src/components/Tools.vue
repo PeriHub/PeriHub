@@ -119,6 +119,33 @@
           </v-card>
         </v-row>
       </v-container>
+      <v-container>
+        <h1>Typical Conversions</h1>
+        <v-row>
+          <v-card width="400px">
+            <v-col class="textfield-col">
+              <v-text-field
+                v-model="conversion.mPaSqrtM"
+                label="KIc (MPa · m^1/2)"
+                clearable
+                outlined
+              ></v-text-field>
+            </v-col>
+          </v-card>
+          <v-card width="400px">
+            <v-col class="textfield-col">
+              <v-text-field
+                v-model="conversionResults.mPaSqrtMm"
+                label="KIc (MPa · mm^1/2)"
+                :append-icon="'mdi-content-copy'"
+                @click:append="copyText('mPaSqrtMm')"
+                id="mPaSqrtMm"
+                outlined
+              ></v-text-field>
+            </v-col>
+          </v-card>
+        </v-row>
+      </v-container>
       <v-container max-width="1100">
         <h1>Amplitude Generator</h1>
         <splitpanes style="height: 100%">
@@ -229,6 +256,12 @@ export default {
   },
   data() {
     return {
+      conversion: {
+        mPaSqrtM: null,
+      },
+      conversionResults:{
+        mPaSqrtMm: null,
+      },
       constants: {
         bulkModulus: null,
         shearModulus: null,
@@ -306,6 +339,12 @@ export default {
   methods: {
     highlighter(code) {
       return highlight(code, languages.js); // languages.<insert language> to return html with markup
+    },
+    convertTypical() {
+      const mPaSqrtM = this.conversion.mPaSqrtM;
+      if (mPaSqrtM != null) {
+        this.conversionResults.mPaSqrtMm = Math.sqrt( mPaSqrtM **2 * 1000);
+      }
     },
     convert() {
       const K = this.constants.bulkModulus;
@@ -637,7 +676,6 @@ export default {
     constants: {
       handler() {
         console.log("constants changed!");
-        localStorage.setItem("model", JSON.stringify(this.model));
         let num = 0;
         var con = [];
         for (con in this.constants) {
@@ -655,10 +693,26 @@ export default {
       },
       deep: true,
     },
+    conversion: {
+      handler() {
+        console.log("conversion changed!");
+        let num = 0;
+        var con = [];
+        for (con in this.conversion) {
+          if (this.conversion[con] != null) {
+            num++;
+          }
+        }
+        if (num > 0) {
+          this.convertTypical();
+        }
+        localStorage.setItem("conversion", JSON.stringify(this.conversion));
+      },
+      deep: true,
+    },
     amplitude: {
       handler() {
         console.log("amplitude changed!");
-        localStorage.setItem("model", JSON.stringify(this.model));
         if (this.amplitude.type == "Type 1") {
           this.plot();
         } else {
