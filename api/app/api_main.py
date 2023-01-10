@@ -32,6 +32,7 @@ import requests
 # from fastapi.responses import StreamingResponse
 from models.GICmodel.gic_model import GICmodel
 from models.GIICmodel.giic_model import GIICmodel
+from models.KIICmodel.kiic_model import KIICmodel
 from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
 from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
@@ -244,6 +245,30 @@ class ModelControl:
                     ignore_mesh=ignore_mesh,
                 )
                 result = giic.create_model()
+
+            elif model_name == "KIICmodel":
+                kiic = KIICmodel(
+                    xend=length,
+                    yend=height,
+                    crack_length=cracklength,
+                    zend=width,
+                    dx_value=dx_value,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
+                    damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
+                    contact=model_data.contact,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                )
+                result = kiic.create_model()
 
             elif model_name == "DCBmodel":
                 dcb = DCBmodel(
@@ -904,6 +929,10 @@ class ModelControl:
     @app.get("/getFractureAnalysis", tags=["Get Methods"])
     def get_fracture_analysis(
         model_name: str = "Dogbone",
+        length: float = 35,
+        crack_length: float = 17.5,
+        young_modulus: float = 5000,
+        poissions_ratio: float = 0.33,
         cluster: str = "None",
         output: str = "Output1",
         request: Request = "",
@@ -921,7 +950,7 @@ class ModelControl:
 
         file_name, filepath = CrackAnalysis.write_nodemap(file)
 
-        filepath = CrackAnalysis.fracture_analysis(file_name, filepath)
+        filepath = CrackAnalysis.fracture_analysis(length, crack_length, young_modulus, poissions_ratio, file_name, filepath)
 
         try:
             return FileResponse(filepath)

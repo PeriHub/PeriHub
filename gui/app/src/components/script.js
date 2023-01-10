@@ -10,6 +10,8 @@ import "prismjs/themes/prism-tomorrow.css"; // import syntax highlighting styles
 
 import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
+import KIICmodelImage from "../assets/models/KIICmodel/KIICmodel.jpg";
+import KIICmodelFile from "../assets/models/KIICmodel/KIICmodel.json";
 import GIICmodelImage from "../assets/models/GIICmodel/GIICmodel.jpg";
 import GIICmodelFile from "../assets/models/GIICmodel/GIICmodel.json";
 import GICmodelImage from "../assets/models/GICmodel/GICmodel.jpg";
@@ -52,6 +54,7 @@ export default {
         "PlateWithHole",
         "GICmodel",
         "GIICmodel",
+        "KIICmodel",
         "DCBmodel",
         "CompactTension",
         "Smetana",
@@ -301,6 +304,7 @@ export default {
       // Damage
       damageModelName: [
         "Critical Stretch",
+        "Von Mises Stress",
         "Interface Aware",
         "Time Dependent Critical Stretch",
         "Critical Energy",
@@ -315,6 +319,10 @@ export default {
           damageModel: "Critical Energy Correspondence",
           criticalStretch: 10,
           criticalEnergy: 10.1,
+          criticalVonMisesStress: 10.0,
+          criticalDamage: null,
+          thresholdDamage: null,
+          criticalDamageToNeglectMaterialPoint: null,
           interBlockDamage: false,
           numberOfBlocks: 5,
           interBlocks: [
@@ -334,7 +342,6 @@ export default {
           criticalEnergyCalc:{
             calculateCriticalEnergy: false,
             k1c: null,
-            youngsModulus: null,
           },
         },
       ],
@@ -941,8 +948,12 @@ export default {
           return pattern.test(value) || "Invalid number";
         },
         float: (value) => {
-          const pattern = /^((?!0)|[-]|(?=0+\.))(\d*\.)?\d+(e[-]\d+)?$|^0$/;
-          return pattern.test(value) || "Invalid number";
+          if (value!=null){
+            const pattern = /^((?!0)|[-]|(?=0+\.))(\d*\.)?\d+(e[-]\d+)?$|^0$/;
+            return pattern.test(value) || "Invalid number";
+          }
+          else 
+            return true
         },
         int: (value) => {
           const pattern = /^[-]{0,1}(?<!\.)\d+(?!\.)$/;
@@ -1990,6 +2001,9 @@ export default {
         case "GIICmodel":
           Object.assign(jsonFile, GIICmodelFile);
           break;
+        case "KIICmodel":
+          Object.assign(jsonFile, KIICmodelFile);
+          break;
         case "DCBmodel":
           Object.assign(jsonFile, DCBmodelFile);
           break;
@@ -2429,6 +2443,8 @@ export default {
       this.monitorStatus(true);
     },
     async getStatus() {
+      
+      console.log("getStatus")
       let headersList = {
         "Cache-Control": "no-cache",
         Authorization: this.authToken,
@@ -2449,6 +2465,7 @@ export default {
         .request(reqOptions)
         .then((response) => (this.status = response.data));
       if (this.status.results) {
+        console.log("clearInterval")
         clearInterval(this.statusInterval);
       }
     },
@@ -2717,6 +2734,10 @@ export default {
         url: this.url + "getFractureAnalysis",
         params: {
           model_name: this.model.modelNameSelected,
+          length: this.model.length,
+          crack_length: this.model.cracklength,
+          young_modulus: this.materials[0].youngsModulus,
+          poissions_ratio: this.materials[0].poissonsRatio,
           cluster: this.job.cluster,
           output: "Output2",
         },
@@ -2822,11 +2843,28 @@ export default {
       console.log(damageId)
       if(this.damages[damageId].criticalEnergyCalc.calculateCriticalEnergy){
         const k1c = this.damages[damageId].criticalEnergyCalc.k1c;
-        const E = this.damages[damageId].criticalEnergyCalc.youngsModulus
-        if(k1c!=null & E!=null){
-          const k1c = this.damages[damageId].criticalEnergyCalc.k1c;
-          const E = this.damages[damageId].criticalEnergyCalc.youngsModulus
-          this.damages[damageId].criticalEnergy = (+k1c * +k1c) / +E
+        if(k1c!=null){
+          let E = null
+          let pr = null
+          let materialName = ""
+          for (var i = 0; i < this.blocks.length; i++) {
+            if (this.blocks[i].damageModel==this.damages[damageId].name){
+              materialName = this.blocks[i].material
+            }
+          }
+          let planeStress = true
+          for (var i = 0; i < this.materials.length; i++) {
+            if (this.materials[i].name==materialName){
+              planeStress = this.materials[i].planeStress
+              E = this.materials[i].youngsModulus
+              pr = this.materials[i].poissonsRatio
+            }
+          }
+          if(planeStress){
+            this.damages[damageId].criticalEnergy = (k1c ** 2) / +E
+          }else{
+            this.damages[damageId].criticalEnergy = (k1c ** 2) / (+E / (1 - pr ** 2))
+          }
         }
       }
     },
@@ -3322,6 +3360,9 @@ export default {
           break;
         case "GIICmodel":
           this.modelImg = GIICmodelImage;
+          break;
+        case "KIICmodel":
+          this.modelImg = KIICmodelImage;
           break;
         case "DCBmodel":
           this.modelImg = DCBmodelImage;

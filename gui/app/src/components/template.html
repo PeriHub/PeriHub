@@ -271,7 +271,7 @@
                 <v-text-field
                   class="textfield-col"
                   v-model="model.cracklength"
-                  v-show="['GICmodel','GIICmodel','CompactTension'].includes(model.modelNameSelected)"
+                  v-show="['GICmodel','GIICmodel','CompactTension', 'KIICmodel'].includes(model.modelNameSelected)"
                   :rules="[rules.required, rules.float]"
                   label="Cracklength"
                   outlined
@@ -680,6 +680,13 @@
                           dense
                         ></v-switch>
                       </v-col>
+                      <v-col class="textfield-col">
+                        <v-switch
+                          v-model="material.planeStress"
+                          :label="`Plane Stress`"
+                          dense
+                        ></v-switch>
+                      </v-col>
                       <v-col
                         class="textfield-col"
                         v-if="material.matType=='Elastic'"
@@ -957,7 +964,7 @@
                       outlined
                       dense
                     ></v-select>
-                    <v-row>
+                    <v-row v-if="damage.damageModel!='Von Mises Stress'">
                       <v-col class="textfield-col">
                         <v-text-field
                           v-model="damage.criticalStretch"
@@ -980,6 +987,50 @@
                         ></v-text-field>
                       </v-col>
                     </v-row>
+                    <v-row v-if="damage.damageModel=='Von Mises Stress'">
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          v-model="damage.criticalVonMisesStress"
+                          :rules="[rules.float]"
+                          label="Critical Von Mises Stress"
+                          clearable
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          v-model="damage.criticalDamage"
+                          :rules="[rules.float]"
+                          label="Critical Damage"
+                          clearable
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                    <v-row v-if="damage.damageModel=='Von Mises Stress'">
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          v-model="damage.thresholdDamage"
+                          :rules="[rules.float]"
+                          label="Threshold Damage"
+                          clearable
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                      <v-col class="textfield-col">
+                        <v-text-field
+                          v-model="damage.criticalDamageToNeglectMaterialPoint"
+                          :rules="[rules.float]"
+                          label="Critical Damage To Neglect Material Point"
+                          clearable
+                          outlined
+                          dense
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
                     <v-switch
                       class="checkbox-col"
                       v-model="damage.criticalEnergyCalc.calculateCriticalEnergy"
@@ -992,17 +1043,6 @@
                           v-model="damage.criticalEnergyCalc.k1c"
                           :rules="[rules.float]"
                           label="Fracture Toughness (K1C)"
-                          @change="calculateCriticalEnergy(index)"
-                          clearable
-                          outlined
-                          dense
-                        ></v-text-field>
-                      </v-col>
-                      <v-col class="textfield-col">
-                        <v-text-field
-                          v-model="damage.criticalEnergyCalc.youngsModulus"
-                          :rules="[rules.float]"
-                          label="Young's Modulus"
                           @change="calculateCriticalEnergy(index)"
                           clearable
                           outlined
@@ -2894,7 +2934,7 @@
               <span>CARA Enginframe</span>
             </v-tooltip>
 
-            <v-tooltip bottom v-if="model.modelNameSelected=='CompactTension'"
+            <v-tooltip bottom v-if="['CompactTension', 'KIICmodel'].includes(model.modelNameSelected)"
               ><template v-slot:activator="{ on, attrs }">
                 <v-btn
                   class="my-btn"
