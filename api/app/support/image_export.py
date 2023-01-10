@@ -46,13 +46,15 @@ class ImageExport:
         # first_points, first_point_data, first_global_data, first_cell_data, first_ns, first_block_data, time = ExodusReader.read_timestep(
         #     file, 1
         # )
+        Reader = ExodusReader()
+
         try:
-            points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
+            points, point_data, global_data, cell_data, ns, block_data, time = Reader.read_timestep(
                 file, step)
         except IndexError:
-            number_of_steps = ExodusReader.get_number_of_steps(file)
+            number_of_steps = Reader.get_number_of_steps(file)
             log.warn("Step can't be found, last step " + str(number_of_steps) + " used!")
-            points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
+            points, point_data, global_data, cell_data, ns, block_data, time = Reader.read_timestep(
                 file, number_of_steps)
 
         use_cell_data=False

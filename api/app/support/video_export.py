@@ -30,7 +30,9 @@ class VideoExport:
     @staticmethod
     def get_gif_from_exodus(file, apply_displacements, displ_factor, max_edge_distance, variable, axis, length, height, fps, dpi, x_min, x_max, y_min, y_max, size = 20):
 
-        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read(file)
+        Reader = ExodusReader()
+
+        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read(file)
 
         use_cell_data=False
 
@@ -208,7 +210,9 @@ class VideoExport:
     @staticmethod
     def get_triangulated_mesh_from_exodus(file, displ_factor, timestep, max_edge_distance, length, height):
 
-        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(file, timestep)
+        Reader = ExodusReader()
+
+        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read_timestep(file, timestep)
 
         fig = plt.figure(figsize=(20, 20*(height/length)))
         ax = fig.add_subplot(111)

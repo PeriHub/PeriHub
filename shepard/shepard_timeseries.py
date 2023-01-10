@@ -18,7 +18,9 @@ class Analysis:
     @staticmethod
     def get_global_data(file, variable, axis):
 
-        global_data, time = ExodusReader.read(file)
+        Reader = ExodusReader()
+
+        global_data, time = Reader.read(file)
 
         if variable == "Time":
             data = time

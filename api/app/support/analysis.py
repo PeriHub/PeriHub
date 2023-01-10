@@ -44,7 +44,8 @@ class Analysis:
     @staticmethod
     def get_global_data(file, variable, axis, absolute):
 
-        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read(file)
+        Reader = ExodusReader()
+        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read(file)
 
         if variable == "Time":
             data = time
@@ -73,7 +74,9 @@ class Analysis:
     @staticmethod
     def get_g1c_k1c(username, model_name, model: Model, youngs_modulus):
 
-        B = model.width
+        B = 1
+        if model.width!=None:
+            B = model.width
         a = model.cracklength
         W = model.length
         E = youngs_modulus
@@ -141,6 +144,8 @@ class Analysis:
     @staticmethod
     def get_g1c(username, model_name, output, model: Model, material: Material):
 
+        Reader = ExodusReader()
+
         w = model.width
         a = model.cracklength
         L = model.length
@@ -149,7 +154,7 @@ class Analysis:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
+        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read_timestep(
             file, -1
         )
 
@@ -209,10 +214,11 @@ class Analysis:
     @staticmethod
     def get_result_file(username, model_name, output):
 
+        Reader = ExodusReader()
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(file, 0)
+        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read_timestep(file, 0)
 
         first_time = time.data.item()
         first_displ = global_data["External_Displacement"][0]
@@ -232,7 +238,7 @@ class Analysis:
 
                     filtered_points = current_points[filter]
 
-        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(file, -1)
+        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read_timestep(file, -1)
 
         last_time = time.data.item()
         last_displ = global_data["External_Displacement"][0]
