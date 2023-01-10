@@ -12,7 +12,9 @@ class Status:
         self.submitted = submitted
         self.results = results
 class Model(BaseModel):
+    modelNameSelected: str
     ownModel: bool
+    ownMesh: Optional[bool] = None
     translated: bool
     length: float
     cracklength: Optional[float] = None
@@ -87,13 +89,21 @@ class InterBlock(BaseModel):
     secondBlockId: int
     value: float
 
+class CriticalEnergyCalc(BaseModel):
+    calculateCriticalEnergy: Optional[bool] = None
+    k1c: Optional[float] = None
 
 class Damage(BaseModel):
     id: Optional[int]
     name: str
     damageModel: str
     criticalStretch: Optional[float] = None
+    criticalVonMisesStress: Optional[float] = None
+    criticalDamage: Optional[float] = None
+    thresholdDamage: Optional[float] = None
+    criticalDamageToNeglectMaterialPoint: Optional[float] = None
     criticalEnergy: Optional[float] = None
+    criticalEnergyCalc : Optional[CriticalEnergyCalc] = None
     interBlockDamage: Optional[bool] = None
     numberOfBlocks: Optional[int] = None
     interBlocks: Optional[List[InterBlock]] = None

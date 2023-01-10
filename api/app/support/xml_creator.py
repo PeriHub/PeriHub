@@ -422,6 +422,30 @@ class XMLcreator:
                             + str(float(interBlock.value))
                             + '"/>\n'
                         )
+            elif dam.damageModel == "Von Mises Stress":
+                string += (
+                    '            <Parameter name="Critical Von Mises Stress" type="double" value="'
+                    + str(float(dam.criticalVonMisesStress))
+                    + '"/>\n'
+                )
+                if self.check_if_defined(dam.criticalDamage):
+                    string += (
+                        '            <Parameter name="Critical Damage" type="double" value="'
+                        + str(float(dam.criticalDamage))
+                        + '"/>\n'
+                    )
+                if self.check_if_defined(dam.thresholdDamage):
+                    string += (
+                        '            <Parameter name="Threshold Damage" type="double" value="'
+                        + str(float(dam.thresholdDamage))
+                        + '"/>\n'
+                    )
+                if self.check_if_defined(dam.criticalDamageToNeglectMaterialPoint):
+                    string += (
+                        '            <Parameter name="Critical Damage To Neglect Material Point" type="double" value="'
+                        + str(float(dam.criticalDamageToNeglectMaterialPoint))
+                        + '"/>\n'
+                    )
             else:
                 string += (
                     '            <Parameter name="Critical Stretch" type="double" value="'
