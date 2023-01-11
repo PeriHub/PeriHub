@@ -5,13 +5,17 @@ import time
 import asyncio
 
 from trame.app import get_server, asynchronous
-from trame.widgets import vuetify, paraview
-from trame.ui.vuetify import SinglePageLayout
+from trame.widgets import vuetify, paraview, trame
+from trame.ui.vuetify import SinglePageWithDrawerLayout
+
 
 from paraview import simple
 
 server = get_server()
 state, ctrl = server.state, server.controller
+
+block_array = ["block_1", "block_2", "block_3", "block_4", "block_5"]
+block_array_selection = ["block_1", "block_2", "block_3", "block_4", "block_5"]
 
 def last_time_step():
     state.time = state.times
@@ -32,6 +36,19 @@ def update_scale(raycast, **kwargs):
         renderView1.EnableRayTracing = 1
     else:
         renderView1.EnableRayTracing = 0
+    update_view()
+
+@state.change("apply_displacements")
+def update_scale(apply_displacements, **kwargs):
+    if apply_displacements:
+        Output1.ApplyDisplacements = 1
+    else:
+        Output1.ApplyDisplacements = 0
+    update_view()
+
+@state.change("displacement_magnitude")
+def update_scale(displacement_magnitude, **kwargs):
+    Output1.DisplacementMagnitude = float(displacement_magnitude)
     update_view()
 
 def reset():
@@ -125,7 +142,10 @@ def change_nodal(nodal, **kwargs):
     # velocityPWF = simple.GetOpacityTransferFunction(nodal)
     update_view()
 
-
+@state.change("block_array_selection")
+def update_block_by_name(block_array_selection, **kwargs):
+    Output1.ElementBlocks = block_array_selection
+    update_view()
 # def update_reset_resolution():
 #     state.resolution = DEFAULT_RESOLUTION
 
@@ -230,6 +250,8 @@ time_values = list(time_keeper.TimestepValues)
 
 state.time_value = time_values[0]
 state.times = len(time_values) - 1
+
+state.raycast = True
 
 # get display properties
 Output1Display = simple.GetDisplayProperties(Output1, view=renderView1)
@@ -369,7 +391,7 @@ view = simple.Render()
 
 # ctrl.on_server_ready.add(rescale())
 
-with SinglePageLayout(server) as layout:
+with SinglePageWithDrawerLayout(server) as layout:
 
     # layout = SinglePage("ParaView cone", on_ready=html_view.update)
     # layout.content.children[0].add_child(html_view)
@@ -394,7 +416,7 @@ with SinglePageLayout(server) as layout:
             dense=True,
         ),
         vuetify.VSwitch(
-            v_model=("raycast", False),
+            v_model=("raycast", True),
             hide_details=True,
             dense=True,
         ),
@@ -405,7 +427,7 @@ with SinglePageLayout(server) as layout:
             disabled=True,
             hide_details=True,
             dense=True,
-            style="max-width: 200px",
+            style="max-width: 100px",
             classes="mx-2",
         )
         vuetify.VSlider(
@@ -461,6 +483,34 @@ with SinglePageLayout(server) as layout:
             classes="pt-1",
         )
 
+    with layout.drawer as drawer:
+        # drawer components
+        drawer.width = 200
+        vuetify.VSelect(
+            # Contour By
+            label="Blocks",
+            v_model=("block_array_selection", block_array_selection),
+            items=("array_list", block_array),
+            hide_details=True,
+            dense=True,
+            outlined=True,
+            multiple=True,
+            clearable=True,
+            classes="pt-1",
+        )
+        vuetify.VDivider(classes="mb-2")
+        vuetify.VSwitch(
+            v_model=("apply_displacements", False),
+            label="Apply Displacements",
+            hide_details=True,
+            dense=True,
+        ),
+        vuetify.VTextField(
+            v_model=("displacement_magnitude", 1),
+            dense=True,
+            style="max-width: 200px",
+            classes="mx-2",
+        )
     with layout.content:
         with vuetify.VContainer(fluid=True, classes="pa-0 fill-height"):
             html_view = paraview.VtkRemoteView(view, namespace="view")

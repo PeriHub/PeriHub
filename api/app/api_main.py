@@ -930,6 +930,7 @@ class ModelControl:
     def get_fracture_analysis(
         model_name: str = "Dogbone",
         length: float = 35,
+        height: float = 10,
         crack_length: float = 17.5,
         young_modulus: float = 5000,
         poissions_ratio: float = 0.33,
@@ -950,7 +951,7 @@ class ModelControl:
 
         file_name, filepath = CrackAnalysis.write_nodemap(file)
 
-        filepath = CrackAnalysis.fracture_analysis(length, crack_length, young_modulus, poissions_ratio, file_name, filepath)
+        filepath = CrackAnalysis.fracture_analysis(model_name, length, height, crack_length, young_modulus, poissions_ratio, file_name, filepath)
 
         try:
             return FileResponse(filepath)

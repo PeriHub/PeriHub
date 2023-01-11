@@ -2735,6 +2735,7 @@ export default {
         params: {
           model_name: this.model.modelNameSelected,
           length: this.model.length,
+          height: this.model.height,
           crack_length: this.model.cracklength,
           young_modulus: this.materials[0].youngsModulus,
           poissions_ratio: this.materials[0].poissonsRatio,

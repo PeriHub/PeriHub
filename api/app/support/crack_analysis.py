@@ -105,56 +105,62 @@ class CrackAnalysis:
         return "nodemap.txt", os.path.dirname(file)
 
     @staticmethod
-    def fracture_analysis(length, crack_length, young_modulus, poissions_ratio, nodemap_filename, nodemap_folder):
+    def fracture_analysis(model_name, length, height, crack_length, young_modulus, poissions_ratio, nodemap_filename, nodemap_folder):
 
         # material properties
         material = Material(E=72000, nu_xy=0.33, sig_yield=350)
         material = Material(E=5000, nu_xy=0.34, sig_yield=276)
         material = Material(E=young_modulus, nu_xy=poissions_ratio, sig_yield=276)
 
-        # integration
-        int_props = IntegralProperties(
-            number_of_paths=10,
-            number_of_nodes=100,
+        if model_name == "CompactTension":
+            int_props = IntegralProperties(
+                number_of_paths=10,
+                number_of_nodes=100,
 
-            bottom_offset=-0,  # should not be zero for dic results
-            top_offset=0,  # should not be zero for dic results
+                bottom_offset=-0,  # should not be zero for dic results
+                top_offset=0,  # should not be zero for dic results
 
-            integral_size_left=-4,
-            integral_size_right=5,
-            integral_size_top=5,
-            integral_size_bottom=-5,
+                integral_size_left=-4,
+                integral_size_right=5,
+                integral_size_top=5,
+                integral_size_bottom=-5,
 
-            paths_distance_top=0.5,
-            paths_distance_left=0.5,
-            paths_distance_right=0.5,
-            paths_distance_bottom=0.5,
+                paths_distance_top=0.5,
+                paths_distance_left=0.5,
+                paths_distance_right=0.5,
+                paths_distance_bottom=0.5,
 
-            mask_tolerance=2,
+                mask_tolerance=2,
 
-            buckner_williams_terms=[-1, 1, 2, 3, 4, 5]
-        )
-        # int_props = IntegralProperties(
-        #     number_of_paths=10,
-        #     number_of_nodes=100,
+                buckner_williams_terms=[-1, 1, 2, 3, 4, 5]
+            )
+            crack_end = crack_length + 0.25 * length
+            ct = CrackTipInfo(crack_end, 0, 0, 'right')
 
-        #     bottom_offset=-0,  # should not be zero for dic results
-        #     top_offset=0,  # should not be zero for dic results
+        elif model_name == "KIICmodel":
+            int_props = IntegralProperties(
+                number_of_paths=10,
+                number_of_nodes=100,
 
-        #     integral_size_left=-1,
-        #     integral_size_right=1,
-        #     integral_size_top=1,
-        #     integral_size_bottom=-1,
+                bottom_offset=-0,  # should not be zero for dic results
+                top_offset=0,  # should not be zero for dic results
 
-        #     paths_distance_top=0.5,
-        #     paths_distance_left=0.5,
-        #     paths_distance_right=0.5,
-        #     paths_distance_bottom=0.5,
+                integral_size_left=-1,
+                integral_size_right=1,
+                integral_size_top=1,
+                integral_size_bottom=-1,
 
-        #     mask_tolerance=2,
+                paths_distance_top=0.5,
+                paths_distance_left=0.5,
+                paths_distance_right=0.5,
+                paths_distance_bottom=0.5,
 
-        #     buckner_williams_terms=[-1, 1, 2, 3, 4, 5]
-        # )
+                mask_tolerance=2,
+
+                buckner_williams_terms=[-1, 1, 2, 3, 4, 5]
+            )
+            crack_end = crack_length
+            ct = CrackTipInfo(crack_end, height/2, 0, 'right')
 
         # optimization
         opt_props = OptimizationProperties(
@@ -164,14 +170,6 @@ class CrackAnalysis:
             tick_size=0.04,
             terms=[-1, 0, 1, 2, 3, 4, 5]
         )
-
-        crack_end = crack_length + 0.25 * length
-        crack_end = crack_length
-        # crack tip
-        ct = CrackTipInfo(50, 0, 0, 'right')
-        ct = CrackTipInfo(26.3, 0, 0, 'right')
-        ct = CrackTipInfo(crack_end, 0, 0, 'right')
-        # ct = CrackTipInfo(crack_end, 5, 0, 'right')
 
         # preprocess data
         nodemap = Nodemap(name=nodemap_filename, folder=nodemap_folder)

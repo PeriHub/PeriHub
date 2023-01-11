@@ -1,3 +1,8 @@
-from fa_pyutils.service.logger import MyLogger
+import logging
+import rich.progress
+from rich.logging import RichHandler
 
-log = MyLogger("logger")
+FORMAT = "%(message)s"
+logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
+
+log = logging.getLogger("rich")
