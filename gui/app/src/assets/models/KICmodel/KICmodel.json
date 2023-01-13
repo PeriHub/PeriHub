@@ -1,6 +1,6 @@
 {
   "model": {
-    "modelNameSelected": "KIICmodel",
+    "modelNameSelected": "KICmodel",
     "ownModel": false,
     "translated": false,
     "length": 20.0,
@@ -226,8 +226,8 @@
         "nodeSet": null,
         "boundarytype": "Prescribed Displacement",
         "blockId": 2,
-        "coordinate": "x",
-        "value": "1*t"
+        "coordinate": "y",
+        "value": "5*t"
       },
       {
         "conditionsId": 2,
@@ -235,8 +235,8 @@
         "nodeSet": null,
         "boundarytype": "Prescribed Displacement",
         "blockId": 3,
-        "coordinate": "x",
-        "value": "-1*t"
+        "coordinate": "y",
+        "value": "-5*t"
       },
       {
         "conditionsId": 3,
@@ -253,7 +253,7 @@
         "nodeSet": null,
         "boundarytype": "Prescribed Displacement",
         "blockId": 2,
-        "coordinate": "y",
+        "coordinate": "x",
         "value": "0"
       },
       {
@@ -262,7 +262,7 @@
         "nodeSet": null,
         "boundarytype": "Prescribed Displacement",
         "blockId": 3,
-        "coordinate": "y",
+        "coordinate": "x",
         "value": "0"
       }
     ]
@@ -281,7 +281,9 @@
       "Number_Of_Neighbors": true,
       "Write_After_Damage": false,
       "Frequency": 100,
-      "InitStep": 0
+      "InitStep": 0,
+      "Von_Mises_Stress": true,
+      "Unrotated_Strain": true
     },
     {
       "id": 2,
@@ -291,7 +293,9 @@
       "Partial_Stress": true,
       "Write_After_Damage": true,
       "Frequency": 10,
-      "InitStep": 0
+      "InitStep": 0,
+      "Von_Mises_Stress": true,
+      "Unrotated_Strain": true
     }
   ],
   "solver": {

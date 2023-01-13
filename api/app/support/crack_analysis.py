@@ -112,18 +112,18 @@ class CrackAnalysis:
         material = Material(E=5000, nu_xy=0.34, sig_yield=276)
         material = Material(E=young_modulus, nu_xy=poissions_ratio, sig_yield=276)
 
-        if model_name == "CompactTension":
+        if model_name in ["CompactTension"]:
             int_props = IntegralProperties(
-                number_of_paths=10,
+                number_of_paths=13,
                 number_of_nodes=100,
 
                 bottom_offset=-0,  # should not be zero for dic results
                 top_offset=0,  # should not be zero for dic results
 
                 integral_size_left=-4,
-                integral_size_right=5,
-                integral_size_top=5,
-                integral_size_bottom=-5,
+                integral_size_right=2,
+                integral_size_top=2,
+                integral_size_bottom=-2,
 
                 paths_distance_top=0.5,
                 paths_distance_left=0.5,
@@ -137,7 +137,7 @@ class CrackAnalysis:
             crack_end = crack_length + 0.25 * length
             ct = CrackTipInfo(crack_end, 0, 0, 'right')
 
-        elif model_name == "KIICmodel":
+        elif model_name in ["KICmodel","KIICmodel"]:
             int_props = IntegralProperties(
                 number_of_paths=10,
                 number_of_nodes=100,
@@ -150,10 +150,10 @@ class CrackAnalysis:
                 integral_size_top=1,
                 integral_size_bottom=-1,
 
-                paths_distance_top=0.5,
-                paths_distance_left=0.5,
-                paths_distance_right=0.5,
-                paths_distance_bottom=0.5,
+                paths_distance_top=0.38,
+                paths_distance_left=0.38,
+                paths_distance_right=0.38,
+                paths_distance_bottom=0.38,
 
                 mask_tolerance=2,
 

@@ -32,6 +32,7 @@ import requests
 # from fastapi.responses import StreamingResponse
 from models.GICmodel.gic_model import GICmodel
 from models.GIICmodel.giic_model import GIICmodel
+from models.KICmodel.kic_model import KICmodel
 from models.KIICmodel.kiic_model import KIICmodel
 from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
@@ -269,6 +270,30 @@ class ModelControl:
                     ignore_mesh=ignore_mesh,
                 )
                 result = kiic.create_model()
+
+            elif model_name == "KICmodel":
+                kic = KICmodel(
+                    xend=length,
+                    yend=height,
+                    crack_length=cracklength,
+                    zend=width,
+                    dx_value=dx_value,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
+                    damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
+                    contact=model_data.contact,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                )
+                result = kic.create_model()
 
             elif model_name == "DCBmodel":
                 dcb = DCBmodel(

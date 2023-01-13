@@ -10,6 +10,8 @@ import "prismjs/themes/prism-tomorrow.css"; // import syntax highlighting styles
 
 import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
+import KICmodelImage from "../assets/models/KICmodel/KICmodel.jpg";
+import KICmodelFile from "../assets/models/KICmodel/KICmodel.json";
 import KIICmodelImage from "../assets/models/KIICmodel/KIICmodel.jpg";
 import KIICmodelFile from "../assets/models/KIICmodel/KIICmodel.json";
 import GIICmodelImage from "../assets/models/GIICmodel/GIICmodel.jpg";
@@ -54,6 +56,7 @@ export default {
         "PlateWithHole",
         "GICmodel",
         "GIICmodel",
+        "KICmodel",
         "KIICmodel",
         "DCBmodel",
         "CompactTension",
@@ -2000,6 +2003,9 @@ export default {
           break;
         case "GIICmodel":
           Object.assign(jsonFile, GIICmodelFile);
+          break;
+        case "KICmodel":
+          Object.assign(jsonFile, KICmodelFile);
           break;
         case "KIICmodel":
           Object.assign(jsonFile, KIICmodelFile);

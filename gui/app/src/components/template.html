@@ -271,7 +271,7 @@
                 <v-text-field
                   class="textfield-col"
                   v-model="model.cracklength"
-                  v-show="['GICmodel','GIICmodel','CompactTension', 'KIICmodel'].includes(model.modelNameSelected)"
+                  v-show="['GICmodel','GIICmodel','CompactTension', 'KICmodel', 'KIICmodel'].includes(model.modelNameSelected)"
                   :rules="[rules.required, rules.float]"
                   label="Cracklength"
                   outlined
@@ -2934,7 +2934,7 @@
               <span>CARA Enginframe</span>
             </v-tooltip>
 
-            <v-tooltip bottom v-if="['CompactTension', 'KIICmodel'].includes(model.modelNameSelected)"
+            <v-tooltip bottom v-if="['CompactTension', 'KICmodel', 'KIICmodel'].includes(model.modelNameSelected)"
               ><template v-slot:activator="{ on, attrs }">
                 <v-btn
                   class="my-btn"

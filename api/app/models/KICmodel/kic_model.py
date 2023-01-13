@@ -23,7 +23,7 @@ from support.model_writer import ModelWriter
 from support.geometry import Geometry
 
 
-class KIICmodel:
+class KICmodel:
 
     bc1 = BoundaryCondition(
         conditionsId=1,
@@ -174,7 +174,7 @@ class KIICmodel:
         zend=0.003,
         crack_length=5,
         dx_value=[0.25, 0.25, 0.25],
-        filename="KIICmodel",
+        filename="KICmodel",
         two_d=True,
         rot=False,
         angle=[0, 0],
