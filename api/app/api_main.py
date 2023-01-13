@@ -49,14 +49,14 @@ from support.image_export import ImageExport
 from support.video_export import VideoExport
 from support.gcode_reader import GcodeReader
 from support.crack_analysis import CrackAnalysis
-from support.globals import MYGLOBAL, log
+from support.globals import log
 
 from shepard_client.models.timeseries import Timeseries
 from shepard_client.models.influx_point import InfluxPoint
 from shepard_client.models.timeseries_payload import TimeseriesPayload
 
-from fa_pyutils.sshtools import cara
-import fa_pyutils.service.duration as duration
+# from fa_pyutils.sshtools import cara
+# import fa_pyutils.service.duration as duration
 
 
 
@@ -108,10 +108,6 @@ dev = os.getenv("DEV")
 smetana = os.getenv("SMETANA")
 if dev == "True":
     log.info("--- Running in development mode ---")
-if smetana == "True":
-    MYGLOBAL.smetana_enabled = True
-else:
-    log.warn("Smetana is not enabled")
 
 
 class ModelControl:
@@ -418,29 +414,25 @@ class ModelControl:
                 result = compact_tension.create_model()
 
             elif model_name == "Smetana":
-                if MYGLOBAL.smetana_enabled:
-                    smetana = Smetana(
-                        mesh_res=model_data.model.discretization,
-                        xend=length,
-                        plyThickness=height,
-                        zend=width,
-                        dx_value=dx_value,
-                        damage=model_data.damages,
-                        contact=model_data.contact,
-                        compute=model_data.computes,
-                        output=model_data.outputs,
-                        solver=model_data.solver,
-                        username=username,
-                        ignore_mesh=ignore_mesh,
-                        amplitude_factor=model_data.model.amplitudeFactor,
-                        wavelength=model_data.model.wavelength,
-                        angle=model_data.model.angles,
-                        two_d=model_data.model.twoDimensional,
-                    )
-                    result = smetana.create_model()
-                else:
-                    log.warning("Smetana is not enabled")
-                    return("Smetana is not enabled")
+                smetana = Smetana(
+                    mesh_res=model_data.model.discretization,
+                    xend=length,
+                    plyThickness=height,
+                    zend=width,
+                    dx_value=dx_value,
+                    damage=model_data.damages,
+                    contact=model_data.contact,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    ignore_mesh=ignore_mesh,
+                    amplitude_factor=model_data.model.amplitudeFactor,
+                    wavelength=model_data.model.wavelength,
+                    angle=model_data.model.angles,
+                    two_d=model_data.model.twoDimensional,
+                )
+                result = smetana.create_model()
                     
             else:
                 log.error("Model Name unknown")
