@@ -105,30 +105,30 @@ class CrackAnalysis:
         return "nodemap.txt", os.path.dirname(file)
 
     @staticmethod
-    def fracture_analysis(model_name, length, height, crack_length, young_modulus, poissions_ratio, nodemap_filename, nodemap_folder):
+    def fracture_analysis(model_name, length, height, crack_length, young_modulus, poissions_ratio, yield_stress, nodemap_filename, nodemap_folder):
 
         # material properties
         material = Material(E=72000, nu_xy=0.33, sig_yield=350)
         material = Material(E=5000, nu_xy=0.34, sig_yield=276)
-        material = Material(E=young_modulus, nu_xy=poissions_ratio, sig_yield=276)
+        material = Material(E=young_modulus, nu_xy=poissions_ratio, sig_yield=yield_stress)
 
         if model_name in ["CompactTension"]:
             int_props = IntegralProperties(
-                number_of_paths=13,
-                number_of_nodes=100,
+                number_of_paths=10,
+                number_of_nodes=200,
 
                 bottom_offset=-0,  # should not be zero for dic results
                 top_offset=0,  # should not be zero for dic results
 
-                integral_size_left=-4,
-                integral_size_right=2,
-                integral_size_top=2,
-                integral_size_bottom=-2,
+                integral_size_left=-8,
+                integral_size_right=8,
+                integral_size_top=8,
+                integral_size_bottom=-8,
 
-                paths_distance_top=0.5,
-                paths_distance_left=0.5,
-                paths_distance_right=0.5,
-                paths_distance_bottom=0.5,
+                paths_distance_top=0.2,
+                paths_distance_left=0.2,
+                paths_distance_right=0.2,
+                paths_distance_bottom=0.2,
 
                 mask_tolerance=2,
 
@@ -189,7 +189,7 @@ class CrackAnalysis:
         analysis.run()
 
         # plot
-        plot_sets = PlotSettings(background='eps_vm', cmap='jet', dpi=300)
+        plot_sets = PlotSettings(background='sig_vm', cmap='jet', dpi=300)
         plotter = Plotter(path=os.path.join(nodemap_folder, 'plots'), fracture_analysis=analysis, plot_sets=plot_sets)
         plotter.plot()
 

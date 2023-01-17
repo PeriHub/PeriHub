@@ -1,353 +1,362 @@
-{
-  "model": {
-    "modelNameSelected": "CompactTension",
-    "ownModel": false,
-    "translated": false,
-    "length": 35.0,
-    "cracklength": 17.5,
-    "width": null,
-    "height": null,
-    "height2": null,
-    "radius": null,
-    "structured": null,
-    "discretization": 200,
-    "horizon": null,
-    "twoDimensional": true,
-    "rotatedAngles": false,
-    "angles": [0, 0]
-  },
-  "materials": [
-    {
-      "id": 1,
-      "name": "Aluminum",
-      "density": 7.7e-08,
-      "matType": "Elastic Plastic Correspondence",
-      "bulkModulus": null,
-      "shearModulus": null,
-      "youngsModulus": 2974.0,
-      "poissonsRatio": 0.3,
-      "tensionSeparation": true,
-      "nonLinear": false,
-      "planeStress": true,
-      "materialSymmetry": "Isotropic",
-      "stabilizatonType": "Global Stiffness",
-      "thickness": 10,
-      "hourglassCoefficient": 1,
-      "actualHorizon": null,
-      "yieldStress": 74.0,
-      "Parameter": [
-        {
-          "name": "C11",
-          "value": null
-        },
-        {
-          "name": "C12",
-          "value": null
-        },
-        {
-          "name": "C13",
-          "value": null
-        },
-        {
-          "name": "C14",
-          "value": null
-        },
-        {
-          "name": "C15",
-          "value": null
-        },
-        {
-          "name": "C16",
-          "value": null
-        },
-        {
-          "name": "C22",
-          "value": null
-        },
-        {
-          "name": "C23",
-          "value": null
-        },
-        {
-          "name": "C24",
-          "value": null
-        },
-        {
-          "name": "C25",
-          "value": null
-        },
-        {
-          "name": "C26",
-          "value": null
-        },
-        {
-          "name": "C33",
-          "value": null
-        },
-        {
-          "name": "C34",
-          "value": null
-        },
-        {
-          "name": "C35",
-          "value": null
-        },
-        {
-          "name": "C36",
-          "value": null
-        },
-        {
-          "name": "C44",
-          "value": null
-        },
-        {
-          "name": "C45",
-          "value": null
-        },
-        {
-          "name": "C46",
-          "value": null
-        },
-        {
-          "name": "C55",
-          "value": null
-        },
-        {
-          "name": "C56",
-          "value": null
-        },
-        {
-          "name": "C66",
-          "value": null
-        }
-      ],
-      "properties": [
-        {
-          "id": 1,
-          "name": "Prop_1",
-          "value": null
-        }
-      ]
-    }
-  ],
-  "damages": [
-    {
-      "id": 1,
-      "name": "Damage",
-      "damageModel": "Critical Energy Correspondence",
-      "criticalStretch": null,
-      "criticalEnergy": 0.0166,
-      "interblockdamageEnergy": null,
-      "planeStress": true,
-      "onlyTension": true,
-      "detachedNodesCheck": true,
-      "thickness": 10,
-      "hourglassCoefficient": 1,
-      "stabilizatonType": "Global Stiffness",
-      "criticalEnergyCalc":{
-        "calculateCriticalEnergy": false,
-        "k1c": null,
-        "youngsModulus": null
-      }
-    }
-  ],
-  "blocks": [
-    {
-      "id": 1,
-      "name": "block_1",
-      "material": "Aluminum",
-      "damageModel": "Damage",
-      "show": true
-    },
-    {
-      "id": 2,
-      "name": "block_2",
-      "material": "Aluminum",
-      "damageModel": "",
-      "show": true
-    },
-    {
-      "id": 3,
-      "name": "block_3",
-      "material": "Aluminum",
-      "damageModel": "",
-      "show": true
-    },
-    {
-      "id": 4,
-      "name": "block_4",
-      "material": "Aluminum",
-      "damageModel": "",
-      "show": true
-    },
-    {
-      "id": 5,
-      "name": "block_5",
-      "material": "Aluminum",
-      "damageModel": "",
-      "show": true
-    }
-  ],
-  "contact": {
-    "enabled": false,
-    "searchRadius": 0.01,
-    "searchFrequency": 100,
-    "contactModels": [
+{"model": {
+  "modelNameSelected": "CompactTension",
+  "ownModel": false,
+  "translated": false,
+  "length": 35,
+  "cracklength": 17.5,
+  "width": null,
+  "height": 43.75,
+  "height2": null,
+  "radius": null,
+  "structured": null,
+  "discretization": 200,
+  "horizon": null,
+  "twoDimensional": true,
+  "rotatedAngles": false,
+  "angles": [
+    0,
+    0
+  ]
+},
+"materials": [
+  {
+    "id": 1,
+    "name": "Resin",
+    "density": 7.7e-8,
+    "matType": "Elastic Plastic Correspondence",
+    "bulkModulus": null,
+    "shearModulus": null,
+    "youngsModulus": 2974,
+    "poissonsRatio": 0.3,
+    "tensionSeparation": true,
+    "nonLinear": false,
+    "planeStress": true,
+    "materialSymmetry": "Isotropic",
+    "stabilizatonType": "Global Stiffness",
+    "thickness": 10,
+    "hourglassCoefficient": 1,
+    "actualHorizon": null,
+    "yieldStress": 74,
+    "Parameter": [
       {
-        "id": 1,
-        "name": "Contact Model",
-        "contactType": "Short Range Force",
-        "contactRadius": 0.000775,
-        "springConstant": 1000000000000.0
+        "name": "C11",
+        "value": null
+      },
+      {
+        "name": "C12",
+        "value": null
+      },
+      {
+        "name": "C13",
+        "value": null
+      },
+      {
+        "name": "C14",
+        "value": null
+      },
+      {
+        "name": "C15",
+        "value": null
+      },
+      {
+        "name": "C16",
+        "value": null
+      },
+      {
+        "name": "C22",
+        "value": null
+      },
+      {
+        "name": "C23",
+        "value": null
+      },
+      {
+        "name": "C24",
+        "value": null
+      },
+      {
+        "name": "C25",
+        "value": null
+      },
+      {
+        "name": "C26",
+        "value": null
+      },
+      {
+        "name": "C33",
+        "value": null
+      },
+      {
+        "name": "C34",
+        "value": null
+      },
+      {
+        "name": "C35",
+        "value": null
+      },
+      {
+        "name": "C36",
+        "value": null
+      },
+      {
+        "name": "C44",
+        "value": null
+      },
+      {
+        "name": "C45",
+        "value": null
+      },
+      {
+        "name": "C46",
+        "value": null
+      },
+      {
+        "name": "C55",
+        "value": null
+      },
+      {
+        "name": "C56",
+        "value": null
+      },
+      {
+        "name": "C66",
+        "value": null
       }
     ],
-    "interactions": [
+    "properties": [
       {
         "id": 1,
-        "firstBlockId": 4,
-        "secondBlockId": 2,
-        "contactModelId": 1
-      },
-      {
-        "id": 2,
-        "firstBlockId": 5,
-        "secondBlockId": 3,
-        "contactModelId": 1
+        "name": "Prop_1",
+        "value": null
       }
     ]
+  }
+],
+"damages": [
+  {
+    "id": 1,
+    "name": "Damage",
+    "damageModel": "Critical Energy Correspondence",
+    "criticalStretch": null,
+    "criticalEnergy": 0.3362474781439139,
+    "interblockdamageEnergy": null,
+    "planeStress": true,
+    "onlyTension": true,
+    "detachedNodesCheck": true,
+    "thickness": 10,
+    "hourglassCoefficient": 1,
+    "stabilizatonType": "Global Stiffness",
+    "criticalEnergyCalc": {
+      "calculateCriticalEnergy": true,
+      "k1c": "31.622776601683793",
+      "youngsModulus": null
+    }
+  }
+],
+"blocks": [
+  {
+    "id": 1,
+    "name": "block_1",
+    "material": "Resin",
+    "damageModel": "Damage",
+    "show": true
   },
-  "boundaryConditions": {
-    "conditions": [
-      {
-        "conditionsId": 1,
-        "name": "BC_1",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 2,
-        "coordinate": "y",
-        "value": "10*t"
-      },
-      {
-        "conditionsId": 2,
-        "name": "BC_2",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 3,
-        "coordinate": "y",
-        "value": "-10*t"
-      },
-      {
-        "conditionsId": 3,
-        "name": "BC_3",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 2,
-        "coordinate": "x",
-        "value": "0"
-      },
-      {
-        "conditionsId": 4,
-        "name": "BC_4",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 3,
-        "coordinate": "x",
-        "value": "0"
-      },
-      {
-        "conditionsId": 5,
-        "name": "BC_5",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 1,
-        "coordinate": "z",
-        "value": "0"
-      }
-    ]
+  {
+    "id": 2,
+    "name": "block_2",
+    "material": "Resin",
+    "damageModel": "",
+    "show": true
   },
-  "bondFilters": [],
-  "computes": [
+  {
+    "id": 3,
+    "name": "block_3",
+    "material": "Resin",
+    "damageModel": "",
+    "show": true
+  },
+  {
+    "id": 4,
+    "name": "block_4",
+    "material": "Resin",
+    "damageModel": "",
+    "show": true
+  },
+  {
+    "id": 5,
+    "name": "block_5",
+    "material": "Resin",
+    "damageModel": "",
+    "show": true
+  }
+],
+"contact": {
+  "enabled": false,
+  "searchRadius": 0.01,
+  "searchFrequency": 100,
+  "contactModels": [
     {
       "id": 1,
-      "computeClass": "Block_Data",
-      "name": "External_Force",
-      "variable": "Force",
-      "calculationType": "Sum",
-      "blockName": "block_4"
+      "name": "Contact Model",
+      "contactType": "Short Range Force",
+      "contactRadius": 0.000775,
+      "springConstant": 1000000000000
+    }
+  ],
+  "interactions": [
+    {
+      "id": 1,
+      "firstBlockId": 4,
+      "secondBlockId": 2,
+      "contactModelId": 1
     },
     {
       "id": 2,
-      "computeClass": "Block_Data",
-      "name": "External_Displacement",
-      "variable": "Displacement",
-      "calculationType": "Sum",
-      "blockName": "block_4"
+      "firstBlockId": 5,
+      "secondBlockId": 3,
+      "contactModelId": 1
     }
-  ],
-  "outputs": [
+  ]
+},
+"boundaryConditions": {
+  "conditions": [
     {
-      "id": 1,
-      "name": "Output1",
-      "Displacement": true,
-      "Force": true,
-      "Damage": true,
-      "Velocity": true,
-      "Partial_Stress": true,
-      "Number_Of_Neighbors": true,
-      "Write_After_Damage": false,
-      "Frequency": 100,
-      "InitStep": 0
+      "conditionsId": 1,
+      "name": "BC_1",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 2,
+      "coordinate": "y",
+      "value": "10*t"
     },
     {
-      "id": 2,
-      "name": "Output2",
-      "Displacement": true,
-      "Damage": true,
-      "Partial_Stress": true,
-      "Write_After_Damage": true,
-      "Frequency": 10,
-      "InitStep": 0
+      "conditionsId": 2,
+      "name": "BC_2",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 3,
+      "coordinate": "y",
+      "value": "-10*t"
+    },
+    {
+      "conditionsId": 3,
+      "name": "BC_3",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 2,
+      "coordinate": "x",
+      "value": "0"
+    },
+    {
+      "conditionsId": 4,
+      "name": "BC_4",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 3,
+      "coordinate": "x",
+      "value": "0"
+    },
+    {
+      "conditionsId": 5,
+      "name": "BC_5",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 1,
+      "coordinate": "z",
+      "value": "0"
     }
-  ],
-  "solver": {
-    "verbose": false,
-    "initialTime": 0,
-    "finalTime": 0.1,
-    "solvertype": "Verlet",
+  ]
+},
+"bondFilters": [],
+"computes": [
+  {
+    "id": 1,
+    "computeClass": "Block_Data",
+    "name": "External_Force",
+    "variable": "Force",
+    "calculationType": "Sum",
+    "blockName": "block_4"
+  },
+  {
+    "id": 2,
+    "computeClass": "Block_Data",
+    "name": "External_Displacement",
+    "variable": "Displacement",
+    "calculationType": "Sum",
+    "blockName": "block_4"
+  }
+],
+"outputs": [
+  {
+    "id": 1,
+    "name": "Output1",
+    "Displacement": true,
+    "Force": true,
+    "Damage": true,
+    "Velocity": false,
+    "Partial_Stress": true,
+    "Number_Of_Neighbors": true,
+    "Write_After_Damage": false,
+    "Frequency": 100,
+    "InitStep": 0,
+    "Von_Mises_Stress": true,
+    "Unrotated_Strain": true,
+    "Equivalent_Plastic_Strain": true
+  },
+  {
+    "id": 2,
+    "name": "Output2",
+    "Displacement": true,
+    "Damage": true,
+    "Partial_Stress": true,
+    "Write_After_Damage": true,
+    "Frequency": 10,
+    "InitStep": 0,
+    "Unrotated_Cauchy_Stress": false,
+    "Von_Mises_Stress": true,
+    "Unrotated_Strain": true,
+    "Unrotated_Plastic_Cauchy_Stress": false,
+    "Equivalent_Plastic_Strain": false
+  }
+],
+"solver": {
+  "verbose": false,
+  "initialTime": 0,
+  "finalTime": 0.1,
+  "solvertype": "Verlet",
+  "safetyFactor": 0.95,
+  "numericalDamping": 0.000005,
+  "peridgimPreconditioner": "None",
+  "nonlinearSolver": "Line Search Based",
+  "numberOfLoadSteps": 100,
+  "maxSolverIterations": 50,
+  "relativeTolerance": 1e-8,
+  "maxAgeOfPrec": 100,
+  "directionMethod": "Newton",
+  "newton": {
+    "jacobianOperator": "Matrix-Free",
+    "preconditioner": "None"
+  },
+  "lineSearchMethod": "Polynomial",
+  "verletSwitch": true,
+  "verlet": {
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,
-    "peridgimPreconditioner": "None",
-    "nonlinearSolver": "Line Search Based",
-    "numberOfLoadSteps": 100,
-    "maxSolverIterations": 50,
-    "relativeTolerance": 1e-8,
-    "maxAgeOfPrec": 100,
-    "directionMethod": "Newton",
-    "newton": {
-      "jacobianOperator": "Matrix-Free",
-      "preconditioner": "None"
-    },
-    "lineSearchMethod": "Polynomial",
-    "verletSwitch": true,
-    "verlet": {
-      "safetyFactor": 0.95,
-      "numericalDamping": 0.000005,
-      "outputFrequency": 7500
-    },
-    "stopAfterDamageInitation": false,
-    "stopBeforeDamageInitation": false,
-    "adaptivetimeStepping": true,
-    "adapt": {
-      "stableStepDifference": 4,
-      "maximumBondDifference": 4,
-      "stableBondDifference": 1
-    },
-    "filetype": "yaml"
+    "outputFrequency": 7500
   },
-  "job":{
-      "cluster": "None",
-      "tasks": 1,
-      "time": "00:20:00",
-      "account": 2263032
-  }
-}
+  "stopAfterDamageInitation": false,
+  "stopBeforeDamageInitation": false,
+  "adaptivetimeStepping": true,
+  "adapt": {
+    "stableStepDifference": 4,
+    "maximumBondDifference": 4,
+    "stableBondDifference": 1
+  },
+  "filetype": "yaml"
+},
+"job": {
+  "cluster": "None",
+  "tasks": 1,
+  "time": "00:20:00",
+  "account": 2263032
+}}

@@ -2745,6 +2745,7 @@ export default {
           crack_length: this.model.cracklength,
           young_modulus: this.materials[0].youngsModulus,
           poissions_ratio: this.materials[0].poissonsRatio,
+          yield_stress: this.materials[0].yieldStress,
           cluster: this.job.cluster,
           output: "Output2",
         },

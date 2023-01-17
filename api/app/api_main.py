@@ -190,7 +190,7 @@ class ModelControl:
 
         start_time = time.time()
 
-        log.infoHeadline("Create " + model_name)
+        log.info("Create " + model_name)
 
         if model_data.model.ownModel == False:
             if model_name == "GICmodel":
@@ -951,6 +951,7 @@ class ModelControl:
         crack_length: float = 17.5,
         young_modulus: float = 5000,
         poissions_ratio: float = 0.33,
+        yield_stress: float = 74,
         cluster: str = "None",
         output: str = "Output1",
         request: Request = "",
@@ -968,7 +969,7 @@ class ModelControl:
 
         file_name, filepath = CrackAnalysis.write_nodemap(file)
 
-        filepath = CrackAnalysis.fracture_analysis(model_name, length, height, crack_length, young_modulus, poissions_ratio, file_name, filepath)
+        filepath = CrackAnalysis.fracture_analysis(model_name, length, height, crack_length, young_modulus, poissions_ratio, yield_stress, file_name, filepath)
 
         try:
             return FileResponse(filepath)
