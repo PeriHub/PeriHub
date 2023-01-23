@@ -8,7 +8,7 @@ from crackpy.fracture_analysis.optimization import OptimizationProperties
 from crackpy.fracture_analysis.plot import PlotSettings, Plotter
 from crackpy.fracture_analysis.write import OutputWriter
 from crackpy.fracture_analysis.read import OutputReader
-from crackpy.structure_elements.data_files import Nodemap
+from crackpy.structure_elements.data_files import Nodemap, NodemapStructure
 from crackpy.structure_elements.material import Material
 
 from exodusreader.exodusreader import ExodusReader
@@ -51,8 +51,14 @@ class CrackAnalysis:
             "eps_y",
             "eps_xy",
             "eps_eqv",
+            "s_x",
+            "s_y",
+            "s_xy",
         ]
         formatter = [
+            "%15.8e",
+            "%15.8e",
+            "%15.8e",
             "%15.8e",
             "%15.8e",
             "%15.8e",
@@ -69,17 +75,16 @@ class CrackAnalysis:
         indexes = np.arange(1, len(block_points_np)+1)
 
         eps_x = cell_data['Unrotated_StrainXX'][0][damage_id]
-
         eps_y = cell_data['Unrotated_StrainYY'][0][damage_id]
-
         eps_xy = cell_data['Unrotated_StrainXY'][0][damage_id]
 
-        Y2 = np.multiply(0.5,np.add(np.add(np.multiply(eps_x, eps_x), np.multiply(eps_y, eps_y)), np.add(np.multiply(2, eps_xy, eps_xy), np.multiply(2, eps_xy))))
-        # Y2 = 0.5*(e11^2 + e22^2 + 2*e12^2 + 2*e12)
+        # eps_eqv = (e11^2 + e12^2 - e11*e22 + 3*e12^2)^0.5
+        eps_eqv = np.sqrt(eps_x ** 2 + eps_y ** 2 - eps_x * eps_y + 3 * eps_xy ** 2)
 
-        # eps_eqv = np.abs(cell_data['Unrotated_StrainXX'][0][damage_id])
-        temp = np.multiply(4/3,Y2)
-        eps_eqv = np.sqrt(np.abs(temp))
+        sig_x = cell_data['Partial_StressXX'][0][damage_id]
+        sig_y = cell_data['Partial_StressYY'][0][damage_id]
+        sig_xy = cell_data['Partial_StressXY'][0][damage_id]
+
 
         nodemap_path = os.path.join(os.path.dirname(file), "nodemap.txt")
         np.savetxt(
@@ -92,8 +97,9 @@ class CrackAnalysis:
                 eps_y,
                 eps_xy,
                 eps_eqv,
-                # point_data,
-                # nodesAngles[:, [0, 2, 1]],
+                sig_x,
+                sig_y,
+                sig_xy,
             ],
             fmt=formatter,
             delimiter="; ",
@@ -172,7 +178,8 @@ class CrackAnalysis:
         )
 
         # preprocess data
-        nodemap = Nodemap(name=nodemap_filename, folder=nodemap_folder)
+        nodemap_struc = NodemapStructure(10,1,2,4,5,7,8,9,False,True)
+        nodemap = Nodemap(name=nodemap_filename, folder=nodemap_folder, structure=nodemap_struc)
         input_data = InputData(nodemap=nodemap)
         input_data.calc_stresses(material)
         input_data.transform_data(ct.crack_tip_x, ct.crack_tip_y, ct.crack_tip_angle)
