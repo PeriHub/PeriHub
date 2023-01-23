@@ -70,6 +70,7 @@ export default {
         translated: false,
         length: 0.115,
         cracklength: 0.115,
+        notchEnabled: false,
         width: 0.003,
         height: 0.019,
         height2: 0.013,
@@ -2848,7 +2849,6 @@ export default {
       this.modelLoading = false;
     },
     calculateCriticalEnergy(damageId) {
-      console.log(damageId)
       if(this.damages[damageId].criticalEnergyCalc.calculateCriticalEnergy){
         const k1c = this.damages[damageId].criticalEnergyCalc.k1c;
         if(k1c!=null){

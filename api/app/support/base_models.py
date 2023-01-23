@@ -18,6 +18,7 @@ class Model(BaseModel):
     translated: bool
     length: float
     cracklength: Optional[float] = None
+    notchEnabled: Optional[bool] = True
     width: Optional[float] = None
     height: Optional[float] = None
     height2: Optional[float] = None

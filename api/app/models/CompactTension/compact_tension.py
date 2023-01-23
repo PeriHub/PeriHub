@@ -208,6 +208,7 @@ class CompactTension:
         xend=50,
         zend=0.003,
         crack_length=25,
+        notch_enabled=True,
         dx_value=[0.25, 0.25, 0.25],
         filename="CompactTension",
         two_d=True,
@@ -260,6 +261,7 @@ class CompactTension:
         self.username = username
         self.max_nodes = max_nodes
         self.ignore_mesh = ignore_mesh
+        self.notch_enabled = notch_enabled
         if self.two_d:
             self.zbegin = 0
             self.zend = 0
@@ -384,17 +386,18 @@ class CompactTension:
             dx_value=self.dx_value,
         )
 
-        x_value, y_value, z_value = geo.check_val_in_notch(
-            x_value,
-            y_value,
-            z_value,
-            0.0,
-            self.xend,
-            0.45 * self.w,
-            1.6,
-            self.dx_value[0],
-            60,
-        )
+        if self.notch_enabled:
+            x_value, y_value, z_value = geo.check_val_in_notch(
+                x_value,
+                y_value,
+                z_value,
+                0.0,
+                self.xend,
+                0.45 * self.w,
+                1.6,
+                self.dx_value[0],
+                60,
+            )
 
         if len(x_value) > self.max_nodes:
             return (

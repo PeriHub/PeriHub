@@ -395,6 +395,7 @@ class ModelControl:
                     xend=length,
                     zend=width,
                     crack_length=model_data.model.cracklength,
+                    notch_enabled=model_data.model.notchEnabled,
                     dx_value=dx_value,
                     two_d=model_data.model.twoDimensional,
                     rot=model_data.model.rotatedAngles,

@@ -277,6 +277,12 @@
                   outlined
                   dense
                 ></v-text-field>
+                <v-switch
+                  v-model="model.notchEnabled"
+                  v-show="['CompactTension'].includes(model.modelNameSelected)"
+                  label="Notch enabled"
+                  dense
+                ></v-switch>
                 <v-text-field
                   class="textfield-col"
                   v-model="model.width"
