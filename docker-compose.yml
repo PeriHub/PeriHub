@@ -38,7 +38,7 @@ services:
     #   GITHUB_USER: ${GITHUB_USER}
     #   GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: perihub_peridigm
-    image: harbor.fa-services.intra.dlr.de/hess_ja/peridigm_image
+    image: harbor.fa-services.intra.dlr.de/peridynamik/peridigm_image
     ports:
       - 6030:80
     volumes:
