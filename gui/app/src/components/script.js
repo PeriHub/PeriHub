@@ -2758,12 +2758,11 @@ export default {
       this.modelLoading = true;
       await axios
         .request(reqOptions)
-        .then(
-          (response) =>
-            (this.modelImg = window.URL.createObjectURL(
-              new Blob([response.data])
-            ))
-        )
+        .then((response) => {
+          (this.modelImg = window.URL.createObjectURL(
+            new Blob([response.data])
+          ))
+        })
         .catch((error) => {
           this.message = error;
           this.snackbar = true;
@@ -2772,6 +2771,13 @@ export default {
         });
       this.viewId = 0;
       this.modelLoading = false;
+    },
+    async downloadModelImage() {
+      var fileLink = document.createElement("a");
+      fileLink.href = this.modelImg;
+      fileLink.setAttribute("download", this.model.modelNameSelected+".png");
+      document.body.appendChild(fileLink);
+      fileLink.click();
     },
     async getG1c() {
       this.dialogGetG1c = false;

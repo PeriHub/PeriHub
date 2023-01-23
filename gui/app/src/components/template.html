@@ -2955,6 +2955,21 @@
               <span>Show Fracture Analysis</span>
             </v-tooltip>
 
+            <v-tooltip bottom v-if="viewId==0"
+              ><template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="my-btn"
+                  v-bind="attrs"
+                  v-on="on"
+                  @click=downloadModelImage()
+                  :disabled="!status.results"
+                >
+                  <i class="fas fa-download"></i>
+                </v-btn>
+              </template>
+              <span>Download Image</span>
+            </v-tooltip>
+
             <v-tooltip bottom 
               ><template v-slot:activator="{ on, attrs }">
                 <v-btn
