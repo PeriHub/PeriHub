@@ -23,7 +23,7 @@ PeriHub enables the generation, editing, execution and evaluation of standard pe
 ## Building locally
 Clone the repository
 ```
-git clone https://github.com/JTHesse/PeriHub.git
+git clone https://github.com/PeriHub/PeriHub.git
 ```
 Go into the perihub folder.
 ```
