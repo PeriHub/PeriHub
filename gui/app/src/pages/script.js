@@ -89,7 +89,7 @@ export default {
         meshFile: "Dogbone.txt",
       },
       // Material
-      selectedMaterial:0,
+      selectedMaterial: 0,
       materialModelName: [
         "Diffusion",
         "Elastic",
@@ -329,7 +329,7 @@ export default {
           criticalVonMisesStress: 10.0,
           criticalDamage: null,
           thresholdDamage: null,
-          criticalDamageToNeglectMaterialPoint: null,
+          criticalDamageToNeglect: null,
           interBlockDamage: false,
           numberOfBlocks: 5,
           interBlocks: [
@@ -346,7 +346,7 @@ export default {
           thickness: 10.0,
           hourglassCoefficient: 1.0,
           stabilizatonType: "Global Stiffness",
-          criticalEnergyCalc:{
+          criticalEnergyCalc: {
             calculateCriticalEnergy: false,
             k1c: null,
           },
@@ -581,9 +581,9 @@ export default {
           variable: "Displacement",
           calculationType: "Maximum",
           blockName: "block_5",
-          x: null,
-          y: null,
-          z: null,
+          xValue: null,
+          yValue: null,
+          zValue: null,
         },
         {
           computesId: 2,
@@ -592,9 +592,9 @@ export default {
           variable: "Force",
           calculationType: "Sum",
           blockName: "block_5",
-          x: null,
-          y: null,
-          z: null,
+          xValue: null,
+          yValue: null,
+          zValue: null,
         },
       ],
       computeKeys: {
@@ -603,9 +603,9 @@ export default {
         variable: "Variable",
         calculationType: "Calculation Type",
         blockName: "Block",
-        x: "X",
-        y: "Y",
-        z: "Z",
+        xValue: "X",
+        yValue: "Y",
+        zValue: "Z",
       },
       // Output
       outputs: [
@@ -613,54 +613,54 @@ export default {
           outputsId: 1,
           name: "Output1",
 
-          Element_Id: false,  
-          Block_Id: false,  
-          Horizon: false, 
-          Volume: false,  
-          Point_Time: false,  
-          Node_Type: false, 
-          Model_Coordinates: false, 
-          Local_Angles: false,  
-          Orientations: false,  
-          Coordinates: false, 
-          Displacement: false,  
-          Velocity: false,  
-          Acceleration: false,  
-          Temperature: false, 
-          Concentration: false, 
-          Temperature_Change: false,  
-          Flux_Divergence: false, 
-          Concentration_Flux_Divergence: false, 
-          Force_Density: false, 
-          Contact_Force_Density: false, 
-          External_Force_Density: false,  
-          Damage_Model_Data: false, 
-          Damage: false,  
-          Detached_Nodes: false,  
-          Bond_Damage_Diff: false,  
-          Specific_Volume: false, 
-          Proc_Num: false,  
-          Hourglass_Force_Density: false, 
-          Deformation_Gradient: false,  
-          Left_Stretch_Tensor: false, 
-          Rotation_Tensor: false, 
-          Shape_Tensor_Inverse: false,  
-          Unrotated_Cauchy_Stress: false, 
-          Unrotated_Rate_Of_Deformation: false, 
-          Unrotated_Plastic_Cauchy_Stress: false, 
-          Cauchy_Stress: false, 
-          Partial_Stress: false,  
-          Hourglass_Stiffness: false, 
-          Von_Mises_Stress: false, 
-          Equivalent_Plastic_Strain: false, 
-          Unrotated_Strain: false,  
-          Weighted_Volume: false, 
-          Dilatation: false,  
-          Number_Of_Neighbors: false, 
-          Force: false, 
+          Element_Id: false,
+          Block_Id: false,
+          Horizon: false,
+          Volume: false,
+          Point_Time: false,
+          Node_Type: false,
+          Model_Coordinates: false,
+          Local_Angles: false,
+          Orientations: false,
+          Coordinates: false,
+          Displacement: false,
+          Velocity: false,
+          Acceleration: false,
+          Temperature: false,
+          Concentration: false,
+          Temperature_Change: false,
+          Flux_Divergence: false,
+          Concentration_Flux_Divergence: false,
+          Force_Density: false,
+          Contact_Force_Density: false,
+          External_Force_Density: false,
+          Damage_Model_Data: false,
+          Damage: false,
+          Detached_Nodes: false,
+          Bond_Damage_Diff: false,
+          Specific_Volume: false,
+          Proc_Num: false,
+          Hourglass_Force_Density: false,
+          Deformation_Gradient: false,
+          Left_Stretch_Tensor: false,
+          Rotation_Tensor: false,
+          Shape_Tensor_Inverse: false,
+          Unrotated_Cauchy_Stress: false,
+          Unrotated_Rate_Of_Deformation: false,
+          Unrotated_Plastic_Cauchy_Stress: false,
+          Cauchy_Stress: false,
+          Partial_Stress: false,
+          Hourglass_Stiffness: false,
+          Von_Mises_Stress: false,
+          Equivalent_Plastic_Strain: false,
+          Unrotated_Strain: false,
+          Weighted_Volume: false,
+          Dilatation: false,
+          Number_Of_Neighbors: false,
+          Force: false,
 
-          Velocity_Gradient: false, 
-          PiolaStressTimesInvShapeTensor: false,  
+          Velocity_Gradient: false,
+          PiolaStressTimesInvShapeTensor: false,
 
           Write_After_Damage: false,
           Frequency: 100,
@@ -707,8 +707,8 @@ export default {
         Cauchy_Stress: "Cauchy_Stress",
         Partial_Stress: "Partial_Stress",
         Hourglass_Stiffness: "Hourglass_Stiffness",
-        Von_Mises_Stress: "Von_Mises_Stress", 
-        Equivalent_Plastic_Strain: "Equivalent_Plastic_Strain", 
+        Von_Mises_Stress: "Von_Mises_Stress",
+        Equivalent_Plastic_Strain: "Equivalent_Plastic_Strain",
         Unrotated_Strain: "Unrotated_Strain",
         Weighted_Volume: "Weighted_Volume",
         Dilatation: "Dilatation",
@@ -957,12 +957,10 @@ export default {
           return pattern.test(value) || "Invalid number";
         },
         float: (value) => {
-          if (value!=null){
+          if (value != null) {
             const pattern = /^((?!0)|[-]|(?=0+\.))(\d*\.)?\d+(e[-]\d+)?$|^0$/;
             return pattern.test(value) || "Invalid number";
-          }
-          else 
-            return true
+          } else return true;
         },
         int: (value) => {
           const pattern = /^[-]{0,1}(?<!\.)\d+(?!\.)$/;
@@ -1285,7 +1283,7 @@ export default {
     },
     uploadProps(id) {
       this.$refs.propsInput.click();
-      this.selectedMaterial = id
+      this.selectedMaterial = id;
     },
     uploadSo() {
       this.$refs.multiSoInput.click();
@@ -1314,33 +1312,31 @@ export default {
         this.loadFeModel(files);
       }
     },
-    onPropsFilePicked(event){
+    onPropsFilePicked(event) {
       const files = event.target.files;
-      
+
       const fr = new FileReader();
       fr.onload = (e) => {
         const input_string = e.target.result;
 
         let filtered_string = input_string.match(/\*User([\D\S]*?)\*/gi);
-        let propsArray = filtered_string[0].split(/[\n,]/ig)
-        propsArray = propsArray.slice(0, propsArray.length - 1)
+        let propsArray = filtered_string[0].split(/[\n,]/gi);
+        propsArray = propsArray.slice(0, propsArray.length - 1);
 
-        if (propsArray[1].match(/\d+/)==propsArray.length-2){
-          this.materials[0].properties=[]
+        if (propsArray[1].match(/\d+/) == propsArray.length - 2) {
+          this.materials[0].properties = [];
           for (var i = 2; i < propsArray.length; i++) {
-            this.addProp(0)
-            this.materials[0].properties[i-2].value =propsArray[i].trim()
+            this.addProp(0);
+            this.materials[0].properties[i - 2].value = propsArray[i].trim();
           }
-        }
-        else{
-          console.log("Length of Propsarray unexpected")
+        } else {
+          console.log("Length of Propsarray unexpected");
         }
       };
       fr.readAsText(files.item(0));
 
       // console.log(input_string)
       // let filtered_string = input_string.search(/\*User([\D\S]*?)\*/i);
-
     },
     onMultiFilePicked(event) {
       const files = event.target.files;
@@ -2458,8 +2454,7 @@ export default {
       this.monitorStatus(true);
     },
     async getStatus() {
-      
-      console.log("getStatus")
+      console.log("getStatus");
       let headersList = {
         "Cache-Control": "no-cache",
         Authorization: this.authToken,
@@ -2480,7 +2475,7 @@ export default {
         .request(reqOptions)
         .then((response) => (this.status = response.data));
       if (this.status.results) {
-        console.log("clearInterval")
+        console.log("clearInterval");
         clearInterval(this.statusInterval);
       }
     },
@@ -2739,7 +2734,6 @@ export default {
       this.modelLoading = false;
     },
     async getFractureAnalysis() {
-
       let headersList = {
         "Cache-Control": "no-cache",
         Authorization: this.authToken,
@@ -2767,9 +2761,7 @@ export default {
       await axios
         .request(reqOptions)
         .then((response) => {
-          (this.modelImg = window.URL.createObjectURL(
-            new Blob([response.data])
-          ))
+          this.modelImg = window.URL.createObjectURL(new Blob([response.data]));
         })
         .catch((error) => {
           this.message = error;
@@ -2783,7 +2775,7 @@ export default {
     async downloadModelImage() {
       var fileLink = document.createElement("a");
       fileLink.href = this.modelImg;
-      fileLink.setAttribute("download", this.model.modelNameSelected+".png");
+      fileLink.setAttribute("download", this.model.modelNameSelected + ".png");
       document.body.appendChild(fileLink);
       fileLink.click();
     },
@@ -2863,29 +2855,30 @@ export default {
       this.modelLoading = false;
     },
     calculateCriticalEnergy(damageId) {
-      if(this.damages[damageId].criticalEnergyCalc.calculateCriticalEnergy){
+      if (this.damages[damageId].criticalEnergyCalc.calculateCriticalEnergy) {
         const k1c = this.damages[damageId].criticalEnergyCalc.k1c;
-        if(k1c!=null){
-          let E = null
-          let pr = null
-          let materialName = ""
+        if (k1c != null) {
+          let E = null;
+          let pr = null;
+          let materialName = "";
           for (var i = 0; i < this.blocks.length; i++) {
-            if (this.blocks[i].damageModel==this.damages[damageId].name){
-              materialName = this.blocks[i].material
+            if (this.blocks[i].damageModel == this.damages[damageId].name) {
+              materialName = this.blocks[i].material;
             }
           }
-          let planeStress = true
+          let planeStress = true;
           for (var i = 0; i < this.materials.length; i++) {
-            if (this.materials[i].name==materialName){
-              planeStress = this.materials[i].planeStress
-              E = this.materials[i].youngsModulus
-              pr = this.materials[i].poissonsRatio
+            if (this.materials[i].name == materialName) {
+              planeStress = this.materials[i].planeStress;
+              E = this.materials[i].youngsModulus;
+              pr = this.materials[i].poissonsRatio;
             }
           }
-          if(planeStress){
-            this.damages[damageId].criticalEnergy = (k1c ** 2) / +E
-          }else{
-            this.damages[damageId].criticalEnergy = (k1c ** 2) / (+E / (1 - pr ** 2))
+          if (planeStress) {
+            this.damages[damageId].criticalEnergy = k1c ** 2 / +E;
+          } else {
+            this.damages[damageId].criticalEnergy =
+              k1c ** 2 / (+E / (1 - pr ** 2));
           }
         }
       }
@@ -3311,55 +3304,55 @@ export default {
         outputsId: len + 1,
         name: "Output" + (len + 1),
 
-        Element_Id: false,  
-        Block_Id: false,  
-        Horizon: false, 
-        Volume: false,  
-        Point_Time: false,  
-        Node_Type: false, 
-        Model_Coordinates: false, 
-        Local_Angles: false,  
-        Orientations: false,  
-        Coordinates: false, 
-        Displacement: false,  
-        Velocity: false,  
-        Acceleration: false,  
-        Temperature: false, 
-        Concentration: false, 
-        Temperature_Change: false,  
-        Flux_Divergence: false, 
-        Concentration_Flux_Divergence: false, 
-        Force_Density: false, 
-        Contact_Force_Density: false, 
-        External_Force_Density: false,  
-        Damage_Model_Data: false, 
-        Damage: false,  
-        Detached_Nodes: false,  
-        Bond_Damage_Diff: false,  
-        Specific_Volume: false, 
-        Proc_Num: false,  
-        Hourglass_Force_Density: false, 
-        Deformation_Gradient: false,  
-        Left_Stretch_Tensor: false, 
-        Rotation_Tensor: false, 
-        Shape_Tensor_Inverse: false,  
-        Unrotated_Cauchy_Stress: false, 
-        Unrotated_Rate_Of_Deformation: false, 
-        Unrotated_Plastic_Cauchy_Stress: false, 
-        Cauchy_Stress: false, 
-        Partial_Stress: false,  
+        Element_Id: false,
+        Block_Id: false,
+        Horizon: false,
+        Volume: false,
+        Point_Time: false,
+        Node_Type: false,
+        Model_Coordinates: false,
+        Local_Angles: false,
+        Orientations: false,
+        Coordinates: false,
+        Displacement: false,
+        Velocity: false,
+        Acceleration: false,
+        Temperature: false,
+        Concentration: false,
+        Temperature_Change: false,
+        Flux_Divergence: false,
+        Concentration_Flux_Divergence: false,
+        Force_Density: false,
+        Contact_Force_Density: false,
+        External_Force_Density: false,
+        Damage_Model_Data: false,
+        Damage: false,
+        Detached_Nodes: false,
+        Bond_Damage_Diff: false,
+        Specific_Volume: false,
+        Proc_Num: false,
+        Hourglass_Force_Density: false,
+        Deformation_Gradient: false,
+        Left_Stretch_Tensor: false,
+        Rotation_Tensor: false,
+        Shape_Tensor_Inverse: false,
+        Unrotated_Cauchy_Stress: false,
+        Unrotated_Rate_Of_Deformation: false,
+        Unrotated_Plastic_Cauchy_Stress: false,
+        Cauchy_Stress: false,
+        Partial_Stress: false,
         Hourglass_Stiffness: false,
         Von_Mises_Stress: false,
         Equivalent_Plastic_Strain: false,
-        Unrotated_Strain: false,  
-        Weighted_Volume: false, 
-        Dilatation: false,  
-        Number_Of_Neighbors: false, 
-        Force: false, 
+        Unrotated_Strain: false,
+        Weighted_Volume: false,
+        Dilatation: false,
+        Number_Of_Neighbors: false,
+        Force: false,
 
-        Velocity_Gradient: false, 
-        PiolaStressTimesInvShapeTensor: false,  
-        
+        Velocity_Gradient: false,
+        PiolaStressTimesInvShapeTensor: false,
+
         Write_After_Damage: false,
         InitStep: 0,
       });

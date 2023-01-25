@@ -1,11 +1,10 @@
-import LandingPage from "./components/LandingPage.vue";
-import PeriHub from "./components/PeriHub.vue";
-import LiteratureAnalysis from "./components/LiteratureAnalysis.vue";
-import Publications from "./components/Publications.vue";
-import Tools from "./components/Tools.vue";
-import Mindmap from "./components/Mindmap.vue";
+import LandingPage from "./pages/LandingPage.vue";
+import PeriHub from "./pages/PeriHub.vue";
+import LiteratureAnalysis from "./pages/LiteratureAnalysis.vue";
+import Publications from "./pages/Publications.vue";
+import Tools from "./pages/Tools.vue";
 
-import Guide from "./components/Guide.vue";
+import Guide from "./pages/Guide.vue";
 import Input from "./components/guides/Input.vue";
 import Model from "./components/guides/input/Model.vue";
 import Material from "./components/guides/input/Material.vue";
@@ -150,9 +149,5 @@ export default [
   {
     path: "/literatureAnalysis",
     components: { a: LiteratureAnalysis },
-  },
-  {
-    path: "/mindMap",
-    components: { a: Mindmap },
   },
 ];
