@@ -86,7 +86,7 @@ export default {
       },
       resizeListener: true,
       noNodes: false,
-
+      tab: null,
       pinned: false,
       selected: {},
       linksSelected: {},
@@ -764,7 +764,8 @@ export default {
       this.network.maxNodeSizeFilter = maxSize;
     },
     resize() {
-      if (typeof variable !== "undefined") {
+      // console.log("resize")
+      if (this.tab==1) {
         this.$set(this, "sizeW", this.$refs.networkView.$el.clientWidth);
         this.$set(this, "sizeH", this.$refs.networkView.$el.clientHeight - 57);
       }
