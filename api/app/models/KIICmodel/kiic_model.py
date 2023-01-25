@@ -78,8 +78,8 @@ class KIICmodel:
         enabled=False,
         searchRadius=0.01,
         searchFrequency=100,
-        contactModels=[],
-        interactions=[],
+        contactModels=None,
+        interactions=None,
     )
     mat_dict = Material(
         id=1,
@@ -99,8 +99,8 @@ class KIICmodel:
         hourglassCoefficient=1.0,
         actualHorizon=None,
         yieldStress=99.3,
-        Parameter=[],
-        properties=[],
+        Parameter=None,
+        properties=None,
         useCollocationNodes=False,
     )
 
@@ -203,7 +203,7 @@ class KIICmodel:
         self.filename = filename
         self.scal = 4.01
         self.disc_type = "txt"
-        self.meshFile = None
+        self.mesh_file = None
         self.two_d = two_d
         self.ns_list = [3, 4]
         if not dx_value:

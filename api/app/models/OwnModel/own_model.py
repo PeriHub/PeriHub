@@ -9,7 +9,7 @@ class OwnModel:
         two_d=False,
         horizon=0.1,
         filename="ownModel",
-        meshFile=None,
+        mesh_file=None,
         material=None,
         damage=None,
         block=None,
@@ -23,7 +23,7 @@ class OwnModel:
     ):
 
         self.filename = filename
-        self.meshFile = meshFile
+        self.mesh_file = mesh_file
         self.scal = 1
         self.disc_type = disc_type
         self.two_d = two_d

@@ -33,7 +33,7 @@ class Model(BaseModel):
     angles: List[float]
     amplitudeFactor: Optional[float] = None
     wavelength: Optional[float] = None
-    meshFile: Optional[str] = None
+    mesh_file: Optional[str] = None
 
 
 class properties(BaseModel):
@@ -106,7 +106,7 @@ class Damage(BaseModel):
     criticalVonMisesStress: Optional[float] = None
     criticalDamage: Optional[float] = None
     thresholdDamage: Optional[float] = None
-    criticalDamageToNeglectMaterialPoint: Optional[float] = None
+    criticalDamageToNeglect: Optional[float] = None
     criticalEnergy: Optional[float] = None
     criticalEnergyCalc: Optional[CriticalEnergyCalc] = None
     interBlockDamage: Optional[bool] = None
@@ -201,9 +201,9 @@ class Compute(BaseModel):
     variable: str
     calculationType: Optional[str] = None
     blockName: Optional[str] = None
-    x: Optional[float] = None
-    y: Optional[float] = None
-    z: Optional[float] = None
+    xValue: Optional[float] = None
+    yValue: Optional[float] = None
+    zValue: Optional[float] = None
 
 
 class Output(BaseModel):

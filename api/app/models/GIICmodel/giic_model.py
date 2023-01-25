@@ -122,8 +122,8 @@ class GIICmodel:
         hourglassCoefficient=1.0,
         actualHorizon=None,
         yieldStress=None,
-        Parameter=[],
-        properties=[],
+        Parameter=None,
+        properties=None,
         useCollocationNodes=False,
     )
 
@@ -255,7 +255,7 @@ class GIICmodel:
         self.filename = filename
         self.scal = 4.01
         self.disc_type = "txt"
-        self.meshFile = None
+        self.mesh_file = None
         self.two_d = two_d
         self.rot = rot
         # anriss

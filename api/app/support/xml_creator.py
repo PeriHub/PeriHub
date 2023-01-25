@@ -7,7 +7,7 @@ import numpy as np
 class XMLcreator:
     def __init__(self, model_writer, block_def=None):
         self.filename = model_writer.filename
-        self.meshFile = model_writer.meshFile
+        self.mesh_file = model_writer.mesh_file
         self.material_dict = model_writer.material_dict
         self.damage_dict = model_writer.damage_dict
         self.compute_dict = model_writer.compute_dict
@@ -39,10 +39,10 @@ class XMLcreator:
             string += (
                 '        <Parameter name="Type" type="string" value="Text File" />\n'
             )
-            if self.check_if_defined(self.meshFile):
+            if self.check_if_defined(self.mesh_file):
                 string += (
                     '        <Parameter name="Input Mesh File" type="string" value="'
-                    + self.meshFile
+                    + self.mesh_file
                     + '"/>\n'
                 )
             else:
@@ -58,10 +58,10 @@ class XMLcreator:
                 + self.filename
                 + '.g"/>\n'
             )
-            if self.check_if_defined(self.meshFile):
+            if self.check_if_defined(self.mesh_file):
                 string += (
                     '        <Parameter name="Input Mesh File" type="string" value="'
-                    + self.meshFile
+                    + self.mesh_file
                     + '"/>\n'
                 )
             else:
@@ -440,10 +440,10 @@ class XMLcreator:
                         + str(float(dam.thresholdDamage))
                         + '"/>\n'
                     )
-                if self.check_if_defined(dam.criticalDamageToNeglectMaterialPoint):
+                if self.check_if_defined(dam.criticalDamageToNeglect):
                     string += (
                         '            <Parameter name="Critical Damage To Neglect Material Point" type="double" value="'
-                        + str(float(dam.criticalDamageToNeglectMaterialPoint))
+                        + str(float(dam.criticalDamageToNeglect))
                         + '"/>\n'
                     )
             else:
@@ -774,17 +774,17 @@ class XMLcreator:
                 string += '            <Parameter name="Compute Class" type="string" value="Nearest_Point_Data"/>\n'
                 string += (
                     '            <Parameter name="X" type="double" value="'
-                    + str(out.x)
+                    + str(out.x_value)
                     + '"/>\n'
                 )
                 string += (
                     '            <Parameter name="Y" type="double" value="'
-                    + str(out.y)
+                    + str(out.y_value)
                     + '"/>\n'
                 )
                 string += (
                     '            <Parameter name="Z" type="double" value="'
-                    + str(out.z)
+                    + str(out.z_value)
                     + '"/>\n'
                 )
             else:

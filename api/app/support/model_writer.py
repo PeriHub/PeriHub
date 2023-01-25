@@ -19,7 +19,7 @@ class ModelWriter:
         """doc"""
 
         self.filename = model_class.filename
-        self.meshFile = model_class.meshFile
+        self.mesh_file = model_class.mesh_file
         self.ns_name = "ns_" + model_class.filename
         self.path = "Output/" + os.path.join(model_class.username, model_class.filename)
         self.bc_dict = model_class.bc_dict
@@ -84,7 +84,7 @@ class ModelWriter:
             model,
             "%.18e %.18e %.18e %d %.18e",
         )
-        log.info(f"Mesh written  in {(time.time() - start_time):.2f} seconds")
+        log.info("Mesh written in %.2f seconds", time.time() - start_time)
 
     def write_mesh_with_angles(self, model):
         """doc"""
@@ -96,7 +96,7 @@ class ModelWriter:
             model,
             "%.18e %.18e %.18e %d %.18e %.18e %.18e %.18e",
         )
-        log.info(f"Mesh written  in {(time.time() - start_time):.2f} seconds")
+        log.info("Mesh written in %.2f seconds", time.time() - start_time)
 
     def create_file(self, block_def):
         """doc"""

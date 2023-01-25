@@ -68,8 +68,8 @@ class KalthoffWinkler:
         hourglassCoefficient=1.0,
         actualHorizon=None,
         yieldStress=None,
-        Parameter=[],
-        properties=[],
+        Parameter=None,
+        properties=None,
         useCollocationNodes=True,
     )
 
@@ -190,8 +190,8 @@ class KalthoffWinkler:
         enabled=False,
         searchRadius=0,
         searchFrequency=0,
-        contactModels=[],
-        interactions=[],
+        contactModels=None,
+        interactions=None,
     )
 
     def __init__(
@@ -229,7 +229,7 @@ class KalthoffWinkler:
         self.filename = filename
         self.scal = 4.01
         self.disc_type = "txt"
-        self.meshFile = None
+        self.mesh_file = None
         self.two_d = two_d
         self.ns_list = [3, 4]
         if not dx_value:

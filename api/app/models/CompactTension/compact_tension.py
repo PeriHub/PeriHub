@@ -135,8 +135,8 @@ class CompactTension:
         hourglassCoefficient=1.0,
         actualHorizon=None,
         yieldStress=None,
-        Parameter=[],
-        properties=[],
+        Parameter=None,
+        properties=None,
         useCollocationNodes=False,
     )
 
@@ -239,7 +239,7 @@ class CompactTension:
         self.filename = filename
         self.scal = 4.01
         self.disc_type = "txt"
-        self.meshFile = None
+        self.mesh_file = None
         self.two_d = two_d
         self.ns_list = [3, 4]
         if not dx_value:
@@ -248,7 +248,7 @@ class CompactTension:
         if not angle:
             angle = [0, 0]
         self.angle = angle
-        self.w = xend
+        self.length = xend
         self.xbegin = 0.0
         self.ybegin = -0.6 * xend
         self.xend = 1.25 * xend
@@ -279,7 +279,7 @@ class CompactTension:
         self.compute_dict = compute
         self.output_dict = output
         self.material_dict = material
-        bond_filter[0].bottomLength = crack_length + 0.5 + 0.25 * self.w
+        bond_filter[0].bottomLength = crack_length + 0.5 + 0.25 * self.length
         bond_filter[0].sideLength = self.zend + 2.0
         bond_filter[0].lowerLeftCornerZ = (-self.zend / 2) - 1
         self.bondfilters = bond_filter
@@ -298,7 +298,7 @@ class CompactTension:
         k = np.where(
             np.logical_and(
                 np.logical_and(
-                    x_value <= 0.45 * self.w,
+                    x_value <= 0.45 * self.length,
                     x_value >= 0,
                 ),
                 y_value >= 0,
@@ -309,7 +309,7 @@ class CompactTension:
         k = np.where(
             np.logical_and(
                 np.logical_and(
-                    x_value <= 0.45 * self.w,
+                    x_value <= 0.45 * self.length,
                     x_value >= 0,
                 ),
                 y_value <= 0,
@@ -318,8 +318,9 @@ class CompactTension:
             k,
         )
         condition = np.where(
-            ((x_value - 0.25 * self.w) ** 2) + ((y_value - 0.275 * self.w) ** 2)
-            <= (0.125 * self.w) ** 2,
+            ((x_value - 0.25 * self.length) ** 2)
+            + ((y_value - 0.275 * self.length) ** 2)
+            <= (0.125 * self.length) ** 2,
             1.0,
             0,
         )
@@ -329,8 +330,9 @@ class CompactTension:
             k,
         )
         condition = np.where(
-            ((x_value - 0.25 * self.w) ** 2) + ((y_value + 0.275 * self.w) ** 2)
-            <= (0.125 * self.w) ** 2,
+            ((x_value - 0.25 * self.length) ** 2)
+            + ((y_value + 0.275 * self.length) ** 2)
+            <= (0.125 * self.length) ** 2,
             1.0,
             0,
         )
@@ -342,12 +344,12 @@ class CompactTension:
         # k = np.where(
         #     np.logical_and(
         #         np.logical_and(
-        #             x_value <= 0.25 * self.w + 3 * self.dx_value[0],
-        #             x_value >= 0.25 * self.w - 3 * self.dx_value[0],
+        #             x_value <= 0.25 * self.length + 3 * self.dx_value[0],
+        #             x_value >= 0.25 * self.length - 3 * self.dx_value[0],
         #         ),
         #         np.logical_and(
-        #             y_value <= 0.275 * self.w + 3 * self.dx_value[1],
-        #             y_value >= 0.275 * self.w - 3 * self.dx_value[1],
+        #             y_value <= 0.275 * self.length + 3 * self.dx_value[1],
+        #             y_value >= 0.275 * self.length - 3 * self.dx_value[1],
         #         ),
         #     ),
         #     2,
@@ -356,12 +358,12 @@ class CompactTension:
         # k = np.where(
         #     np.logical_and(
         #         np.logical_and(
-        #             x_value <= 0.25 * self.w + 3 * self.dx_value[0],
-        #             x_value >= 0.25 * self.w - 3 * self.dx_value[0],
+        #             x_value <= 0.25 * self.length + 3 * self.dx_value[0],
+        #             x_value >= 0.25 * self.length - 3 * self.dx_value[0],
         #         ),
         #         np.logical_and(
-        #             y_value <= -0.275 * self.w + 3 * self.dx_value[1],
-        #             y_value >= -0.275 * self.w - 3 * self.dx_value[1],
+        #             y_value <= -0.275 * self.length + 3 * self.dx_value[1],
+        #             y_value >= -0.275 * self.length - 3 * self.dx_value[1],
         #         ),
         #     ),
         #     3,
@@ -393,7 +395,7 @@ class CompactTension:
                 z_value,
                 0.0,
                 self.xend,
-                0.45 * self.w,
+                0.45 * self.length,
                 1.6,
                 self.dx_value[0],
                 60,
