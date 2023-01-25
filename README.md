@@ -1,4 +1,10 @@
 # PeriHub
+
+[![pipeline status](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/badges/main/pipeline.svg)](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/-/commits/main)
+[![coverage report](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/badges/main/coverage.svg)](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/-/commits/main)
+[![License](https://img.shields.io/badge/License-BSD-blue.svg)](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/-/blob/main/LICENSE)
+
+
 PeriHub enables the generation, editing, execution and evaluation of standard peridynamic models
 
 - FA-Services: https://perihub.fa-services.intra.dlr.de/
