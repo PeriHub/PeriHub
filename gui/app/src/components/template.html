@@ -271,7 +271,7 @@
                 <v-text-field
                   class="textfield-col"
                   v-model="model.cracklength"
-                  v-show="['GICmodel','GIICmodel','CompactTension', 'KICmodel', 'KIICmodel'].includes(model.modelNameSelected)"
+                  v-show="['GICmodel','GIICmodel','CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(model.modelNameSelected)"
                   :rules="[rules.required, rules.float]"
                   label="Cracklength"
                   outlined
@@ -2647,6 +2647,8 @@
                       dense
                     ></v-checkbox>
                   </v-col>
+                </v-row>
+                <v-row>
                   <v-col class="textfield-col" cols="12" sm="3">
                     <v-checkbox
                       v-model="solver.stopAfterDamageInitation"
@@ -2654,6 +2656,15 @@
                       outlined
                       dense
                     ></v-checkbox>
+                  </v-col>
+                  <v-col class="textfield-col" cols="12" sm="3" v-show="solver.stopAfterDamageInitation">
+                    <v-text-field
+                      v-model="solver.endStepAfterDamage"
+                      label="End step after damage"
+                      :rules="[rules.int]"
+                      outlined
+                      dense
+                    ></v-text-field>
                   </v-col>
                   <v-col class="textfield-col" cols="12" sm="3">
                     <v-checkbox
@@ -2940,7 +2951,7 @@
               <span>CARA Enginframe</span>
             </v-tooltip>
 
-            <v-tooltip bottom v-if="['CompactTension', 'KICmodel', 'KIICmodel'].includes(model.modelNameSelected)"
+            <v-tooltip bottom v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(model.modelNameSelected)"
               ><template v-slot:activator="{ on, attrs }">
                 <v-btn
                   class="my-btn"

@@ -14,6 +14,8 @@ import KICmodelImage from "../assets/models/KICmodel/KICmodel.jpg";
 import KICmodelFile from "../assets/models/KICmodel/KICmodel.json";
 import KIICmodelImage from "../assets/models/KIICmodel/KIICmodel.jpg";
 import KIICmodelFile from "../assets/models/KIICmodel/KIICmodel.json";
+import ENFmodelImage from "../assets/models/ENFmodel/ENFmodel.jpg";
+import ENFmodelFile from "../assets/models/ENFmodel/ENFmodel.json";
 import GIICmodelImage from "../assets/models/GIICmodel/GIICmodel.jpg";
 import GIICmodelFile from "../assets/models/GIICmodel/GIICmodel.json";
 import GICmodelImage from "../assets/models/GICmodel/GICmodel.jpg";
@@ -58,6 +60,7 @@ export default {
         "GIICmodel",
         "KICmodel",
         "KIICmodel",
+        "ENFmodel",
         "DCBmodel",
         "CompactTension",
         "Smetana",
@@ -749,6 +752,7 @@ export default {
           outputFrequency: 7500,
         },
         stopAfterDamageInitation: false,
+        endStepAfterDamage: 3,
         stopBeforeDamageInitation: false,
         adaptivetimeStepping: false,
         adapt: {
@@ -785,6 +789,7 @@ export default {
           outputFrequency: "Output Frequency",
         },
         stopAfterDamageInitation: "Stop after damage initation",
+        endStepAfterDamage: "End step after damage",
         stopBeforeDamageInitation: "Stop before damage initation",
         adaptivetimeStepping: "Adaptive Time Stepping",
         adapt: {
@@ -2010,6 +2015,9 @@ export default {
           break;
         case "KIICmodel":
           Object.assign(jsonFile, KIICmodelFile);
+          break;
+        case "ENFmodel":
+          Object.assign(jsonFile, ENFmodelFile);
           break;
         case "DCBmodel":
           Object.assign(jsonFile, DCBmodelFile);
