@@ -139,7 +139,7 @@
     "name": "Damage",
     "damageModel": "Critical Energy Correspondence",
     "criticalStretch": null,
-    "criticalEnergy": 17.06047419804742,
+    "criticalEnergy": 1.3947001394700143,
     "interblockdamageEnergy": null,
     "planeStress": true,
     "onlyTension": true,
@@ -149,7 +149,7 @@
     "stabilizatonType": "Global Stiffness",
     "criticalEnergyCalc": {
       "calculateCriticalEnergy": true,
-      "k1c": "1106",
+      "k1c": "316.22776601683796",
       "youngsModulus": null
     }
   }
@@ -228,7 +228,7 @@
       "boundarytype": "Body Force",
       "blockId": 2,
       "coordinate": "y",
-      "value": "4000*t"
+      "value": "2000*t"
     },
     {
       "conditionsId": 2,
@@ -237,7 +237,7 @@
       "boundarytype": "Body Force",
       "blockId": 3,
       "coordinate": "y",
-      "value": "-4000*t"
+      "value": "-2000*t"
     },
     {
       "conditionsId": 3,
@@ -341,7 +341,7 @@
     "Partial_Stress": true,
     "Number_Of_Neighbors": true,
     "Write_After_Damage": false,
-    "Frequency": "50",
+    "Frequency": "1",
     "InitStep": 0,
     "Von_Mises_Stress": false,
     "Unrotated_Strain": true,
@@ -368,14 +368,14 @@
   "verbose": false,
   "initialTime": 0,
   "finalTime": "0.003",
-  "solvertype": "Verlet",
+  "solvertype": "NOXQuasiStatic",
   "safetyFactor": 0.95,
   "numericalDamping": 0.000005,
   "peridgimPreconditioner": "Full Tangent",
   "nonlinearSolver": "Line Search Based",
   "numberOfLoadSteps": "100",
   "maxSolverIterations": 50,
-  "relativeTolerance": "1e-2",
+  "relativeTolerance": "100000",
   "maxAgeOfPrec": 100,
   "directionMethod": "Newton",
   "newton": {
@@ -397,7 +397,8 @@
     "maximumBondDifference": 4,
     "stableBondDifference": 1
   },
-  "filetype": "yaml"
+  "filetype": "yaml",
+  "endStepAfterDamage": "3"
 },
 "job": {
   "cluster": "None",
