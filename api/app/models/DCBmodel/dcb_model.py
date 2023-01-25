@@ -8,17 +8,17 @@ from support.base_models import (
     BondFilters,
     BoundaryCondition,
     BoundaryConditions,
-    Contact,
     Compute,
+    Contact,
     Damage,
     Material,
-    Output,
     Newton,
+    Output,
     Solver,
     Verlet,
 )
-from support.model_writer import ModelWriter
 from support.geometry import Geometry
+from support.model_writer import ModelWriter
 
 
 class DCBmodel:
@@ -301,12 +301,18 @@ class DCBmodel:
     def create_load_intro_node(self, x_value, y_value, k):
         """doc"""
         k = np.where(
-            np.logical_and(x_value < self.xbegin + self.dx_value[0] * 3, y_value > 0),
+            np.logical_and(
+                x_value < self.xbegin + self.dx_value[0] * 3,
+                y_value > 0,
+            ),
             3,
             k,
         )
         k = np.where(
-            np.logical_and(x_value < self.xbegin + self.dx_value[0] * 3, y_value < 0),
+            np.logical_and(
+                x_value < self.xbegin + self.dx_value[0] * 3,
+                y_value < 0,
+            ),
             4,
             k,
         )
@@ -368,7 +374,8 @@ class DCBmodel:
             k = self.create_load_intro_node(x_value, y_value, k)
 
             vol = np.full_like(
-                x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
+                x_value,
+                self.dx_value[0] * self.dx_value[1] * self.dx_value[2],
             )
 
             writer = ModelWriter(model_class=self)

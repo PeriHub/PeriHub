@@ -49,7 +49,13 @@ if __name__ == "__main__":
     write_string_lc = ""
     write_string_rc = ""
 
-    x_values = [[0, length1], [length1, length2], [length2, l3], [l3, l4], [l4, l5]]
+    x_values = [
+        [0, length1],
+        [length1, length2],
+        [length2, l3],
+        [l3, l4],
+        [l4, l5],
+    ]
     dfunx = [
         [DX_VALUE, DX_VALUE],
         [DX_VALUE, DA_VALUE],
@@ -57,7 +63,13 @@ if __name__ == "__main__":
         [DA_VALUE, DX_VALUE],
         [DX_VALUE, DX_VALUE],
     ]
-    y_values = [[0, height1], [height1, height2], [height2, h3], [h3, h4], [h4, h5]]
+    y_values = [
+        [0, height1],
+        [height1, height2],
+        [height2, h3],
+        [h3, h4],
+        [h4, h5],
+    ]
     dfuny = [
         [DY_VALUE, DY_VALUE],
         [DY_VALUE, DA_VALUE],

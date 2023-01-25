@@ -3,11 +3,11 @@ doc
 """
 import os
 import time
+
 import numpy as np
+from support.globals import log
 from support.xml_creator import XMLcreator
 from support.yaml_creator import YAMLcreator
-
-from support.globals import log
 
 # from numba import jit
 
@@ -79,7 +79,10 @@ class ModelWriter:
         start_time = time.time()
         string = "# x y z block_id volume\n"
         self.mesh_file_writer(
-            self.filename + ".txt", string, model, "%.18e %.18e %.18e %d %.18e"
+            self.filename + ".txt",
+            string,
+            model,
+            "%.18e %.18e %.18e %d %.18e",
         )
         log.info(f"Mesh written  in {(time.time() - start_time):.2f} seconds")
 

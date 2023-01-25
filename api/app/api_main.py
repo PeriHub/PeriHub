@@ -7,57 +7,56 @@ doc
 
 # import uvicorn
 import asyncio
-import shutil
-import re
-import os
 import csv
-import time
-import subprocess
-import zipfile
 import io
 import json
+import os
+import re
+import shutil
+import subprocess
+import time
+import zipfile
 from re import match
-from typing import List
-from typing import Optional
+from typing import List, Optional
+
+import paramiko
+import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request, File, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 
 # from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-import paramiko
-import requests
+from fastapi.responses import FileResponse
+from models.CompactTension.compact_tension import CompactTension
+from models.DCBmodel.dcb_model import DCBmodel
+from models.Dogbone.dogbone import Dogbone
+from models.ENFmodel.enf_model import ENFmodel
 
 # from fastapi.responses import HTMLResponse
 # from fastapi.responses import StreamingResponse
 from models.GICmodel.gic_model import GICmodel
 from models.GIICmodel.giic_model import GIICmodel
+from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
 from models.KICmodel.kic_model import KICmodel
 from models.KIICmodel.kiic_model import KIICmodel
-from models.DCBmodel.dcb_model import DCBmodel
-from models.Dogbone.dogbone import Dogbone
-from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
-from models.PlateWithHole.plate_with_hole import PlateWithHole
-from models.CompactTension.compact_tension import CompactTension
-from models.Smetana.smetana import Smetana
 from models.OwnModel.own_model import OwnModel
-from support.sbatch_creator import SbatchCreator
-from support.file_handler import FileHandler
-from support.base_models import ModelData, FileType, RunData, Status, Model, Material
-from support.analysis import Analysis
-from support.image_export import ImageExport
-from support.video_export import VideoExport
-from support.gcode_reader import GcodeReader
-from support.crack_analysis import CrackAnalysis
-from support.globals import log
-
-from shepard_client.models.timeseries import Timeseries
+from models.PlateWithHole.plate_with_hole import PlateWithHole
+from models.Smetana.smetana import Smetana
 from shepard_client.models.influx_point import InfluxPoint
+from shepard_client.models.timeseries import Timeseries
 from shepard_client.models.timeseries_payload import TimeseriesPayload
+from support.analysis import Analysis
+from support.base_models import FileType, Material, Model, ModelData, RunData, Status
+from support.crack_analysis import CrackAnalysis
+from support.file_handler import FileHandler
+from support.gcode_reader import GcodeReader
+from support.globals import log
+from support.image_export import ImageExport
+from support.sbatch_creator import SbatchCreator
+from support.video_export import VideoExport
 
 # from fa_pyutils.sshtools import cara
 # import fa_pyutils.service.duration as duration
-
 
 
 # class NotFoundException(Exception):
@@ -69,13 +68,19 @@ from shepard_client.models.timeseries_payload import TimeseriesPayload
 
 
 tags_metadata = [
-    {"name": "Post Methods", "description": "Generate, translate or upload models"},
+    {
+        "name": "Post Methods",
+        "description": "Generate, translate or upload models",
+    },
     {"name": "Put Methods", "description": "Run, cancel or write jobs"},
     {
         "name": "Get Methods",
         "description": "Get mesh files, input files or postprocessing data",
     },
-    {"name": "Delete Methods", "description": "Delete user or model data"},
+    {
+        "name": "Delete Methods",
+        "description": "Delete user or model data",
+    },
     {
         "name": "Documentation Methods",
         "description": "Retrieve markdown documentation or bibtex files",
@@ -123,7 +128,9 @@ class ModelControl:
 
     @app.post("/generateModel", tags=["Post Methods"])
     def generate_model(
-        model_data: ModelData, model_name: str = "Dogbone", request: Request = ""
+        model_data: ModelData,
+        model_name: str = "Dogbone",
+        request: Request = "",
     ):  # material: dict, Output: dict):
         """doc"""
 
@@ -291,6 +298,30 @@ class ModelControl:
                 )
                 result = kic.create_model()
 
+            elif model_name == "ENFmodel":
+                enf = ENFmodel(
+                    xend=length,
+                    yend=height,
+                    crack_length=cracklength,
+                    zend=width,
+                    dx_value=dx_value,
+                    two_d=model_data.model.twoDimensional,
+                    rot=model_data.model.rotatedAngles,
+                    angle=model_data.model.angles,
+                    material=model_data.materials,
+                    damage=model_data.damages,
+                    block=model_data.blocks,
+                    boundary_condition=model_data.boundaryConditions,
+                    contact=model_data.contact,
+                    compute=model_data.computes,
+                    output=model_data.outputs,
+                    solver=model_data.solver,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                )
+                result = enf.create_model()
+
             elif model_name == "DCBmodel":
                 dcb = DCBmodel(
                     xend=length,
@@ -434,7 +465,7 @@ class ModelControl:
                     two_d=model_data.model.twoDimensional,
                 )
                 result = smetana.create_model()
-                    
+
             else:
                 log.error("Model Name unknown")
                 return "Model Name unknown"
@@ -465,7 +496,9 @@ class ModelControl:
             )
             result = own.create_model()
 
-        log.info(f"{model_name} has been created in {(time.time() - start_time):.2f} seconds")
+        log.info(
+            f"{model_name} has been created in {(time.time() - start_time):.2f} seconds"
+        )
 
         if result != "Model created":
             return result
@@ -503,7 +536,7 @@ class ModelControl:
         try:
             subprocess.call(command, shell=True)
         except subprocess.SubprocessError:
-            log.error( model_name + " results can not be found")
+            log.error(model_name + " results can not be found")
             return model_name + " results can not be found"
 
         log.info("Rename mesh File")
@@ -545,7 +578,12 @@ class ModelControl:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
-            ssh.connect(server, username="root", allow_agent=False, password="root")
+            ssh.connect(
+                server,
+                username="root",
+                allow_agent=False,
+                password="root",
+            )
         except paramiko.SSHException:
             log.error("ssh connection to " + server + " failed!")
             return "ssh connection to " + server + " failed!"
@@ -578,7 +616,9 @@ class ModelControl:
             username, model_name, model_name + ".yaml", False
         )
 
-        log.info(f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds")
+        log.info(
+            f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds"
+        )
         return f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds"
 
     @app.post("/translatGcode", tags=["Post Methods"])
@@ -592,12 +632,16 @@ class ModelControl:
 
         GcodeReader.gcode_to_peridigm(model_name, localpath, discretization)
 
-        log.info(f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds")
+        log.info(
+            f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds"
+        )
         return f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds"
 
     @app.post("/uploadfiles", tags=["Post Methods"])
     async def upload_files(
-        model_name: str, request: Request, files: List[UploadFile] = File(...)
+        model_name: str,
+        request: Request,
+        files: List[UploadFile] = File(...),
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
@@ -718,7 +762,7 @@ class ModelControl:
             command = "cd " + remotepath + " \n sbatch " + model_name + ".sbatch"
             ssh.exec_command(command)
             ssh.close()
-            
+
             await asyncio.sleep(5)
             # job_id=cara.sshClusterJob(command)
 
@@ -736,7 +780,7 @@ class ModelControl:
             server = "perihub_peridigm"
             remotepath = "/peridigmJobs/" + os.path.join(username, model_name)
             if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
-                log.warn(model_name + " already submitted")
+                log.warning(model_name + " already submitted")
                 return model_name + " already submitted"
             sbatch = SbatchCreator(
                 filename=model_name,
@@ -748,14 +792,21 @@ class ModelControl:
             )
             sh_string = sbatch.create_sh()
             with open(
-                os.path.join("." + remotepath, "runPeridigm.sh"), "w", encoding="UTF-8"
+                os.path.join("." + remotepath, "runPeridigm.sh"),
+                "w",
+                encoding="UTF-8",
             ) as file:
                 file.write(sh_string)
             os.chmod(os.path.join("." + remotepath, "runPeridigm.sh"), 0o0755)
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             try:
-                ssh.connect(server, username="root", allow_agent=False, password="root")
+                ssh.connect(
+                    server,
+                    username="root",
+                    allow_agent=False,
+                    password="root",
+                )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")
                 return "ssh connection to " + server + " failed!"
@@ -785,7 +836,9 @@ class ModelControl:
 
     @app.put("/cancelJob", tags=["Put Methods"])
     def cancel_job(
-        model_name: str = "Dogbone", cluster: str = "None", request: Request = ""
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        request: Request = "",
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
@@ -796,7 +849,12 @@ class ModelControl:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             try:
-                ssh.connect(server, username="root", allow_agent=False, password="root")
+                ssh.connect(
+                    server,
+                    username="root",
+                    allow_agent=False,
+                    password="root",
+                )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")
                 return "ssh connection to " + server + " failed!"
@@ -822,9 +880,9 @@ class ModelControl:
                 filter(lambda v: match(r"^.+\.log$", v), output_files)
             )
         except paramiko.SFTPError:
-            log.warn("LogFile can't be found")
+            log.warning("LogFile can't be found")
         if len(filtered_values) == 0:
-            log.warn("LogFile can't be found")
+            log.warning("LogFile can't be found")
 
         job_id = filtered_values[-1].split("-")[-1][:-4]
         command = "scancel " + job_id
@@ -843,7 +901,8 @@ class ModelControl:
         print(param)
 
         request = requests.patch(
-            "https://129.247.54.235:5000/1/PyCODAC/api/micofam/{zip}", verify=False
+            "https://129.247.54.235:5000/1/PyCODAC/api/micofam/{zip}",
+            verify=False,
         )
         try:
             with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
@@ -891,8 +950,8 @@ class ModelControl:
         triangulate: bool = False,
         dx_value: float = 0.004,
         step: int = -1,
-        cb_left: Optional[bool]= False,
-        transparent: Optional[bool]= True,
+        cb_left: Optional[bool] = False,
+        transparent: Optional[bool] = True,
         request: Request = "",
     ):
         """doc"""
@@ -906,7 +965,20 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        filepath = ImageExport.get_result_image_from_exodus(file, displ_factor, marker_size, variable, axis, length, height, triangulate, dx_value, step, cb_left, transparent)
+        filepath = ImageExport.get_result_image_from_exodus(
+            file,
+            displ_factor,
+            marker_size,
+            variable,
+            axis,
+            length,
+            height,
+            triangulate,
+            dx_value,
+            step,
+            cb_left,
+            transparent,
+        )
 
         try:
             return FileResponse(filepath)
@@ -936,7 +1008,9 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        filepath = ImageExport.get_plot_image_from_exodus(file, x_variable, x_axis, y_variable, y_axis)
+        filepath = ImageExport.get_plot_image_from_exodus(
+            file, x_variable, x_axis, y_variable, y_axis
+        )
 
         try:
             return FileResponse(filepath)
@@ -970,7 +1044,17 @@ class ModelControl:
 
         file_name, filepath = CrackAnalysis.write_nodemap(file)
 
-        filepath = CrackAnalysis.fracture_analysis(model_name, length, height, crack_length, young_modulus, poissions_ratio, yield_stress, file_name, filepath)
+        filepath = CrackAnalysis.fracture_analysis(
+            model_name,
+            length,
+            height,
+            crack_length,
+            young_modulus,
+            poissions_ratio,
+            yield_stress,
+            file_name,
+            filepath,
+        )
 
         try:
             return FileResponse(filepath)
@@ -1010,15 +1094,29 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        filepath = VideoExport.get_gif_from_exodus(file, apply_displacements, displ_factor, max_edge_distance, variable, axis, length, height, fps, dpi, x_min, x_max, y_min, y_max, size)
+        filepath = VideoExport.get_gif_from_exodus(
+            file,
+            apply_displacements,
+            displ_factor,
+            max_edge_distance,
+            variable,
+            axis,
+            length,
+            height,
+            fps,
+            dpi,
+            x_min,
+            x_max,
+            y_min,
+            y_max,
+            size,
+        )
 
         try:
             return FileResponse(filepath)
         except IOError:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
-
-    
 
     @app.get("/getTriangulatedMeshFromExodus", tags=["Get Methods"])
     def get_triangulated_mesh_from_exodus(
@@ -1043,7 +1141,14 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        filepath = VideoExport.get_triangulated_mesh_from_exodus(file, displ_factor, timestep, max_edge_distance, length, height)
+        filepath = VideoExport.get_triangulated_mesh_from_exodus(
+            file,
+            displ_factor,
+            timestep,
+            max_edge_distance,
+            length,
+            height,
+        )
 
         try:
             return FileResponse(filepath)
@@ -1075,7 +1180,7 @@ class ModelControl:
         except IOError:
             log.error(model_name + " results can not be found on " + cluster)
             return model_name + " results can not be found on " + cluster
-            
+
     @app.get("/getGlobalDataTimeseries", tags=["Get Methods"])
     def get_global_data_timeseries(
         model_name: str = "Dogbone",
@@ -1096,7 +1201,7 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        global_data = Analysis.get_global_data(file, variable,  axis)
+        global_data = Analysis.get_global_data(file, variable, axis)
         global_time = Analysis.get_global_data(file, "Time", "")
 
         factor = int(1e9)
@@ -1111,7 +1216,7 @@ class ModelControl:
             measurement=variable,
             location=cluster,
             device="Peridigm",
-            symbolic_name= model_name + "_" + output + "_" + variable,
+            symbolic_name=model_name + "_" + output + "_" + variable,
             field="value",
         )
 
@@ -1171,7 +1276,9 @@ class ModelControl:
 
     @app.get("/getLogFile", tags=["Get Methods"])
     def get_log_file(
-        model_name: str = "Dogbone", cluster: str = "None", request: Request = ""
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        request: Request = "",
     ):
         """doc"""
 
@@ -1194,7 +1301,9 @@ class ModelControl:
                 return "LogFile can't be found in " + remotepath
 
             with open(
-                os.path.join(remotepath, filtered_values[-1]), "r", encoding="UTF-8"
+                os.path.join(remotepath, filtered_values[-1]),
+                "r",
+                encoding="UTF-8",
             ) as file:
                 response = file.read()
 
@@ -1250,11 +1359,14 @@ class ModelControl:
 
         try:
             shutil.make_archive(
-                model_name, "zip", "./Output/" + os.path.join(username, model_name)
+                model_name,
+                "zip",
+                "./Output/" + os.path.join(username, model_name),
             )
 
             response = FileResponse(
-                model_name + ".zip", media_type="application/x-zip-compressed"
+                model_name + ".zip",
+                media_type="application/x-zip-compressed",
             )
             response.headers["Content-Disposition"] = (
                 "attachment; filename=" + model_name + ".zip"
@@ -1296,7 +1408,11 @@ class ModelControl:
 
     @app.get("/getPointData", tags=["Get Methods"])
     def get_point_data(
-        model_name: str = "Dogbone", own_model: bool = False, own_mesh: bool = False, mesh_file: str = "Dogbone.txt", request: Request = ""
+        model_name: str = "Dogbone",
+        own_model: bool = False,
+        own_mesh: bool = False,
+        mesh_file: str = "Dogbone.txt",
+        request: Request = "",
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
@@ -1347,11 +1463,23 @@ class ModelControl:
             max_block_id = 1
             try:
                 if own_model:
-                    mesh_path = "./Output/" + os.path.join(username, model_name) + "/" + mesh_file
+                    mesh_path = (
+                        "./Output/"
+                        + os.path.join(username, model_name)
+                        + "/"
+                        + mesh_file
+                    )
                 else:
-                    mesh_path = "./Output/" + os.path.join(username, model_name) + "/" + model_name + ".txt"
+                    mesh_path = (
+                        "./Output/"
+                        + os.path.join(username, model_name)
+                        + "/"
+                        + model_name
+                        + ".txt"
+                    )
 
-                with open(mesh_path,
+                with open(
+                    mesh_path,
                     "r",
                     encoding="UTF-8",
                 ) as file:
@@ -1406,7 +1534,10 @@ class ModelControl:
         userpath = "./Results/" + username
         try:
             shutil.make_archive(
-                os.path.join(userpath, model_name), "zip", userpath, model_name
+                os.path.join(userpath, model_name),
+                "zip",
+                userpath,
+                model_name,
             )
 
             response = FileResponse(
@@ -1440,7 +1571,7 @@ class ModelControl:
             localpath = "./Output/" + os.path.join(username, model_name)
 
         log.info("localpath: " + localpath)
-        
+
         if os.path.exists(localpath):
             status.created = True
 
@@ -1529,7 +1660,9 @@ class ModelControl:
 
     @app.delete("/deleteModelFromCluster", tags=["Delete Methods"])
     def delete_model_from_cluster(
-        model_name: str = "Dogbone", cluster: str = "None", request: Request = ""
+        model_name: str = "Dogbone",
+        cluster: str = "None",
+        request: Request = "",
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
@@ -1587,7 +1720,10 @@ class ModelControl:
 
     @app.delete("/deleteUserDataFromCluster", tags=["Delete Methods"])
     def delete_user_data_from_cluster(
-        cluster: str, check_date: bool, request: Request, days: Optional[int] = 7
+        cluster: str,
+        check_date: bool,
+        request: Request,
+        days: Optional[int] = 7,
     ):
         """doc"""
 

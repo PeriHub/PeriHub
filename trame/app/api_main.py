@@ -105,7 +105,7 @@ class Launcher:
             + str(output_list).replace(" ", "").replace("[", "").replace("]", "")
             + " "
             + str(dx_value)
-            + " --venv pvenv --port " #--ssl adhoc
+            + " --venv pvenv --port "  # --ssl adhoc
             + str(newPort)
             + " --host 0.0.0.0"
         )
@@ -178,10 +178,10 @@ class Launcher:
                     p2.terminate()
                 except psutil.NoSuchProcess:
                     pid_list.pop(index)
-                    log.warn("Process already terminated")
+                    log.warning("Process already terminated")
                 except FileNotFoundError:
                     pid_list.pop(index)
-                    log.warn("Process not found")
+                    log.warning("Process not found")
                 pid_list.pop(index)
 
         print(used_ports)

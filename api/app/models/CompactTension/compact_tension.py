@@ -8,19 +8,19 @@ from support.base_models import (
     BondFilters,
     BoundaryCondition,
     BoundaryConditions,
+    Compute,
     Contact,
     ContactModel,
-    Compute,
     Damage,
     Interaction,
     Material,
-    Output,
     Newton,
+    Output,
     Solver,
     Verlet,
 )
-from support.model_writer import ModelWriter
 from support.geometry import Geometry
+from support.model_writer import ModelWriter
 
 
 class CompactTension:
@@ -79,7 +79,7 @@ class CompactTension:
         coordinate="z",
         value="0",
     )
-    
+
     bf1 = BondFilters(
         id=1,
         name="bf_1",
@@ -319,7 +319,7 @@ class CompactTension:
         )
         condition = np.where(
             ((x_value - 0.25 * self.w) ** 2) + ((y_value - 0.275 * self.w) ** 2)
-            <=(0.125 * self.w) ** 2,
+            <= (0.125 * self.w) ** 2,
             1.0,
             0,
         )
@@ -431,7 +431,8 @@ class CompactTension:
             k = self.create_load_intro_node(x_value, y_value, k)
 
             vol = np.full_like(
-                x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
+                x_value,
+                self.dx_value[0] * self.dx_value[1] * self.dx_value[2],
             )
 
             writer = ModelWriter(model_class=self)

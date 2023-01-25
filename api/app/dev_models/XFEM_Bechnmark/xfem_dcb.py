@@ -8,7 +8,12 @@ from support.model_writer import ModelWriter
 
 class XFEMDCB:
     def __init__(
-        self, xend=1, yend=1, zend=0, dx_value=[0.1, 0.1], filename="XFEMDCBmodel"
+        self,
+        xend=1,
+        yend=1,
+        zend=0,
+        dx_value=[0.1, 0.1],
+        filename="XFEMDCBmodel",
     ):
         self.xend = xend
         self.yend = yend
@@ -31,7 +36,12 @@ class XFEMDCB:
     def getDiscretization(self, x_value=[0, 0], d=[0.1, 0.1]):
         """doc"""
         dx_value = self.createDx(x_value, d)
-        fun = self.fun(d[0], d[1], height=x_value[1] - x_value[0], nnum=len(dx_value))
+        fun = self.fun(
+            d[0],
+            d[1],
+            height=x_value[1] - x_value[0],
+            nnum=len(dx_value),
+        )
 
         return fun
 
@@ -39,7 +49,8 @@ class XFEMDCB:
         """doc"""
         geo = Geometry()
         x_value, y_value, _ = geo.create_rectangle(
-            coor=[0, self.xend, 0, self.yend, 0, self.zend], dx_value=self.dx_value
+            coor=[0, self.xend, 0, self.yend, 0, self.zend],
+            dx_value=self.dx_value,
         )
         vol = np.zeros(len(x_value))
         k = np.ones(len(x_value))

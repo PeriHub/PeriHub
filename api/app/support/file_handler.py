@@ -1,13 +1,14 @@
 """
 doc
 """
-import os
-import json
-import time
-import shutil
 import filecmp
-import paramiko
+import json
+import os
+import shutil
+import time
+
 import jwt
+import paramiko
 from support.globals import log
 
 
@@ -59,7 +60,8 @@ class FileHandler:
             return "guest"
 
         decoded_token = jwt.decode(
-            encoded_token.split(" ")[1], options={"verify_signature": False}
+            encoded_token.split(" ")[1],
+            options={"verify_signature": False},
         )
 
         return decoded_token["preferred_username"]
@@ -96,7 +98,8 @@ class FileHandler:
             return ""
 
         decoded_token = jwt.decode(
-            encoded_token.split(" ")[1], options={"verify_signature": False}
+            encoded_token.split(" ")[1],
+            options={"verify_signature": False},
         )
 
         return decoded_token["email"]
@@ -145,7 +148,9 @@ class FileHandler:
                     ):
                         names.append(os.path.join(folder_path, subfoldername))
                         FileHandler.remove_all_folder_sftp(
-                            sftp, os.path.join(folder_path, subfoldername), True
+                            sftp,
+                            os.path.join(folder_path, subfoldername),
+                            True,
                         )
         return names
 
@@ -175,11 +180,11 @@ class FileHandler:
                 os.makedirs(remotepath)
                 # os.chown(remotepath, 'test')
             if not os.path.exists(localpath):
-                log.warn(model_name + " has not been created yet")
+                log.warning(model_name + " has not been created yet")
                 return model_name + " has not been created yet"
             for root, _, files in os.walk(localpath):
                 if len(files) == 0:
-                    log.warn(model_name + " has not been created yet")
+                    log.warning(model_name + " has not been created yet")
                     return model_name + " has not been created yet"
                 input_exist = False
                 mesh_exist = False
@@ -194,16 +199,21 @@ class FileHandler:
                         mesh_exist = True
 
                 if not input_exist:
-                    log.warn("Inputfile of " + model_name + " has not been created yet")
+                    log.warning(
+                        "Inputfile of " + model_name + " has not been created yet"
+                    )
                     return "Inputfile of " + model_name + " has not been created yet"
 
                 if not mesh_exist:
-                    log.warn("Meshfile of " + model_name + " has not been created yet")
+                    log.warning(
+                        "Meshfile of " + model_name + " has not been created yet"
+                    )
                     return "Meshfile of " + model_name + " has not been created yet"
 
                 for name in files:
                     shutil.copy(
-                        os.path.join(root, name), os.path.join(remotepath, name)
+                        os.path.join(root, name),
+                        os.path.join(remotepath, name),
                     )
                     # os.chmod(os.path.join(remotepath,name), 0o0777)
                     # os.chown(os.path.join(remotepath,name), 'test')
@@ -226,11 +236,11 @@ class FileHandler:
             sftp.mkdir(model_name)  # Create remote_path
             sftp.chdir(model_name)
         if not os.path.exists(localpath):
-            log.warn(model_name + " has not been created yet")
+            log.warning(model_name + " has not been created yet")
             return model_name + " has not been created yet"
         for root, _, files in os.walk(localpath):
             if len(files) == 0:
-                log.warn(model_name + " has not been created yet")
+                log.warning(model_name + " has not been created yet")
                 return model_name + " has not been created yet"
             input_exist = False
             mesh_exist = False
@@ -241,11 +251,11 @@ class FileHandler:
                     mesh_exist = True
 
             if not input_exist:
-                log.warn("Inputfile of " + model_name + " has not been created yet")
+                log.warning("Inputfile of " + model_name + " has not been created yet")
                 return "Inputfile of " + model_name + " has not been created yet"
 
             if not mesh_exist:
-                log.warn("Meshfile of " + model_name + " has not been created yet")
+                log.warning("Meshfile of " + model_name + " has not been created yet")
                 return "Meshfile of " + model_name + " has not been created yet"
 
             for name in files:
@@ -278,7 +288,10 @@ class FileHandler:
                 if name.split(".")[-1] == "so":
                     print(os.path.join(root, name))
                     print(os.path.join(remotepath, "libusermat.so"))
-                    sftp.put(os.path.join(root, name), os.path.join(remotepath, "libusermat.so"))
+                    sftp.put(
+                        os.path.join(root, name),
+                        os.path.join(remotepath, "libusermat.so"),
+                    )
                     return "Success"
 
         sftp.close()
@@ -400,7 +413,10 @@ class FileHandler:
             keypath = "./rsaFiles/id_rsa_cluster"
             try:
                 ssh.connect(
-                    server, username=username, allow_agent=False, key_filename=keypath
+                    server,
+                    username=username,
+                    allow_agent=False,
+                    key_filename=keypath,
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")
@@ -412,7 +428,10 @@ class FileHandler:
             keypath = "./rsaFiles/id_rsa_cara"
             try:
                 ssh.connect(
-                    server, username=username, allow_agent=False, key_filename=keypath
+                    server,
+                    username=username,
+                    allow_agent=False,
+                    key_filename=keypath,
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")
@@ -423,7 +442,10 @@ class FileHandler:
             server = "perihub_peridigm"
             try:
                 ssh.connect(
-                    server, username=username, allow_agent=False, password="root"
+                    server,
+                    username=username,
+                    allow_agent=False,
+                    password="root",
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")
@@ -450,7 +472,10 @@ class FileHandler:
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             ssh.connect(
-                server, username=username, allow_agent=False, key_filename=keypath
+                server,
+                username=username,
+                allow_agent=False,
+                key_filename=keypath,
             )
         except paramiko.SSHException:
             log.error("ssh connection to " + server + " failed!")

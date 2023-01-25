@@ -2,11 +2,11 @@
 doc
 """
 import numpy as np
+from support.geometry import Geometry
+from support.material import MaterialRoutines
 
 # import ast
 from support.model_writer import ModelWriter
-from support.material import MaterialRoutines
-from support.geometry import Geometry
 
 
 class VerificationModels:
@@ -270,7 +270,9 @@ class VerificationModels:
         self.bc_dict[1]["coordinate"] = "x"
         del self.bc_dict[-1]
         self.call_modelbuilder(
-            two_d=True, angle=[90, 90], filename="twoLayerAniso090Tension2D"
+            two_d=True,
+            angle=[90, 90],
+            filename="twoLayerAniso090Tension2D",
         )
         self.bc_dict.append(
             {
@@ -282,11 +284,15 @@ class VerificationModels:
             }
         )
         self.call_modelbuilder(
-            two_d=False, angle=[0, 90], filename="twoLayerAniso090Tension3D"
+            two_d=False,
+            angle=[0, 90],
+            filename="twoLayerAniso090Tension3D",
         )
         del self.bc_dict[-1]
         self.call_modelbuilder(
-            two_d=True, angle=[30, -30], filename="twoLayerAniso30m30Tension2D"
+            two_d=True,
+            angle=[30, -30],
+            filename="twoLayerAniso30m30Tension2D",
         )
         self.bc_dict.append(
             {
@@ -298,14 +304,18 @@ class VerificationModels:
             }
         )
         self.call_modelbuilder(
-            two_d=False, angle=[30, -30], filename="twoLayerAniso30m30Tension3D"
+            two_d=False,
+            angle=[30, -30],
+            filename="twoLayerAniso30m30Tension3D",
         )
         self.bc_dict[0]["coordinate"] = "y"
         self.bc_dict[1]["coordinate"] = "y"
         # fehlt noch was
         del self.bc_dict[-1]
         self.call_modelbuilder(
-            two_d=True, angle=[0, 90], filename="twoLayerAniso090Bending2D"
+            two_d=True,
+            angle=[0, 90],
+            filename="twoLayerAniso090Bending2D",
         )
         self.bc_dict.append(
             {
@@ -317,11 +327,15 @@ class VerificationModels:
             }
         )
         self.call_modelbuilder(
-            two_d=False, angle=[9, 90], filename="twoLayerAniso090Bending3D"
+            two_d=False,
+            angle=[9, 90],
+            filename="twoLayerAniso090Bending3D",
         )
         del self.bc_dict[-1]
         self.call_modelbuilder(
-            two_d=True, angle=[30, -30], filename="twoLayerAniso30m30Bending2D"
+            two_d=True,
+            angle=[30, -30],
+            filename="twoLayerAniso30m30Bending2D",
         )
         self.bc_dict.append(
             {
@@ -333,7 +347,9 @@ class VerificationModels:
             }
         )
         self.call_modelbuilder(
-            two_d=False, angle=[30, -30], filename="twoLayerAniso30m30Bending3D"
+            two_d=False,
+            angle=[30, -30],
+            filename="twoLayerAniso30m30Bending3D",
         )
 
     def call_modelbuilder(self, two_d=True, angle=None, filename="isoTension"):
@@ -394,12 +410,26 @@ class VerificationModels:
 
         if two_d:
             x_value, y_value, z_value = geo.create_rectangle(
-                coor=[-3 * dx_value[0], xend + 3 * dx_value[0], 0, yend, 0, 0],
+                coor=[
+                    -3 * dx_value[0],
+                    xend + 3 * dx_value[0],
+                    0,
+                    yend,
+                    0,
+                    0,
+                ],
                 dx_value=[dx_value[0], dx_value[1], 1],
             )
         else:
             x_value, y_value, z_value = geo.create_rectangle(
-                coor=[-3 * dx_value[0], xend + 3 * dx_value[0], 0, yend, 0, zend],
+                coor=[
+                    -3 * dx_value[0],
+                    xend + 3 * dx_value[0],
+                    0,
+                    yend,
+                    0,
+                    zend,
+                ],
                 dx_value=[dx_value[0], dx_value[1], dx_value[2]],
             )
 
@@ -434,7 +464,13 @@ class VerificationModels:
             }
             writer.write_mesh_with_angles(model)
         else:
-            model = {"x": x_value, "y": y_value, "z": z_value, "k": k, "vol": vol}
+            model = {
+                "x": x_value,
+                "y": y_value,
+                "z": z_value,
+                "k": k,
+                "vol": vol,
+            }
             writer.write_mesh(model)
         writer.write_node_sets(model)
         self.write_file(writer=writer, model=model)

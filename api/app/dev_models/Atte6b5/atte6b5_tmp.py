@@ -47,7 +47,10 @@ class CheckVal:
         # Circle
         #########
         x_value = np.concatenate(
-            (x_value, length1 + delta_length + radius * np.sin((-alpha) / 180 * np.pi))
+            (
+                x_value,
+                length1 + delta_length + radius * np.sin((-alpha) / 180 * np.pi),
+            )
         )
         y_value = np.concatenate(
             (
@@ -79,7 +82,10 @@ class CheckVal:
         #########
 
         x_value = np.concatenate(
-            (x_value, np.array([2 * delta_length + 2 * length1 + length2 + 0.01]))
+            (
+                x_value,
+                np.array([2 * delta_length + 2 * length1 + length2 + 0.01]),
+            )
         )
         y_value = np.concatenate((y_value, np.array([height])))
 
@@ -117,10 +123,16 @@ class CheckVal:
         # Circle
         #########
         x_value = np.concatenate(
-            (x_value, length1 + delta_length + radius * np.sin(-alpha / 180 * np.pi))
+            (
+                x_value,
+                length1 + delta_length + radius * np.sin(-alpha / 180 * np.pi),
+            )
         )
         y_value = np.concatenate(
-            (y_value, delta_height - radius + radius * np.cos(-alpha / 180 * np.pi))
+            (
+                y_value,
+                delta_height - radius + radius * np.cos(-alpha / 180 * np.pi),
+            )
         )  # error
         #########
         # End
@@ -264,7 +276,10 @@ if __name__ == "__main__":
     plt.plot(x_value, y_value)
     x_value = [length1 + delta_length, length1 + delta_length]
     plt.plot(x_value, y2)
-    x_value = [length1 + delta_length + length2, length1 + delta_length + length2]
+    x_value = [
+        length1 + delta_length + length2,
+        length1 + delta_length + length2,
+    ]
     plt.plot(x_value, y2)
     x_value = [
         length1 + 2 * delta_length + length2,

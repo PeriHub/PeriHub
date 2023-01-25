@@ -1,9 +1,15 @@
 import logging
+
 import rich.progress
 from rich.logging import RichHandler
 
 FORMAT = "%(message)s"
-logging.basicConfig(level="NOTSET", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()])
+logging.basicConfig(
+    level="NOTSET",
+    format=FORMAT,
+    datefmt="[%X]",
+    handlers=[RichHandler()],
+)
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
 
 log = logging.getLogger("rich")

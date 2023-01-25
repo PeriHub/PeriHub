@@ -1,6 +1,7 @@
-import numpy as np
 import re
+
 import netCDF4
+import numpy as np
 import numpy.ma as ma
 
 
@@ -208,7 +209,7 @@ class ExodusReader:
 
             # merge element block data; can't handle blocks yet
             # for k, value in cd.items():
-                # cd[k] = np.concatenate(list(value.values()))
+            # cd[k] = np.concatenate(list(value.values()))
 
             # Check if there are any <name>R, <name>Z tuples or <name>X, <name>Y, <name>Z
             # triplets in the point data. If yes, they belong together.
@@ -247,7 +248,15 @@ class ExodusReader:
 
             point_sets = {name: dat for name, dat in zip(ns_names, ns)}
 
-        return points, point_data, global_data, cell_data, ns, block_data, time
+        return (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        )
 
     def read(file):
 
@@ -312,7 +321,7 @@ class ExodusReader:
                 elif key[:12] == "vals_glo_var":
                     value.set_auto_mask(False)
                     # For now only take the first value
-                    gd = value[:,:]
+                    gd = value[:, :]
                 elif key == "name_elem_var":
                     value.set_auto_mask(False)
                     cell_data_names = [b"".join(c).decode("UTF-8") for c in value[:]]
@@ -341,7 +350,7 @@ class ExodusReader:
 
             # merge element block data; can't handle blocks yet
             # for k, value in cd.items():
-                # cd[k] = np.concatenate(list(value.values()))
+            # cd[k] = np.concatenate(list(value.values()))
 
             # Check if there are any <name>R, <name>Z tuples or <name>X, <name>Y, <name>Z
             # triplets in the point data. If yes, they belong together.
@@ -359,17 +368,25 @@ class ExodusReader:
             for name, idx0, idx1, idx2 in triple:
                 point_data[name] = []
                 for sub_idx, _ in enumerate(pd[idx0]):
-                    point_data[name].append([pd[idx0][sub_idx], pd[idx1][sub_idx], pd[idx2][sub_idx]])
+                    point_data[name].append(
+                        [
+                            pd[idx0][sub_idx],
+                            pd[idx1][sub_idx],
+                            pd[idx2][sub_idx],
+                        ]
+                    )
 
             single, double, triple = ExodusReader.categorize(global_data_names)
 
             global_data = {}
             for name, idx in single:
-                global_data[name] = gd[:,idx]
+                global_data[name] = gd[:, idx]
             for name, idx0, idx1 in double:
-                global_data[name] = np.column_stack([gd[:,idx0], gd[:,idx1]])
+                global_data[name] = np.column_stack([gd[:, idx0], gd[:, idx1]])
             for name, idx0, idx1, idx2 in triple:
-                global_data[name] = np.column_stack([gd[:,idx0], gd[:,idx1], gd[:,idx2]])
+                global_data[name] = np.column_stack(
+                    [gd[:, idx0], gd[:, idx1], gd[:, idx2]]
+                )
 
             cell_data = {}
             block_data = []
@@ -386,7 +403,15 @@ class ExodusReader:
 
             point_sets = {name: dat for name, dat in zip(ns_names, ns)}
 
-        return points, point_data, global_data, cell_data, ns, block_data, ma.getdata(time).tolist()
+        return (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            ma.getdata(time).tolist(),
+        )
 
     def get_number_of_steps(file):
 

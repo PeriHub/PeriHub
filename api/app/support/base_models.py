@@ -1,8 +1,8 @@
 # pylint: disable=no-name-in-module
 import json
 from enum import Enum
-from typing import List
-from typing import Optional
+from typing import List, Optional
+
 from pydantic import BaseModel
 
 
@@ -11,6 +11,8 @@ class Status:
         self.created = created
         self.submitted = submitted
         self.results = results
+
+
 class Model(BaseModel):
     modelNameSelected: str
     ownModel: bool
@@ -68,7 +70,7 @@ class Material(BaseModel):
     computePartialStress: Optional[bool] = None
     useCollocationNodes: Optional[bool] = None
 
-    #Thermal
+    # Thermal
     specificHeatCapacity: Optional[float] = None
     thermalConductivity: Optional[float] = None
     heatTransferCoefficient: Optional[float] = None
@@ -90,9 +92,11 @@ class InterBlock(BaseModel):
     secondBlockId: int
     value: float
 
+
 class CriticalEnergyCalc(BaseModel):
     calculateCriticalEnergy: Optional[bool] = None
     k1c: Optional[float] = None
+
 
 class Damage(BaseModel):
     id: Optional[int]
@@ -104,7 +108,7 @@ class Damage(BaseModel):
     thresholdDamage: Optional[float] = None
     criticalDamageToNeglectMaterialPoint: Optional[float] = None
     criticalEnergy: Optional[float] = None
-    criticalEnergyCalc : Optional[CriticalEnergyCalc] = None
+    criticalEnergyCalc: Optional[CriticalEnergyCalc] = None
     interBlockDamage: Optional[bool] = None
     numberOfBlocks: Optional[int] = None
     interBlocks: Optional[List[InterBlock]] = None
@@ -147,6 +151,7 @@ class Contact(BaseModel):
     contactModels: List[ContactModel]
     interactions: List[Interaction]
 
+
 class BoundaryCondition(BaseModel):
     conditionsId: Optional[int]
     name: str
@@ -156,9 +161,12 @@ class BoundaryCondition(BaseModel):
     coordinate: str
     value: str
 
+
 class NodeSet(BaseModel):
     nodeSetId: Optional[int]
     file: str
+
+
 class BoundaryConditions(BaseModel):
     conditions: List[BoundaryCondition]
     nodeSets: Optional[List[NodeSet]]
@@ -250,7 +258,7 @@ class Output(BaseModel):
 
     Velocity_Gradient: Optional[bool] = None
     PiolaStressTimesInvShapeTensor: Optional[bool] = None
-    
+
     Write_After_Damage: Optional[bool] = None
     Frequency: int
     InitStep: int
@@ -298,6 +306,7 @@ class Solver(BaseModel):
     verletSwitch: Optional[bool] = None
     verlet: Optional[Verlet] = None
     stopAfterDamageInitation: Optional[bool] = None
+    endStepAfterDamage: Optional[int] = None
     stopBeforeDamageInitation: Optional[bool] = None
     adaptivetimeStepping: Optional[bool] = None
     adapt: Optional[Adapt] = None
@@ -565,11 +574,11 @@ class ModelData(BaseModel):
                         "thickness": 10,
                         "hourglassCoefficient": 1,
                         "stabilizatonType": "Global Stiffness",
-                        "criticalEnergyCalc":{
+                        "criticalEnergyCalc": {
                             "calculateCriticalEnergy": False,
                             "k1c": None,
-                            "youngsModulus": None
-                        }
+                            "youngsModulus": None,
+                        },
                     }
                 ],
                 "blocks": [
@@ -710,6 +719,7 @@ class ModelData(BaseModel):
                         "outputFrequency": 7500,
                     },
                     "stopAfterDamageInitation": False,
+                    "solver.stopAfterDamageInitation": 3,
                     "stopBeforeDamageInitation": False,
                     "adaptivetimeStepping": False,
                     "adapt": {
@@ -719,14 +729,15 @@ class ModelData(BaseModel):
                     },
                     "filetype": "yaml",
                 },
-                "job":{
+                "job": {
                     "cluster": "None",
                     "tasks": 1,
                     "time": "00:20:00",
-                    "account": 2263032
-                }
+                    "account": 2263032,
+                },
             }
         }
+
 
 class SmetanaData(BaseModel):
     dx_value: List[float]

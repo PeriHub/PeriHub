@@ -2,21 +2,21 @@
 doc
 """
 import csv
-import os
 import math
+import os
 from tkinter import Y
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
 
-from support.globals import log
+import matplotlib.pyplot as plt
+import numpy as np
 
 # from sklearn import datasets
 # import statsmodels.api as sm
 # from patsy import dmatrix
 import pandas as pd
-import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from support.globals import log
 
 
 class CrackLength:
@@ -50,7 +50,8 @@ class CrackLength:
         bounds = (X >= a) & (Y <= b)
 
         arclength = np.trapz(
-            np.sqrt(1 + np.gradient(Y[bounds], X[bounds]) ** 2), X[bounds]
+            np.sqrt(1 + np.gradient(Y[bounds], X[bounds]) ** 2),
+            X[bounds],
         )
         cracklength = arclength
 

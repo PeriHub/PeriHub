@@ -1,51 +1,74 @@
-import os
-import math
 import json
-import numpy as np
-import matplotlib.pyplot as plt
-from support.base_models import Model, Material
-from exodusreader.exodusreader import ExodusReader
+import math
+import os
 
+import matplotlib.pyplot as plt
+import numpy as np
+from exodusreader.exodusreader import ExodusReader
+from support.base_models import Material, Model
 from support.globals import log
 
 
 class Analysis:
-
     @staticmethod
     def calculate_calibration_factor_f(alpha):
 
-
-        f = ((2 + alpha)/math.pow((1 - alpha),3/2))*(0.886 + (4.64 * alpha) - (13.32 * math.pow(alpha, 2)) + (14.72 * math.pow(alpha, 3)) - (5.6 * math.pow(alpha, 4)))
+        f = ((2 + alpha) / math.pow((1 - alpha), 3 / 2)) * (
+            0.886
+            + (4.64 * alpha)
+            - (13.32 * math.pow(alpha, 2))
+            + (14.72 * math.pow(alpha, 3))
+            - (5.6 * math.pow(alpha, 4))
+        )
 
         return f
 
     @staticmethod
     def calculate_calibration_factor_phi(alpha):
 
-        A = (1.9118 + (19.118 * alpha) - (2.5122 * math.pow(alpha, 2)) - (23.226 * math.pow(alpha, 3)) + (20.54 * math.pow(alpha, 4)))
-        B = (19.118 - (5.0244 * alpha) - (69.678 * math.pow(alpha, 2)) + (82.16 * math.pow(alpha, 3))) * (1 - alpha)
+        A = (
+            1.9118
+            + (19.118 * alpha)
+            - (2.5122 * math.pow(alpha, 2))
+            - (23.226 * math.pow(alpha, 3))
+            + (20.54 * math.pow(alpha, 4))
+        )
+        B = (
+            19.118
+            - (5.0244 * alpha)
+            - (69.678 * math.pow(alpha, 2))
+            + (82.16 * math.pow(alpha, 3))
+        ) * (1 - alpha)
 
-        phi = (A * (1-alpha)) / (B + (2 * A))
+        phi = (A * (1 - alpha)) / (B + (2 * A))
 
         return phi
 
     @staticmethod
     def calculate_k1(P, B, W, f):
 
-        k1 = f * (P/(B*math.sqrt(W))) 
+        k1 = f * (P / (B * math.sqrt(W)))
         return k1
 
     @staticmethod
     def calculate_g1(Energy, B, W, phi):
 
-        g1 = Energy / (B * W  * phi) 
+        g1 = Energy / (B * W * phi)
         return g1
 
     @staticmethod
     def get_global_data(file, variable, axis, absolute):
 
         Reader = ExodusReader()
-        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read(file)
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = Reader.read(file)
 
         if variable == "Time":
             data = time
@@ -70,12 +93,11 @@ class Analysis:
                     data = [item[0] for item in global_data[variable]]
         return data
 
-    
     @staticmethod
     def get_g1c_k1c(username, model_name, model: Model, youngs_modulus):
 
         B = 1
-        if model.width!=None:
+        if model.width != None:
             B = model.width
         a = model.cracklength
         W = model.length
@@ -95,12 +117,19 @@ class Analysis:
 
         fig, ax = plt.subplots()
 
-        ax.plot(Displ,Force)
+        ax.plot(Displ, Force)
         ax.set_xlabel("Displacement [mm]")
         ax.set_ylabel("Force [N]")
 
         fig.set_size_inches(18.5, 18.5)
-        ax.fill_between(Displ, Force, 0, where=Displ<Displ2[0] ,color='gray', alpha=0.5)
+        ax.fill_between(
+            Displ,
+            Force,
+            0,
+            where=Displ < Displ2[0],
+            color="gray",
+            alpha=0.5,
+        )
 
         imagepath = os.path.join(resultpath, "Energy.png")
         fig.savefig(imagepath)
@@ -109,6 +138,7 @@ class Analysis:
         print(Displ)
 
         from scipy import integrate
+
         # x = np.linspace(-2, 2, num=20)
         # y = x
         Energy = -integrate.simpson(Force, Displ)
@@ -122,7 +152,7 @@ class Analysis:
         print(W)
         print(a)
 
-        alpha = a/W
+        alpha = a / W
         print("alpha: " + str(alpha))
 
         f = Analysis.calculate_calibration_factor_f(alpha)
@@ -130,13 +160,13 @@ class Analysis:
         phi = Analysis.calculate_calibration_factor_phi(alpha)
         print("phi: " + str(phi))
 
-        KIC = Analysis.calculate_k1(P,B,W,f)
+        KIC = Analysis.calculate_k1(P, B, W, f)
         print("KIC: " + str(KIC))
 
-        GIC = Analysis.calculate_g1(Energy,B,W,phi)
+        GIC = Analysis.calculate_g1(Energy, B, W, phi)
         print("GIC: " + str(GIC))
 
-        E_test = math.pow(KIC,2)/GIC
+        E_test = math.pow(KIC, 2) / GIC
         print("E_test: " + str(E_test))
 
         return imagepath
@@ -154,9 +184,15 @@ class Analysis:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read_timestep(
-            file, -1
-        )
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = Reader.read_timestep(file, -1)
 
         GIC = 0
 
@@ -179,10 +215,7 @@ class Analysis:
             print(w)
             print(a)
 
-            GIC = (3 * P_up * delta) / (
-                2 * w * (a + abs(Delta))
-            )
-
+            GIC = (3 * P_up * delta) / (2 * w * (a + abs(Delta)))
 
         return GIC
 
@@ -196,9 +229,15 @@ class Analysis:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read_timestep(
-            file, -1
-        )
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = ExodusReader.read_timestep(file, -1)
 
         P = global_data["Crosshead_Force"][0][1]
         d = -global_data["Crosshead_Displacement"][0][1]
@@ -218,7 +257,15 @@ class Analysis:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read_timestep(file, 0)
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = Reader.read_timestep(file, 0)
 
         first_time = time.data.item()
         first_displ = global_data["External_Displacement"][0]
@@ -230,15 +277,25 @@ class Analysis:
             if block_id in damage_blocks:
                 if np.max(damage_blocks[block_id]) > 0:
                     first_damage_id.append(block_id)
-            
+
                     block_ids = block_data[block_id][:, 0]
                     block_points = points[block_ids]
-                    filter = (damage_blocks[block_id] > 0.0)
-                    current_points = block_points + point_data["Displacement"][block_ids]
+                    filter = damage_blocks[block_id] > 0.0
+                    current_points = (
+                        block_points + point_data["Displacement"][block_ids]
+                    )
 
                     filtered_points = current_points[filter]
 
-        points, point_data, global_data, cell_data, ns, block_data, time = Reader.read_timestep(file, -1)
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = Reader.read_timestep(file, -1)
 
         last_time = time.data.item()
         last_displ = global_data["External_Displacement"][0]
@@ -258,18 +315,18 @@ class Analysis:
                 "displacement": {
                     "x": first_displ[0],
                     "y": first_displ[1],
-                    "z": first_displ[2]
+                    "z": first_displ[2],
                 },
                 "force": {
                     "x": first_force[0],
                     "y": first_force[1],
-                    "z": first_force[2]
+                    "z": first_force[2],
                 },
                 "points": {
                     "x": filtered_points[0][0],
                     "y": filtered_points[0][1],
-                    "z": filtered_points[0][2]
-                }
+                    "z": filtered_points[0][2],
+                },
             },
             "last_ply_failure": {
                 "time": last_time,
@@ -277,19 +334,19 @@ class Analysis:
                 "displacement": {
                     "x": last_displ[0],
                     "y": last_displ[1],
-                    "z": last_displ[2]
+                    "z": last_displ[2],
                 },
                 "force": {
                     "x": last_force[0],
                     "y": last_force[1],
-                    "z": last_force[2]
-                }
-            }
+                    "z": last_force[2],
+                },
+            },
         }
 
         json_path = os.path.join(resultpath, model_name + "_" + output + ".json")
 
         with open(json_path, "w") as file:
-	        json.dump(result_dict, file)
+            json.dump(result_dict, file)
 
         return json_path

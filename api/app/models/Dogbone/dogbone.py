@@ -2,26 +2,26 @@
 doc
 """
 import time
-import numpy as np
+
 import matplotlib.pyplot as plt
+import numpy as np
 from support.base_models import (
     Adapt,
     Block,
     BoundaryCondition,
     BoundaryConditions,
     Compute,
+    Contact,
     Damage,
     Material,
-    Output,
     Newton,
+    Output,
     Solver,
     Verlet,
-    Contact,
 )
-from support.model_writer import ModelWriter
 from support.geometry import Geometry
-
 from support.globals import log
+from support.model_writer import ModelWriter
 
 
 class Dogbone:
@@ -287,7 +287,7 @@ class Dogbone:
 
                         alpha1 = np.arccos((radius - dh1) / radius) * 180 / np.pi
 
-                        top_surf, bottom_surf = geo.create_boundary_curve(
+                        (top_surf, bottom_surf,) = geo.create_boundary_curve(
                             height=height1 / 2,
                             length1=length1,
                             radius=radius,
@@ -319,10 +319,16 @@ class Dogbone:
                             (z_value, np.full_like(x_value_0, zval))
                         )
                         vol_factor = np.concatenate(
-                            (vol_factor, (upper_y_value - lower_y_value) / height1)
+                            (
+                                vol_factor,
+                                (upper_y_value - lower_y_value) / height1,
+                            )
                         )
                         vol_factor = np.concatenate(
-                            (vol_factor, (upper_y_value - lower_y_value) / height1)
+                            (
+                                vol_factor,
+                                (upper_y_value - lower_y_value) / height1,
+                            )
                         )
 
                         for xval in x_value_0:
@@ -352,7 +358,8 @@ class Dogbone:
                 # plt.show()
 
                 vol = np.full_like(
-                    x_value, self.dx_value[0] * self.dx_value[0] * vol_factor
+                    x_value,
+                    self.dx_value[0] * self.dx_value[0] * vol_factor,
                 )
 
             else:

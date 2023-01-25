@@ -2,6 +2,7 @@
 doc
 """
 import time
+
 import numpy as np
 
 # import ast
@@ -11,22 +12,22 @@ from support.base_models import (
     BondFilters,
     BoundaryCondition,
     BoundaryConditions,
+    Compute,
     Contact,
     ContactModel,
-    Compute,
     Damage,
-    InterBlock,
     Interaction,
+    InterBlock,
     Material,
-    Output,
     Newton,
+    Output,
     Solver,
     Verlet,
 )
-from support.model_writer import ModelWriter
 from support.geometry import Geometry
-
 from support.globals import log
+from support.model_writer import ModelWriter
+
 
 class GIICmodel:
 
@@ -346,7 +347,8 @@ class GIICmodel:
 
     def create_boundary_condition_block(self, x_value, y_value, k):
         k = np.array(
-            ((self.boundfuncx(x_value) - 1) * self.boundfuncy(y_value) + 1), dtype="int"
+            ((self.boundfuncx(x_value) - 1) * self.boundfuncy(y_value) + 1),
+            dtype="int",
         )
         return k
 
@@ -397,14 +399,16 @@ class GIICmodel:
     def create_block(self, y_value, k):
         k = np.where(
             np.logical_and(
-                self.yend / 2 - 5 * self.dx_value[1] < y_value, y_value < self.yend / 2
+                self.yend / 2 - 5 * self.dx_value[1] < y_value,
+                y_value < self.yend / 2,
             ),
             1,
             k,
         )
         k = np.where(
             np.logical_and(
-                self.yend / 2 <= y_value, y_value < self.yend / 2 + 5 * self.dx_value[1]
+                self.yend / 2 <= y_value,
+                y_value < self.yend / 2 + 5 * self.dx_value[1],
             ),
             2,
             k,
@@ -424,7 +428,8 @@ class GIICmodel:
 
         geo = Geometry()
         x_value1, y_value1, z_value1 = geo.create_rectangle(
-            coor=[0, self.xend, 0, self.yend, 0, self.zend], dx_value=self.dx_value
+            coor=[0, self.xend, 0, self.yend, 0, self.zend],
+            dx_value=self.dx_value,
         )
         # x_value2, y_value2, z_value2 = geo.create_cylinder(
         #     coor=[self.xend / 2, self.yend + 13.0, self.zend],
@@ -522,10 +527,13 @@ class GIICmodel:
             k = self.create_block(y_value, k)
 
             vol = np.full_like(
-                x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
+                x_value,
+                self.dx_value[0] * self.dx_value[1] * self.dx_value[2],
             )
 
-            log.info(f"BC and Blocks created in {(time.time() - start_time):.2f} seconds")
+            log.info(
+                f"BC and Blocks created in {(time.time() - start_time):.2f} seconds"
+            )
 
             writer = ModelWriter(model_class=self)
 

@@ -1,27 +1,28 @@
 """
 doc
 """
-import os
 import io
-import requests
+import os
 import zipfile
+
+import requests
+
 # import smetana
 from support.base_models import (
     Adapt,
     BoundaryCondition,
     BoundaryConditions,
+    Compute,
     Contact,
     ContactModel,
-    Compute,
     Damage,
     Interaction,
-    Output,
     Newton,
+    Output,
+    SmetanaData,
     Solver,
     Verlet,
-    SmetanaData
 )
-
 from support.globals import log
 
 
@@ -88,7 +89,7 @@ class Smetana:
         calculationType="Sum",
         blockName="block_3",
     )
-    
+
     output_dict1 = Output(
         id=1,
         name="Output1",
@@ -130,13 +131,13 @@ class Smetana:
     )
 
     def __init__(
-        self,  
+        self,
         filename="Smetana",
         mesh_res=30,
         xend=4.0,
         plyThickness=0.125,
         zend=1.5,
-        dx_value=[0.1,0.1,0.1],
+        dx_value=[0.1, 0.1, 0.1],
         damage=[damage_dict],
         contact=contact_dict,
         boundary_condition=BoundaryConditions(conditions=[bc1, bc2]),
@@ -149,14 +150,14 @@ class Smetana:
         wavelength=3.0,
         angle=[45, 90, -45, 0],
         two_d=True,
-        ):
+    ):
 
         self.filename = filename
         self.mesh_res = mesh_res
-        self.xend=xend
-        self.plyThickness=plyThickness
-        self.zend=zend
-        self.dx_value=dx_value
+        self.xend = xend
+        self.plyThickness = plyThickness
+        self.zend = zend
+        self.dx_value = dx_value
         self.username = username
         self.ignore_mesh = ignore_mesh
         self.amplitude_factor = amplitude_factor
@@ -178,7 +179,6 @@ class Smetana:
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
-
         prop_params = {
             "filename": self.filename,
             "username": self.username,
@@ -189,18 +189,18 @@ class Smetana:
             "use_perihub": True,
             "amplitudeFactor": self.amplitude_factor,
             "wavelength": self.wavelength,
-            "ignore_mesh": self.ignore_mesh
+            "ignore_mesh": self.ignore_mesh,
         }
 
         data_params = SmetanaData(
-            dx_value = self.dx_value,
-            angleList = self.angle,
-            damage = self.damage_dict,
-            contact = self.contact_dict,
-            boundary_condition = self.bc_dict,
-            compute = self.compute_dict,
-            output = self.output_dict,
-            solver = self.solver_dict
+            dx_value=self.dx_value,
+            angleList=self.angle,
+            damage=self.damage_dict,
+            contact=self.contact_dict,
+            boundary_condition=self.bc_dict,
+            compute=self.compute_dict,
+            output=self.output_dict,
+            solver=self.solver_dict,
         )
 
         if self.two_d:
@@ -210,14 +210,13 @@ class Smetana:
         else:
 
             url = "https://smetana-api.nimbus.dlr.de/generatePeridigm3DModel"
-            
+
         response = requests.post(url, params=prop_params, data=data_params.json())
         log.info(response.text)
 
-
         prop_params = {
             "filename": self.filename,
-            "username": self.username
+            "username": self.username,
         }
 
         url = "https://smetana-api.nimbus.dlr.de/getModel"

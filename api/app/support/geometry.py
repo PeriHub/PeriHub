@@ -3,11 +3,12 @@ doc
 """
 import math
 import time
+
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
-import matplotlib.pyplot as plt
-
 from support.globals import log
+
 
 class Geometry:
     @staticmethod
@@ -149,7 +150,15 @@ class Geometry:
 
     @staticmethod
     def check_val_in_notch(
-        array_x, array_y, array_z, origin_x, xend, length, width, dx_value, angle=60
+        array_x,
+        array_y,
+        array_z,
+        origin_x,
+        xend,
+        length,
+        width,
+        dx_value,
+        angle=60,
     ):
         """doc"""
         anglelength = math.sin(angle) * width
@@ -241,7 +250,10 @@ class Geometry:
         # Circle
         #########
         x_value = np.concatenate(
-            (x_value, length1 + delta_length + radius * np.sin((-alpha) / 180 * np.pi))
+            (
+                x_value,
+                length1 + delta_length + radius * np.sin((-alpha) / 180 * np.pi),
+            )
         )
         y_value = np.concatenate(
             (
@@ -273,7 +285,10 @@ class Geometry:
         #########
 
         x_value = np.concatenate(
-            (x_value, np.array([2 * delta_length + 2 * length1 + length2 + 0.01]))
+            (
+                x_value,
+                np.array([2 * delta_length + 2 * length1 + length2 + 0.01]),
+            )
         )
         y_value = np.concatenate((y_value, np.array([height])))
 
@@ -306,7 +321,10 @@ class Geometry:
         # Circle
         #########
         x_value = np.concatenate(
-            (x_value, length1 + delta_length + radius * np.sin((-alpha) / 180 * np.pi))
+            (
+                x_value,
+                length1 + delta_length + radius * np.sin((-alpha) / 180 * np.pi),
+            )
         )
         y_value = np.concatenate(
             (
@@ -338,7 +356,10 @@ class Geometry:
         #########
 
         x_value = np.concatenate(
-            (x_value, np.array([2 * delta_length + 2 * length1 + length2 + 0.01]))
+            (
+                x_value,
+                np.array([2 * delta_length + 2 * length1 + length2 + 0.01]),
+            )
         )
         y_value = np.concatenate((y_value, np.array([height])))
 

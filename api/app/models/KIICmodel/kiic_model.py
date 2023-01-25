@@ -8,19 +8,19 @@ from support.base_models import (
     BondFilters,
     BoundaryCondition,
     BoundaryConditions,
+    Compute,
     Contact,
     ContactModel,
-    Compute,
     Damage,
     Interaction,
     Material,
-    Output,
     Newton,
+    Output,
     Solver,
     Verlet,
 )
-from support.model_writer import ModelWriter
 from support.geometry import Geometry
+from support.model_writer import ModelWriter
 
 
 class KIICmodel:
@@ -52,7 +52,7 @@ class KIICmodel:
         coordinate="x",
         value="0",
     )
-    
+
     bf1 = BondFilters(
         id=1,
         name="bf_1",
@@ -262,7 +262,7 @@ class KIICmodel:
         k = np.where(
             np.logical_and(
                 x_value <= 2 * self.dx_value[0],
-                y_value > self.yend/2,
+                y_value > self.yend / 2,
             ),
             2,
             k,
@@ -270,13 +270,13 @@ class KIICmodel:
         k = np.where(
             np.logical_and(
                 x_value <= 2 * self.dx_value[0],
-                y_value < self.yend/2,
+                y_value < self.yend / 2,
             ),
             3,
             k,
         )
         k = np.where(
-             x_value >= self.xend - (4 * self.dx_value[0]),
+            x_value >= self.xend - (4 * self.dx_value[0]),
             4,
             k,
         )
@@ -331,7 +331,8 @@ class KIICmodel:
             k = self.create_load_intro_node(x_value, y_value, k)
 
             vol = np.full_like(
-                x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
+                x_value,
+                self.dx_value[0] * self.dx_value[1] * self.dx_value[2],
             )
 
             writer = ModelWriter(model_class=self)

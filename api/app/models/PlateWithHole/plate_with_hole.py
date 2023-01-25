@@ -2,25 +2,23 @@
 doc
 """
 import numpy as np
+from support.base_models import Block  # BondFilters,
 from support.base_models import (
     Adapt,
-    Block,
-    # BondFilters,
     BoundaryCondition,
     BoundaryConditions,
-    Contact,
     Compute,
+    Contact,
     Damage,
     Material,
-    Output,
     Newton,
+    Output,
     Solver,
     Verlet,
 )
-from support.model_writer import ModelWriter
 from support.geometry import Geometry
-
 from support.globals import log
+from support.model_writer import ModelWriter
 
 
 class PlateWithHole:
@@ -308,7 +306,13 @@ class PlateWithHole:
         )
 
         x_value, y_value, z_value = geo.check_val_in_circle(
-            x_value, y_value, z_value, self.xend / 2, self.yend / 2, self.radius, False
+            x_value,
+            y_value,
+            z_value,
+            self.xend / 2,
+            self.yend / 2,
+            self.radius,
+            False,
         )
         if len(x_value) > self.max_nodes:
             return (
@@ -342,7 +346,8 @@ class PlateWithHole:
             k = self.create_load_intro_node(x_value, y_value, k)
 
             vol = np.full_like(
-                x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
+                x_value,
+                self.dx_value[0] * self.dx_value[1] * self.dx_value[2],
             )
 
             writer = ModelWriter(model_class=self)

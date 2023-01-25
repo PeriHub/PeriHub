@@ -2,6 +2,7 @@
 doc
 """
 import time
+
 import numpy as np
 
 # import ast
@@ -11,22 +12,22 @@ from support.base_models import (
     BondFilters,
     BoundaryCondition,
     BoundaryConditions,
+    Compute,
     Contact,
     ContactModel,
-    Compute,
     Damage,
-    InterBlock,
     Interaction,
+    InterBlock,
     Material,
-    Output,
     Newton,
+    Output,
     Solver,
     Verlet,
 )
-from support.model_writer import ModelWriter
 from support.geometry import Geometry
-
 from support.globals import log
+from support.model_writer import ModelWriter
+
 
 class GICmodel:
 
@@ -336,13 +337,14 @@ class GICmodel:
 
         log.info(f"Initialized in {(time.time() - start_time):.2f} seconds")
 
-
     def create_block(self, y_value, k):
-        k = np.where( y_value < self.yend / 2,
+        k = np.where(
+            y_value < self.yend / 2,
             1,
             k,
         )
-        k = np.where( y_value >= self.yend / 2,
+        k = np.where(
+            y_value >= self.yend / 2,
             2,
             k,
         )
@@ -352,7 +354,7 @@ class GICmodel:
         k = np.where(
             np.logical_and(
                 x_value <= self.dx_value[0] * 5,
-                y_value < self.dx_value[0] * 2
+                y_value < self.dx_value[0] * 2,
             ),
             3,
             k,
@@ -360,7 +362,7 @@ class GICmodel:
         k = np.where(
             np.logical_and(
                 x_value <= self.dx_value[0] * 5,
-                y_value >= self.yend - self.dx_value[0] * 2
+                y_value >= self.yend - self.dx_value[0] * 2,
             ),
             4,
             k,
@@ -373,8 +375,8 @@ class GICmodel:
                 x_value < self.dx_value[0] * 1,
                 np.logical_and(
                     y_value < self.yend / 2,
-                    y_value >= self.yend / 2 - self.dx_value[0] * 1
-                )
+                    y_value >= self.yend / 2 - self.dx_value[0] * 1,
+                ),
             ),
             5,
             k,
@@ -384,8 +386,8 @@ class GICmodel:
                 x_value < self.dx_value[0] * 1,
                 np.logical_and(
                     y_value >= self.yend / 2,
-                    y_value < self.yend / 2 + self.dx_value[0] * 1
-                )
+                    y_value < self.yend / 2 + self.dx_value[0] * 1,
+                ),
             ),
             6,
             k,
@@ -405,7 +407,8 @@ class GICmodel:
 
         geo = Geometry()
         x_value1, y_value1, z_value1 = geo.create_rectangle(
-            coor=[0, self.xend, 0, self.yend, 0, self.zend], dx_value=self.dx_value
+            coor=[0, self.xend, 0, self.yend, 0, self.zend],
+            dx_value=self.dx_value,
         )
         # x_value2, y_value2, z_value2 = geo.create_cylinder(
         #     coor=[self.xend / 2, self.yend + 13.0, self.zend],
@@ -504,10 +507,13 @@ class GICmodel:
             # k = self.create_load_intro_node(x_value, y_value, k)
 
             vol = np.full_like(
-                x_value, self.dx_value[0] * self.dx_value[1] * self.dx_value[2]
+                x_value,
+                self.dx_value[0] * self.dx_value[1] * self.dx_value[2],
             )
 
-            log.info(f"BC and Blocks created in {(time.time() - start_time):.2f} seconds")
+            log.info(
+                f"BC and Blocks created in {(time.time() - start_time):.2f} seconds"
+            )
 
             writer = ModelWriter(model_class=self)
 

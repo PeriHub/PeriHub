@@ -1,10 +1,12 @@
-import os
 import math
+import os
+
 import numpy as np
+
 # import matplotlib.pyplot as plt
 
-class GcodeReader:
 
+class GcodeReader:
     def mesh_file_writer(filepath, string, mesh_array, mesh_format):
         """doc"""
         print("Write mesh file")
@@ -12,12 +14,15 @@ class GcodeReader:
             file.write(string)
             np.savetxt(file, mesh_array, fmt=mesh_format, delimiter=" ")
 
-
     def write_mesh(model, filepath):
         """doc"""
         string = "# x y z block_id volume time\n"
-        GcodeReader.mesh_file_writer(filepath + ".txt", string, model, "%.18e %.18e %.18e %d %.18e %.18e")
-
+        GcodeReader.mesh_file_writer(
+            filepath + ".txt",
+            string,
+            model,
+            "%.18e %.18e %.18e %d %.18e %.18e",
+        )
 
     @staticmethod
     def gcode_to_peridigm(filename, localpath, discretization):
@@ -28,7 +33,7 @@ class GcodeReader:
 
         filepath = os.path.join(localpath, filename)
 
-        with open(filepath + '.gcode') as f:
+        with open(filepath + ".gcode") as f:
             content = f.readlines()
 
         points = [0, 0, 0]
@@ -197,11 +202,17 @@ class GcodeReader:
 
                     if len(time) != 0:
                         time_range = np.linspace(
-                            time[-1], time[-1] + time_needed, num=len(x_range), endpoint=False
+                            time[-1],
+                            time[-1] + time_needed,
+                            num=len(x_range),
+                            endpoint=False,
                         )
                     else:
                         time_range = np.linspace(
-                            0, time_needed, num=len(x_range), endpoint=False
+                            0,
+                            time_needed,
+                            num=len(x_range),
+                            endpoint=False,
                         )
 
                     # test2=np.linspace(y0, y1, int(distance/dx_value[1])),
@@ -262,28 +273,32 @@ class GcodeReader:
         k = np.full_like(x_peri_np, 1)
         # vol = np.full_like(x_peri_np, 1e-3)
 
-        nodesets = [[0,300,-500,500,-500,2],[0,300,-500,-500,26,500]]
+        nodesets = [
+            [0, 300, -500, 500, -500, 2],
+            [0, 300, -500, -500, 26, 500],
+        ]
 
         for i, node in enumerate(nodesets):
             k = np.where(
+                np.logical_and(
+                    np.logical_and(
                         np.logical_and(
-                            np.logical_and(
-                                np.logical_and(
-                                    x_peri_np >= node[0],
-                                    x_peri_np <= node[1],
-                                ),
-                                np.logical_and(
-                                    y_peri_np >=  node[2],
-                                    y_peri_np <=  node[3],
-                                ),),
-                            np.logical_and(
-                                z_peri_np >=  node[4],
-                                z_peri_np <=  node[5],
-                            ),
+                            x_peri_np >= node[0],
+                            x_peri_np <= node[1],
                         ),
-                        i+2,
-                        k,
-                    )
+                        np.logical_and(
+                            y_peri_np >= node[2],
+                            y_peri_np <= node[3],
+                        ),
+                    ),
+                    np.logical_and(
+                        z_peri_np >= node[4],
+                        z_peri_np <= node[5],
+                    ),
+                ),
+                i + 2,
+                k,
+            )
 
         model = np.transpose(
             np.vstack(
@@ -300,7 +315,6 @@ class GcodeReader:
 
         GcodeReader.write_mesh(model, filepath)
 
-
         # ns1 = open(r"ns_Test_1.txt", "w")
         # ns2 = open(r"ns_Test_2.txt", "w")
 
@@ -310,7 +324,7 @@ class GcodeReader:
             myString.append("")
 
         idx = 1
-        for x,y,z in filtered_points:
+        for x, y, z in filtered_points:
             for i, node in enumerate(nodesets):
                 if x <= node[0] and x >= node[1]:
                     if y <= node[2] and y >= node[3]:
@@ -318,9 +332,14 @@ class GcodeReader:
                             myString[i] += str(idx) + " \n"
             idx = idx + 1
         for idx, _ in enumerate(nodesets):
-            ns = open(os.path.join(localpath,"ns_"+filename+"_"+ str(idx+1) +".txt"), "w")
+            ns = open(
+                os.path.join(
+                    localpath,
+                    "ns_" + filename + "_" + str(idx + 1) + ".txt",
+                ),
+                "w",
+            )
             ns.write(myString[idx])
             ns.close()
-
 
         print("Finished")
