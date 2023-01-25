@@ -29,7 +29,7 @@ class XMLcreator:
     @staticmethod
     def temp_enabled(material_dict):
         for mat in material_dict:
-            if mat.thermalConductivity!= None:
+            if mat.thermalConductivity != None:
                 return True
         return False
 
@@ -503,6 +503,16 @@ class XMLcreator:
             + str(float(self.solver_dict.finalTime))
             + '"/>\n'
         )
+        if self.solver_dict.stopAfterDamageInitation:
+            string += '        <Parameter name="Stop after damage initiation" type="bool" value="true"/>\n'
+        if self.solver_dict.endStepAfterDamage:
+            string += (
+                '        <Parameter name="End step after damage" type="int" value="'
+                + str(self.solver_dict.endStepAfterDamage)
+                + '"/>\n'
+            )
+        if self.solver_dict.stopBeforeDamageInitation:
+            string += '        <Parameter name="Stop before damage initiation" type="bool" value="true"/>\n'
         if self.solver_dict.solvertype == "Verlet":
             string += '        <ParameterList name="Verlet">\n'
             if self.check_if_defined(self.solver_dict.fixedDt):
@@ -521,11 +531,10 @@ class XMLcreator:
                 + str(float(self.solver_dict.numericalDamping))
                 + '"/>\n'
             )
-            if self.solver_dict.stopAfterDamageInitation:
-                string += '            <Parameter name="Stop after damage initiation" type="bool" value="true"/>\n'
-            if self.solver_dict.stopBeforeDamageInitation:
-                string += '            <Parameter name="Stop before damage initiation" type="bool" value="true"/>\n'
-            if (self.check_if_defined(self.solver_dict.adaptivetimeStepping) and self.solver_dict.adaptivetimeStepping):
+            if (
+                self.check_if_defined(self.solver_dict.adaptivetimeStepping)
+                and self.solver_dict.adaptivetimeStepping
+            ):
                 string += '            <Parameter name="Adapt dt" type="bool" value="true"/>\n'
                 string += (
                     '            <Parameter name="Stable Step Difference" type="int" value="'
@@ -767,17 +776,17 @@ class XMLcreator:
                     '            <Parameter name="X" type="double" value="'
                     + str(out.x)
                     + '"/>\n'
-                ) 
+                )
                 string += (
                     '            <Parameter name="Y" type="double" value="'
                     + str(out.y)
                     + '"/>\n'
-                ) 
+                )
                 string += (
                     '            <Parameter name="Z" type="double" value="'
                     + str(out.z)
                     + '"/>\n'
-                ) 
+                )
             else:
                 string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
                 string += (
@@ -842,9 +851,13 @@ class XMLcreator:
             if out.Block_Id:
                 string += '            <Parameter name="Block_Id" type="bool" value="true"/>\n'
             if out.Horizon:
-                string += '            <Parameter name="Horizon" type="bool" value="true"/>\n'
+                string += (
+                    '            <Parameter name="Horizon" type="bool" value="true"/>\n'
+                )
             if out.Volume:
-                string += '            <Parameter name="Volume" type="bool" value="true"/>\n'
+                string += (
+                    '            <Parameter name="Volume" type="bool" value="true"/>\n'
+                )
             if out.Point_Time:
                 string += '            <Parameter name="Point_Time" type="bool" value="true"/>\n'
             if out.Node_Type:
@@ -882,7 +895,9 @@ class XMLcreator:
             if out.Damage_Model_Data:
                 string += '            <Parameter name="Damage_Model_Data" type="bool" value="true"/>\n'
             if out.Damage:
-                string += '            <Parameter name="Damage" type="bool" value="true"/>\n'
+                string += (
+                    '            <Parameter name="Damage" type="bool" value="true"/>\n'
+                )
             if out.Detached_Nodes:
                 string += '            <Parameter name="Detached_Nodes" type="bool" value="true"/>\n'
             if out.Bond_Damage_Diff:
@@ -926,7 +941,9 @@ class XMLcreator:
             if out.Number_Of_Neighbors:
                 string += '            <Parameter name="Number_Of_Neighbors" type="bool" value="true"/>\n'
             if out.Force:
-                string += '            <Parameter name="Force" type="bool" value="true"/>\n'
+                string += (
+                    '            <Parameter name="Force" type="bool" value="true"/>\n'
+                )
 
             for compute in self.compute_dict:
                 string += (
