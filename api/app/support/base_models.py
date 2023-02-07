@@ -1,7 +1,7 @@
 # pylint: disable=no-name-in-module
 import json
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -65,8 +65,8 @@ class Material(BaseModel):
     hourglassCoefficient: float
     actualHorizon: Optional[float] = None
     yieldStress: Optional[float] = None
-    Parameter: List[Parameter]
-    properties: List[properties]
+    Parameter: Union[List[Parameter], None]
+    properties: Union[List[properties], None]
     computePartialStress: Optional[bool] = None
     useCollocationNodes: Optional[bool] = None
 
@@ -148,8 +148,8 @@ class Contact(BaseModel):
     enabled: bool
     searchRadius: float
     searchFrequency: int
-    contactModels: List[ContactModel]
-    interactions: List[Interaction]
+    contactModels: Union[List[ContactModel], None]
+    interactions: Union[List[Interaction], None]
 
 
 class BoundaryCondition(BaseModel):
@@ -459,6 +459,7 @@ class ModelData(BaseModel):
         schema_extra = {
             "example": {
                 "model": {
+                    "modelNameSelected": "Dogbone",
                     "ownModel": False,
                     "translated": False,
                     "length": 0.13,
@@ -618,26 +619,32 @@ class ModelData(BaseModel):
                         "show": True,
                     },
                 ],
-                "boundaryConditions": [
-                    {
-                        "conditionsId": 1,
-                        "name": "BC_1",
-                        "nodeSet": None,
-                        "boundarytype": "Prescribed Displacement",
-                        "blockId": 1,
-                        "coordinate": "x",
-                        "value": "0*t",
-                    },
-                    {
-                        "conditionsId": 2,
-                        "name": "BC_2",
-                        "nodeSet": None,
-                        "boundarytype": "Prescribed Displacement",
-                        "blockId": 5,
-                        "coordinate": "x",
-                        "value": "0.05*t",
-                    },
-                ],
+                "boundaryConditions": {
+                    "conditions": [
+                        {
+                            "conditionsId": 1,
+                            "name": "BC_1",
+                            "nodeSet": 1,
+                            "boundarytype": "Prescribed Displacement",
+                            "blockId": 1,
+                            "coordinate": "x",
+                            "value": "0*t",
+                        },
+                        {
+                            "conditionsId": 2,
+                            "name": "BC_2",
+                            "nodeSet": 2,
+                            "boundarytype": "Prescribed Displacement",
+                            "blockId": 5,
+                            "coordinate": "x",
+                            "value": "0.05*t",
+                        },
+                    ],
+                    "nodeSets": [
+                        {"nodeSetId": 1, "file": "ns_Dogbone_1.txt"},
+                        {"nodeSetId": 2, "file": "ns_Dogbone_2.txt"},
+                    ],
+                },
                 "bondFilters": [
                     {
                         "id": 1,
