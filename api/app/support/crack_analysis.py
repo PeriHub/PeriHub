@@ -31,19 +31,65 @@ class CrackAnalysis:
 
         damage_blocks = cell_data["Damage"][0]
 
-        block_points = []
-        block_displ = []
-        damage_id = 0
+        np_points_x = np.array([])
+        np_points_y = np.array([])
+        np_displ_x = np.array([])
+        np_displ_y = np.array([])
+        np_eps_x = np.array([])
+        np_eps_y = np.array([])
+        np_eps_xy = np.array([])
+        np_sig_x = np.array([])
+        np_sig_y = np.array([])
+        np_sig_xy = np.array([])
 
         for block_id, _ in enumerate(block_data):
             if block_id in damage_blocks:
                 block_ids = block_data[block_id][:, 0]
-                block_points.append(points[block_ids])
-                block_displ.append(point_data["Displacement"][block_ids])
-                damage_id = block_id
+                block_points = points[block_ids]
+                np_points_x = np.concatenate(
+                    [np_points_x, np.array(block_points[:, 0])]
+                )
+                np_points_y = np.concatenate(
+                    [np_points_y, np.array(block_points[:, 1])]
+                )
+                np_displ_x = np.concatenate(
+                    [np_displ_x, np.array(point_data["Displacement"][block_ids, 0])]
+                )
+                np_displ_y = np.concatenate(
+                    [np_displ_y, np.array(point_data["Displacement"][block_ids, 1])]
+                )
+                np_eps_x = np.concatenate(
+                    [np_eps_x, np.array(cell_data["Unrotated_StrainXX"][0][block_id])]
+                )
+                np_eps_y = np.concatenate(
+                    [np_eps_y, np.array(cell_data["Unrotated_StrainYY"][0][block_id])]
+                )
+                np_eps_xy = np.concatenate(
+                    [np_eps_xy, np.array(cell_data["Unrotated_StrainXY"][0][block_id])]
+                )
+                np_eps_x = np.concatenate(
+                    [np_eps_x, np.array(cell_data["Unrotated_StrainXX"][0][block_id])]
+                )
+                np_eps_y = np.concatenate(
+                    [np_eps_y, np.array(cell_data["Unrotated_StrainYY"][0][block_id])]
+                )
+                np_eps_xy = np.concatenate(
+                    [np_eps_xy, np.array(cell_data["Unrotated_StrainXY"][0][block_id])]
+                )
+                np_sig_x = np.concatenate(
+                    [np_sig_x, np.array(cell_data["Partial_StressXX"][0][block_id])]
+                )
+                np_sig_y = np.concatenate(
+                    [np_sig_y, np.array(cell_data["Partial_StressYY"][0][block_id])]
+                )
+                np_sig_xy = np.concatenate(
+                    [np_sig_xy, np.array(cell_data["Partial_StressXY"][0][block_id])]
+                )
 
-        block_points_np = np.array(block_points[0])
-        block_displ_np = np.array(block_displ[0])
+        np_points_z = np.empty_like(np_points_x)
+        np_displ_z = np.empty_like(np_displ_x)
+        # block_points_np = np.array(block_points[0])
+        # block_displ_np = np.array(block_displ[0])
 
         headerCols = [
             "#",
@@ -79,33 +125,31 @@ class CrackAnalysis:
             "%15.8e",
         ]
 
-        indexes = np.arange(1, len(block_points_np) + 1)
-
-        eps_x = cell_data["Unrotated_StrainXX"][0][damage_id]
-        eps_y = cell_data["Unrotated_StrainYY"][0][damage_id]
-        eps_xy = cell_data["Unrotated_StrainXY"][0][damage_id]
+        indexes = np.arange(1, len(np_points_x) + 1)
 
         # eps_eqv = (e11^2 + e12^2 - e11*e22 + 3*e12^2)^0.5
-        eps_eqv = np.sqrt(eps_x**2 + eps_y**2 - eps_x * eps_y + 3 * eps_xy**2)
-
-        sig_x = cell_data["Partial_StressXX"][0][damage_id]
-        sig_y = cell_data["Partial_StressYY"][0][damage_id]
-        sig_xy = cell_data["Partial_StressXY"][0][damage_id]
+        np_eps_eqv = np.sqrt(
+            np_eps_x**2 + np_eps_y**2 - np_eps_x * np_eps_y + 3 * np_eps_xy**2
+        )
 
         nodemap_path = os.path.join(os.path.dirname(file), "nodemap.txt")
         np.savetxt(
             nodemap_path,
             np.c_[
                 indexes,
-                block_points_np[:, [0, 1, 2]],
-                block_displ_np[:, [0, 1, 2]],
-                eps_x,
-                eps_y,
-                eps_xy,
-                eps_eqv,
-                sig_x,
-                sig_y,
-                sig_xy,
+                np_points_x,
+                np_points_y,
+                np_points_z,
+                np_displ_x,
+                np_displ_y,
+                np_displ_z,
+                np_eps_x,
+                np_eps_y,
+                np_eps_xy,
+                np_eps_eqv,
+                np_sig_x,
+                np_sig_y,
+                np_sig_xy,
             ],
             fmt=formatter,
             delimiter="; ",

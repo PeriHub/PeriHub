@@ -27,6 +27,7 @@ from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 # from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from gcodereader import gcodereader
 from models.CompactTension.compact_tension import CompactTension
 from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
@@ -49,7 +50,6 @@ from support.analysis import Analysis
 from support.base_models import FileType, Material, Model, ModelData, RunData, Status
 from support.crack_analysis import CrackAnalysis
 from support.file_handler import FileHandler
-from support.gcode_reader import GcodeReader
 from support.globals import log
 from support.image_export import ImageExport
 from support.sbatch_creator import SbatchCreator
@@ -631,7 +631,7 @@ class ModelControl:
 
         localpath = "./Output/" + os.path.join(username, model_name)
 
-        GcodeReader.gcode_to_peridigm(model_name, localpath, discretization)
+        gcodereader.GcodeReader.read(model_name, localpath)
 
         log.info(
             "%s has been translated in %.2f seconds",

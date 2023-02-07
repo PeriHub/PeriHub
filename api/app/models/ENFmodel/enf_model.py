@@ -233,7 +233,7 @@ class ENFmodel:
             self.zbegin = -zend / 2
             self.zend = zend / 2
 
-        number_of_blocks = 5
+        number_of_blocks = 6
 
         """ Definition of model
         """
@@ -289,6 +289,17 @@ class ENFmodel:
                 y_value <= 4 * self.dx_value[0],
             ),
             5,
+            k,
+        )
+        k = np.where(
+            np.logical_and(
+                x_value <= 4 * self.dx_value[0],
+                np.logical_and(
+                    y_value <= 5 * self.dx_value[0] + self.yend / 2,
+                    y_value >= self.yend / 2,
+                ),
+            ),
+            6,
             k,
         )
         return k

@@ -187,14 +187,15 @@ class XMLcreator:
                     + mat.materialSymmetry
                     + '"/>\n'
                 )
-                for param in mat.Parameter:
-                    string += (
-                        '            <Parameter name="'
-                        + param.name
-                        + '" type="double" value="'
-                        + str(np.format_float_scientific(float(param.value)))
-                        + '"/>\n'
-                    )
+                if mat.Parameter != None:
+                    for param in mat.Parameter:
+                        string += (
+                            '            <Parameter name="'
+                            + param.name
+                            + '" type="double" value="'
+                            + str(np.format_float_scientific(float(param.value)))
+                            + '"/>\n'
+                        )
 
                 # needed for time step estimation
             if self.check_if_defined(mat.youngsModulus):

@@ -18,8 +18,9 @@ RUN apt-get update --allow-insecure-repositories &&\
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt &&\
     pip install exodusreader --no-cache-dir --extra-index-url https://__token__:$GITLAB_TOKEN@gitlab.dlr.de/api/v4/projects/26404/packages/pypi/simple &&\
+    pip install gcodereader --no-cache-dir --extra-index-url https://__token__:$GITLAB_TOKEN@gitlab.dlr.de/api/v4/projects/26524/packages/pypi/simple &&\
     pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git &&\
-    pip install shepard-client --no-cache-dir --extra-index-url https://gitlab.com/api/v4/projects/27250272/packages/pypi/simple 
+    pip install shepard-client --no-cache-dir --extra-index-url https://gitlab.com/api/v4/projects/27250272/packages/pypi/simple
 
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh
