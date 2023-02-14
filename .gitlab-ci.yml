@@ -8,7 +8,11 @@ stages:
 
 .install-deps:
   image: "python:3.8"
-  script:
+  allow_failure: true
+  only:
+    refs:
+      - main
+  before_script:
     - pip install -r api/requirements.txt
     - pip install flake8 flake8-junit-report
     - pip install pylint pylint-junit
@@ -20,11 +24,8 @@ flake8:
   extends:
     - .install-deps
   only:
-    refs:
-      - main
     changes:
       - api/**/*
-  allow_failure: true
   script:
     - flake8 --output-file=flake8.txt
     - flake8_junit flake8.txt flake8_junit.xml
@@ -38,11 +39,8 @@ pylint:
   extends:
     - .install-deps
   only:
-    refs:
-      - main
     changes:
       - api/**/*
-  allow_failure: true
   script:
     - pylint --output-format=junit:pylint.xml *
   artifacts:
@@ -55,11 +53,8 @@ check-coverage:
   extends:
     - .install-deps
   only:
-    refs:
-      - main
     changes:
       - api/**/*
-  allow_failure: true
   script:
     - pytest --cov=. --cov-fail-under=50 --cov-report=term-missing --cov-report=html --cov-report=xml
   coverage: '/^TOTAL.+?(\d+\%)$/'

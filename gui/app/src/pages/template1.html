@@ -839,13 +839,50 @@
                     class="my-btn"
                     v-bind="attrs"
                     v-on="on"
-                    @click="screenshot"
+                    @click="dialogGetScreenshot = true"
                   >
                     <i class="fas fa-camera"></i>
                   </v-btn>
                 </template>
                 <span>Screenshot</span>
               </v-tooltip>
+
+              <v-dialog
+                v-model="dialogGetScreenshot"
+                persistent
+                max-width="500"
+              >
+                <v-card>
+                  <v-card-title class="text-h5"> Get Screenshot </v-card-title>
+                  <v-card-text
+                    >Which format do you want do download</v-card-text
+                  >
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="green darken-1"
+                      text
+                      @click="screenshot(true)"
+                    >
+                      SVG
+                    </v-btn>
+                    <v-btn
+                      color="green darken-1"
+                      text
+                      @click="screenshot(false)"
+                    >
+                      PNG
+                    </v-btn>
+                    <v-btn
+                      color="red darken-1"
+                      text
+                      @click="dialogGetScreenshot = false"
+                    >
+                      Cancel
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </v-subheader>
             <v-card
               class="my-card"

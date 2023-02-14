@@ -188,6 +188,7 @@ export default {
       dialogDeleteFiles: false,
       dialogDeleteCookies: false,
       dialogDeleteUserData: false,
+      dialogGetScreenshot: false,
       logInterval: null,
       statusInterval: null,
       monitorToggle: false,
@@ -765,7 +766,7 @@ export default {
     },
     resize() {
       // console.log("resize")
-      if (this.tab==1) {
+      if (this.tab == 1) {
         this.$set(this, "sizeW", this.$refs.networkView.$el.clientWidth);
         this.$set(this, "sizeH", this.$refs.networkView.$el.clientHeight - 57);
       }
@@ -807,8 +808,9 @@ export default {
     openDoi(link) {
       window.open("https://doi.org/" + link, "_blank");
     },
-    screenshot() {
-      this.$refs["net"].screenShot("Test", "#aa00bb", true, true);
+    screenshot(svg) {
+      this.$refs["net"].screenShot("Test", "#FFFFFF", svg, true);
+      this.dialogGetScreenshot = false;
     },
     screenShotDone(err) {
       // this.toaster = err || 'Saving Screenshot...'

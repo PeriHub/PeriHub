@@ -1,0 +1,371 @@
+{"model": {
+  "modelNameSelected": "GIICmodel",
+  "ownModel": false,
+  "translated": false,
+  "length": 110,
+  "cracklength": 40,
+  "width": 25,
+  "height": 3,
+  "height2": 0.013,
+  "structured": false,
+  "discretization": "11",
+  "horizon": 0.01,
+  "twoDimensional": true,
+  "rotatedAngles": false,
+  "angles": [
+    0,
+    0
+  ]
+},
+"materials": [
+  {
+    "id": 1,
+    "name": "IM7/8552",
+    "matType": "Linear Elastic Correspondence",
+    "density": "1",
+    "bulkModulus": null,
+    "shearModulus": null,
+    "youngsModulus": "50000",
+    "poissonsRatio": 0.356,
+    "tensionSeparation": false,
+    "nonLinear": false,
+    "planeStress": true,
+    "materialSymmetry": "Isotropic",
+    "stabilizatonType": "Global Stiffness",
+    "thickness": 10,
+    "hourglassCoefficient": 1,
+    "actualHorizon": null,
+    "yieldStress": null,
+    "Parameter": [
+      {
+        "name": "C11",
+        "value": 165863.6296530634
+      },
+      {
+        "name": "C12",
+        "value": 4090.899504376252
+      },
+      {
+        "name": "C13",
+        "value": 2471.126276093059
+      },
+      {
+        "name": "C14",
+        "value": 0
+      },
+      {
+        "name": "C15",
+        "value": 0
+      },
+      {
+        "name": "C16",
+        "value": 0
+      },
+      {
+        "name": "C22",
+        "value": 9217.158022124806
+      },
+      {
+        "name": "C23",
+        "value": 2471.126276093059
+      },
+      {
+        "name": "C24",
+        "value": 0
+      },
+      {
+        "name": "C25",
+        "value": 0
+      },
+      {
+        "name": "C26",
+        "value": 0
+      },
+      {
+        "name": "C33",
+        "value": 9217.158022124804
+      },
+      {
+        "name": "C34",
+        "value": 0
+      },
+      {
+        "name": "C35",
+        "value": 0
+      },
+      {
+        "name": "C36",
+        "value": 0
+      },
+      {
+        "name": "C44",
+        "value": 3360
+      },
+      {
+        "name": "C45",
+        "value": 0
+      },
+      {
+        "name": "C46",
+        "value": 0
+      },
+      {
+        "name": "C55",
+        "value": 4200
+      },
+      {
+        "name": "C56",
+        "value": 0
+      },
+      {
+        "name": "C66",
+        "value": 4200
+      }
+    ],
+    "properties": [
+      {
+        "id": 1,
+        "name": "Prop_1",
+        "value": null
+      }
+    ]
+  }
+],
+"damages": [
+  {
+    "id": 1,
+    "name": "Damage",
+    "damageModel": "Critical Energy Correspondence",
+    "criticalStretch": 10,
+    "criticalEnergy": "1000.0",
+    "interBlockDamage": true,
+    "numberOfBlocks": 6,
+    "interBlocks": [
+      {
+        "id": 1,
+        "name": "Interblock Critical Energy 1_2",
+        "firstBlockId": 1,
+        "secondBlockId": 2,
+        "value": "100.0"
+      },
+      {
+        "id": 2,
+        "name": "Interblock Critical Energy 2_1",
+        "firstBlockId": 2,
+        "secondBlockId": 1,
+        "value": "100.0"
+      }
+    ],
+    "planeStress": true,
+    "onlyTension": false,
+    "detachedNodesCheck": true,
+    "thickness": 10,
+    "hourglassCoefficient": 1,
+    "stabilizatonType": "Global Stiffness",
+    "criticalEnergyCalc":{
+      "calculateCriticalEnergy": false,
+      "k1c": null,
+      "youngsModulus": null
+    }
+  }
+],
+"blocks": [
+  {
+    "id": 1,
+    "name": "block_1",
+    "material": "IM7/8552",
+    "damageModel": "Damage",
+    "show": true
+  },
+  {
+    "id": 2,
+    "name": "block_2",
+    "material": "IM7/8552",
+    "damageModel": "Damage",
+    "show": true
+  },
+  {
+    "id": 3,
+    "name": "block_3",
+    "material": "IM7/8552",
+    "damageModel": "",
+    "show": false
+  },
+  {
+    "id": 4,
+    "name": "block_4",
+    "material": "IM7/8552",
+    "damageModel": "",
+    "show": true
+  },
+  {
+    "id": 5,
+    "name": "block_5",
+    "material": "IM7/8552",
+    "damageModel": "",
+    "show": true
+  },
+  {
+    "id": 6,
+    "name": "block_6",
+    "material": "IM7/8552",
+    "damageModel": "",
+    "show": true
+  }
+],
+"contact": {
+  "enabled": true,
+  "searchRadius": "0.02",
+  "searchFrequency": "1",
+  "contactModels": [
+    {
+      "id": 1,
+      "name": "Contact Model",
+      "contactType": "Short Range Force",
+      "contactRadius": 0.000775,
+      "springConstant": 1000000000000
+    }
+  ],
+  "interactions": [
+    {
+      "id": 1,
+      "firstBlockId": 5,
+      "secondBlockId": 3,
+      "contactModelId": 1
+    }
+  ]
+},
+"boundaryConditions": {
+  "conditions": [
+  {
+    "conditionsId": 1,
+    "name": "BC_1",
+    "nodeSet": null,
+    "boundarytype": "Prescribed Displacement",
+    "blockId": 4,
+    "coordinate": "y",
+    "value": "-1*t"
+  },
+  {
+    "conditionsId": 2,
+    "name": "BC_2",
+    "nodeSet": null,
+    "boundarytype": "Prescribed Displacement",
+    "blockId": 5,
+    "coordinate": "y",
+    "value": "0"
+  },
+  {
+    "conditionsId": 3,
+    "name": "BC_3",
+    "nodeSet": null,
+    "boundarytype": "Prescribed Displacement",
+    "blockId": 6,
+    "coordinate": "y",
+    "value": "0"
+  },
+  {
+    "conditionsId": 4,
+    "name": "BC_4",
+    "nodeSet": null,
+    "boundarytype": "Prescribed Displacement",
+    "blockId": 4,
+    "coordinate": "x",
+    "value": "0"
+  },
+  {
+    "conditionsId": 5,
+    "name": "BC_5",
+    "nodeSet": null,
+    "boundarytype": "Prescribed Displacement",
+    "blockId": 4,
+    "coordinate": "z",
+    "value": "0"
+  },
+  {
+    "conditionsId": 6,
+    "name": "BC_6",
+    "nodeSet": null,
+    "boundarytype": "Prescribed Displacement",
+    "blockId": 3,
+    "coordinate": "z",
+    "value": "0"
+  }
+]},
+"bondFilters": [],
+"computes": [
+  {
+    "id": 1,
+    "computeClass": "Block_Data",
+    "name": "Crosshead_Force",
+    "variable": "Force",
+    "calculationType": "Sum",
+    "blockName": "block_4"
+  },
+  {
+    "id": 2,
+    "computeClass": "Block_Data",
+    "name": "Crosshead_Displacement",
+    "variable": "Displacement",
+    "calculationType": "Minimum",
+    "blockName": "block_4"
+  }
+],
+"outputs": [
+  {
+    "id": 1,
+    "name": "Output1",
+    "Displacement": true,
+    "Force": true,
+    "Damage": true,
+    "Velocity": true,
+    "Partial_Stress": true,
+    "Number_Of_Neighbors": true,
+    "Contact_Force": true,
+    "Write_After_Damage": false,
+    "Frequency": "1",
+    "InitStep": 0
+  }
+],
+"solver": {
+  "verbose": false,
+  "initialTime": 0,
+  "finalTime": 1,
+  "solvertype": "Verlet",
+  "safetyFactor": 1,
+  "fixedDt": null,
+  "numericalDamping": 0.000005,
+  "peridgimPreconditioner": "None",
+  "nonlinearSolver": "Line Search Based",
+  "numberOfLoadSteps": 100,
+  "maxSolverIterations": 50,
+  "relativeTolerance": 1e-8,
+  "maxAgeOfPrec": 100,
+  "directionMethod": "Newton",
+  "newton": {
+    "jacobianOperator": "Matrix-Free",
+    "preconditioner": "None"
+  },
+  "lineSearchMethod": "Polynomial",
+  "verletSwitch": true,
+  "verlet": {
+    "safetyFactor": 0.95,
+    "numericalDamping": 0.000005,
+    "outputFrequency": 7500
+  },
+  "stopAfterDamageInitation": false,
+  "stopBeforeDamageInitation": false,
+  "adaptivetimeStepping": false,
+  "adapt": {
+    "stableStepDifference": 4,
+    "maximumBondDifference": 4,
+    "stableBondDifference": 1
+  },
+  "filetype": "yaml"
+},
+"job": {
+  "cluster": "None",
+  "tasks": 1,
+  "time": "00:20:00",
+  "account": "2263032"
+}}

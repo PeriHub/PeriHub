@@ -92,6 +92,7 @@ app = FastAPI(openapi_tags=tags_metadata)
 origins = [
     "http://localhost",
     "http://localhost:6010",
+    "http://localhost:8080",
     "https://localhost:6010",
     "http://fa-jenkins2:6010",
     "https://fa-jenkins2:6010",

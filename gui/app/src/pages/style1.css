@@ -2,11 +2,20 @@
 #m-start {
   fill: rgba(18, 120, 98, 0.8);
 }
-/* .link-label{
-  fill: purple;
-  transform: translate(0,.5em);
-  font-size: .8em;
-} */
+.link-label {
+  fill: rgb(0, 0, 0);
+  transform: translate(0, 0.5em);
+  font-size: 0.8em;
+}
+.link {
+  stroke: rgb(177, 177, 177, 0.3);
+}
+.node-label {
+  fill: rgb(0, 0, 0);
+}
+.node {
+  fill: rgb(108, 185, 220);
+}
 .textfield-col {
   height: 60px;
 }
