@@ -1,6 +1,5 @@
 <template>
     <VuePlotly 
-        v-if="store.viewId==2"
         :data="plotData"
         :layout="plotLayout"
         :options="plotOptions"
@@ -12,17 +11,10 @@
 <script>
     import { defineComponent } from 'vue'
     import { VuePlotly  } from 'vue3-plotly'
-    import { useViewStore } from 'stores/view-store';
     export default defineComponent({
         name: 'PlotlyView',
         components:{
             VuePlotly 
-        },
-        setup() {
-            const store = useViewStore();
-            return {
-                store,
-            }
         },
         data() {
             return {

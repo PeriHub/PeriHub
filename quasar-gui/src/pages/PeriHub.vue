@@ -1,6 +1,6 @@
 <template>
     <q-page class="flex-center">
-        <q-splitter v-model="verticalSplitterModel">
+        <q-splitter v-model="verticalSplitterModel" style="height:500px">
             <template v-slot:before>
                 <div class="q-pa-md">
                     <ModelActions/>
@@ -11,7 +11,7 @@
             <template v-slot:after>
                 <q-splitter v-model="horizontalSplitterModel" horizontal>
                     <template v-slot:before>
-                        <div class="q-pa-md">
+                        <div class="q-pa-md" style="height:100%">
                             <ViewComp/>
                         </div>
                     </template>

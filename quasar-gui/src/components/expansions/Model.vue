@@ -293,7 +293,7 @@
         name: 'ModelSettings',
         setup() {
             const store = useModelStore();
-            const model = computed(() => store.model)
+            const model = computed(() => store.modelData.model)
             const bus = inject('bus')
             return {
                 store,
@@ -329,7 +329,7 @@
             async modelNameChangedEvent() {
                 this.bus.emit("showModelImg")
                 this.bus.emit("getStatus")
-                this.bus.emit("resetData")
+                this.resetData()
             },
             async resetData() {
                 console.log("resetData")

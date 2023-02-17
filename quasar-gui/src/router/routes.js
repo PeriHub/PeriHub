@@ -5,6 +5,15 @@ const routes = [
     children: [
       { path: "", component: () => import("pages/LandingPage.vue") },
       { path: "/perihub", component: () => import("pages/PeriHub.vue") },
+      {
+        path: "/guide",
+        component: () => import("pages/GuidePage.vue"),
+        // children: [
+        //   { path: "/introduction", component: () => import("pages/LandingPage.vue") },
+        //   { path: "/buttons", component: () => import("pages/PeriHub.vue") },
+        //   { path: "/faq", component: () => import("pages/GuidePage.vue") },
+        // ],
+      },
     ],
   },
 

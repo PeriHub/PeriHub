@@ -65,13 +65,13 @@
             </q-tooltip>
         </q-btn>
 
-        <q-btn v-if="!model.ownModel" flat icon="fas fa-undo" @click="resetData">
+        <q-btn v-if="!modelData.modelownModel" flat icon="fas fa-undo" @click="bus.emit('resetData')">
             <q-tooltip>
                 Reset Data
             </q-tooltip>
         </q-btn>
 
-        <q-btn v-if="model.modelNameSelected=='RVE' & !model.ownModel" flat icon="fas fa-cogs" @click="generateMesh">
+        <q-btn v-if="modelData.modelmodelNameSelected=='RVE' & !modelData.modelownModel" flat icon="fas fa-cogs" @click="generateMesh">
             <q-tooltip>
                 Generate Mesh
             </q-tooltip>
@@ -83,7 +83,7 @@
             </q-tooltip>
         </q-btn>
 
-        <q-btn v-if="model.ownModel" flat icon="fas fa-upload" @click="uploadMesh">
+        <q-btn v-if="modelData.modelownModel" flat icon="fas fa-upload" @click="uploadMesh">
             <q-tooltip>
                 Upload Mesh and Nodesets
             </q-tooltip>
@@ -95,7 +95,7 @@
             </q-tooltip>
         </q-btn>
         
-        <q-btn v-if="model.ownModel" flat icon="fas fa-backward" @click="switchModels">
+        <q-btn v-if="modelData.modelownModel" flat icon="fas fa-backward" @click="switchModels">
             <q-tooltip>
                 Use predefined Models
             </q-tooltip>
@@ -103,11 +103,11 @@
 
         <q-space></q-space>
 
-        <q-btn flat icon="fas fa-sort" @click="openHidePanels">
+        <!-- <q-btn flat icon="fas fa-sort" @click="openHidePanels">
             <q-tooltip>
                 Collapse/Expand all panel
             </q-tooltip>
-        </q-btn>
+        </q-btn> -->
 
         <q-btn flat icon="fas fa-info" @click="showTutorial">
             <q-tooltip>
@@ -133,67 +133,14 @@ export default defineComponent({
             const store = useDefaultStore();
             const status = computed(() => store.status)
             const modelStore = useModelStore();
-            const model = computed(() => modelStore.model)
+            const modelData = computed(() => modelStore.modelData)
             const bus = inject('bus')
-
-            function generateModel () {
-                let modeldata = JSON.parse(
-                    '{"model": ' +
-                    JSON.stringify(modelStore.model) +
-                    ",\n" +
-                    '"materials": ' +
-                    JSON.stringify(modelStore.materials) +
-                    ",\n" +
-                    '"damages": ' +
-                    JSON.stringify(modelStore.damages) +
-                    ",\n" +
-                    '"blocks": ' +
-                    JSON.stringify(modelStore.blocks) +
-                    ",\n" +
-                    '"contact": ' +
-                    JSON.stringify(modelStore.contact) +
-                    ",\n" +
-                    '"boundaryConditions": ' +
-                    JSON.stringify(modelStore.boundaryConditions) +
-                    ",\n" +
-                    '"bondFilters": ' +
-                    JSON.stringify(modelStore.bondFilters) +
-                    ",\n" +
-                    '"computes": ' +
-                    JSON.stringify(modelStore.computes) +
-                    ",\n" +
-                    '"outputs": ' +
-                    JSON.stringify(modelStore.outputs) +
-                    ",\n" +
-                    '"solver": ' +
-                    JSON.stringify(modelStore.solver) +
-                    ",\n" +
-                    '"job": ' +
-                    JSON.stringify(modelStore.job) +
-                    "}"
-                )
-
-                api.post('/generateModel', modeldata, {model_name: modelStore.model.modelNameSelected})
-                .then((response) => {
-                    console.log(response)
-                    data.value = response.data
-                })
-                .catch(() => {
-                    $q.notify({
-                    color: 'negative',
-                    position: 'top',
-                    message: 'Loading failed',
-                    icon: 'report_problem'
-                    })
-                })
-            }
 
             return {
                 status,
-                model,
+                modelData,
                 rules,
                 bus,
-                generateModel
             }
         },
     data() {
@@ -206,11 +153,180 @@ export default defineComponent({
         readData() {
             this.$refs.fileInput.click();
         },
+        uploadMesh() {
+            this.$refs.multifileInput.click();
+        },
+        uploadProps(id) {
+            this.$refs.propsInput.click();
+            this.selectedMaterial = id;
+        },
+        uploadSo() {
+            this.$refs.multiSoInput.click();
+        },
+        onFilePicked(event) {
+            const files = event.target.files;
+            const filetype = files[0].type;
+            if (files.length <= 0) {
+                return false;
+            }
+
+            const fr = new FileReader();
+
+            if (filetype == "application/json") {
+                this.loadJsonFile(fr, files);
+            } else if (files[0].name.includes(".yaml")) {
+                this.loadYamlModel(fr, files);
+            } else if (filetype == "text/xml") {
+                this.loadXmlModel(fr, files);
+            } else if (filetype == ".peridigm") {
+                this.loadPeridigmModel(fr, files);
+            } else if (files[0].name.includes(".gcode")) {
+                this.gcodeFile = files;
+                this.dialogGcode = true;
+            } else {
+                this.loadFeModel(files);
+            }
+        },
+        onPropsFilePicked(event) {
+            const files = event.target.files;
+
+            const fr = new FileReader();
+            fr.onload = (e) => {
+                const input_string = e.target.result;
+
+                let filtered_string = input_string.match(/\*User([\D\S]*?)\*/gi);
+                let propsArray = filtered_string[0].split(/[\n,]/gi);
+                propsArray = propsArray.slice(0, propsArray.length - 1);
+
+                if (propsArray[1].match(/\d+/) == propsArray.length - 2) {
+                this.materials[0].properties = [];
+                for (var i = 2; i < propsArray.length; i++) {
+                    this.addProp(0);
+                    this.materials[0].properties[i - 2].value = propsArray[i].trim();
+                }
+                } else {
+                console.log("Length of Propsarray unexpected");
+                }
+            };
+            fr.readAsText(files.item(0));
+
+            // console.log(input_string)
+            // let filtered_string = input_string.search(/\*User([\D\S]*?)\*/i);
+        },
+        onMultiFilePicked(event) {
+            const files = event.target.files;
+            const filetype = files[0].type;
+            if (files.length <= 0) {
+                return false;
+            }
+
+            this.modelLoading = true;
+            this.uploadfiles(files);
+
+            this.viewPointData();
+            this.modelLoading = false;
+            this.snackbar = true;
+        },
+        async uploadfiles(files) {
+            const formData = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                formData.append("files", files[i]);
+            }
+
+            // let headersList = {
+            //     "Cache-Control": "no-cache",
+            //     "Content-Type": "multipart/form-data",
+            //     Authorization: this.authToken,
+            // };
+
+            // let reqOptions = {
+            //     url: this.url + "uploadfiles",
+            //     params: { model_name: this.modelData.model.modelNameSelected },
+            //     data: formData,
+            //     method: "POST",
+            //     headers: headersList,
+            // };
+
+            // this.message = "Files have been uploaded";
+            // await axios.request(reqOptions).catch((error) => {
+            //     console.log(response);
+            //     this.message = error;
+            //     return;
+            // });
+
+            api.post('/uploadfiles', formData, 
+            {model_name: this.modelData.model.modelNameSelected})
+            .then((response) => {
+                this.$q.notify({
+                    color: 'positive',
+                    position: 'top',
+                    message: response.data,
+                    icon: 'report_problem'
+                })
+            })
+            .catch(() => {
+                this.$q.notify({
+                    color: 'negative',
+                    position: 'top',
+                    message: 'Loading failed',
+                    icon: 'report_problem'
+                })
+            })
+        },
+        loadYamlModel(fr, files) {
+            this.modelData.model.ownMesh = false;
+            this.modelData.model.ownModel = true;
+            this.modelData.model.translated = false;
+
+            this.modelData.model.modelNameSelected = files[0].name.split(".")[0];
+
+            fr.onload = (e) => {
+                const yaml = e.target.result;
+                this.loadYamlString(yaml);
+            };
+            fr.readAsText(files.item(0));
+        },
+        loadXmlModel(fr, files) {
+            this.modelData.model.ownMesh = false;
+            this.modelData.model.ownModel = true;
+            this.modelData.model.translated = false;
+
+            this.modelData.model.modelNameSelected = files[0].name.split(".")[0];
+
+            fr.onload = (e) => {
+                const xml = e.target.result;
+                var yaml = this.translateXMLtoYAML(xml);
+                this.loadYamlString(yaml);
+            };
+            fr.readAsText(files.item(0));
+        },
+        async loadFeModel(files) {
+            this.modelData.model.ownMesh = true;
+            this.modelData.model.ownModel = true;
+            this.modelData.model.translated = true;
+
+            this.modelLoading = true;
+            this.textLoading = true;
+
+            if (files.length <= 0) {
+                return false;
+            }
+
+            if (await this.checkFeSize(files)) {
+                this.modelData.model.modelNameSelected = files[0].name.split(".")[0];
+                const filetype = files[0].name.split(".")[1];
+
+                await this.translateModel(files, filetype, true);
+            } else {
+                this.modelLoading = false;
+                this.textLoading = false;
+            }
+        },
         async loadGcodeModel() {
             this.dialogGcode = false;
-            this.model.ownMesh = false;
-            this.model.ownModel = true;
-            // this.model.translated = true;
+            this.modelData.model.ownMesh = false;
+            this.modelData.model.ownModel = true;
+            // this.modelData.model.translated = true;
 
             this.modelLoading = true;
             // this.textLoading = true;
@@ -219,10 +335,116 @@ export default defineComponent({
                 return false;
             }
 
-            this.model.modelNameSelected = this.gcodeFile[0].name.split(".")[0];
+            this.modelData.model.modelNameSelected = this.gcodeFile[0].name.split(".")[0];
             const filetype = this.gcodeFile[0].name.split(".")[1];
 
             await this.translatGcode(this.gcodeFile, true);
+        },
+        saveData() {
+            var fileURL = window.URL.createObjectURL(
+                new Blob([JSON.stringify(this.modelData)], { type: "application/json" })
+            );
+            var fileLink = document.createElement("a");
+            fileLink.href = fileURL;
+            fileLink.setAttribute("download", this.modelData.model.modelNameSelected + ".json");
+            document.body.appendChild(fileLink);
+            fileLink.click();
+        },
+        saveModel() {
+
+            api.get('/getModel', 
+            {model_name: this.modelData.model.modelNameSelected})
+            .then((response) => {
+                var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                var fileLink = document.createElement("a");
+                fileLink.href = fileURL;
+                fileLink.setAttribute("download", "file.zip");
+                document.body.appendChild(fileLink);
+                fileLink.click();
+                this.$q.notify({
+                    color: 'positive',
+                    position: 'top',
+                    message: response.data,
+                    icon: 'report_problem'
+                })
+            })
+            .catch(() => {
+                this.$q.notify({
+                    color: 'negative',
+                    position: 'top',
+                    message: 'Loading failed',
+                    icon: 'report_problem'
+                })
+            })
+        },
+        async generateModel () {
+
+            api.post('/generateModel', this.modelData, 
+            {model_name: this.modelData.model.modelNameSelected})
+            .then((response) => {
+                this.$q.notify({
+                    color: 'positive',
+                    position: 'top',
+                    message: response.data,
+                    icon: 'report_problem'
+                })
+            })
+            .catch(() => {
+                this.$q.notify({
+                    color: 'negative',
+                    position: 'top',
+                    message: 'Loading failed',
+                    icon: 'report_problem'
+                })
+            })
+        },
+        showTutorial() {
+            var color = "gray";
+            if (this.$cookie.get("darkMode") == "true") {
+                color = "gray";
+            } else {
+                color = "white";
+            }
+            console.log(this.$cookie.get("darkMode"));
+            console.log(color);
+
+            const driver = new Driver({
+                animate: true, // Animate while changing highlighted element
+                opacity: 0.5,
+                stageBackground: color,
+            });
+
+            // Define the steps for introduction
+            driver.defineSteps([
+                {
+                element: "#model-configuration",
+                popover: {
+                    className: "first-step-popover-class",
+                    title: "Title on Popover",
+                    description: "Body of the popover",
+                    position: "right",
+                },
+                },
+                {
+                element: "#model-output",
+                popover: {
+                    title: "Title on Popover",
+                    description: "Body of the popover",
+                    position: "left",
+                },
+                },
+                {
+                element: "#button-runModel",
+                popover: {
+                    title: "Title on Popover",
+                    description: "Body of the popover",
+                    position: "bottom",
+                },
+                },
+            ]);
+
+            // Start the introduction
+            driver.start();
         },
     },
 })

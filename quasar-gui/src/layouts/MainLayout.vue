@@ -62,13 +62,17 @@
       </q-tabs> -->
     </q-header>
 
+    <q-drawer v-model="drawerActive" side="left" bordered>
+      <GuideDrawer></GuideDrawer>
+    </q-drawer>
+
     <q-page-container>
       <router-view />
     </q-page-container>
 
     <q-footer elevated class="bg-grey-8 text-white">
       <q-toolbar>
-        <v-row justify="center" no-gutters>
+        <div class="row" justify="center" no-gutters>
           <q-btn
             href="https://www.dlr.de/fa"
             color="white"
@@ -96,15 +100,15 @@
           >
             CONTACT US
           </q-btn>
-          <v-col
-            class="lighten-2 py-0 text-center white--text"
+          <div
+            class="col lighten-2 py-0 text-center white--text"
             color="#464646"
             cols="12"
           >
             {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Jan-Timo
             Hesse | Christian Willberg | Falk Heinecke
-          </v-col>
-        </v-row>
+          </div>
+        </div>
       </q-toolbar>
     </q-footer>
 
@@ -114,13 +118,22 @@
 <script>
 import { defineComponent, ref } from 'vue';
 import { useDefaultStore } from 'stores/default-store';
+import GuideDrawer from 'components/GuideDrawer.vue'
 
 export default defineComponent({
   name: 'MainLayout',
+  data() {
+    return {
+      drawerActive: false
+    }
+  },
+  components: {
+    GuideDrawer
+  },
   setup() {
     const store = useDefaultStore();
     return {
-      store
+      store,
     }
   },
   methods: {
@@ -135,6 +148,12 @@ export default defineComponent({
   async beforeMount() {
     await this.store.initialiseStore();
     this.initializeDarkMode();
+    this.drawerActive = this.$router.currentRoute.value.path === '/guide'
+  },
+  watch: {
+    $route() {
+      this.drawerActive = this.$router.currentRoute.value.path === '/guide'
+    }
   },
 
 })
