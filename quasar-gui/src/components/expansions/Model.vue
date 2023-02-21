@@ -2,7 +2,7 @@
     <q-list bordered class="rounded-borders">
         <q-expansion-item
             expand-separator
-            icon="perm_identity"
+            icon="fas fa-cube"
             label="Model"
             caption="John Doe"
         >

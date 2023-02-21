@@ -70,41 +70,15 @@
       <router-view />
     </q-page-container>
 
-    <q-footer elevated class="bg-grey-8 text-white">
+    <q-footer elevated color="primary">
       <q-toolbar>
-        <div class="row" justify="center" no-gutters>
-          <q-btn
-            href="https://www.dlr.de/fa"
-            color="white"
-            text
-            rounded
-            class="my-0"
-          >
-            ABOUT US
-          </q-btn>
-          <q-btn
-            href="https://leichtbau.dlr.de/"
-            color="white"
-            text
-            rounded
-            class="my-0"
-          >
-            BLOG
-          </q-btn>
-          <q-btn
-            href="mailto:Jan-Timo.Hesse@dlr.de"
-            color="white"
-            text
-            rounded
-            class="my-0"
-          >
-            CONTACT US
-          </q-btn>
-          <div
-            class="col lighten-2 py-0 text-center white--text"
-            color="#464646"
-            cols="12"
-          >
+        <div style="text-align: center; width:100%">
+          <div>
+            <q-btn flat text-color="white" label="ABOUT US" href="https://www.dlr.de/fa"></q-btn>
+            <q-btn flat text-color="white" label="BLOG" href="https://leichtbau.dlr.de/"></q-btn>
+            <q-btn flat text-color="white" label="CONTACT US" href="mailto:Jan-Timo.Hesse@dlr.de"></q-btn>
+          </div>
+          <div>
             {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Jan-Timo
             Hesse | Christian Willberg | Falk Heinecke
           </div>

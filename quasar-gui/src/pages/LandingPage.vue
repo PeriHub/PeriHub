@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex-center">
-    <div class="text-h1 q-pb-xl">Welcome to PeriHub!</div>
-    <div class="text-subtitle2" align="center" justify="center" style="max-width: 870px">
+    <div class="row justify-center text-h1 q-pb-xl">Welcome to PeriHub!</div>
+    <div class="row justify-center text-subtitle2" style="max-width: 870px">
       PeriHub is a platform that provides a numerical implementation of
       the peridynamic theory. It is an extension of the open source
       Peridigm software. Peridynamics is a non-local theory that overcomes

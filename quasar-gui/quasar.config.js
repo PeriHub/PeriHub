@@ -49,6 +49,12 @@ module.exports = configure(function (ctx) {
       // transpile: false,
       // publicPath: '/',
 
+      env: {
+        API: ctx.dev
+          ? "http://localhost:6020"
+          : "https://perihub-api.fa-services.intra.dlr.de",
+      },
+
       // Add dependencies for transpiling with Babel (Array of string/regex)
       // (from node_modules, which are by default not transpiled).
       // Applies only if "transpile" is set to true.

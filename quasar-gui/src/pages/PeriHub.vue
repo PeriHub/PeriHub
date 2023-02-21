@@ -1,6 +1,6 @@
 <template>
     <q-page class="flex-center">
-        <q-splitter v-model="verticalSplitterModel" style="height:500px">
+        <q-splitter v-model="verticalSplitterModel" style="height:100%">
             <template v-slot:before>
                 <div class="q-pa-md">
                     <ModelActions/>
