@@ -54,7 +54,7 @@
                 </q-card-section>
                 <q-card-actions align="right">
                     <q-btn flat label="Ok" color="primary" v-close-popup @click="loadGcodeModel"></q-btn>
-                    <q-btn flat label="Cancel" color="primary" v-close-popup @click="dialogGcode = false"></q-btn>
+                    <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -89,7 +89,7 @@
             </q-tooltip>
         </q-btn>
         
-        <q-btn flat icon="fas fa-download" @click="saveModel" :disabled="!status.created">
+        <q-btn flat icon="fas fa-download" @click="saveModel" :disabled="!store.status.created">
             <q-tooltip>
                 Download Modelfiles
             </q-tooltip>
@@ -121,6 +121,7 @@
     import { computed, defineComponent } from 'vue'
     import { useDefaultStore } from 'stores/default-store';
     import { useModelStore } from 'stores/model-store';
+    import { useViewStore } from 'stores/view-store';
     import { inject } from 'vue'
     import { api } from 'boot/axios'
     import { useQuasar } from 'quasar'
@@ -129,15 +130,15 @@
 export default defineComponent({
     name: "ModelActions",
         setup() {
-            const $q = useQuasar()
             const store = useDefaultStore();
-            const status = computed(() => store.status)
             const modelStore = useModelStore();
+            const viewStore = useViewStore();
             const modelData = computed(() => modelStore.modelData)
             const bus = inject('bus')
 
             return {
-                status,
+                store,
+                viewStore,
                 modelData,
                 rules,
                 bus,
@@ -223,7 +224,7 @@ export default defineComponent({
             this.modelLoading = true;
             this.uploadfiles(files);
 
-            this.viewPointData();
+            this.bus.emit('viewPointData');
             this.modelLoading = false;
             this.snackbar = true;
         },
@@ -260,8 +261,8 @@ export default defineComponent({
                 this.$q.notify({
                     color: 'positive',
                     position: 'top',
-                    message: response.data,
-                    icon: 'report_problem'
+                    message: response.data.message,
+                    icon: 'info'
                 })
             })
             .catch(() => {
@@ -364,8 +365,8 @@ export default defineComponent({
                 this.$q.notify({
                     color: 'positive',
                     position: 'top',
-                    message: response.data,
-                    icon: 'report_problem'
+                    message: response.data.message,
+                    icon: 'info'
                 })
             })
             .catch(() => {
@@ -379,24 +380,37 @@ export default defineComponent({
         },
         async generateModel () {
 
+            if (this.modelData.model.ownModel == false) {
+                this.viewStore.modelLoading = true;
+            }
+            this.viewStore.textLoading = true;
+
             api.post('/generateModel', this.modelData, 
             {model_name: this.modelData.model.modelNameSelected})
             .then((response) => {
                 this.$q.notify({
                     color: 'positive',
                     position: 'top',
-                    message: response.data,
-                    icon: 'report_problem'
+                    message: response.data.message,
+                    icon: 'info'
                 })
+                this.bus.emit("viewInputFile",false)
+                if (this.modelData.model.ownModel == false) {
+                    this.bus.emit('viewPointData');
+                }
             })
-            .catch(() => {
+            .catch((error) => {
                 this.$q.notify({
                     color: 'negative',
                     position: 'top',
-                    message: 'Loading failed',
+                    message: error,
                     icon: 'report_problem'
                 })
             })
+
+            this.viewStore.modelLoading = false;
+            this.viewStore.textLoading = false;
+            this.bus.emit("getStatus")
         },
         showTutorial() {
             var color = "gray";

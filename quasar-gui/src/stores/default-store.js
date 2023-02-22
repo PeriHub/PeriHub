@@ -12,15 +12,11 @@ export const useDefaultStore = defineStore("default", {
   }),
   actions: {
     toggleDarkMode() {
-      localStorage.setItem("darkMode", !this.darkMode);
       this.darkMode = !this.darkMode;
     },
     initialiseStore() {
       if (process.env.DEV) {
         console.log(`I'm on a development build`);
-      }
-      if (localStorage.getItem("darkMode") == "true") {
-        this.darkMode = true;
       }
     },
   },

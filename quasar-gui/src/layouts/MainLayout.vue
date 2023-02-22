@@ -1,11 +1,11 @@
 <template>
   <q-layout view="hHh lpR fFf">
 
-    <q-header elevated class="bg-primary text-white" style="height: 60px;">
+    <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <router-link style="text-decoration: none; color: inherit" to="/">
           <div class="row align-center">
-            <img src="~assets/DLR_Signet_weiss.png" style="height: 50px;">
+            <img src="~assets/DLR_Signet_weiss.png" style="height: 50px; margin: 5px">
 
             <q-toolbar-title>
               PeriHub
@@ -24,6 +24,15 @@
               <h1>PeriHub</h1>
             </div>
           </router-link> -->
+
+        <q-space></q-space>
+
+        <q-tabs align="center">
+          <q-route-tab to="perihub" label="Perihub" />
+          <q-route-tab to="guide" label="Guide" />
+          <q-route-tab to="tools" label="Tools" />
+          <q-route-tab to="publications" label="Publications" />
+        </q-tabs>
 
         <q-space></q-space>
 
@@ -55,11 +64,6 @@
 
       </q-toolbar>
 
-      <!-- <q-tabs align="left">
-        <q-route-tab to="/page1" label="Page One" />
-        <q-route-tab to="/page2" label="Page Two" />
-        <q-route-tab to="/page3" label="Page Three" />
-      </q-tabs> -->
     </q-header>
 
     <q-drawer v-model="drawerActive" side="left" bordered>
@@ -112,7 +116,7 @@ export default defineComponent({
   },
   methods: {
     toggleDarkMode() {
-      // this.store.toggleDarkMode();
+      localStorage.setItem("darkMode", this.store.darkMode);
       this.$q.dark.toggle();
     },
     initializeDarkMode() {
@@ -121,8 +125,10 @@ export default defineComponent({
   },
   async beforeMount() {
     await this.store.initialiseStore();
-    this.initializeDarkMode();
-    this.drawerActive = this.$router.currentRoute.value.path === '/guide'
+    if (localStorage.getItem("darkMode") == "true") {
+      this.store.darkMode = true;
+      this.$q.dark.toggle();
+    }
   },
   watch: {
     $route() {

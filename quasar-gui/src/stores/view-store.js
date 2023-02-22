@@ -2,8 +2,10 @@ import { defineStore } from "pinia";
 
 export const useViewStore = defineStore("view", {
   state: () => ({
-    viewId: 1,
+    viewId: 0,
     modelLoading: false,
+    textLoading: false,
+    textOutput: "",
     bondFilterPoints: [
       {
         bondFilterPointsId: 1,
