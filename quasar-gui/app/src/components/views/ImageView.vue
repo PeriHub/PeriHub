@@ -3,7 +3,7 @@
         alt="DLR Logo"
         class="shrink mr-2"
         contain
-        :src="modelImg"
+        :src="viewStore.modelImg"
         transition="scale-transition"
         width="100%"
         height="100%"
@@ -12,14 +12,18 @@
 
 <script>
     import { defineComponent } from 'vue'
-    import DogboneImage from "assets/models/Dogbone/Dogbone.jpg";
+    import { useViewStore } from 'stores/view-store';
     export default defineComponent({
         name: 'ImageView',
-        components:{
+        setup() {
+            const viewStore = useViewStore();
+
+            return {
+                viewStore
+            }
         },
         data() {
             return {
-                modelImg: DogboneImage,
             };
         },
         methods: {},

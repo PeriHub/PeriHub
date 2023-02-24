@@ -40,3 +40,28 @@ export const deepCopy = function (obj) {
   }
   return rv;
 };
+
+export function parseFromJson(obj, input) {
+  for (var i = 0; i < Object.keys(input).length; i++) {
+    var paramName = Object.keys(input)[i];
+    // console.log(this[paramName]);
+    // console.log(input[paramName]);
+
+    // this[paramName] = [...input[paramName]];
+    if (Array.isArray(input[paramName])) {
+      if (obj[paramName].length > input[paramName].length) {
+        for (var j = obj[paramName].length; j >= input[paramName].length; j--) {
+          obj[paramName].splice(j, 1);
+        }
+      }
+      if (obj[paramName].length < input[paramName].length) {
+        for (var j = obj[paramName].length; j < input[paramName].length; j++) {
+          obj[paramName].push({});
+        }
+      }
+      obj[paramName] = [...input[paramName]];
+    } else {
+      obj[paramName] = { ...input[paramName] };
+    }
+  }
+}

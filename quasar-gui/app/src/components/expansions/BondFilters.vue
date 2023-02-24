@@ -243,14 +243,14 @@
                 newItem.bondFilterId = len + 1
                 newItem.name = "bf_" + (len + 1)
                 this.bondFilters.push(newItem);
-                this.bondFilterPoints.push({
+                this.viewStore.bondFilterPoints.push({
                     bondFilterPointsId: len + 1,
                     bondFilterPointString: [],
                 });
             },
             removeBondFilter(index) {
                 this.bondFilters.splice(index, 1);
-                this.bondFilterPoints.splice(index, 1);
+                this.viewStore.bondFilterPoints.splice(index, 1);
             },
             
             cross(a1, a2, a3, b1, b2, b3) {
@@ -269,7 +269,7 @@
             showHideBondFilters() {
                 // this.bondFilterPolyString = []
                 // let bondFilterPolyString = []
-                this.bondFilterPoints = [];
+                this.viewStore.bondFilterPoints = [];
 
                 for (var i = 0; i < this.bondFilters.length; i++) {
                     let bondFilterPointString = [];
@@ -372,13 +372,13 @@
                         // bondFilterPolyString.push(4, 0, 1, 3, 2)
                     }
                     }
-                    if (this.bondFilterPoints.length < i + 1) {
-                    this.bondFilterPoints.push({
+                    if (this.viewStore.bondFilterPoints.length < i + 1) {
+                    this.viewStore.bondFilterPoints.push({
                         bondFilterPointsId: i + 1,
                         bondFilterPointString: [],
                     });
                     }
-                    this.bondFilterPoints[i].bondFilterPointString = bondFilterPointString;
+                    this.viewStore.bondFilterPoints[i].bondFilterPointString = bondFilterPointString;
 
                     // this.bondFilterPoints[i].bondFilterPolyString = bondFilterPolyString
                 }

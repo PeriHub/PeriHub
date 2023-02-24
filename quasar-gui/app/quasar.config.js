@@ -23,7 +23,7 @@ module.exports = configure(function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
-    boot: ["i18n", "axios", "bus"],
+    boot: ["i18n", "axios", "bus", "vtk"],
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-css
     css: ["app.scss"],
@@ -54,7 +54,7 @@ module.exports = configure(function (ctx) {
           ? "http://localhost:6020"
           : "https://perihub-api.fa-services.intra.dlr.de",
       },
-
+      vueCompiler: true,
       // Add dependencies for transpiling with Babel (Array of string/regex)
       // (from node_modules, which are by default not transpiled).
       // Applies only if "transpile" is set to true.

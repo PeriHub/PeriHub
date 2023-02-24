@@ -55,7 +55,7 @@
                 <q-card-section class="q-pt-none">
                     <q-select 
                         class="my-input"
-                        :options="outputs"
+                        :options="modelData.outputs"
                         item-text="name"
                         v-model="showResultsOutputName"
                         label="Output Name"
@@ -70,7 +70,7 @@
             </q-card>
         </q-dialog>
 
-        <q-btn v-if="viewId==3" flat icon="fas fa-external-link-alt" @click="openResults">
+        <q-btn v-if="viewStore.viewId==3" flat icon="fas fa-external-link-alt" @click="openResults">
             <q-tooltip>
                 Open Results
             </q-tooltip>
@@ -85,7 +85,7 @@
                 Show Fracture Analysis
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="viewId==0" flat icon="fas fa-download" @click="downloadModelImage()" :disabled="!store.status.results">
+        <q-btn v-if="viewStore.viewId==0" flat icon="fas fa-download" @click="downloadModelImage()" :disabled="!store.status.results">
             <q-tooltip>
                 Download Image
             </q-tooltip>
@@ -107,7 +107,7 @@
                 <q-card-section class="q-pt-none">
                     <q-select 
                         class="my-input"
-                        :options="outputs"
+                        :options="modelData.outputs"
                         item-text="name"
                         v-model="getPlotOutput"
                         label="Output Name"
@@ -192,7 +192,7 @@
                 <q-card-section class="q-pt-none">
                     <q-select 
                         class="my-input"
-                        :options="outputs"
+                        :options="modelData.outputs"
                         item-text="name"
                         v-model="getImageOutput"
                         label="Output Name"
@@ -358,14 +358,13 @@ export default defineComponent({
             const $q = useQuasar()
             const store = useDefaultStore();
             const viewStore = useViewStore();
-            const viewId = computed(() => viewStore.viewId)
             const modelStore = useModelStore();
             const modelData = computed(() => modelStore.modelData)
             const bus = inject('bus')
 
             return {
                 store,
-                viewId,
+                viewStore,
                 modelData,
                 rules,
                 bus,
@@ -377,20 +376,54 @@ export default defineComponent({
             dialog: false,
             dialogShowResults: false,
             dialogGetImage: false,
+
             dialogGetPlot: false,
+            getPlotVariables: [],
+            getPlotOutput: "Output1",
+            getPlotVariableX: "Time",
+            getPlotAxisX: "X",
+            getPlotAbsoluteX: true,
+            getPlotVariableY: "External_Displacement",
+            getPlotAxisY: "X",
+            getPlotAbsoluteY: true,
+
             dialogDeleteData: false,
             dialogDeleteModel: false,
             dialogDeleteCookies: false,
             dialogDeleteUserData: false,
+
             dialogGetImagePython: false,
+            getImageOutput: "Output1",
+            getImageVariable: [
+                "Displacement",
+                "Force",
+                "Damage",
+                "Temperature",
+                "Partial_StressX",
+                "Partial_StressY",
+                "Partial_StressZ",
+                "Number_Of_Neighbors",
+            ],
+            getImageVariableSelected: "Displacement",
+            getImageAxis: ["Magnitude", "X", "Y", "Z"],
+            getImageAxisSelected: "Magnitude",
+            getImageDisplFactor: 20,
+            getImageMarkerSize: 16,
+            getImageTriangulate: true,
+            getImageStep: -1,
+
             port: "",
         };
     },
     methods: {
         async runModel() {
 
-            api.put('/runModel', this.modelData, 
-            {model_name: this.modelData.model.modelNameSelected,FileType: this.solver.filetype})
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                file_type: this.modelData.solver.filetype,
+            }
+
+            api.put('/runModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({
                     color: 'positive',
@@ -425,8 +458,11 @@ export default defineComponent({
         },
         async cancelJob() {
 
-            api.put('/cancelJob', 
-            {model_name: this.modelData.model.modelNameSelected,Cluster: this.modelData.job.cluster,})
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                cluster: this.modelData.job.cluster
+            }
+            api.put('/cancelJob', {params})
             .then((response) => {
                 this.$q.notify({
                     color: 'positive',
@@ -449,15 +485,19 @@ export default defineComponent({
         async saveResults(allData) {
             this.resultsLoading = true;
 
-            api.get('/getResults', 
-            {model_name: this.modelData.model.modelNameSelected,Cluster: this.modelData.job.cluster, allData: allData})
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                cluster: this.modelData.job.cluster,
+                allData: allData,
+            }
+            api.get('/getResults', {params})
             .then((response) => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement("a");
                 fileLink.href = fileURL;
                 fileLink.setAttribute(
                     "download",
-                    this.model.modelNameSelected + ".zip"
+                    this.modelData.model.modelNameSelected + ".zip"
                 );
                 document.body.appendChild(fileLink);
                 fileLink.click();
@@ -480,8 +520,8 @@ export default defineComponent({
             window.open(this.resultPort, "_blank");
         },
         showResultsDialog() {
-            if(outputs.length==1){
-                this.showResults(outputs[0].name)
+            if(modelData.outputs.length==1){
+                this.showResults(modelData.outputs[0].name)
             }else{
                 dialogShowResults = true
             }
@@ -495,39 +535,39 @@ export default defineComponent({
                 Authorization: this.authToken,
             };
 
-            var index = this.outputs.findIndex((o) => o.name == outputName);
+            var index = this.modelData.outputs.findIndex((o) => o.name == outputName);
 
             let output_list = [];
 
-            if (this.outputs[index].Displacement) {
+            if (this.modelData.outputs[index].Displacement) {
                 output_list.push("Displacement");
             }
-            if (this.outputs[index].Force) {
+            if (this.modelData.outputs[index].Force) {
                 output_list.push("Force");
             }
-            if (this.outputs[index].Velocity) {
+            if (this.modelData.outputs[index].Velocity) {
                 output_list.push("Velocity");
             }
-            if (this.outputs[index].Damage) {
+            if (this.modelData.outputs[index].Damage) {
                 output_list.push("Damage");
             }
-            if (this.outputs[index].Partial_Stress) {
+            if (this.modelData.outputs[index].Partial_Stress) {
                 output_list.push("Partial_StressX");
                 output_list.push("Partial_StressY");
                 output_list.push("Partial_StressZ");
             }
-            if (this.outputs[index].Number_Of_Neighbors) {
+            if (this.modelData.outputs[index].Number_Of_Neighbors) {
                 output_list.push("Number_Of_Neighbors");
             }
-            if (this.outputs[index].Temperature) {
+            if (this.modelData.outputs[index].Temperature) {
                 output_list.push("Temperature");
             }
 
             api.post('/launchTrameInstance', {
                 model_name: this.model.modelNameSelected,
-                output_name: this.outputs[index].name,
+                output_name: this.modelData.outputs[index].name,
                 output_list: output_list.toString(),
-                dx_value: this.dx_value,
+                dx_value: this.viewStore.dx_value,
                 duration: 600})
             .then((response) => {
                 this.$q.notify({
@@ -561,7 +601,7 @@ export default defineComponent({
             await sleep(17000);
             this.modelLoading = false;
 
-            this.viewId = 3;
+            this.viewStore.viewId = 3;
             document.querySelectorAll("iframe").forEach(function (e) {
                 e.src += "";
             });
@@ -584,6 +624,41 @@ export default defineComponent({
             axios.request(reqOptions);
             console.log(reqOptions);
             this.port = "";
+        },
+        async getImagePython() {
+
+            this.viewStore.modelLoading = true;
+
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                cluster: this.modelData.job.cluster,
+                output: this.getImageOutput,
+                variable: this.getImageVariableSelected,
+                axis: this.getImageAxisSelected,
+                displ_factor: this.getImageDisplFactor,
+                marker_size: this.getImageMarkerSize,
+                length: this.modelData.model.length,
+                height: this.modelData.model.height,
+                triangulate: this.getImageTriangulate,
+                dx_value: this.viewStore.dx_value,
+                step: this.getImageStep
+            }
+
+            api.get('/getImagePython', {params, responseType: "blob"})
+            .then((response) => {
+                this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
+            })
+            .catch((error) => {
+                this.$q.notify({
+                    color: 'negative',
+                    position: 'top',
+                    message: error.response.data.detail,
+                    icon: 'report_problem'
+                })
+            })
+
+            this.viewStore.viewId = 0;
+            this.viewStore.modelLoading = false;
         },
         async getG1c() {
             let headersList = {
@@ -619,7 +694,7 @@ export default defineComponent({
                 this.modelLoading = false;
                 return;
                 });
-            this.viewId = 0;
+            this.viewStore.viewId = 0;
             this.modelLoading = false;
         },
         async getG2c() {

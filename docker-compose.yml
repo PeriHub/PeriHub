@@ -31,6 +31,16 @@ services:
     networks:
       - backend
 
+  periHubGui2:
+    build:
+      context: quasar-gui/.
+    container_name: perihub_periHubGui2
+    image: peri_hub_gui2_image
+    ports:
+      - 6010:80
+    networks:
+      - backend
+
   peridigm:
     # build:
     #   context: peridigm/.

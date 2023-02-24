@@ -254,9 +254,10 @@ export default defineComponent({
             //     this.message = error;
             //     return;
             // });
+            
+            let params={model_name: this.modelData.model.modelNameSelected}
 
-            api.post('/uploadfiles', formData, 
-            {model_name: this.modelData.model.modelNameSelected})
+            api.post('/uploadfiles', formData, {params})
             .then((response) => {
                 this.$q.notify({
                     color: 'positive',
@@ -353,8 +354,8 @@ export default defineComponent({
         },
         saveModel() {
 
-            api.get('/getModel', 
-            {model_name: this.modelData.model.modelNameSelected})
+            let params = {model_name: this.modelData.model.modelNameSelected}
+            api.get('/getModel', {params})
             .then((response) => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement("a");
@@ -384,9 +385,8 @@ export default defineComponent({
                 this.viewStore.modelLoading = true;
             }
             this.viewStore.textLoading = true;
-
-            api.post('/generateModel', this.modelData, 
-            {model_name: this.modelData.model.modelNameSelected})
+            let params={model_name: this.modelData.model.modelNameSelected}
+            api.post('/generateModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({
                     color: 'positive',

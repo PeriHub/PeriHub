@@ -76,12 +76,13 @@ export default defineComponent({
     methods: {
         async viewInputFile(loadFile) {
 
-            api.get('/viewInputFile', 
-            {
+            let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 own_mesh: this.modelData.model.ownMesh,
-                file_type: this.modelData.solver.filetype,
-                },)
+                file_type: this.modelData.solver.filetype
+            }
+
+            api.get('/viewInputFile', {params})
             .then((response) => {
                 this.$q.notify({
                     color: 'positive',
@@ -104,12 +105,13 @@ export default defineComponent({
             })
         },
         writeInputFile() {
-            api.put('/writeInputFile', 
-            {
+            let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 input_string: this.viewStore.textOutput,
                 file_type: this.modelData.solver.filetype,
-                },)
+            }
+
+            api.put('/writeInputFile', {params})
             .then((response) => {
                 this.$q.notify({
                     color: 'positive',
@@ -141,8 +143,11 @@ export default defineComponent({
 
             this.viewStore.textLoading = true;
 
-            api.get('/getLogFile', 
-            {model_name: this.modelData.model.modelNameSelected,cluster: this.modelData.job.cluster})
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                cluster: this.modelData.job.cluster
+            }
+            api.get('/getLogFile', {params})
             .then((response) => {
                 this.$q.notify({
                     color: 'positive',
@@ -150,6 +155,7 @@ export default defineComponent({
                     message: response.data.message,
                     icon: 'info'
                 })
+                this.viewStore.textOutput = response.data.data;
             })
             .catch( (error)=> {
                 this.$q.notify({
@@ -193,5 +199,8 @@ export default defineComponent({
             }
         },
     },
+    mounted(){
+        this.getStatus();
+    }
 })
 </script>

@@ -274,6 +274,7 @@
 <script>
     import { computed, defineComponent } from 'vue'
     import { useModelStore } from 'stores/model-store';
+    import { parseFromJson } from '../../utils/functions.js'
     import { inject } from 'vue'
     import rules from "assets/rules.js";
 
@@ -333,6 +334,7 @@
             },
             async resetData() {
                 console.log("resetData")
+                console.log(this.model.modelNameSelected)
                 const jsonFile = {};
                 // console.log(this.model.modelNameSelected);
                 switch (this.model.modelNameSelected) {
@@ -372,9 +374,10 @@
                     default:
                     return;
                 }
-                console.log(this.model)
-                console.log(jsonFile["model"])
-                this.store.model={...jsonFile["model"]}
+                console.log(this.store.modelData)
+                console.log(jsonFile)
+                parseFromJson(this.store.modelData,jsonFile)
+                console.log(this.store.modelData)
             },
         }
     })
