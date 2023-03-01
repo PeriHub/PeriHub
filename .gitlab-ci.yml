@@ -100,19 +100,19 @@ build_api_job:
     - docker build --build-arg SMETANA=True --build-arg GITLAB_TOKEN=$GITLAB_TOKEN -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
-build_gui_job:
-  stage: Build
-  extends: [.build_before_script_template]
-  only:
-    refs:
-      - main
-    changes:
-      - gui/**/*
-  script:
-    - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
-    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
+# build_gui_job:
+#   stage: Build
+#   extends: [.build_before_script_template]
+#   only:
+#     refs:
+#       - main
+#     changes:
+#       - gui/**/*
+#   script:
+#     - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
+#     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
-build_gui2_job:
+build_gui_job:
   stage: Build
   extends: [.build_before_script_template]
   only:
@@ -121,8 +121,8 @@ build_gui2_job:
     changes:
       - quasar-gui/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui2_image quasar-gui/.
-    - docker push ${CI_REGISTRY_PATH}peri_hub_gui2_image
+    - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image quasar-gui/.
+    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_smetana_job:
   stage: Build

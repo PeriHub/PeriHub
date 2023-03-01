@@ -1,7 +1,6 @@
 <template>
 <q-scroll-area class="fit">
     <q-list>
-
       <template v-for="(menuItem, index) in items" :key="index">
         <q-item clickable :active="menuItem.label === 'Outbox'" v-ripple link :to="menuItem.route">
           <q-item-section avatar>
