@@ -10,39 +10,39 @@ export default {
     name: "GuidePage",
     data() {
         return {
-            markdown: "# hellodrtghr",
-            url: "https://perihub-api.fa-services.intra.dlr.de/",
+            markdown: "",
         };
     },
     computed: {
         output() {
-        return marked(this.markdown)
+            return marked(this.markdown)
         }
     },
     methods: {
-        async getDocs() {
+        async getDocs(route) {
 
-            api.get('/getDocs', {name: "Buttons", model: false})
+            let params = {
+                name: route
+            }
+            api.get('/getDocs', {params})
             .then((response) => {
                 this.markdown = response.data
             })
-            .catch(() => {
+            .catch((error) => {
                 this.$q.notify({
-                    color: 'negative',
-                    position: 'top',
-                    message: 'Loading failed',
-                    icon: 'report_problem'
+                    type: 'negative',
+                    message: error.response.data.detail
                 })
             })
         }
 
     },
     beforeMount() {
-        // if (process.env.VUE_APP_DEV != undefined) {
-        // this.url = "http://localhost:6020/";
-        // // console.log("changed URL: " + process.env.VUE_APP_DEV)
-        // }
-        this.getDocs();
+        this.getDocs(this.$route.params.id);
+    },
+    beforeRouteUpdate (to, from, next) {
+        this.getDocs(to.params.id);
+        next();
     },
 };
 </script>
@@ -50,9 +50,12 @@ export default {
 <style>
 .output {
     overflow: auto;
-    width: 50%;
+    width: 100%;
     height: 100%;
     box-sizing: border-box;
     padding: 0 20px;
+  }
+img {
+    width: 100%;
   }
 </style>

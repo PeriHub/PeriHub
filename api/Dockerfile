@@ -30,6 +30,7 @@ WORKDIR /app/
 EXPOSE 80
 
 COPY ./app/guides /app/guides
+COPY ./app/assets /app/assets
 COPY ./app/models /app/models
 COPY ./app/Publications /app/Publications
 COPY ./app/support /app/support

@@ -1,11 +1,5 @@
 <template>
-    <q-list bordered class="rounded-borders">
-        <q-expansion-item
-            expand-separator
-            icon="fas fa-calculator"
-            label="Solver"
-            caption="John Doe"
-        >
+    <div>
             <div class="row my-row">
                 <q-input 
                     class="my-input"
@@ -255,8 +249,7 @@
                     dense
                 ></q-select>
             </div>
-        </q-expansion-item>
-    </q-list>
+        </div>
 </template>
   
 <script>

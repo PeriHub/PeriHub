@@ -1,11 +1,5 @@
 <template>
-    <q-list bordered class="rounded-borders">
-        <q-expansion-item
-            expand-separator
-            icon="fas fa-toolbox"
-            label="Material"
-            caption="John Doe"
-        >
+    <div>
             <q-list
                 v-for="material, index in materials"
                 :key="material.materialsId"
@@ -342,14 +336,31 @@
                     Add Material
                 </q-tooltip>
             </q-btn>
-        </q-expansion-item>
-    </q-list>
+            <input
+                type="file"
+                style="display: none"
+                ref="multiSoInput"
+                multiple
+                accept=".so"
+                @change="onMultiFilePicked"
+            />
+            <input
+                type="file"
+                style="display: none"
+                ref="propsInput"
+                multiple
+                accept=".inp"
+                @change="onPropsFilePicked"
+            />
+        </div>
 </template>
   
 <script>
     import { computed, defineComponent } from 'vue'
     import { useModelStore } from 'stores/model-store';
+    import { useViewStore } from 'stores/view-store';
     import { inject } from 'vue'
+    import { api } from 'boot/axios'
     import rules from "assets/rules.js";
     import { deepCopy } from '../../utils/functions.js'
   
@@ -357,10 +368,12 @@
         name: 'MaterialSettings',
         setup() {
             const store = useModelStore();
+            const viewStore = useViewStore();
             const materials = computed(() => store.modelData.materials)
             const bus = inject('bus')
             return {
                 store,
+                viewStore,
                 materials,
                 rules,
                 bus
@@ -474,6 +487,71 @@
             };
         },
         methods: {
+            onMultiFilePicked(event) {
+                const files = event.target.files;
+                const filetype = files[0].type;
+                if (files.length <= 0) {
+                    return false;
+                }
+
+                this.viewStore.modelLoading = true;
+                this.uploadfiles(files);
+
+                this.viewStore.modelLoading = false;
+            },
+            async uploadfiles(files) {
+                const formData = new FormData();
+                for (var i = 0; i < files.length; i++) {
+                    formData.append("files", files[i]);
+                }
+                let params={model_name: this.store.modelData.model.modelNameSelected}
+
+                api.post('/uploadfiles', formData, {params})
+                .then((response) => {
+                    this.$q.notify({
+                        message: response.data.message
+                    })
+                })
+                .catch(() => {
+                    this.$q.notify({
+                        type: 'negative',
+                        message: error.response.data.detail
+                    })
+                })
+            },
+            uploadSo() {
+                this.$refs.multiSoInput.click();
+            },
+            uploadProps(id) {
+                this.$refs.propsInput.click();
+                this.selectedMaterial = id;
+            },
+            onPropsFilePicked(event) {
+                const files = event.target.files;
+
+                const fr = new FileReader();
+                fr.onload = (e) => {
+                    const input_string = e.target.result;
+
+                    let filtered_string = input_string.match(/\*User([\D\S]*?)\*/gi);
+                    let propsArray = filtered_string[0].split(/[\n,]/gi);
+                    propsArray = propsArray.slice(0, propsArray.length - 1);
+
+                    if (propsArray[1].match(/\d+/) == propsArray.length - 2) {
+                    this.materials[0].properties = [];
+                    for (var i = 2; i < propsArray.length; i++) {
+                        this.addProp(0);
+                        this.materials[0].properties[i - 2].value = propsArray[i].trim();
+                    }
+                    } else {
+                    console.log("Length of Propsarray unexpected");
+                    }
+                };
+                fr.readAsText(files.item(0));
+
+                // console.log(input_string)
+                // let filtered_string = input_string.search(/\*User([\D\S]*?)\*/i);
+            },
             addMaterial() {
                 const len = this.materials.length;
                 let newItem = deepCopy(this.materials[len - 1])
@@ -486,9 +564,13 @@
             },
             addProp(index) {
                 const len = this.materials[index].properties.length;
-                let newItem = deepCopy(this.materials[index].properties[len - 1])
+                let newItem = {}
+                if (len !=0){
+                    newItem = deepCopy(this.materials[index].properties[len - 1])
+                }
                 newItem.materialsPropId = len + 1
                 newItem.name = "Prop_" + (len + 1)
+
                 this.materials[index].properties.push(newItem)
             },
             removeProp(index, subindex) {

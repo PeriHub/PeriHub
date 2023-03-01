@@ -1,11 +1,5 @@
 <template>
-    <q-list bordered class="rounded-borders">
-        <q-expansion-item
-            expand-separator
-            icon="fas fa-th"
-            label="Blocks"
-            caption="John Doe"
-        >
+    <div>
             <q-list
                 v-for="block in blocks"
                 :key="block.blocksId"
@@ -59,8 +53,7 @@
                     Add Block
                 </q-tooltip>
             </q-btn>
-        </q-expansion-item>
-    </q-list>
+        </div>
 </template>
   
 <script>

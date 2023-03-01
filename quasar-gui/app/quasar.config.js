@@ -23,7 +23,7 @@ module.exports = configure(function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
-    boot: ["i18n", "axios", "bus", "vtk"],
+    boot: ["i18n", "axios", "bus", "vtk", "notify-defaults", "zoom"],
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-css
     css: ["app.scss"],
@@ -38,7 +38,7 @@ module.exports = configure(function (ctx) {
       // 'line-awesome',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
-      "roboto-font", // optional, you are not bound to it
+      // "roboto-font", // optional, you are not bound to it
       "material-icons", // optional, you are not bound to it
     ],
 
@@ -152,37 +152,37 @@ module.exports = configure(function (ctx) {
       manifest: {
         name: `PeriHub`,
         short_name: `PeriHub`,
-        description: `A Quasar Project`,
+        description: `PeriHub is a platform that provides a numerical implementation of the peridynamic theory. It is an extension of the open source Peridigm software. Peridynamics is a non-local theory that overcomes discontinuity problems of the classical theory of continuum mechanics. It is an effective method to model fracture mechanics problems.`,
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",
         theme_color: "#027be3",
         icons: [
           {
-            src: "icons/icon-128x128.png",
+            src: "icons/favicon-16x16.png",
+            sizes: "16x16",
+            type: "image/png",
+          },
+          {
+            src: "icons/favicon-32x32.png",
+            sizes: "32x32",
+            type: "image/png",
+          },
+          {
+            src: "icons/favicon-96x96.png",
+            sizes: "96x96",
+            type: "image/png",
+          },
+          {
+            src: "icons/favicon-128x128.png",
             sizes: "128x128",
             type: "image/png",
           },
-          {
-            src: "icons/icon-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "icons/icon-256x256.png",
-            sizes: "256x256",
-            type: "image/png",
-          },
-          {
-            src: "icons/icon-384x384.png",
-            sizes: "384x384",
-            type: "image/png",
-          },
-          {
-            src: "icons/icon-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
+          // {
+          //   src: "icons/icon-512x512.png",
+          //   sizes: "512x512",
+          //   type: "image/png",
+          // },
         ],
       },
     },

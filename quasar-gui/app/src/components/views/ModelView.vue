@@ -1,7 +1,7 @@
 <template>
-  <div style="height:500px">
+  <div style="height:calc(100% - 60px);">
     <div class="row">
-      <div class="col-2">
+      <div style="width: 200px;">
           <q-btn v-if="!modelData.modelownModel" flat icon="fas fa-sync-alt" @click="viewPointData">
             <q-tooltip>
               Reload Model
@@ -13,8 +13,8 @@
             </q-tooltip>
           </q-btn>
       </div>
-
-      <div class="col-4">
+      <q-space></q-space>
+      <div style="min-width: 100px; margin-right:20px">
         <q-slider
           v-model="radius"
           :min="0.01"
@@ -26,9 +26,9 @@
           color="gray"
         ></q-slider>
       </div>
-      <div class="col-1">
-      </div>
-      <div class="col-4">
+      <!-- <div class="col" style="width: 100px;">
+      </div> -->
+      <div style="min-width: 100px;">
         <q-slider
           v-model="resolution"
           :min="3"
@@ -67,12 +67,12 @@
         </q-list>
       </div>
       <vtk-glyph-representation>
-        <vtk-polydata :points="filteredPointString">
+        <vtk-polydata :points="viewStore.filteredPointString">
           <vtk-cell-data>
             <vtk-data-array
               registration="setScalars"
               name="scalars"
-              :values="filteredBlockIdString"
+              :values="viewStore.filteredBlockIdString"
               :state="{ rangeMax: 12}"
             />
           </vtk-cell-data>
@@ -110,6 +110,7 @@
         },
         created() {
             this.bus.on('viewPointData', () => {
+                console.log("viewPointData")
                 this.viewPointData()
             })
             this.bus.on('filterPointData', () => {
@@ -120,54 +121,61 @@
             return {
               resolution: 6,
               radius: 0.2,
+              multiplier: 1,
               pointString: [1, 0, 0],
               blockIdString: [1],
-              filteredPointString: [1, 0, 0],
-              filteredBlockIdString: [1],
             };
         }, 
-        mounted() {
+        mounted(){
+            this.viewPointData()
         },
         methods: {
           async viewPointData() {
+            console.log("viewPointData")
             this.viewStore.modelLoading = true;
-            this.viewStore.viewId = 1;
 
             await this.getPointDataAndUpdateDx();
             console.log(this.viewStore.dx_value)
-            this.radius = this.viewStore.dx_value.toFixed(2);
-            this.updatePoints();
+            this.radius = this.viewStore.dx_value.toFixed(3);
+            await this.updatePoints();
 
             this.viewStore.modelLoading = false;
+            // console.log(this.$refs)
             this.$refs.view.resetCamera();
           },
           filterPointData() {
             var idx = 0;
-            this.filteredBlockIdString = [];
-            this.filteredPointString = [];
+            this.viewStore.filteredBlockIdString = [];
+            this.viewStore.filteredPointString = [];
             for (var i = 0; i < this.blockIdString.length; i++) {
               if (
                 this.modelData.blocks[parseInt(this.blockIdString[i] * this.modelData.blocks.length - 1)]
                   .show
               ) {
-                this.filteredBlockIdString[idx] = this.blockIdString[i];
+                this.viewStore.filteredBlockIdString[idx] = this.blockIdString[i];
                 for (var j = 0; j < 3; j++) {
-                  this.filteredPointString[idx * 3 + j] =
+                  this.viewStore.filteredPointString[idx * 3 + j] =
                     this.pointString[i * 3 + j] * this.multiplier;
                 }
                 idx += 1;
               }
             }
           },
-          updatePoints() {
+          async updatePoints() {
             this.viewStore.modelLoading = true;
-            if (this.radius <= 0.2) {
+            console.log(this.radius)
+            if (this.radius < 0.01) {
+              this.multiplier = (1 - this.radius / 0.5) * 30;
+              this.radius=0.01
+              this.filterPointData();
+            } else if (this.radius <= 0.2) {
               this.multiplier = (1 - this.radius / 0.5) * 30;
               this.filterPointData();
             } else {
               this.multiplier = 1;
               this.filterPointData();
             }
+            console.log(this.radius)
             this.viewStore.modelLoading = false;
           },
           async getPointDataAndUpdateDx() {
@@ -183,18 +191,13 @@
                   this.pointString = response.data.data[0].split(",")
                   this.blockIdString = response.data.data[1].split(",")
                   this.$q.notify({
-                      color: 'positive',
-                      position: 'top',
                       message: response.data.message,
-                      icon: 'report_problem'
                   })
               })
               .catch(() => {
                   this.$q.notify({
-                      color: 'negative',
-                      position: 'top',
+                      type: 'negative',
                       message: 'Loading failed',
-                      icon: 'report_problem'
                   })
               })
 

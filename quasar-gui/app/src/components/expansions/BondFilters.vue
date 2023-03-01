@@ -1,11 +1,5 @@
 <template>
-    <q-list bordered class="rounded-borders">
-        <q-expansion-item
-            expand-separator
-            icon="fas fa-filter"
-            label="Bond Filters"
-            caption="John Doe"
-        >
+    <div>
             <q-list
                 v-for="bondFilter, index in bondFilters"
                 :key="bondFilter.bondFiltersId"
@@ -182,8 +176,7 @@
                     Add Bond Filter
                 </q-tooltip>
             </q-btn>
-        </q-expansion-item>
-    </q-list>
+        </div>
 </template>
   
 <script>

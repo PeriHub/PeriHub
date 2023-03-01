@@ -1,11 +1,5 @@
 <template>
-    <q-list bordered class="rounded-borders">
-        <q-expansion-item
-            expand-separator
-            icon="fas fa-flask"
-            label="Job"
-            caption="John Doe"
-        >
+    <div>
             <q-select 
                 class="my-input"
                 :options="cluster"
@@ -42,8 +36,7 @@
                 outlined
                 dense
             ></q-input>
-        </q-expansion-item>
-    </q-list>
+        </div>
 </template>
   
 <script>

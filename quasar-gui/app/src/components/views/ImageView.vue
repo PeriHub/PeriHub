@@ -1,13 +1,21 @@
 <template>
-   <q-img
-        alt="DLR Logo"
-        class="shrink mr-2"
-        contain
+    <!-- <q-img
         :src="viewStore.modelImg"
-        transition="scale-transition"
+        alt="QZoom basic"
+        class="my-image"
+    /> -->
+    <vue-image-zoomer
+        :regular="viewStore.modelImg"
+        :zoom-amount="3"
+        :click-zoom="true"
+        img-class="my-image"
+        alt="Grass"/>
+   <!-- <q-img
+        scale-down
+        :src="viewStore.modelImg"
         width="100%"
         height="100%"
-    />
+    /> -->
 </template>
 
 <script>
@@ -31,4 +39,10 @@
 </script>
 
 <style>
+.my-image{
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto}
 </style>

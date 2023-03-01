@@ -1,11 +1,5 @@
 <template>
-    <q-list bordered class="rounded-borders">
-        <q-expansion-item
-            expand-separator
-            icon="fas fa-cut"
-            label="Damage Models"
-            caption="John Doe"
-        >
+    <div>
             <q-list
                 v-for="damage, index in damages"
                 :key="damage.damagesId"
@@ -220,8 +214,7 @@
                     Add Damage Model
                 </q-tooltip>
             </q-btn>
-        </q-expansion-item>
-    </q-list>
+        </div>
 </template>
   
 <script>

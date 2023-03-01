@@ -20,22 +20,6 @@
           accept="text/plain,.g"
           @change="onMultiFilePicked"
         />
-        <input
-          type="file"
-          style="display: none"
-          ref="propsInput"
-          multiple
-          accept=".inp"
-          @change="onPropsFilePicked"
-        />
-        <input
-          type="file"
-          style="display: none"
-          ref="multiSoInput"
-          multiple
-          accept=".so"
-          @change="onMultiFilePicked"
-        />
         <q-dialog v-model="dialogGcode" persistent max-width="800">
             <q-card>
                 <q-card-section>
@@ -124,7 +108,6 @@
     import { useViewStore } from 'stores/view-store';
     import { inject } from 'vue'
     import { api } from 'boot/axios'
-    import { useQuasar } from 'quasar'
     import rules from "assets/rules.js";
 
 export default defineComponent({
@@ -157,13 +140,6 @@ export default defineComponent({
         uploadMesh() {
             this.$refs.multifileInput.click();
         },
-        uploadProps(id) {
-            this.$refs.propsInput.click();
-            this.selectedMaterial = id;
-        },
-        uploadSo() {
-            this.$refs.multiSoInput.click();
-        },
         onFilePicked(event) {
             const files = event.target.files;
             const filetype = files[0].type;
@@ -188,32 +164,6 @@ export default defineComponent({
                 this.loadFeModel(files);
             }
         },
-        onPropsFilePicked(event) {
-            const files = event.target.files;
-
-            const fr = new FileReader();
-            fr.onload = (e) => {
-                const input_string = e.target.result;
-
-                let filtered_string = input_string.match(/\*User([\D\S]*?)\*/gi);
-                let propsArray = filtered_string[0].split(/[\n,]/gi);
-                propsArray = propsArray.slice(0, propsArray.length - 1);
-
-                if (propsArray[1].match(/\d+/) == propsArray.length - 2) {
-                this.materials[0].properties = [];
-                for (var i = 2; i < propsArray.length; i++) {
-                    this.addProp(0);
-                    this.materials[0].properties[i - 2].value = propsArray[i].trim();
-                }
-                } else {
-                console.log("Length of Propsarray unexpected");
-                }
-            };
-            fr.readAsText(files.item(0));
-
-            // console.log(input_string)
-            // let filtered_string = input_string.search(/\*User([\D\S]*?)\*/i);
-        },
         onMultiFilePicked(event) {
             const files = event.target.files;
             const filetype = files[0].type;
@@ -221,11 +171,11 @@ export default defineComponent({
                 return false;
             }
 
-            this.modelLoading = true;
+            this.viewStore.modelLoading = true;
             this.uploadfiles(files);
 
             this.bus.emit('viewPointData');
-            this.modelLoading = false;
+            this.viewStore.modelLoading = false;
             this.snackbar = true;
         },
         async uploadfiles(files) {
@@ -260,18 +210,13 @@ export default defineComponent({
             api.post('/uploadfiles', formData, {params})
             .then((response) => {
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
             })
             .catch(() => {
                 this.$q.notify({
-                    color: 'negative',
-                    position: 'top',
-                    message: 'Loading failed',
-                    icon: 'report_problem'
+                    type: 'negative',
+                    message: error.response.data.detail
                 })
             })
         },
@@ -307,7 +252,7 @@ export default defineComponent({
             this.modelData.model.ownModel = true;
             this.modelData.model.translated = true;
 
-            this.modelLoading = true;
+            this.viewStore.modelLoading = true;
             this.textLoading = true;
 
             if (files.length <= 0) {
@@ -320,7 +265,7 @@ export default defineComponent({
 
                 await this.translateModel(files, filetype, true);
             } else {
-                this.modelLoading = false;
+                this.viewStore.modelLoading = false;
                 this.textLoading = false;
             }
         },
@@ -330,7 +275,7 @@ export default defineComponent({
             this.modelData.model.ownModel = true;
             // this.modelData.model.translated = true;
 
-            this.modelLoading = true;
+            this.viewStore.modelLoading = true;
             // this.textLoading = true;
 
             if (this.gcodeFile.length <= 0) {
@@ -364,18 +309,13 @@ export default defineComponent({
                 document.body.appendChild(fileLink);
                 fileLink.click();
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
             })
             .catch(() => {
                 this.$q.notify({
-                    color: 'negative',
-                    position: 'top',
-                    message: 'Loading failed',
-                    icon: 'report_problem'
+                    type: 'negative',
+                    message: error.response.data.detail
                 })
             })
         },
@@ -385,32 +325,34 @@ export default defineComponent({
                 this.viewStore.modelLoading = true;
             }
             this.viewStore.textLoading = true;
+            console.log(this.viewStore.modelLoading)
             let params={model_name: this.modelData.model.modelNameSelected}
-            api.post('/generateModel', this.modelData, {params})
+            await api.post('/generateModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
                 this.bus.emit("viewInputFile",false)
                 if (this.modelData.model.ownModel == false) {
+                    this.viewStore.viewId = "model";
+                    console.log("emit")
                     this.bus.emit('viewPointData');
                 }
             })
             .catch((error) => {
                 this.$q.notify({
                     color: 'negative',
-                    position: 'top',
+                    position: 'bottom-right',
                     message: error,
                     icon: 'report_problem'
                 })
             })
 
+            console.log(this.viewStore.modelLoading)
             this.viewStore.modelLoading = false;
             this.viewStore.textLoading = false;
             this.bus.emit("getStatus")
+            console.log(this.viewStore.modelLoading)
         },
         showTutorial() {
             var color = "gray";

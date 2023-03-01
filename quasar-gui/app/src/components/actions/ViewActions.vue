@@ -38,7 +38,7 @@
                 Show Results
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="port!=''" flat icon="fas fa-times" @click="closeTrame" :loading="resultsLoading" :disabled="!store.status.results">
+        <q-btn v-if="port!=null" flat icon="fas fa-times" @click="closeTrame" :loading="resultsLoading" :disabled="!store.status.results">
             <q-tooltip>
                 Close Trame
             </q-tooltip>
@@ -90,7 +90,7 @@
                 Download Image
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true" :disabled="!store.status.results">
+        <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()" :disabled="!store.status.results || modelData.computes.length==0">
             <q-tooltip>
                 Show Plot
             </q-tooltip>
@@ -128,7 +128,7 @@
                     <q-select 
                         class="my-input"
                         :options="getImageAxis"
-                        :disabled="getPlotVariableX=='Damage'"
+                        :readonly="getPlotVariableX=='Damage'"
                         v-model="getPlotAxisX"
                         label="Axis"
                         outlined
@@ -154,7 +154,7 @@
                     <q-select 
                         class="my-input"
                         :options="getImageAxis"
-                        :disabled="getPlotVariableY=='Damage'"
+                        :readonly="getPlotVariableY=='Damage'"
                         v-model="getPlotAxisY"
                         label="Axis"
                         outlined
@@ -210,7 +210,7 @@
                     <q-select 
                         class="my-input"
                         :options="getImageAxis"
-                        :disabled="getImageVariableSelected=='Damage'"
+                        :readonly="getImageVariableSelected=='Damage'"
                         v-model="getImageAxisSelected"
                         label="Axis"
                         outlined
@@ -256,7 +256,7 @@
             </q-card>
         </q-dialog>
 
-        <q-btn flat icon="fas fa-image" @click="getG1c" :disabled="!store.status.results">
+        <!-- <q-btn flat icon="fas fa-image" @click="getG1c" :disabled="!store.status.results">
             <q-tooltip>
                 Show G1c
             </q-tooltip>
@@ -265,7 +265,7 @@
             <q-tooltip>
                 Get GIIC
             </q-tooltip>
-        </q-btn>
+        </q-btn> -->
         <q-btn flat icon="fas fa-chess-board" @click="bus.emit('viewPointData')" :disabled="!store.status.created">
             <q-tooltip>
                 Show Model
@@ -349,8 +349,11 @@
     import { useViewStore } from 'stores/view-store';
     import { inject } from 'vue'
     import { api } from 'boot/axios'
+    import axios from "axios";
     import { useQuasar } from 'quasar'
     import rules from "assets/rules.js";
+
+    const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export default defineComponent({
     name: "ViewActions",
@@ -372,10 +375,12 @@ export default defineComponent({
         },
     data() {
         return {
+            trameUrl: "https://perihub-trame-api.fa-services.intra.dlr.de/",
             resultsLoading: false,
             dialog: false,
             dialogShowResults: false,
             dialogGetImage: false,
+            showResultsOutputName: "Output1",
 
             dialogGetPlot: false,
             getPlotVariables: [],
@@ -412,7 +417,10 @@ export default defineComponent({
             getImageTriangulate: true,
             getImageStep: -1,
 
-            port: "",
+            statusInterval: null,
+            port: null,
+
+            plotRawData: null,
         };
     },
     methods: {
@@ -426,10 +434,7 @@ export default defineComponent({
             api.put('/runModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
             })
             .catch((error) => {
@@ -447,7 +452,7 @@ export default defineComponent({
                 }
                 this.$q.notify({
                     color: 'negative',
-                    position: 'top',
+                    position: 'bottom-right',
                     message: message,
                     icon: 'report_problem'
                 })
@@ -465,22 +470,33 @@ export default defineComponent({
             api.put('/cancelJob', {params})
             .then((response) => {
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
             })
             .catch(() => {
                 this.$q.notify({
                     color: 'negative',
-                    position: 'top',
+                    position: 'bottom-right',
                     message: 'Failed',
                     icon: 'report_problem'
                 })
             })
 
             this.monitorStatus(true);
+        },
+        monitorStatus(setClear) {
+            this.bus.emit("getStatus")
+            if (setClear) {
+                this.statusInterval = setInterval(() => {
+                this.bus.emit("getStatus")
+                if (this.store.status.results) {
+                    console.log("clearInterval");
+                    clearInterval(this.statusInterval);
+                }
+                }, 30000);
+            } else {
+                clearInterval(this.statusInterval);
+            }
         },
         async saveResults(allData) {
             this.resultsLoading = true;
@@ -505,7 +521,7 @@ export default defineComponent({
             .catch(() => {
                 this.$q.notify({
                     color: 'negative',
-                    position: 'top',
+                    position: 'bottom-right',
                     message: 'Failed',
                     icon: 'report_problem'
                 })
@@ -517,18 +533,17 @@ export default defineComponent({
             window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");
         },
         openResults() {
-            window.open(this.resultPort, "_blank");
+            window.open(this.viewStore.resultPort, "_blank");
         },
         showResultsDialog() {
-            if(modelData.outputs.length==1){
-                this.showResults(modelData.outputs[0].name)
+            if(this.modelData.outputs.length==1){
+                this.showResults(this.modelData.outputs[0].name)
             }else{
-                dialogShowResults = true
+                this.dialogShowResults = true
             }
         },
         async showResults(outputName) {
-            this.dialogShowResults = false;
-            this.modelLoading = true;
+            this.viewStore.modelLoading = true;
 
             let headersList = {
                 "Cache-Control": "no-cache",
@@ -563,67 +578,129 @@ export default defineComponent({
                 output_list.push("Temperature");
             }
 
-            api.post('/launchTrameInstance', {
-                model_name: this.model.modelNameSelected,
-                output_name: this.modelData.outputs[index].name,
-                output_list: output_list.toString(),
-                dx_value: this.viewStore.dx_value,
-                duration: 600})
+            await axios({
+                method: 'POST',
+                url: this.trameUrl + 'launchTrameInstance',
+                params: {
+                    model_name: this.modelData.model.modelNameSelected,
+                    output_name: this.modelData.outputs[index].name,
+                    output_list: output_list.toString(),
+                    dx_value: this.viewStore.dx_value,
+                    duration: 600
+                }
+            })
             .then((response) => {
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
                 this.port = response.data
             })
             .catch( (error)=> {
                 this.$q.notify({
-                    color: 'negative',
-                    position: 'top',
-                    message: error.response.data.detail,
-                    icon: 'report_problem'
+                    type: 'negative',
+                    message: error.response.data.detail
                 })
             })
             
-            if (process.env.VUE_APP_DEV) {
-                this.resultPort =
+            if (process.env.DEV) {
+                this.viewStore.resultPort =
                 this.trameUrl.slice(0, this.trameUrl.length - 5) + this.port;
             } else {
                 let id = parseInt(this.port) - 6040;
-                this.resultPort =
+                this.viewStore.resultPort =
                 "http://perihub-trame-gui" +
                 id.toString() +
                 ".fa-services.intra.dlr.de:443";
             }
 
             await sleep(17000);
-            this.modelLoading = false;
+            this.viewStore.modelLoading = false;
 
-            this.viewStore.viewId = 3;
+            this.viewStore.viewId = "trame";
             document.querySelectorAll("iframe").forEach(function (e) {
                 e.src += "";
             });
         },
         closeTrame() {
-            let headersList = {
-                "Cache-Control": "no-cache",
-                Authorization: this.authToken,
-            };
-
-            let reqOptions = {
-                url: this.trameUrl + "closeTrameInstance",
+            axios({
+                method: 'POST',
+                url: this.trameUrl + 'closeTrameInstance',
                 params: {
                 port: this.port,
                 cron: false,
-                },
-                method: "POST",
-                headers: headersList,
-            };
-            axios.request(reqOptions);
-            console.log(reqOptions);
+                }
+            })
+            .then((response) => {
+                this.$q.notify({
+                    message: response.data.message
+                })
+                this.port = response.data
+            })
+            .catch( (error)=> {
+                this.$q.notify({
+                    type: 'negative',
+                    message: error.response.data.detail
+                })
+            })
             this.port = "";
+        },
+        updatePlotVariables() {
+            let items = [];
+
+            for (var i = 0; i < this.modelData.computes.length; i++) {
+                items.push(this.modelData.computes[i].name);
+            }
+            items.push("Time");
+            this.getPlotVariables = items;
+        },
+        async getPlot(append) {
+            this.viewStore.modelLoading = true;
+
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                cluster: this.modelData.job.cluster,
+                output: this.getPlotOutput,
+                x_variable: this.getPlotVariableX,
+                x_axis: this.getPlotAxisX,
+                x_absolute: this.getPlotAbsoluteX,
+                y_variable: this.getPlotVariableY,
+                y_axis: this.getPlotAxisY,
+                y_absolute: this.getPlotAbsoluteY,
+            }
+            await api.get('/getPlot', {params})
+            .then((response) => {
+                this.plotRawData = response.data.data
+                this.$q.notify({
+                    message: response.data.message,
+                })
+            })
+            .catch(() => {
+                this.$q.notify({
+                    type: 'negative',
+                    message: 'Failed',
+                })
+            })
+
+            let newPlot = {
+                name: "",
+                x: [],
+                y: [],
+                type: "scatter",
+            };
+
+            newPlot.x = this.plotRawData[0];
+            newPlot.y = this.plotRawData[1];
+            newPlot.name = this.getPlotVariableY;
+
+            if (append) {
+                this.viewStore.plotData.push(newPlot);
+            } else {
+                let newPlotData = [newPlot];
+                this.viewStore.plotData = newPlotData;
+            }
+
+            this.viewStore.viewId = "plotly";
+            this.viewStore.modelLoading = false;
         },
         async getImagePython() {
 
@@ -644,20 +721,51 @@ export default defineComponent({
                 step: this.getImageStep
             }
 
-            api.get('/getImagePython', {params, responseType: "blob"})
+            await api.get('/getImagePython', {params, responseType: "blob"})
             .then((response) => {
                 this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
             })
             .catch((error) => {
                 this.$q.notify({
-                    color: 'negative',
-                    position: 'top',
-                    message: error.response.data.detail,
-                    icon: 'report_problem'
+                    type: 'negative',
+                    message: error.response.statusText
                 })
             })
 
-            this.viewStore.viewId = 0;
+            this.viewStore.viewId = "image";
+            this.viewStore.modelLoading = false;
+        },
+        async getFractureAnalysis() {
+
+            this.viewStore.modelLoading = true;
+
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                length: this.modelData.model.length,
+                height: this.modelData.model.height,
+                crack_length: this.modelData.model.cracklength,
+                young_modulus: this.modelData.materials[0].youngsModulus,
+                poissions_ratio: this.modelData.materials[0].poissonsRatio,
+                yield_stress: this.modelData.materials[0].yieldStress,
+                cluster: this.modelData.job.cluster,
+                output: "Output2"
+            }
+
+            await api.get('/getFractureAnalysis', {params, responseType: "blob"})
+            .then((response) => {
+                this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
+                this.$q.notify({
+                    message: "Fracture analyzed",
+                })
+            })
+            .catch((error) => {
+                this.$q.notify({
+                    type: 'negative',
+                    message: JSON.stringify(error.message)
+                })
+            })
+
+            this.viewStore.viewId = "image";
             this.viewStore.modelLoading = false;
         },
         async getG1c() {
@@ -679,7 +787,7 @@ export default defineComponent({
                 headers: headersList,
             };
 
-            this.modelLoading = true;
+            this.viewStore.modelLoading = true;
             await axios
                 .request(reqOptions)
                 .then(
@@ -691,11 +799,11 @@ export default defineComponent({
                 .catch((error) => {
                 this.message = error;
                 this.snackbar = true;
-                this.modelLoading = false;
+                this.viewStore.modelLoading = false;
                 return;
                 });
             this.viewStore.viewId = 0;
-            this.modelLoading = false;
+            this.viewStore.modelLoading = false;
         },
         async getG2c() {
             let headersList = {
@@ -716,7 +824,7 @@ export default defineComponent({
                 headers: headersList,
             };
 
-            this.modelLoading = true;
+            this.viewStore.modelLoading = true;
             var giic = 0;
             await axios
                 .request(reqOptions)
@@ -724,15 +832,24 @@ export default defineComponent({
                 .catch((error) => {
                 this.message = error;
                 this.snackbar = true;
-                this.modelLoading = false;
+                this.viewStore.modelLoading = false;
                 return;
                 });
             console.log(giic);
             this.message = "GIIC = " + giic;
             this.snackbar = true;
 
-            this.modelLoading = false;
+            this.viewStore.modelLoading = false;
         },
+    },
+    beforeMount() {
+        if (process.env.DEV) {
+            this.trameUrl = "http://localhost:6040/";
+            console.log("changed Trame URL: " + this.trameUrl);
+        }
+    },
+    beforeUnmount() {
+        clearInterval(this.statusInterval);
     },
 })
 </script>

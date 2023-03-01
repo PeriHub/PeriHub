@@ -1,7 +1,7 @@
 # pylint: disable=no-name-in-module
 import json
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -755,3 +755,9 @@ class SmetanaData(BaseModel):
     compute: Optional[List[Compute]]
     output: List[Output]
     solver: Solver
+
+
+class ResponseModel(BaseModel):
+    data: Any
+    code = 200
+    message: str

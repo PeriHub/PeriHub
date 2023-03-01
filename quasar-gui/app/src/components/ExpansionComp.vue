@@ -1,16 +1,88 @@
 <template>
-    <div>
-        <ModelSettings></ModelSettings>
-        <MaterialSettings></MaterialSettings>
-        <DamageSettings></DamageSettings>
-        <BlocksSettings></BlocksSettings>
-        <ContactSettings></ContactSettings>
-        <BoundaryConditionsSettings></BoundaryConditionsSettings>
-        <BondFilterSettings></BondFilterSettings>
-        <OutputSettings></OutputSettings>
-        <SolverSettings></SolverSettings>
-        <JobSettings></JobSettings>
-    </div>
+    <q-scroll-area style="height: calc(100vh - 183px);">
+        <q-list bordered class="rounded-borders">
+            <q-expansion-item
+                expand-separator
+                icon="fas fa-cube"
+                label="Model"
+                caption="John Doe"
+            >
+                <ModelSettings></ModelSettings>
+            </q-expansion-item>
+            <q-expansion-item
+                expand-separator
+            icon="fas fa-toolbox"
+            label="Material"
+                caption="John Doe"
+            >
+                <MaterialSettings></MaterialSettings>
+            </q-expansion-item>
+            <q-expansion-item
+                expand-separator
+            icon="fas fa-cut"
+            label="Damage Models"
+                caption="John Doe"
+            >
+                <DamageSettings></DamageSettings>
+            </q-expansion-item>
+            <q-expansion-item
+                expand-separator
+            icon="fas fa-th"
+            label="Blocks"
+                caption="John Doe"
+            >
+                <BlocksSettings></BlocksSettings>
+            </q-expansion-item>
+            <q-expansion-item
+                expand-separator
+            icon="fas fa-boxes-stacked"
+            label="Contact"
+                caption="John Doe"
+            >
+                <ContactSettings></ContactSettings>
+            </q-expansion-item>
+            <q-expansion-item
+                expand-separator
+            icon="fas fa-project-diagram"
+            label="Boundary Conditions"
+                caption="John Doe"
+            >
+                <BoundaryConditionsSettings></BoundaryConditionsSettings>
+            </q-expansion-item>
+            <q-expansion-item
+                expand-separator
+            icon="fas fa-filter"
+            label="Bond Filters"
+                caption="John Doe"
+            >
+                <BondFilterSettings></BondFilterSettings>
+            </q-expansion-item>
+            <q-expansion-item
+                expand-separator
+                icon="fas fa-sign-out-alt"
+                label="Output"
+                caption="John Doe"
+            >
+                <OutputSettings></OutputSettings>
+            </q-expansion-item>
+            <q-expansion-item
+                expand-separator
+                icon="fas fa-calculator"
+                label="Solver"
+                caption="John Doe"
+            >
+                <SolverSettings></SolverSettings>
+            </q-expansion-item>
+            <q-expansion-item
+                expand-separator
+            icon="fas fa-flask"
+            label="Job"
+                caption="John Doe"
+            >
+                <JobSettings></JobSettings>
+            </q-expansion-item>
+        </q-list>
+    </q-scroll-area>
 </template>
 
 <script>

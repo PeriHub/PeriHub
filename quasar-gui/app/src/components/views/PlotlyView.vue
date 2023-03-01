@@ -1,6 +1,6 @@
 <template>
     <VuePlotly 
-        :data="plotData"
+        :data="viewStore.plotData"
         :layout="plotLayout"
         :options="plotOptions"
         :display-mode-bar="true"
@@ -10,23 +10,22 @@
 
 <script>
     import { defineComponent } from 'vue'
+    import { useViewStore } from 'stores/view-store';
     import { VuePlotly  } from 'vue3-plotly'
     export default defineComponent({
         name: 'PlotlyView',
         components:{
             VuePlotly 
         },
+        setup() {
+            const viewStore = useViewStore();
+
+            return {
+                viewStore,
+            }
+        },
         data() {
             return {
-                plotRawData: "",
-                plotData: [
-                    {
-                    name: "Displacement",
-                    x: [1, 2, 3, 4],
-                    y: [10, 15, 20, 17],
-                    type: "scatter",
-                    },
-                ],
                 plotLayout: {
                     // title: 'this.model.modelNameSelected',
                     showlegend: true,

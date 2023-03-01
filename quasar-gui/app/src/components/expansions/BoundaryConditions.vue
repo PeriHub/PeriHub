@@ -1,11 +1,5 @@
 <template>
-    <q-list bordered class="rounded-borders">
-        <q-expansion-item
-            expand-separator
-            icon="fas fa-project-diagram"
-            label="Boundary Conditions"
-            caption="John Doe"
-        >
+    <div>
             <q-list
                 v-for="nodeSet in boundaryConditions.nodeSets"
                 :key="nodeSet.nodeSetId"
@@ -99,8 +93,7 @@
                     Add Condition
                 </q-tooltip>
             </q-btn>
-        </q-expansion-item>
-    </q-list>
+        </div>
 </template>
   
 <script>

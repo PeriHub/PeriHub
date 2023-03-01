@@ -1,11 +1,5 @@
 <template>
-    <q-list bordered class="rounded-borders">
-        <q-expansion-item
-            expand-separator
-            icon="fas fa-sign-out-alt"
-            label="Output"
-            caption="John Doe"
-        >
+    <div>
             <h6 class="my-title">Compute Parameters</h6>
             <q-list
                 v-for="compute, index in computes"
@@ -159,8 +153,7 @@
                     Add Output
                 </q-tooltip>
             </q-btn>
-        </q-expansion-item>
-    </q-list>
+        </div>
 </template>
   
 <script>

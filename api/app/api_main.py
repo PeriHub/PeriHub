@@ -22,11 +22,12 @@ from typing import List, Optional
 import paramiko
 import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile, status
 
 # from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from gcodereader import gcodereader
 from models.CompactTension.compact_tension import CompactTension
 from models.DCBmodel.dcb_model import DCBmodel
@@ -47,7 +48,15 @@ from shepard_client.models.influx_point import InfluxPoint
 from shepard_client.models.timeseries import Timeseries
 from shepard_client.models.timeseries_payload import TimeseriesPayload
 from support.analysis import Analysis
-from support.base_models import FileType, Material, Model, ModelData, RunData, Status
+from support.base_models import (
+    FileType,
+    Material,
+    Model,
+    ModelData,
+    ResponseModel,
+    RunData,
+    Status,
+)
 from support.crack_analysis import CrackAnalysis
 from support.file_handler import FileHandler
 from support.globals import log
@@ -88,6 +97,8 @@ tags_metadata = [
 ]
 
 app = FastAPI(openapi_tags=tags_metadata)
+
+app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
 origins = [
     "http://localhost",
@@ -501,9 +512,12 @@ class ModelControl:
         )
 
         if result != "Model created":
-            return result
+            return ResponseModel(data=False, message=result)
 
-        return f"{model_name} has been created in {time.time() - start_time} seconds, dx_value: {str(dx_value)}."
+        return ResponseModel(
+            data=True,
+            message=f"{model_name} has been created in {time.time() - start_time} seconds, dx_value: {str(dx_value)}.",
+        )
 
     @app.post("/translateModel", tags=["Post Methods"])
     def translate_model(model_name: str, file_type: str, request: Request):
@@ -621,7 +635,10 @@ class ModelControl:
             model_name,
             time.time() - start_time,
         )
-        return f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds"
+        return ResponseModel(
+            data=True,
+            message=f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds",
+        )
 
     @app.post("/translatGcode", tags=["Post Methods"])
     def translate_gcode(model_name: str, discretization: int, request: Request):
@@ -639,7 +656,10 @@ class ModelControl:
             model_name,
             time.time() - start_time,
         )
-        return f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds"
+        return ResponseModel(
+            data=True,
+            message=f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds",
+        )
 
     @app.post("/uploadfiles", tags=["Post Methods"])
     async def upload_files(
@@ -660,7 +680,10 @@ class ModelControl:
             with open(file_location, "wb+") as file_object:
                 shutil.copyfileobj(file.file, file_object)
 
-        return {"info": f"file '{files[0].file.name}' saved at '{file_location}'"}
+        return ResponseModel(
+            data=True,
+            message=f"file '{files[0].file.name}' saved at '{file_location}'",
+        )
 
     @app.put("/writeInputFile", tags=["Put Methods"])
     def write_input_file(
@@ -685,7 +708,10 @@ class ModelControl:
             file.write(input_string)
 
         log.info("%s-InputFile has been saved", model_name)
-        return model_name + "-InputFile has been saved"
+        return ResponseModel(
+            data=True,
+            message=model_name + "-InputFile has been saved",
+        )
 
     @app.put("/runModel", tags=["Put Methods"])
     async def run_model(
@@ -742,7 +768,7 @@ class ModelControl:
             ssh.close()
 
             log.info("%s has been submitted", model_name)
-            return model_name + " has been submitted"
+            return ResponseModel(data=True, message=model_name + " has been submitted")
 
         elif cluster == "Cara":
             initial_jobs = FileHandler.write_get_cara_job_id()
@@ -778,7 +804,10 @@ class ModelControl:
             FileHandler.write_cara_job_id_to_model(username, model_name, job_id)
 
             log.info("%s has been submitted with Job Id: %s", model_name, job_id)
-            return model_name + " has been submitted with Job Id: " + job_id
+            return ResponseModel(
+                data=True,
+                message=model_name + " has been submitted with Job Id: " + job_id,
+            )
 
         elif cluster == "None":
             server = "perihub_peridigm"
@@ -833,7 +862,7 @@ class ModelControl:
 
             # return stdout + stderr
             log.info("%s has been submitted", model_name)
-            return model_name + " has been submitted"
+            return ResponseModel(data=True, message=model_name + " has been submitted")
 
         log.error("%s unknown", cluster)
         return cluster + " unknown"
@@ -874,7 +903,7 @@ class ModelControl:
             ssh.close()
 
             log.info("Job has been canceled")
-            return "Job has been canceled"
+            return ResponseModel(data=True, message="Job has been submitted")
 
         remotepath = FileHandler.get_remote_model_path(cluster, username, model_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -894,7 +923,11 @@ class ModelControl:
         ssh.close()
 
         log.info("Job: %s has been canceled", job_id)
-        return "Job: " + job_id + " has been canceled"
+
+        return ResponseModel(
+            data=True,
+            message="Job: " + job_id + " has been canceled",
+        )
 
     @app.get("/generateMesh", tags=["Get Methods"])
     def generate_mesh(model_name: str, param: str, request: Request):
@@ -938,7 +971,7 @@ class ModelControl:
         #     return FileResponse(file_path)
         # except Exception:
         log.info("Mesh generated")
-        return "Mesh generated"
+        return ResponseModel(data=True, message="Mesh generated")
 
     @app.get("/getImagePython", tags=["Get Methods"])
     def get_image_python(
@@ -969,26 +1002,36 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        filepath = ImageExport.get_result_image_from_exodus(
-            file,
-            displ_factor,
-            marker_size,
-            variable,
-            axis,
-            length,
-            height,
-            triangulate,
-            dx_value,
-            step,
-            cb_left,
-            transparent,
-        )
+        try:
+            filepath = ImageExport.get_result_image_from_exodus(
+                file,
+                displ_factor,
+                marker_size,
+                variable,
+                axis,
+                length,
+                height,
+                triangulate,
+                dx_value,
+                step,
+                cb_left,
+                transparent,
+            )
+        except ValueError:
+            log.error("%s ValueError %s", model_name, cluster)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="ValueError",
+            )
 
         try:
             return FileResponse(filepath)
         except IOError:
             log.error("%s results can not be found on %s", model_name, cluster)
-            return model_name + " results can not be found on " + cluster
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=model_name + " results can not be found on " + cluster,
+            )
 
     @app.get("/getPlotPython", tags=["Get Methods"])
     def get_plot_python(
@@ -1299,10 +1342,17 @@ class ModelControl:
                 )
             except IOError:
                 log.error("LogFile can not be found in %s", remotepath)
-                return "LogFile can't be found in " + remotepath
+
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="LogFile can't be found in " + remotepath,
+                )
             if len(filtered_values) == 0:
                 log.error("LogFile can not be found in %s", remotepath)
-                return "LogFile can't be found in " + remotepath
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="LogFile can't be found in " + remotepath,
+                )
 
             with open(
                 os.path.join(remotepath, filtered_values[-1]),
@@ -1311,7 +1361,7 @@ class ModelControl:
             ) as file:
                 response = file.read()
 
-            return response
+            return ResponseModel(data=response, message="Logfile received")
 
         if cluster == "FA-Cluster":
             remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
@@ -1325,7 +1375,9 @@ class ModelControl:
 
         else:
             log.error("%s unknown", cluster)
-            return cluster + " unknown"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=cluster + " unknown"
+            )
 
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
@@ -1336,17 +1388,23 @@ class ModelControl:
             )
         except paramiko.SFTPError:
             log.error("LogFile can not be found in %s", remotepath)
-            return "LogFile can't be found in " + remotepath
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="LogFile can't be found in " + remotepath,
+            )
         if len(filtered_values) == 0:
             log.error("LogFile can not be found in %s", remotepath)
-            return "LogFile can't be found in " + remotepath
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="LogFile can't be found in " + remotepath,
+            )
         sftp.chdir(remotepath)
         logfile = sftp.file(filtered_values[-1], "r")
         response = logfile.read()
         sftp.close()
         ssh.close()
 
-        return response
+        return ResponseModel(data=response, message="Logfile received")
 
     @app.get("/getMaxFeSize", tags=["Get Methods"])
     def get_max_fe_size(request: Request = ""):
@@ -1408,7 +1466,7 @@ class ModelControl:
         x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
         y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
 
-        return x_data, y_data
+        return ResponseModel(data=[x_data, y_data], message="Plot received")
 
     @app.get("/getPointData", tags=["Get Methods"])
     def get_point_data(
@@ -1510,7 +1568,7 @@ class ModelControl:
                     point_string.rstrip(point_string[-1]),
                     block_id_string.rstrip(block_id_string[-1]),
                 ]
-                return response
+                return ResponseModel(data=response, message="Points received")
             except IOError:
                 log.error("%s results can not be found", model_name)
                 return model_name + " results can not be found"
@@ -1612,7 +1670,7 @@ class ModelControl:
             if job_id in job_ids:
                 status.submitted = True
 
-        return status
+        return ResponseModel(data=status, message="Status received")
 
     @app.get("/viewInputFile", tags=["Get Methods"])
     def view_input_file(
@@ -1644,12 +1702,20 @@ class ModelControl:
             )
         if not os.path.exists(file_path):
             log.error("Inputfile can't be found")
-            return "Inputfile can't be found"
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Inputfile can't be found",
+            )
         try:
-            return FileResponse(file_path)
+            with open(file_path, "r") as f:
+                string = f.read()
+            return ResponseModel(data=string, message="Input File received")
         except IOError:
             log.error("Inputfile can't be found")
-            return "Inputfile can't be found"
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Inputfile can't be found",
+            )
 
     @app.delete("/deleteModel", tags=["Delete Methods"])
     def delete_model(model_name: str = "Dogbone", request: Request = ""):
@@ -1772,13 +1838,15 @@ class ModelControl:
         return "Data of " + username + " has been deleted"
 
     @app.get("/getDocs", tags=["Documentation Methods"])
-    def get_docs(name: str = "Introduction", model: bool = False):
+    def get_docs(name: str = "Introduction"):
         """doc"""
 
-        if model:
-            remotepath = "./" + name + "/" + name + ".md"
+        path = name.split("_")
+
+        if len(path) == 1:
+            remotepath = "./guides/" + path[0] + ".md"
         else:
-            remotepath = "./guides/" + name + ".md"
+            remotepath = "./guides/" + path[0] + "/" + path[1] + ".md"
 
         with open(remotepath, "r", encoding="UTF-8") as file:
             response = file.read()

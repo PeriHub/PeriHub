@@ -1,11 +1,5 @@
 <template>
-    <q-list bordered class="rounded-borders">
-        <q-expansion-item
-            expand-separator
-            icon="fas fa-boxes-stacked"
-            label="Contact"
-            caption="John Doe"
-        >
+    <div>
             <q-toggle
                 class="my-toggle"
                 v-model="contact.enabled"
@@ -134,8 +128,7 @@
                     </q-tooltip>
                 </q-btn>
             </div>
-        </q-expansion-item>
-    </q-list>
+    </div>
 </template>
   
 <script>

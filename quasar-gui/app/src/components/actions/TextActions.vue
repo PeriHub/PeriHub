@@ -5,7 +5,7 @@
                 Reload Inputfile
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-save" @click="writeInputFile" :disabled="!store.status.created">
+        <q-btn flat icon="fas fa-save" @click="writeInputFile" :disabled="!store.status.created || viewStore.textId!='input'">
             <q-tooltip>
                 Save Inputfile
             </q-tooltip>
@@ -71,6 +71,7 @@ export default defineComponent({
     data() {
         return {
             monitorToggle: false,
+            logInterval: null,
         };
     },
     methods: {
@@ -85,12 +86,10 @@ export default defineComponent({
             api.get('/viewInputFile', {params})
             .then((response) => {
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
                 this.viewStore.textOutput = response.data.data;
+                this.viewStore.textId = "input" 
                 if (loadFile) {
                     this.loadYamlString(response.data.data);
                 }
@@ -98,7 +97,7 @@ export default defineComponent({
             .catch( (error)=> {
                 this.$q.notify({
                     color: 'negative',
-                    position: 'top',
+                    position: 'bottom-right',
                     message: error,
                     icon: 'report_problem'
                 })
@@ -114,18 +113,13 @@ export default defineComponent({
             api.put('/writeInputFile', {params})
             .then((response) => {
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
             })
             .catch( (error)=> {
                 this.$q.notify({
-                    color: 'negative',
-                    position: 'top',
-                    message: error.response.data.detail,
-                    icon: 'report_problem'
+                    type: 'negative',
+                    message: error.response.data.detail
                 })
             })
         },
@@ -150,19 +144,15 @@ export default defineComponent({
             api.get('/getLogFile', {params})
             .then((response) => {
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
-                this.viewStore.textOutput = response.data.data;
+                this.viewStore.logOutput = response.data.data;
+                this.viewStore.textId = "log" 
             })
             .catch( (error)=> {
                 this.$q.notify({
-                    color: 'negative',
-                    position: 'top',
-                    message: error.response.data.detail,
-                    icon: 'report_problem'
+                    type: 'negative',
+                    message: error.response.data.detail
                 })
             })
 
@@ -178,29 +168,23 @@ export default defineComponent({
                 cluster: this.modelData.job.cluster})
             .then((response) => {
                 this.$q.notify({
-                    color: 'positive',
-                    position: 'top',
-                    message: response.data.message,
-                    icon: 'info'
+                    message: response.data.message
                 })
                 this.store.status = response.data.data
             })
             .catch( (error)=> {
                 this.$q.notify({
-                    color: 'negative',
-                    position: 'top',
-                    message: error.response.data.detail,
-                    icon: 'report_problem'
+                    type: 'negative',
+                    message: error.response.data.detail
                 })
             })
-            if (this.store.status.results) {
-                console.log("clearInterval");
-                clearInterval(this.statusInterval);
-            }
         },
     },
     mounted(){
         this.getStatus();
-    }
+    },
+    beforeUnmount() {
+        clearInterval(this.logInterval);
+    },
 })
 </script>

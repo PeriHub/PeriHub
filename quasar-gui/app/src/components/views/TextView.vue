@@ -1,10 +1,11 @@
 <template>
-   <prism-editor
-        class="my-editor"
-        v-model="viewStore.textOutput"
-        :highlight="highlighter"
-        line-numbers
-    ></prism-editor>
+    <q-scroll-area style="height:calc(100% - 15px);">
+        <prism-editor
+            v-model="viewStore.textOutput"
+            :highlight="highlighter"
+            line-numbers
+        ></prism-editor>
+    </q-scroll-area>
 </template>
 
 <script>
@@ -31,6 +32,7 @@
         },
         data() {
             return {
+                textHeight: "400px",
             };
         },
         methods: {

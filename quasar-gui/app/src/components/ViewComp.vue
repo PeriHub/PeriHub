@@ -1,13 +1,51 @@
 <template>
-    <div style="height:100%">
-        <ImageView v-if="store.viewId==0"></ImageView>
-        <ModelView v-if="store.viewId==1"></ModelView>
-        <PlotlyView v-if="store.viewId==2"></PlotlyView>
+    <div :style="{'height': viewHeight}">
+        <q-tabs
+            v-model="store.viewId"
+            dense
+            class="text-grey"
+            active-color="primary"
+            indicator-color="primary"
+            align="justify"
+        >
+            <q-tab name="image" label="Image"></q-tab>
+            <q-tab name="model" label="Model"></q-tab>
+            <q-tab name="plotly" label="Plotly"></q-tab>
+            <q-tab name="trame" label="Trame"></q-tab>
+        </q-tabs>
+
+        <q-separator></q-separator>
+
+        <q-tab-panels v-model="store.viewId" animated style="height:100%">
+          <q-tab-panel name="image">
+            <ImageView></ImageView>
+          </q-tab-panel>
+
+          <q-tab-panel name="model">
+            <ModelView></ModelView>
+          </q-tab-panel>
+
+          <q-tab-panel name="plotly">
+            <PlotlyView></PlotlyView>
+          </q-tab-panel>
+
+          <q-tab-panel name="trame">
+            <iframe
+                :src="store.resultPort"
+                width="100%"
+                height="100%"
+                frameborder="0"/>
+          </q-tab-panel>
+        </q-tab-panels>
+        
+        <q-inner-loading :showing="store.modelLoading">
+            <q-spinner-gears size="50px" color="primary"></q-spinner-gears>
+        </q-inner-loading>
     </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { inject, defineComponent } from 'vue'
 import ImageView from 'components/views/ImageView.vue'
 import ModelView from 'components/views/ModelView.vue'
 import PlotlyView from 'components/views/PlotlyView.vue'
@@ -20,11 +58,24 @@ export default defineComponent({
         ModelView,
         PlotlyView
     },
+    data() {
+        return {
+            viewHeight: "400px",
+            tab: "image",
+        };
+    },
     setup() {
         const store = useViewStore();
+        const bus = inject('bus');
         return {
             store,
+            bus
         }
+    },
+    created() {
+        this.bus.on('resizeViewPanel', (height) => {
+            this.viewHeight = height - 88 + 'px'
+        })
     },
 })
 </script>

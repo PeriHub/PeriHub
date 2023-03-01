@@ -67,15 +67,6 @@ class CrackAnalysis:
                 np_eps_xy = np.concatenate(
                     [np_eps_xy, np.array(cell_data["Unrotated_StrainXY"][0][block_id])]
                 )
-                np_eps_x = np.concatenate(
-                    [np_eps_x, np.array(cell_data["Unrotated_StrainXX"][0][block_id])]
-                )
-                np_eps_y = np.concatenate(
-                    [np_eps_y, np.array(cell_data["Unrotated_StrainYY"][0][block_id])]
-                )
-                np_eps_xy = np.concatenate(
-                    [np_eps_xy, np.array(cell_data["Unrotated_StrainXY"][0][block_id])]
-                )
                 np_sig_x = np.concatenate(
                     [np_sig_x, np.array(cell_data["Partial_StressXX"][0][block_id])]
                 )

@@ -1,112 +1,32 @@
 <template>
   <q-layout view="hHh lpR fFf">
 
-    <q-header elevated class="bg-primary text-white">
-      <q-toolbar>
-        <router-link style="text-decoration: none; color: inherit" to="/">
-          <div class="row align-center">
-            <img src="~assets/DLR_Signet_weiss.png" style="height: 50px; margin: 5px">
-
-            <q-toolbar-title>
-              PeriHub
-            </q-toolbar-title>
-          </div>
-        </router-link>
-          <!-- <q-btn flat color="secondary" icon-right="mail" label="On Right"></q-btn>
-          <q-btn flat round dense icon="gamepad"></q-btn> -->
-          <!-- <router-link style="text-decoration: none; color: inherit" to="/">
-            <div class="row">
-              <q-img
-                alt="DLR Logo"
-                src="~assets/DLR_Signet_weiss.png"
-                size="xs"
-              />
-              <h1>PeriHub</h1>
-            </div>
-          </router-link> -->
-
-        <q-space></q-space>
-
-        <q-tabs align="center">
-          <q-route-tab to="perihub" label="Perihub" />
-          <q-route-tab to="guide" label="Guide" />
-          <q-route-tab to="tools" label="Tools" />
-          <q-route-tab to="publications" label="Publications" />
-        </q-tabs>
-
-        <q-space></q-space>
-
-        <q-toggle
-          v-model="store.darkMode"
-          @click="toggleDarkMode"
-          checked-icon="dark_mode"
-          color="red"
-          unchecked-icon="light_mode"
-        ></q-toggle>
-
-        <q-btn flat dense icon="fab fa-gitlab" href="https://gitlab.dlr.de/fa_sw/peridynamik/perihub">
-          <q-tooltip>
-            GitLab
-          </q-tooltip>
-        </q-btn>
-
-        <q-btn flat dense icon="fas fa-bolt" href="https://perihub-api.fa-services.intra.dlr.de/docs">
-          <q-tooltip>
-            PeriHub-API
-          </q-tooltip>
-        </q-btn>
-
-        <q-btn flat dense icon="fab fa-github" href="https://github.com/PeriDoX/PeriDoX">
-          <q-tooltip>
-            PeriDoX
-          </q-tooltip>
-        </q-btn>
-
-      </q-toolbar>
-
-    </q-header>
-
-    <q-drawer v-model="drawerActive" side="left" bordered>
-      <GuideDrawer></GuideDrawer>
-    </q-drawer>
+    <MainHeader/>
 
     <q-page-container>
       <router-view />
     </q-page-container>
 
-    <q-footer elevated color="primary">
-      <q-toolbar>
-        <div style="text-align: center; width:100%">
-          <div>
-            <q-btn flat text-color="white" label="ABOUT US" href="https://www.dlr.de/fa"></q-btn>
-            <q-btn flat text-color="white" label="BLOG" href="https://leichtbau.dlr.de/"></q-btn>
-            <q-btn flat text-color="white" label="CONTACT US" href="mailto:Jan-Timo.Hesse@dlr.de"></q-btn>
-          </div>
-          <div>
-            {{ new Date().getFullYear() }} — <strong>PeriHub</strong> | Jan-Timo
-            Hesse | Christian Willberg | Falk Heinecke
-          </div>
-        </div>
-      </q-toolbar>
-    </q-footer>
+    <MainFooter/>
 
   </q-layout>
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 import { useDefaultStore } from 'stores/default-store';
-import GuideDrawer from 'components/GuideDrawer.vue'
+import MainHeader from 'layouts/MainHeader.vue'
+import MainFooter from 'layouts/MainFooter.vue'
 
 export default defineComponent({
   name: 'MainLayout',
   data() {
     return {
-      drawerActive: false
     }
   },
   components: {
-    GuideDrawer
+    MainHeader,
+    MainFooter,
   },
   setup() {
     const store = useDefaultStore();
@@ -115,10 +35,6 @@ export default defineComponent({
     }
   },
   methods: {
-    toggleDarkMode() {
-      localStorage.setItem("darkMode", this.store.darkMode);
-      this.$q.dark.toggle();
-    },
     initializeDarkMode() {
       this.$q.dark.set(localStorage.getItem("darkMode") == "true");
     },
@@ -128,11 +44,6 @@ export default defineComponent({
     if (localStorage.getItem("darkMode") == "true") {
       this.store.darkMode = true;
       this.$q.dark.toggle();
-    }
-  },
-  watch: {
-    $route() {
-      this.drawerActive = this.$router.currentRoute.value.path === '/guide'
     }
   },
 
