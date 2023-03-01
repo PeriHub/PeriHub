@@ -17,7 +17,6 @@
         expand-separator
         icon="fas fa-keyboard"
         label="Input"
-        caption="John Doe"
       >
         <template v-for="(menuItem, index) in input" :key="index">
             <q-item clickable :active="menuItem.label === 'Outbox'" v-ripple link :to="menuItem.route">
@@ -35,7 +34,6 @@
         expand-separator
         icon="fas fa-sign-out-alt"
         label="Output"
-        caption="John Doe"
       >
         <template v-for="(menuItem, index) in output" :key="index">
             <q-item clickable :active="menuItem.label === 'Outbox'" v-ripple link :to="menuItem.route">
@@ -53,7 +51,6 @@
         expand-separator
         icon="fas fa-cubes"
         label="Examples"
-        caption="John Doe"
       >
         <template v-for="(menuItem, index) in examples" :key="index">
             <q-item clickable :active="menuItem.label === 'Outbox'" v-ripple link :to="menuItem.route">

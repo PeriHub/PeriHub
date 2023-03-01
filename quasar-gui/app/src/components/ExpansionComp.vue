@@ -5,55 +5,48 @@
                 expand-separator
                 icon="fas fa-cube"
                 label="Model"
-                caption="John Doe"
             >
                 <ModelSettings></ModelSettings>
             </q-expansion-item>
             <q-expansion-item
                 expand-separator
-            icon="fas fa-toolbox"
-            label="Material"
-                caption="John Doe"
+                icon="fas fa-toolbox"
+                label="Material"
             >
                 <MaterialSettings></MaterialSettings>
             </q-expansion-item>
             <q-expansion-item
                 expand-separator
-            icon="fas fa-cut"
-            label="Damage Models"
-                caption="John Doe"
+                icon="fas fa-cut"
+                label="Damage Models"
             >
                 <DamageSettings></DamageSettings>
             </q-expansion-item>
             <q-expansion-item
                 expand-separator
-            icon="fas fa-th"
-            label="Blocks"
-                caption="John Doe"
+                icon="fas fa-th"
+                label="Blocks"
             >
                 <BlocksSettings></BlocksSettings>
             </q-expansion-item>
             <q-expansion-item
                 expand-separator
-            icon="fas fa-boxes-stacked"
-            label="Contact"
-                caption="John Doe"
+                icon="fas fa-boxes-stacked"
+                label="Contact"
             >
                 <ContactSettings></ContactSettings>
             </q-expansion-item>
             <q-expansion-item
                 expand-separator
-            icon="fas fa-project-diagram"
-            label="Boundary Conditions"
-                caption="John Doe"
+                icon="fas fa-project-diagram"
+                label="Boundary Conditions"
             >
                 <BoundaryConditionsSettings></BoundaryConditionsSettings>
             </q-expansion-item>
             <q-expansion-item
                 expand-separator
-            icon="fas fa-filter"
-            label="Bond Filters"
-                caption="John Doe"
+                icon="fas fa-filter"
+                label="Bond Filters"
             >
                 <BondFilterSettings></BondFilterSettings>
             </q-expansion-item>
@@ -61,7 +54,6 @@
                 expand-separator
                 icon="fas fa-sign-out-alt"
                 label="Output"
-                caption="John Doe"
             >
                 <OutputSettings></OutputSettings>
             </q-expansion-item>
@@ -69,15 +61,13 @@
                 expand-separator
                 icon="fas fa-calculator"
                 label="Solver"
-                caption="John Doe"
             >
                 <SolverSettings></SolverSettings>
             </q-expansion-item>
             <q-expansion-item
                 expand-separator
-            icon="fas fa-flask"
-            label="Job"
-                caption="John Doe"
+                icon="fas fa-flask"
+                label="Job"
             >
                 <JobSettings></JobSettings>
             </q-expansion-item>

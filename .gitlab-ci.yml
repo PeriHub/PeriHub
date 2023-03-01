@@ -119,7 +119,7 @@ build_gui2_job:
     refs:
       - main
     changes:
-      - gui/**/*
+      - quasar-gui/**/*
   script:
     - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui2_image quasar-gui/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui2_image
