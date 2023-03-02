@@ -26,8 +26,8 @@ export const useDefaultStore = defineStore("default", {
         axios
           .request(reqOptions)
           .then(response => {
-            api.defaults.headers.common['Authorization'] = 'Bearer ' + response.headers.authorization
-            commit('login', {token: response.headers.authorization})
+            api.defaults.headers.common['Authorization'] = response.headers.authorization
+            // console.log('login', {token: response.headers.authorization})
           })
       }
     },
