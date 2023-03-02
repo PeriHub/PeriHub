@@ -85,36 +85,6 @@ class Geometry:
             grid_y_value = np.array(gridy_3d).ravel()
             grid_z_value = np.array(gridz_3d).ravel()
 
-        # if length == 0:
-        #     gridx, gridy = np.meshgrid(
-        #         np.arange(
-        #             coor[0] - radius, coor[0] + radius + dx_value[0], dx_value[0]
-        #         ),
-        #         np.arange(
-        #             coor[1] - radius, coor[1] + radius + dx_value[1], dx_value[1]
-        #         ),
-        #     )
-        #     grid_x_value = gridx.ravel()
-        #     grid_y_value = gridy.ravel()
-        #     grid_z_value = 0 * gridy.ravel()
-        # else:
-        #     gridx, gridy, gridz = np.meshgrid(
-        #         np.arange(
-        #             coor[0] - radius, coor[0] + radius + dx_value[0], dx_value[0]
-        #         ),
-        #         np.arange(
-        #             coor[1] - radius, coor[1] + radius + dx_value[1], dx_value[1]
-        #         ),
-        #         np.arange(coor[2] - length / 2, coor[2] + length / 2, dx_value[2]),
-        #     )
-        #     grid_x_value = gridx.ravel()
-        #     grid_y_value = gridy.ravel()
-        #     grid_z_value = gridz.ravel()
-
-        # grid_x_value, grid_y_value, grid_z_value = Geometry.check_val_in_circle(
-        #     grid_x_value, grid_y_value, grid_z_value, coor[0], coor[1], radius, True
-        # )
-
         log.info(f"Points created  in {(time.time() - start_time):.2f} seconds")
         return grid_x_value, grid_y_value, grid_z_value
 
