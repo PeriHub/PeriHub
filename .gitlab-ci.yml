@@ -32,7 +32,7 @@ flake8:
   artifacts:
     when: always
     reports:
-      junit: api/app/flake8_junit.xml
+      junit: $CI_PROJECT_DIR/flake8_junit.xml
 
 pylint:
   stage: Static Analysis
@@ -46,7 +46,7 @@ pylint:
   artifacts:
     when: always
     reports:
-      junit: api/app/pylint.xml
+      junit: $CI_PROJECT_DIR/pylint.xml
 
 check-coverage:
   stage: Static Analysis
@@ -62,7 +62,7 @@ check-coverage:
     when: always
     expose_as: "Coverage Report"
     paths:
-      - build/htmlcov
+      - $CI_PROJECT_DIR/htmlcov
     reports:
       coverage_report:
         coverage_format: cobertura
