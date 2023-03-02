@@ -5,7 +5,6 @@
                 :options="modelName"
                 v-model="model.modelNameSelected"
                 v-show="!model.ownModel"
-                @popup-hide="modelNameChangedEvent"
                 label="Model Name"
                 outlined
                 dense
@@ -15,7 +14,6 @@
                 v-model="model.modelNameSelected"
                 v-show="model.ownModel"
                 :rules="[rules.required]"
-                @change="modelNameChangedEvent"
                 label="Model Name"
                 outlined
                 dense
@@ -25,7 +23,6 @@
                 v-model="model.meshFile"
                 v-show="model.ownModel"
                 :rules="[rules.required]"
-                @change="modelNameChangedEvent"
                 label="Mesh File"
                 outlined
                 dense
@@ -261,10 +258,9 @@
 </template>
   
 <script>
-    import { computed, defineComponent } from 'vue'
+    import { computed, defineComponent, inject } from 'vue'
     import { useModelStore } from 'stores/model-store';
     import { parseFromJson } from '../../utils/functions.js'
-    import { inject } from 'vue'
     import rules from "assets/rules.js";
 
     import KICmodelFile from "assets/models/KICmodel/KICmodel.json";
@@ -316,14 +312,7 @@
             };
         },
         methods: {
-            async modelNameChangedEvent() {
-                this.bus.emit("showModelImg")
-                this.bus.emit("getStatus")
-                this.resetData()
-            },
             async resetData() {
-                console.log("resetData")
-                console.log(this.model.modelNameSelected)
                 const jsonFile = {};
                 // console.log(this.model.modelNameSelected);
                 switch (this.model.modelNameSelected) {
@@ -363,10 +352,17 @@
                     default:
                     return;
                 }
-                console.log(this.store.modelData)
-                console.log(jsonFile)
                 parseFromJson(this.store.modelData,jsonFile)
-                console.log(this.store.modelData)
+            },
+        },
+        watch: {
+            'store.modelData.model.modelNameSelected': {
+                handler() {
+                    console.log(this.store.modelData.model.modelNameSelected)
+                    this.bus.emit("showModelImg", this.store.modelData.model.modelNameSelected)
+                    this.bus.emit("getStatus")
+                    this.resetData()
+                },
             },
         }
     })

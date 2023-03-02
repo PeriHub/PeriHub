@@ -15,6 +15,7 @@
 <script>
 import { defineComponent } from 'vue';
 import { useDefaultStore } from 'stores/default-store';
+import { useModelStore } from 'stores/model-store';
 import MainHeader from 'layouts/MainHeader.vue'
 import MainFooter from 'layouts/MainFooter.vue'
 
@@ -30,8 +31,10 @@ export default defineComponent({
   },
   setup() {
     const store = useDefaultStore();
+    const modelStore = useModelStore();
     return {
       store,
+      modelStore
     }
   },
   methods: {
@@ -41,11 +44,20 @@ export default defineComponent({
   },
   async beforeMount() {
     await this.store.initialiseStore();
+    await this.modelStore.initialiseStore();
     if (localStorage.getItem("darkMode") == "true") {
       this.store.darkMode = true;
       this.$q.dark.toggle();
     }
   },
-
+  watch: {
+    modelStore: {
+      handler() {
+        console.log("model changed!");
+        localStorage.setItem("modelData", JSON.stringify(this.modelStore.modelData));
+      },
+      deep: true,
+    },
+  }
 })
 </script>

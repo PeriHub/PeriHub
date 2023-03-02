@@ -134,8 +134,7 @@
             this.viewStore.modelLoading = true;
 
             await this.getPointDataAndUpdateDx();
-            console.log(this.viewStore.dx_value)
-            this.radius = this.viewStore.dx_value.toFixed(3);
+            this.radius = parseFloat(this.viewStore.dx_value.toFixed(3));
             await this.updatePoints();
 
             this.viewStore.modelLoading = false;
@@ -143,26 +142,29 @@
             this.$refs.view.resetCamera();
           },
           filterPointData() {
+            console.log("filterPointData")
             var idx = 0;
-            this.viewStore.filteredBlockIdString = [];
-            this.viewStore.filteredPointString = [];
+            let filteredBlockIdStringTemp = [];
+            let filteredPointStringTemp = [];
+            const blocks = this.modelData.blocks
             for (var i = 0; i < this.blockIdString.length; i++) {
               if (
-                this.modelData.blocks[parseInt(this.blockIdString[i] * this.modelData.blocks.length - 1)]
-                  .show
+                blocks[parseInt(this.blockIdString[i] * this.modelData.blocks.length - 1)].show
               ) {
-                this.viewStore.filteredBlockIdString[idx] = this.blockIdString[i];
+                filteredBlockIdStringTemp[idx] = this.blockIdString[i];
                 for (var j = 0; j < 3; j++) {
-                  this.viewStore.filteredPointString[idx * 3 + j] =
+                  filteredPointStringTemp[idx * 3 + j] =
                     this.pointString[i * 3 + j] * this.multiplier;
                 }
                 idx += 1;
               }
             }
+            this.viewStore.filteredBlockIdString = filteredBlockIdStringTemp;
+            this.viewStore.filteredPointString = filteredPointStringTemp;
           },
           async updatePoints() {
             this.viewStore.modelLoading = true;
-            console.log(this.radius)
+            console.log("updatePoints")
             if (this.radius < 0.01) {
               this.multiplier = (1 - this.radius / 0.5) * 30;
               this.radius=0.01
@@ -174,18 +176,18 @@
               this.multiplier = 1;
               this.filterPointData();
             }
-            console.log(this.radius)
             this.viewStore.modelLoading = false;
           },
           async getPointDataAndUpdateDx() {
 
+            console.log("getPointDataAndUpdateDx")
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 own_model: this.modelData.model.ownModel,
                 own_mesh: this.modelData.model.ownMesh,
                 mesh_file: this.modelData.model.meshFile
             }
-              this.$api.get('/getPointData', {params})
+              await this.$api.get('/getPointData', {params})
               .then((response) => {
                   this.pointString = response.data.data[0].split(",")
                   this.blockIdString = response.data.data[1].split(",")
@@ -201,11 +203,8 @@
               })
 
             if (!this.modelData.model.ownModel) {
-              console.log(this.modelData.model.height)
-              console.log(this.modelData.model.discretization)
               this.viewStore.dx_value =
                 this.modelData.model.height / (2 * parseInt(this.modelData.model.discretization / 2) + 1);
-              console.log(this.viewStore.dx_value)
             } else if (this.modelData.model.modelNameSelected == "Smetana") {
               let numOfPlys = 8;
               this.viewStore.dx_value =

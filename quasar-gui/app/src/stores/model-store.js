@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { parseFromJson } from '../utils/functions.js'
 
 export const useModelStore = defineStore("model", {
   state: () => ({
@@ -444,9 +445,10 @@ export const useModelStore = defineStore("model", {
     },
   }),
   actions: {
-    initialiseModel() {
-      if (localStorage.getItem("darkMode") == "true") {
-        this.darkMode = true;
+    initialiseStore() {
+      if (localStorage.getItem("modelData")){
+        var object = JSON.parse(localStorage.getItem("modelData"))
+        parseFromJson(this.modelData,object)
       }
     },
   },

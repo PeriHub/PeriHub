@@ -1,4 +1,6 @@
 import { defineStore } from "pinia";
+import { api } from 'boot/axios'
+import axios from "axios";
 
 export const useDefaultStore = defineStore("default", {
   state: () => ({
@@ -21,7 +23,7 @@ export const useDefaultStore = defineStore("default", {
         let reqOptions = {
           url: "https://perihub.fa-services.intra.dlr.de",
         };
-        this.$axios
+        axios
           .request(reqOptions)
           .then(response => {
             api.defaults.headers.common['Authorization'] = 'Bearer ' + response.headers.authorization

@@ -103,6 +103,7 @@
 
 <script>
     import { computed, defineComponent } from 'vue'
+    import { parseFromJson } from '../../utils/functions.js'
     import { useDefaultStore } from 'stores/default-store';
     import { useModelStore } from 'stores/model-store';
     import { useViewStore } from 'stores/view-store';
@@ -140,27 +141,27 @@ export default defineComponent({
             this.$refs.multifileInput.click();
         },
         onFilePicked(event) {
-            const files = event.target.files;
-            const filetype = files[0].type;
-            if (files.length <= 0) {
+            const file = event.target.files[0];
+            const filetype = file.type;
+            if (file.length <= 0) {
                 return false;
             }
 
             const fr = new FileReader();
 
             if (filetype == "application/json") {
-                this.loadJsonFile(fr, files);
-            } else if (files[0].name.includes(".yaml")) {
-                this.loadYamlModel(fr, files);
+                this.loadJsonFile(fr, file);
+            } else if (file.name.includes(".yaml")) {
+                this.loadYamlModel(fr, file);
             } else if (filetype == "text/xml") {
-                this.loadXmlModel(fr, files);
+                this.loadXmlModel(fr, file);
             } else if (filetype == ".peridigm") {
-                this.loadPeridigmModel(fr, files);
-            } else if (files[0].name.includes(".gcode")) {
-                this.gcodeFile = files;
+                this.loadPeridigmModel(fr, file);
+            } else if (file.name.includes(".gcode")) {
+                this.gcodeFile = file;
                 this.dialogGcode = true;
             } else {
-                this.loadFeModel(files);
+                this.loadFeModel(file);
             }
         },
         onMultiFilePicked(event) {
@@ -182,27 +183,6 @@ export default defineComponent({
             for (var i = 0; i < files.length; i++) {
                 formData.append("files", files[i]);
             }
-
-            // let headersList = {
-            //     "Cache-Control": "no-cache",
-            //     "Content-Type": "multipart/form-data",
-            //     Authorization: this.authToken,
-            // };
-
-            // let reqOptions = {
-            //     url: this.url + "uploadfiles",
-            //     params: { model_name: this.modelData.model.modelNameSelected },
-            //     data: formData,
-            //     method: "POST",
-            //     headers: headersList,
-            // };
-
-            // this.message = "Files have been uploaded";
-            // await axios.request(reqOptions).catch((error) => {
-            //     console.log(response);
-            //     this.message = error;
-            //     return;
-            // });
             
             let params={model_name: this.modelData.model.modelNameSelected}
 
@@ -219,34 +199,45 @@ export default defineComponent({
                 })
             })
         },
-        loadYamlModel(fr, files) {
+        loadJsonFile(fr, file) {
+            this.modelData.model.ownMesh = false;
+            this.modelData.model.ownModel = false;
+            this.modelData.model.translated = false;
+
+            fr.onload = (e) => {
+                const result = JSON.parse(e.target.result);
+                parseFromJson(this.modelData,result)
+            };
+            fr.readAsText(file);
+        },
+        loadYamlModel(fr, file) {
             this.modelData.model.ownMesh = false;
             this.modelData.model.ownModel = true;
             this.modelData.model.translated = false;
 
-            this.modelData.model.modelNameSelected = files[0].name.split(".")[0];
+            this.modelData.model.modelNameSelected = file.name.split(".")[0];
 
             fr.onload = (e) => {
                 const yaml = e.target.result;
                 this.loadYamlString(yaml);
             };
-            fr.readAsText(files.item(0));
+            fr.readAsText(file);
         },
-        loadXmlModel(fr, files) {
+        loadXmlModel(fr, file) {
             this.modelData.model.ownMesh = false;
             this.modelData.model.ownModel = true;
             this.modelData.model.translated = false;
 
-            this.modelData.model.modelNameSelected = files[0].name.split(".")[0];
+            this.modelData.model.modelNameSelected = file.name.split(".")[0];
 
             fr.onload = (e) => {
                 const xml = e.target.result;
                 var yaml = this.translateXMLtoYAML(xml);
                 this.loadYamlString(yaml);
             };
-            fr.readAsText(files.item(0));
+            fr.readAsText(file);
         },
-        async loadFeModel(files) {
+        async loadFeModel(file) {
             this.modelData.model.ownMesh = true;
             this.modelData.model.ownModel = true;
             this.modelData.model.translated = true;
@@ -254,15 +245,15 @@ export default defineComponent({
             this.viewStore.modelLoading = true;
             this.textLoading = true;
 
-            if (files.length <= 0) {
+            if (file.length <= 0) {
                 return false;
             }
 
-            if (await this.checkFeSize(files)) {
-                this.modelData.model.modelNameSelected = files[0].name.split(".")[0];
-                const filetype = files[0].name.split(".")[1];
+            if (await this.checkFeSize(file)) {
+                this.modelData.model.modelNameSelected = file.name.split(".")[0];
+                const filetype = file.name.split(".")[1];
 
-                await this.translateModel(files, filetype, true);
+                await this.translateModel(file, filetype, true);
             } else {
                 this.viewStore.modelLoading = false;
                 this.textLoading = false;
@@ -324,7 +315,6 @@ export default defineComponent({
                 this.viewStore.modelLoading = true;
             }
             this.viewStore.textLoading = true;
-            console.log(this.viewStore.modelLoading)
             let params={model_name: this.modelData.model.modelNameSelected}
             await this.$api.post('/generateModel', this.modelData, {params})
             .then((response) => {
@@ -347,11 +337,9 @@ export default defineComponent({
                 })
             })
 
-            console.log(this.viewStore.modelLoading)
             this.viewStore.modelLoading = false;
             this.viewStore.textLoading = false;
             this.bus.emit("getStatus")
-            console.log(this.viewStore.modelLoading)
         },
         showTutorial() {
             var color = "gray";
