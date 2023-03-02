@@ -11,7 +11,7 @@
                         v-model="block.name"
                         :rules="[rules.required, rules.name]"
                         :label="blockKeys.name"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-select 
@@ -19,7 +19,7 @@
                         :options="materials"
                         v-model="block.material"
                         :label="blockKeys.material"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-select 
@@ -28,7 +28,7 @@
                         v-model="block.damageModel"
                         :label="blockKeys.damageModel"
                         clearable
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-toggle
@@ -36,7 +36,7 @@
                         v-model="block.show"
                         @change="bus.emit('filterPointData')"
                         label="Show"
-                        outlined
+                        standout
                         dense
                     ></q-toggle>
                     <q-btn v-if="model.ownModel" flat icon="fas fa-trash-alt" @click="removeBlock(index)">
@@ -108,20 +108,3 @@
         }
     })
 </script>
-<style>
-.my-title {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    margin-left: 10px;
-}
-.my-row {
-    min-height: 50px;
-}
-.my-input {
-    margin-left: 10px;
-}
-.my-toggle {
-    height: 40px;
-    margin: 10px;
-}
-</style>

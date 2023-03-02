@@ -15,7 +15,7 @@
               v-model="constants.bulkModulus"
               :label="materialKeys.bulkModulus"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -23,7 +23,7 @@
               v-model="constants.shearModulus"
               :label="materialKeys.shearModulus"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -31,7 +31,7 @@
               v-model="constants.youngsModulus"
               :label="materialKeys.youngsModulus"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -39,7 +39,7 @@
               v-model="constants.poissonsRatio"
               :label="materialKeys.poissonsRatio"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -47,7 +47,7 @@
               v-model="constants.pWaveModulus"
               :label="materialKeys.pWaveModulus"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -55,7 +55,7 @@
               v-model="constants.lameFirst"
               :label="materialKeys.lameFirst"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
         </div>
@@ -64,7 +64,7 @@
               class="my-input"
               v-model="calculated.bulkModulus"
               :label="materialKeys.bulkModulus"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -75,7 +75,7 @@
               class="my-input"
               v-model="calculated.shearModulus"
               :label="materialKeys.shearModulus"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -86,7 +86,7 @@
               class="my-input"
               v-model="calculated.youngsModulus"
               :label="materialKeys.youngsModulus"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -97,7 +97,7 @@
               class="my-input"
               v-model="calculated.poissonsRatio"
               :label="materialKeys.poissonsRatio"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -108,7 +108,7 @@
               class="my-input"
               v-model="calculated.pWaveModulus"
               :label="materialKeys.pWaveModulus"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -119,7 +119,7 @@
               class="my-input"
               v-model="calculated.lameFirst"
               :label="materialKeys.lameFirst"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>

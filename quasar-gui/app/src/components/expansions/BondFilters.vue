@@ -11,7 +11,7 @@
                         v-model="bondFilter.name"
                         :rules="[rules.required, rules.name]"
                         :label="bondFilterKeys.name"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-select 
@@ -20,7 +20,7 @@
                         item-text="name"
                         v-model="bondFilter.type"
                         :label="bondFilterKeys.type"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-input
@@ -29,7 +29,7 @@
                         v-model="bondFilter.bottomLength"
                         :rules="[rules.required, rules.name]"
                         :label="bondFilterKeys.bottomLength"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input
@@ -38,7 +38,7 @@
                         v-model="bondFilter.sideLength"
                         :rules="[rules.required, rules.name]"
                         :label="bondFilterKeys.sideLength"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input
@@ -47,7 +47,7 @@
                         v-model="bondFilter.radius"
                         :rules="[rules.required, rules.name]"
                         :label="bondFilterKeys.radius"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-btn flat icon="fas fa-trash-alt" @click="removeBondFilter(index)">
@@ -62,7 +62,7 @@
                         v-model="bondFilter.normalX"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.normalX"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -70,7 +70,7 @@
                         v-model="bondFilter.normalY"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.normalY"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -78,7 +78,7 @@
                         v-model="bondFilter.normalZ"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.normalZ"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-toggle
@@ -86,7 +86,7 @@
                         v-model="bondFilter.show"
                         @change="showHideBondFilters"
                         label="Show"
-                        outlined
+                        standout
                         dense
                     ></q-toggle>
                 </div>
@@ -96,7 +96,7 @@
                         v-model="bondFilter.lowerLeftCornerX"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.lowerLeftCornerX"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -104,7 +104,7 @@
                         v-model="bondFilter.lowerLeftCornerY"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.lowerLeftCornerY"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -112,7 +112,7 @@
                         v-model="bondFilter.lowerLeftCornerZ"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.lowerLeftCornerZ"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                 </div>
@@ -122,7 +122,7 @@
                         v-model="bondFilter.bottomUnitVectorX"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.bottomUnitVectorX"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -130,7 +130,7 @@
                         v-model="bondFilter.bottomUnitVectorY"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.bottomUnitVectorY"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -138,7 +138,7 @@
                         v-model="bondFilter.bottomUnitVectorZ"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.bottomUnitVectorZ"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                 </div>
@@ -148,7 +148,7 @@
                         v-model="bondFilter.centerX"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.centerX"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -156,7 +156,7 @@
                         v-model="bondFilter.centerY"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.centerY"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -164,7 +164,7 @@
                         v-model="bondFilter.centerZ"
                         :rules="[rules.required, rules.float]"
                         :label="bondFilterKeys.centerZ"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                 </div>
@@ -379,20 +379,3 @@
         }
     })
 </script>
-<style>
-.my-title {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    margin-left: 10px;
-}
-.my-row {
-    min-height: 50px;
-}
-.my-input {
-    margin-left: 10px;
-}
-.my-toggle {
-    height: 40px;
-    margin: 10px;
-}
-</style>

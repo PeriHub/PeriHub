@@ -59,7 +59,7 @@
                         item-text="name"
                         v-model="showResultsOutputName"
                         label="Output Name"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                 </q-card-section>
@@ -111,7 +111,7 @@
                         item-text="name"
                         v-model="getPlotOutput"
                         label="Output Name"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                 </q-card-section>
@@ -122,7 +122,7 @@
                         item-text="name"
                         v-model="getPlotVariableX"
                         label="Variable"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-select 
@@ -131,7 +131,7 @@
                         :readonly="getPlotVariableX=='Damage'"
                         v-model="getPlotAxisX"
                         label="Axis"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-toggle
@@ -148,7 +148,7 @@
                         item-text="name"
                         v-model="getPlotVariableY"
                         label="Variable"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-select 
@@ -157,7 +157,7 @@
                         :readonly="getPlotVariableY=='Damage'"
                         v-model="getPlotAxisY"
                         label="Axis"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-toggle
@@ -196,7 +196,7 @@
                         item-text="name"
                         v-model="getImageOutput"
                         label="Output Name"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-select 
@@ -204,7 +204,7 @@
                         :options="getImageVariable"
                         v-model="getImageVariableSelected"
                         label="Variable"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-select 
@@ -213,7 +213,7 @@
                         :readonly="getImageVariableSelected=='Damage'"
                         v-model="getImageAxisSelected"
                         label="Axis"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                 </q-card-section>
@@ -223,7 +223,7 @@
                         v-model="getImageDisplFactor"
                         :rules="[rules.required, rules.name]"
                         label="Displacement Factor"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -231,7 +231,7 @@
                         v-model="getImageMarkerSize"
                         :rules="[rules.required, rules.name]"
                         label="Marker Size"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -239,7 +239,7 @@
                         v-model="getImageStep"
                         :rules="[rules.required, rules.name]"
                         label="Time Step"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-toggle

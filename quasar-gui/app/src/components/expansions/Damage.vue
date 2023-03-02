@@ -13,7 +13,7 @@
                             v-model="damage.name"
                             :rules="[rules.required, rules.name]"
                             :label="damageKeys.name"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-btn flat icon="fas fa-trash-alt" @click="removeDamage(index)">
@@ -28,7 +28,7 @@
                             :options="damageModelName"
                             v-model="damage.damageModel"
                             :label="damageKeys.damageModel"
-                            outlined
+                            standout
                             dense
                         ></q-select>
                     </div>
@@ -39,7 +39,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="damageKeys.criticalStretch"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -48,7 +48,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="damageKeys.criticalEnergy"
                             clearable
-                            outlined
+                            standout
                             dense
                             :readonly="damage.criticalEnergyCalc.calculateCriticalEnergy"
                         ></q-input>
@@ -60,7 +60,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="damageKeys.criticalVonMisesStress"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -69,7 +69,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="damageKeys.criticalDamage"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div>
@@ -80,7 +80,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="damageKeys.thresholdDamage"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -89,7 +89,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="damageKeys.criticalDamageToNeglect"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div>
@@ -106,7 +106,7 @@
                             :rules="[rules.required, rules.float]"
                             label="Fracture Toughness (K1C)"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div>
@@ -129,7 +129,7 @@
                                 item-text="id"
                                 v-model="prop.firstBlockId"
                                 label="First Block Id"
-                                outlined
+                                standout
                                 dense
                             ></q-select>
                             <q-select 
@@ -138,7 +138,7 @@
                                 item-text="id"
                                 v-model="prop.secondBlockId"
                                 label="Second Block Id"
-                                outlined
+                                standout
                                 dense
                             ></q-select>
                             <q-input 
@@ -146,7 +146,7 @@
                                 v-model="prop.value"
                                 :rules="[rules.required, rules.float]"
                                 label="Critical Energ"
-                                outlined
+                                standout
                                 dense
                             ></q-input>
                             <q-btn flat icon="fas fa-trash-alt" @click="removeInterBlock(index, subindex)">
@@ -176,7 +176,7 @@
                             :options="stabilizatonType"
                             v-model="damage.stabilizatonType"
                             :label="damageKeys.stabilizatonType"
-                            outlined
+                            standout
                             dense
                         ></q-select>
                     </div>
@@ -192,7 +192,7 @@
                             v-model="damage.thickness"
                             :rules="[rules.required, rules.float]"
                             :label="damageKeys.thickness"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div>
@@ -202,7 +202,7 @@
                             v-model="damage.hourglassCoefficient"
                             :rules="[rules.required, rules.float]"
                             :label="damageKeys.hourglassCoefficient"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div>
@@ -306,20 +306,3 @@
         }
     })
 </script>
-<style>
-.my-title {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    margin-left: 10px;
-}
-.my-row {
-    min-height: 50px;
-}
-.my-input {
-    margin-left: 10px;
-}
-.my-toggle {
-    height: 40px;
-    margin: 10px;
-}
-</style>

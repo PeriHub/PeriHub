@@ -13,7 +13,7 @@
                             v-model="material.name"
                             :rules="[rules.required, rules.name]"
                             :label="materialKeys.name"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-btn flat icon="fas fa-trash-alt" @click="removeMaterial(index)">
@@ -28,7 +28,7 @@
                             :options="materialModelName"
                             v-model="material.matType"
                             :label="materialKeys.matType"
-                            outlined
+                            standout
                             dense
                         ></q-select>
                     </div>
@@ -44,7 +44,7 @@
                                 v-model="prop.value"
                                 :rules="[rules.required, rules.float]"
                                 :label="prop.name"
-                                outlined
+                                standout
                                 dense
                             ></q-input>
                             <q-btn flat icon="fas fa-trash-alt" @click="removeProp(index, subindex)">
@@ -81,7 +81,7 @@
                             v-model="material.density"
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.density"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -90,7 +90,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.poissonsRatio"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div>
@@ -101,7 +101,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.bulkModulus"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -110,7 +110,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.shearModulus"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -119,7 +119,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.youngsModulus"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div>
@@ -130,7 +130,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.tensionSeparation"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-toggle
@@ -160,7 +160,7 @@
                             v-model="material.materialSymmetry"
                             v-show="material.matType=='Linear Elastic Correspondence'"
                             :label="materialKeys.materialSymmetry"
-                            outlined
+                            standout
                             dense
                         ></q-select>
                     </div>
@@ -175,7 +175,7 @@
                             v-model="params.value"
                             :rules="[rules.required, rules.float]"
                             :label="params.name"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                       </q-list>
@@ -186,7 +186,7 @@
                             :options="stabilizatonType"
                             v-model="material.stabilizatonType"
                             :label="materialKeys.stabilizatonType"
-                            outlined
+                            standout
                             dense
                         ></q-select>
                     </div>  
@@ -196,7 +196,7 @@
                             v-model="material.thickness"
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.thickness"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div> 
@@ -206,7 +206,7 @@
                             v-model="material.hourglassCoefficient"
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.hourglassCoefficient"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div> 
@@ -216,7 +216,7 @@
                             v-model="material.actualHorizon"
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.actualHorizon"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div> 
@@ -226,7 +226,7 @@
                             v-model="material.yieldStress"
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.yieldStress"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div>
@@ -238,7 +238,7 @@
                             v-model="material.specificHeatCapacity"
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.specificHeatCapacity"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -246,7 +246,7 @@
                             v-model="material.thermalConductivity"
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.thermalConductivity"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -254,7 +254,7 @@
                             v-model="material.heatTransferCoefficient"
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.heatTransferCoefficient"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div> 
@@ -285,7 +285,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.thermalExpansionCoefficient"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -294,7 +294,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.environmentalTemperature"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div> 
@@ -307,7 +307,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.volumeFactor"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -316,7 +316,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.volumeLimit"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -325,7 +325,7 @@
                             :rules="[rules.required, rules.float]"
                             :label="materialKeys.surfaceCorrection"
                             clearable
-                            outlined
+                            standout
                             dense
                         ></q-input>
                     </div> 
@@ -578,20 +578,3 @@
         }
     })
 </script>
-<style>
-.my-title {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    margin-left: 10px;
-}
-.my-row {
-    min-height: 50px;
-}
-.my-input {
-    margin-left: 10px;
-}
-.my-toggle {
-    height: 40px;
-    margin: 10px;
-}
-</style>

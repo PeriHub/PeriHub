@@ -280,12 +280,7 @@
     {
       "id": 1,
       "name": "Output1",
-      "Displacement": true,
-      "Force": true,
-      "Damage": true,
-      "Velocity": true,
-      "Partial_Stress": false,
-      "Number_Of_Neighbors": false,
+      "selectedOutputs": ["Displacement","Force","Damage","Velocity"],
       "Frequency": "50",
       "InitStep": 0
     }

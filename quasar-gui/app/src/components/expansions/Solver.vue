@@ -6,7 +6,7 @@
                     v-model="solver.initialTime"
                     :rules="[rules.required, rules.name]"
                     :label="solverKeys.initialTime"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input 
@@ -14,7 +14,7 @@
                     v-model="solver.finalTime"
                     :rules="[rules.required, rules.name]"
                     :label="solverKeys.finalTime"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input 
@@ -23,14 +23,14 @@
                     v-show="solver.solvertype=='Implicit' | solver.solvertype=='Verlet'"
                     :rules="[rules.required, rules.name]"
                     :label="solverKeys.fixedDt"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-toggle
                     class="my-toggle"
                     v-model="solver.verbose"
                     :label="solverKeys.verbose"
-                    outlined
+                    standout
                     dense
                 ></q-toggle>
             </div>
@@ -40,7 +40,7 @@
                     :options="solvertype"
                     v-model="solver.solvertype"
                     :label="solverKeys.solvertype"
-                    outlined
+                    standout
                     dense
                 ></q-select>
                 <q-input 
@@ -48,7 +48,7 @@
                     v-model="solver.safetyFactor"
                     :rules="[rules.required, rules.name]"
                     :label="solverKeys.safetyFactor"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input 
@@ -56,7 +56,7 @@
                     v-model="solver.numericalDamping"
                     :rules="[rules.required, rules.name]"
                     :label="solverKeys.numericalDamping"
-                    outlined
+                    standout
                     dense
                 ></q-input>
             </div>
@@ -66,7 +66,7 @@
                     :options="peridgimPreconditioner"
                     v-model="solver.peridgimPreconditioner"
                     :label="solverKeys.peridgimPreconditioner"
-                    outlined
+                    standout
                     dense
                 ></q-select>
                 <q-select 
@@ -74,7 +74,7 @@
                     :options="nonlinearSolver"
                     v-model="solver.nonlinearSolver"
                     :label="solverKeys.nonlinearSolver"
-                    outlined
+                    standout
                     dense
                 ></q-select>
                 <q-input 
@@ -82,7 +82,7 @@
                     v-model="solver.numberOfLoadSteps"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.numberOfLoadSteps"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input 
@@ -90,7 +90,7 @@
                     v-model="solver.maxSolverIterations"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.maxSolverIterations"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input 
@@ -98,7 +98,7 @@
                     v-model="solver.relativeTolerance"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.relativeTolerance"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input 
@@ -106,7 +106,7 @@
                     v-model="solver.maxAgeOfPrec"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.maxAgeOfPrec"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-select 
@@ -114,7 +114,7 @@
                     :options="directionMethod"
                     v-model="solver.directionMethod"
                     :label="solverKeys.directionMethod"
-                    outlined
+                    standout
                     dense
                 ></q-select>
             </div>
@@ -124,7 +124,7 @@
                     :options="jacobianOperator"
                     v-model="solver.newton.jacobianOperator"
                     :label="solverKeys.newton.jacobianOperator"
-                    outlined
+                    standout
                     dense
                 ></q-select>
                 <q-select 
@@ -132,7 +132,7 @@
                     :options="preconditioner"
                     v-model="solver.newton.preconditioner"
                     :label="solverKeys.newton.preconditioner"
-                    outlined
+                    standout
                     dense
                 ></q-select>
             </div>
@@ -142,14 +142,14 @@
                     :options="lineSearchMethod"
                     v-model="solver.lineSearchMethod"
                     :label="solverKeys.lineSearchMethod"
-                    outlined
+                    standout
                     dense
                 ></q-select>
                 <q-toggle
                     class="my-toggle"
                     v-model="solver.verletSwitch"
                     :label="solverKeys.verletSwitch"
-                    outlined
+                    standout
                     dense
                 ></q-toggle>
             </div>
@@ -159,7 +159,7 @@
                     v-model="solver.verlet.safetyFactor"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.verlet.safetyFactor"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input 
@@ -167,7 +167,7 @@
                     v-model="solver.verlet.numericalDamping"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.verlet.numericalDamping"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input 
@@ -175,7 +175,7 @@
                     v-model="solver.verlet.outputFrequency"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.verlet.outputFrequency"
-                    outlined
+                    standout
                     dense
                 ></q-input>
             </div>
@@ -184,7 +184,7 @@
                     class="my-toggle"
                     v-model="solver.adaptivetimeStepping"
                     :label="solverKeys.adaptivetimeStepping"
-                    outlined
+                    standout
                     dense
                 ></q-toggle>
             </div>
@@ -193,7 +193,7 @@
                     class="my-toggle"
                     v-model="solver.stopAfterDamageInitation"
                     :label="solverKeys.stopAfterDamageInitation"
-                    outlined
+                    standout
                     dense
                 ></q-toggle>
                 <q-input v-show="solver.stopAfterDamageInitation"
@@ -201,14 +201,14 @@
                     v-model="solver.endStepAfterDamagey"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.endStepAfterDamagey"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-toggle
                     class="my-toggle"
                     v-model="solver.stopBeforeDamageInitation"
                     :label="solverKeys.stopBeforeDamageInitation"
-                    outlined
+                    standout
                     dense
                 ></q-toggle>
             </div>
@@ -218,7 +218,7 @@
                     v-model="solver.adapt.stableStepDifference"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.adapt.stableStepDifference"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input
@@ -226,7 +226,7 @@
                     v-model="solver.adapt.maximumBondDifference"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.adapt.maximumBondDifference"
-                    outlined
+                    standout
                     dense
                 ></q-input>
                 <q-input
@@ -234,7 +234,7 @@
                     v-model="solver.adapt.stableBondDifference"
                     :rules="[rules.required, rules.int]"
                     :label="solverKeys.adapt.stableBondDifference"
-                    outlined
+                    standout
                     dense
                 ></q-input>
             </div>
@@ -245,7 +245,7 @@
                     v-model="solver.filetype"
                     v-show="job.cluster=='Cara'"
                     :label="solverKeys.filetype"
-                    outlined
+                    standout
                     dense
                 ></q-select>
             </div>
@@ -327,20 +327,3 @@
         }
     })
 </script>
-<style>
-.my-title {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    margin-left: 10px;
-}
-.my-row {
-    min-height: 50px;
-}
-.my-input {
-    margin-left: 10px;
-}
-.my-toggle {
-    height: 40px;
-    margin: 10px;
-}
-</style>

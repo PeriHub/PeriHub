@@ -315,14 +315,7 @@
   {
     "id": 1,
     "name": "Output1",
-    "Displacement": true,
-    "Force": true,
-    "Damage": true,
-    "Velocity": true,
-    "Partial_Stress": true,
-    "Number_Of_Neighbors": true,
-    "Contact_Force": true,
-    "Write_After_Damage": false,
+    "selectedOutputs": ["Displacement","Force","Damage","Velocity","Partial_Stress","Number_Of_Neighbors","Contact_Force"],
     "Frequency": "1",
     "InitStep": 0
   }

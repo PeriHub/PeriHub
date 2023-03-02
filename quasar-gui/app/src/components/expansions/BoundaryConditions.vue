@@ -11,7 +11,7 @@
                         v-model="nodeSet.file"
                         :rules="[rules.required, rules.name]"
                         label="Nodeset"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                 </div>
@@ -28,7 +28,7 @@
                         v-model="boundaryCondition.name"
                         :rules="[rules.required, rules.name]"
                         :label="boundaryKeys.name"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-select 
@@ -37,7 +37,7 @@
                         item-text="name"
                         v-model="boundaryCondition.boundarytype"
                         :label="boundaryKeys.boundarytype"
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-input 
@@ -45,7 +45,7 @@
                         v-model="boundaryCondition.nodeSet"
                         :rules="[rules.required, rules.name]"
                         :label="boundaryKeys.nodeSet"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                 </div> 
@@ -58,7 +58,7 @@
                         v-model="boundaryCondition.blockId"
                         :label="boundaryKeys.blockId"
                         clearable
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-select 
@@ -68,7 +68,7 @@
                         v-model="boundaryCondition.coordinate"
                         :label="boundaryKeys.coordinate"
                         clearable
-                        outlined
+                        standout
                         dense
                     ></q-select>
                     <q-input 
@@ -76,7 +76,7 @@
                         v-model="boundaryCondition.value"
                         :rules="[rules.required, rules.name]"
                         :label="boundaryKeys.value"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-btn flat icon="fas fa-trash-alt" @click="removeCondition(index)">
@@ -165,20 +165,3 @@
         }
     })
 </script>
-<style>
-.my-title {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    margin-left: 10px;
-}
-.my-row {
-    min-height: 50px;
-}
-.my-input {
-    margin-left: 10px;
-}
-.my-toggle {
-    height: 40px;
-    margin: 10px;
-}
-</style>

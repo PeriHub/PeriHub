@@ -355,22 +355,14 @@
     {
       "id": 1,
       "name": "Output1",
-      "Displacement": true,
-      "Force": true,
-      "Damage": true,
-      "Velocity": true,
-      "Partial_Stress": true,
-      "Number_Of_Neighbors": true,
-      "Write_After_Damage": false,
+      "selectedOutputs": ["Displacement","Force","Damage","Velocity","Partial_Stress","Number_Of_Neighbors"],
       "Frequency": 50,
       "InitStep": 0
     },
     {
       "id": 2,
       "name": "Output2",
-      "Displacement": true,
-      "Force": true,
-      "Damage": true,
+      "selectedOutputs": ["Displacement","Force","Damage"],
       "Write_After_Damage": true,
       "Frequency": 10,
       "InitStep": 0

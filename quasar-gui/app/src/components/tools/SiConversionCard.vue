@@ -15,7 +15,7 @@
               v-model="conversion.mass"
               label="Mass [kg]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -23,7 +23,7 @@
               v-model="conversion.length"
               label="Length [m]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -31,7 +31,7 @@
               v-model="conversion.velocity"
               label="Velocity [m/s]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -39,7 +39,7 @@
               v-model="conversion.acceleration"
               label="Acceleration [m/s^2]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -47,7 +47,7 @@
               v-model="conversion.moment"
               label="Moment [Nm]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -55,7 +55,7 @@
               v-model="conversion.pressure"
               label="Pressure [Pa]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -63,7 +63,7 @@
               v-model="conversion.density"
               label="Density [kg/m^3]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -71,7 +71,7 @@
               v-model="conversion.energy"
               label="Energy [J]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -79,7 +79,7 @@
               v-model="conversion.energyReleaseRate"
               label="Energy release rate [N/m]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
           <q-input 
@@ -87,7 +87,7 @@
               v-model="conversion.fractureToughness"
               label="FractureToughness [MPa · m^1/2]"
               clearable
-              outlined
+              standout
               dense
           ></q-input>
         </div>
@@ -96,7 +96,7 @@
               class="my-input"
               v-model="conversionResults.mass"
               label="Mass [t]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -107,7 +107,7 @@
               class="my-input"
               v-model="conversionResults.length"
               label="Length [mm]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -118,7 +118,7 @@
               class="my-input"
               v-model="conversionResults.velocity"
               label="Velocity [mm/s]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -129,7 +129,7 @@
               class="my-input"
               v-model="conversionResults.acceleration"
               label="Acceleration [mm/s^2]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -140,7 +140,7 @@
               class="my-input"
               v-model="conversionResults.moment"
               label="Moment [Nmm]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -151,7 +151,7 @@
               class="my-input"
               v-model="conversionResults.pressure"
               label="Pressure [MPa]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -162,7 +162,7 @@
               class="my-input"
               v-model="conversionResults.density"
               label="Density [t/mm^3]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -173,7 +173,7 @@
               class="my-input"
               v-model="conversionResults.energy"
               label="Energy [mJ]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -184,7 +184,7 @@
               class="my-input"
               v-model="conversionResults.energyReleaseRate"
               label="Energy release rate [N/mm]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>
@@ -195,7 +195,7 @@
               class="my-input"
               v-model="conversionResults.fractureToughness"
               label="Fracture Toughness [MPa · mm^1/2]"
-              outlined
+              standout
               dense
           >
             <template v-slot:append>

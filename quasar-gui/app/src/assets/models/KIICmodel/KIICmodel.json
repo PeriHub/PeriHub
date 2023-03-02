@@ -275,29 +275,18 @@
   {
     "id": 1,
     "name": "Output1",
-    "Displacement": true,
-    "Force": true,
-    "Damage": true,
-    "Velocity": true,
-    "Partial_Stress": true,
-    "Number_Of_Neighbors": true,
+    "selectedOutputs": ["Displacement","Force","Damage","Velocity","Partial_Stress","Number_Of_Neighbors","Von_Mises_Stress","Unrotated_Strain"],
     "Write_After_Damage": false,
     "Frequency": "1",
-    "InitStep": 0,
-    "Von_Mises_Stress": true,
-    "Unrotated_Strain": true
+    "InitStep": 0
   },
   {
     "id": 2,
     "name": "Output2",
-    "Displacement": true,
-    "Damage": true,
-    "Partial_Stress": true,
+    "selectedOutputs": ["Displacement","Damage","Partial_Stress","Von_Mises_Stress","Unrotated_Strain"],
     "Write_After_Damage": true,
     "Frequency": "1",
-    "InitStep": 0,
-    "Von_Mises_Stress": true,
-    "Unrotated_Strain": true
+    "InitStep": 0
   }
 ],
 "solver": {

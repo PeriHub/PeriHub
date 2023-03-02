@@ -209,55 +209,7 @@ class Compute(BaseModel):
 class Output(BaseModel):
     outputsId: Optional[int]
     name: str
-
-    Element_Id: Optional[bool] = None
-    Block_Id: Optional[bool] = None
-    Horizon: Optional[bool] = None
-    Volume: Optional[bool] = None
-    Point_Time: Optional[bool] = None
-    Node_Type: Optional[bool] = None
-    Model_Coordinates: Optional[bool] = None
-    Local_Angles: Optional[bool] = None
-    Orientations: Optional[bool] = None
-    Coordinates: Optional[bool] = None
-    Displacement: Optional[bool] = None
-    Velocity: Optional[bool] = None
-    Acceleration: Optional[bool] = None
-    Temperature: Optional[bool] = None
-    Concentration: Optional[bool] = None
-    Temperature_Change: Optional[bool] = None
-    Flux_Divergence: Optional[bool] = None
-    Concentration_Flux_Divergence: Optional[bool] = None
-    Force_Density: Optional[bool] = None
-    Contact_Force_Density: Optional[bool] = None
-    External_Force_Density: Optional[bool] = None
-    Damage_Model_Data: Optional[bool] = None
-    Damage: Optional[bool] = None
-    Detached_Nodes: Optional[bool] = None
-    Bond_Damage_Diff: Optional[bool] = None
-    Specific_Volume: Optional[bool] = None
-    Proc_Num: Optional[bool] = None
-    Hourglass_Force_Density: Optional[bool] = None
-    Deformation_Gradient: Optional[bool] = None
-    Left_Stretch_Tensor: Optional[bool] = None
-    Rotation_Tensor: Optional[bool] = None
-    Shape_Tensor_Inverse: Optional[bool] = None
-    Unrotated_Cauchy_Stress: Optional[bool] = None
-    Unrotated_Rate_Of_Deformation: Optional[bool] = None
-    Unrotated_Plastic_Cauchy_Stress: Optional[bool] = None
-    Cauchy_Stress: Optional[bool] = None
-    Partial_Stress: Optional[bool] = None
-    Hourglass_Stiffness: Optional[bool] = None
-    Von_Mises_Stress: Optional[bool] = None
-    Equivalent_Plastic_Strain: Optional[bool] = None
-    Unrotated_Strain: Optional[bool] = None
-    Weighted_Volume: Optional[bool] = None
-    Dilatation: Optional[bool] = None
-    Number_Of_Neighbors: Optional[bool] = None
-    Force: Optional[bool] = None
-
-    Velocity_Gradient: Optional[bool] = None
-    PiolaStressTimesInvShapeTensor: Optional[bool] = None
+    selectedOutputs: Optional[List[str]] = None
 
     Write_After_Damage: Optional[bool] = None
     Frequency: int

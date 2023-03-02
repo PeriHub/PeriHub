@@ -4,7 +4,7 @@
                 class="my-toggle"
                 v-model="contact.enabled"
                 label="Enabled"
-                outlined
+                standout
                 dense
             ></q-toggle>
             <div v-if="contact.enabled">
@@ -14,7 +14,7 @@
                         v-model="contact.searchRadius"
                         :rules="[rules.required, rules.float]"
                         label="Search Radius"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                     <q-input 
@@ -22,7 +22,7 @@
                         v-model="contact.searchFrequency"
                         :rules="[rules.required, rules.int]"
                         label="Search Frequency"
-                        outlined
+                        standout
                         dense
                     ></q-input>
                 </div> 
@@ -38,7 +38,7 @@
                             v-model="contactModel.name"
                             :rules="[rules.required, rules.name]"
                             label="Name"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-select 
@@ -46,7 +46,7 @@
                             :options="contactType"
                             v-model="contactModel.contactType"
                             label="Type"
-                            outlined
+                            standout
                             dense
                         ></q-select>
                         <q-input 
@@ -54,7 +54,7 @@
                             v-model="contactModel.contactRadius"
                             :rules="[rules.required, rules.float]"
                             label="Contact Radius"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-input 
@@ -62,7 +62,7 @@
                             v-model="contactModel.springConstant"
                             :rules="[rules.required, rules.float]"
                             label="Spring Constant"
-                            outlined
+                            standout
                             dense
                         ></q-input>
                         <q-btn flat icon="fas fa-trash-alt" @click="removeContactModel(index)">
@@ -92,7 +92,7 @@
                             item-text="id"
                             v-model="interaction.firstBlockId"
                             label="First Block Id"
-                            outlined
+                            standout
                             dense
                         ></q-select>
                         <q-select 
@@ -101,7 +101,7 @@
                             item-text="id"
                             v-model="interaction.secondBlockId"
                             label="Second Block Id"
-                            outlined
+                            standout
                             dense
                         ></q-select>
                         <q-select 
@@ -110,7 +110,7 @@
                             item-text="id"
                             v-model="interaction.contactModelId"
                             label="Contact Model Id"
-                            outlined
+                            standout
                             dense
                         ></q-select>
                         <q-btn flat icon="fas fa-trash-alt" @click="removeInteraction(index)">
@@ -189,20 +189,3 @@
         }
     })
 </script>
-<style>
-.my-title {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    margin-left: 10px;
-}
-.my-row {
-    min-height: 50px;
-}
-.my-input {
-    margin-left: 10px;
-}
-.my-toggle {
-    height: 40px;
-    margin: 10px;
-}
-</style>

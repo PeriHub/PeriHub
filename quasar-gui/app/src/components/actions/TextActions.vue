@@ -161,10 +161,14 @@ export default defineComponent({
         },
         async getStatus() {
             console.log("getStatus");
-            this.$api.get('/getStatus', {
+
+            let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 own_model: this.modelData.model.ownModel,
-                cluster: this.modelData.job.cluster})
+                cluster: this.modelData.job.cluster
+            }
+
+            this.$api.get('/getStatus', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message

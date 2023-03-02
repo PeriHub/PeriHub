@@ -33,7 +33,7 @@
                         :rules="[rules.float]"
                         label="Discretization"
                         clearable
-                        outlined
+                        standout
                     ></q-input>
                 </q-card-section>
                 <q-card-actions align="right">
@@ -87,13 +87,13 @@
 
         <q-space></q-space>
 
-        <!-- <q-btn flat icon="fas fa-sort" @click="openHidePanels">
+        <q-btn flat icon="fas fa-sort" @click="bus.emit('openHidePanels')">
             <q-tooltip>
                 Collapse/Expand all panel
             </q-tooltip>
-        </q-btn> -->
+        </q-btn>
 
-        <q-btn flat icon="fas fa-info" @click="showTutorial">
+        <q-btn flat icon="fas fa-info" @click="bus.emit('showTutorial')">
             <q-tooltip>
                 Show Tutorial
             </q-tooltip>
