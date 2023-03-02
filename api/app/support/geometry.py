@@ -280,7 +280,6 @@ class Geometry:
         """doc"""
 
         dalpha = 0.025
-        # print(alpha_max)
         alpha = np.arange(0, alpha_max + dalpha, dalpha)
         ##################################
         # Start
