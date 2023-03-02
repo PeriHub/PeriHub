@@ -88,8 +88,7 @@
 </template>
 
 <script>
-    import { inject, computed, defineComponent } from 'vue'    
-    import { api } from 'boot/axios'
+    import { inject, computed, defineComponent } from 'vue'
     import { useViewStore } from 'stores/view-store';
     import { useModelStore } from 'stores/model-store';
     
@@ -186,7 +185,7 @@
                 own_mesh: this.modelData.model.ownMesh,
                 mesh_file: this.modelData.model.meshFile
             }
-              api.get('/getPointData', {params})
+              this.$api.get('/getPointData', {params})
               .then((response) => {
                   this.pointString = response.data.data[0].split(",")
                   this.blockIdString = response.data.data[1].split(",")

@@ -35,7 +35,6 @@
     import { useModelStore } from 'stores/model-store';
     import { useViewStore } from 'stores/view-store';
     import { inject } from 'vue'
-    import { api } from 'boot/axios'
     import { useQuasar } from 'quasar'
     import rules from "assets/rules.js";
 
@@ -83,7 +82,7 @@ export default defineComponent({
                 file_type: this.modelData.solver.filetype
             }
 
-            api.get('/viewInputFile', {params})
+            this.$api.get('/viewInputFile', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -110,7 +109,7 @@ export default defineComponent({
                 file_type: this.modelData.solver.filetype,
             }
 
-            api.put('/writeInputFile', {params})
+            this.$api.put('/writeInputFile', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -141,7 +140,7 @@ export default defineComponent({
                 model_name: this.modelData.model.modelNameSelected,
                 cluster: this.modelData.job.cluster
             }
-            api.get('/getLogFile', {params})
+            this.$api.get('/getLogFile', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -162,7 +161,7 @@ export default defineComponent({
         },
         async getStatus() {
             console.log("getStatus");
-            api.get('/getStatus', {
+            this.$api.get('/getStatus', {
                 model_name: this.modelData.model.modelNameSelected,
                 own_model: this.modelData.model.ownModel,
                 cluster: this.modelData.job.cluster})

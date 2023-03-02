@@ -24,7 +24,7 @@ export default {
             let params = {
                 name: route
             }
-            api.get('/getDocs', {params})
+            this.$api.get('/getDocs', {params})
             .then((response) => {
                 this.markdown = response.data
             })

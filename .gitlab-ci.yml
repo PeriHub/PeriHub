@@ -97,7 +97,7 @@ build_api_job:
     changes:
       - api/**/*
   script:
-    - docker build --build-arg SMETANA=True --build-arg GITLAB_TOKEN=$GITLAB_TOKEN -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
+    - docker build --build-arg GITLAB_TOKEN=$GITLAB_TOKEN -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
 # build_gui_job:
@@ -179,6 +179,5 @@ build_trame_job:
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
     - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY_PATH
-    # - echo -e "EXTERNAL=False\nSMETANA=True\nGITLAB_TOKEN=$GITLAB_TOKEN" >> .env
   after_script:
     - docker logout

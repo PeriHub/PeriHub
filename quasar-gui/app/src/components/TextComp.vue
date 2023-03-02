@@ -56,7 +56,7 @@ export default defineComponent({
     },
     created() {
         this.bus.on('resizeTextPanel', (height) => {
-            this.textHeight = height - 112 + 'px'
+            this.textHeight = height - 113 + 'px'
         })
     },
 })

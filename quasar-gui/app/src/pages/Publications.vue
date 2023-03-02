@@ -94,7 +94,7 @@ export default defineComponent({
     methods: {
         async getPublications() {
 
-            api.get('/getPublications')
+            this.$api.get('/getPublications')
             .then((response) => {
                 this.bib_data = this.latexToUtf(response.data)
                 this.bib_entries = bibtexParse.toJSON(this.bib_data);

@@ -1,5 +1,5 @@
 <template>
-    <q-scroll-area style="height: calc(100vh - 183px);">
+    <q-scroll-area style="height: calc(100vh - 185px);">
         <q-list bordered class="rounded-borders">
             <q-expansion-item
                 expand-separator

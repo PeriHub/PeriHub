@@ -37,7 +37,6 @@ COPY ./app/support /app/support
 COPY ./app/api_main.py /app/api_main.py
 
 RUN if [ "$DEV" = "True" ]; then echo "DEV=True" > .env; fi  &&\
-    echo "SMETANA=True" > .env &&\
     if [ "$EXTERNAL" = "False" ]; then echo "Host 129.247.54.37\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi &&\
     if [ "$EXTERNAL" = "False" ]; then echo "Host cara.dlr.de\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 

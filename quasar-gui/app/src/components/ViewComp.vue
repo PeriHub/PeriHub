@@ -74,7 +74,7 @@ export default defineComponent({
     },
     created() {
         this.bus.on('resizeViewPanel', (height) => {
-            this.viewHeight = height - 88 + 'px'
+            this.viewHeight = height - 89 + 'px'
         })
     },
 })

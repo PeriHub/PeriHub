@@ -360,7 +360,6 @@
     import { useModelStore } from 'stores/model-store';
     import { useViewStore } from 'stores/view-store';
     import { inject } from 'vue'
-    import { api } from 'boot/axios'
     import rules from "assets/rules.js";
     import { deepCopy } from '../../utils/functions.js'
   
@@ -506,7 +505,7 @@
                 }
                 let params={model_name: this.store.modelData.model.modelNameSelected}
 
-                api.post('/uploadfiles', formData, {params})
+                this.$api.post('/uploadfiles', formData, {params})
                 .then((response) => {
                     this.$q.notify({
                         message: response.data.message

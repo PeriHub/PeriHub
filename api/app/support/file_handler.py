@@ -56,6 +56,7 @@ class FileHandler:
             return "dev"
 
         encoded_token = request.headers.get("Authorization")
+        print(encoded_token)
         if encoded_token is None or encoded_token == "":
             return "guest"
 

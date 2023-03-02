@@ -107,7 +107,6 @@
     import { useModelStore } from 'stores/model-store';
     import { useViewStore } from 'stores/view-store';
     import { inject } from 'vue'
-    import { api } from 'boot/axios'
     import rules from "assets/rules.js";
 
 export default defineComponent({
@@ -207,7 +206,7 @@ export default defineComponent({
             
             let params={model_name: this.modelData.model.modelNameSelected}
 
-            api.post('/uploadfiles', formData, {params})
+            this.$api.post('/uploadfiles', formData, {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -300,7 +299,7 @@ export default defineComponent({
         saveModel() {
 
             let params = {model_name: this.modelData.model.modelNameSelected}
-            api.get('/getModel', {params})
+            this.$api.get('/getModel', {params})
             .then((response) => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement("a");
@@ -327,7 +326,7 @@ export default defineComponent({
             this.viewStore.textLoading = true;
             console.log(this.viewStore.modelLoading)
             let params={model_name: this.modelData.model.modelNameSelected}
-            await api.post('/generateModel', this.modelData, {params})
+            await this.$api.post('/generateModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message

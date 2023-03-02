@@ -348,7 +348,6 @@
     import { useModelStore } from 'stores/model-store';
     import { useViewStore } from 'stores/view-store';
     import { inject } from 'vue'
-    import { api } from 'boot/axios'
     import axios from "axios";
     import { useQuasar } from 'quasar'
     import rules from "assets/rules.js";
@@ -431,7 +430,7 @@ export default defineComponent({
                 file_type: this.modelData.solver.filetype,
             }
 
-            api.put('/runModel', this.modelData, {params})
+            this.$api.put('/runModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -467,7 +466,7 @@ export default defineComponent({
                 model_name: this.modelData.model.modelNameSelected,
                 cluster: this.modelData.job.cluster
             }
-            api.put('/cancelJob', {params})
+            this.$api.put('/cancelJob', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -506,7 +505,7 @@ export default defineComponent({
                 cluster: this.modelData.job.cluster,
                 allData: allData,
             }
-            api.get('/getResults', {params})
+            this.$api.get('/getResults', {params})
             .then((response) => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement("a");
@@ -667,7 +666,7 @@ export default defineComponent({
                 y_axis: this.getPlotAxisY,
                 y_absolute: this.getPlotAbsoluteY,
             }
-            await api.get('/getPlot', {params})
+            await this.$api.get('/getPlot', {params})
             .then((response) => {
                 this.plotRawData = response.data.data
                 this.$q.notify({
@@ -721,7 +720,7 @@ export default defineComponent({
                 step: this.getImageStep
             }
 
-            await api.get('/getImagePython', {params, responseType: "blob"})
+            await this.$api.get('/getImagePython', {params, responseType: "blob"})
             .then((response) => {
                 this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
             })
@@ -751,7 +750,7 @@ export default defineComponent({
                 output: "Output2"
             }
 
-            await api.get('/getFractureAnalysis', {params, responseType: "blob"})
+            await this.$api.get('/getFractureAnalysis', {params, responseType: "blob"})
             .then((response) => {
                 this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
                 this.$q.notify({
