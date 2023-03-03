@@ -106,7 +106,5 @@ class ModelWriter:
             yaml = YAMLcreator(self, block_def=block_def)
 
             string = yaml.translate_xml_to_yaml(string)
-        # else:
-        #    print('Not a supported filetye: ', self.solver_dict['filetype'])
 
         self.file_writer(self.filename + "." + self.solver_dict.filetype, string)
