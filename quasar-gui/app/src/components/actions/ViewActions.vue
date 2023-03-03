@@ -85,7 +85,7 @@
                 Show Fracture Analysis
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="viewStore.viewId==0" flat icon="fas fa-download" @click="downloadModelImage()" :disabled="!store.status.results">
+        <q-btn v-if="viewStore.viewId=='image'" flat icon="fas fa-download" @click="downloadModelImage()" :disabled="!store.status.results">
             <q-tooltip>
                 Download Image
             </q-tooltip>
@@ -228,6 +228,7 @@
                     ></q-input>
                     <q-input 
                         class="my-input"
+                        v-show="!getImageTriangulate"
                         v-model="getImageMarkerSize"
                         :rules="[rules.required, rules.name]"
                         label="Marker Size"
@@ -248,6 +249,14 @@
                         label="Triangulate"
                         dense
                     ></q-toggle>
+                    <q-input 
+                        class="my-input"
+                        v-model="getImageDxFactor"
+                        :rules="[rules.required, rules.name]"
+                        label="Dx Factor"
+                        standout
+                        dense
+                    ></q-input>
                 </q-card-section>
                 <q-card-actions align="right">
                     <q-btn flat label="Show" color="primary" v-close-popup @click="getImagePython"></q-btn>
@@ -412,6 +421,7 @@ export default defineComponent({
             getImageDisplFactor: 20,
             getImageMarkerSize: 16,
             getImageTriangulate: true,
+            getImageDxFactor: 1.5,
             getImageStep: -1,
 
             statusInterval: null,
@@ -682,7 +692,7 @@ export default defineComponent({
                 length: this.modelData.model.length,
                 height: this.modelData.model.height,
                 triangulate: this.getImageTriangulate,
-                dx_value: this.viewStore.dx_value,
+                dx_value: this.viewStore.dx_value * this.getImageDxFactor,
                 step: this.getImageStep
             }
 
@@ -691,6 +701,8 @@ export default defineComponent({
                 this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
             })
             .catch((error) => {
+                console.log(error.response)
+                console.log(error.response.detail)
                 this.$q.notify({
                     type: 'negative',
                     message: error.response.statusText
@@ -732,6 +744,13 @@ export default defineComponent({
 
             this.viewStore.viewId = "image";
             this.viewStore.modelLoading = false;
+        },
+        async downloadModelImage() {
+            var fileLink = document.createElement("a");
+            fileLink.href = this.viewStore.modelImg;
+            fileLink.setAttribute("download", this.modelData.model.modelNameSelected + ".png");
+            document.body.appendChild(fileLink);
+            fileLink.click();
         },
         async getG1c() {
             let headersList = {

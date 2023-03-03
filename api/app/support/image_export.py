@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 import numpy as np
 from exodusreader.exodusreader import ExodusReader
+from fastapi import HTTPException, status
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from support.analysis import Analysis
 from support.base_models import Model
@@ -207,17 +208,23 @@ class ImageExport:
                         )
 
                     triang = mtri.Triangulation(np_points_all_x, np_points_all_y)
+                try:
+                    mask = ImageExport.long_edges(
+                        np_points_all_x,
+                        np_points_all_y,
+                        triang.triangles,
+                        dx_value,
+                    )
+                    triang.set_mask(mask)
 
-                mask = ImageExport.long_edges(
-                    np_points_all_x,
-                    np_points_all_y,
-                    triang.triangles,
-                    dx_value,
-                )
-                triang.set_mask(mask)
-
-                # plt.triplot(triang)
-                tcf = ax.tricontourf(triang, cell_value, levels=100, cmap=cm.jet)
+                    # plt.triplot(triang)
+                    tcf = ax.tricontourf(triang, cell_value, levels=100, cmap=cm.jet)
+                except ValueError:
+                    log.error("Failed to triangulate, dx_value to small")
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Failed to triangulate, dx_value to small",
+                    )
 
                 cbar = fig.colorbar(tcf, cax=cax)
 
@@ -265,17 +272,24 @@ class ImageExport:
                     np_first_points_y = np.array(points[:, 1])
                     triang = mtri.Triangulation(np_first_points_x, np_first_points_y)
 
-                mask = ImageExport.long_edges(
-                    np_points_x, np_points_y, triang.triangles, dx_value
-                )
-                triang.set_mask(mask)
+                try:
+                    mask = ImageExport.long_edges(
+                        np_points_x, np_points_y, triang.triangles, dx_value
+                    )
+                    triang.set_mask(mask)
 
-                tcf = ax.tricontourf(
-                    triang,
-                    point_data[variable][:, axis_id],
-                    levels=100,
-                    cmap=cm.jet,
-                )
+                    tcf = ax.tricontourf(
+                        triang,
+                        point_data[variable][:, axis_id],
+                        levels=100,
+                        cmap=cm.jet,
+                    )
+                except ValueError:
+                    log.error("Failed to triangulate, dx_value to small")
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Failed to triangulate, dx_value to small",
+                    )
 
                 cbar = fig.colorbar(tcf, cax=cax)
 

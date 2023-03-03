@@ -1002,27 +1002,27 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        try:
-            filepath = ImageExport.get_result_image_from_exodus(
-                file,
-                displ_factor,
-                marker_size,
-                variable,
-                axis,
-                length,
-                height,
-                triangulate,
-                dx_value,
-                step,
-                cb_left,
-                transparent,
-            )
-        except ValueError:
-            log.error("%s ValueError %s", model_name, cluster)
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="ValueError",
-            )
+        # try:
+        filepath = ImageExport.get_result_image_from_exodus(
+            file,
+            displ_factor,
+            marker_size,
+            variable,
+            axis,
+            length,
+            height,
+            triangulate,
+            dx_value,
+            step,
+            cb_left,
+            transparent,
+        )
+        # except ValueError:
+        #     log.error("%s ValueError %s", model_name, cluster)
+        #     raise HTTPException(
+        #         status_code=status.HTTP_400_BAD_REQUEST,
+        #         detail="ValueError",
+        #     )
 
         try:
             return FileResponse(filepath)
