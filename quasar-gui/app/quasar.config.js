@@ -53,6 +53,9 @@ module.exports = configure(function (ctx) {
         API: ctx.dev
           ? "http://localhost:6020"
           : "https://perihub-api.fa-services.intra.dlr.de",
+        TRAME_API: ctx.dev
+          ? "http://localhost:6040"
+          : "https://perihub-trame-api.fa-services.intra.dlr.de",
       },
       vueCompiler: true,
       // Add dependencies for transpiling with Babel (Array of string/regex)

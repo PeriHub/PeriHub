@@ -70,7 +70,7 @@
             </q-card>
         </q-dialog>
 
-        <q-btn v-if="viewStore.viewId==3" flat icon="fas fa-external-link-alt" @click="openResults">
+        <q-btn v-if="viewStore.viewId=='trame'" flat icon="fas fa-external-link-alt" @click="openResults">
             <q-tooltip>
                 Open Results
             </q-tooltip>
@@ -348,7 +348,6 @@
     import { useModelStore } from 'stores/model-store';
     import { useViewStore } from 'stores/view-store';
     import { inject } from 'vue'
-    import axios from "axios";
     import { useQuasar } from 'quasar'
     import rules from "assets/rules.js";
 
@@ -374,7 +373,6 @@ export default defineComponent({
         },
     data() {
         return {
-            trameUrl: "https://perihub-trame-api.fa-services.intra.dlr.de/",
             resultsLoading: false,
             dialog: false,
             dialogShowResults: false,
@@ -544,55 +542,23 @@ export default defineComponent({
         async showResults(outputName) {
             this.viewStore.modelLoading = true;
 
-            let headersList = {
-                "Cache-Control": "no-cache",
-                Authorization: this.authToken,
-            };
-
             var index = this.modelData.outputs.findIndex((o) => o.name == outputName);
 
-            let output_list = [];
-
-            if (this.modelData.outputs[index].Displacement) {
-                output_list.push("Displacement");
-            }
-            if (this.modelData.outputs[index].Force) {
-                output_list.push("Force");
-            }
-            if (this.modelData.outputs[index].Velocity) {
-                output_list.push("Velocity");
-            }
-            if (this.modelData.outputs[index].Damage) {
-                output_list.push("Damage");
-            }
-            if (this.modelData.outputs[index].Partial_Stress) {
-                output_list.push("Partial_StressX");
-                output_list.push("Partial_StressY");
-                output_list.push("Partial_StressZ");
-            }
-            if (this.modelData.outputs[index].Number_Of_Neighbors) {
-                output_list.push("Number_Of_Neighbors");
-            }
-            if (this.modelData.outputs[index].Temperature) {
-                output_list.push("Temperature");
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                output_name: this.modelData.outputs[index].name,
+                output_list: this.modelData.outputs[index].selectedOutputs.toString(),
+                dx_value: this.viewStore.dx_value,
+                duration: 600
             }
 
-            await axios({
-                method: 'POST',
-                url: this.trameUrl + 'launchTrameInstance',
-                params: {
-                    model_name: this.modelData.model.modelNameSelected,
-                    output_name: this.modelData.outputs[index].name,
-                    output_list: output_list.toString(),
-                    dx_value: this.viewStore.dx_value,
-                    duration: 600
-                }
-            })
+            console.log(this.port)
+            await this.$trameApi.post('/launchTrameInstance', '',{params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
                 })
-                this.port = response.data
+                this.port = response.data.data
             })
             .catch( (error)=> {
                 this.$q.notify({
@@ -603,7 +569,7 @@ export default defineComponent({
             
             if (process.env.DEV) {
                 this.viewStore.resultPort =
-                this.trameUrl.slice(0, this.trameUrl.length - 5) + this.port;
+                process.env.TRAME_API.slice(0, process.env.TRAME_API.length - 4) + this.port;
             } else {
                 let id = parseInt(this.port) - 6040;
                 this.viewStore.resultPort =
@@ -611,6 +577,9 @@ export default defineComponent({
                 id.toString() +
                 ".fa-services.intra.dlr.de:443";
             }
+            console.log(this.port)
+            console.log(process.env.TRAME_API)
+            console.log(this.viewStore.resultPort)
 
             await sleep(17000);
             this.viewStore.modelLoading = false;
@@ -621,19 +590,16 @@ export default defineComponent({
             });
         },
         closeTrame() {
-            axios({
-                method: 'POST',
-                url: this.trameUrl + 'closeTrameInstance',
-                params: {
+            let params = {
                 port: this.port,
                 cron: false,
-                }
-            })
+            }
+
+            this.$trameApi.post('/closeTrameInstance', '', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
                 })
-                this.port = response.data
             })
             .catch( (error)=> {
                 this.$q.notify({
@@ -840,12 +806,6 @@ export default defineComponent({
 
             this.viewStore.modelLoading = false;
         },
-    },
-    beforeMount() {
-        if (process.env.DEV) {
-            this.trameUrl = "http://localhost:6040/";
-            console.log("changed Trame URL: " + this.trameUrl);
-        }
     },
     beforeUnmount() {
         clearInterval(this.statusInterval);

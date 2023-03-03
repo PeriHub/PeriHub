@@ -11,6 +11,9 @@ from fastapi import FastAPI, HTTPException, Request, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from typing import Any
+from pydantic import BaseModel
+
 from support.file_handler import FileHandler
 from support.globals import log
 
@@ -59,6 +62,10 @@ user_list = []
 pid_list = []
 time_list = []
 
+class ResponseModel(BaseModel):
+    data: Any
+    code = 200
+    message: str
 
 class Launcher:
     """doc"""
@@ -73,6 +80,7 @@ class Launcher:
         request: Request = "",
     ):  # material: dict, Output: dict):
         """doc"""
+        print(model_name)
         username = FileHandler.get_user_name(request, dev)
 
         newPort = 0
@@ -123,7 +131,7 @@ class Launcher:
             # subprocess.call(command, shell=True)
         except subprocess.SubprocessError:
             return " results can not be found"
-        return newPort
+        return ResponseModel(data=newPort, message=f"Trame instance launched on port {newPort}!")
 
     @app.post("/closeTrameInstance", tags=["Post Methods"])
     async def close_trame_instance(
@@ -186,4 +194,4 @@ class Launcher:
         print(used_ports)
         print(pid_list)
 
-        return "cancelled"
+        return ResponseModel(data=True, message=f"Trame instance on port {port} closed!")

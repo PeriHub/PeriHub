@@ -31,8 +31,6 @@ flake8:
     - flake8_junit flake8.txt flake8_junit.xml
   artifacts:
     when: always
-    paths:
-      - $CI_PROJECT_DIR/api/app
     reports:
       junit: $CI_PROJECT_DIR/api/app/flake8_junit.xml
 
@@ -47,8 +45,6 @@ pylint:
     - pylint --output-format=junit:pylint.xml *
   artifacts:
     when: always
-    paths:
-      - $CI_PROJECT_DIR/api/app
     reports:
       junit: $CI_PROJECT_DIR/api/app/pylint.xml
 
@@ -66,7 +62,7 @@ check-coverage:
     when: always
     expose_as: "Coverage Report"
     paths:
-      - $CI_PROJECT_DIR/api/app
+      - $CI_PROJECT_DIR/api/app/htmlcov
     reports:
       coverage_report:
         coverage_format: cobertura
