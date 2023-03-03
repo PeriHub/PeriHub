@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { api } from 'boot/axios'
+import { api, trameApi } from 'boot/axios'
 import axios from "axios";
 
 export const useDefaultStore = defineStore("default", {
@@ -27,6 +27,7 @@ export const useDefaultStore = defineStore("default", {
           .request(reqOptions)
           .then(response => {
             api.defaults.headers.common['Authorization'] = response.headers.authorization
+            trameApi.defaults.headers.common['Authorization'] = response.headers.authorization
             // console.log('login', {token: response.headers.authorization})
           })
       }
