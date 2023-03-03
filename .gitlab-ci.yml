@@ -17,22 +17,21 @@ stages:
     - pip install flake8 flake8-junit-report
     - pip install pylint pylint-junit
     - pip install pytest pytest-cov
-    - cd api/app
 
 flake8:
   stage: Static Analysis
-  extends:
-    - .install-deps
+  extends: .install-deps
   only:
     changes:
       - api/**/*
   script:
     - flake8 --output-file=flake8.txt
-    - flake8_junit flake8.txt flake8_junit.xml
+    - flake8-junit flake8.txt flake8_junit.xml
   artifacts:
+    name: junit_report_$CI_COMMIT_REF_NAME
     when: always
-    reports:
-      junit: $CI_PROJECT_DIR/api/app/flake8_junit.xml
+    paths:
+        - flake8_junit.xml
 
 pylint:
   stage: Static Analysis
@@ -42,11 +41,13 @@ pylint:
     changes:
       - api/**/*
   script:
-    - pylint --output-format=junit:pylint.xml *
+    - pylint --output-format=junit --output-file=pylint.xml api/**/*.py
   artifacts:
+    paths:
+      - pylint.xml
     when: always
     reports:
-      junit: $CI_PROJECT_DIR/api/app/pylint.xml
+      junit: pylint.xml
 
 check-coverage:
   stage: Static Analysis
@@ -62,7 +63,7 @@ check-coverage:
     when: always
     expose_as: "Coverage Report"
     paths:
-      - $CI_PROJECT_DIR/api/app/htmlcov
+      - api/htmlcov
     reports:
       coverage_report:
         coverage_format: cobertura
