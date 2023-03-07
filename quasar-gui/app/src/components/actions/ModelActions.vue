@@ -131,6 +131,7 @@ export default defineComponent({
         return {
             dialogGcode: false,
             gcodeDiscretization: 1,
+            gcodeFile: undefined,
         };
     },
     methods: {
@@ -186,7 +187,7 @@ export default defineComponent({
             
             let params={model_name: this.modelData.model.modelNameSelected}
 
-            this.$api.post('/uploadfiles', formData, {params})
+            await this.$api.post('/uploadfiles', formData, {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -268,14 +269,40 @@ export default defineComponent({
             this.viewStore.modelLoading = true;
             // this.textLoading = true;
 
-            if (this.gcodeFile.length <= 0) {
+            if (this.gcodeFile == undefined) {
                 return false;
             }
 
-            this.modelData.model.modelNameSelected = this.gcodeFile[0].name.split(".")[0];
-            const filetype = this.gcodeFile[0].name.split(".")[1];
+            this.modelData.model.modelNameSelected = this.gcodeFile.name.split(".")[0];
+            const filetype = this.gcodeFile.name.split(".")[1];
 
-            await this.translatGcode(this.gcodeFile, true);
+            await this.translateGcode(this.gcodeFile, true);
+        },
+        async translateGcode(file, upload) {
+            if (upload) {
+                await this.uploadfiles([file]);
+            }
+            
+            let params={
+                model_name: this.modelData.model.modelNameSelected,
+                discretization: this.gcodeDiscretization
+            }
+
+            await this.$api.post('/translateGcode', '', {params})
+            .then((response) => {
+                this.$q.notify({
+                    message: response.data.message
+                })
+                this.bus.emit('viewPointData');
+            })
+            .catch((error) => {
+                this.$q.notify({
+                    type: 'negative',
+                    message: error.message
+                })
+            })
+
+            this.viewStore.modelLoading = false;
         },
         saveData() {
             var fileURL = window.URL.createObjectURL(
@@ -327,19 +354,32 @@ export default defineComponent({
                     console.log("emit")
                     this.bus.emit('viewPointData');
                 }
+                this.bus.emit("getStatus")
             })
             .catch((error) => {
+                let message = "";
+                if (error.response!= undefined && error.response.status == 422) {
+                    for (let i in error.response.data.detail) {
+                        message += error.response.data.detail[i].loc[1] + " ";
+                        message += error.response.data.detail[i].loc[2] + ", ";
+                        message += error.response.data.detail[i].loc[3] + ", ";
+                        message += error.response.data.detail[i].msg + "\n";
+                    }
+                    message = message.slice(0, -2);
+                }
+                else{
+                    message = error.message
+                }
                 this.$q.notify({
                     color: 'negative',
                     position: 'bottom-right',
-                    message: error,
+                    message: message,
                     icon: 'report_problem'
                 })
             })
 
             this.viewStore.modelLoading = false;
             this.viewStore.textLoading = false;
-            this.bus.emit("getStatus")
         },
         showTutorial() {
             var color = "gray";

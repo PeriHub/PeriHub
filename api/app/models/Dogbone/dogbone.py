@@ -216,7 +216,8 @@ class Dogbone:
         self.solver_dict = solver
 
         self.dam_block = [""] * number_of_blocks
-        self.dam_block[2] = self.damage_dict[0].name
+        if len(self.damage_dict) != 0:
+            self.dam_block[2] = self.damage_dict[0].name
 
         self.int_block_id = [""] * number_of_blocks
         self.mat_block = [self.material_dict[0].name] * number_of_blocks

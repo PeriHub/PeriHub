@@ -8,7 +8,7 @@ logging.basicConfig(
     level="NOTSET",
     format=FORMAT,
     datefmt="[%X]",
-    handlers=[RichHandler()],
+    handlers=[RichHandler(level=logging.ERROR)],
 )
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
 

@@ -516,7 +516,7 @@ class ModelControl:
 
         return ResponseModel(
             data=True,
-            message=f"{model_name} has been created in {time.time() - start_time} seconds, dx_value: {str(dx_value)}.",
+            message=f"{model_name} has been created in {time.time() - start_time} seconds.",
         )
 
     @app.post("/translateModel", tags=["Post Methods"])
@@ -640,8 +640,8 @@ class ModelControl:
             message=f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds",
         )
 
-    @app.post("/translatGcode", tags=["Post Methods"])
-    def translate_gcode(model_name: str, discretization: int, request: Request):
+    @app.post("/translateGcode", tags=["Post Methods"])
+    async def translate_gcode(model_name: str, discretization: int, request: Request):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
@@ -649,7 +649,9 @@ class ModelControl:
 
         localpath = "./Output/" + os.path.join(username, model_name)
 
-        gcodereader.GcodeReader.read(model_name, localpath)
+        gcodereader.GcodeReader.read(
+            os.path.join(localpath, model_name + ".gcode"), localpath
+        )
 
         log.info(
             "%s has been translated in %.2f seconds",
@@ -682,7 +684,7 @@ class ModelControl:
 
         return ResponseModel(
             data=True,
-            message=f"file '{files[0].file.name}' saved at '{file_location}'",
+            message=f"file '{files[0].filename}' saved at '{file_location}'",
         )
 
     @app.put("/writeInputFile", tags=["Put Methods"])
@@ -903,7 +905,7 @@ class ModelControl:
             ssh.close()
 
             log.info("Job has been canceled")
-            return ResponseModel(data=True, message="Job has been submitted")
+            return ResponseModel(data=True, message="Job has been canceled")
 
         remotepath = FileHandler.get_remote_model_path(cluster, username, model_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
