@@ -405,9 +405,6 @@ class Dogbone:
                                 y_value.append(yval)
                                 z_value.append(zval)
                                 k.append(mat_num)
-
-                # plt.scatter(x_value_0, np.zeros_like(x_value_0))
-                # plt.scatter(np.zeros_like(y_value_0),y_value_0)
                 plt.scatter(x_value, y_value)
                 plt.show()
                 vol = np.full_like(x_value, self.dx_value[0] * self.dx_value[0])

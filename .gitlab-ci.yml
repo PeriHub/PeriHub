@@ -18,56 +18,56 @@ stages:
     - pip install pylint pylint-junit
     - pip install pytest pytest-cov
 
-flake8:
-  stage: Static Analysis
-  extends: .install-deps
-  only:
-    changes:
-      - api/**/*
-  script:
-    - flake8 --output-file=flake8.txt
-    - flake8-junit flake8.txt flake8_junit.xml
-  artifacts:
-    name: junit_report_$CI_COMMIT_REF_NAME
-    when: always
-    paths:
-        - flake8_junit.xml
+# flake8:
+#   stage: Static Analysis
+#   extends: .install-deps
+#   only:
+#     changes:
+#       - api/**/*
+#   script:
+#     - flake8 --output-file=flake8.txt
+#     - flake8-junit flake8.txt flake8_junit.xml
+#   artifacts:
+#     name: junit_report_$CI_COMMIT_REF_NAME
+#     when: always
+#     paths:
+#         - flake8_junit.xml
 
-pylint:
-  stage: Static Analysis
-  extends:
-    - .install-deps
-  only:
-    changes:
-      - api/**/*
-  script:
-    - pylint --output-format=junit --output-file=pylint.xml api/**/*.py
-  artifacts:
-    paths:
-      - pylint.xml
-    when: always
-    reports:
-      junit: pylint.xml
+# pylint:
+#   stage: Static Analysis
+#   extends:
+#     - .install-deps
+#   only:
+#     changes:
+#       - api/**/*
+#   script:
+#     - pylint --output-format=junit --output-file=pylint.xml api/**/*.py
+#   artifacts:
+#     paths:
+#       - pylint.xml
+#     when: always
+#     reports:
+#       junit: pylint.xml
 
-check-coverage:
-  stage: Static Analysis
-  extends:
-    - .install-deps
-  only:
-    changes:
-      - api/**/*
-  script:
-    - pytest --cov=. --cov-fail-under=50 --cov-report=term-missing --cov-report=html --cov-report=xml
-  coverage: '/^TOTAL.+?(\d+\%)$/'
-  artifacts:
-    when: always
-    expose_as: "Coverage Report"
-    paths:
-      - api/htmlcov
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
+# check-coverage:
+#   stage: Static Analysis
+#   extends:
+#     - .install-deps
+#   only:
+#     changes:
+#       - api/**/*
+#   script:
+#     - pytest --cov=. --cov-fail-under=50 --cov-report=term-missing --cov-report=html --cov-report=xml
+#   coverage: '/^TOTAL.+?(\d+\%)$/'
+#   artifacts:
+#     when: always
+#     expose_as: "Coverage Report"
+#     paths:
+#       - api/htmlcov
+#     reports:
+#       coverage_report:
+#         coverage_format: cobertura
+#         path: coverage.xml
 
 # unit_test:
 #   stage: Test

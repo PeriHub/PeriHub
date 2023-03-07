@@ -267,7 +267,6 @@ export default defineComponent({
             // this.modelData.model.translated = true;
 
             this.viewStore.modelLoading = true;
-            // this.textLoading = true;
 
             if (this.gcodeFile == undefined) {
                 return false;
