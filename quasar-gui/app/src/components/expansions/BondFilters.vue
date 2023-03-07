@@ -17,7 +17,6 @@
                     <q-select 
                         class="my-input"
                         :options="bondFiltertype"
-                        item-text="name"
                         v-model="bondFilter.type"
                         :label="bondFilterKeys.type"
                         standout

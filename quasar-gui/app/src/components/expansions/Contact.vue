@@ -89,7 +89,9 @@
                         <q-select 
                             class="my-input"
                             :options="blocks"
-                            item-text="id"
+                            option-label="blocksId"
+                            option-value="blocksId"
+                            emit-value
                             v-model="interaction.firstBlockId"
                             label="First Block Id"
                             standout
@@ -98,7 +100,9 @@
                         <q-select 
                             class="my-input"
                             :options="blocks"
-                            item-text="id"
+                            option-label="blocksId"
+                            option-value="blocksId"
+                            emit-value
                             v-model="interaction.secondBlockId"
                             label="Second Block Id"
                             standout
@@ -107,7 +111,9 @@
                         <q-select 
                             class="my-input"
                             :options="contact.contactModels"
-                            item-text="id"
+                            option-label="contactModelsId"
+                            option-value="contactModelsId"
+                            emit-value
                             v-model="interaction.contactModelId"
                             label="Contact Model Id"
                             standout

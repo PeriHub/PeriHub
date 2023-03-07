@@ -56,7 +56,9 @@
                     <q-select 
                         class="my-input"
                         :options="modelData.outputs"
-                        item-text="name"
+                        option-label="name"
+                        option-value="name"
+                        emit-value
                         v-model="showResultsOutputName"
                         label="Output Name"
                         standout
@@ -108,7 +110,9 @@
                     <q-select 
                         class="my-input"
                         :options="modelData.outputs"
-                        item-text="name"
+                        option-label="name"
+                        option-value="name"
+                        emit-value
                         v-model="getPlotOutput"
                         label="Output Name"
                         standout
@@ -119,7 +123,6 @@
                     <q-select 
                         class="my-input"
                         :options="getPlotVariables"
-                        item-text="name"
                         v-model="getPlotVariableX"
                         label="Variable"
                         standout
@@ -145,7 +148,6 @@
                     <q-select 
                         class="my-input"
                         :options="getPlotVariables"
-                        item-text="name"
                         v-model="getPlotVariableY"
                         label="Variable"
                         standout
@@ -193,7 +195,9 @@
                     <q-select 
                         class="my-input"
                         :options="modelData.outputs"
-                        item-text="name"
+                        option-label="name"
+                        option-value="name"
+                        emit-value
                         v-model="getImageOutput"
                         label="Output Name"
                         standout

@@ -126,7 +126,9 @@
                             <q-select 
                                 class="my-input"
                                 :options="blocks"
-                                item-text="id"
+                                option-label="blocksId"
+                                option-value="blocksId"
+                                emit-value
                                 v-model="prop.firstBlockId"
                                 label="First Block Id"
                                 standout
@@ -135,7 +137,9 @@
                             <q-select 
                                 class="my-input"
                                 :options="blocks"
-                                item-text="id"
+                                option-label="blocksId"
+                                option-value="blocksId"
+                                emit-value
                                 v-model="prop.secondBlockId"
                                 label="Second Block Id"
                                 standout

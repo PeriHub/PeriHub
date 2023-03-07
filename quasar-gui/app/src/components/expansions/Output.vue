@@ -44,7 +44,9 @@
                     <q-select 
                         class="my-input"
                         :options="blocks"
-                        item-text="name"
+                        option-label="name"
+                        option-value="name"
+                        emit-value
                         v-model="compute.blockName"
                         :label="computeKeys.blockName"
                         standout

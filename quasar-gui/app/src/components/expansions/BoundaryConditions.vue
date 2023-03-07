@@ -34,7 +34,6 @@
                     <q-select 
                         class="my-input"
                         :options="boundarytype"
-                        item-text="name"
                         v-model="boundaryCondition.boundarytype"
                         :label="boundaryKeys.boundarytype"
                         standout
@@ -54,7 +53,9 @@
                         v-show="!model.ownModel"
                         class="my-input"
                         :options="blocks"
-                        item-text="id"
+                        option-label="blocksId"
+                        option-value="blocksId"
+                        emit-value
                         v-model="boundaryCondition.blockId"
                         :label="boundaryKeys.blockId"
                         clearable
@@ -64,7 +65,6 @@
                     <q-select 
                         class="my-input"
                         :options="coordinate"
-                        item-text="id"
                         v-model="boundaryCondition.coordinate"
                         :label="boundaryKeys.coordinate"
                         clearable

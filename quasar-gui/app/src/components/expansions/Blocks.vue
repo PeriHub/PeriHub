@@ -17,6 +17,9 @@
                     <q-select 
                         class="my-input"
                         :options="materials"
+                        option-label="name"
+                        option-value="name"
+                        emit-value
                         v-model="block.material"
                         :label="blockKeys.material"
                         standout
@@ -25,6 +28,9 @@
                     <q-select 
                         class="my-input"
                         :options="damages"
+                        option-label="name"
+                        option-value="name"
+                        emit-value
                         v-model="block.damageModel"
                         :label="blockKeys.damageModel"
                         clearable

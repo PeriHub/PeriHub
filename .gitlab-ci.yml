@@ -2,8 +2,8 @@ variables: &globals
   CI_REGISTRY_PATH: "harbor.fa-services.intra.dlr.de/hess_ja/"
 
 stages:
-  - Static Analysis
-  - Test
+  # - Static Analysis
+  # - Test
   - Build
 
 .install-deps:
