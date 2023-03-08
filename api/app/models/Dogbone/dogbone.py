@@ -386,7 +386,6 @@ class Dogbone:
                 # plt.scatter(x_value_0, top_surf(x_value_0))
                 # plt.scatter(x_value_0, bottom_surf(x_value_0))
                 # plt.show()
-                # num = len(x_value_0)*len(y_value_0)*len(z_value_0)
                 x_value = []
                 y_value = []
                 z_value = []

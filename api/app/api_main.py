@@ -650,7 +650,7 @@ class ModelControl:
         localpath = "./Output/" + os.path.join(username, model_name)
 
         gcodereader.GcodeReader.read(
-            os.path.join(localpath, model_name + ".gcode"), localpath
+            os.path.join(localpath, model_name + ".gcode"), localpath, discretization
         )
 
         log.info(
