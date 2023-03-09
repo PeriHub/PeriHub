@@ -289,6 +289,7 @@ export default defineComponent({
 
             await this.$api.post('/translateGcode', '', {params})
             .then((response) => {
+                this.modelData.model.meshFile = this.modelData.model.modelNameSelected + ".txt"
                 this.$q.notify({
                     message: response.data.message
                 })
