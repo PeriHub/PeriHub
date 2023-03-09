@@ -649,9 +649,7 @@ class ModelControl:
 
         localpath = "./Output/" + os.path.join(username, model_name)
 
-        gcodereader.GcodeReader.read(
-            os.path.join(localpath, model_name + ".gcode"), localpath, discretization
-        )
+        gcodereader.GcodeReader.read(model_name, localpath, localpath, discretization)
 
         log.info(
             "%s has been translated in %.2f seconds",
