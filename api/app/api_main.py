@@ -648,8 +648,9 @@ class ModelControl:
         start_time = time.time()
 
         localpath = "./Output/" + os.path.join(username, model_name)
+        output_path = "./Output/" + username
 
-        gcodereader.GcodeReader.read(model_name, localpath, localpath, discretization)
+        gcodereader.GcodeReader.read(model_name, localpath, output_path, discretization)
 
         log.info(
             "%s has been translated in %.2f seconds",

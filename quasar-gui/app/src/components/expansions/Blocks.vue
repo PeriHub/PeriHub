@@ -40,7 +40,7 @@
                     <q-toggle
                         class="my-toggle"
                         v-model="block.show"
-                        @change="bus.emit('filterPointData')"
+                        @update:model-value="bus.emit('filterPointData')"
                         label="Show"
                         standout
                         dense

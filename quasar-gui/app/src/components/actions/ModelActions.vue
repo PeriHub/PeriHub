@@ -49,7 +49,7 @@
             </q-tooltip>
         </q-btn>
 
-        <q-btn v-if="!modelData.modelownModel" flat icon="fas fa-undo" @click="bus.emit('resetData')">
+        <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-undo" @click="bus.emit('resetData')">
             <q-tooltip>
                 Reset Data
             </q-tooltip>
@@ -67,7 +67,7 @@
             </q-tooltip>
         </q-btn>
 
-        <q-btn v-if="modelData.modelownModel" flat icon="fas fa-upload" @click="uploadMesh">
+        <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-upload" @click="uploadMesh">
             <q-tooltip>
                 Upload Mesh and Nodesets
             </q-tooltip>
@@ -79,7 +79,7 @@
             </q-tooltip>
         </q-btn>
         
-        <q-btn v-if="modelData.modelownModel" flat icon="fas fa-backward" @click="switchModels">
+        <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-backward" @click="switchModels">
             <q-tooltip>
                 Use predefined Models
             </q-tooltip>
@@ -135,6 +135,11 @@ export default defineComponent({
         };
     },
     methods: {
+        switchModels() {
+            this.modelData.model.ownMesh = false;
+            this.modelData.model.ownModel = false;
+            this.modelData.model.translated = false;
+        },
         readData() {
             this.$refs.fileInput.click();
         },
@@ -293,6 +298,7 @@ export default defineComponent({
                 this.$q.notify({
                     message: response.data.message
                 })
+                this.viewStore.viewId = "model";
                 this.bus.emit('viewPointData');
             })
             .catch((error) => {
@@ -351,7 +357,6 @@ export default defineComponent({
                 this.bus.emit("viewInputFile",false)
                 if (this.modelData.model.ownModel == false) {
                     this.viewStore.viewId = "model";
-                    console.log("emit")
                     this.bus.emit('viewPointData');
                 }
                 this.bus.emit("getStatus")

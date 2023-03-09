@@ -20,15 +20,15 @@ export const useViewStore = defineStore("view", {
     filteredPointString: [1, 0, 0],
     filteredBlockIdString: [1],
     dx_value: 0.1,
+    resultPort: null,
+    plotData: [
+      {
+        name: "Displacement",
+        x: [1, 2, 3, 4],
+        y: [10, 15, 20, 17],
+        type: "scatter",
+      },
+    ],
   }),
   actions: {},
-  resultPort: null,
-  plotData: [
-    {
-      name: "Displacement",
-      x: [1, 2, 3, 4],
-      y: [10, 15, 20, 17],
-      type: "scatter",
-    },
-  ],
 });
