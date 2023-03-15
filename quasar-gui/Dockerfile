@@ -6,9 +6,14 @@ COPY app/. .
 
 # build stage
 FROM develop-stage as build-stage
+
+ARG DEV
+ENV DEV $DEV
+
 RUN npm i -g @quasar/cli
 RUN npm install
-RUN quasar build
+RUN if [ "$DEV" = "True" ]; then ENV_FILE=local quasar build; fi
+RUN if [ "$DEV" = "False" ]; then ENV_FILE=production quasar build; fi
 
 # production stage
 FROM nginx:alpine as production-stage

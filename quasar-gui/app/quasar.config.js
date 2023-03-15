@@ -48,15 +48,15 @@ module.exports = configure(function (ctx) {
 
       // transpile: false,
       // publicPath: '/',
-
-      env: {
-        API: ctx.dev
-          ? "http://localhost:6020"
-          : "https://perihub-api.fa-services.intra.dlr.de",
-        TRAME_API: ctx.dev
-          ? "http://localhost:6040"
-          : "https://perihub-trame-api.fa-services.intra.dlr.de",
-      },
+      env: require('dotenv').config({ path: `.env.${process.env.ENV_FILE.toLowerCase()}` }).parsed,
+      // env: {
+      //   API: ctx.dev
+      //     ? "http://localhost:6020"
+      //     : "https://perihub-api.fa-services.intra.dlr.de",
+      //   TRAME_API: ctx.dev
+      //     ? "http://localhost:6040"
+      //     : "https://perihub-trame-api.fa-services.intra.dlr.de",
+      // },
       vueCompiler: true,
       // Add dependencies for transpiling with Babel (Array of string/regex)
       // (from node_modules, which are by default not transpiled).

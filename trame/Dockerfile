@@ -1,9 +1,6 @@
 FROM python:3.9
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
-ARG GITLAB_TOKEN
-ENV GITLAB_TOKEN $GITLAB_TOKEN
-
 RUN apt-get update --allow-insecure-repositories &&\
     apt-get install libglapi-mesa
 

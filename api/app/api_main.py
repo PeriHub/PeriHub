@@ -44,9 +44,6 @@ from models.KIICmodel.kiic_model import KIICmodel
 from models.OwnModel.own_model import OwnModel
 from models.PlateWithHole.plate_with_hole import PlateWithHole
 from models.Smetana.smetana import Smetana
-from shepard_client.models.influx_point import InfluxPoint
-from shepard_client.models.timeseries import Timeseries
-from shepard_client.models.timeseries_payload import TimeseriesPayload
 from support.analysis import Analysis
 from support.base_models import (
     FileType,
@@ -122,8 +119,14 @@ app.add_middleware(
 load_dotenv()
 
 dev = os.getenv("DEV")
+internal = os.getenv("INTERNAL")
 if dev == "True":
     log.info("--- Running in development mode ---")
+if internal == "True":
+    log.info("--- Running in internal mode ---")
+    from shepard_client.models.influx_point import InfluxPoint
+    from shepard_client.models.timeseries import Timeseries
+    from shepard_client.models.timeseries_payload import TimeseriesPayload
 
 
 class ModelControl:

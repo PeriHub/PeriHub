@@ -98,7 +98,7 @@ build_api_job:
     changes:
       - api/**/*
   script:
-    - docker build --build-arg GITLAB_TOKEN=$GITLAB_TOKEN -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
+    - docker build -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
 # build_gui_job:
@@ -170,7 +170,7 @@ build_trame_job:
     changes:
       - trame/**/*
   script:
-    - docker build --build-arg GITLAB_TOKEN=$GITLAB_TOKEN -t ${CI_REGISTRY_PATH}trame_image trame/.
+    - docker build -t ${CI_REGISTRY_PATH}trame_image trame/.
     - docker push ${CI_REGISTRY_PATH}trame_image
 
 .build_before_script_template:

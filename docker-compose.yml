@@ -5,8 +5,8 @@ services:
     build:
       context: api/.
       args:
-        EXTERNAL: ${EXTERNAL}
-        GITLAB_TOKEN: ${GITLAB_TOKEN}
+        INTERNAL: ${INTERNAL}
+        # GITLAB_TOKEN: ${GITLAB_TOKEN}
         DEV: ${DEV}
     container_name: perihub_periHubApi
     image: peri_hub_api_image
@@ -18,23 +18,25 @@ services:
     networks:
       - backend
 
+  # periHubGui:
+  #   build:
+  #     context: gui/.
+  #     args:
+  #       DEV: ${DEV}
+  #   container_name: perihub_periHubGui
+  #   image: peri_hub_gui_image
+  #   ports:
+  #     - 6010:80
+  #   networks:
+  #     - backend
+
   periHubGui:
     build:
-      context: gui/.
+      context: quasar-gui/.
       args:
         DEV: ${DEV}
     container_name: perihub_periHubGui
     image: peri_hub_gui_image
-    ports:
-      - 6010:80
-    networks:
-      - backend
-
-  periHubGui2:
-    build:
-      context: quasar-gui/.
-    container_name: perihub_periHubGui2
-    image: peri_hub_gui2_image
     ports:
       - 6010:80
     networks:
@@ -66,8 +68,6 @@ services:
   trame:
     build:
       context: trame/.
-      args:
-        GITLAB_TOKEN: ${GITLAB_TOKEN}
     container_name: perihub_trame
     image: trame_image
     ports:
