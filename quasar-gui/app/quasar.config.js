@@ -48,6 +48,7 @@ module.exports = configure(function (ctx) {
 
       // transpile: false,
       // publicPath: '/',
+      
       env: require('dotenv').config({ path: `.env.${process.env.ENV_FILE.toLowerCase()}` }).parsed,
       // env: {
       //   API: ctx.dev

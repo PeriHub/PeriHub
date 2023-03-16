@@ -14,6 +14,7 @@ RUN npm i -g @quasar/cli
 RUN npm install
 RUN if [ "$DEV" = "True" ]; then ENV_FILE=local quasar build; fi
 RUN if [ "$DEV" = "False" ]; then ENV_FILE=production quasar build; fi
+RUN if [ "$DEV" = "" ]; then ENV_FILE=production quasar build; fi
 
 # production stage
 FROM nginx:alpine as production-stage
