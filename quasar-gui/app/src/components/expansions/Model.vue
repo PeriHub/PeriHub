@@ -1,7 +1,7 @@
 <template>
         <div>
             <q-select 
-                class="my-input"
+                class="my-select"
                 :options="modelName"
                 v-model="model.modelNameSelected"
                 v-show="!model.ownModel"

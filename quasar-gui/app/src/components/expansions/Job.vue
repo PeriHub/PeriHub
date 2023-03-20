@@ -1,7 +1,7 @@
 <template>
     <div>
             <q-select 
-                class="my-input"
+                class="my-select"
                 :options="cluster"
                 v-model="job.cluster"
                 label="Cluster"

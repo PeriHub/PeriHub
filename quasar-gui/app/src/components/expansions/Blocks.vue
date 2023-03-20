@@ -15,7 +15,7 @@
                         dense
                     ></q-input>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="materials"
                         option-label="name"
                         option-value="name"
@@ -26,7 +26,7 @@
                         dense
                     ></q-select>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="damages"
                         option-label="name"
                         option-value="name"

@@ -16,7 +16,7 @@
                         dense
                     ></q-input>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="computeClass"
                         v-model="compute.computeClass"
                         :label="computeKeys.computeClass"
@@ -24,7 +24,7 @@
                         dense
                     ></q-select>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="variables"
                         v-model="compute.variable"
                         :label="computeKeys.variable"
@@ -34,7 +34,7 @@
                 </div>
                 <div class="row my-row" v-show="compute.computeClass=='Block_Data'"> 
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="calculationType"
                         v-model="compute.calculationType"
                         :label="computeKeys.calculationType"
@@ -42,7 +42,7 @@
                         dense
                     ></q-select>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="blocks"
                         option-label="name"
                         option-value="name"

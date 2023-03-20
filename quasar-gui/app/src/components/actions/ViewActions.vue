@@ -54,7 +54,7 @@
                 </q-card-section>
                 <q-card-section class="q-pt-none">
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="modelData.outputs"
                         option-label="name"
                         option-value="name"
@@ -108,7 +108,7 @@
                 </q-card-section>
                 <q-card-section class="q-pt-none">
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="modelData.outputs"
                         option-label="name"
                         option-value="name"
@@ -121,7 +121,7 @@
                 </q-card-section>
                 <q-card-section class="q-pt-none">
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="getPlotVariables"
                         v-model="getPlotVariableX"
                         label="Variable"
@@ -129,7 +129,7 @@
                         dense
                     ></q-select>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="getImageAxis"
                         :readonly="getPlotVariableX=='Damage'"
                         v-model="getPlotAxisX"
@@ -146,7 +146,7 @@
                 </q-card-section>
                 <q-card-section class="q-pt-none">
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="getPlotVariables"
                         v-model="getPlotVariableY"
                         label="Variable"
@@ -154,7 +154,7 @@
                         dense
                     ></q-select>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="getImageAxis"
                         :readonly="getPlotVariableY=='Damage'"
                         v-model="getPlotAxisY"
@@ -193,7 +193,7 @@
                 </q-card-section>
                 <q-card-section class="q-pt-none">
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="modelData.outputs"
                         option-label="name"
                         option-value="name"
@@ -204,7 +204,7 @@
                         dense
                     ></q-select>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="getImageVariable"
                         v-model="getImageVariableSelected"
                         label="Variable"
@@ -212,7 +212,7 @@
                         dense
                     ></q-select>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="getImageAxis"
                         :readonly="getImageVariableSelected=='Damage'"
                         v-model="getImageAxisSelected"
@@ -493,18 +493,18 @@ export default defineComponent({
                 })
             })
 
-            this.monitorStatus(true);
+            this.monitorStatus(false);
         },
         monitorStatus(setClear) {
             this.bus.emit("getStatus")
             if (setClear) {
                 this.statusInterval = setInterval(() => {
-                this.bus.emit("getStatus")
-                if (this.store.status.results) {
-                    console.log("clearInterval");
-                    clearInterval(this.statusInterval);
-                }
-                }, 30000);
+                    this.bus.emit("getStatus")
+                // if (this.store.status.results) {
+                //     console.log("clearInterval");
+                //     clearInterval(this.statusInterval);
+                // }
+                    }, 30000);
             } else {
                 clearInterval(this.statusInterval);
             }
@@ -579,6 +579,9 @@ export default defineComponent({
                     type: 'negative',
                     message: error.response.data.detail
                 })
+                
+                this.viewStore.modelLoading = false;
+                return;
             })
             
             if (process.env.DEV) {
@@ -591,9 +594,9 @@ export default defineComponent({
                 id.toString() +
                 ".fa-services.intra.dlr.de:443";
             }
-            console.log(this.port)
-            console.log(process.env.TRAME_API)
-            console.log(this.viewStore.resultPort)
+            // console.log(this.port)
+            // console.log(process.env.TRAME_API)
+            // console.log(this.viewStore.resultPort)
 
             await sleep(17000);
             this.viewStore.modelLoading = false;

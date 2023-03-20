@@ -15,7 +15,7 @@
                         dense
                     ></q-input>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="bondFiltertype"
                         v-model="bondFilter.type"
                         :label="bondFilterKeys.type"

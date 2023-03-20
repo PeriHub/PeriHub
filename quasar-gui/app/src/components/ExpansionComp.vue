@@ -169,6 +169,10 @@ export default defineComponent({
 .my-input {
     margin-left: 10px;
 }
+.my-select {
+    margin-left: 10px;
+    margin-bottom: 18px;
+}
 .my-toggle {
     height: 40px;
     margin-left: 10px;

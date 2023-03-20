@@ -360,3 +360,8 @@ export default defineComponent({
   }
 })
 </script>
+<style scoped>
+.my-input {
+    margin-left: 10px;
+}
+</style>

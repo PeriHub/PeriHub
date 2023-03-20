@@ -32,7 +32,7 @@
                         dense
                     ></q-input>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="boundarytype"
                         v-model="boundaryCondition.boundarytype"
                         :label="boundaryKeys.boundarytype"
@@ -63,7 +63,7 @@
                         dense
                     ></q-select>
                     <q-select 
-                        class="my-input"
+                        class="my-select"
                         :options="coordinate"
                         v-model="boundaryCondition.coordinate"
                         :label="boundaryKeys.coordinate"
