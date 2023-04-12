@@ -87,6 +87,7 @@ class SbatchCreator:
         """doc"""
         string = "#!/bin/sh" + "\n"
         # if self.tasks == 1:
+        string += ". /opt/intel/oneapi/mkl/latest/env/vars.sh \n"
         string += (
             "/Peridigm/build/src/Peridigm "
             + self.filename

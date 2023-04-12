@@ -295,6 +295,7 @@ class GICmodel:
         self.contact_dict = contact
         self.bc_dict = boundary_condition
         self.solver_dict = solver
+        self.model_data = model_data
 
         self.contact_dict.searchRadius = self.dx_value[1] * 3
         self.contact_dict.contactModels[0].contactRadius = self.dx_value[1] * 0.95

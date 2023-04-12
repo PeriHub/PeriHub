@@ -1,4 +1,4 @@
-FROM jthesse/netcdf
+FROM perihub/netcdf
 
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 

@@ -67,6 +67,7 @@ class Material(BaseModel):
     yieldStress: Optional[float] = None
     Parameter: Union[List[Parameter], None]
     properties: Union[List[properties], None]
+    numStateVars: Optional[int] = None
     computePartialStress: Optional[bool] = None
     useCollocationNodes: Optional[bool] = None
 
@@ -84,6 +85,19 @@ class Material(BaseModel):
     volumeFactor: Optional[float] = None
     volumeLimit: Optional[float] = None
     surfaceCorrection: Optional[float] = None
+
+
+class AdditiveModel(BaseModel):
+    id: Optional[int]
+    name: str
+    additiveType: str
+    printTemp: float
+    timeFactor: float
+
+
+class Additive(BaseModel):
+    enabled: bool
+    additiveModels: Union[List[AdditiveModel], None]
 
 
 class InterBlock(BaseModel):
@@ -394,6 +408,7 @@ class RunData(BaseModel):
 class ModelData(BaseModel):
     model: Model
     materials: List[Material]
+    additive: Optional[Additive]
     damages: Optional[List[Damage]]
     blocks: List[Block]
     contact: Optional[Contact]

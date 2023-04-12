@@ -233,6 +233,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -258,6 +259,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -282,6 +284,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -306,6 +309,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -330,6 +334,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -354,6 +359,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -380,6 +386,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -404,6 +411,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -429,6 +437,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -453,6 +462,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
@@ -471,6 +481,7 @@ class ModelControl:
                     compute=model_data.computes,
                     output=model_data.outputs,
                     solver=model_data.solver,
+                    model_data=model_data,
                     username=username,
                     ignore_mesh=ignore_mesh,
                     amplitude_factor=model_data.model.amplitudeFactor,
@@ -492,20 +503,9 @@ class ModelControl:
 
             own = OwnModel(
                 filename=model_name,
-                mesh_file=model_data.model.mesh_file,
                 dx_value=dx_value,
                 disc_type=disc_type,
-                two_d=model_data.model.twoDimensional,
-                horizon=model_data.model.horizon,
-                material=model_data.materials,
-                damage=model_data.damages,
-                block=model_data.blocks,
-                boundary_condition=model_data.boundaryConditions,
-                contact=model_data.contact,
-                bond_filter=model_data.bondFilters,
-                compute=model_data.computes,
-                output=model_data.outputs,
-                solver=model_data.solver,
+                model_data=model_data,
                 username=username,
             )
             result = own.create_model()
@@ -644,7 +644,7 @@ class ModelControl:
         )
 
     @app.post("/translateGcode", tags=["Post Methods"])
-    async def translate_gcode(model_name: str, discretization: int, request: Request):
+    async def translate_gcode(model_name: str, discretization: float, request: Request):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 

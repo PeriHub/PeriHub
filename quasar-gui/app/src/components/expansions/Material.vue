@@ -73,6 +73,14 @@
                                     Upload shared Librarie
                                 </q-tooltip>
                             </q-btn>
+                            <q-input 
+                                class="my-input"
+                                v-model="material.numStateVars"
+                                :rules="[rules.required, rules.int]"
+                                :label="materialKeys.numStateVars"
+                                standout
+                                dense
+                            ></q-input>
                         </div>
                     </div>
                     <div class="row my-row">
@@ -469,6 +477,7 @@
                     Parameter_20: "C66",
                     computePartialStress: "Compute Partial Stress",
                     useCollocationNodes: "Use Collocation Nodes",
+                    numStateVars: "Number of State Vars",
                     // Thermal
                     specificHeatCapacity: "Specific Heat Capacity",
                     thermalConductivity: "Thermal Conductivity",

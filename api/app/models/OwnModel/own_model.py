@@ -7,40 +7,22 @@ class OwnModel:
         dx_value=None,
         disc_type="txt",
         two_d=False,
-        horizon=0.1,
         filename="ownModel",
-        mesh_file=None,
-        material=None,
-        damage=None,
-        block=None,
-        contact=None,
-        boundary_condition=None,
-        bond_filter=None,
-        compute=None,
-        output=None,
-        solver=None,
+        model_data=None,
         username="",
     ):
 
         self.filename = filename
-        self.mesh_file = mesh_file
         self.scal = 1
         self.disc_type = disc_type
         self.two_d = two_d
-        self.horizon = horizon
+        self.horizon = model_data.model.horizon
         if not dx_value:
             dx_value = [0.0005, 0.0005, 0.0005]
         self.dx_value = dx_value
-        self.block_def = block
+        self.model_data = model_data
         self.username = username
-        self.damage_dict = damage
-        self.compute_dict = compute
-        self.output_dict = output
-        self.material_dict = material
-        self.bondfilters = bond_filter
-        self.contact_dict = contact
-        self.bc_dict = boundary_condition
-        self.solver_dict = solver
+        self.block_def = model_data.blocks
 
     def create_model(self):
         """doc"""

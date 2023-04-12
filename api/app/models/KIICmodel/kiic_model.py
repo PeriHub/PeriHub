@@ -250,6 +250,7 @@ class KIICmodel:
         self.contact_dict = contact
         self.bc_dict = boundary_condition
         self.solver_dict = solver
+        self.model_data = model_data
 
         self.dam_block = [""] * number_of_blocks
         self.dam_block[0] = self.damage_dict[0].name

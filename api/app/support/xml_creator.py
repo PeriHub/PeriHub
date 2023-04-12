@@ -7,20 +7,22 @@ import numpy as np
 class XMLcreator:
     def __init__(self, model_writer, block_def=None):
         self.filename = model_writer.filename
-        self.mesh_file = model_writer.mesh_file
-        self.material_dict = model_writer.material_dict
-        self.damage_dict = model_writer.damage_dict
-        self.compute_dict = model_writer.compute_dict
-        self.output_dict = model_writer.output_dict
-        self.solver_dict = model_writer.solver_dict
-        self.block_def = block_def
-        self.contact_dict = model_writer.contact_dict
-        self.bondfilters = model_writer.bondfilters
-        self.boundary_condition = model_writer.bc_dict
         self.ns_name = model_writer.ns_name
         self.ns_list = model_writer.ns_list
+        self.block_def = block_def
+
+        self.mesh_file = model_writer.model_data.model.mesh_file
+        self.boundary_condition = model_writer.model_data.boundaryConditions
+        self.solver_dict = model_writer.model_data.solver
+        self.damage_dict = model_writer.model_data.damages
+        self.material_dict = model_writer.model_data.materials
+        self.additive_dict = model_writer.model_data.additive
+        self.compute_dict = model_writer.model_data.computes
+        self.output_dict = model_writer.model_data.outputs
+        self.contact_dict = model_writer.model_data.contact
+        self.bondfilters = model_writer.model_data.bondFilters
         self.disc_type = model_writer.disc_type
-        self.two_d = model_writer.two_d
+        self.two_d = model_writer.model_data.model.twoDimensional
 
     @staticmethod
     def check_if_defined(obj):
@@ -265,6 +267,12 @@ class XMLcreator:
                     + str(mat.nonLinear)
                     + '"/>\n'
                 )
+            if self.check_if_defined(mat.numStateVars):
+                string += (
+                    '            <Parameter name="Number of State Vars" type="int" value="'
+                    + str(mat.numStateVars)
+                    + '"/>\n'
+                )
             if self.check_if_defined(mat.properties) and "User" in mat.matType:
                 string += (
                     '            <Parameter name="Number of Properties" type="int" value="'
@@ -359,6 +367,29 @@ class XMLcreator:
                 )
             string += "        </ParameterList>\n"
         string += "    </ParameterList>\n"
+        return string
+
+    def additive(self):
+        string = '    <ParameterList name="Additive Models">\n'
+        for add in self.additive_dict.additiveModels:
+            string += '        <ParameterList name="' + add.name + '">\n'
+            string += (
+                '            <Parameter name="Additive Model" type="string" value="'
+                + add.additiveType
+                + '"/>\n'
+            )
+            string += (
+                '            <Parameter name="Print Temperature" type="double" value="'
+                + str(float(add.printTemp))
+                + '"/>\n'
+            )
+            if self.check_if_defined(add.timeFactor):
+                string += (
+                    '            <Parameter name="Time Factor" type="double" value="'
+                    + str(float(add.timeFactor))
+                    + '"/>\n'
+                )
+        string += "     </ParameterList>\n"
         return string
 
     def blocks(self):
@@ -884,6 +915,12 @@ class XMLcreator:
             string += self.create_bond_filter()
         string += "    </ParameterList>\n"
         string += self.material()
+        if self.check_if_defined(self.additive_dict):
+            if (
+                self.additive_dict.enabled
+                and len(self.additive_dict.additiveModels) > 0
+            ):
+                string += self.additive()
         if len(self.damage_dict) > 0:
             string += self.damage()
         string += self.blocks()

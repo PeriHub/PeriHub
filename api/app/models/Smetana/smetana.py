@@ -172,6 +172,7 @@ class Smetana:
         self.output_dict = output
         self.contact_dict = contact
         self.solver_dict = solver
+        self.model_data = model_data
 
     def create_model(self):
 

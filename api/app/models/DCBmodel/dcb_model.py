@@ -290,6 +290,7 @@ class DCBmodel:
             )
         else:
             self.solver_dict = solver
+        self.model_data = model_data
 
         self.dam_block = [""] * number_of_blocks
         self.dam_block[0] = "PMMADamage"

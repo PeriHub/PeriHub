@@ -144,6 +144,18 @@ export const useModelStore = defineStore("model", {
           surfaceCorrection: null,
         },
       ],
+      additive: {
+        enabled: false,
+        additiveModels: [
+          {
+            additiveModelsId: 1,
+            name: "Additive Model 1",
+            additiveType: "Simple Additive",
+            printTemp: 200.0,
+            timeFactor: 1.0,
+          },
+        ],
+      },
       damages: [
         {
           damagesId: 1,

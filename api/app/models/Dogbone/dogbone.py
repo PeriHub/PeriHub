@@ -163,6 +163,7 @@ class Dogbone:
         compute=[compute_dict1, compute_dict2],
         output=[output_dict1],
         solver=solver_dict,
+        model_data=None,
         username="",
         max_nodes=100000,
         ignore_mesh=False,
@@ -214,6 +215,7 @@ class Dogbone:
         self.contact_dict = contact
         self.bc_dict = boundary_condition
         self.solver_dict = solver
+        self.model_data = model_data
 
         self.dam_block = [""] * number_of_blocks
         if len(self.damage_dict) != 0:

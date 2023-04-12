@@ -19,19 +19,13 @@ class ModelWriter:
         """doc"""
 
         self.filename = model_class.filename
-        self.mesh_file = model_class.mesh_file
         self.ns_name = "ns_" + model_class.filename
         self.path = "Output/" + os.path.join(model_class.username, model_class.filename)
-        self.bc_dict = model_class.bc_dict
-        self.damage_dict = model_class.damage_dict
-        self.material_dict = model_class.material_dict
-        self.compute_dict = model_class.compute_dict
-        self.output_dict = model_class.output_dict
-        self.solver_dict = model_class.solver_dict
-        self.contact_dict = model_class.contact_dict
-        self.bondfilters = model_class.bondfilters
+        self.mesh_file = model_class.model_data.model.mesh_file
+        self.bc_dict = model_class.model_data.boundaryConditions
+        self.solver_dict = model_class.model_data.solver
+        self.model_data = model_class.model_data
         self.disc_type = model_class.disc_type
-        self.two_d = model_class.two_d
         if not os.path.exists("Output"):
             os.mkdir("Output")
 
@@ -103,7 +97,7 @@ class ModelWriter:
         xml = XMLcreator(self, block_def=block_def)
         string = xml.create_xml()
         if self.solver_dict.filetype == "yaml":
-            yaml = YAMLcreator(self, block_def=block_def)
+            yaml = YAMLcreator()
 
             string = yaml.translate_xml_to_yaml(string)
 
