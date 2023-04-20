@@ -175,7 +175,7 @@ class XMLcreator:
             )
             string += (
                 '            <Parameter name="Plane Stress" type="bool" value="'
-                + str(self.two_d)
+                + str(mat.planeStress)
                 + '"/>\n'
             )
             string += (
@@ -335,6 +335,12 @@ class XMLcreator:
                     + str(mat.applyHeatTransfer)
                     + '"/>\n'
                 )
+            if self.check_if_defined(mat.thermalBondBased):
+                string += (
+                    '            <Parameter name="Thermal Bond Based" type="bool" value="'
+                    + str(mat.thermalBondBased)
+                    + '"/>\n'
+                )
             if self.check_if_defined(mat.thermalExpansionCoefficient):
                 string += (
                     '            <Parameter name="Thermal Expansion Coefficient" type="double" value="'
@@ -345,6 +351,18 @@ class XMLcreator:
                 string += (
                     '            <Parameter name="Environmental Temperature" type="double" value="'
                     + str(float(mat.environmentalTemperature))
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.printBedTemperature):
+                string += (
+                    '            <Parameter name="Print Bed Temperature" type="double" value="'
+                    + str(float(mat.printBedTemperature))
+                    + '"/>\n'
+                )
+            if self.check_if_defined(mat.printBedThermalConductivity):
+                string += (
+                    '            <Parameter name="Thermal Conductivity Print Bed" type="double" value="'
+                    + str(float(mat.printBedThermalConductivity))
                     + '"/>\n'
                 )
             if self.check_if_defined(mat.volumeFactor):
@@ -412,6 +430,12 @@ class XMLcreator:
                     + block.damageModel
                     + '"/>\n'
                 )
+            if block.additiveModel != "" and block.additiveModel is not None:
+                string += (
+                    '            <Parameter name="Additive Model" type="string" value="'
+                    + block.additiveModel
+                    + '"/>\n'
+                )
             string += (
                 '            <Parameter name="Horizon" type="double" value="'
                 + str(block.horizon)
@@ -438,7 +462,7 @@ class XMLcreator:
                 )
 
                 if dam.interBlockDamage:
-                    string += '            <Parameter name="Interblock Damage" type="bool" value="true"/>\n'
+                    string += '            <Parameter name="Interblock Damage" type="bool" value="True"/>\n'
                     string += (
                         '            <Parameter name="Number of Blocks" type="int" value="'
                         + str(dam.numberOfBlocks)
@@ -518,8 +542,15 @@ class XMLcreator:
         string += "    </ParameterList>\n"
         return string
 
-    def solver(self):
+    def solver(self, temp_enabled):
         string = '    <ParameterList name="Solver">\n'
+        string += (
+            '        <Parameter name="Solve For Displacement" type="bool" value="'
+            + str(self.solver_dict.dispEnabled)
+            + '"/>\n'
+        )
+        if temp_enabled:
+            string += '        <Parameter name="Solve For Temperature" type="bool" value="True"/>\n'
         string += (
             '        <Parameter name="Verbose" type="bool" value="'
             + str(self.solver_dict.verbose)
@@ -536,7 +567,7 @@ class XMLcreator:
             + '"/>\n'
         )
         if self.solver_dict.stopAfterDamageInitation:
-            string += '        <Parameter name="Stop after damage initiation" type="bool" value="true"/>\n'
+            string += '        <Parameter name="Stop after damage initiation" type="bool" value="True"/>\n'
         if self.solver_dict.endStepAfterDamage:
             string += (
                 '        <Parameter name="End step after damage" type="int" value="'
@@ -544,7 +575,7 @@ class XMLcreator:
                 + '"/>\n'
             )
         if self.solver_dict.stopBeforeDamageInitation:
-            string += '        <Parameter name="Stop before damage initiation" type="bool" value="true"/>\n'
+            string += '        <Parameter name="Stop before damage initiation" type="bool" value="True"/>\n'
         if self.solver_dict.solvertype == "Verlet":
             string += '        <ParameterList name="Verlet">\n'
             if self.check_if_defined(self.solver_dict.fixedDt):
@@ -567,7 +598,7 @@ class XMLcreator:
                 self.check_if_defined(self.solver_dict.adaptivetimeStepping)
                 and self.solver_dict.adaptivetimeStepping
             ):
-                string += '            <Parameter name="Adapt dt" type="bool" value="true"/>\n'
+                string += '            <Parameter name="Adapt dt" type="bool" value="True"/>\n'
                 string += (
                     '            <Parameter name="Stable Step Difference" type="int" value="'
                     + str(self.solver_dict.adapt.stableStepDifference)
@@ -872,33 +903,33 @@ class XMLcreator:
                 + '"/>\n'
             )
             string += (
-                '        <Parameter name="Parallel Write" type="bool" value="true"/>\n'
+                '        <Parameter name="Parallel Write" type="bool" value="True"/>\n'
             )
             if out.Write_After_Damage:
-                string += '        <Parameter name="Write After Damage" type="bool" value="true"/>\n'
+                string += '        <Parameter name="Write After Damage" type="bool" value="True"/>\n'
 
             string += '        <ParameterList name="Output Variables">\n'
             for output in out.selectedOutputs:
                 if output == "Velocity_Gradient":
-                    string += '            <Parameter name="Velocity_Gradient_X" type="bool" value="true"/>\n'
-                    string += '            <Parameter name="Velocity_Gradient_Y" type="bool" value="true"/>\n'
-                    string += '            <Parameter name="Velocity_Gradient_Z" type="bool" value="true"/>\n'
+                    string += '            <Parameter name="Velocity_Gradient_X" type="bool" value="True"/>\n'
+                    string += '            <Parameter name="Velocity_Gradient_Y" type="bool" value="True"/>\n'
+                    string += '            <Parameter name="Velocity_Gradient_Z" type="bool" value="True"/>\n'
                 elif output == "PiolaStressTimesInvShapeTensor":
-                    string += '            <Parameter name="PiolaStressTimesInvShapeTensorX" type="bool" value="true"/>\n'
-                    string += '            <Parameter name="PiolaStressTimesInvShapeTensorY" type="bool" value="true"/>\n'
-                    string += '            <Parameter name="PiolaStressTimesInvShapeTensorZ" type="bool" value="true"/>\n'
+                    string += '            <Parameter name="PiolaStressTimesInvShapeTensorX" type="bool" value="True"/>\n'
+                    string += '            <Parameter name="PiolaStressTimesInvShapeTensorY" type="bool" value="True"/>\n'
+                    string += '            <Parameter name="PiolaStressTimesInvShapeTensorZ" type="bool" value="True"/>\n'
                 else:
                     string += (
                         '            <Parameter name="'
                         + output
-                        + '" type="bool" value="true"/>\n'
+                        + '" type="bool" value="True"/>\n'
                     )
 
             for compute in self.compute_dict:
                 string += (
                     '            <Parameter name="'
                     + compute.name
-                    + '" type="bool" value="true"/>\n'
+                    + '" type="bool" value="True"/>\n'
                 )
             string += "        </ParameterList>\n"
             string += "    </ParameterList>\n"
@@ -907,8 +938,6 @@ class XMLcreator:
 
     def create_xml(self):
         string = "<ParameterList>\n"
-        if self.temp_enabled(self.material_dict):
-            string += '    <Parameter name="Solve For Temperature" type="bool" value="true"/>\n'
         string += self.load_mesh()
 
         if len(self.bondfilters) > 0:
@@ -928,9 +957,12 @@ class XMLcreator:
             if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
                 string += self.contact()
 
-        string += self.create_boundary_condition()
-        string += self.solver()
-        string += self.compute()
+        if len(self.boundary_condition.conditions) > 0:
+            string += self.create_boundary_condition()
+        temp_enabled = self.temp_enabled(self.material_dict)
+        string += self.solver(temp_enabled)
+        if len(self.compute_dict) > 0:
+            string += self.compute()
         string += self.output()
 
         string += "</ParameterList>\n"

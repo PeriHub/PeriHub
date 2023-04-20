@@ -37,6 +37,19 @@
                         standout
                         dense
                     ></q-select>
+                    <q-select 
+                        v-if="additive.enabled"
+                        class="my-select"
+                        :options="additive.additiveModels"
+                        option-label="name"
+                        option-value="name"
+                        emit-value
+                        v-model="block.additiveModel"
+                        :label="blockKeys.additiveModel"
+                        clearable
+                        standout
+                        dense
+                    ></q-select>
                     <q-toggle
                         class="my-toggle"
                         v-model="block.show"
@@ -76,6 +89,7 @@
             const model = computed(() => store.modelData.model)
             const materials = computed(() => store.modelData.materials)
             const damages = computed(() => store.modelData.damages)
+            const additive = computed(() => store.modelData.additive)
             const blocks = computed(() => store.modelData.blocks)
             const bus = inject('bus')
             return {
@@ -83,6 +97,7 @@
                 model,
                 materials,
                 damages,
+                additive,
                 blocks,
                 rules,
                 bus
@@ -96,6 +111,7 @@
                     name: "Block Names",
                     material: "Material",
                     damageModel: "Damage Model",
+                    additiveModel: "Additive Model",
                     horizon: "Horizon",
                 },
             };

@@ -5,20 +5,7 @@ import time
 
 import matplotlib.pyplot as plt
 import numpy as np
-from support.base_models import (
-    Adapt,
-    Block,
-    BoundaryCondition,
-    BoundaryConditions,
-    Compute,
-    Contact,
-    Damage,
-    Material,
-    Newton,
-    Output,
-    Solver,
-    Verlet,
-)
+from support.base_models import Block
 from support.geometry import Geometry
 from support.globals import log
 from support.model_writer import ModelWriter
@@ -26,121 +13,6 @@ from support.model_writer import ModelWriter
 
 class Dogbone:
     """doc"""
-
-    bc1 = BoundaryCondition(
-        conditionsId=1,
-        name="BC_1",
-        NodeSets=None,
-        boundarytype="Prescribed Displacement",
-        blockId=1,
-        coordinate="x",
-        value="0*t",
-    )
-    bc2 = BoundaryCondition(
-        conditionsId=2,
-        name="BC_2",
-        NodeSets=None,
-        boundarytype="Prescribed Displacement",
-        blockId=5,
-        coordinate="x",
-        value="10*t",
-    )
-    mat_dict = Material(
-        id=1,
-        name="Aluminum",
-        matType="Linear Elastic Correspondence",
-        density=2.7e3,
-        bulkModulus=None,
-        shearModulus=None,
-        youngsModulus=7.24e10,
-        poissonsRatio=0.33,
-        tensionSeparation=False,
-        nonLinear=True,
-        planeStress=True,
-        materialSymmetry="Isotropic",
-        stabilizatonType="Global Stiffness",
-        thickness=10.0,
-        hourglassCoefficient=1.0,
-        actualHorizon=None,
-        yieldStress=None,
-        Parameter=None,
-        properties=None,
-    )
-    damage_dict = Damage(
-        id=1,
-        name="Damage",
-        damageModel="Critical Energy Correspondence",
-        criticalStretch=10,
-        criticalEnergy=5.1,
-        interblockdamageEnergy=0.01,
-        planeStress=True,
-        onlyTension=True,
-        detachedNodesCheck=True,
-        thickness=10,
-        hourglassCoefficient=1.0,
-        stabilizatonType="Global Stiffness",
-    )
-
-    compute_dict1 = Compute(
-        id=1,
-        computeClass="Block_Data",
-        name="External_Displacement",
-        variable="Displacement",
-        calculationType="Minimum",
-        blockName="block_3",
-    )
-    compute_dict2 = Compute(
-        id=2,
-        computeClass="Block_Data",
-        name="External_Force",
-        variable="Force",
-        calculationType="Sum",
-        blockName="block_3",
-    )
-    output_dict1 = Output(
-        id=1,
-        name="Output1",
-        Displacement=True,
-        Force=True,
-        Damage=True,
-        Velocity=True,
-        Partial_Stress=False,
-        Number_Of_Neighbors=False,
-        Frequency=500,
-        InitStep=0,
-    )
-    solver_dict = Solver(
-        verbose=False,
-        initialTime=0.0,
-        finalTime=0.075,
-        fixedDt=None,
-        solvertype="Verlet",
-        safetyFactor=0.95,
-        numericalDamping=0.000005,
-        peridgimPreconditioner="None",
-        nonlinearSolver="Line Search Based",
-        numberOfLoadSteps=100,
-        maxSolverIterations=50,
-        relativeTolerance=1e-8,
-        maxAgeOfPrec=100,
-        directionMethod="Newton",
-        newton=Newton(),
-        lineSearchMethod="Polynomial",
-        verletSwitch=False,
-        verlet=Verlet(),
-        stopAfterDamageInitation=False,
-        stopBeforeDamageInitation=False,
-        adaptivetimeStepping=False,
-        adapt=Adapt(),
-        filetype="yaml",
-    )
-    contact_dict = Contact(
-        enabled=False,
-        searchRadius=0,
-        searchFrequency=0,
-        contactModels=None,
-        interactions=None,
-    )
 
     def __init__(
         self,
@@ -150,19 +22,6 @@ class Dogbone:
         zend=0.001,
         dx_value=[0.0005, 0.0005, 0.0005],
         filename="Dogbone",
-        two_d=False,
-        structured=True,
-        rot=False,
-        angle=[0, 0],
-        material=[mat_dict],
-        damage=[damage_dict],
-        block=None,
-        contact=contact_dict,
-        boundary_condition=BoundaryConditions(conditions=[bc1, bc2]),
-        bond_filter=None,
-        compute=[compute_dict1, compute_dict2],
-        output=[output_dict1],
-        solver=solver_dict,
         model_data=None,
         username="",
         max_nodes=100000,
@@ -183,15 +42,15 @@ class Dogbone:
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None
-        self.two_d = two_d
+        self.two_d = model_data.model.twoDimensional
         self.ns_list = [3, 4]
         self.dx_value = dx_value
-        self.angle = angle
         self.xend = xend
         self.height1 = height1
         self.height2 = height2
-        self.structured = structured
-        self.rot = rot
+        self.block_def = model_data.blocks
+        self.structured = model_data.model.structured
+        self.rot = model_data.model.rotatedAngles
         self.username = username
         self.max_nodes = max_nodes
         self.ignore_mesh = ignore_mesh
@@ -205,24 +64,14 @@ class Dogbone:
 
         """ Definition of model
         """
-
-        self.damage_dict = damage
-        self.block_def = block
-        self.compute_dict = compute
-        self.output_dict = output
-        self.material_dict = material
-        self.bondfilters = bond_filter
-        self.contact_dict = contact
-        self.bc_dict = boundary_condition
-        self.solver_dict = solver
         self.model_data = model_data
 
         self.dam_block = [""] * number_of_blocks
-        if len(self.damage_dict) != 0:
-            self.dam_block[2] = self.damage_dict[0].name
+        if len(self.model_data.damages) != 0:
+            self.dam_block[2] = self.model_data.damages[0].name
 
         self.int_block_id = [""] * number_of_blocks
-        self.mat_block = [self.material_dict[0].name] * number_of_blocks
+        self.mat_block = [self.model_data.materials[0].name] * number_of_blocks
 
         log.info(f"Initialized in {(time.time() - start_time):.2f} seconds")
 
@@ -385,9 +234,6 @@ class Dogbone:
                     ]
                 )
 
-                # plt.scatter(x_value_0, top_surf(x_value_0))
-                # plt.scatter(x_value_0, bottom_surf(x_value_0))
-                # plt.show()
                 x_value = []
                 y_value = []
                 z_value = []

@@ -240,103 +240,138 @@
                     </div>
                     <q-separator></q-separator>
                     <h6 class="my-title">Thermal</h6>
-                    <div class="row my-row">
-                        <q-input 
-                            class="my-input"
-                            v-model="material.specificHeatCapacity"
-                            :rules="[rules.required, rules.float]"
-                            :label="materialKeys.specificHeatCapacity"
-                            standout
-                            dense
-                        ></q-input>
-                        <q-input 
-                            class="my-input"
-                            v-model="material.thermalConductivity"
-                            :rules="[rules.required, rules.float]"
-                            :label="materialKeys.thermalConductivity"
-                            standout
-                            dense
-                        ></q-input>
-                        <q-input 
-                            class="my-input"
-                            v-model="material.heatTransferCoefficient"
-                            :rules="[rules.required, rules.float]"
-                            :label="materialKeys.heatTransferCoefficient"
-                            standout
-                            dense
-                        ></q-input>
-                    </div> 
-                    <div class="row my-row">
-                        <q-toggle
-                            class="my-toggle"
-                            v-model="material.applyThermalFlow"
-                            :label="materialKeys.applyThermalFlow"
-                            dense
-                        ></q-toggle>
-                        <q-toggle
-                            class="my-toggle"
-                            v-model="material.applyThermalStrain"
-                            :label="materialKeys.applyThermalStrain"
-                            dense
-                        ></q-toggle>
-                        <q-toggle
-                            class="my-toggle"
-                            v-model="material.applyHeatTransfer"
-                            :label="materialKeys.applyHeatTransfer"
-                            dense
-                        ></q-toggle>
-                    </div> 
-                    <div class="row my-row">
-                        <q-input 
-                            class="my-input"
-                            v-model="material.thermalExpansionCoefficient"
-                            :rules="[rules.required, rules.float]"
-                            :label="materialKeys.thermalExpansionCoefficient"
-                            clearable
-                            standout
-                            dense
-                        ></q-input>
-                        <q-input 
-                            class="my-input"
-                            v-model="material.environmentalTemperature"
-                            :rules="[rules.required, rules.float]"
-                            :label="materialKeys.environmentalTemperature"
-                            clearable
-                            standout
-                            dense
-                        ></q-input>
-                    </div> 
-                    <q-separator></q-separator>
-                    <h6 class="my-title">Thermal</h6>
-                    <div class="row my-row">
-                        <q-input 
-                            class="my-input"
-                            v-model="material.volumeFactor"
-                            :rules="[rules.required, rules.float]"
-                            :label="materialKeys.volumeFactor"
-                            clearable
-                            standout
-                            dense
-                        ></q-input>
-                        <q-input 
-                            class="my-input"
-                            v-model="material.volumeLimit"
-                            :rules="[rules.required, rules.float]"
-                            :label="materialKeys.volumeLimit"
-                            clearable
-                            standout
-                            dense
-                        ></q-input>
-                        <q-input 
-                            class="my-input"
-                            v-model="material.surfaceCorrection"
-                            :rules="[rules.required, rules.float]"
-                            :label="materialKeys.surfaceCorrection"
-                            clearable
-                            standout
-                            dense
-                        ></q-input>
-                    </div> 
+                    <q-toggle
+                        class="my-toggle"
+                        v-model="material.enableThermal"
+                        label="Enabled"
+                        standout
+                        dense
+                    ></q-toggle>
+                    <div v-if="material.enableThermal">
+                        <div class="row my-row">
+                            <q-input 
+                                class="my-input"
+                                v-model="material.specificHeatCapacity"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.specificHeatCapacity"
+                                standout
+                                dense
+                            ></q-input>
+                            <q-input 
+                                class="my-input"
+                                v-model="material.thermalConductivity"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.thermalConductivity"
+                                standout
+                                dense
+                            ></q-input>
+                            <q-input 
+                                class="my-input"
+                                v-model="material.heatTransferCoefficient"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.heatTransferCoefficient"
+                                standout
+                                dense
+                            ></q-input>
+                        </div> 
+                        <div class="row my-row">
+                            <q-toggle
+                                class="my-toggle"
+                                v-model="material.applyThermalFlow"
+                                :label="materialKeys.applyThermalFlow"
+                                dense
+                            ></q-toggle>
+                            <q-toggle
+                                class="my-toggle"
+                                v-model="material.applyThermalStrain"
+                                :label="materialKeys.applyThermalStrain"
+                                dense
+                            ></q-toggle>
+                            <q-toggle
+                                class="my-toggle"
+                                v-model="material.applyHeatTransfer"
+                                :label="materialKeys.applyHeatTransfer"
+                                dense
+                            ></q-toggle>
+                            <q-toggle
+                                class="my-toggle"
+                                v-model="material.thermalBondBased"
+                                :label="materialKeys.thermalBondBased"
+                                dense
+                            ></q-toggle>
+                        </div> 
+                        <div class="row my-row">
+                            <q-input 
+                                class="my-input"
+                                v-model="material.thermalExpansionCoefficient"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.thermalExpansionCoefficient"
+                                clearable
+                                standout
+                                dense
+                            ></q-input>
+                            <q-input 
+                                class="my-input"
+                                v-model="material.environmentalTemperature"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.environmentalTemperature"
+                                clearable
+                                standout
+                                dense
+                            ></q-input>
+                        </div> 
+                        <q-separator></q-separator>
+                        <h6 class="my-title">Additive</h6>
+                        <div class="row my-row">
+                            <q-input 
+                                class="my-input"
+                                v-model="material.printBedTemperature"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.printBedTemperature"
+                                clearable
+                                standout
+                                dense
+                            ></q-input>
+                            <q-input 
+                                class="my-input"
+                                v-model="material.printBedThermalConductivity"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.printBedThermalConductivity"
+                                clearable
+                                standout
+                                dense
+                            ></q-input>
+                        </div> 
+                        <div class="row my-row">
+                            <q-input 
+                                class="my-input"
+                                v-model="material.volumeFactor"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.volumeFactor"
+                                clearable
+                                standout
+                                dense
+                            ></q-input>
+                            <q-input 
+                                class="my-input"
+                                v-model="material.volumeLimit"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.volumeLimit"
+                                clearable
+                                standout
+                                dense
+                            ></q-input>
+                            <q-input 
+                                class="my-input"
+                                v-model="material.surfaceCorrection"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.surfaceCorrection"
+                                clearable
+                                standout
+                                dense
+                            ></q-input>
+                        </div> 
+                    </div>
                 </div>
             </q-list>
             <q-btn flat icon="fas fa-plus" @click="addMaterial">
@@ -485,9 +520,12 @@
                     applyThermalFlow: "Apply Thermal Flow",
                     applyThermalStrain: "Apply Thermal Strain",
                     applyHeatTransfer: "Apply Heat Transfer",
+                    thermalBondBased: "Thermal Bond Based",
                     thermalExpansionCoefficient: "Thermal Expansion Coefficient",
                     environmentalTemperature: "Environmental Temperature",
                     // 3dPrint
+                    printBedTemperature: "Print Bed Temperature",
+                    printBedThermalConductivity: "Thermal Conductivity Print Bed",
                     volumeFactor: "Volume Factor",
                     volumeLimit: "Volume Limit",
                     surfaceCorrection: "Surface Correction",

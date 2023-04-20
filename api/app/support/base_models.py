@@ -72,16 +72,20 @@ class Material(BaseModel):
     useCollocationNodes: Optional[bool] = None
 
     # Thermal
+    enableThermal: Optional[bool] = None
     specificHeatCapacity: Optional[float] = None
     thermalConductivity: Optional[float] = None
     heatTransferCoefficient: Optional[float] = None
     applyThermalFlow: Optional[bool] = None
     applyThermalStrain: Optional[bool] = None
     applyHeatTransfer: Optional[bool] = None
+    thermalBondBased: Optional[bool] = True
     thermalExpansionCoefficient: Optional[float] = None
     environmentalTemperature: Optional[float] = None
 
     # 3dPrint
+    printBedTemperature: Optional[float] = None
+    printBedThermalConductivity: Optional[float] = None
     volumeFactor: Optional[float] = None
     volumeLimit: Optional[float] = None
     surfaceCorrection: Optional[float] = None
@@ -139,6 +143,7 @@ class Block(BaseModel):
     name: str
     material: str
     damageModel: Optional[str] = None
+    additiveModel: Optional[str] = None
     horizon: Optional[float] = None
     show: Optional[bool] = None
 
@@ -253,6 +258,7 @@ class FileType(str, Enum):
 
 
 class Solver(BaseModel):
+    dispEnabled: bool = True
     verbose: bool
     initialTime: float
     finalTime: float

@@ -19,7 +19,7 @@ COPY requirements.txt requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt &&\
     pip install -i https://test.pypi.org/simple/ exodusreader &&\
-    pip install -i https://test.pypi.org/simple/ gcodereader==0.1.4 &&\
+    pip install -i https://test.pypi.org/simple/ gcodereader &&\
     pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git
 
 RUN if [ "$INTERNAL" = "True" ]; then pip install shepard-client --no-cache-dir --extra-index-url https://gitlab.com/api/v4/projects/27250272/packages/pypi/simple; fi

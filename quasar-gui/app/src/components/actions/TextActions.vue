@@ -109,7 +109,7 @@ export default defineComponent({
                 file_type: this.modelData.solver.filetype,
             }
 
-            this.$api.put('/writeInputFile', {params})
+            this.$api.put('/writeInputFile', '', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message

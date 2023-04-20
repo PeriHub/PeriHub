@@ -279,11 +279,11 @@
                 Get GIIC
             </q-tooltip>
         </q-btn> -->
-        <q-btn flat icon="fas fa-chess-board" @click="bus.emit('viewPointData')" :disabled="!store.status.created">
+        <!-- <q-btn flat icon="fas fa-chess-board" @click="bus.emit('viewPointData')" :disabled="!store.status.created">
             <q-tooltip>
                 Show Model
             </q-tooltip>
-        </q-btn>
+        </q-btn> -->
         <q-btn flat icon="fas fa-trash" @click="dialogDeleteData = true">
             <q-tooltip>
                 Delete Data
@@ -478,7 +478,7 @@ export default defineComponent({
                 model_name: this.modelData.model.modelNameSelected,
                 cluster: this.modelData.job.cluster
             }
-            this.$api.put('/cancelJob', {params})
+            this.$api.put('/cancelJob', '', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -500,10 +500,10 @@ export default defineComponent({
             if (setClear) {
                 this.statusInterval = setInterval(() => {
                     this.bus.emit("getStatus")
-                // if (this.store.status.results) {
-                //     console.log("clearInterval");
-                //     clearInterval(this.statusInterval);
-                // }
+                    if (this.store.status.results | !this.store.status.submitted) {
+                        console.log("clearInterval");
+                        clearInterval(this.statusInterval);
+                    }
                     }, 30000);
             } else {
                 clearInterval(this.statusInterval);

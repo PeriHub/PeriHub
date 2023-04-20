@@ -1,6 +1,13 @@
 <template>
     <div>
             <div class="row my-row">
+                <q-toggle
+                    class="my-toggle"
+                    v-model="solver.dispEnabled"
+                    :label="solverKeys.dispEnabled"
+                    standout
+                    dense
+                ></q-toggle>
                 <q-input 
                     class="my-input"
                     v-model="solver.initialTime"
@@ -286,6 +293,7 @@
                 lineSearchMethod: ["Polynomial"],
                 filetype: ["yaml", "xml"],
                 solverKeys: {
+                    dispEnabled: "Solve For Displacement",
                     verbose: "Verbose",
                     initialTime: "Initial Time",
                     finalTime: "Final Time",

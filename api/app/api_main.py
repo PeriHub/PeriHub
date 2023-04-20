@@ -373,19 +373,6 @@ class ModelControl:
                     height2=height2,
                     zend=width,
                     dx_value=dx_value,
-                    structured=model_data.model.structured,
-                    two_d=model_data.model.twoDimensional,
-                    rot=model_data.model.rotatedAngles,
-                    angle=model_data.model.angles,
-                    material=model_data.materials,
-                    damage=model_data.damages,
-                    block=model_data.blocks,
-                    boundary_condition=model_data.boundaryConditions,
-                    contact=model_data.contact,
-                    bond_filter=model_data.bondFilters,
-                    compute=model_data.computes,
-                    output=model_data.outputs,
-                    solver=model_data.solver,
                     model_data=model_data,
                     username=username,
                     max_nodes=max_nodes,
@@ -740,7 +727,10 @@ class ModelControl:
         return_string = FileHandler.copy_model_to_cluster(username, model_name, cluster)
 
         if return_string != "Success":
-            return return_string
+            raise HTTPException(
+                status_code=404,
+                detail=return_string,
+            )
         if user_mat:
             return_string = FileHandler.copy_lib_to_cluster(
                 username, model_name, cluster
