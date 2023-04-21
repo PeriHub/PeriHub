@@ -53,8 +53,11 @@ class ImageExport:
         step,
         cb_left,
         transparent,
+        three_d,
+        elevation,
+        azimuth,
+        roll,
     ):
-
         # resultpath = "./Results/" + os.path.join(username, model_name)
         # file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
@@ -117,45 +120,69 @@ class ImageExport:
         elif axis == "Magnitude":
             axis_id = 0
 
-        fig = plt.figure(figsize=(20, 20 * (height / length)))
-        ax = fig.add_subplot(111)
-
-        # I like to position my colorbars this way, but you don't have to
-        div = make_axes_locatable(ax)
-        if cb_left:
-            cax = div.append_axes("left", "5%", "10%")
+        if three_d:
+            fig = plt.figure(figsize=(22, 17))
+            ax = fig.add_subplot(111, projection="3d")
+            ax.view_init(elev=elevation, azim=azimuth, roll=roll)
         else:
-            cax = div.append_axes("right", "5%", "5%")
+            fig = plt.figure(figsize=(20, 20 * (height / length)))
+            ax = fig.add_subplot(111)
+
+        plt.rcParams.update({"font.size": 22})
+        # I like to position my colorbars this way, but you don't have to
+        # div = make_axes_locatable(ax)
+        # if cb_left:
+        #     cax = div.append_axes("left", "5%", "10%")
+        # else:
+        #     cax = div.append_axes("right", "5%", "5%")
 
         if use_cell_data:
-
             np_points_all_x = np.array([])
             np_points_all_y = np.array([])
+            np_points_all_z = np.array([])
 
             cell_value = np.array([])
 
             for block_id in range(0, len(block_data)):
-
                 block_ids = block_data[block_id][:, 0]
 
                 block_points = points[block_ids]
 
                 np_first_points_x = np.array(block_points[:, 0])
                 np_first_points_y = np.array(block_points[:, 1])
-                np_displacement_x = np.array(point_data["Displacement"][block_ids, 0])
-                np_displacement_y = np.array(point_data["Displacement"][block_ids, 1])
+                np_first_points_z = np.array(block_points[:, 2])
 
-                np_points_x = np.add(
-                    np_first_points_x,
-                    np.multiply(np_displacement_x, displ_factor),
-                )
-                np_points_y = np.add(
-                    np_first_points_y,
-                    np.multiply(np_displacement_y, displ_factor),
-                )
+                if point_data["Displacement"] != None:
+                    np_displacement_x = np.array(
+                        point_data["Displacement"][block_ids, 0]
+                    )
+                    np_displacement_y = np.array(
+                        point_data["Displacement"][block_ids, 1]
+                    )
+                    np_displacement_z = np.array(
+                        point_data["Displacement"][block_ids, 2]
+                    )
+
+                    np_points_x = np.add(
+                        np_first_points_x,
+                        np.multiply(np_displacement_x, displ_factor),
+                    )
+                    np_points_y = np.add(
+                        np_first_points_y,
+                        np.multiply(np_displacement_y, displ_factor),
+                    )
+                    np_points_z = np.add(
+                        np_first_points_z,
+                        np.multiply(np_displacement_z, displ_factor),
+                    )
+                else:
+                    np_points_x = np_first_points_x
+                    np_points_y = np_first_points_y
+                    np_points_z = np_first_points_z
 
                 np_points_all_x = np.concatenate([np_points_all_x, np_points_x])
                 np_points_all_y = np.concatenate([np_points_all_y, np_points_y])
+                np_points_all_z = np.concatenate([np_points_all_z, np_points_z])
 
                 if variable == "Block":
                     cell_value = np.concatenate(
@@ -181,7 +208,6 @@ class ImageExport:
                         )
 
             if triangulate:
-
                 try:
                     triang = mtri.Triangulation(np_points_all_x, np_points_all_y)
 
@@ -192,7 +218,6 @@ class ImageExport:
                     np_points_all_y = np.array([])
 
                     for block_id in range(0, len(block_data)):
-
                         block_ids = block_data[block_id][:, 0]
 
                         block_points = points[block_ids]
@@ -226,27 +251,38 @@ class ImageExport:
                         detail="Failed to triangulate, dx_value to small",
                     )
 
-                cbar = fig.colorbar(tcf, cax=cax)
+                cbar = fig.colorbar(tcf)
 
             else:
+                if three_d:
+                    scatter = ax.scatter(
+                        np_points_all_x,
+                        np_points_all_y,
+                        np_points_all_z,
+                        c=cell_value,
+                        cmap=cm.jet,
+                        s=marker_size,
+                    )
+                else:
+                    scatter = ax.scatter(
+                        np_points_all_x,
+                        np_points_all_y,
+                        c=cell_value,
+                        cmap=cm.jet,
+                        s=marker_size,
+                    )
 
-                scatter = ax.scatter(
-                    np_points_all_x,
-                    np_points_all_y,
-                    c=cell_value,
-                    cmap=cm.jet,
-                    s=marker_size,
-                )
-
-                cbar = fig.colorbar(scatter, cax=cax)
+                cbar = fig.colorbar(scatter)
 
         else:
             np_first_points_x = np.array(points[:, 0])
             np_first_points_y = np.array(points[:, 1])
+            np_first_points_z = np.array(points[:, 2])
 
             try:
                 np_displacement_x = np.array(point_data["Displacement"][:, 0])
                 np_displacement_y = np.array(point_data["Displacement"][:, 1])
+                np_displacement_z = np.array(point_data["Displacement"][:, 2])
 
                 np_points_x = np.add(
                     np_first_points_x,
@@ -256,13 +292,17 @@ class ImageExport:
                     np_first_points_y,
                     np.multiply(np_displacement_y, displ_factor),
                 )
+                np_points_z = np.add(
+                    np_first_points_z,
+                    np.multiply(np_displacement_z, displ_factor),
+                )
 
             except:
                 np_points_x = np_first_points_x
                 np_points_y = np_first_points_y
+                np_points_z = np_first_points_z
 
             if triangulate:
-
                 try:
                     triang = mtri.Triangulation(np_points_x, np_points_y)
                 except RuntimeError:
@@ -291,19 +331,33 @@ class ImageExport:
                         detail="Failed to triangulate, dx_value to small",
                     )
 
-                cbar = fig.colorbar(tcf, cax=cax)
+                cbar = fig.colorbar(tcf)
 
             else:
+                if variable == "Temperature":
+                    c = point_data[variable]
+                else:
+                    c = point_data[variable][:, axis_id]
 
-                scatter = ax.scatter(
-                    np_points_x,
-                    np_points_y,
-                    c=point_data[variable][:, axis_id],
-                    cmap=cm.jet,
-                    s=marker_size,
-                )
+                if three_d:
+                    scatter = ax.scatter(
+                        np_points_x,
+                        np_points_y,
+                        np_points_z,
+                        c=c,
+                        cmap=cm.jet,
+                        s=marker_size,
+                    )
+                else:
+                    scatter = ax.scatter(
+                        np_points_x,
+                        np_points_y,
+                        c=c,
+                        cmap=cm.jet,
+                        s=marker_size,
+                    )
 
-                cbar = fig.colorbar(scatter, cax=cax)
+                cbar = fig.colorbar(scatter)
 
         ax.set_title("Time: " + "{:.6f}".format(time))
 
@@ -352,7 +406,6 @@ class ImageExport:
 
     @staticmethod
     def get_plot_image_from_exodus(file, x_variable, x_axis, y_variable, y_axis):
-
         x_data = Analysis.get_global_data(file, x_variable, x_axis)
         y_data = Analysis.get_global_data(file, y_variable, y_axis)
 

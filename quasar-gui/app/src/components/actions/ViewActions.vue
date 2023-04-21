@@ -261,6 +261,35 @@
                         standout
                         dense
                     ></q-input>
+                    <q-toggle
+                        class="my-toggle"
+                        v-model="getImageThreeD"
+                        label="Three Dimensional"
+                        dense
+                    ></q-toggle>
+                    <div class="row my-row" v-show="getImageThreeD">
+                        <q-input 
+                            class="my-input"
+                            v-model="getImageElevation"
+                            label="Elevation"
+                            standout
+                            dense
+                        ></q-input>
+                        <q-input 
+                            class="my-input"
+                            v-model="getImageAzimuth"
+                            label="Azimuth"
+                            standout
+                            dense
+                        ></q-input>
+                        <q-input 
+                            class="my-input"
+                            v-model="getImageRoll"
+                            label="Roll"
+                            standout
+                            dense
+                        ></q-input>
+                    </div>
                 </q-card-section>
                 <q-card-actions align="right">
                     <q-btn flat label="Show" color="primary" v-close-popup @click="getImagePython"></q-btn>
@@ -427,6 +456,10 @@ export default defineComponent({
             getImageTriangulate: true,
             getImageDxFactor: 1.5,
             getImageStep: -1,
+            getImageThreeD: false,
+            getImageElevation: 30,
+            getImageAzimuth: 30,
+            getImageRoll: 0,
 
             statusInterval: null,
             port: null,
@@ -700,7 +733,11 @@ export default defineComponent({
                 height: this.modelData.model.height,
                 triangulate: this.getImageTriangulate,
                 dx_value: this.viewStore.dx_value * this.getImageDxFactor,
-                step: this.getImageStep
+                step: this.getImageStep,
+                three_d: this.getImageThreeD,
+                elevation: this.getImageElevation,
+                azimuth: this.getImageAzimuth,
+                roll: this.getImageRoll,
             }
 
             await this.$api.get('/getImagePython', {params, responseType: "blob"})

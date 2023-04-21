@@ -937,7 +937,6 @@ class ModelControl:
         )
         try:
             with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
-
                 localpath = "./Output/" + os.path.join(username, model_name)
 
                 if not os.path.exists(localpath):
@@ -983,6 +982,10 @@ class ModelControl:
         step: int = -1,
         cb_left: Optional[bool] = False,
         transparent: Optional[bool] = True,
+        three_d: Optional[bool] = False,
+        elevation: Optional[float] = 30,
+        azimuth: Optional[float] = 30,
+        roll: Optional[float] = 0,
         request: Request = "",
     ):
         """doc"""
@@ -1010,6 +1013,10 @@ class ModelControl:
             step,
             cb_left,
             transparent,
+            three_d,
+            elevation,
+            azimuth,
+            roll,
         )
         # except ValueError:
         #     log.error("%s ValueError %s", model_name, cluster)
@@ -1327,7 +1334,6 @@ class ModelControl:
         # usermail = FileHandler.get_user_mail(request)
 
         if cluster == "None":
-
             remotepath = "./peridigmJobs/" + os.path.join(username, model_name)
             try:
                 output_files = os.listdir(remotepath)
@@ -1580,7 +1586,6 @@ class ModelControl:
         if not FileHandler.copy_results_from_cluster(
             username, model_name, cluster, all_data
         ):
-
             raise HTTPException(
                 status_code=404,
                 detail=model_name + " results can not be found on " + cluster,
