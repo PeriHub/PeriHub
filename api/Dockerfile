@@ -1,6 +1,6 @@
 # FROM openjdk:slim
 # COPY --from=python:3.9 / /
-FROM python:3.10-slim
+FROM python:3.11-slim
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
 ARG DEV

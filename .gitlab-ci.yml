@@ -7,7 +7,7 @@ stages:
   - Build
 
 .install-deps:
-  image: "python:3.8"
+  image: "python:3.11-slim"
   allow_failure: true
   only:
     refs:
