@@ -24,7 +24,6 @@ from support.model_writer import ModelWriter
 
 
 class CompactTension:
-
     bc1 = BoundaryCondition(
         conditionsId=1,
         name="BC_1",
@@ -211,6 +210,7 @@ class CompactTension:
         notch_enabled=True,
         dx_value=[0.25, 0.25, 0.25],
         filename="CompactTension",
+        model_data=None,
         two_d=True,
         rot=False,
         angle=[0, 0],
@@ -411,7 +411,6 @@ class CompactTension:
             )
 
         if self.ignore_mesh and self.block_def != "":
-
             writer = ModelWriter(model_class=self)
             for _, block in enumerate(self.block_def):
                 block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
@@ -423,7 +422,6 @@ class CompactTension:
                 return str(exception)
 
         else:
-
             vol = np.zeros(len(x_value))
             k = np.ones(len(x_value))
             if self.rot:

@@ -27,7 +27,6 @@ from support.globals import log
 
 
 class Smetana:
-
     bc1 = BoundaryCondition(
         conditionsId=1,
         name="BC_1",
@@ -150,8 +149,8 @@ class Smetana:
         wavelength=3.0,
         angle=[45, 90, -45, 0],
         two_d=True,
+        model_data=None,
     ):
-
         self.filename = filename
         self.mesh_res = mesh_res
         self.xend = xend
@@ -175,7 +174,6 @@ class Smetana:
         self.model_data = model_data
 
     def create_model(self):
-
         """doc"""
         if not os.path.exists(self.path):
             os.makedirs(self.path)
@@ -205,11 +203,9 @@ class Smetana:
         )
 
         if self.two_d:
-
             url = "https://smetana-api.nimbus.dlr.de/generatePeridigm2DModel"
 
         else:
-
             url = "https://smetana-api.nimbus.dlr.de/generatePeridigm3DModel"
 
         response = requests.post(url, params=prop_params, data=data_params.json())
@@ -226,7 +222,6 @@ class Smetana:
 
         try:
             with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
-
                 localpath = "./Output/" + os.path.join(self.username, self.filename)
 
                 if not os.path.exists(localpath):

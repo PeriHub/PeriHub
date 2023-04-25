@@ -633,11 +633,12 @@ export default defineComponent({
 
             await sleep(17000);
             this.viewStore.modelLoading = false;
+            window.open(this.viewStore.resultPort, "_blank");
 
-            this.viewStore.viewId = "trame";
-            document.querySelectorAll("iframe").forEach(function (e) {
-                e.src += "";
-            });
+            // this.viewStore.viewId = "trame";
+            // document.querySelectorAll("iframe").forEach(function (e) {
+            //     e.src += "";
+            // });
         },
         closeTrame() {
             let params = {

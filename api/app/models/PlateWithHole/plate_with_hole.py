@@ -22,7 +22,6 @@ from support.model_writer import ModelWriter
 
 
 class PlateWithHole:
-
     contact_dict = Contact(
         enabled=False,
         searchRadius=0,
@@ -40,6 +39,7 @@ class PlateWithHole:
         dx_value=None,
         filename="PlateWithHole",
         two_d=True,
+        model_data=None,
         rot="False",
         angle=None,
         material=None,
@@ -324,7 +324,6 @@ class PlateWithHole:
             )
 
         if self.ignore_mesh and self.block_def != "":
-
             writer = ModelWriter(model_class=self)
             for _, block in enumerate(self.block_def):
                 block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
@@ -336,7 +335,6 @@ class PlateWithHole:
                 return str(exception)
 
         else:
-
             vol = np.zeros(len(x_value))
             k = np.ones(len(x_value))
             if self.rot:

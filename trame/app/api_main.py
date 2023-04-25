@@ -112,9 +112,10 @@ class Launcher:
             + str(output_list).replace(" ", "").replace("[", "").replace("]", "")
             + " "
             + str(dx_value)
-            + " --venv pvenv --port "  # --ssl adhoc
+            + " --venv pvenv --port "
             + str(newPort)
             + " --host 0.0.0.0"
+            # + " --ssl 'adhoc'"
         )
 
         try:

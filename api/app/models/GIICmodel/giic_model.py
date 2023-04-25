@@ -30,7 +30,6 @@ from support.model_writer import ModelWriter
 
 
 class GIICmodel:
-
     bc1 = BoundaryCondition(
         conditionsId=1,
         name="BC_1",
@@ -220,6 +219,7 @@ class GIICmodel:
         dx_value=None,
         filename="GIICmodel",
         two_d=True,
+        model_data=None,
         rot=False,
         angle=[0, 0],
         material=[mat_dict],
@@ -488,7 +488,6 @@ class GIICmodel:
             )
 
         if self.ignore_mesh and self.block_def != "" and self.block_def != None:
-
             writer = ModelWriter(model_class=self)
             for _, block in enumerate(self.block_def):
                 block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])

@@ -22,7 +22,6 @@ from support.model_writer import ModelWriter
 
 
 class KalthoffWinkler:
-
     bc1 = BoundaryCondition(
         conditionsId=1,
         name="BC_1",
@@ -201,6 +200,7 @@ class KalthoffWinkler:
         zend=0.003,
         dx_value=[0.25, 0.25, 0.25],
         filename="Kalthoff-Winkler",
+        model_data=None,
         two_d=False,
         rot=False,
         angle=[0, 0],
@@ -345,7 +345,6 @@ class KalthoffWinkler:
             )
 
         if self.ignore_mesh and self.block_def != "":
-
             writer = ModelWriter(model_class=self)
             for _, block in enumerate(self.block_def):
                 block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
@@ -357,7 +356,6 @@ class KalthoffWinkler:
                 return str(exception)
 
         else:
-
             vol = np.zeros(len(x_value))
             k = np.ones(len(x_value))
             if self.rot:

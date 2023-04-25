@@ -106,7 +106,6 @@ class Dogbone:
             )
 
         if self.ignore_mesh and self.block_def != "":
-
             writer = ModelWriter(model_class=self)
             for _, block in enumerate(self.block_def):
                 block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
@@ -118,7 +117,6 @@ class Dogbone:
                 return str(exception)
 
         else:
-
             if self.structured:
                 number_nodes = 2 * int((self.height1 / self.dx_value[1]) / 2) + 1
                 num_rows = int((number_nodes - 1) / 2)
@@ -139,7 +137,10 @@ class Dogbone:
 
                         alpha1 = np.arccos((radius - dh1) / radius) * 180 / np.pi
 
-                        (top_surf, bottom_surf,) = geo.create_boundary_curve(
+                        (
+                            top_surf,
+                            bottom_surf,
+                        ) = geo.create_boundary_curve(
                             height=height1 / 2,
                             length1=length1,
                             radius=radius,
@@ -193,8 +194,8 @@ class Dogbone:
                                 if geo.check_val_greater(xval, val):
                                     mat_num = idx + 1
                             k.append(mat_num)
-                        plt.scatter(x_value_0, upper_y_value)
-                        plt.scatter(x_value_0, lower_y_value)
+                        # plt.scatter(x_value_0, upper_y_value)
+                        # plt.scatter(x_value_0, lower_y_value)
 
                     x_value = np.concatenate((x_value, x_value_0))
                     y_value = np.concatenate((y_value, np.zeros_like(x_value_0)))
