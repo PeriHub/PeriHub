@@ -453,7 +453,7 @@ export default defineComponent({
             getImageAxisSelected: "Magnitude",
             getImageDisplFactor: 20,
             getImageMarkerSize: 16,
-            getImageTriangulate: true,
+            getImageTriangulate: false,
             getImageDxFactor: 1.5,
             getImageStep: -1,
             getImageThreeD: false,
@@ -503,7 +503,8 @@ export default defineComponent({
             })
 
             this.bus.emit("getLogFile")
-            this.monitorStatus(true);
+            // this.monitorStatus(true);
+            this.monitorStatus(false);
         },
         async cancelJob() {
 

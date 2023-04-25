@@ -334,17 +334,18 @@ class ImageExport:
                 cbar = fig.colorbar(tcf)
 
             else:
+                cell_value = []
                 if variable == "Temperature":
-                    c = point_data[variable]
+                    cell_value = point_data[variable]
                 else:
-                    c = point_data[variable][:, axis_id]
+                    cell_value = point_data[variable][:, axis_id]
 
                 if three_d:
                     scatter = ax.scatter(
                         np_points_x,
                         np_points_y,
                         np_points_z,
-                        c=c,
+                        c=cell_value,
                         cmap=cm.jet,
                         s=marker_size,
                     )
@@ -352,7 +353,7 @@ class ImageExport:
                     scatter = ax.scatter(
                         np_points_x,
                         np_points_y,
-                        c=c,
+                        c=cell_value,
                         cmap=cm.jet,
                         s=marker_size,
                     )

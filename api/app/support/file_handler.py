@@ -111,7 +111,6 @@ class FileHandler:
         now = time.time()
         names = []
         for foldername in os.listdir(path):
-
             folder_path = os.path.join(path, foldername)
 
             if os.path.getmtime(folder_path) < now - days * 86400:
@@ -134,7 +133,6 @@ class FileHandler:
         now = time.time()
         names = []
         for foldername in sftp.listdir(path):
-
             folder_path = os.path.join(path, foldername)
 
             if os.path.getmtime(folder_path) < now - days * 86400:
@@ -337,6 +335,7 @@ class FileHandler:
         username, model_name, cluster, all_data, filetype=".e"
     ):
         """doc"""
+        log.info("Start copying")
         resultpath = "./Results/" + os.path.join(username, model_name)
         if not os.path.exists(resultpath):
             os.makedirs(resultpath)
@@ -349,6 +348,7 @@ class FileHandler:
 
                 for filename in files:
                     if all_data or filetype in filename:
+                        log.info("Copy: " + filename)
                         if os.path.exists(os.path.join(resultpath, filename)):
                             if not filecmp.cmp(
                                 os.path.join(remotepath, filename),
@@ -398,6 +398,7 @@ class FileHandler:
             return False
         sftp.close()
         ssh.close()
+        log.info("Copied")
         return True
 
     @staticmethod

@@ -11,7 +11,7 @@
     "discretization": 100,
     "horizon": null,
     "twoDimensional": true,
-    "rotatedAngles": true,
+    "rotatedAngles": false,
     "angles": [0, 0]
   },
   "materials": [
