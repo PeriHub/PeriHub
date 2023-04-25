@@ -280,7 +280,7 @@
       "id": 3,
       "name": "block_3",
       "material": "PMMA",
-      "damageModel": "PMMADamage",
+      "damageModel": "",
       "show": true
     },
     {

@@ -105,15 +105,15 @@ class ImageExport:
 
         axis_id = 0
 
-        if axis == "x":
+        if axis == "X":
             axis_id = 0
             if "Partial_Stress" in variable:
                 variable = variable + "X"
-        elif axis == "y":
+        elif axis == "Y":
             axis_id = 1
             if "Partial_Stress" in variable:
                 variable = variable + "Y"
-        elif axis == "z":
+        elif axis == "Z":
             axis_id = 2
             if "Partial_Stress" in variable:
                 variable = variable + "Z"
