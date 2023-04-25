@@ -152,7 +152,7 @@ class ImageExport:
                 np_first_points_y = np.array(block_points[:, 1])
                 np_first_points_z = np.array(block_points[:, 2])
 
-                if point_data["Displacement"] != None:
+                if "Displacement" in point_data:
                     np_displacement_x = np.array(
                         point_data["Displacement"][block_ids, 0]
                     )
