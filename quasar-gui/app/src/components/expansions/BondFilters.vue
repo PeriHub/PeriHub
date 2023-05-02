@@ -83,7 +83,7 @@
                     <q-toggle
                         class="my-toggle"
                         v-model="bondFilter.show"
-                        @change="showHideBondFilters"
+                        @update:model-value="showHideBondFilters"
                         label="Show"
                         standout
                         dense
@@ -203,6 +203,10 @@
             }
         },
         created() {
+            this.bus.on('showHideBondFilters', () => {
+                console.log("showHideBondFilters")
+                this.showHideBondFilters()
+            })
         },
         data() {
             return {
@@ -235,14 +239,14 @@
                 newItem.bondFilterId = len + 1
                 newItem.name = "bf_" + (len + 1)
                 this.bondFilters.push(newItem);
-                this.viewStore.bondFilterPoints.push({
+                this.bondFilterPoints.push({
                     bondFilterPointsId: len + 1,
                     bondFilterPointString: [],
                 });
             },
             removeBondFilter(index) {
                 this.bondFilters.splice(index, 1);
-                this.viewStore.bondFilterPoints.splice(index, 1);
+                this.bondFilterPoints.splice(index, 1);
             },
             
             cross(a1, a2, a3, b1, b2, b3) {
@@ -261,7 +265,7 @@
             showHideBondFilters() {
                 // this.bondFilterPolyString = []
                 // let bondFilterPolyString = []
-                this.viewStore.bondFilterPoints = [];
+                this.bondFilterPoints = [];
 
                 for (var i = 0; i < this.bondFilters.length; i++) {
                     let bondFilterPointString = [];
@@ -364,13 +368,13 @@
                         // bondFilterPolyString.push(4, 0, 1, 3, 2)
                     }
                     }
-                    if (this.viewStore.bondFilterPoints.length < i + 1) {
-                    this.viewStore.bondFilterPoints.push({
+                    if (this.bondFilterPoints.length < i + 1) {
+                    this.bondFilterPoints.push({
                         bondFilterPointsId: i + 1,
                         bondFilterPointString: [],
                     });
                     }
-                    this.viewStore.bondFilterPoints[i].bondFilterPointString = bondFilterPointString;
+                    this.bondFilterPoints[i].bondFilterPointString = bondFilterPointString;
 
                     // this.bondFilterPoints[i].bondFilterPolyString = bondFilterPolyString
                 }

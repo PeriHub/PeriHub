@@ -1666,7 +1666,7 @@ class ModelControl:
             job_id = FileHandler.get_cara_job_id_model(username, model_name)
             print(job_id)
             print(job_ids)
-            if job_id in job_ids:
+            if job_id in job_ids and job_id != "":
                 status.submitted = True
 
         return ResponseModel(data=status, message="Status received")

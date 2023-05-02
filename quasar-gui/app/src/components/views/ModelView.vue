@@ -109,7 +109,6 @@
         },
         created() {
             this.bus.on('viewPointData', () => {
-                console.log("viewPointData")
                 this.viewPointData()
             })
             this.bus.on('filterPointData', () => {
@@ -136,6 +135,7 @@
             await this.getPointDataAndUpdateDx();
             this.radius = parseFloat(this.viewStore.dx_value.toFixed(3));
             await this.updatePoints();
+            this.bus.emit('showHideBondFilters');
 
             this.viewStore.modelLoading = false;
             // console.log(this.$refs)
