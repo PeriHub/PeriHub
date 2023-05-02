@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
 RUN apt-get update --allow-insecure-repositories &&\

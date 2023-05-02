@@ -2,7 +2,7 @@ FROM alpine:edge
 
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
-RUN apk update && apk add wget && apk add tar && apk add curl
+RUN apk update && apk add wget && apk add tar
 
 WORKDIR /app/paraView
 
