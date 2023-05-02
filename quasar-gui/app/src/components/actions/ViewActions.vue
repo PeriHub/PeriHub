@@ -38,7 +38,7 @@
                 Show Results
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="port!=null" flat icon="fas fa-times" @click="closeTrame" :loading="resultsLoading" :disabled="!store.status.results">
+        <q-btn v-if="port!=null" flat icon="fas fa-times" @click="closeTrame" :disabled="!store.status.results">
             <q-tooltip>
                 Close Trame
             </q-tooltip>
@@ -551,7 +551,7 @@ export default defineComponent({
                 cluster: this.modelData.job.cluster,
                 allData: allData,
             }
-            this.$api.get('/getResults', {params, responseType: "blob"})
+            await this.$api.get('/getResults', {params, responseType: "blob"})
             .then((response) => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement("a");
