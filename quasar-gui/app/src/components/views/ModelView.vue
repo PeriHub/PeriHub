@@ -16,12 +16,13 @@
       <q-space></q-space>
       <div style="min-width: 100px; margin-right:20px">
         <q-slider
-          v-model="radius"
-          :min="0.01"
-          :max="2"
-          :step="0.01"
+          v-model="multiplier"
+          :min="1"
+          :max="200"
+          :step="1"
           label
-          :label-value="'Radius: ' + radius"
+          :label-value="'Radius: ' + multiplier + ' %'"
+          switch-label-side
           @change="updatePoints"
           color="gray"
         ></q-slider>
@@ -36,6 +37,7 @@
           :step="1"
           label
           :label-value="'Resolution: ' + resolution"
+          switch-label-side
           color="gray"
         ></q-slider>
       </div>
@@ -79,7 +81,7 @@
         </vtk-polydata>
         <vtk-algorithm
           vtkClass="vtkSphereSource"
-          :state="{ phiResolution: resolution, thetaResolution: resolution, radius: radius}"
+          :state="{ phiResolution: resolution, thetaResolution: resolution, radius: radius * multiplier / 100 }"
           :port="1"
         />
       </vtk-glyph-representation>
@@ -119,7 +121,7 @@
             return {
               resolution: 6,
               radius: 0.2,
-              multiplier: 1,
+              multiplier: 100,
               pointString: [1, 0, 0],
               blockIdString: [1],
             };
@@ -153,8 +155,8 @@
               ) {
                 filteredBlockIdStringTemp[idx] = this.blockIdString[i];
                 for (var j = 0; j < 3; j++) {
-                  filteredPointStringTemp[idx * 3 + j] =
-                    this.pointString[i * 3 + j] * this.multiplier;
+                  filteredPointStringTemp[idx * 3 + j] = this.pointString[i * 3 + j];
+                    // this.pointString[i * 3 + j] * this.multiplier;
                 }
                 idx += 1;
               }
@@ -165,17 +167,15 @@
           async updatePoints() {
             this.viewStore.modelLoading = true;
             console.log("updatePoints")
-            if (this.radius < 0.01) {
-              this.multiplier = (1 - this.radius / 0.5) * 30;
-              this.radius=0.01
-              this.filterPointData();
-            } else if (this.radius <= 0.2) {
-              this.multiplier = (1 - this.radius / 0.5) * 30;
-              this.filterPointData();
-            } else {
-              this.multiplier = 1;
-              this.filterPointData();
-            }
+            // if (this.radius < 0.01) {
+            //   this.multiplier = (1 - this.radius / 0.5) * 30;
+            //   this.radius=0.01
+            // } else if (this.radius <= 0.2) {
+            //   this.multiplier = (1 - this.radius / 0.5) * 30;
+            // } else {
+            //   this.multiplier = 1;
+            // }
+            this.filterPointData();
             this.viewStore.modelLoading = false;
           },
           async getPointDataAndUpdateDx() {

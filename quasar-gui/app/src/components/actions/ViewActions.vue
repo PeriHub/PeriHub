@@ -597,6 +597,7 @@ export default defineComponent({
                 output_name: this.modelData.outputs[index].name,
                 output_list: this.modelData.outputs[index].selectedOutputs.toString(),
                 dx_value: this.viewStore.dx_value,
+                num_of_blocks: this.modelData.blocks.length,
                 duration: 600
             }
 

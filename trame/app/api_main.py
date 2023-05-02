@@ -76,6 +76,7 @@ class Launcher:
         output_name: str = "Output1",
         output_list: str = "[Displacement,Force]",
         dx_value: float = 0.1,
+        num_of_blocks: int = 5,
         duration: int = 1000,
         request: Request = "",
     ):  # material: dict, Output: dict):
@@ -112,6 +113,8 @@ class Launcher:
             + str(output_list).replace(" ", "").replace("[", "").replace("]", "")
             + " "
             + str(dx_value)
+            + " "
+            + str(num_of_blocks)
             + " --venv pvenv --port "
             + str(newPort)
             + " --host 0.0.0.0"

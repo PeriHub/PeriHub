@@ -19,8 +19,6 @@ state, ctrl = server.state, server.controller
 
 # -----------------------------------------------------------------------------
 
-block_array = ["block_1", "block_2", "block_3", "block_4", "block_5"]
-block_array_selection = ["block_1", "block_2", "block_3", "block_4", "block_5"]
 DEFAULT_RESOLUTION = 6
 time_values = []
 
@@ -35,7 +33,13 @@ OutputList = sys.argv[4].split(",")
 OutputList.append("GlobalNodeId")
 OutputList.append("ObjectId")
 dx_value = sys.argv[5]
-# block_array = sys.argv[6].split(",")
+num_of_blocks = sys.argv[6]
+
+block_array = []
+for i in range(int(num_of_blocks)):
+    block_array.append("block_" + str(i + 1))
+
+block_array_selection = block_array
 
 filePath = os.path.join("/app/peridigmJobs", UserName, model_name)
 

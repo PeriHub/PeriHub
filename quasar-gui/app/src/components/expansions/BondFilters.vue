@@ -204,7 +204,6 @@
         },
         created() {
             this.bus.on('showHideBondFilters', () => {
-                console.log("showHideBondFilters")
                 this.showHideBondFilters()
             })
         },
@@ -263,6 +262,7 @@
                 return [normx, normy, normz];
             },
             showHideBondFilters() {
+                console.log("showHideBondFilters")
                 // this.bondFilterPolyString = []
                 // let bondFilterPolyString = []
                 this.bondFilterPoints = [];
