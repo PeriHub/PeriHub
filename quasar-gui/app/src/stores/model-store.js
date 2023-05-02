@@ -411,7 +411,11 @@ export const useModelStore = defineStore("model", {
       },
       job: {
         cluster: "None",
-        tasks: 1,
+        nodes: 1,
+        tasks: 32,
+        tasksPerNode: 32,
+        cpusPerTask: 1,
+        multithread: false,
         time: "00:20:00",
         // user: 'hess_ja',
         account: "2263032",

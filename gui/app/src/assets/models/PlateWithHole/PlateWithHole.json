@@ -268,9 +268,13 @@
     "filetype": "yaml"
   },
   "job":{
-      "cluster": "None",
-      "tasks": 1,
-      "time": "00:20:00",
-      "account": 2263032
+    "cluster": "None",
+    "nodes": 1,
+    "tasks": 32,
+    "tasksPerNode": 32,
+    "cpusPerTask": 1,
+    "multithread": false,
+    "time": "00:20:00",
+    "account": 2263032
   }
 }

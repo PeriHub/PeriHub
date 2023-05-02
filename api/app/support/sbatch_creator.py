@@ -16,7 +16,11 @@ class SbatchCreator:
         usermail="",
     ):
         """doc"""
+        self.nodes = job.nodes
         self.tasks = job.tasks
+        self.tasks_per_node = job.tasksPerNode
+        self.cpus_per_task = job.cpusPerTask
+        self.multithread = job.multithread
         self.time = job.time
         self.filename = filename
         self.filetype = filetype
@@ -28,10 +32,15 @@ class SbatchCreator:
 
     def create_sbatch(self):
         """doc"""
-        nodes = -(-int(self.tasks) // 64)
+        # nodes = -(-int(self.tasks) // 64)
         string = "#!/bin/bash" + "\n"
-        string += "#SBATCH --nodes=" + str(nodes) + "\n"
-        string += "#SBATCH --hint=multithread" + "\n"
+        string += "#SBATCH --nodes=" + str(self.nodes) + "\n"
+        string += "#SBATCH --tasks-per-node=" + str(self.tasks_per_node) + "\n"
+        if self.multithread:
+            string += "#SBATCH --hint=multithread" + "\n"
+        else:
+            string += "#SBATCH --hint=nomultithread" + "\n"
+        string += "#SBATCH --cpus-per-task=" + str(self.cpus_per_task) + "\n"
         string += "#SBATCH --time=" + self.time + "\n"
         string += "#SBATCH --account=" + str(self.account) + "\n"
         string += "#SBATCH --output=simulation-%j.log" + "\n"

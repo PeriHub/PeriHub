@@ -287,7 +287,11 @@ class Solver(BaseModel):
 
 class Job(BaseModel):
     cluster: str
-    tasks: int
+    nodes: Optional[int] = 1
+    tasks: Optional[int] = 32
+    tasksPerNode: Optional[int] = 32
+    cpusPerTask: Optional[int] = 1
+    multithread: Optional[bool] = False
     time: Optional[str] = None
     account: Optional[int] = None
 

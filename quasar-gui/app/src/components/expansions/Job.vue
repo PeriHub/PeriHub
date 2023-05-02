@@ -1,42 +1,77 @@
 <template>
     <div>
-            <q-select 
-                class="my-select"
-                :options="cluster"
-                v-model="job.cluster"
-                label="Cluster"
-                @change="changeToXml(); changeNumberOfTasks();"
-                standout
-                dense
-            ></q-select>
-            <q-input 
-                class="my-input"
+        <q-select 
+            class="my-select"
+            :options="cluster"
+            v-model="job.cluster"
+            label="Cluster"
+            @change="changeToXml(); changeNumberOfTasks();"
+            standout
+            dense
+        ></q-select>
+        <q-input 
+            class="my-input"
+            v-model="job.nodes"
+            v-show="job.cluster=='Cara'"
+            :rules="[rules.required, rules.name]"
+            label="Nodes"
+            standout
+            dense
+        ></q-input>
+        <q-input 
+            class="my-input"
             v-model="job.tasks"
-                  :disabled="job.cluster=='None'"
-                :rules="[rules.required, rules.name]"
-                label="Tasks"
-                standout
-                dense
-            ></q-input>
-            <q-input 
-                class="my-input"
-                v-model="job.time"
-                v-show="job.cluster=='Cara'"
-                :rules="[rules.required, rules.name]"
-                label="Tasks"
-                standout
-                dense
-            ></q-input>
-            <q-input 
-                class="my-input"
-                v-model="job.account"
-                v-show="job.cluster=='Cara'"
-                :rules="[rules.required, rules.name]"
-                label="Account"
-                standout
-                dense
-            ></q-input>
-        </div>
+            :disabled="job.cluster=='None'"
+            :rules="[rules.required, rules.name]"
+            label="Tasks"
+            standout
+            dense
+        ></q-input>
+        <q-input 
+            class="my-input"
+            v-model="job.tasksPerNode"
+            v-show="job.cluster=='Cara'"
+            :rules="[rules.required, rules.name]"
+            label="Tasks per Node"
+            standout
+            dense
+        ></q-input>
+        <q-input 
+            class="my-input"
+            v-model="job.cpusPerTask"
+            v-show="job.cluster=='Cara'"
+            :rules="[rules.required, rules.name]"
+            label="CPUs per Task"
+            standout
+            dense
+        ></q-input>
+        <q-toggle
+            class="my-toggle"
+            v-model="job.multithread"
+            v-show="job.cluster=='Cara'"
+            label="Multithreading"
+            standout
+            dense
+        ></q-toggle>
+        <q-input 
+            class="my-input"
+            v-model="job.time"
+            v-show="job.cluster=='Cara'"
+            :rules="[rules.required, rules.name]"
+            label="Time"
+            standout
+            dense
+        ></q-input>
+        <q-input 
+            class="my-input"
+            v-model="job.account"
+            v-show="job.cluster=='Cara'"
+            :rules="[rules.required, rules.name]"
+            label="Account"
+            standout
+            dense
+        ></q-input>
+    </div>
 </template>
   
 <script>
