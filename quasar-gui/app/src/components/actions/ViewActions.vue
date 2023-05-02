@@ -551,7 +551,7 @@ export default defineComponent({
                 cluster: this.modelData.job.cluster,
                 allData: allData,
             }
-            this.$api.get('/getResults', {params})
+            this.$api.get('/getResults', {params, responseType: "blob"})
             .then((response) => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement("a");
