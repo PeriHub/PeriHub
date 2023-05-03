@@ -8,11 +8,12 @@ class OwnModel:
         disc_type="txt",
         two_d=False,
         filename="ownModel",
+        model_sub_name="",
         model_data=None,
         username="",
     ):
-
         self.filename = filename
+        self.model_sub_name = model_sub_name
         self.scal = 1
         self.disc_type = disc_type
         self.two_d = two_d

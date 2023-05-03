@@ -22,6 +22,7 @@ class Dogbone:
         zend=0.001,
         dx_value=[0.0005, 0.0005, 0.0005],
         filename="Dogbone",
+        model_sub_name="",
         model_data=None,
         username="",
         max_nodes=100000,
@@ -39,6 +40,7 @@ class Dogbone:
         start_time = time.time()
 
         self.filename = filename
+        self.model_sub_name = model_sub_name
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None

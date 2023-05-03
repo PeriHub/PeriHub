@@ -473,6 +473,7 @@ export default defineComponent({
             this.submitLoading = true;
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 file_type: this.modelData.solver.filetype,
             }
 
@@ -512,6 +513,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 cluster: this.modelData.job.cluster
             }
             this.$api.put('/cancelJob', '', {params})
@@ -550,6 +552,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 cluster: this.modelData.job.cluster,
                 allData: allData,
             }
@@ -596,6 +599,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 output_name: this.modelData.outputs[index].name,
                 output_list: this.modelData.outputs[index].selectedOutputs.toString(),
                 dx_value: this.viewStore.dx_value,
@@ -678,6 +682,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 cluster: this.modelData.job.cluster,
                 output: this.getPlotOutput,
                 x_variable: this.getPlotVariableX,
@@ -728,6 +733,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 cluster: this.modelData.job.cluster,
                 output: this.getImageOutput,
                 variable: this.getImageVariableSelected,
@@ -767,6 +773,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 length: this.modelData.model.length,
                 height: this.modelData.model.height,
                 crack_length: this.modelData.model.cracklength,
@@ -812,6 +819,7 @@ export default defineComponent({
                 params: {
                 youngs_modulus: this.materials[0].youngsModulus,
                 model_name: this.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 cluster: this.job.cluster,
                 },
                 data: this.model,
@@ -848,6 +856,7 @@ export default defineComponent({
                 url: this.url + "calculateG2c",
                 params: {
                 model_name: this.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 cluster: this.job.cluster,
                 output: this.getG1cOutput,
                 },
@@ -873,6 +882,93 @@ export default defineComponent({
             this.snackbar = true;
 
             this.viewStore.modelLoading = false;
+        },
+        async deleteModel() {
+
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
+                cluster: this.modelData.job.cluster
+            }
+            this.$api.delete('/deleteModel', '', {params})
+            .then((response) => {
+                this.$q.notify({
+                    message: response.data.message
+                })
+            })
+            .catch(() => {
+                this.$q.notify({
+                    color: 'negative',
+                    position: 'bottom-right',
+                    message: 'Failed',
+                    icon: 'report_problem'
+                })
+            })
+
+            params = {
+                model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
+                cluster: this.modelData.job.cluster
+            }
+            this.$api.delete('/deleteModelFromCluster', '', {params})
+            .then((response) => {
+                this.$q.notify({
+                    message: response.data.message
+                })
+            })
+            .catch(() => {
+                this.$q.notify({
+                    color: 'negative',
+                    position: 'bottom-right',
+                    message: 'Failed',
+                    icon: 'report_problem'
+                })
+            })
+        },
+        async deleteUserData() {
+
+            let params = {checkDate: false };
+            this.$api.delete('/deleteUserData', '', {params})
+            .then((response) => {
+                this.$q.notify({
+                    message: response.data.message
+                })
+            })
+            .catch(() => {
+                this.$q.notify({
+                    color: 'negative',
+                    position: 'bottom-right',
+                    message: 'Failed',
+                    icon: 'report_problem'
+                })
+            })
+            
+            params = {
+                cluster: this.modelData.job.cluster,
+                checkDate: false 
+            };
+
+            this.$api.delete('/deleteUserDataFromCluster', '', {params})
+            .then((response) => {
+                this.$q.notify({
+                    message: response.data.message
+                })
+            })
+            .catch(() => {
+                this.$q.notify({
+                    color: 'negative',
+                    position: 'bottom-right',
+                    message: 'Failed',
+                    icon: 'report_problem'
+                })
+            })
+
+            this.bus.emit("getStatus");
+        },
+        deleteCookies() {
+            localStorage.removeItem("darkMode");
+            localStorage.removeItem("modelData");
+            localStorage.removeItem("panel");
         },
     },
     beforeUnmount() {

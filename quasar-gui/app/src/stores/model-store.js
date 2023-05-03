@@ -6,6 +6,7 @@ export const useModelStore = defineStore("model", {
     modelData: {
       model: {
         modelNameSelected: "Dogbone",
+        modelSubName: "",
         ownModel: false,
         ownMesh: false,
         translated: false,
@@ -425,6 +426,7 @@ export const useModelStore = defineStore("model", {
   }),
   actions: {
     initialiseStore() {
+      console.log("initialiseStore")
       if (localStorage.getItem("modelData")){
         var object = JSON.parse(localStorage.getItem("modelData"))
         parseFromJson(this.modelData,object)

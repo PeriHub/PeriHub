@@ -10,6 +10,7 @@
         >
             <q-tab name="image" label="Image"></q-tab>
             <q-tab name="model" label="Model"></q-tab>
+            <q-tab name="jobs" label="Jobs"></q-tab>
             <q-tab name="plotly" label="Plotly"></q-tab>
             <q-tab name="trame" label="Trame"></q-tab>
         </q-tabs>
@@ -23,6 +24,10 @@
 
           <q-tab-panel name="model">
             <ModelView></ModelView>
+          </q-tab-panel>
+
+          <q-tab-panel name="jobs">
+            <JobsView></JobsView>
           </q-tab-panel>
 
           <q-tab-panel name="plotly">
@@ -48,6 +53,7 @@
 import { inject, defineComponent } from 'vue'
 import ImageView from 'components/views/ImageView.vue'
 import ModelView from 'components/views/ModelView.vue'
+import JobsView from 'components/views/JobsView.vue'
 import PlotlyView from 'components/views/PlotlyView.vue'
 import { useViewStore } from 'stores/view-store';
 
@@ -56,6 +62,7 @@ export default defineComponent({
     components: {
         ImageView,
         ModelView,
+        JobsView,
         PlotlyView
     },
     data() {

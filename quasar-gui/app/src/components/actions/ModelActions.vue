@@ -190,7 +190,10 @@ export default defineComponent({
                 formData.append("files", files[i]);
             }
             
-            let params={model_name: this.modelData.model.modelNameSelected}
+            let params={
+                model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName
+            }
 
             await this.$api.post('/uploadfiles', formData, {params})
             .then((response) => {
@@ -289,6 +292,7 @@ export default defineComponent({
             
             let params={
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 discretization: this.gcodeDiscretization
             }
 
@@ -322,7 +326,8 @@ export default defineComponent({
         },
         saveModel() {
 
-            let params = {model_name: this.modelData.model.modelNameSelected}
+            let params = {model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName}
             this.$api.get('/getModel', {params})
             .then((response) => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
@@ -348,7 +353,8 @@ export default defineComponent({
                 this.viewStore.modelLoading = true;
             }
             this.viewStore.textLoading = true;
-            let params={model_name: this.modelData.model.modelNameSelected}
+            let params={model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName}
             await this.$api.post('/generateModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({

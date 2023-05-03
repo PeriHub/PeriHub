@@ -218,6 +218,7 @@ class GICmodel:
         zend=1,
         dx_value=None,
         filename="GICmodel",
+        model_sub_name="",
         two_d=True,
         model_data=None,
         rot=False,
@@ -253,6 +254,7 @@ class GICmodel:
         start_time = time.time()
 
         self.filename = filename
+        self.model_sub_name = model_sub_name
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None

@@ -44,7 +44,7 @@ export const deepCopy = function (obj) {
 export function parseFromJson(obj, input) {
   for (var i = 0; i < Object.keys(input).length; i++) {
     var paramName = Object.keys(input)[i];
-    // console.log(this[paramName]);
+    // console.log(obj[paramName]);
     // console.log(input[paramName]);
 
     // this[paramName] = [...input[paramName]];

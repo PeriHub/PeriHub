@@ -174,6 +174,7 @@ class ENFmodel:
         crack_length=5,
         dx_value=[0.25, 0.25, 0.25],
         filename="ENFmodel",
+        model_sub_name="",
         two_d=True,
         model_data=None,
         rot=False,
@@ -201,6 +202,7 @@ class ENFmodel:
         """
 
         self.filename = filename
+        self.model_sub_name = model_sub_name
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None

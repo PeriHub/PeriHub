@@ -15,6 +15,7 @@ class Status:
 
 class Model(BaseModel):
     modelNameSelected: str
+    modelSubName: Optional[str] = ""
     ownModel: bool
     ownMesh: Optional[bool] = None
     translated: bool

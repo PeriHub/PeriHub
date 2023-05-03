@@ -37,6 +37,7 @@ class DCBmodel:
         zend=0.003,
         dx_value=None,
         filename="DCBmodel",
+        model_sub_name="",
         two_d=False,
         model_data=None,
         rot="False",
@@ -64,6 +65,7 @@ class DCBmodel:
         """
 
         self.filename = filename
+        self.model_sub_name = model_sub_name
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None

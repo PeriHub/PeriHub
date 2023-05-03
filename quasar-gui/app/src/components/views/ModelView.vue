@@ -183,6 +183,7 @@
             console.log("getPointDataAndUpdateDx")
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 own_model: this.modelData.model.ownModel,
                 own_mesh: this.modelData.model.ownMesh,
                 mesh_file: this.modelData.model.meshFile

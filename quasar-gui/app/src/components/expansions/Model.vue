@@ -11,6 +11,14 @@
             ></q-select>
             <q-input 
                 class="my-input"
+                v-model="model.modelSubName"
+                v-show="!model.ownModel"
+                label="Model Subname"
+                standout
+                dense
+            ></q-input>
+            <q-input 
+                class="my-input"
                 v-model="model.modelNameSelected"
                 v-show="model.ownModel"
                 :rules="[rules.required]"
@@ -19,8 +27,7 @@
                 dense
             ></q-input>
             <q-input 
-                
-                            class="my-input"
+                class="my-input"
                 v-model="model.meshFile"
                 v-show="model.ownModel"
                 :rules="[rules.required]"
@@ -29,8 +36,7 @@
                 dense
             ></q-input>
             <q-input
-                
-                            class="my-input"
+                class="my-input"
                 v-model="model.length"
                 v-show="!model.ownModel & model.modelNameSelected!='RVE'"
                 :rules="[rules.required, rules.float]"
@@ -39,8 +45,7 @@
                 dense
             ></q-input>
             <q-input
-                
-                            class="my-input"
+                class="my-input"
                 v-model="model.cracklength"
                 v-show="['GICmodel','GIICmodel','CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(model.modelNameSelected)"
                 :rules="[rules.required, rules.float]"
@@ -56,115 +61,106 @@
                 dense
             ></q-toggle>
             <q-input
-            
-                            class="my-input"
-            v-model="model.width"
-            v-show="!model.ownModel & model.modelNameSelected!='RVE' & !model.twoDimensional"
-            :rules="[rules.required, rules.float]"
-            label="Width"
-            standout
-            dense
+                class="my-input"
+                v-model="model.width"
+                v-show="!model.ownModel & model.modelNameSelected!='RVE' & !model.twoDimensional"
+                :rules="[rules.required, rules.float]"
+                label="Width"
+                standout
+                dense
             ></q-input>
             <q-input
-            
-                            class="my-input"
-            v-model="model.height"
-            v-show="!model.ownModel & !['RVE','CompactTension','Smetana'].includes(model.modelNameSelected)"
-            :rules="[rules.required, rules.float]"
-            label="Height"
-            standout
-            dense
+                class="my-input"
+                v-model="model.height"
+                v-show="!model.ownModel & !['RVE','CompactTension','Smetana'].includes(model.modelNameSelected)"
+                :rules="[rules.required, rules.float]"
+                label="Height"
+                standout
+                dense
             ></q-input>
             <q-input
-            
-                            class="my-input"
-            v-model="model.height"
-            v-show="!model.ownModel & ['Smetana'].includes(model.modelNameSelected)"
-            :rules="[rules.required, rules.float]"
-            label="Ply height"
-            standout
-            dense
+                class="my-input"
+                v-model="model.height"
+                v-show="!model.ownModel & ['Smetana'].includes(model.modelNameSelected)"
+                :rules="[rules.required, rules.float]"
+                label="Ply height"
+                standout
+                dense
             ></q-input>
             <q-input
-            v-show="model.modelNameSelected=='Dogbone' & !model.ownModel"
-            
-                            class="my-input"
-            v-model="model.height2"
-            :rules="[rules.required, rules.float]"
-            label="Inner Height"
-            standout
-            dense
+                v-show="model.modelNameSelected=='Dogbone' & !model.ownModel"
+                class="my-input"
+                v-model="model.height2"
+                :rules="[rules.required, rules.float]"
+                label="Inner Height"
+                standout
+                dense
             ></q-input>
             <q-input
-            v-show="model.modelNameSelected=='PlateWithHole' & !model.ownModel"
-            
-                            class="my-input"
-            v-model="model.radius"
-            :rules="[rules.required, rules.float]"
-            label="Radius"
-            standout
-            dense
+                v-show="model.modelNameSelected=='PlateWithHole' & !model.ownModel"
+                class="my-input"
+                v-model="model.radius"
+                :rules="[rules.required, rules.float]"
+                label="Radius"
+                standout
+                dense
             ></q-input>
             <q-input
-            
-                            class="my-input"
-            v-model="model.discretization"
-            v-show="!model.ownModel & model.modelNameSelected!='RVE'"
-            :rules="[rules.required, rules.int]"
-            label="Discretization"
-            standout
-            dense
+                class="my-input"
+                v-model="model.discretization"
+                v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                :rules="[rules.required, rules.int]"
+                label="Discretization"
+                standout
+                dense
             ></q-input>
             <q-input
-            
-                            class="my-input"
-            v-model="model.horizon"
-            v-show="model.ownModel"
-            :rules="[rules.required, rules.posFloat]"
-            label="Horizon"
-            standout
-            dense
+                class="my-input"
+                v-model="model.horizon"
+                v-show="model.ownModel"
+                :rules="[rules.required, rules.posFloat]"
+                label="Horizon"
+                standout
+                dense
             ></q-input>
             <q-input
-            
-                            class="my-input"
-            v-model="model.amplitudeFactor"
-            v-show="!model.ownModel & model.modelNameSelected=='Smetana'"
-            :rules="[rules.required, rules.posFloat]"
-            label="Amplitude Factor"
-            standout
-            dense
+                class="my-input"
+                v-model="model.amplitudeFactor"
+                v-show="!model.ownModel & model.modelNameSelected=='Smetana'"
+                :rules="[rules.required, rules.posFloat]"
+                label="Amplitude Factor"
+                standout
+                dense
             ></q-input>
             <q-input
-            
-                            class="my-input"
-            v-model="model.wavelength"
-            v-show="!model.ownModel & model.modelNameSelected=='Smetana'"
-            :rules="[rules.required, rules.posFloat]"
-            label="Wavelength"
-            standout
-            dense
+                class="my-input"
+                v-model="model.wavelength"
+                v-show="!model.ownModel & model.modelNameSelected=='Smetana'"
+                :rules="[rules.required, rules.posFloat]"
+                label="Wavelength"
+                standout
+                dense
             ></q-input>
             <q-toggle
                 class="my-toggle"
-            v-show="model.modelNameSelected=='Dogbone' & !model.ownModel"
-            v-model="model.structured"
-            label="Structured"
-            dense
+                v-show="model.modelNameSelected=='Dogbone' & !model.ownModel"
+                v-model="model.structured"
+                label="Structured"
+                dense
             ></q-toggle>
             <q-toggle
                 class="my-toggle"
-            v-show="!model.ownModel & model.modelNameSelected!='RVE'"
-            v-model="model.twoDimensional"
-            label="Two Dimensional"
-            dense
+                v-show="!model.ownModel & model.modelNameSelected!='RVE'"
+                v-model="model.twoDimensional"
+                label="Two Dimensional"
+                dense
             ></q-toggle>
             <q-toggle
                 class="my-toggle"
-            v-model="model.rotatedAngles"
-            v-show="!model.ownModel & model.modelNameSelected!='RVE' & model.modelNameSelected!='Dogbone'"
-            label="Rotated Angles"
-            dense
+                v-model="model.rotatedAngles"
+                v-show="!model.ownModel & model.modelNameSelected!='RVE' & model.modelNameSelected!='Dogbone'"
+                label="Rotated Angles"
+                dense
             ></q-toggle>
             <div class="row"
             v-show="model.rotatedAngles & !model.ownModel & model.modelNameSelected!='RVE' & model.modelNameSelected!='Dogbone'"

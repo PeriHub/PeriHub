@@ -168,12 +168,16 @@ class FileHandler:
         sftp.rmdir(remotepath)
 
     @staticmethod
-    def copy_model_to_cluster(username, model_name, cluster):
+    def copy_model_to_cluster(username, model_name, model_sub_name, cluster):
         """doc"""
 
         if cluster == "None":
-            localpath = "./Output/" + os.path.join(username, model_name)
-            remotepath = "./peridigmJobs/" + os.path.join(username, model_name)
+            localpath = "./Output/" + os.path.join(
+                username, model_name + model_sub_name
+            )
+            remotepath = "./peridigmJobs/" + os.path.join(
+                username, model_name + model_sub_name
+            )
             if not os.path.exists(remotepath):
                 os.makedirs(remotepath)
                 # os.chown(remotepath, 'test')
@@ -217,8 +221,10 @@ class FileHandler:
                     # os.chown(os.path.join(remotepath,name), 'test')
             return "Success"
 
-        localpath = "./Output/" + os.path.join(username, model_name)
-        remotepath = FileHandler.get_remote_model_path(username, model_name)
+        localpath = "./Output/" + os.path.join(username, model_name + model_sub_name)
+        remotepath = FileHandler.get_remote_model_path(
+            username, model_name + model_sub_name
+        )
         userpath = FileHandler._get_user_path(username)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
@@ -265,10 +271,10 @@ class FileHandler:
         return "Success"
 
     @staticmethod
-    def copy_lib_to_cluster(username, model_name, cluster):
+    def copy_lib_to_cluster(username, model_name, model_sub_name, cluster):
         """doc"""
 
-        localpath = "./Output/" + os.path.join(username, model_name)
+        localpath = "./Output/" + os.path.join(username, model_name + model_sub_name)
         remotepath = FileHandler._get_remote_umat_path(cluster)
         try:
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -300,12 +306,14 @@ class FileHandler:
 
     @staticmethod
     def copy_file_to_from_peridigm_container(
-        username, model_name, file_name, to_or_from
+        username, model_name, model_sub_name, file_name, to_or_from
     ):
         """doc"""
 
-        localpath = "./Output/" + os.path.join(username, model_name)
-        remotepath = "./peridigmJobs/" + os.path.join(username, model_name)
+        localpath = "./Output/" + os.path.join(username, model_name + model_sub_name)
+        remotepath = "./peridigmJobs/" + os.path.join(
+            username, model_name + model_sub_name
+        )
         if not os.path.exists(remotepath):
             os.makedirs(remotepath)
             # os.chown(remotepath, 'test')

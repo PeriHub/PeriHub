@@ -78,6 +78,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 own_mesh: this.modelData.model.ownMesh,
                 file_type: this.modelData.solver.filetype
             }
@@ -105,6 +106,7 @@ export default defineComponent({
         writeInputFile() {
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 input_string: this.viewStore.textOutput,
                 file_type: this.modelData.solver.filetype,
             }
@@ -138,6 +140,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 cluster: this.modelData.job.cluster
             }
             this.$api.get('/getLogFile', {params})
@@ -164,6 +167,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
+                model_sub_name: this.modelData.model.modelSubName,
                 own_model: this.modelData.model.ownModel,
                 cluster: this.modelData.job.cluster
             }
@@ -173,6 +177,7 @@ export default defineComponent({
                 this.$q.notify({
                     message: response.data.message
                 })
+                console.log(response.data.data)
                 this.store.status = response.data.data
             })
             .catch( (error)=> {
