@@ -7,7 +7,11 @@
             row-key="name"
             selection="multiple"
             v-model:selected="selected"
+            :loading="loading"
         >
+        <template v-slot:loading>
+            <q-inner-loading showing color="primary"></q-inner-loading>
+        </template>
         </q-table>
             
         <!-- <q-btn flat icon="fas fa-times" @click="cancelJob" :disabled="selected.length==0">
@@ -36,12 +40,13 @@
             }
         },
         created() {
-            this.bus.on('showModelImg', (modelName) => {
-                this.showModelImg(modelName)
+            this.bus.on('getJobs', () => {
+                this.getJobs()
             })
         },
         data() {
             return {
+                loading: false,
                 selected: [],
                 columns: [
                     {
@@ -54,28 +59,44 @@
                         sortable: true
                     },
                     { name: 'jobId', label: 'JobId', field: 'jobId', sortable: true },
-                    { name: 'running', label: 'Running', field: 'running' }
+                    { name: 'cluster', label: 'Cluster', field: 'cluster', sortable: true },
+                    { name: 'created', label: 'Created', field: 'created', sortable: true },
+                    { name: 'submitted', label: 'Submitted', field: 'submitted', sortable: true },
+                    { name: 'results', label: 'Results', field: 'results', sortable: true }
                 ],
                 rows: [
                     {
-                        name: 'Dogbone_1',
-                        jobId: '214521',
-                        running: false
-                    },
-                    {
-                        name: 'Dogbone_2',
-                        jobId: '214522',
-                        running: true
-                    },
-                    {
-                        name: 'ENFmodel',
-                        jobId: '214523',
-                        running: true
+                        name: "ENFmodel",
+                        job_id: "",
+                        cluster: "Cara",
+                        created: true,
+                        submitted: false,
+                        results: true
                     }
                 ]
             };
         },
+        mounted(){
+            this.getJobs()
+        },
         methods: {
+            async getJobs() {
+                this.loading = true;
+                await this.$api.get('/getJobs')
+                .then((response) => {
+                    this.rows = response.data.data
+                    this.$q.notify({
+                        message: response.data.message
+                    })
+                })
+                .catch( (error)=> {
+                    this.$q.notify({
+                        type: 'negative',
+                        message: error.response.data.detail
+                    })
+                })
+                this.loading = false;
+            },
         },
     })
 </script>
