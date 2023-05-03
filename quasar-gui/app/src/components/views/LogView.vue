@@ -1,5 +1,5 @@
 <template>
-    <q-scroll-area style="height: 50vh;">
+    <q-scroll-area style="height:calc(100% - 15px);">
         <prism-editor
             v-model="viewStore.logOutput"
             :highlight="highlighter"
@@ -43,7 +43,4 @@
 </script>
 
 <style>
-    fill-scroll {
-        height: calc(var(--percentage, 50) * 10px);
-    }
 </style>
