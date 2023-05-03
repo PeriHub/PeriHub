@@ -795,6 +795,13 @@ class ModelControl:
 
             job_id = current_jobs.replace(initial_jobs, "").strip()
 
+            if job_id == "":
+                log.warning("%s submission failed!", model_name)
+                raise HTTPException(
+                    status_code=404,
+                    detail=model_name + " submission failed!",
+                )
+
             FileHandler.write_cara_job_id_to_model(username, model_name, job_id)
 
             log.info("%s has been submitted with Job Id: %s", model_name, job_id)

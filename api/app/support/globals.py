@@ -11,5 +11,6 @@ logging.basicConfig(
     handlers=[RichHandler(level=logging.ERROR)],
 )
 logging.getLogger("matplotlib").setLevel(logging.ERROR)
+logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 log = logging.getLogger("rich")

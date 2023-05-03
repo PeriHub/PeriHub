@@ -1,6 +1,6 @@
 <template>
     <div class="row">
-        <q-btn flat icon="fas fa-play" @click="runModel" :disabled="!store.status.created || store.status.submitted">
+        <q-btn flat icon="fas fa-play" @click="runModel" :loading="submitLoading" :disabled="submitLoading || !store.status.created || store.status.submitted">
             <q-tooltip>
                 Submit Model
             </q-tooltip>
@@ -416,6 +416,7 @@ export default defineComponent({
     data() {
         return {
             resultsLoading: false,
+            submitLoading: false,
             dialog: false,
             dialogShowResults: false,
             dialogGetImage: false,
@@ -469,13 +470,13 @@ export default defineComponent({
     },
     methods: {
         async runModel() {
-
+            this.submitLoading = true;
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 file_type: this.modelData.solver.filetype,
             }
 
-            this.$api.put('/runModel', this.modelData, {params})
+            await this.$api.put('/runModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -505,6 +506,7 @@ export default defineComponent({
             this.bus.emit("getLogFile")
             // this.monitorStatus(true);
             this.monitorStatus(false);
+            this.submitLoading = false;
         },
         async cancelJob() {
 

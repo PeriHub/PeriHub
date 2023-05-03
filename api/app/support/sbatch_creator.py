@@ -32,10 +32,11 @@ class SbatchCreator:
 
     def create_sbatch(self):
         """doc"""
-        # nodes = -(-int(self.tasks) // 64)
+        nodes = -(-int(self.tasks) // 64)
         string = "#!/bin/bash" + "\n"
-        string += "#SBATCH --nodes=" + str(self.nodes) + "\n"
-        string += "#SBATCH --tasks-per-node=" + str(self.tasks_per_node) + "\n"
+        string += "#SBATCH --nodes=" + str(nodes) + "\n"
+        # string += "#SBATCH --nodes=" + str(self.nodes) + "\n"
+        # string += "#SBATCH --tasks-per-node=" + str(self.tasks_per_node) + "\n"
         if self.multithread:
             string += "#SBATCH --hint=multithread" + "\n"
         else:

@@ -9,7 +9,7 @@
             standout
             dense
         ></q-select>
-        <q-input 
+        <!-- <q-input 
             class="my-input"
             v-model="job.nodes"
             v-show="job.cluster=='Cara'"
@@ -17,7 +17,7 @@
             label="Nodes"
             standout
             dense
-        ></q-input>
+        ></q-input> -->
         <q-input 
             class="my-input"
             v-model="job.tasks"
@@ -27,7 +27,7 @@
             standout
             dense
         ></q-input>
-        <q-input 
+        <!-- <q-input 
             class="my-input"
             v-model="job.tasksPerNode"
             v-show="job.cluster=='Cara'"
@@ -35,7 +35,7 @@
             label="Tasks per Node"
             standout
             dense
-        ></q-input>
+        ></q-input> -->
         <q-input 
             class="my-input"
             v-model="job.cpusPerTask"
