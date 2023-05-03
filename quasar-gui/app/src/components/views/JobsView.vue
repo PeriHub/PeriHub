@@ -1,77 +1,20 @@
 <template>
     <div>
-        <q-list
-            v-for="block in blocks"
-            :key="block.blocksId"
-            style="padding: 0px"
+        <q-table
+            flat
+            :rows="rows"
+            :columns="columns"
+            row-key="name"
+            selection="multiple"
+            v-model:selected="selected"
         >
-            <div class="row my-row">
-                <q-input 
-                    class="my-input"
-                    v-model="block.name"
-                    :rules="[rules.required, rules.name]"
-                    :label="blockKeys.name"
-                    standout
-                    dense
-                ></q-input>
-                <q-select 
-                    class="my-select"
-                    :options="materials"
-                    option-label="name"
-                    option-value="name"
-                    emit-value
-                    v-model="block.material"
-                    :label="blockKeys.material"
-                    standout
-                    dense
-                ></q-select>
-                <q-select 
-                    class="my-select"
-                    :options="damages"
-                    option-label="name"
-                    option-value="name"
-                    emit-value
-                    v-model="block.damageModel"
-                    :label="blockKeys.damageModel"
-                    clearable
-                    standout
-                    dense
-                ></q-select>
-                <q-select 
-                    v-if="additive.enabled"
-                    class="my-select"
-                    :options="additive.additiveModels"
-                    option-label="name"
-                    option-value="name"
-                    emit-value
-                    v-model="block.additiveModel"
-                    :label="blockKeys.additiveModel"
-                    clearable
-                    standout
-                    dense
-                ></q-select>
-                <q-toggle
-                    class="my-toggle"
-                    v-model="block.show"
-                    @update:model-value="bus.emit('filterPointData')"
-                    label="Show"
-                    standout
-                    dense
-                ></q-toggle>
-                <q-btn v-if="model.ownModel" flat icon="fas fa-trash-alt" @click="removeBlock(index)">
-                    <q-tooltip>
-                        Remove Block
-                    </q-tooltip>
-                </q-btn>
-            </div>
-            <q-separator></q-separator>
-        </q-list>
-        
-        <q-btn v-if="model.ownModel" flat icon="fas fa-plus" @click="addBlock">
+        </q-table>
+            
+        <!-- <q-btn flat icon="fas fa-times" @click="cancelJob" :disabled="selected.length==0">
             <q-tooltip>
-                Add Block
+                Cancel Job
             </q-tooltip>
-        </q-btn>
+        </q-btn> -->
     </div>
 </template>
 
@@ -96,6 +39,41 @@
             this.bus.on('showModelImg', (modelName) => {
                 this.showModelImg(modelName)
             })
+        },
+        data() {
+            return {
+                selected: [],
+                columns: [
+                    {
+                        name: 'name',
+                        required: true,
+                        label: 'ModelName',
+                        align: 'left',
+                        field: row => row.name,
+                        format: val => `${val}`,
+                        sortable: true
+                    },
+                    { name: 'jobId', label: 'JobId', field: 'jobId', sortable: true },
+                    { name: 'running', label: 'Running', field: 'running' }
+                ],
+                rows: [
+                    {
+                        name: 'Dogbone_1',
+                        jobId: '214521',
+                        running: false
+                    },
+                    {
+                        name: 'Dogbone_2',
+                        jobId: '214522',
+                        running: true
+                    },
+                    {
+                        name: 'ENFmodel',
+                        jobId: '214523',
+                        running: true
+                    }
+                ]
+            };
         },
         methods: {
         },

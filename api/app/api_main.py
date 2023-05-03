@@ -47,6 +47,7 @@ from models.Smetana.smetana import Smetana
 from support.analysis import Analysis
 from support.base_models import (
     FileType,
+    Jobs,
     Material,
     Model,
     ModelData,
@@ -1671,6 +1672,75 @@ class ModelControl:
         except IOError:
             log.error("%s results can not be found on %s", model_name, cluster)
             return model_name + " results can not be found on " + cluster
+
+    @app.get("/getJobs", tags=["Get Methods"])
+    def get_jobs(
+        request: Request = "",
+    ):
+        """doc"""
+        username = FileHandler.get_user_name(request, dev)
+
+        jobs = []
+
+        localpath = "./Output/" + username
+
+        print(localpath)
+
+        if not os.path.exists(localpath):
+            return ResponseModel(data=jobs, message="No jobs")
+
+        ssh, sftp = FileHandler.sftp_to_cluster("Cara")
+
+        for _, dirs, _ in os.walk(localpath):
+            log.info(dirs)
+            for name in dirs:
+                job = Jobs("", "", "", False, False, False)
+                modelpath = os.path.join(localpath, name)
+
+                if os.path.exists(modelpath):
+                    job.name = name
+                    job.created = True
+
+                    remotepath = "./peridigmJobs/" + os.path.join(username, name)
+                    if os.path.exists(os.path.join(remotepath)):
+                        job.cluster = "None"
+
+                        if os.path.exists(os.path.join(remotepath, "pid.txt")):
+                            job.submitted = True
+                        if os.path.exists(remotepath):
+                            for files in os.listdir(remotepath):
+                                if ".e" in files:
+                                    job.results = True
+
+                        log.info(jobs)
+
+                    remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
+                        username, name
+                    )
+                    log.info(remotepath)
+
+                    if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
+                        job.cluster = "Cara"
+                        try:
+                            for filename in sftp.listdir(remotepath):
+                                if ".e" in filename:
+                                    job.results = True
+                        except IOError:
+                            pass
+
+                        job_ids = FileHandler.write_get_cara_job_id()
+                        job_id = FileHandler.get_cara_job_id_model(username, name)
+                        print(job_id)
+                        print(job_ids)
+                        if job_id in job_ids and job_id != "":
+                            job.submitted = True
+
+                    jobs.append(job)
+
+        sftp.close()
+        ssh.close()
+
+        return ResponseModel(data=jobs, message="Jobs found")
 
     @app.get("/getStatus", tags=["Get Methods"])
     def get_status(

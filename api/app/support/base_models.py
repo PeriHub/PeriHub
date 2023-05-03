@@ -13,6 +13,16 @@ class Status:
         self.results = results
 
 
+class Jobs:
+    def __init__(self, name, job_id, cluster, created, submitted, results):
+        self.name = name
+        self.job_id = job_id
+        self.cluster = cluster
+        self.created = created
+        self.submitted = submitted
+        self.results = results
+
+
 class Model(BaseModel):
     modelNameSelected: str
     modelSubName: Optional[str] = ""

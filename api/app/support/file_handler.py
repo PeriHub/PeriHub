@@ -464,6 +464,14 @@ class FileHandler:
         return ssh, sftp
 
     @staticmethod
+    def sftp_exists(sftp, path):
+        try:
+            sftp.stat(path)
+            return True
+        except FileNotFoundError:
+            return False
+
+    @staticmethod
     def ssh_to_cluster(cluster):
         """doc"""
 
