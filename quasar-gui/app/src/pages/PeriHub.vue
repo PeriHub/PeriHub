@@ -3,7 +3,7 @@
         <q-splitter v-model="verticalSplitterModel" class="body" :limits="[30, 60]">
             <template v-slot:before>
                 <div class="q-pa-md">
-                    <ModelActions id="ModelActions"/>
+                    <ModelActions style="height: 36px;" id="ModelActions"/>
                     <ExpansionComp id="ExpansionComp"/>
                 </div>
             </template>
@@ -13,14 +13,14 @@
                     <template v-slot:before>
                         <q-resize-observer @resize="onResizeBefore" :debounce="0" />
                         <div class="q-pa-md">
-                            <ViewActions id="ViewActions"/>
+                            <ViewActions style="height: 36px;" id="ViewActions"/>
                             <ViewComp id="ViewComp"/>
                         </div>
                     </template>
                     <template v-slot:after>
                         <q-resize-observer @resize="onResizeAfter" :debounce="0" />
                         <div class="q-pa-md">
-                            <TextActions id="TextActions"/>
+                            <TextActions style="height: 36px;" id="TextActions"/>
                             <TextComp id="TextComp"/>
                         </div>
                     </template>
