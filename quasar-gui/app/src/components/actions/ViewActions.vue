@@ -1,16 +1,16 @@
 <template>
     <div class="row">
-        <q-btn flat icon="fas fa-play" @click="runModel" :loading="submitLoading" :disabled="submitLoading || !status.created || status.submitted">
+        <q-btn flat icon="fas fa-play" @click="runModel" :loading="submitLoading" :disable="submitLoading || !status.created || status.submitted">
             <q-tooltip>
                 Submit Model
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-times" @click="cancelJob" :disabled="!status.submitted">
+        <q-btn flat icon="fas fa-times" @click="cancelJob" :disable="!status.submitted">
             <q-tooltip>
                 Cancel Job
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading" :disabled="resultsLoading || !status.results">
+        <q-btn flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading" :disable="resultsLoading || !status.results">
             <q-tooltip>
                 Download Results
             </q-tooltip>
@@ -33,12 +33,12 @@
             </q-card>
         </q-dialog>
 
-        <q-btn flat icon="fas fa-eye" @click="showResultsDialog" :disabled="!status.results">
+        <q-btn flat icon="fas fa-eye" @click="showResultsDialog" :disable="!status.results">
             <q-tooltip>
                 Show Results
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="port!=null" flat icon="fas fa-times" @click="closeTrame" :disabled="!status.results">
+        <q-btn v-if="port!=null" flat icon="fas fa-times" @click="closeTrame" :disable="!status.results">
             <q-tooltip>
                 Close Trame
             </q-tooltip>
@@ -82,17 +82,17 @@
                 CARA Enginframe
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)" flat icon="fas fa-image" @click="getFractureAnalysis()" :disabled="!status.results">
+        <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)" flat icon="fas fa-image" @click="getFractureAnalysis()" :disable="!status.results">
             <q-tooltip>
                 Show Fracture Analysis
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="viewStore.viewId=='image'" flat icon="fas fa-download" @click="downloadModelImage()" :disabled="!status.results">
+        <q-btn v-if="viewStore.viewId=='image'" flat icon="fas fa-download" @click="downloadModelImage()" :disable="!status.results">
             <q-tooltip>
                 Download Image
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()" :disabled="!status.results || modelData.computes.length==0">
+        <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()" :disable="!status.results || modelData.computes.length==0">
             <q-tooltip>
                 Show Plot
             </q-tooltip>
@@ -177,7 +177,7 @@
             </q-card>
         </q-dialog>
 
-        <q-btn flat icon="fas fa-image" @click="dialogGetImagePython = true" :disabled="!status.results">
+        <q-btn flat icon="fas fa-image" @click="dialogGetImagePython = true" :disable="!status.results">
             <q-tooltip>
                 Show Image
             </q-tooltip>
@@ -298,17 +298,17 @@
             </q-card>
         </q-dialog>
 
-        <!-- <q-btn flat icon="fas fa-image" @click="getG1c" :disabled="!status.results">
+        <!-- <q-btn flat icon="fas fa-image" @click="getG1c" :disable="!status.results">
             <q-tooltip>
                 Show G1c
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-image" @click="getG2c" :disabled="!status.results">
+        <q-btn flat icon="fas fa-image" @click="getG2c" :disable="!status.results">
             <q-tooltip>
                 Get GIIC
             </q-tooltip>
         </q-btn> -->
-        <!-- <q-btn flat icon="fas fa-chess-board" @click="bus.emit('viewPointData')" :disabled="!status.created">
+        <!-- <q-btn flat icon="fas fa-chess-board" @click="bus.emit('viewPointData')" :disable="!status.created">
             <q-tooltip>
                 Show Model
             </q-tooltip>

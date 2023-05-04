@@ -21,7 +21,7 @@
         <q-input 
             class="my-input"
             v-model="job.tasks"
-            :disabled="job.cluster=='None'"
+            v-show="job.cluster=='Cara'"
             :rules="[rules.required, rules.name]"
             label="Tasks"
             standout

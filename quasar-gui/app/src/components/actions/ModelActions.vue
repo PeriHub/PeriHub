@@ -73,7 +73,7 @@
             </q-tooltip>
         </q-btn>
         
-        <q-btn flat icon="fas fa-download" @click="saveModel" :disabled="!store.status.created">
+        <q-btn flat icon="fas fa-download" @click="saveModel" :disable="!store.status.created">
             <q-tooltip>
                 Download Modelfiles
             </q-tooltip>

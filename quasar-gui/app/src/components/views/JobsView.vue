@@ -36,7 +36,7 @@
         </template>
         </q-table>
             
-        <!-- <q-btn flat icon="fas fa-times" @click="cancelJob" :disabled="selected.length==0">
+        <!-- <q-btn flat icon="fas fa-times" @click="cancelJob" :disable="selected.length==0">
             <q-tooltip>
                 Cancel Job
             </q-tooltip>

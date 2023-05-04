@@ -1,11 +1,11 @@
 <template>
     <div class="row">
-        <q-btn flat icon="fas fa-sync-alt" @click="viewInputFile(false)" :disabled="!store.status.created">
+        <q-btn flat icon="fas fa-sync-alt" @click="viewInputFile(false)" :disable="!store.status.created">
             <q-tooltip>
                 Reload Inputfile
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-save" @click="writeInputFile" :disabled="!store.status.created || viewStore.textId!='input'">
+        <q-btn flat icon="fas fa-save" @click="writeInputFile" :disable="!store.status.created || viewStore.textId!='input'">
             <q-tooltip>
                 Save Inputfile
             </q-tooltip>
@@ -13,7 +13,7 @@
 
         <q-space></q-space>
         
-        <q-btn flat icon="fas fa-sync-alt" @click="getLogFile" :disabled="!store.status.created">
+        <q-btn flat icon="fas fa-sync-alt" @click="getLogFile" :disable="!store.status.created">
             <q-tooltip>
                 Reload LogFile
             </q-tooltip>
