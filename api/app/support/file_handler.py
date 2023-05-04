@@ -15,6 +15,19 @@ from support.globals import log
 class FileHandler:
     """doc"""
 
+    def get_local_user_path(username):
+        """doc"""
+
+        return "./Output/" + username
+
+    @staticmethod
+    def get_local_model_path(username, model_name, model_folder_name):
+        """doc"""
+
+        return os.path.join(
+            FileHandler.get_local_user_path(username), model_name, model_folder_name
+        )
+
     @staticmethod
     def get_remote_path():
         """doc"""
@@ -22,10 +35,18 @@ class FileHandler:
         return "./PeridigmJobs/apiModels/"
 
     @staticmethod
-    def get_remote_model_path(username, model_name):
+    def get_remote_user_path(username):
         """doc"""
 
-        return "./PeridigmJobs/apiModels/" + username + "/" + model_name
+        return os.path.join(FileHandler.get_remote_path(), username)
+
+    @staticmethod
+    def get_remote_model_path(username, model_name, model_folder_name):
+        """doc"""
+
+        return os.path.join(
+            FileHandler.get_remote_user_path(username), model_name, model_folder_name
+        )
 
     @staticmethod
     def _get_remote_umat_path(cluster):
@@ -36,12 +57,6 @@ class FileHandler:
         if cluster == "Cara":
             return "/home/f_peridi/software/peridigm/"
         return "./peridigm/src/src/materials/umats/"
-
-    @staticmethod
-    def get_remote_user_path(username):
-        """doc"""
-
-        return "./PeridigmJobs/apiModels/" + username
 
     @staticmethod
     def _get_user_path(username):
@@ -157,26 +172,41 @@ class FileHandler:
         """doc"""
 
         for filename in sftp.listdir(remotepath):
-            for subfilename in sftp.listdir(os.path.join(remotepath, filename)):
-                if recursive:
-                    for sub_sub_file_name in sftp.listdir(
-                        os.path.join(remotepath, subfilename)
-                    ):
-                        sftp.remove(os.path.join(remotepath, sub_sub_file_name))
-                sftp.remove(os.path.join(remotepath, subfilename))
+            for sub_filename in sftp.listdir(os.path.join(remotepath, filename)):
+                for sub_sub_file_name in sftp.listdir(
+                    os.path.join(remotepath, sub_filename)
+                ):
+                    if recursive:
+                        for sub_sub_sub_file_name in sftp.listdir(
+                            os.path.join(remotepath, sub_sub_file_name)
+                        ):
+                            sftp.remove(os.path.join(remotepath, sub_sub_sub_file_name))
+                    sftp.remove(os.path.join(remotepath, sub_sub_file_name))
+                sftp.remove(os.path.join(remotepath, sub_filename))
             sftp.remove(os.path.join(remotepath, filename))
         sftp.rmdir(remotepath)
 
     @staticmethod
-    def copy_model_to_cluster(username, model_name, model_sub_name, cluster):
+    def remove_all_folder_ssh(ssh: paramiko.SSHClient, remotepath):
+        """doc"""
+
+        # Remove the folder and its contents
+        stdin, stdout, stderr = ssh.exec_command("rm -rf " + remotepath)
+
+        # Print the output and any errors
+        print(stdout.read().decode())
+        print(stderr.read().decode())
+
+    @staticmethod
+    def copy_model_to_cluster(username, model_name, model_folder_name, cluster):
         """doc"""
 
         if cluster == "None":
             localpath = "./Output/" + os.path.join(
-                username, model_name + model_sub_name
+                username, model_name, model_folder_name
             )
             remotepath = "./peridigmJobs/" + os.path.join(
-                username, model_name + model_sub_name
+                username, model_name, model_folder_name
             )
             if not os.path.exists(remotepath):
                 os.makedirs(remotepath)
@@ -221,9 +251,11 @@ class FileHandler:
                     # os.chown(os.path.join(remotepath,name), 'test')
             return "Success"
 
-        localpath = "./Output/" + os.path.join(username, model_name + model_sub_name)
+        localpath = FileHandler.get_local_model_path(
+            username, model_name, model_folder_name
+        )
         remotepath = FileHandler.get_remote_model_path(
-            username, model_name + model_sub_name
+            username, model_name, model_folder_name
         )
         userpath = FileHandler._get_user_path(username)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -239,6 +271,13 @@ class FileHandler:
         except FileNotFoundError:
             sftp.mkdir(model_name)  # Create remote_path
             sftp.chdir(model_name)
+
+        try:
+            sftp.chdir(model_folder_name)  # Test if remote_path exists
+        except FileNotFoundError:
+            sftp.mkdir(model_folder_name)  # Create remote_path
+            sftp.chdir(model_folder_name)
+
         if not os.path.exists(localpath):
             log.warning(model_name + " has not been created yet")
             return model_name + " has not been created yet"
@@ -271,10 +310,12 @@ class FileHandler:
         return "Success"
 
     @staticmethod
-    def copy_lib_to_cluster(username, model_name, model_sub_name, cluster):
+    def copy_lib_to_cluster(username, model_name, model_folder_name, cluster):
         """doc"""
 
-        localpath = "./Output/" + os.path.join(username, model_name + model_sub_name)
+        localpath = FileHandler.get_local_model_path(
+            username, model_name, model_folder_name
+        )
         remotepath = FileHandler._get_remote_umat_path(cluster)
         try:
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -306,13 +347,15 @@ class FileHandler:
 
     @staticmethod
     def copy_file_to_from_peridigm_container(
-        username, model_name, model_sub_name, file_name, to_or_from
+        username, model_name, model_folder_name, file_name, to_or_from
     ):
         """doc"""
 
-        localpath = "./Output/" + os.path.join(username, model_name + model_sub_name)
+        localpath = FileHandler.get_local_model_path(
+            username, model_name, model_folder_name
+        )
         remotepath = "./peridigmJobs/" + os.path.join(
-            username, model_name + model_sub_name
+            username, model_name, model_folder_name
         )
         if not os.path.exists(remotepath):
             os.makedirs(remotepath)
@@ -340,16 +383,27 @@ class FileHandler:
 
     @staticmethod
     def copy_results_from_cluster(
-        username, model_name, cluster, all_data, filetype=".e"
+        username,
+        model_name,
+        model_folder_name,
+        cluster,
+        all_data,
+        tasks,
+        output,
+        filetype=".e",
     ):
         """doc"""
         log.info("Start copying")
-        resultpath = "./Results/" + os.path.join(username, model_name)
+        resultpath = "./Results/" + os.path.join(
+            username, model_name, model_folder_name
+        )
         if not os.path.exists(resultpath):
             os.makedirs(resultpath)
 
         if cluster == "None":
-            remotepath = "./peridigmJobs/" + os.path.join(username, model_name)
+            remotepath = "./peridigmJobs/" + os.path.join(
+                username, model_name, model_folder_name
+            )
             for _, _, files in os.walk(remotepath):
                 if len(files) == 0:
                     return False
@@ -375,11 +429,31 @@ class FileHandler:
                     # os.chown(os.path.join(remotepath,name), 'test')
             return True
 
-        remotepath = FileHandler.get_remote_model_path(username, model_name)
+        remotepath = FileHandler.get_remote_model_path(
+            username, model_name, model_folder_name
+        )
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        if tasks != 1:
+            try:
+                command = "module load netCDF" + "\n"
+                command += "module load GCCcore/10.2.0" + "\n"
+                command += (
+                    "cd "
+                    + remotepath
+                    + "\n python /home/f_peridi/peridigm/build/scripts/MergeFiles.py "
+                    + model_name
+                    + "_"
+                    + output
+                    + " "
+                    + str(tasks)
+                )
+                ssh.exec_command(command)
+            except:
+                log.error("MergeFiles.py failed")
+                pass
         try:
             for filename in sftp.listdir(remotepath):
-                if all_data or ".e" in filename:
+                if all_data or filename.endswith(".e"):
                     if os.path.exists(os.path.join(resultpath, filename)):
                         remote_info = sftp.stat(os.path.join(remotepath, filename))
                         remote_size = remote_info.st_size
@@ -500,41 +574,59 @@ class FileHandler:
         return ssh
 
     @staticmethod
-    def write_get_cara_job_id():
+    def cara_job_running(remotepath, model_name, model_folder_name):
         """doc"""
         ssh, sftp = FileHandler.sftp_to_cluster("Cara")
-        command = " squeue -u f_peridi | grep -o -E '[0-9]{7}' > jobIds.txt"
+        command = (
+            "cd "
+            + remotepath
+            + " \n squeue -n "
+            + model_name
+            + "_"
+            + model_folder_name
+            + " | grep -o -E '[0-9]{7}' > jobId.txt"
+        )
         ssh.exec_command(command)
-        job_ids_file = sftp.file("./jobIds.txt", "r")
-        job_ids = job_ids_file.read()
+        job_id_file = sftp.file(os.path.join(remotepath, "jobId.txt"), "r")
+        job_id = job_id_file.read()
         sftp.close()
         ssh.close()
-        return str(job_ids)
+        return len(str(job_id)) > 5
 
-    @staticmethod
-    def write_cara_job_id_to_model(username, model_name, job_id):
-        """doc"""
-        localpath = "./Output/" + os.path.join(username, model_name)
+    # @staticmethod
+    # def write_get_cara_job_ids():
+    #     """doc"""
+    #     ssh, sftp = FileHandler.sftp_to_cluster("Cara")
+    #     command = " squeue -u f_peridi | grep -o -E '[0-9]{7}' > jobIds.txt"
+    #     ssh.exec_command(command)
+    #     job_ids_file = sftp.file("./jobIds.txt", "r")
+    #     job_ids = job_ids_file.read()
+    #     sftp.close()
+    #     ssh.close()
+    #     return str(job_ids)
 
-        if not os.path.exists(localpath):
-            os.makedirs(localpath)
+    # @staticmethod
+    # def write_cara_job_id_to_model(localpath, job_id):
+    #     """doc"""
 
-        job_id_file = os.path.join(localpath, "jobId.txt")
+    #     if not os.path.exists(localpath):
+    #         os.makedirs(localpath)
 
-        with open(job_id_file, "w", encoding="UTF-8") as file:
-            file.write(job_id)
+    #     job_id_file = os.path.join(localpath, "jobId.txt")
 
-    @staticmethod
-    def get_cara_job_id_model(username, model_name):
-        """doc"""
-        localpath = "./Output/" + os.path.join(username, model_name)
-        job_id_path = os.path.join(localpath, "jobId.txt")
+    #     with open(job_id_file, "w", encoding="UTF-8") as file:
+    #         file.write(job_id)
 
-        if not os.path.exists(job_id_path):
-            log.error("No pid")
-            return "No pid"
+    # @staticmethod
+    # def get_cara_job_id_model(localpath):
+    #     """doc"""
+    #     job_id_path = os.path.join(localpath, "jobId.txt")
 
-        with open(job_id_path, "r", encoding="UTF-8") as file:
-            response = file.read()
+    #     if not os.path.exists(job_id_path):
+    #         log.error("No pid")
+    #         return "No pid"
 
-        return str(response)
+    #     with open(job_id_path, "r", encoding="UTF-8") as file:
+    #         response = file.read()
+
+    #     return str(response)

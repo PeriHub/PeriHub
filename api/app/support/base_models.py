@@ -14,18 +14,20 @@ class Status:
 
 
 class Jobs:
-    def __init__(self, name, job_id, cluster, created, submitted, results):
+    def __init__(self, id, name, sub_name, cluster, created, submitted, results, model):
+        self.id = id
         self.name = name
-        self.job_id = job_id
+        self.sub_name = sub_name
         self.cluster = cluster
         self.created = created
         self.submitted = submitted
         self.results = results
+        self.model = model
 
 
 class Model(BaseModel):
     modelNameSelected: str
-    modelSubName: Optional[str] = ""
+    modelFolderName: Optional[str] = "Default"
     ownModel: bool
     ownMesh: Optional[bool] = None
     translated: bool

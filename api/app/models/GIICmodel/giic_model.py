@@ -218,7 +218,7 @@ class GIICmodel:
         zend=1,
         dx_value=None,
         filename="GIICmodel",
-        model_sub_name="",
+        model_folder_name="",
         two_d=True,
         model_data=None,
         rot=False,
@@ -254,7 +254,7 @@ class GIICmodel:
         start_time = time.time()
 
         self.filename = filename
-        self.model_sub_name = model_sub_name
+        self.model_folder_name = model_folder_name
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None

@@ -132,7 +132,7 @@ class Smetana:
     def __init__(
         self,
         filename="Smetana",
-        model_sub_name="",
+        model_folder_name="",
         mesh_res=30,
         xend=4.0,
         plyThickness=0.125,
@@ -153,7 +153,7 @@ class Smetana:
         model_data=None,
     ):
         self.filename = filename
-        self.model_sub_name = model_sub_name
+        self.model_folder_name = model_folder_name
         self.mesh_res = mesh_res
         self.xend = xend
         self.plyThickness = plyThickness
@@ -165,7 +165,9 @@ class Smetana:
         self.wavelength = wavelength
         self.angle = angle
         self.two_d = two_d
-        self.path = "/app/Output/" + os.path.join(username, filename + model_sub_name)
+        self.path = "/app/Output/" + os.path.join(
+            username, filename + model_folder_name
+        )
 
         self.bc_dict = boundary_condition
         self.damage_dict = damage

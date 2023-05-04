@@ -6,7 +6,7 @@ export const useModelStore = defineStore("model", {
     modelData: {
       model: {
         modelNameSelected: "Dogbone",
-        modelSubName: "",
+        modelFolderName: "Default",
         ownModel: false,
         ownMesh: false,
         translated: false,

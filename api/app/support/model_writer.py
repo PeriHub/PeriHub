@@ -19,10 +19,10 @@ class ModelWriter:
         """doc"""
 
         self.filename = model_class.filename
-        self.model_sub_name = model_class.model_sub_name
+        self.model_folder_name = model_class.model_folder_name
         self.ns_name = "ns_" + model_class.filename
         self.path = "Output/" + os.path.join(
-            model_class.username, model_class.filename + model_class.model_sub_name
+            model_class.username, model_class.filename, model_class.model_folder_name
         )
         self.mesh_file = model_class.model_data.model.mesh_file
         self.bc_dict = model_class.model_data.boundaryConditions

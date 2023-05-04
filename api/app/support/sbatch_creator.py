@@ -9,6 +9,7 @@ class SbatchCreator:
     def __init__(
         self,
         filename="Model",
+        model_folder_name="Default",
         filetype="yaml",
         remotepath="",
         output="",
@@ -23,6 +24,7 @@ class SbatchCreator:
         self.multithread = job.multithread
         self.time = job.time
         self.filename = filename
+        self.model_folder_name = model_folder_name
         self.filetype = filetype
         self.user = "f_peridi"
         self.account = job.account
@@ -34,6 +36,11 @@ class SbatchCreator:
         """doc"""
         nodes = -(-int(self.tasks) // 64)
         string = "#!/bin/bash" + "\n"
+        string += (
+            "#SBATCH --job-name="
+            + str(self.filename + "_" + self.model_folder_name)
+            + "\n"
+        )
         string += "#SBATCH --nodes=" + str(nodes) + "\n"
         # string += "#SBATCH --nodes=" + str(self.nodes) + "\n"
         # string += "#SBATCH --tasks-per-node=" + str(self.tasks_per_node) + "\n"

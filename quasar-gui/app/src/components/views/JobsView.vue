@@ -4,13 +4,35 @@
             flat
             :rows="rows"
             :columns="columns"
-            row-key="name"
-            selection="multiple"
-            v-model:selected="selected"
+            row-key="id"
             :loading="loading"
+            clickable
+            @row-click="onRowClick"
         >
         <template v-slot:loading>
             <q-inner-loading showing color="primary"></q-inner-loading>
+        </template>
+        <template v-slot:body="props">
+            <q-tr :props="props">
+                <q-td key="name" :props="props" @click="onRowClick(props.row)">
+                    {{ props.row.name + " (" +props.row.sub_name + ")" }}
+                </q-td>
+                <q-td key="cluster" :props="props">
+                    <q-badge color="purple">
+                    {{ props.row.cluster }}
+                    </q-badge>
+                </q-td>
+                <q-td key="submitted" :props="props">
+                    <q-badge :color="props.row.submitted ? 'green' : 'red'">
+                    {{ props.row.submitted }}
+                    </q-badge>
+                </q-td>
+                <q-td key="results" :props="props">
+                    <q-badge :color="props.row.results ? 'green' : 'red'">
+                    {{ props.row.results }}
+                    </q-badge>
+                </q-td>
+            </q-tr>
         </template>
         </q-table>
             
@@ -23,7 +45,7 @@
 </template>
 
 <script>
-    import { defineComponent, inject } from 'vue'
+    import { computed, defineComponent, inject } from 'vue'
     import { useModelStore } from 'stores/model-store';
     import { useViewStore } from 'stores/view-store';
 
@@ -31,10 +53,12 @@
         name: 'JobsView',
         setup() {
             const modelStore = useModelStore();
+            const modelData = computed(() => modelStore.modelData)
             const viewStore = useViewStore();
             const bus = inject('bus')
             return {
                 modelStore,
+                modelData,
                 viewStore,
                 bus
             }
@@ -49,30 +73,24 @@
                 loading: false,
                 selected: [],
                 columns: [
-                    {
-                        name: 'name',
-                        required: true,
-                        label: 'ModelName',
-                        align: 'left',
-                        field: row => row.name,
-                        format: val => `${val}`,
-                        sortable: true
-                    },
-                    { name: 'jobId', label: 'JobId', field: 'jobId', sortable: true },
+                    { name: 'name', label: 'ModelName', field: 'name', sortable: true, align: 'left' },
                     { name: 'cluster', label: 'Cluster', field: 'cluster', sortable: true },
-                    { name: 'created', label: 'Created', field: 'created', sortable: true },
                     { name: 'submitted', label: 'Submitted', field: 'submitted', sortable: true },
-                    { name: 'results', label: 'Results', field: 'results', sortable: true }
+                    { name: 'results', label: 'Results', field: 'results', sortable: true },
+                    // { name: 'created', hidden: true},
+                    { name: 'id', required: true, hidden: true},
                 ],
                 rows: [
-                    {
-                        name: "ENFmodel",
-                        job_id: "",
-                        cluster: "Cara",
-                        created: true,
-                        submitted: false,
-                        results: true
-                    }
+                    // {
+                    //     id: 1,
+                    //     name: "ENFmodel",
+                    //     sub_name: "_1",
+                    //     cluster: "Cara",
+                    //     created: true,
+                    //     submitted: false,
+                    //     results: true,
+                    //     model: {}
+                    // }
                 ]
             };
         },
@@ -80,9 +98,17 @@
             this.getJobs()
         },
         methods: {
+            onRowClick(row) {
+                this.modelStore.modelData = row.model;
+                console.log(row.model);
+            },
             async getJobs() {
                 this.loading = true;
-                await this.$api.get('/getJobs')
+                let params={
+                    model_name: this.modelData.model.modelNameSelected,
+                }
+
+                await this.$api.get('/getJobs', {params})
                 .then((response) => {
                     this.rows = response.data.data
                     this.$q.notify({

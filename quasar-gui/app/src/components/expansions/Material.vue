@@ -551,7 +551,7 @@
                     formData.append("files", files[i]);
                 }
                 let params={model_name: this.store.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName}
+                model_folder_name: this.modelData.model.modelFolderName}
 
                 this.$api.post('/uploadfiles', formData, {params})
                 .then((response) => {

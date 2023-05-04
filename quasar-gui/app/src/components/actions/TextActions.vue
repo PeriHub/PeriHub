@@ -78,7 +78,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 own_mesh: this.modelData.model.ownMesh,
                 file_type: this.modelData.solver.filetype
             }
@@ -106,7 +106,7 @@ export default defineComponent({
         writeInputFile() {
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 input_string: this.viewStore.textOutput,
                 file_type: this.modelData.solver.filetype,
             }
@@ -140,7 +140,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 cluster: this.modelData.job.cluster
             }
             this.$api.get('/getLogFile', {params})
@@ -167,7 +167,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 own_model: this.modelData.model.ownModel,
                 cluster: this.modelData.job.cluster
             }

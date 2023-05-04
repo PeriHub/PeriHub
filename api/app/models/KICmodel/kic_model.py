@@ -174,7 +174,7 @@ class KICmodel:
         crack_length=5,
         dx_value=[0.25, 0.25, 0.25],
         filename="KICmodel",
-        model_sub_name="",
+        model_folder_name="",
         two_d=True,
         model_data=None,
         rot=False,
@@ -202,7 +202,7 @@ class KICmodel:
         """
 
         self.filename = filename
-        self.model_sub_name = model_sub_name
+        self.model_folder_name = model_folder_name
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None

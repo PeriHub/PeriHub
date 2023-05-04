@@ -38,7 +38,7 @@ class PlateWithHole:
         radius=10.0,
         dx_value=None,
         filename="PlateWithHole",
-        model_sub_name="",
+        model_folder_name="",
         two_d=True,
         model_data=None,
         rot="False",
@@ -66,7 +66,7 @@ class PlateWithHole:
         """
 
         self.filename = filename
-        self.model_sub_name = model_sub_name
+        self.model_folder_name = model_folder_name
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None

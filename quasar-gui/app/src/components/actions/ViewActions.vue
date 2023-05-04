@@ -1,16 +1,16 @@
 <template>
     <div class="row">
-        <q-btn flat icon="fas fa-play" @click="runModel" :loading="submitLoading" :disabled="submitLoading || !store.status.created || store.status.submitted">
+        <q-btn flat icon="fas fa-play" @click="runModel" :loading="submitLoading" :disabled="submitLoading || !status.created || status.submitted">
             <q-tooltip>
                 Submit Model
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-times" @click="cancelJob" :disabled="!store.status.submitted">
+        <q-btn flat icon="fas fa-times" @click="cancelJob" :disabled="!status.submitted">
             <q-tooltip>
                 Cancel Job
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading" :disabled="resultsLoading || !store.status.results">
+        <q-btn flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading" :disabled="resultsLoading || !status.results">
             <q-tooltip>
                 Download Results
             </q-tooltip>
@@ -33,12 +33,12 @@
             </q-card>
         </q-dialog>
 
-        <q-btn flat icon="fas fa-eye" @click="showResultsDialog" :disabled="!store.status.results">
+        <q-btn flat icon="fas fa-eye" @click="showResultsDialog" :disabled="!status.results">
             <q-tooltip>
                 Show Results
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="port!=null" flat icon="fas fa-times" @click="closeTrame" :disabled="!store.status.results">
+        <q-btn v-if="port!=null" flat icon="fas fa-times" @click="closeTrame" :disabled="!status.results">
             <q-tooltip>
                 Close Trame
             </q-tooltip>
@@ -82,17 +82,17 @@
                 CARA Enginframe
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)" flat icon="fas fa-image" @click="getFractureAnalysis()" :disabled="!store.status.results">
+        <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)" flat icon="fas fa-image" @click="getFractureAnalysis()" :disabled="!status.results">
             <q-tooltip>
                 Show Fracture Analysis
             </q-tooltip>
         </q-btn>
-        <q-btn v-if="viewStore.viewId=='image'" flat icon="fas fa-download" @click="downloadModelImage()" :disabled="!store.status.results">
+        <q-btn v-if="viewStore.viewId=='image'" flat icon="fas fa-download" @click="downloadModelImage()" :disabled="!status.results">
             <q-tooltip>
                 Download Image
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()" :disabled="!store.status.results || modelData.computes.length==0">
+        <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()" :disabled="!status.results || modelData.computes.length==0">
             <q-tooltip>
                 Show Plot
             </q-tooltip>
@@ -177,7 +177,7 @@
             </q-card>
         </q-dialog>
 
-        <q-btn flat icon="fas fa-image" @click="dialogGetImagePython = true" :disabled="!store.status.results">
+        <q-btn flat icon="fas fa-image" @click="dialogGetImagePython = true" :disabled="!status.results">
             <q-tooltip>
                 Show Image
             </q-tooltip>
@@ -298,17 +298,17 @@
             </q-card>
         </q-dialog>
 
-        <!-- <q-btn flat icon="fas fa-image" @click="getG1c" :disabled="!store.status.results">
+        <!-- <q-btn flat icon="fas fa-image" @click="getG1c" :disabled="!status.results">
             <q-tooltip>
                 Show G1c
             </q-tooltip>
         </q-btn>
-        <q-btn flat icon="fas fa-image" @click="getG2c" :disabled="!store.status.results">
+        <q-btn flat icon="fas fa-image" @click="getG2c" :disabled="!status.results">
             <q-tooltip>
                 Get GIIC
             </q-tooltip>
         </q-btn> -->
-        <!-- <q-btn flat icon="fas fa-chess-board" @click="bus.emit('viewPointData')" :disabled="!store.status.created">
+        <!-- <q-btn flat icon="fas fa-chess-board" @click="bus.emit('viewPointData')" :disabled="!status.created">
             <q-tooltip>
                 Show Model
             </q-tooltip>
@@ -400,13 +400,14 @@ export default defineComponent({
         setup() {
             const $q = useQuasar()
             const store = useDefaultStore();
+            const status = computed(() => store.status)
             const viewStore = useViewStore();
             const modelStore = useModelStore();
             const modelData = computed(() => modelStore.modelData)
             const bus = inject('bus')
 
             return {
-                store,
+                status,
                 viewStore,
                 modelData,
                 rules,
@@ -473,7 +474,7 @@ export default defineComponent({
             this.submitLoading = true;
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 file_type: this.modelData.solver.filetype,
             }
 
@@ -504,7 +505,8 @@ export default defineComponent({
                 })
             })
 
-            this.bus.emit("getLogFile")
+            this.bus.emit("getLogFile");
+            this.viewStore.viewId = "jobs";
             // this.monitorStatus(true);
             this.monitorStatus(false);
             this.submitLoading = false;
@@ -513,7 +515,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 cluster: this.modelData.job.cluster
             }
             this.$api.put('/cancelJob', '', {params})
@@ -538,7 +540,7 @@ export default defineComponent({
             if (setClear) {
                 this.statusInterval = setInterval(() => {
                     this.bus.emit("getStatus")
-                    if (this.store.status.results | !this.store.status.submitted) {
+                    if (this.status.results | !this.status.submitted) {
                         console.log("clearInterval");
                         clearInterval(this.statusInterval);
                     }
@@ -552,7 +554,9 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
+                output: this.getPlotOutput,
+                tasks: this.modelData.job.tasks,
                 cluster: this.modelData.job.cluster,
                 allData: allData,
             }
@@ -599,7 +603,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 output_name: this.modelData.outputs[index].name,
                 output_list: this.modelData.outputs[index].selectedOutputs.toString(),
                 dx_value: this.viewStore.dx_value,
@@ -682,9 +686,10 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 cluster: this.modelData.job.cluster,
                 output: this.getPlotOutput,
+                tasks: this.modelData.job.tasks,
                 x_variable: this.getPlotVariableX,
                 x_axis: this.getPlotAxisX,
                 x_absolute: this.getPlotAbsoluteX,
@@ -733,8 +738,9 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 cluster: this.modelData.job.cluster,
+                tasks: this.modelData.job.tasks,
                 output: this.getImageOutput,
                 variable: this.getImageVariableSelected,
                 axis: this.getImageAxisSelected,
@@ -773,7 +779,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 length: this.modelData.model.length,
                 height: this.modelData.model.height,
                 crack_length: this.modelData.model.cracklength,
@@ -781,6 +787,7 @@ export default defineComponent({
                 poissions_ratio: this.modelData.materials[0].poissonsRatio,
                 yield_stress: this.modelData.materials[0].yieldStress,
                 cluster: this.modelData.job.cluster,
+                tasks: this.modelData.job.tasks,
                 output: "Output2"
             }
 
@@ -819,7 +826,7 @@ export default defineComponent({
                 params: {
                 youngs_modulus: this.materials[0].youngsModulus,
                 model_name: this.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 cluster: this.job.cluster,
                 },
                 data: this.model,
@@ -856,7 +863,7 @@ export default defineComponent({
                 url: this.url + "calculateG2c",
                 params: {
                 model_name: this.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 cluster: this.job.cluster,
                 output: this.getG1cOutput,
                 },
@@ -887,7 +894,7 @@ export default defineComponent({
 
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 cluster: this.modelData.job.cluster
             }
             this.$api.delete('/deleteModel', '', {params})
@@ -907,7 +914,7 @@ export default defineComponent({
 
             params = {
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 cluster: this.modelData.job.cluster
             }
             this.$api.delete('/deleteModelFromCluster', '', {params})
@@ -927,8 +934,8 @@ export default defineComponent({
         },
         async deleteUserData() {
 
-            let params = {checkDate: false };
-            this.$api.delete('/deleteUserData', '', {params})
+            let params = {check_date: false };
+            this.$api.delete('/deleteUserData', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message
@@ -945,10 +952,10 @@ export default defineComponent({
             
             params = {
                 cluster: this.modelData.job.cluster,
-                checkDate: false 
+                check_date: false 
             };
 
-            this.$api.delete('/deleteUserDataFromCluster', '', {params})
+            this.$api.delete('/deleteUserDataFromCluster', {params})
             .then((response) => {
                 this.$q.notify({
                     message: response.data.message

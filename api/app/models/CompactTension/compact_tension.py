@@ -210,7 +210,7 @@ class CompactTension:
         notch_enabled=True,
         dx_value=[0.25, 0.25, 0.25],
         filename="CompactTension",
-        model_sub_name="",
+        model_folder_name="",
         model_data=None,
         two_d=True,
         rot=False,
@@ -238,7 +238,7 @@ class CompactTension:
         """
 
         self.filename = filename
-        self.model_sub_name = model_sub_name
+        self.model_folder_name = model_folder_name
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None

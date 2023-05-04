@@ -136,9 +136,9 @@ export default defineComponent({
     },
     methods: {
         switchModels() {
-            this.modelData.model.ownMesh = false;
-            this.modelData.model.ownModel = false;
-            this.modelData.model.translated = false;
+            this.modelStore.modelData.model.ownMesh = false;
+            this.modelStore.modelData.model.ownModel = false;
+            this.modelStore.modelData.model.translated = false;
         },
         readData() {
             this.$refs.fileInput.click();
@@ -192,7 +192,7 @@ export default defineComponent({
             
             let params={
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName
+                model_folder_name: this.modelData.model.modelFolderName
             }
 
             await this.$api.post('/uploadfiles', formData, {params})
@@ -209,9 +209,9 @@ export default defineComponent({
             })
         },
         loadJsonFile(fr, file) {
-            this.modelData.model.ownMesh = false;
-            this.modelData.model.ownModel = false;
-            this.modelData.model.translated = false;
+            this.modelStore.modelData.model.ownMesh = false;
+            this.modelStore.modelData.model.ownModel = false;
+            this.modelStore.modelData.model.translated = false;
 
             fr.onload = (e) => {
                 const result = JSON.parse(e.target.result);
@@ -220,11 +220,11 @@ export default defineComponent({
             fr.readAsText(file);
         },
         loadYamlModel(fr, file) {
-            this.modelData.model.ownMesh = false;
-            this.modelData.model.ownModel = true;
-            this.modelData.model.translated = false;
+            this.modelStore.modelData.model.ownMesh = false;
+            this.modelStore.modelData.model.ownModel = true;
+            this.modelStore.modelData.model.translated = false;
 
-            this.modelData.model.modelNameSelected = file.name.split(".")[0];
+            this.modelStore.modelData.model.modelNameSelected = file.name.split(".")[0];
 
             fr.onload = (e) => {
                 const yaml = e.target.result;
@@ -233,11 +233,11 @@ export default defineComponent({
             fr.readAsText(file);
         },
         loadXmlModel(fr, file) {
-            this.modelData.model.ownMesh = false;
-            this.modelData.model.ownModel = true;
-            this.modelData.model.translated = false;
+            this.modelStore.modelData.model.ownMesh = false;
+            this.modelStore.modelData.model.ownModel = true;
+            this.modelStore.modelData.model.translated = false;
 
-            this.modelData.model.modelNameSelected = file.name.split(".")[0];
+            this.modelStore.modelData.model.modelNameSelected = file.name.split(".")[0];
 
             fr.onload = (e) => {
                 const xml = e.target.result;
@@ -247,9 +247,9 @@ export default defineComponent({
             fr.readAsText(file);
         },
         async loadFeModel(file) {
-            this.modelData.model.ownMesh = true;
-            this.modelData.model.ownModel = true;
-            this.modelData.model.translated = true;
+            this.modelStore.modelData.model.ownMesh = true;
+            this.modelStore.modelData.model.ownModel = true;
+            this.modelStore.modelData.model.translated = true;
 
             this.viewStore.modelLoading = true;
             this.textLoading = true;
@@ -259,7 +259,7 @@ export default defineComponent({
             }
 
             if (await this.checkFeSize(file)) {
-                this.modelData.model.modelNameSelected = file.name.split(".")[0];
+                this.modelStore.modelData.model.modelNameSelected = file.name.split(".")[0];
                 const filetype = file.name.split(".")[1];
 
                 await this.translateModel(file, filetype, true);
@@ -270,9 +270,9 @@ export default defineComponent({
         },
         async loadGcodeModel() {
             this.dialogGcode = false;
-            this.modelData.model.ownMesh = false;
-            this.modelData.model.ownModel = true;
-            // this.modelData.model.translated = true;
+            this.modelStore.modelData.model.ownMesh = false;
+            this.modelStore.modelData.model.ownModel = true;
+            // this.modelStore.modelData.model.translated = true;
 
             this.viewStore.modelLoading = true;
 
@@ -280,7 +280,7 @@ export default defineComponent({
                 return false;
             }
 
-            this.modelData.model.modelNameSelected = this.gcodeFile.name.split(".")[0];
+            this.modelStore.modelData.model.modelNameSelected = this.gcodeFile.name.split(".")[0];
             const filetype = this.gcodeFile.name.split(".")[1];
 
             await this.translateGcode(this.gcodeFile, true);
@@ -292,13 +292,13 @@ export default defineComponent({
             
             let params={
                 model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName,
+                model_folder_name: this.modelData.model.modelFolderName,
                 discretization: this.gcodeDiscretization
             }
 
             await this.$api.post('/translateGcode', '', {params})
             .then((response) => {
-                this.modelData.model.meshFile = this.modelData.model.modelNameSelected + ".txt"
+                this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + ".txt"
                 this.$q.notify({
                     message: response.data.message
                 })
@@ -327,7 +327,7 @@ export default defineComponent({
         saveModel() {
 
             let params = {model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName}
+                model_folder_name: this.modelData.model.modelFolderName}
             this.$api.get('/getModel', {params})
             .then((response) => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
@@ -353,8 +353,12 @@ export default defineComponent({
                 this.viewStore.modelLoading = true;
             }
             this.viewStore.textLoading = true;
-            let params={model_name: this.modelData.model.modelNameSelected,
-                model_sub_name: this.modelData.model.modelSubName}
+            
+            let params={
+                model_name: this.modelData.model.modelNameSelected,
+                model_folder_name: this.modelData.model.modelFolderName
+            }
+
             await this.$api.post('/generateModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({

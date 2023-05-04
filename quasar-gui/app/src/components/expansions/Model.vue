@@ -11,7 +11,7 @@
             ></q-select>
             <q-input 
                 class="my-input"
-                v-model="model.modelSubName"
+                v-model="model.modelFolderName"
                 v-show="!model.ownModel"
                 label="Model Subname"
                 standout
