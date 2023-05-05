@@ -28,12 +28,13 @@ time_values = []
 
 UserName = sys.argv[1]
 model_name = sys.argv[2]
-OutputName = sys.argv[3]
-OutputList = sys.argv[4].split(",")
+model_folder_name = sys.argv[3]
+OutputName = sys.argv[4]
+OutputList = sys.argv[5].split(",")
 OutputList.append("GlobalNodeId")
 OutputList.append("ObjectId")
-dx_value = sys.argv[5]
-num_of_blocks = sys.argv[6]
+dx_value = sys.argv[6]
+num_of_blocks = sys.argv[7]
 
 block_array = []
 for i in range(int(num_of_blocks)):
@@ -41,7 +42,7 @@ for i in range(int(num_of_blocks)):
 
 block_array_selection = block_array
 
-filePath = os.path.join("/app/peridigmJobs", UserName, model_name)
+filePath = os.path.join("/app/peridigmJobs", UserName, model_name, model_folder_name)
 
 simple._DisableFirstRenderCameraReset()
 

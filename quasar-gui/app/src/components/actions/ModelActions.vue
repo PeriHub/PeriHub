@@ -328,12 +328,12 @@ export default defineComponent({
 
             let params = {model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName}
-            this.$api.get('/getModel', {params})
+            this.$api.get('/getModel', {params, responseType: "blob"})
             .then((response) => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement("a");
                 fileLink.href = fileURL;
-                fileLink.setAttribute("download", "file.zip");
+                fileLink.setAttribute("download", this.modelData.model.modelNameSelected + "_" + this.modelData.model.modelFolderName + ".zip");
                 document.body.appendChild(fileLink);
                 fileLink.click();
                 this.$q.notify({

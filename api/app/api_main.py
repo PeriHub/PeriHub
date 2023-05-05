@@ -1518,21 +1518,21 @@ class ModelControl:
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
+        folder_path = os.path.join(
+            FileHandler.get_local_user_path(username), model_name
+        )
+        zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
         try:
             shutil.make_archive(
-                model_name,
-                "zip",
-                FileHandler.get_local_model_path(
-                    username, model_name, model_folder_name
-                ),
+                zip_file, "zip", os.path.join(folder_path, model_folder_name)
             )
 
             response = FileResponse(
-                model_name + ".zip",
+                zip_file + ".zip",
                 media_type="application/x-zip-compressed",
             )
             response.headers["Content-Disposition"] = (
-                "attachment; filename=" + model_name + ".zip"
+                "attachment; filename=" + model_name + "_" + model_folder_name + ".zip"
             )
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
@@ -1702,20 +1702,20 @@ class ModelControl:
 
         # resultpath = './Results/' + os.path.join(username, model_name)
         userpath = "./Results/" + username
+        folder_path = os.path.join(userpath, model_name)
+        zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
+
         try:
             shutil.make_archive(
-                os.path.join(userpath, model_name, model_folder_name),
-                "zip",
-                userpath,
-                model_name,
+                zip_file, "zip", os.path.join(folder_path, model_folder_name)
             )
 
             response = FileResponse(
-                os.path.join(userpath, model_name) + ".zip",
+                zip_file + ".zip",
                 media_type="application/x-zip-compressed",
             )
             response.headers["Content-Disposition"] = (
-                "attachment; filename=" + model_name + ".zip"
+                "attachment; filename=" + model_name + "_" + model_folder_name + ".zip"
             )
             # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
             return response
@@ -1865,7 +1865,7 @@ class ModelControl:
 
             try:
                 for filename in sftp.listdir(remotepath):
-                    if filename.endswith(".e"):
+                    if ".e" in filename:
                         status.results = True
             except IOError:
                 sftp.close()

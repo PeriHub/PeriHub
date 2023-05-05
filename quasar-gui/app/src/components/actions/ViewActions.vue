@@ -565,10 +565,7 @@ export default defineComponent({
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement("a");
                 fileLink.href = fileURL;
-                fileLink.setAttribute(
-                    "download",
-                    this.modelData.model.modelNameSelected + ".zip"
-                );
+                fileLink.setAttribute("download", this.modelData.model.modelNameSelected + "_" + this.modelData.model.modelFolderName + ".zip");
                 document.body.appendChild(fileLink);
                 fileLink.click();
             })
@@ -600,12 +597,20 @@ export default defineComponent({
             this.viewStore.modelLoading = true;
 
             var index = this.modelData.outputs.findIndex((o) => o.name == outputName);
-
+            let outputList = this.modelData.outputs[index].selectedOutputs;
+            const stressIndex = outputList.indexOf("Partial_Stress");
+            if (stressIndex > -1) {
+                outputList.splice(stressIndex, 1);
+                outputList.push("Partial_StressX")
+                outputList.push("Partial_StressY")
+                outputList.push("Partial_StressZ")
+            }
+            console.log(outputList);
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName,
                 output_name: this.modelData.outputs[index].name,
-                output_list: this.modelData.outputs[index].selectedOutputs.toString(),
+                output_list: outputList.toString(),
                 dx_value: this.viewStore.dx_value,
                 num_of_blocks: this.modelData.blocks.length,
                 duration: 600
@@ -670,7 +675,7 @@ export default defineComponent({
                     message: error.response.data.detail
                 })
             })
-            this.port = "";
+            this.port = null;
         },
         updatePlotVariables() {
             let items = [];

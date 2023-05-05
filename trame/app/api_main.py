@@ -73,6 +73,7 @@ class Launcher:
     @app.post("/launchTrameInstance", tags=["Post Methods"])
     async def launch_trame_instance(
         model_name: str = "Dogbone",
+        model_folder_name: str = "Default",
         output_name: str = "Output1",
         output_list: str = "[Displacement,Force]",
         dx_value: float = 0.1,
@@ -107,6 +108,8 @@ class Launcher:
             + username
             + " "
             + model_name
+            + " "
+            + model_folder_name
             + " "
             + output_name
             + " "
