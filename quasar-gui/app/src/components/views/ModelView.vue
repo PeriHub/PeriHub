@@ -127,7 +127,7 @@
             };
         }, 
         mounted(){
-            this.viewPointData()
+          this.viewPointData()
         },
         methods: {
           async viewPointData() {

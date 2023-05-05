@@ -366,7 +366,9 @@ export default defineComponent({
                 })
                 this.bus.emit("viewInputFile",false)
                 if (this.modelData.model.ownModel == false) {
-                    this.viewStore.viewId = "model";
+                    if (this.viewStore.viewId != "model") {
+                        this.viewStore.viewId = "model";
+                    }
                     this.bus.emit('viewPointData');
                 }
                 this.bus.emit("getStatus")
