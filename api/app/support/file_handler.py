@@ -587,8 +587,11 @@ class FileHandler:
             + " | grep -o -E '[0-9]{7}' > jobId.txt"
         )
         ssh.exec_command(command)
-        job_id_file = sftp.file(os.path.join(remotepath, "jobId.txt"), "r")
-        job_id = job_id_file.read()
+        job_id_path = os.path.join(remotepath, "jobId.txt")
+        job_id = None
+        if FileHandler.sftp_exists(sftp=sftp, path=job_id_path):
+            job_id_file = sftp.file(job_id_path, "r")
+            job_id = job_id_file.read()
         sftp.close()
         ssh.close()
         return len(str(job_id)) > 5
