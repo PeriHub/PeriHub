@@ -32,6 +32,13 @@
                     {{ props.row.results }}
                     </q-badge>
                 </q-td>
+                <q-td key="id" :props="props">
+                    <q-btn flat icon="fas fa-times" @click="cancelJob(props.row)" :disable="!props.row.submitted">
+                        <q-tooltip>
+                            Cancel Job
+                        </q-tooltip>
+                    </q-btn>
+                </q-td>
             </q-tr>
         </template>
         </q-table>
@@ -98,6 +105,30 @@
             this.getJobs()
         },
         methods: {
+            async cancelJob(row) {
+                this.loading = true;
+
+                let params = {
+                    model_name: row.name,
+                    model_folder_name: row.sub_name,
+                    cluster: row.cluster
+                }
+                await this.$api.put('/cancelJob', '', {params})
+                .then((response) => {
+                    this.$q.notify({
+                        message: response.data.message
+                    })
+                })
+                .catch(() => {
+                    this.$q.notify({
+                        color: 'negative',
+                        position: 'bottom-right',
+                        message: 'Failed',
+                        icon: 'report_problem'
+                    })
+                })
+                this.getJobs();
+            },
             onRowClick(row) {
                 this.modelStore.modelData = row.model;
                 console.log(row.model);

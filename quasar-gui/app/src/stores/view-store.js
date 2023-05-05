@@ -11,11 +11,6 @@ export const useViewStore = defineStore("view", {
     textOutput: "",
     logOutput: "",
     bondFilterPoints: [
-      {
-        bondFilterPointsId: 1,
-        bondFilterPointString: [],
-        // bondFilterPolyString: []
-      },
     ],
     filteredPointString: [1, 0, 0],
     filteredBlockIdString: [1],

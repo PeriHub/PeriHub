@@ -366,10 +366,11 @@ export default defineComponent({
                 })
                 this.bus.emit("viewInputFile",false)
                 if (this.modelData.model.ownModel == false) {
-                    if (this.viewStore.viewId != "model") {
-                        this.viewStore.viewId = "model";
-                    }
+                    this.viewStore.viewId = "model";
+                    console.log("generateModel")
+                    // if (this.viewStore.viewId != "model") {
                     this.bus.emit('viewPointData');
+                    // }
                 }
                 this.bus.emit("getStatus")
             })

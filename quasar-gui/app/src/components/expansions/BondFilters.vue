@@ -1,7 +1,7 @@
 <template>
     <div>
             <q-list
-                v-for="bondFilter, index in bondFilters"
+                v-for="bondFilter, index in store.modelData.bondFilters"
                 :key="bondFilter.bondFiltersId"
                 style="padding: 0px"
             >
@@ -191,13 +191,10 @@
         setup() {
             const store = useModelStore();
             const viewStore = useViewStore();
-            const bondFilters = computed(() => store.modelData.bondFilters)
-            const bondFilterPoints = computed(() => viewStore.bondFilterPoints)
             const bus = inject('bus')
             return {
                 store,
-                bondFilters,
-                bondFilterPoints,
+                viewStore,
                 rules,
                 bus
             }
@@ -233,19 +230,19 @@
         },
         methods: {
             addBondFilter() {
-                const len = this.bondFilters.length;
-                let newItem = deepCopy(this.bondFilters[len - 1])
+                const len = this.store.modelData.bondFilters.length;
+                let newItem = deepCopy(this.store.modelData.bondFilters[len - 1])
                 newItem.bondFilterId = len + 1
                 newItem.name = "bf_" + (len + 1)
-                this.bondFilters.push(newItem);
-                this.bondFilterPoints.push({
+                this.store.modelData.bondFilters.push(newItem);
+                this.viewStore.bondFilterPoints.push({
                     bondFilterPointsId: len + 1,
                     bondFilterPointString: [],
                 });
             },
             removeBondFilter(index) {
-                this.bondFilters.splice(index, 1);
-                this.bondFilterPoints.splice(index, 1);
+                this.store.modelData.bondFilters.splice(index, 1);
+                this.viewStore.bondFilterPoints.splice(index, 1);
             },
             
             cross(a1, a2, a3, b1, b2, b3) {
@@ -265,11 +262,11 @@
                 console.log("showHideBondFilters")
                 // this.bondFilterPolyString = []
                 // let bondFilterPolyString = []
-                this.bondFilterPoints = [];
+                this.viewStore.bondFilterPoints = [];
 
-                for (var i = 0; i < this.bondFilters.length; i++) {
+                for (var i = 0; i < this.store.modelData.bondFilters.length; i++) {
                     let bondFilterPointString = [];
-                    const bondFilter = this.bondFilters[i];
+                    const bondFilter = this.store.modelData.bondFilters[i];
                     if (bondFilter.show) {
                     const nx = parseFloat(bondFilter.normalX);
                     const ny = parseFloat(bondFilter.normalY);
@@ -368,15 +365,15 @@
                         // bondFilterPolyString.push(4, 0, 1, 3, 2)
                     }
                     }
-                    if (this.bondFilterPoints.length < i + 1) {
-                    this.bondFilterPoints.push({
+                    if (this.viewStore.bondFilterPoints.length < i + 1) {
+                    this.viewStore.bondFilterPoints.push({
                         bondFilterPointsId: i + 1,
                         bondFilterPointString: [],
                     });
                     }
-                    this.bondFilterPoints[i].bondFilterPointString = bondFilterPointString;
+                    this.viewStore.bondFilterPoints[i].bondFilterPointString = bondFilterPointString;
 
-                    // this.bondFilterPoints[i].bondFilterPolyString = bondFilterPolyString
+                    // this.viewStore.bondFilterPoints[i].bondFilterPolyString = bondFilterPolyString
                 }
             },
         }

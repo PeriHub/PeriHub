@@ -46,7 +46,7 @@
       ref="view"
       :background="[45/255, 45/255, 45/255]"
     >
-      <div v-if="viewStore.bondFilterPoints[0].bondFilterPointString.length!=0">
+      <div v-if="viewStore.bondFilterPoints.length!=0">
         <q-list
           
           v-for="bondFilterPoint in viewStore.bondFilterPoints"
@@ -127,6 +127,7 @@
             };
         }, 
         mounted(){
+          console.log("ModelView mounted")
           this.viewPointData()
         },
         methods: {
