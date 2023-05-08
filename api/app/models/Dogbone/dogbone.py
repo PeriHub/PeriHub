@@ -16,11 +16,11 @@ class Dogbone:
 
     def __init__(
         self,
-        xend=0.15,
-        height1=0.02,
-        height2=0.01,
-        zend=0.001,
-        dx_value=[0.0005, 0.0005, 0.0005],
+        xend=13.0,
+        height1=2.0,
+        height2=1.0,
+        zend=0.1,
+        dx_value=[0.05, 0.05, 0.05],
         filename="Dogbone",
         model_folder_name="",
         model_data=None,
@@ -81,9 +81,9 @@ class Dogbone:
         """doc"""
 
         geo = Geometry()
-        boundary_condition = 0.002
-        radius = 0.076
-        length2 = 0.057
+        boundary_condition = 0.2
+        radius = 7.6
+        length2 = 5.7
         delta_height = (self.height1 - self.height2) / 2
         delta_length = np.sqrt(radius * radius - (radius - delta_height) ** 2)
         length1 = (self.xend - 2 * delta_length - length2) / 2

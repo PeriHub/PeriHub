@@ -1194,7 +1194,7 @@ class ModelControl:
         axis: str = "X",
         apply_displacements: bool = False,
         displ_factor: int = 200,
-        max_edge_distance: float = 0.02,
+        max_edge_distance: float = 2.0,
         length: float = 4.4,
         height: float = 1.1,
         fps: int = 2,
@@ -1203,14 +1203,14 @@ class ModelControl:
         x_max: Optional[float] = None,
         y_min: Optional[float] = None,
         y_max: Optional[float] = None,
-        size: Optional[float] = None,
+        size: Optional[float] = 20,
         request: Request = "",
     ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
         if not FileHandler.copy_results_from_cluster(
-            username, model_name + model_folder_name, cluster, False, tasks, output
+            username, model_name, model_folder_name, cluster, False, tasks, output
         ):
             raise IOError  # NotFoundException(name=model_name)
 

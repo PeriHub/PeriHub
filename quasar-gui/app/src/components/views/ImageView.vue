@@ -12,16 +12,6 @@
     import { useModelStore } from 'stores/model-store';
     import { useViewStore } from 'stores/view-store';
 
-    import KIICmodelImage from "assets/models/KIICmodel/KIICmodel.jpg";
-    import GIICmodelImage from "assets/models/GIICmodel/GIICmodel.jpg";
-    import GICmodelImage from "assets/models/GICmodel/GICmodel.jpg";
-    import DCBmodelImage from "assets/models/DCBmodel/DCBmodel.jpg";
-    import DogboneImage from "assets/models/Dogbone/Dogbone.jpg";
-    import KalthoffWinklerImage from "assets/models/Kalthoff-Winkler/Kalthoff-Winkler.jpg";
-    import PlateWithHoleImage from "assets/models/PlateWithHole/PlateWithHole.jpg";
-    import CompactTensionImage from "assets/models/CompactTension/CompactTension.jpg";
-    import SmetanaImage from "assets/models/Smetana/Smetana.jpg";
-
     export default defineComponent({
         name: 'ImageView',
         setup() {
@@ -41,35 +31,8 @@
         },
         methods: {
             showModelImg(modelName) {
-                switch (modelName) {
-                    case "GICmodel":
-                    this.viewStore.modelImg = GICmodelImage;
-                    break;
-                    case "GIICmodel":
-                    this.viewStore.modelImg = GIICmodelImage;
-                    break;
-                    case "KIICmodel":
-                    this.viewStore.modelImg = KIICmodelImage;
-                    break;
-                    case "DCBmodel":
-                    this.viewStore.modelImg = DCBmodelImage;
-                    break;
-                    case "Dogbone":
-                    this.viewStore.modelImg = DogboneImage;
-                    break;
-                    case "Kalthoff-Winkler":
-                    this.viewStore.modelImg = KalthoffWinklerImage;
-                    break;
-                    case "PlateWithHole":
-                    this.viewStore.modelImg = PlateWithHoleImage;
-                    break;
-                    case "CompactTension":
-                    this.viewStore.modelImg = CompactTensionImage;
-                    break;
-                    case "Smetana":
-                    this.viewStore.modelImg = SmetanaImage;
-                    break;
-                }
+                this.viewStore.modelImg = process.env.API + "/assets/models/" + modelName +"/" + modelName + ".jpg";
+
                 this.viewStore.viewId = "image";
             },
         },

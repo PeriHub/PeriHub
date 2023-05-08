@@ -284,18 +284,6 @@
     import { useModelStore } from 'stores/model-store';
     import { parseFromJson } from '../../utils/functions.js'
     import rules from "assets/rules.js";
-
-    import KICmodelFile from "assets/models/KICmodel/KICmodel.json";
-    import KIICmodelFile from "assets/models/KIICmodel/KIICmodel.json";
-    import ENFmodelFile from "assets/models/ENFmodel/ENFmodel.json";
-    import GIICmodelFile from "assets/models/GIICmodel/GIICmodel.json";
-    import GICmodelFile from "assets/models/GICmodel/GICmodel.json";
-    import DCBmodelFile from "assets/models/DCBmodel/DCBmodel.json";
-    import DogboneFile from "assets/models/Dogbone/Dogbone.json";
-    import KalthoffWinklerFile from "assets/models/Kalthoff-Winkler/Kalthoff-Winkler.json";
-    import PlateWithHoleFile from "assets/models/PlateWithHole/PlateWithHole.json";
-    import CompactTensionFile from "assets/models/CompactTension/CompactTension.json";
-    import SmetanaFile from "assets/models/Smetana/Smetana.json";
   
     export default defineComponent({
         name: 'ModelSettings',
@@ -335,45 +323,21 @@
         },
         methods: {
             async resetData() {
-                const jsonFile = {};
-                // console.log(this.model.modelNameSelected);
-                switch (this.model.modelNameSelected) {
-                    case "GICmodel":
-                    Object.assign(jsonFile, GICmodelFile);
-                    break;
-                    case "GIICmodel":
-                    Object.assign(jsonFile, GIICmodelFile);
-                    break;
-                    case "KICmodel":
-                    Object.assign(jsonFile, KICmodelFile);
-                    break;
-                    case "KIICmodel":
-                    Object.assign(jsonFile, KIICmodelFile);
-                    break;
-                    case "ENFmodel":
-                    Object.assign(jsonFile, ENFmodelFile);
-                    break;
-                    case "DCBmodel":
-                    Object.assign(jsonFile, DCBmodelFile);
-                    break;
-                    case "Dogbone":
-                    Object.assign(jsonFile, DogboneFile);
-                    break;
-                    case "Kalthoff-Winkler":
-                    Object.assign(jsonFile, KalthoffWinklerFile);
-                    break;
-                    case "PlateWithHole":
-                    Object.assign(jsonFile, PlateWithHoleFile);
-                    break;
-                    case "CompactTension":
-                    Object.assign(jsonFile, CompactTensionFile);
-                    break;
-                    case "Smetana":
-                    Object.assign(jsonFile, SmetanaFile);
-                    break;
-                    default:
-                    return;
-                }
+
+                let jsonFile = {};
+                
+                let route = '/assets/models/' + this.model.modelNameSelected + '/' + this.model.modelNameSelected + '.json';
+                this.$api.get(route)
+                .then((response) => {
+                    jsonFile = response.data
+                })
+                .catch((error) => {
+                    this.$q.notify({
+                        type: 'negative',
+                        message: error.response.data.detail
+                    })
+                })
+
                 parseFromJson(this.store.modelData,jsonFile)
             },
         },

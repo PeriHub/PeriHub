@@ -1,24 +1,23 @@
 {"model": {
-  "modelNameSelected": "CompactTension",
+  "modelNameSelected": "KICmodel",
   "modelFolderName": "Default",
   "ownModel": false,
   "translated": false,
-  "length": "75",
-  "cracklength": "37.5",
+  "length": 20,
+  "cracklength": 5,
   "width": null,
-  "height": 93.75,
+  "height": 10,
   "height2": null,
   "radius": null,
   "structured": null,
-  "discretization": "100",
+  "discretization": 100,
   "horizon": null,
   "twoDimensional": true,
   "rotatedAngles": false,
   "angles": [
-    "0",
-    "0"
-  ],
-  "notchEnabled": false
+    0,
+    0
+  ]
 },
 "materials": [
   {
@@ -38,7 +37,7 @@
     "thickness": "1",
     "hourglassCoefficient": 1,
     "actualHorizon": null,
-    "yieldStress": 74,
+    "yieldStress": "99.3",
     "Parameter": [
       {
         "name": "C11",
@@ -136,22 +135,31 @@
 ],
 "damages": [
   {
-    "id": 1,
+    "damagesId": 1,
     "name": "Damage",
     "damageModel": "Critical Energy Correspondence",
     "criticalStretch": null,
-    "criticalEnergy": 1.3947001394700143,
-    "interblockdamageEnergy": null,
+    "criticalEnergy": 24.44987775061125,
+    "interBlockDamage": false,
+    "numberOfBlocks": 3,
+    "interBlocks": [
+      {
+        "damagesInterId": 1,
+        "firstBlockId": 1,
+        "secondBlockId": 2,
+        "value": 0.1
+      }
+    ],
     "planeStress": true,
-    "onlyTension": true,
+    "onlyTension": false,
     "detachedNodesCheck": true,
-    "thickness": "1",
-    "hourglassCoefficient": "1",
+    "thickness": 10,
+    "hourglassCoefficient": 1,
     "stabilizatonType": "Global Stiffness",
     "criticalEnergyCalc": {
       "calculateCriticalEnergy": true,
       "k1c": "316.22776601683796",
-      "youngsModulus": null
+      "youngsModulus": "4.09e3"
     }
   }
 ],
@@ -180,13 +188,6 @@
   {
     "id": 4,
     "name": "block_4",
-    "material": "Aluminium",
-    "damageModel": "",
-    "show": true
-  },
-  {
-    "id": 5,
-    "name": "block_5",
     "material": "Aluminium",
     "damageModel": "",
     "show": true
@@ -245,7 +246,7 @@
       "name": "BC_3",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
-      "blockId": 2,
+      "blockId": 4,
       "coordinate": "x",
       "value": "0"
     },
@@ -254,7 +255,7 @@
       "name": "BC_4",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
-      "blockId": 3,
+      "blockId": 2,
       "coordinate": "x",
       "value": "0"
     },
@@ -263,86 +264,26 @@
       "name": "BC_5",
       "nodeSet": null,
       "boundarytype": "Prescribed Displacement",
-      "blockId": 1,
-      "coordinate": "z",
+      "blockId": 3,
+      "coordinate": "x",
       "value": "0"
     }
   ]
 },
-"bondFilters": [
-  {
-    "bondFiltersId": 1,
-    "name": "bf_1",
-    "type": "Rectangular_Plane",
-    "normalX": 0,
-    "normalY": 1,
-    "normalZ": 0,
-    "lowerLeftCornerX": -0.5,
-    "lowerLeftCornerY": 25,
-    "lowerLeftCornerZ": -0.5,
-    "bottomUnitVectorX": 1,
-    "bottomUnitVectorY": 0,
-    "bottomUnitVectorZ": 0,
-    "bottomLength": 50.5,
-    "sideLength": 1,
-    "centerX": 0,
-    "centerY": 1,
-    "centerZ": 0,
-    "radius": 1,
-    "show": true
-  },
-  {
-    "bondFiltersId": 2,
-    "name": "bf_2",
-    "type": "Rectangular_Plane",
-    "normalX": 0,
-    "normalY": 1,
-    "normalZ": 0,
-    "lowerLeftCornerX": -0.5,
-    "lowerLeftCornerY": -25,
-    "lowerLeftCornerZ": -0.5,
-    "bottomUnitVectorX": 1,
-    "bottomUnitVectorY": 0,
-    "bottomUnitVectorZ": 0,
-    "bottomLength": 50.5,
-    "sideLength": 1,
-    "centerX": 0,
-    "centerY": 1,
-    "centerZ": 0,
-    "radius": 1,
-    "show": true
-  }
-],
-"computes": [
-  {
-    "id": 1,
-    "computeClass": "Block_Data",
-    "name": "External_Force",
-    "variable": "Force",
-    "calculationType": "Sum",
-    "blockName": "block_2"
-  },
-  {
-    "id": 2,
-    "computeClass": "Block_Data",
-    "name": "External_Displacement",
-    "variable": "Displacement",
-    "calculationType": "Maximum",
-    "blockName": "block_2"
-  }
-],
+"bondFilters": [],
+"computes": [],
 "outputs": [
   {
     "id": 1,
     "name": "Output1",
-    "selectedOutputs": ["Displacement","Force","Damage","Partial_Stress","Number_Of_Neighbors","Unrotated_Strain"],
+    "selectedOutputs": ["Displacement","Force","Damage","Velocity","Partial_Stress","Number_Of_Neighbors","Von_Mises_Stress","Unrotated_Strain"],
     "Frequency": "1",
     "InitStep": 0
   },
   {
     "id": 2,
     "name": "Output2",
-    "selectedOutputs": ["Displacement","Damage","Partial_Stress","Number_Of_Neighbors","Unrotated_Strain"],
+    "selectedOutputs": ["Displacement","Damage","Velocity","Partial_Stress","Von_Mises_Stress","Unrotated_Strain"],
     "Write_After_Damage": true,
     "Frequency": "1",
     "InitStep": 0
@@ -351,13 +292,13 @@
 "solver": {
   "verbose": false,
   "initialTime": 0,
-  "finalTime": "0.003",
+  "finalTime": 0.1,
   "solvertype": "NOXQuasiStatic",
   "safetyFactor": 0.95,
   "numericalDamping": 0.000005,
   "peridgimPreconditioner": "Full Tangent",
   "nonlinearSolver": "Line Search Based",
-  "numberOfLoadSteps": "100",
+  "numberOfLoadSteps": 100,
   "maxSolverIterations": 50,
   "relativeTolerance": "100000",
   "maxAgeOfPrec": 100,
@@ -371,7 +312,7 @@
   "verlet": {
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,
-    "outputFrequency": "100"
+    "outputFrequency": 7500
   },
   "stopAfterDamageInitation": true,
   "stopBeforeDamageInitation": false,

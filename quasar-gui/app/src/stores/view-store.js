@@ -1,11 +1,10 @@
 import { defineStore } from "pinia";
-import DogboneImage from "assets/models/Dogbone/Dogbone.jpg";
 
 export const useViewStore = defineStore("view", {
   state: () => ({
     viewId: "image",
     textId: "input",
-    modelImg: DogboneImage,
+    modelImg: process.env.API + "/assets/models/Dogbone/Dogbone.jpg",
     modelLoading: false,
     textLoading: false,
     textOutput: "",

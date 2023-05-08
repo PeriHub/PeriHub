@@ -11,6 +11,14 @@ import jwt
 import paramiko
 from support.globals import log
 
+allowed_max_nodes = {
+    "hess_ja": {"allowedNodes": 1000000, "allowedFeSize": 15000000},
+    "will_cr": {"allowedNodes": 100000, "allowedFeSize": 15000000},
+    "garb_ma": {"allowedNodes": 100000, "allowedFeSize": 15000000},
+    "guest": {"allowedNodes": 10000, "allowedFeSize": 5242880},
+    "dev": {"allowedNodes": 10000000, "allowedFeSize": 150000000},
+}
+
 
 class FileHandler:
     """doc"""
@@ -85,25 +93,19 @@ class FileHandler:
     def get_max_nodes(username):
         """doc"""
 
-        with open("./support/allowedMaxNodes.json", "r", encoding="UTF-8") as file:
-            data = json.load(file)
+        if username in allowed_max_nodes:
+            return allowed_max_nodes[username]["allowedNodes"]
 
-        if username in data:
-            return data[username]["allowedNodes"]
-
-        return data["guest"]["allowedNodes"]
+        return allowed_max_nodes["guest"]["allowedNodes"]
 
     @staticmethod
     def get_max_fe_size(username):
         """doc"""
 
-        with open("./support/allowedMaxNodes.json", "r", encoding="UTF-8") as file:
-            data = json.load(file)
+        if username in allowed_max_nodes:
+            return allowed_max_nodes[username]["allowedFeSize"]
 
-        if username in data:
-            return data[username]["allowedFeSize"]
-
-        return data["guest"]["allowedFeSize"]
+        return allowed_max_nodes["guest"]["allowedFeSize"]
 
     @staticmethod
     def get_user_mail(request):
