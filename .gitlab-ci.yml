@@ -6,8 +6,7 @@ stages:
   - audit
   - build
 
-.test-template: &test
-  stage: test
+.install-deps-template: &install-deps
   only:
     refs:
       - main
@@ -22,6 +21,10 @@ stages:
     - pip install -i https://test.pypi.org/simple/ gcodereader
     - pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git
     - cd api/app
+
+.test-template: &test
+  <<: *install-deps
+  stage: test
   script: make test
   tags:
     - docker
@@ -32,42 +35,12 @@ stages:
     reports:
       junit: api/app/build/tests.xml
 
-.install-deps-template: &install-deps
-  only:
-    refs:
-      - main
-    changes:
-      - api/**/*
-  allow_failure: true
-  before_script:
-    - apt update && apt install -y make
-    - pip install -r api/requirements-dev.txt
-    - cd api/app
-
-.audit-template: &audit
-  <<: *install-deps
-  image: python:3.11-slim
-  stage: audit
-  tags:
-    - docker
-  except:
-    - tags
-
 test-linux-py3.11:
   image: python:3.11-slim
   <<: *test
 
-check-code:
-  <<: *audit
-  script:
-    - make check-code
-  artifacts:
-    when: on_failure
-    expose_as: "Linter Report"
-    paths: ["api/app/build/flake8.txt"]
-
 check-coverage:
-  <<: *audit
+  <<: *install-deps
   script:
     - make check-coverage
   coverage: '/^TOTAL.+?(\d+\%)$/'
@@ -80,6 +53,37 @@ check-coverage:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+
+.install-dev-deps-template: &install-dev-deps
+  only:
+    refs:
+      - main
+    changes:
+      - api/**/*
+  allow_failure: true
+  before_script:
+    - apt update && apt install -y make
+    - pip install -r api/requirements-dev.txt
+    - cd api/app
+
+
+.audit-template: &audit
+  <<: *install-dev-deps
+  image: python:3.11-slim
+  stage: audit
+  tags:
+    - docker
+  except:
+    - tags
+
+check-code:
+  <<: *audit
+  script:
+    - make check-code
+  artifacts:
+    when: on_failure
+    expose_as: "Linter Report"
+    paths: ["api/app/build/flake8.txt"]
 
 check-formatting:
   <<: *audit
@@ -97,18 +101,6 @@ build_api_job:
   script:
     - docker build -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
-
-# build_gui_job:
-#   stage: Build
-#   extends: [.build_before_script_template]
-#   only:
-#     refs:
-#       - main
-#     changes:
-#       - gui/**/*
-#   script:
-#     - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
-#     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_gui_job:
   stage: build

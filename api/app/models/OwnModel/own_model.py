@@ -4,19 +4,18 @@ from support.model_writer import ModelWriter
 class OwnModel:
     def __init__(
         self,
-        dx_value=None,
-        disc_type="txt",
-        two_d=False,
+        model_data,
         filename="ownModel",
         model_folder_name="",
-        model_data=None,
+        disc_type="txt",
         username="",
+        dx_value=None,
     ):
         self.filename = filename
         self.model_folder_name = model_folder_name
         self.scal = 1
         self.disc_type = disc_type
-        self.two_d = two_d
+        self.two_d = model_data.model.twoDimensional
         self.horizon = model_data.model.horizon
         if not dx_value:
             dx_value = [0.0005, 0.0005, 0.0005]

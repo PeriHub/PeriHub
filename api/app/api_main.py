@@ -328,12 +328,11 @@ class ModelControl:
                 disc_type = "txt"
 
             own = OwnModel(
-                filename=model_name,
-                model_folder_name=model_folder_name,
-                dx_value=dx_value,
-                disc_type=disc_type,
                 model_data=model_data,
+                model_folder_name=model_folder_name,
                 username=username,
+                disc_type=disc_type,
+                dx_value=dx_value,
             )
             result = own.create_model()
 

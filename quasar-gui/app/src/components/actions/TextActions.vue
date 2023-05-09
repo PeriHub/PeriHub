@@ -177,7 +177,6 @@ export default defineComponent({
                 this.$q.notify({
                     message: response.data.message
                 })
-                console.log(response.data.data)
                 this.store.status = response.data.data
             })
             .catch( (error)=> {

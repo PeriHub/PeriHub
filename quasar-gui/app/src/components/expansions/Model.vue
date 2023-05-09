@@ -316,7 +316,6 @@
                 this.$api.get(route)
                 .then((response) => {
                     let jsonFile = response.data
-                    console.log(jsonFile)
                     parseFromJson(this.store.modelData,jsonFile)
                 })
                 .catch((error) => {
