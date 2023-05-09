@@ -40,6 +40,7 @@ test-linux-py3.11:
   <<: *test
 
 check-coverage:
+  image: python:3.11-slim
   <<: *install-deps
   script:
     - make check-coverage

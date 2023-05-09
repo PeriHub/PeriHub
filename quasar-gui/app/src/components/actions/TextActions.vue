@@ -128,7 +128,7 @@ export default defineComponent({
             if (this.monitorToggle) {
                 this.getLogFile();
                 this.logInterval = setInterval(() => {
-                this.getLogFile();
+                    this.getLogFile();
                 }, 30000);
             } else {
                 clearInterval(this.logInterval);

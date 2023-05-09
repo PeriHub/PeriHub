@@ -270,27 +270,12 @@ class ModelControl:
 
             elif model_name == "CompactTension":
                 compact_tension = CompactTension(
-                    model_folder_name=model_folder_name,
-                    xend=length,
-                    zend=width,
-                    crack_length=model_data.model.cracklength,
-                    notch_enabled=model_data.model.notchEnabled,
-                    dx_value=dx_value,
-                    two_d=model_data.model.twoDimensional,
-                    rot=model_data.model.rotatedAngles,
-                    angle=model_data.model.angles,
-                    material=model_data.materials,
-                    damage=model_data.damages,
-                    block=model_data.blocks,
-                    boundary_condition=model_data.boundaryConditions,
-                    contact=model_data.contact,
-                    compute=model_data.computes,
-                    output=model_data.outputs,
-                    solver=model_data.solver,
                     model_data=model_data,
+                    model_folder_name=model_folder_name,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
+                    dx_value=dx_value,
                 )
                 result = compact_tension.create_model()
 

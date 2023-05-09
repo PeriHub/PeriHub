@@ -38,9 +38,7 @@ class DCBmodel:
         if not dx_value:
             dx_value = [0.001, 0.001, 0.001]
         self.dx_value = dx_value
-        if not angle:
-            angle = [0, 0]
-        self.angle = angle
+        self.angle = model_data.model.angles
         self.xbegin = -0.005
         self.ybegin = -model_data.model.height
         self.xend = model_data.model.length + dx_value[0]
