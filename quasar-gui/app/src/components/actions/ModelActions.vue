@@ -122,6 +122,7 @@ export default defineComponent({
             return {
                 store,
                 viewStore,
+                modelStore,
                 modelData,
                 rules,
                 bus,

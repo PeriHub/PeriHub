@@ -80,7 +80,7 @@ export const useModelStore = defineStore("model", {
           applyThermalFlow: false,
           applyThermalStrain: false,
           applyHeatTransfer: false,
-          thermalBondBased: true,
+          thermalBondBased: null,
           thermalExpansionCoefficient: null,
           environmentalTemperature: null,
           // 3dPrint
@@ -141,7 +141,7 @@ export const useModelStore = defineStore("model", {
           applyThermalFlow: false,
           applyThermalStrain: false,
           applyHeatTransfer: false,
-          thermalBondBased: true,
+          thermalBondBased: null,
           thermalExpansionCoefficient: null,
           environmentalTemperature: null,
           // 3dPrint

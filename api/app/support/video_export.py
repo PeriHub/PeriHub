@@ -154,13 +154,13 @@ class VideoExport:
             fig.colorbar(tcf, cax=cax)
             tx = ax.set_title("Frame 0")
 
-            if apply_displacements and x_min:
+            if apply_displacements and x_min is not None:
                 ax.set_xlim(x_min, x_max)
                 ax.set_ylim(y_min, y_max)
 
             def animate(i, triang):
                 ax.clear()
-                if apply_displacements and x_min:
+                if apply_displacements and x_min is not None:
                     ax.set_xlim(x_min, x_max)
                     ax.set_ylim(y_min, y_max)
 

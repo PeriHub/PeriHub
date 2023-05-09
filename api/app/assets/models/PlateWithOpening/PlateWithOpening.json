@@ -18,22 +18,22 @@
   "materials": [
     {
       "id": 1,
-      "name": "PMMA",
-      "density": 8.0e-6,
-      "matType": "Elastic Bond Based",
-      "bulkModulus": 1.27e6,
+      "name": "Aluminium",
+      "density": "2.81e-9",
+      "matType": "Linear Elastic Correspondence",
+      "bulkModulus": null,
       "shearModulus": null,
-      "youngsModulus": null,
-      "poissonsRatio": null,
-      "tensionSeparation": false,
+      "youngsModulus": "71700",
+      "poissonsRatio": "0.33",
+      "tensionSeparation": true,
       "nonLinear": false,
       "planeStress": true,
       "materialSymmetry": "Isotropic",
       "stabilizatonType": "Global Stiffness",
-      "thickness": 10,
+      "thickness": "1",
       "hourglassCoefficient": 1,
       "actualHorizon": null,
-      "yieldStress": null,
+      "yieldStress": "99.3",
       "Parameter": [
         {
           "name": "C11",
@@ -132,7 +132,7 @@
   "damages": [
     {
       "id": 1,
-      "name": "PMMADamage",
+      "name": "Damage",
       "damageModel": "Critical Stretch",
       "criticalStretch": 0.002217,
       "criticalEnergy": null,
@@ -154,21 +154,21 @@
     {
       "id": 1,
       "name": "block_1",
-      "material": "PMMA",
-      "damageModel": "PMMADamage",
+      "material": "Aluminium",
+      "damageModel": "Damage",
       "show": true
     },
     {
       "id": 2,
       "name": "block_2",
-      "material": "PMMA",
+      "material": "Aluminium",
       "damageModel": "",
       "show": true
     },
     {
       "id": 3,
       "name": "block_3",
-      "material": "PMMA",
+      "material": "Aluminium",
       "damageModel": "",
       "show": true
     }

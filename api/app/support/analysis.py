@@ -87,7 +87,7 @@ class Analysis:
     @staticmethod
     def get_g1c_k1c(username, model_name, model: Model, youngs_modulus):
         B = 1
-        if model.width:
+        if model.width is not None:
             B = model.width
         a = model.cracklength
         W = model.length

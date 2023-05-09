@@ -31,7 +31,7 @@ class XMLcreator:
     @staticmethod
     def temp_enabled(material_dict):
         for mat in material_dict:
-            if mat.thermalConductivity:
+            if mat.thermalConductivity is not None:
                 return True
         return False
 
@@ -149,7 +149,7 @@ class XMLcreator:
                     + mat.materialSymmetry
                     + '"/>\n'
                 )
-                if mat.Parameter:
+                if mat.Parameter is not None:
                     for param in mat.Parameter:
                         string += (
                             '            <Parameter name="'

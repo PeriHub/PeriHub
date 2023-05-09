@@ -9,9 +9,13 @@ client = TestClient(app)
 
 
 def test_get_result_image_from_exodus():
+    dev = os.environ.get("DEV")
     test_path = "./tests/image_export/"
     file_name = "Dogbone_Output1.e"
-    remote_path = "./Results/dev/Dogbone/Default"
+    if dev:
+        remote_path = "./Results/dev/Dogbone/Default"
+    else:
+        remote_path = "./Results/guest/Dogbone/Default"
 
     os.makedirs(remote_path, exist_ok=True)
     shutil.copy(
