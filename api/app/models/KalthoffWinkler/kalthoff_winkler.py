@@ -43,9 +43,7 @@ class KalthoffWinkler:
         self.ybegin = -model_data.model.height / 2
         self.xend = model_data.model.length + dx_value[0]
         self.yend = model_data.model.height / 2 + dx_value[1]
-        # self.xend = xend
-        # self.yend = yend/2
-        # self.zend = zend
+
         self.rot = model_data.model.rotatedAngles
         self.block_def = model_data.blocks
         self.username = username

@@ -14,9 +14,11 @@ stages:
       - api/**/*
   allow_failure: true
   before_script:
-    - apt update && apt install -y make
+    - apt update && apt install -y make git
     - pip install -r api/requirements-dev.txt
     - pip install -i https://test.pypi.org/simple/ exodusreader
+    - pip install -i https://test.pypi.org/simple/ gcodereader
+    - pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git
     - cd api/app
 
 .test-template: &test

@@ -44,15 +44,6 @@
                 standout
                 dense
             ></q-input>
-            <q-input
-                class="my-input"
-                v-model="model.cracklength"
-                v-show="['GICmodel','GIICmodel','CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(model.modelNameSelected)"
-                :rules="[rules.required, rules.float]"
-                label="Cracklength"
-                standout
-                dense
-            ></q-input>
             <q-toggle
                 class="my-toggle"
                 v-model="model.notchEnabled"
