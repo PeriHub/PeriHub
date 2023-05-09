@@ -38,8 +38,6 @@ class KalthoffWinkler:
         if not dx_value:
             dx_value = [0.001, 0.001, 0.001]
         self.dx_value = dx_value
-        if not model_data.model.angles:
-            angle = [0, 0]
         self.angle = model_data.model.angles
         self.xbegin = 0.0
         self.ybegin = -model_data.model.height / 2

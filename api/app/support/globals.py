@@ -1,6 +1,5 @@
 import logging
 
-import rich.progress
 from rich.logging import RichHandler
 
 FORMAT = "%(message)s"

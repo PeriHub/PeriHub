@@ -7,7 +7,8 @@ from crackpy.fracture_analysis.data_processing import CrackTipInfo, InputData
 from crackpy.fracture_analysis.line_integration import IntegralProperties
 from crackpy.fracture_analysis.optimization import OptimizationProperties
 from crackpy.fracture_analysis.plot import PlotSettings, Plotter
-from crackpy.fracture_analysis.read import OutputReader
+
+# from crackpy.fracture_analysis.read import OutputReader
 from crackpy.fracture_analysis.write import OutputWriter
 from crackpy.structure_elements.data_files import Nodemap, NodemapStructure
 from crackpy.structure_elements.material import Material

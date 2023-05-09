@@ -77,3 +77,7 @@ profile = 'black'
 [tool.pytest.ini_options]
 pythonpath = "."
 addopts = "--ignore=dev_models"
+
+[tool.flake8]
+max-line-length = 120
+exclude = "./dev_models"

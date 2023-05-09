@@ -1,9 +1,0 @@
-# SPDX-FileCopyrightText: 2022 German Aerospace Center (DLR)
-#
-# SPDX-License-Identifier: MIT
-
-[flake8]
-max-line-length = 120
-# Ignore the unused import errors in these __init__ files
-# as they are used to define the package interface.
-#exclude=sample_calculator/calculations/__init__.py,sample_calculator/inputs/__init__.py

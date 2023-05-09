@@ -30,7 +30,7 @@ check-license-metadata:
 	poetry run reuse lint
 
 check-code: prepare
-	poetry run flake8 . --exit-zero --output-file=build/flake8.txt
+	poetry run pflake8 . --exit-zero --output-file=build/flake8.txt
 
 check-coverage: prepare
 	poetry run pytest --cov=. --cov-fail-under=30 --cov-report=term-missing --cov-report=html --cov-report=xml

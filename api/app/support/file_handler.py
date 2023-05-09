@@ -2,7 +2,6 @@
 doc
 """
 import filecmp
-import json
 import os
 import shutil
 import time
@@ -407,7 +406,7 @@ class FileHandler:
                     + str(tasks)
                 )
                 ssh.exec_command(command)
-            except:
+            except Exception:
                 log.error("MergeFiles.py failed")
                 pass
         try:

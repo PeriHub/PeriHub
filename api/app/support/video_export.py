@@ -151,16 +151,16 @@ class VideoExport:
                 vmax=v_max,
             )
 
-            cb = fig.colorbar(tcf, cax=cax)
+            fig.colorbar(tcf, cax=cax)
             tx = ax.set_title("Frame 0")
 
-            if apply_displacements and x_min != None:
+            if apply_displacements and x_min:
                 ax.set_xlim(x_min, x_max)
                 ax.set_ylim(y_min, y_max)
 
             def animate(i, triang):
                 ax.clear()
-                if apply_displacements and x_min != None:
+                if apply_displacements and x_min:
                     ax.set_xlim(x_min, x_max)
                     ax.set_ylim(y_min, y_max)
 
@@ -260,7 +260,7 @@ class VideoExport:
                 vmax=v_max,
             )
 
-            cb = fig.colorbar(tcf, cax=cax)
+            fig.colorbar(tcf, cax=cax)
             tx = ax.set_title("Frame 0")
 
             def animate(i, triang):
@@ -302,7 +302,7 @@ class VideoExport:
         ) = Reader.read_timestep(file, timestep)
 
         fig = plt.figure(figsize=(20, 20 * (height / length)))
-        ax = fig.add_subplot(111)
+        fig.add_subplot(111)
 
         np_first_points_x = np.array(points[:, 0])
         np_first_points_y = np.array(points[:, 1])

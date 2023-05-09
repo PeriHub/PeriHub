@@ -1,16 +1,14 @@
-import os
-
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 import numpy as np
 from exodusreader.exodusreader import ExodusReader
 from fastapi import HTTPException, status
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from support.analysis import Analysis
-from support.base_models import Model
 from support.globals import log
+
+# from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 class ImageExport:
@@ -59,12 +57,6 @@ class ImageExport:
         azimuth,
         roll,
     ):
-        # resultpath = "./Results/" + os.path.join(username, model_name)
-        # file = os.path.join(resultpath, model_name + "_" + output + ".e")
-
-        # first_points, first_point_data, first_global_data, first_cell_data, first_ns, first_block_data, time = ExodusReader.read_timestep(
-        #     file, 1
-        # )
         Reader = ExodusReader()
 
         try:
@@ -281,7 +273,7 @@ class ImageExport:
                     np.multiply(np_displacement_z, displ_factor),
                 )
 
-            except:
+            except Exception:
                 np_points_x = np_first_points_x
                 np_points_y = np_first_points_y
                 np_points_z = np_first_points_z

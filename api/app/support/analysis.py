@@ -87,11 +87,11 @@ class Analysis:
     @staticmethod
     def get_g1c_k1c(username, model_name, model: Model, youngs_modulus):
         B = 1
-        if model.width != None:
+        if model.width:
             B = model.width
         a = model.cracklength
         W = model.length
-        E = youngs_modulus
+        # E = youngs_modulus
 
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_Output1.e")
@@ -167,8 +167,8 @@ class Analysis:
 
         w = model.width
         a = model.cracklength
-        L = model.length
-        E = material.youngsModulus
+        # L = model.length
+        # E = material.youngsModulus
 
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")

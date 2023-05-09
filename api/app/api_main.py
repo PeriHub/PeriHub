@@ -6,7 +6,6 @@ doc
 # pylint: disable=no-self-argument, no-method-argument, no-member, import-error
 
 # import uvicorn
-import asyncio
 import csv
 import io
 import json
@@ -37,17 +36,13 @@ from models.ENFmodel.enf_model import ENFmodel
 
 # from fastapi.responses import HTMLResponse
 # from fastapi.responses import StreamingResponse
-from models.GICmodel.gic_model import GICmodel
-from models.GIICmodel.giic_model import GIICmodel
 from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
-from models.KICmodel.kic_model import KICmodel
-from models.KIICmodel.kiic_model import KIICmodel
 from models.OwnModel.own_model import OwnModel
 from models.PlateWithHole.plate_with_hole import PlateWithHole
 from models.PlateWithOpening.plate_with_opening import PlateWithOpening
 from models.Smetana.smetana import Smetana
 from support.analysis import Analysis
-from support.base_models import FileType, Jobs, Material, Model, ModelData, ResponseModel, RunData, Status
+from support.base_models import FileType, Jobs, ModelData, ResponseModel, Status
 from support.crack_analysis import CrackAnalysis
 from support.file_handler import FileHandler
 from support.globals import log
@@ -179,8 +174,6 @@ class ModelControl:
         cracklength = model_data.model.cracklength
         width = model_data.model.width
         height = model_data.model.height
-        height2 = model_data.model.height2
-        radius = model_data.model.radius
         if model_name in {"Dogbone", "Kalthoff-Winkler"}:
             number_nodes = 2 * int(model_data.model.discretization / 2)
         else:
@@ -209,113 +202,7 @@ class ModelControl:
         log.info("Create %s", model_name)
 
         if model_data.model.ownModel is False:
-            if model_name == "GICmodel":
-                gic = GICmodel(
-                    model_folder_name=model_folder_name,
-                    xend=length,
-                    crack_length=cracklength,
-                    yend=height,
-                    zend=width,
-                    dx_value=dx_value,
-                    two_d=model_data.model.twoDimensional,
-                    rot=model_data.model.rotatedAngles,
-                    angle=model_data.model.angles,
-                    material=model_data.materials,
-                    damage=model_data.damages,
-                    block=model_data.blocks,
-                    boundary_condition=model_data.boundaryConditions,
-                    contact=model_data.contact,
-                    bond_filter=model_data.bondFilters,
-                    compute=model_data.computes,
-                    output=model_data.outputs,
-                    solver=model_data.solver,
-                    model_data=model_data,
-                    username=username,
-                    max_nodes=max_nodes,
-                    ignore_mesh=ignore_mesh,
-                )
-                result = gic.create_model()
-
-            elif model_name == "GIICmodel":
-                giic = GIICmodel(
-                    model_folder_name=model_folder_name,
-                    xend=length,
-                    crack_length=cracklength,
-                    yend=height,
-                    zend=width,
-                    dx_value=dx_value,
-                    two_d=model_data.model.twoDimensional,
-                    rot=model_data.model.rotatedAngles,
-                    angle=model_data.model.angles,
-                    material=model_data.materials,
-                    damage=model_data.damages,
-                    block=model_data.blocks,
-                    boundary_condition=model_data.boundaryConditions,
-                    contact=model_data.contact,
-                    bond_filter=model_data.bondFilters,
-                    compute=model_data.computes,
-                    output=model_data.outputs,
-                    solver=model_data.solver,
-                    model_data=model_data,
-                    username=username,
-                    max_nodes=max_nodes,
-                    ignore_mesh=ignore_mesh,
-                )
-                result = giic.create_model()
-
-            elif model_name == "KIICmodel":
-                kiic = KIICmodel(
-                    model_folder_name=model_folder_name,
-                    xend=length,
-                    yend=height,
-                    crack_length=cracklength,
-                    zend=width,
-                    dx_value=dx_value,
-                    two_d=model_data.model.twoDimensional,
-                    rot=model_data.model.rotatedAngles,
-                    angle=model_data.model.angles,
-                    material=model_data.materials,
-                    damage=model_data.damages,
-                    block=model_data.blocks,
-                    boundary_condition=model_data.boundaryConditions,
-                    contact=model_data.contact,
-                    compute=model_data.computes,
-                    output=model_data.outputs,
-                    solver=model_data.solver,
-                    model_data=model_data,
-                    username=username,
-                    max_nodes=max_nodes,
-                    ignore_mesh=ignore_mesh,
-                )
-                result = kiic.create_model()
-
-            elif model_name == "KICmodel":
-                kic = KICmodel(
-                    model_folder_name=model_folder_name,
-                    xend=length,
-                    yend=height,
-                    crack_length=cracklength,
-                    zend=width,
-                    dx_value=dx_value,
-                    two_d=model_data.model.twoDimensional,
-                    rot=model_data.model.rotatedAngles,
-                    angle=model_data.model.angles,
-                    material=model_data.materials,
-                    damage=model_data.damages,
-                    block=model_data.blocks,
-                    boundary_condition=model_data.boundaryConditions,
-                    contact=model_data.contact,
-                    compute=model_data.computes,
-                    output=model_data.outputs,
-                    solver=model_data.solver,
-                    model_data=model_data,
-                    username=username,
-                    max_nodes=max_nodes,
-                    ignore_mesh=ignore_mesh,
-                )
-                result = kic.create_model()
-
-            elif model_name == "ENFmodel":
+            if model_name == "ENFmodel":
                 enf = ENFmodel(
                     model_folder_name=model_folder_name,
                     xend=length,
@@ -498,6 +385,9 @@ class ModelControl:
         start_time = time.time()
 
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
+
+        if not os.path.exists(localpath):
+            os.makedirs(localpath)
 
         inputformat = "'ansys (cdb)'"
         if file_type == "cdb":
@@ -685,7 +575,7 @@ class ModelControl:
         """doc"""
         username = FileHandler.get_user_name(request, dev)
         usermail = FileHandler.get_user_mail(request)
-        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
+        FileHandler.get_local_model_path(username, model_name, model_folder_name)
 
         material = model_data.materials
 

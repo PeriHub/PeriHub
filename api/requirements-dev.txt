@@ -7,3 +7,5 @@ flake8
 black
 isort
 bandit
+httpx
+pyproject-flake8
