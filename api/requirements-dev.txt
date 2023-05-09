@@ -1,4 +1,9 @@
 -r requirements.txt
+poetry
 pytest
 pytest-cov
 requests
+flake8
+black
+isort
+bandit
