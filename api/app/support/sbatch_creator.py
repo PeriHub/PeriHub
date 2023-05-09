@@ -36,11 +36,7 @@ class SbatchCreator:
         """doc"""
         nodes = -(-int(self.tasks) // 64)
         string = "#!/bin/bash" + "\n"
-        string += (
-            "#SBATCH --job-name="
-            + str(self.filename + "_" + self.model_folder_name)
-            + "\n"
-        )
+        string += "#SBATCH --job-name=" + str(self.filename + "_" + self.model_folder_name) + "\n"
         string += "#SBATCH --nodes=" + str(nodes) + "\n"
         # string += "#SBATCH --nodes=" + str(self.nodes) + "\n"
         # string += "#SBATCH --tasks-per-node=" + str(self.tasks_per_node) + "\n"
@@ -70,9 +66,7 @@ class SbatchCreator:
         string += "module load GCCcore/10.2.0" + "\n"
         string += "module load CMake/3.18.4" + "\n"
         string += "module load Eigen" + "\n"
-        string += (
-            "export PATH=$PATH:/home/" + self.user + "/software/trilinos/bin" + "\n"
-        )
+        string += "export PATH=$PATH:/home/" + self.user + "/software/trilinos/bin" + "\n"
 
         string += (
             "srun --ntasks="
@@ -106,13 +100,7 @@ class SbatchCreator:
         string = "#!/bin/sh" + "\n"
         # if self.tasks == 1:
         string += ". /opt/intel/oneapi/mkl/latest/env/vars.sh \n"
-        string += (
-            "/Peridigm/build/src/Peridigm "
-            + self.filename
-            + "."
-            + self.filetype
-            + "& echo $! > pid.txt \n"
-        )
+        string += "/Peridigm/build/src/Peridigm " + self.filename + "." + self.filetype + "& echo $! > pid.txt \n"
         string += "pid=`cat pid.txt` \n"
         string += "tail --pid=$pid -f /dev/null \n"
         string += "rm pid.txt \n"

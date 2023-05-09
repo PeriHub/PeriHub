@@ -2,6 +2,7 @@
 doc
 """
 import numpy as np
+
 from support.base_models import (
     Adapt,
     Block,
@@ -321,8 +322,7 @@ class CompactTension:
             k,
         )
         condition = np.where(
-            ((x_value - 0.25 * self.length) ** 2)
-            + ((y_value - 0.275 * self.length) ** 2)
+            ((x_value - 0.25 * self.length) ** 2) + ((y_value - 0.275 * self.length) ** 2)
             <= (0.125 * self.length) ** 2,
             1.0,
             0,
@@ -333,8 +333,7 @@ class CompactTension:
             k,
         )
         condition = np.where(
-            ((x_value - 0.25 * self.length) ** 2)
-            + ((y_value + 0.275 * self.length) ** 2)
+            ((x_value - 0.25 * self.length) ** 2) + ((y_value + 0.275 * self.length) ** 2)
             <= (0.125 * self.length) ** 2,
             1.0,
             0,
@@ -405,12 +404,7 @@ class CompactTension:
             )
 
         if len(x_value) > self.max_nodes:
-            return (
-                "The number of nodes ("
-                + str(len(x_value))
-                + ") is larger than the allowed "
-                + str(self.max_nodes)
-            )
+            return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(self.max_nodes)
 
         if self.ignore_mesh and self.block_def != "":
             writer = ModelWriter(model_class=self)

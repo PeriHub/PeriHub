@@ -5,6 +5,7 @@ import time
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from support.base_models import Block
 from support.geometry import Geometry
 from support.globals import log
@@ -16,17 +17,13 @@ class Dogbone:
 
     def __init__(
         self,
-        xend=13.0,
-        height1=2.0,
-        height2=1.0,
-        zend=0.1,
-        dx_value=[0.05, 0.05, 0.05],
+        model_data,
         filename="Dogbone",
-        model_folder_name="",
-        model_data=None,
+        model_folder_name="Default",
         username="",
         max_nodes=100000,
         ignore_mesh=False,
+        dx_value=[0.05, 0.05, 0.05],
     ):
         """
         definition der blocks
@@ -47,9 +44,9 @@ class Dogbone:
         self.two_d = model_data.model.twoDimensional
         self.ns_list = [3, 4]
         self.dx_value = dx_value
-        self.xend = xend
-        self.height1 = height1
-        self.height2 = height2
+        self.xend = model_data.model.length
+        self.height1 = model_data.model.height
+        self.height2 = model_data.model.height2
         self.block_def = model_data.blocks
         self.structured = model_data.model.structured
         self.rot = model_data.model.rotatedAngles
@@ -60,7 +57,7 @@ class Dogbone:
             self.zend = 1
             self.dx_value[2] = 1
         else:
-            self.zend = zend + dx_value[2]
+            self.zend = model_data.model.width + dx_value[2]
 
         number_of_blocks = 5
 
@@ -100,12 +97,7 @@ class Dogbone:
         num = len(x_value_0) * len(y_value_0) * len(z_value_0)
 
         if num > self.max_nodes:
-            return (
-                "The number of nodes ("
-                + str(num)
-                + ") is larger than the allowed "
-                + str(self.max_nodes)
-            )
+            return "The number of nodes (" + str(num) + ") is larger than the allowed " + str(self.max_nodes)
 
         if self.ignore_mesh and self.block_def != "":
             writer = ModelWriter(model_class=self)
@@ -122,9 +114,9 @@ class Dogbone:
             if self.structured:
                 number_nodes = 2 * int((self.height1 / self.dx_value[1]) / 2) + 1
                 num_rows = int((number_nodes - 1) / 2)
-                fh2 = (
-                    2 * self.dx_value[1] * (num_rows) + self.height2 - self.height1
-                ) / (self.dx_value[1] * (num_rows))
+                fh2 = (2 * self.dx_value[1] * (num_rows) + self.height2 - self.height1) / (
+                    self.dx_value[1] * (num_rows)
+                )
                 x_value = np.array([])
                 y_value = np.array([])
                 z_value = np.array([])
@@ -167,12 +159,8 @@ class Dogbone:
                         x_value = np.concatenate((x_value, x_value_0))
                         y_value = np.concatenate((y_value, upper_y_value))
                         y_value = np.concatenate((y_value, lower_y_value))
-                        z_value = np.concatenate(
-                            (z_value, np.full_like(x_value_0, zval))
-                        )
-                        z_value = np.concatenate(
-                            (z_value, np.full_like(x_value_0, zval))
-                        )
+                        z_value = np.concatenate((z_value, np.full_like(x_value_0, zval)))
+                        z_value = np.concatenate((z_value, np.full_like(x_value_0, zval)))
                         vol_factor = np.concatenate(
                             (
                                 vol_factor,
@@ -245,9 +233,9 @@ class Dogbone:
                 for xval in x_value_0:
                     for yval in y_value_0:
                         for zval in z_value_0:
-                            if geo.check_val_greater(
-                                yval, bottom_surf(xval)
-                            ) and geo.check_val_lower(yval, top_surf(xval)):
+                            if geo.check_val_greater(yval, bottom_surf(xval)) and geo.check_val_lower(
+                                yval, top_surf(xval)
+                            ):
                                 for idx, val in enumerate(block_def):
                                     if geo.check_val_greater(xval, val):
                                         mat_num = idx + 1

@@ -5,6 +5,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from exodusreader.exodusreader import ExodusReader
+
 from support.base_models import Material, Model
 from support.globals import log
 
@@ -12,7 +13,6 @@ from support.globals import log
 class Analysis:
     @staticmethod
     def calculate_calibration_factor_f(alpha):
-
         f = ((2 + alpha) / math.pow((1 - alpha), 3 / 2)) * (
             0.886
             + (4.64 * alpha)
@@ -25,7 +25,6 @@ class Analysis:
 
     @staticmethod
     def calculate_calibration_factor_phi(alpha):
-
         A = (
             1.9118
             + (19.118 * alpha)
@@ -33,12 +32,7 @@ class Analysis:
             - (23.226 * math.pow(alpha, 3))
             + (20.54 * math.pow(alpha, 4))
         )
-        B = (
-            19.118
-            - (5.0244 * alpha)
-            - (69.678 * math.pow(alpha, 2))
-            + (82.16 * math.pow(alpha, 3))
-        ) * (1 - alpha)
+        B = (19.118 - (5.0244 * alpha) - (69.678 * math.pow(alpha, 2)) + (82.16 * math.pow(alpha, 3))) * (1 - alpha)
 
         phi = (A * (1 - alpha)) / (B + (2 * A))
 
@@ -46,19 +40,16 @@ class Analysis:
 
     @staticmethod
     def calculate_k1(P, B, W, f):
-
         k1 = f * (P / (B * math.sqrt(W)))
         return k1
 
     @staticmethod
     def calculate_g1(Energy, B, W, phi):
-
         g1 = Energy / (B * W * phi)
         return g1
 
     @staticmethod
     def get_global_data(file, variable, axis, absolute):
-
         Reader = ExodusReader()
         (
             points,
@@ -95,7 +86,6 @@ class Analysis:
 
     @staticmethod
     def get_g1c_k1c(username, model_name, model: Model, youngs_modulus):
-
         B = 1
         if model.width != None:
             B = model.width
@@ -173,7 +163,6 @@ class Analysis:
 
     @staticmethod
     def get_g1c(username, model_name, output, model: Model, material: Material):
-
         Reader = ExodusReader()
 
         w = model.width
@@ -197,7 +186,6 @@ class Analysis:
         GIC = 0
 
         if model_name == "GICmodel":
-
             P_low = global_data["Lower_Load_Force"][1]
             P_up = global_data["Upper_Load_Force"][1]
             d_low = global_data["Lower_Load_Displacement"][1]
@@ -221,7 +209,6 @@ class Analysis:
 
     @staticmethod
     def get_g2c(username, model_name, output, model: Model):
-
         w = model.width
         a = model.cracklength - model.length / 22
         L = model.length / 2.2
@@ -242,9 +229,7 @@ class Analysis:
         P = global_data["Crosshead_Force"][0][1]
         d = -global_data["Crosshead_Displacement"][0][1]
 
-        GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (
-            2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3))
-        )
+        GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3)))
 
         log.info(GIIC)
 
@@ -252,7 +237,6 @@ class Analysis:
 
     @staticmethod
     def get_result_file(username, model_name, output):
-
         Reader = ExodusReader()
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
@@ -281,9 +265,7 @@ class Analysis:
                     block_ids = block_data[block_id][:, 0]
                     block_points = points[block_ids]
                     filter = damage_blocks[block_id] > 0.0
-                    current_points = (
-                        block_points + point_data["Displacement"][block_ids]
-                    )
+                    current_points = block_points + point_data["Displacement"][block_ids]
 
                     filtered_points = current_points[filter]
 

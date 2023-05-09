@@ -34,7 +34,6 @@ class CheckVal:
         delta_length=0,
         delta_height=0,
     ):
-
         dalpha = 0.025
         print(alpha_max)
         alpha = np.arange(0, alpha_max + dalpha, dalpha)
@@ -55,10 +54,7 @@ class CheckVal:
         y_value = np.concatenate(
             (
                 y_value,
-                height
-                + radius
-                - delta_height
-                - radius * np.cos((-alpha) / 180 * np.pi),
+                height + radius - delta_height - radius * np.cos((-alpha) / 180 * np.pi),
             )
         )
         #########
@@ -103,19 +99,14 @@ class CheckVal:
         x_value = np.concatenate(
             (
                 x_value,
-                length1
-                + delta_length
-                + length2
-                + radius * np.sin((alpha_max - alpha) / 180 * np.pi),
+                length1 + delta_length + length2 + radius * np.sin((alpha_max - alpha) / 180 * np.pi),
             )
         )
         # x_value = np.concatenate((x_value,length1+length2+delta_length-radius*np.cos(alpha/180*np.pi)))
         y_value = np.concatenate(
             (
                 y_value,
-                delta_height
-                - radius
-                + radius * np.cos((alpha_max - alpha) / 180 * np.pi),
+                delta_height - radius + radius * np.cos((alpha_max - alpha) / 180 * np.pi),
             )
         )
 
@@ -202,9 +193,7 @@ if __name__ == "__main__":
     for xval in x_value:
         for yval in y_value:
             for zval in z_value:
-                if c.check_val_greater(yval, bottom_surf(xval)) and c.check_val_lower(
-                    yval, top_surf(xval)
-                ):
+                if c.check_val_greater(yval, bottom_surf(xval)) and c.check_val_lower(yval, top_surf(xval)):
                     num += 1
                     for idx, val in enumerate(block_def):
                         if c.check_val_greater(xval, val):
@@ -215,18 +204,7 @@ if __name__ == "__main__":
                     if c.check_val_greater(xval, block_def[-1]):
                         stringRight += str(num) + "\n"
                         bccount += 1
-                    string += (
-                        str(xval)
-                        + " "
-                        + str(yval)
-                        + " "
-                        + str(zval)
-                        + " "
-                        + str(mat_num)
-                        + " "
-                        + str(vol)
-                        + "\n"
-                    )
+                    string += str(xval) + " " + str(yval) + " " + str(zval) + " " + str(mat_num) + " " + str(vol) + "\n"
                     xList.append(xval)
                     yList.append(yval)
 

@@ -1,29 +1,55 @@
+PROGRAM_VERSION = $(lastword $(shell poetry version --no-ansi))
+ALL_PYTHON_FILES = $(shell find src/gcodereader test doc -type f -name "*.py")
 
-.PHONY: dev-env
-dev-env:
-	python3 -m venv .venv
-	.venv/bin/pip install -r requirements-dev.txt
 
-.PHONY: test
+all: audit
+
+clean:
+	rm -rf build
+	poetry run coverage erase
+
+prepare:
+	mkdir -p build
+
 test:
 	PYTHONPATH=. pytest -c setup.cfg --cov-report term-missing --junitxml=report.xml
 
-.PHONY: func-test
-func-test:
-	PYTHONPATH=src python tests/functional/test_wishlist.py
+formatting:
+	poetry run black .
+	poetry run isort .
 
-.PHONY: run-local
+license-metadata:
+	poetry run reuse addheader --copyright="German Aerospace Center (DLR)" --license="MIT" $(ALL_PYTHON_FILES)
+	poetry run black .
+
+check-formatting:
+	poetry run black . --check
+	poetry run isort . --check-only
+
+check-license-metadata:
+	poetry run reuse lint
+
+check-code: prepare
+	poetry run flake8 . --exit-zero --output-file=build/flake8.txt
+
+check-coverage: prepare
+	poetry run pytest --cov=. --cov-fail-under=30 --cov-report=term-missing --cov-report=html --cov-report=xml
+
+check-security:
+	poetry run bandit -r .
+	poetry run bandit -r -ll .
+
+audit: check-code check-coverage check-formatting #check-license-metadata check-security
+
+docs: prepare
+	poetry run sphinx-apidoc . --force --output-dir=doc/
+	poetry run sphinx-build -w build/sphinxwarn.txt -D version="$(PROGRAM_VERSION)" -D release="$(PROGRAM_VERSION)" -b html doc/ build/html/
+
+doc: docs
+
 run-local:
 	PYTHONPATH=src uvicorn app:app --reload
 
-.PHONY: build
-build:
-	docker build -t wishlist:dev .
-
-.PHONY: run
-run: build
-	docker run --rm --name wishlist-service -d -p 8080:80 wishlist:dev
-
-.PHONY: stop
-stop:
-	docker stop wishlist-service
+.PHONY: list
+list:
+	@LC_ALL=C $(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'

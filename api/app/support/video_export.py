@@ -43,7 +43,6 @@ class VideoExport:
         y_max,
         size=20,
     ):
-
         Reader = ExodusReader()
 
         (
@@ -114,7 +113,6 @@ class VideoExport:
             cell_value = np.array([])
 
             for block_id in range(0, len(block_data)):
-
                 block_ids = block_data[block_id][:, 0]
 
                 block_points = points[block_ids]
@@ -124,10 +122,7 @@ class VideoExport:
                 np_points_x = np.concatenate([np_points_x, np_first_points_x])
                 np_points_y = np.concatenate([np_points_y, np_first_points_y])
 
-                if (
-                    block_id in cell_data[variable][0]
-                    and max(cell_data[variable][-1][block_id][0]) > 0
-                ):
+                if block_id in cell_data[variable][0] and max(cell_data[variable][-1][block_id][0]) > 0:
                     cell_value = np.concatenate(
                         [
                             cell_value,
@@ -135,9 +130,7 @@ class VideoExport:
                         ]
                     )
                 else:
-                    cell_value = np.concatenate(
-                        [cell_value, np.full_like(np_first_points_x, 0)]
-                    )
+                    cell_value = np.concatenate([cell_value, np.full_like(np_first_points_x, 0)])
 
             triang = mtri.Triangulation(np_points_x, np_points_y)
             mask = VideoExport.long_edges(
@@ -162,15 +155,12 @@ class VideoExport:
             tx = ax.set_title("Frame 0")
 
             if apply_displacements and x_min != None:
-
                 ax.set_xlim(x_min, x_max)
                 ax.set_ylim(y_min, y_max)
 
             def animate(i, triang):
-
                 ax.clear()
                 if apply_displacements and x_min != None:
-
                     ax.set_xlim(x_min, x_max)
                     ax.set_ylim(y_min, y_max)
 
@@ -182,7 +172,6 @@ class VideoExport:
 
                 cell_value = np.array([])
                 for block_id in range(0, len(block_data)):
-
                     block_ids = block_data[block_id][:, 0]
 
                     if apply_displacements:
@@ -190,12 +179,8 @@ class VideoExport:
 
                         np_first_points_x = np.array(block_points[:, 0])
                         np_first_points_y = np.array(block_points[:, 1])
-                        np_displacement_x = np.array(
-                            point_data["Displacement"][i][0][block_ids]
-                        )
-                        np_displacement_y = np.array(
-                            point_data["Displacement"][i][1][block_ids]
-                        )
+                        np_displacement_x = np.array(point_data["Displacement"][i][0][block_ids])
+                        np_displacement_y = np.array(point_data["Displacement"][i][1][block_ids])
 
                         np_points_x = np.add(
                             np_first_points_x,
@@ -209,10 +194,7 @@ class VideoExport:
                         np_points_all_x = np.concatenate([np_points_all_x, np_points_x])
                         np_points_all_y = np.concatenate([np_points_all_y, np_points_y])
 
-                    if (
-                        block_id in cell_data[variable][0]
-                        and max(cell_data[variable][0][block_id][i]) > 0
-                    ):
+                    if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id][i]) > 0:
                         cell_value = np.concatenate(
                             [
                                 cell_value,
@@ -220,9 +202,7 @@ class VideoExport:
                             ]
                         )
                     else:
-                        cell_value = np.concatenate(
-                            [cell_value, np.full_like(block_ids, 0)]
-                        )
+                        cell_value = np.concatenate([cell_value, np.full_like(block_ids, 0)])
 
                 if apply_displacements:
                     triang = mtri.Triangulation(np_points_all_x, np_points_all_y)
@@ -248,12 +228,9 @@ class VideoExport:
                 fig.colorbar(tcf, cax=cax)
                 tx.set_text("Frame {0}".format(i))
 
-            ani = animation.FuncAnimation(
-                fig, animate, fargs=(triang,), frames=len(time)
-            )
+            ani = animation.FuncAnimation(fig, animate, fargs=(triang,), frames=len(time))
 
         else:
-
             for i in range(1, len(time)):
                 min_value = min(point_data[variable][i][0][:])
                 max_value = max(point_data[variable][i][0][:])
@@ -300,9 +277,7 @@ class VideoExport:
                 fig.colorbar(tcf, cax=cax)
                 tx.set_text("Frame {0}".format(i))
 
-            ani = animation.FuncAnimation(
-                fig, animate, fargs=(triang,), frames=len(time)
-            )
+            ani = animation.FuncAnimation(fig, animate, fargs=(triang,), frames=len(time))
 
         filepath = file[:-2] + "_" + variable + "_" + axis + ".gif"
 
@@ -313,10 +288,7 @@ class VideoExport:
         return filepath
 
     @staticmethod
-    def get_triangulated_mesh_from_exodus(
-        file, displ_factor, timestep, max_edge_distance, length, height
-    ):
-
+    def get_triangulated_mesh_from_exodus(file, displ_factor, timestep, max_edge_distance, length, height):
         Reader = ExodusReader()
 
         (

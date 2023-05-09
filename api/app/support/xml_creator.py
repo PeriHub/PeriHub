@@ -38,65 +38,35 @@ class XMLcreator:
     def load_mesh(self):
         string = '    <ParameterList name="Discretization">\n'
         if self.disc_type == "txt":
-            string += (
-                '        <Parameter name="Type" type="string" value="Text File" />\n'
-            )
+            string += '        <Parameter name="Type" type="string" value="Text File" />\n'
             if self.check_if_defined(self.mesh_file):
-                string += (
-                    '        <Parameter name="Input Mesh File" type="string" value="'
-                    + self.mesh_file
-                    + '"/>\n'
-                )
+                string += '        <Parameter name="Input Mesh File" type="string" value="' + self.mesh_file + '"/>\n'
             else:
                 string += (
-                    '        <Parameter name="Input Mesh File" type="string" value="'
-                    + self.filename
-                    + '.txt"/>\n'
+                    '        <Parameter name="Input Mesh File" type="string" value="' + self.filename + '.txt"/>\n'
                 )
         elif self.disc_type == "e":
             string += '        <Parameter name="Type" type="string" value="Exodus" />\n'
-            string += (
-                '        <Parameter name="Input Mesh File" type="string" value="'
-                + self.filename
-                + '.g"/>\n'
-            )
+            string += '        <Parameter name="Input Mesh File" type="string" value="' + self.filename + '.g"/>\n'
             if self.check_if_defined(self.mesh_file):
-                string += (
-                    '        <Parameter name="Input Mesh File" type="string" value="'
-                    + self.mesh_file
-                    + '"/>\n'
-                )
+                string += '        <Parameter name="Input Mesh File" type="string" value="' + self.mesh_file + '"/>\n'
             else:
-                string += (
-                    '        <Parameter name="Input Mesh File" type="string" value="'
-                    + self.filename
-                    + '.g"/>\n'
-                )
+                string += '        <Parameter name="Input Mesh File" type="string" value="' + self.filename + '.g"/>\n'
         return string
 
     def create_bond_filter(self):
         string = '        <ParameterList name="Bond Filters">\n'
         for bond_filter in self.bondfilters:
             string += '            <ParameterList name="' + bond_filter.name + '">\n'
+            string += '                <Parameter name="Type" type="string" value = "' + bond_filter.type + '"/>\n'
             string += (
-                '                <Parameter name="Type" type="string" value = "'
-                + bond_filter.type
-                + '"/>\n'
+                '                <Parameter name="Normal_X" type="double" value="' + str(bond_filter.normalX) + '"/>\n'
             )
             string += (
-                '                <Parameter name="Normal_X" type="double" value="'
-                + str(bond_filter.normalX)
-                + '"/>\n'
+                '                <Parameter name="Normal_Y" type="double" value="' + str(bond_filter.normalY) + '"/>\n'
             )
             string += (
-                '                <Parameter name="Normal_Y" type="double" value="'
-                + str(bond_filter.normalY)
-                + '"/>\n'
-            )
-            string += (
-                '                <Parameter name="Normal_Z" type="double" value="'
-                + str(bond_filter.normalZ)
-                + '"/>\n'
+                '                <Parameter name="Normal_Z" type="double" value="' + str(bond_filter.normalZ) + '"/>\n'
             )
             if bond_filter.type == "Rectangular_Plane":
                 string += (
@@ -156,9 +126,7 @@ class XMLcreator:
                     + '"/>\n'
                 )
                 string += (
-                    '                <Parameter name="Radius" type="double" value="'
-                    + str(bond_filter.radius)
-                    + '"/>\n'
+                    '                <Parameter name="Radius" type="double" value="' + str(bond_filter.radius) + '"/>\n'
                 )
             string += "            </ParameterList>\n"
         string += "        </ParameterList>\n"
@@ -168,16 +136,8 @@ class XMLcreator:
         string = '    <ParameterList name="Materials">\n'
         for mat in self.material_dict:
             string += '        <ParameterList name="' + mat.name + '">\n'
-            string += (
-                '            <Parameter name="Material Model" type="string" value="'
-                + mat.matType
-                + '"/>\n'
-            )
-            string += (
-                '            <Parameter name="Plane Stress" type="bool" value="'
-                + str(mat.planeStress)
-                + '"/>\n'
-            )
+            string += '            <Parameter name="Material Model" type="string" value="' + mat.matType + '"/>\n'
+            string += '            <Parameter name="Plane Stress" type="bool" value="' + str(mat.planeStress) + '"/>\n'
             string += (
                 '            <Parameter name="Density" type="double" value="'
                 + str(np.format_float_scientific(float(mat.density)))
@@ -229,14 +189,10 @@ class XMLcreator:
                     + '"/>\n'
                 )
             string += (
-                '            <Parameter name="Stabilizaton Type" type="string" value="'
-                + mat.stabilizatonType
-                + '"/>\n'
+                '            <Parameter name="Stabilizaton Type" type="string" value="' + mat.stabilizatonType + '"/>\n'
             )
             string += (
-                '            <Parameter name="Thickness" type="double" value="'
-                + str(float(mat.thickness))
-                + '"/>\n'
+                '            <Parameter name="Thickness" type="double" value="' + str(float(mat.thickness)) + '"/>\n'
             )
             string += (
                 '            <Parameter name="Hourglass Coefficient" type="double" value="'
@@ -262,11 +218,7 @@ class XMLcreator:
                     + '"/>\n'
                 )
             if self.check_if_defined(mat.nonLinear):
-                string += (
-                    '            <Parameter name="Non linear" type="bool" value="'
-                    + str(mat.nonLinear)
-                    + '"/>\n'
-                )
+                string += '            <Parameter name="Non linear" type="bool" value="' + str(mat.nonLinear) + '"/>\n'
             if self.check_if_defined(mat.numStateVars):
                 string += (
                     '            <Parameter name="Number of State Vars" type="int" value="'
@@ -391,11 +343,7 @@ class XMLcreator:
         string = '    <ParameterList name="Additive Models">\n'
         for add in self.additive_dict.additiveModels:
             string += '        <ParameterList name="' + add.name + '">\n'
-            string += (
-                '            <Parameter name="Additive Model" type="string" value="'
-                + add.additiveType
-                + '"/>\n'
-            )
+            string += '            <Parameter name="Additive Model" type="string" value="' + add.additiveType + '"/>\n'
             string += (
                 '            <Parameter name="Print Temperature" type="double" value="'
                 + str(float(add.printTemp))
@@ -414,33 +362,17 @@ class XMLcreator:
         string = '    <ParameterList name="Blocks">\n'
         for block in self.block_def:
             string += '        <ParameterList name="' + block.name + '">\n'
-            string += (
-                '            <Parameter name="Block Names" type="string" value="'
-                + block.name
-                + '"/>\n'
-            )
-            string += (
-                '            <Parameter name="Material" type="string" value="'
-                + block.material
-                + '"/>\n'
-            )
+            string += '            <Parameter name="Block Names" type="string" value="' + block.name + '"/>\n'
+            string += '            <Parameter name="Material" type="string" value="' + block.material + '"/>\n'
             if block.damageModel != "" and block.damageModel is not None:
                 string += (
-                    '            <Parameter name="Damage Model" type="string" value="'
-                    + block.damageModel
-                    + '"/>\n'
+                    '            <Parameter name="Damage Model" type="string" value="' + block.damageModel + '"/>\n'
                 )
             if block.additiveModel != "" and block.additiveModel is not None:
                 string += (
-                    '            <Parameter name="Additive Model" type="string" value="'
-                    + block.additiveModel
-                    + '"/>\n'
+                    '            <Parameter name="Additive Model" type="string" value="' + block.additiveModel + '"/>\n'
                 )
-            string += (
-                '            <Parameter name="Horizon" type="double" value="'
-                + str(block.horizon)
-                + '"/>\n'
-            )
+            string += '            <Parameter name="Horizon" type="double" value="' + str(block.horizon) + '"/>\n'
             string += "        </ParameterList>\n"
         string += "     </ParameterList>\n"
         return string
@@ -450,9 +382,7 @@ class XMLcreator:
         for dam in self.damage_dict:
             string += '        <ParameterList name="' + dam.name + '">\n'
             string += (
-                '            <Parameter name="Damage Model" type="string" value="'
-                + str(dam.damageModel)
-                + '"/>\n'
+                '            <Parameter name="Damage Model" type="string" value="' + str(dam.damageModel) + '"/>\n'
             )
             if dam.damageModel == "Critical Energy Correspondence":
                 string += (
@@ -508,25 +438,15 @@ class XMLcreator:
                     + str(float(dam.criticalStretch))
                     + '"/>\n'
                 )
-            string += (
-                '            <Parameter name="Plane Stress" type="bool" value="'
-                + str(self.two_d)
-                + '"/>\n'
-            )
-            string += (
-                '            <Parameter name="Only Tension" type="bool" value="'
-                + str(dam.onlyTension)
-                + '"/>\n'
-            )
+            string += '            <Parameter name="Plane Stress" type="bool" value="' + str(self.two_d) + '"/>\n'
+            string += '            <Parameter name="Only Tension" type="bool" value="' + str(dam.onlyTension) + '"/>\n'
             string += (
                 '            <Parameter name="Detached Nodes Check" type="bool" value="'
                 + str(dam.detachedNodesCheck)
                 + '"/>\n'
             )
             string += (
-                '            <Parameter name="Thickness" type="double" value="'
-                + str(float(dam.thickness))
-                + '"/>\n'
+                '            <Parameter name="Thickness" type="double" value="' + str(float(dam.thickness)) + '"/>\n'
             )
             string += (
                 '            <Parameter name="Hourglass Coefficient" type="double" value="'
@@ -551,11 +471,7 @@ class XMLcreator:
         )
         if temp_enabled:
             string += '        <Parameter name="Solve For Temperature" type="bool" value="True"/>\n'
-        string += (
-            '        <Parameter name="Verbose" type="bool" value="'
-            + str(self.solver_dict.verbose)
-            + '"/>\n'
-        )
+        string += '        <Parameter name="Verbose" type="bool" value="' + str(self.solver_dict.verbose) + '"/>\n'
         string += (
             '        <Parameter name="Initial Time" type="double" value="'
             + str(float(self.solver_dict.initialTime))
@@ -594,10 +510,7 @@ class XMLcreator:
                 + str(float(self.solver_dict.numericalDamping))
                 + '"/>\n'
             )
-            if (
-                self.check_if_defined(self.solver_dict.adaptivetimeStepping)
-                and self.solver_dict.adaptivetimeStepping
-            ):
+            if self.check_if_defined(self.solver_dict.adaptivetimeStepping) and self.solver_dict.adaptivetimeStepping:
                 string += '            <Parameter name="Adapt dt" type="bool" value="True"/>\n'
                 string += (
                     '            <Parameter name="Stable Step Difference" type="int" value="'
@@ -736,11 +649,7 @@ class XMLcreator:
         for condition in self.boundary_condition.conditions:
             node_set_id = self.ns_list.index(condition.blockId)
             string += '        <ParameterList name="' + condition.name + '">\n'
-            string += (
-                '            <Parameter name="Type" type="string" value="'
-                + condition.boundarytype
-                + '"/>\n'
-            )
+            string += '            <Parameter name="Type" type="string" value="' + condition.boundarytype + '"/>\n'
             if self.check_if_defined(condition.nodeSet):
                 string += (
                     '            <Parameter name="Node Set" type="string" value="Node Set '
@@ -755,15 +664,9 @@ class XMLcreator:
                 )
             if "Temperature" not in condition.boundarytype:
                 string += (
-                    '            <Parameter name="Coordinate" type="string" value="'
-                    + condition.coordinate
-                    + '"/>\n'
+                    '            <Parameter name="Coordinate" type="string" value="' + condition.coordinate + '"/>\n'
                 )
-            string += (
-                '            <Parameter name="Value" type="string" value="'
-                + str(condition.value)
-                + '"/>\n'
-            )
+            string += '            <Parameter name="Value" type="string" value="' + str(condition.value) + '"/>\n'
             string += "        </ParameterList>\n"
         string += "    </ParameterList>\n"
         return string
@@ -784,9 +687,7 @@ class XMLcreator:
         for models in self.contact_dict.contactModels:
             string += '            <ParameterList name="' + models.name + '">\n'
             string += (
-                '               <Parameter name="Contact Model" type="string" value="'
-                + models.contactType
-                + '"/>\n'
+                '               <Parameter name="Contact Model" type="string" value="' + models.contactType + '"/>\n'
             )
             string += (
                 '               <Parameter name="Contact Radius" type="double" value="'
@@ -835,21 +736,9 @@ class XMLcreator:
             string += '        <ParameterList name="' + out.name + '">\n'
             if out.computeClass == "Nearest_Point_Data":
                 string += '            <Parameter name="Compute Class" type="string" value="Nearest_Point_Data"/>\n'
-                string += (
-                    '            <Parameter name="X" type="double" value="'
-                    + str(out.x_value)
-                    + '"/>\n'
-                )
-                string += (
-                    '            <Parameter name="Y" type="double" value="'
-                    + str(out.y_value)
-                    + '"/>\n'
-                )
-                string += (
-                    '            <Parameter name="Z" type="double" value="'
-                    + str(out.z_value)
-                    + '"/>\n'
-                )
+                string += '            <Parameter name="X" type="double" value="' + str(out.x_value) + '"/>\n'
+                string += '            <Parameter name="Y" type="double" value="' + str(out.y_value) + '"/>\n'
+                string += '            <Parameter name="Z" type="double" value="' + str(out.z_value) + '"/>\n'
             else:
                 string += '            <Parameter name="Compute Class" type="string" value="Block_Data"/>\n'
                 string += (
@@ -857,21 +746,9 @@ class XMLcreator:
                     + out.calculationType
                     + '"/>\n'
                 )
-                string += (
-                    '            <Parameter name="Block" type="string" value="'
-                    + out.blockName
-                    + '"/>\n'
-                )
-            string += (
-                '            <Parameter name="Variable" type="string" value="'
-                + out.variable
-                + '"/>\n'
-            )
-            string += (
-                '            <Parameter name="Output Label" type="string" value="'
-                + out.name
-                + '"/>\n'
-            )
+                string += '            <Parameter name="Block" type="string" value="' + out.blockName + '"/>\n'
+            string += '            <Parameter name="Variable" type="string" value="' + out.variable + '"/>\n'
+            string += '            <Parameter name="Output Label" type="string" value="' + out.name + '"/>\n'
             string += "        </ParameterList>\n"
 
         string += "    </ParameterList>\n"
@@ -893,18 +770,10 @@ class XMLcreator:
             )
             if out.InitStep != 0:
                 string += (
-                    '        <Parameter name="Initial Output Step" type="int" value="'
-                    + str(out.InitStep)
-                    + '"/>\n'
+                    '        <Parameter name="Initial Output Step" type="int" value="' + str(out.InitStep) + '"/>\n'
                 )
-            string += (
-                '        <Parameter name="Output Frequency" type="int" value="'
-                + str(out.Frequency)
-                + '"/>\n'
-            )
-            string += (
-                '        <Parameter name="Parallel Write" type="bool" value="True"/>\n'
-            )
+            string += '        <Parameter name="Output Frequency" type="int" value="' + str(out.Frequency) + '"/>\n'
+            string += '        <Parameter name="Parallel Write" type="bool" value="True"/>\n'
             if out.Write_After_Damage:
                 string += '        <Parameter name="Write After Damage" type="bool" value="True"/>\n'
 
@@ -915,22 +784,20 @@ class XMLcreator:
                     string += '            <Parameter name="Velocity_Gradient_Y" type="bool" value="True"/>\n'
                     string += '            <Parameter name="Velocity_Gradient_Z" type="bool" value="True"/>\n'
                 elif output == "PiolaStressTimesInvShapeTensor":
-                    string += '            <Parameter name="PiolaStressTimesInvShapeTensorX" type="bool" value="True"/>\n'
-                    string += '            <Parameter name="PiolaStressTimesInvShapeTensorY" type="bool" value="True"/>\n'
-                    string += '            <Parameter name="PiolaStressTimesInvShapeTensorZ" type="bool" value="True"/>\n'
-                else:
                     string += (
-                        '            <Parameter name="'
-                        + output
-                        + '" type="bool" value="True"/>\n'
+                        '            <Parameter name="PiolaStressTimesInvShapeTensorX" type="bool" value="True"/>\n'
                     )
+                    string += (
+                        '            <Parameter name="PiolaStressTimesInvShapeTensorY" type="bool" value="True"/>\n'
+                    )
+                    string += (
+                        '            <Parameter name="PiolaStressTimesInvShapeTensorZ" type="bool" value="True"/>\n'
+                    )
+                else:
+                    string += '            <Parameter name="' + output + '" type="bool" value="True"/>\n'
 
             for compute in self.compute_dict:
-                string += (
-                    '            <Parameter name="'
-                    + compute.name
-                    + '" type="bool" value="True"/>\n'
-                )
+                string += '            <Parameter name="' + compute.name + '" type="bool" value="True"/>\n'
             string += "        </ParameterList>\n"
             string += "    </ParameterList>\n"
             idx += 1
@@ -945,10 +812,7 @@ class XMLcreator:
         string += "    </ParameterList>\n"
         string += self.material()
         if self.check_if_defined(self.additive_dict):
-            if (
-                self.additive_dict.enabled
-                and len(self.additive_dict.additiveModels) > 0
-            ):
+            if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:
                 string += self.additive()
         if len(self.damage_dict) > 0:
             string += self.damage()

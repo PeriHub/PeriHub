@@ -46,36 +46,16 @@ class CrackAnalysis:
             if block_id in damage_blocks:
                 block_ids = block_data[block_id][:, 0]
                 block_points = points[block_ids]
-                np_points_x = np.concatenate(
-                    [np_points_x, np.array(block_points[:, 0])]
-                )
-                np_points_y = np.concatenate(
-                    [np_points_y, np.array(block_points[:, 1])]
-                )
-                np_displ_x = np.concatenate(
-                    [np_displ_x, np.array(point_data["Displacement"][block_ids, 0])]
-                )
-                np_displ_y = np.concatenate(
-                    [np_displ_y, np.array(point_data["Displacement"][block_ids, 1])]
-                )
-                np_eps_x = np.concatenate(
-                    [np_eps_x, np.array(cell_data["Unrotated_StrainXX"][0][block_id])]
-                )
-                np_eps_y = np.concatenate(
-                    [np_eps_y, np.array(cell_data["Unrotated_StrainYY"][0][block_id])]
-                )
-                np_eps_xy = np.concatenate(
-                    [np_eps_xy, np.array(cell_data["Unrotated_StrainXY"][0][block_id])]
-                )
-                np_sig_x = np.concatenate(
-                    [np_sig_x, np.array(cell_data["Partial_StressXX"][0][block_id])]
-                )
-                np_sig_y = np.concatenate(
-                    [np_sig_y, np.array(cell_data["Partial_StressYY"][0][block_id])]
-                )
-                np_sig_xy = np.concatenate(
-                    [np_sig_xy, np.array(cell_data["Partial_StressXY"][0][block_id])]
-                )
+                np_points_x = np.concatenate([np_points_x, np.array(block_points[:, 0])])
+                np_points_y = np.concatenate([np_points_y, np.array(block_points[:, 1])])
+                np_displ_x = np.concatenate([np_displ_x, np.array(point_data["Displacement"][block_ids, 0])])
+                np_displ_y = np.concatenate([np_displ_y, np.array(point_data["Displacement"][block_ids, 1])])
+                np_eps_x = np.concatenate([np_eps_x, np.array(cell_data["Unrotated_StrainXX"][0][block_id])])
+                np_eps_y = np.concatenate([np_eps_y, np.array(cell_data["Unrotated_StrainYY"][0][block_id])])
+                np_eps_xy = np.concatenate([np_eps_xy, np.array(cell_data["Unrotated_StrainXY"][0][block_id])])
+                np_sig_x = np.concatenate([np_sig_x, np.array(cell_data["Partial_StressXX"][0][block_id])])
+                np_sig_y = np.concatenate([np_sig_y, np.array(cell_data["Partial_StressYY"][0][block_id])])
+                np_sig_xy = np.concatenate([np_sig_xy, np.array(cell_data["Partial_StressXY"][0][block_id])])
 
         np_points_z = np.empty_like(np_points_x)
         np_displ_z = np.empty_like(np_displ_x)
@@ -119,9 +99,7 @@ class CrackAnalysis:
         indexes = np.arange(1, len(np_points_x) + 1)
 
         # eps_eqv = (e11^2 + e12^2 - e11*e22 + 3*e12^2)^0.5
-        np_eps_eqv = np.sqrt(
-            np_eps_x**2 + np_eps_y**2 - np_eps_x * np_eps_y + 3 * np_eps_xy**2
-        )
+        np_eps_eqv = np.sqrt(np_eps_x**2 + np_eps_y**2 - np_eps_x * np_eps_y + 3 * np_eps_xy**2)
 
         nodemap_path = os.path.join(os.path.dirname(file), "nodemap.txt")
         np.savetxt(
@@ -163,7 +141,6 @@ class CrackAnalysis:
         nodemap_filename,
         nodemap_folder,
     ):
-
         # material properties
         material = Material(E=72000, nu_xy=0.33, sig_yield=350)
         material = Material(E=5000, nu_xy=0.34, sig_yield=276)

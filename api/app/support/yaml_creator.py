@@ -14,7 +14,6 @@ class YAMLcreator:
                     spaces = spl.split("<")
 
                     if len(part_string) > 3:
-
                         if "string" in part_string[3]:
                             if ">" in part_string[5]:
                                 temp_string = ">"
@@ -22,9 +21,7 @@ class YAMLcreator:
                                 temp_string = '"' + part_string[5] + '"'
                         else:
                             temp_string = part_string[5]
-                        string_yaml += (
-                            spaces[0] + part_string[1] + ": " + temp_string + "\n"
-                        )
+                        string_yaml += spaces[0] + part_string[1] + ": " + temp_string + "\n"
                     elif len(part_string) != 1:
                         string_yaml += spaces[0] + part_string[1] + ": \n"
 

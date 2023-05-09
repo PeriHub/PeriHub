@@ -6,7 +6,6 @@ from exodusreader.exodusreader import ExodusReader
 
 
 def get_global_data(file, variable, axis, absolute):
-
     (
         points,
         point_data,
@@ -42,9 +41,7 @@ def get_global_data(file, variable, axis, absolute):
 
 
 # resultpath = "/home/jt/perihub/api/app/Output/CompactTension/CompactTension_Output1.e"
-resultpath = (
-    "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev"
-)
+resultpath = "/mnt/c/Users/hess_ja/Desktop/DockerProjects/periHubVolumes/peridigmJobs/dev"
 
 model_name = "CompactTension"
 

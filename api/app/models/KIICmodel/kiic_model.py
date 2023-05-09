@@ -2,6 +2,7 @@
 doc
 """
 import numpy as np
+
 from support.base_models import (
     Adapt,
     Block,
@@ -303,12 +304,7 @@ class KIICmodel:
         )
 
         if len(x_value) > self.max_nodes:
-            return (
-                "The number of nodes ("
-                + str(len(x_value))
-                + ") is larger than the allowed "
-                + str(self.max_nodes)
-            )
+            return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(self.max_nodes)
 
         if self.ignore_mesh and self.block_def != "":
             writer = ModelWriter(model_class=self)

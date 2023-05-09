@@ -29,6 +29,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from gcodereader import gcodereader
+
 from models.CompactTension.compact_tension import CompactTension
 from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
@@ -45,16 +46,7 @@ from models.OwnModel.own_model import OwnModel
 from models.PlateWithHole.plate_with_hole import PlateWithHole
 from models.Smetana.smetana import Smetana
 from support.analysis import Analysis
-from support.base_models import (
-    FileType,
-    Jobs,
-    Material,
-    Model,
-    ModelData,
-    ResponseModel,
-    RunData,
-    Status,
-)
+from support.base_models import FileType, Jobs, Material, Model, ModelData, ResponseModel, RunData, Status
 from support.crack_analysis import CrackAnalysis
 from support.file_handler import FileHandler
 from support.globals import log
@@ -154,9 +146,7 @@ class ModelControl:
 
         max_nodes = FileHandler.get_max_nodes(username)
 
-        localpath = FileHandler.get_local_model_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
 
         if not os.path.exists(localpath):
             os.makedirs(localpath)
@@ -378,42 +368,23 @@ class ModelControl:
 
             elif model_name == "Dogbone":
                 dogbone = Dogbone(
-                    model_folder_name=model_folder_name,
-                    xend=length,
-                    height1=height,
-                    height2=height2,
-                    zend=width,
-                    dx_value=dx_value,
                     model_data=model_data,
+                    model_folder_name=model_folder_name,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
+                    dx_value=dx_value,
                 )
                 result = dogbone.create_model()
 
             elif model_name == "Kalthoff-Winkler":
                 kalthoff = KalthoffWinkler(
-                    model_folder_name=model_folder_name,
-                    xend=length,
-                    yend=height,
-                    zend=width,
-                    dx_value=dx_value,
                     model_data=model_data,
-                    two_d=model_data.model.twoDimensional,
-                    rot=model_data.model.rotatedAngles,
-                    angle=model_data.model.angles,
-                    material=model_data.materials,
-                    damage=model_data.damages,
-                    block=model_data.blocks,
-                    boundary_condition=model_data.boundaryConditions,
-                    contact=model_data.contact,
-                    bond_filter=model_data.bondFilters,
-                    compute=model_data.computes,
-                    output=model_data.outputs,
-                    solver=model_data.solver,
+                    model_folder_name=model_folder_name,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
+                    dx_value=dx_value,
                 )
                 result = kalthoff.create_model()
 
@@ -513,9 +484,7 @@ class ModelControl:
             )
             result = own.create_model()
 
-        log.info(
-            "%s has been created in %.2f seconds", model_name, time.time() - start_time
-        )
+        log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
 
         if result != "Model created":
             return ResponseModel(data=False, message=result)
@@ -526,17 +495,13 @@ class ModelControl:
         )
 
     @app.post("/translateModel", tags=["Post Methods"])
-    def translate_model(
-        model_name: str, model_folder_name: str, file_type: str, request: Request
-    ):
+    def translate_model(model_name: str, model_folder_name: str, file_type: str, request: Request):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
         start_time = time.time()
 
-        localpath = FileHandler.get_local_model_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
 
         inputformat = "'ansys (cdb)'"
         if file_type == "cdb":
@@ -576,9 +541,7 @@ class ModelControl:
 
         log.info("Copy mesh File")
         if (
-            FileHandler.copy_file_to_from_peridigm_container(
-                username, model_name, model_name + ".g.ascii", True
-            )
+            FileHandler.copy_file_to_from_peridigm_container(username, model_name, model_name + ".g.ascii", True)
             != "Success"
         ):
             log.error("%s can not be translated", model_name)
@@ -586,9 +549,7 @@ class ModelControl:
 
         log.info("Copy peridigm File")
         if (
-            FileHandler.copy_file_to_from_peridigm_container(
-                username, model_name, model_name + ".peridigm", True
-            )
+            FileHandler.copy_file_to_from_peridigm_container(username, model_name, model_name + ".peridigm", True)
             != "Success"
         ):
             log.error("%s can not be translated", model_name)
@@ -632,13 +593,9 @@ class ModelControl:
         ssh.close()
 
         log.info("Copy mesh File")
-        FileHandler.copy_file_to_from_peridigm_container(
-            username, model_name, model_name + ".g", False
-        )
+        FileHandler.copy_file_to_from_peridigm_container(username, model_name, model_name + ".g", False)
         log.info("Copy yaml File")
-        FileHandler.copy_file_to_from_peridigm_container(
-            username, model_name, model_name + ".yaml", False
-        )
+        FileHandler.copy_file_to_from_peridigm_container(username, model_name, model_name + ".yaml", False)
 
         log.info(
             "%s has been translated in %.2f seconds",
@@ -651,17 +608,13 @@ class ModelControl:
         )
 
     @app.post("/translateGcode", tags=["Post Methods"])
-    async def translate_gcode(
-        model_name: str, model_folder_name: str, discretization: float, request: Request
-    ):
+    async def translate_gcode(model_name: str, model_folder_name: str, discretization: float, request: Request):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
         start_time = time.time()
 
-        localpath = FileHandler.get_local_model_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
         output_path = FileHandler.get_local_user_path(username)
 
         gcodereader.GcodeReader.read(model_name, localpath, output_path, discretization)
@@ -686,9 +639,7 @@ class ModelControl:
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
-        localpath = FileHandler.get_local_model_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
 
         if not os.path.exists(localpath):
             os.makedirs(localpath)
@@ -715,12 +666,7 @@ class ModelControl:
         username = FileHandler.get_user_name(request, dev)
 
         with open(
-            "./Output/"
-            + os.path.join(username, model_name, model_folder_name)
-            + "/"
-            + model_name
-            + "."
-            + file_type,
+            "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + "." + file_type,
             "w",
             encoding="UTF-8",
         ) as file:
@@ -743,9 +689,7 @@ class ModelControl:
         """doc"""
         username = FileHandler.get_user_name(request, dev)
         usermail = FileHandler.get_user_mail(request)
-        localpath = FileHandler.get_local_model_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
 
         material = model_data.materials
 
@@ -756,9 +700,7 @@ class ModelControl:
                 break
 
         cluster = model_data.job.cluster
-        return_string = FileHandler.copy_model_to_cluster(
-            username, model_name, model_folder_name, cluster
-        )
+        return_string = FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster)
 
         if return_string != "Success":
             raise HTTPException(
@@ -766,9 +708,7 @@ class ModelControl:
                 detail=return_string,
             )
         if user_mat:
-            return_string = FileHandler.copy_lib_to_cluster(
-                username, model_name, model_folder_name, cluster
-            )
+            return_string = FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster)
             if return_string != "Success":
                 raise HTTPException(
                     status_code=404,
@@ -776,9 +716,7 @@ class ModelControl:
                 )
 
         if cluster == "FA-Cluster":
-            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
             ssh = FileHandler.ssh_to_cluster("FA-Cluster")
             command = (
                 "cd "
@@ -809,9 +747,7 @@ class ModelControl:
                 usermail=usermail,
             )
             sbatch_string = sbatch.create_sbatch()
-            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
             ssh, sftp = FileHandler.sftp_to_cluster("Cara")
             file = sftp.file(remotepath + "/" + model_name + ".sbatch", "w", -1)
             file.write(sbatch_string)
@@ -852,9 +788,7 @@ class ModelControl:
 
         elif cluster == "None":
             server = "perihub_peridigm"
-            remotepath = "/peridigmJobs/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "/peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
             if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
                 log.warning("%s already submitted", model_name)
                 return model_name + " already submitted"
@@ -923,9 +857,7 @@ class ModelControl:
 
         if cluster == "None":
             server = "perihub_peridigm"
-            remotepath = "/peridigmJobs/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "/peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             try:
@@ -952,9 +884,7 @@ class ModelControl:
             log.info("Job has been canceled")
             return ResponseModel(data=True, message="Job has been canceled")
 
-        remotepath = FileHandler.get_remote_model_path(
-            username, model_name, model_folder_name
-        )
+        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         # try:
         #     output_files = sftp.listdir(remotepath)
@@ -975,17 +905,11 @@ class ModelControl:
 
         return ResponseModel(
             data=True,
-            message="Job: "
-            + model_name
-            + "_"
-            + model_folder_name
-            + " has been canceled",
+            message="Job: " + model_name + "_" + model_folder_name + " has been canceled",
         )
 
     @app.get("/generateMesh", tags=["Get Methods"])
-    def generate_mesh(
-        model_name: str, model_folder_name: str, param: str, request: Request
-    ):
+    def generate_mesh(model_name: str, model_folder_name: str, param: str, request: Request):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
@@ -998,9 +922,7 @@ class ModelControl:
         )
         try:
             with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
-                localpath = "./Output/" + os.path.join(
-                    username, model_name, model_folder_name
-                )
+                localpath = "./Output/" + os.path.join(username, model_name, model_folder_name)
 
                 if not os.path.exists(localpath):
                     os.makedirs(localpath)
@@ -1061,9 +983,7 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        resultpath = "./Results/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
         # try:
@@ -1125,9 +1045,7 @@ class ModelControl:
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-        filepath = ImageExport.get_plot_image_from_exodus(
-            file, x_variable, x_axis, y_variable, y_axis
-        )
+        filepath = ImageExport.get_plot_image_from_exodus(file, x_variable, x_axis, y_variable, y_axis)
 
         try:
             return FileResponse(filepath)
@@ -1158,9 +1076,7 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        resultpath = "./Results/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
         file_name, filepath = CrackAnalysis.write_nodemap(file)
@@ -1214,9 +1130,7 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        resultpath = "./Results/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
         filepath = VideoExport.get_gif_from_exodus(
@@ -1265,9 +1179,7 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        resultpath = "./Results/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
         filepath = VideoExport.get_triangulated_mesh_from_exodus(
@@ -1302,9 +1214,7 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        filepath = Analysis.get_result_file(
-            username, model_name, model_folder_name, output
-        )
+        filepath = Analysis.get_result_file(username, model_name, model_folder_name, output)
         # print(crack_length)
         # response = [[0, 1, 2, 3], [0, 2, 3, 5]]
 
@@ -1333,9 +1243,7 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        resultpath = "./Results/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
         global_data = Analysis.get_global_data(file, variable, axis)
@@ -1426,14 +1334,10 @@ class ModelControl:
         # usermail = FileHandler.get_user_mail(request)
 
         if cluster == "None":
-            remotepath = "./peridigmJobs/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
             try:
                 output_files = os.listdir(remotepath)
-                filtered_values = list(
-                    filter(lambda v: match(r"^.+\.log$", v), output_files)
-                )
+                filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
             except IOError:
                 log.error("LogFile can not be found in %s", remotepath)
 
@@ -1459,9 +1363,7 @@ class ModelControl:
 
         # if cluster == "FA-Cluster":
 
-        remotepath = FileHandler.get_remote_model_path(
-            username, model_name, model_folder_name
-        )
+        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
 
         # elif cluster == "Cara":
         #     remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
@@ -1478,9 +1380,7 @@ class ModelControl:
 
         try:
             output_files = sftp.listdir(remotepath)
-            filtered_values = list(
-                filter(lambda v: match(r"^.+\.log$", v), output_files)
-            )
+            filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
         except paramiko.SFTPError:
             log.error("LogFile can not be found in %s", remotepath)
             raise HTTPException(
@@ -1518,14 +1418,10 @@ class ModelControl:
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
-        folder_path = os.path.join(
-            FileHandler.get_local_user_path(username), model_name
-        )
+        folder_path = os.path.join(FileHandler.get_local_user_path(username), model_name)
         zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
         try:
-            shutil.make_archive(
-                zip_file, "zip", os.path.join(folder_path, model_folder_name)
-            )
+            shutil.make_archive(zip_file, "zip", os.path.join(folder_path, model_folder_name))
 
             response = FileResponse(
                 zip_file + ".zip",
@@ -1563,9 +1459,7 @@ class ModelControl:
         ):
             raise IOError  # NotFoundException(name=model_name)
 
-        resultpath = "./Results/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
         x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
@@ -1607,15 +1501,11 @@ class ModelControl:
                     for i in range(0, 3):
                         coords[i] = coords[i][8:].replace(" ", "").split(",")
                     for i in range(0, num_of_blocks):
-                        nodes[i] = (
-                            nodes[i * 2][8:].replace(" ", "").split("=")[1].split(",")
-                        )
+                        nodes[i] = nodes[i * 2][8:].replace(" ", "").split("=")[1].split(",")
                         for node in nodes[i]:
                             block_id[int(node) - 1] = i + 1
                     for i in range(0, len(coords[0])):
-                        point_string += (
-                            coords[0][i] + "," + coords[1][i] + "," + coords[2][i] + ","
-                        )
+                        point_string += coords[0][i] + "," + coords[1][i] + "," + coords[2][i] + ","
                         block_id_string += str(block_id[i] / num_of_blocks) + ","
 
                 response = [
@@ -1631,19 +1521,10 @@ class ModelControl:
             max_block_id = 1
             try:
                 if own_model:
-                    mesh_path = (
-                        "./Output/"
-                        + os.path.join(username, model_name, model_folder_name)
-                        + "/"
-                        + mesh_file
-                    )
+                    mesh_path = "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + mesh_file
                 else:
                     mesh_path = (
-                        "./Output/"
-                        + os.path.join(username, model_name, model_folder_name)
-                        + "/"
-                        + model_name
-                        + ".txt"
+                        "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".txt"
                     )
 
                 with open(
@@ -1657,9 +1538,7 @@ class ModelControl:
                         if not first_row:
                             str1 = "".join(row)
                             parts = str1.split()
-                            point_string += (
-                                parts[0] + "," + parts[1] + "," + parts[2] + ","
-                            )
+                            point_string += parts[0] + "," + parts[1] + "," + parts[2] + ","
                             if int(parts[3]) > max_block_id:
                                 max_block_id = int(parts[3])
                         first_row = False
@@ -1706,9 +1585,7 @@ class ModelControl:
         zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
 
         try:
-            shutil.make_archive(
-                zip_file, "zip", os.path.join(folder_path, model_folder_name)
-            )
+            shutil.make_archive(zip_file, "zip", os.path.join(folder_path, model_folder_name))
 
             response = FileResponse(
                 zip_file + ".zip",
@@ -1759,9 +1636,7 @@ class ModelControl:
                         {},
                     )
 
-                    remotepath = "./peridigmJobs/" + os.path.join(
-                        username, model_name, model_folder_name
-                    )
+                    remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
                     if os.path.exists(os.path.join(remotepath)):
                         job.cluster = "None"
                         if os.path.exists(os.path.join(remotepath, "pid.txt")):
@@ -1789,9 +1664,7 @@ class ModelControl:
                             {},
                         )
 
-                    remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
-                        username, model_name, model_folder_name
-                    )
+                    remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
                     if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
                         job.cluster = "Cara"
@@ -1807,9 +1680,7 @@ class ModelControl:
                         # except IOError:
                         #     pass
 
-                        job.submitted = FileHandler.cara_job_running(
-                            remotepath, model_name, model_folder_name
-                        )
+                        job.submitted = FileHandler.cara_job_running(remotepath, model_name, model_folder_name)
 
                         # print(job.cluster)
                         jobs.append(job)
@@ -1833,13 +1704,9 @@ class ModelControl:
         status = Status(False, False, False)
 
         if own_mesh:
-            localpath = "./peridigmJobs/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            localpath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
         else:
-            localpath = "./Output/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            localpath = "./Output/" + os.path.join(username, model_name, model_folder_name)
 
         log.info("localpath: %s", localpath)
 
@@ -1847,9 +1714,7 @@ class ModelControl:
             status.created = True
 
         if cluster == "None":
-            remotepath = "./peridigmJobs/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
             if os.path.exists(os.path.join(remotepath, "pid.txt")):
                 status.submitted = True
             if os.path.exists(remotepath):
@@ -1858,9 +1723,7 @@ class ModelControl:
                         status.results = True
 
         elif cluster == "Cara":
-            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
             try:
@@ -1874,9 +1737,7 @@ class ModelControl:
 
             sftp.close()
             ssh.close()
-            status.submitted = FileHandler.cara_job_running(
-                remotepath, model_name, model_folder_name
-            )
+            status.submitted = FileHandler.cara_job_running(remotepath, model_name, model_folder_name)
 
         return ResponseModel(data=status, message="Status received")
 
@@ -1902,12 +1763,7 @@ class ModelControl:
             )
         else:
             file_path = (
-                "./Output/"
-                + os.path.join(username, model_name, model_folder_name)
-                + "/"
-                + model_name
-                + "."
-                + file_type
+                "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + "." + file_type
             )
         if not os.path.exists(file_path):
             log.error("Inputfile can't be found")
@@ -1935,9 +1791,7 @@ class ModelControl:
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
-        localpath = FileHandler.get_local_model_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
         if os.path.exists(localpath):
             shutil.rmtree(localpath)
         log.info("%s has been deleted", model_name)
@@ -1954,23 +1808,17 @@ class ModelControl:
         username = FileHandler.get_user_name(request, dev)
 
         if cluster == "None":
-            remotepath = "./peridigmJobs/" + os.path.join(
-                username, model_name + model_folder_name
-            )
+            remotepath = "./peridigmJobs/" + os.path.join(username, model_name + model_folder_name)
             if os.path.exists(remotepath):
                 shutil.rmtree(remotepath)
             log.info("%s has been deleted", model_name)
             return ResponseModel(data=True, message=model_name + " has been deleted")
 
         if cluster == "FA-Cluster":
-            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
         elif cluster == "Cara":
-            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
         else:
             log.info("%s unknown", cluster)
@@ -2008,9 +1856,7 @@ class ModelControl:
         if os.path.exists(localpath):
             shutil.rmtree(localpath)
         log.info("Data of %s has been deleted", username)
-        return ResponseModel(
-            data=True, message="Data of " + username + " has been deleted"
-        )
+        return ResponseModel(data=True, message="Data of " + username + " has been deleted")
 
     @app.delete("/deleteUserDataFromCluster", tags=["Delete Methods"])
     def delete_user_data_from_cluster(
@@ -2030,17 +1876,13 @@ class ModelControl:
 
                 ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
-                names = FileHandler.remove_folder_if_older_sftp(
-                    sftp, remotepath, days, True
-                )
+                names = FileHandler.remove_folder_if_older_sftp(sftp, remotepath, days, True)
 
                 sftp.close()
                 ssh.close()
 
             log.info("Data of %s has been deleted", names)
-            return ResponseModel(
-                data=True, message="Data of " + names + " has been deleted"
-            )
+            return ResponseModel(data=True, message="Data of " + names + " has been deleted")
 
         username = FileHandler.get_user_name(request, dev)
 
@@ -2049,9 +1891,7 @@ class ModelControl:
             if os.path.exists(remotepath):
                 shutil.rmtree(remotepath)
             log.info("Data of %s has been deleted", username)
-            return ResponseModel(
-                data=True, message="Data of " + username + " has been deleted"
-            )
+            return ResponseModel(data=True, message="Data of " + username + " has been deleted")
 
         remotepath = FileHandler.get_remote_user_path(username)
 
@@ -2063,9 +1903,7 @@ class ModelControl:
         ssh.close()
 
         log.info("Data of %s has been deleted", username)
-        return ResponseModel(
-            data=True, message="Data of " + username + " has been deleted"
-        )
+        return ResponseModel(data=True, message="Data of " + username + " has been deleted")
 
     @app.get("/getDocs", tags=["Documentation Methods"])
     def get_docs(name: str = "Introduction"):

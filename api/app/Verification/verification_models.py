@@ -2,6 +2,7 @@
 doc
 """
 import numpy as np
+
 from support.geometry import Geometry
 from support.material import MaterialRoutines
 
@@ -61,13 +62,9 @@ class VerificationModels:
             i += 1
         params = [270000, 7e10, 0.3, 0, 0]
         mat = MaterialRoutines()
-        self.material_dict[0]["Parameter"] = mat.stiffness_matrix(
-            mat_type="isotropic", mat_param=params
-        )
+        self.material_dict[0]["Parameter"] = mat.stiffness_matrix(mat_type="isotropic", mat_param=params)
         params = [270000, 2.1e11, 0.3, 0, 0]
-        self.material_dict[1]["Parameter"] = mat.stiffness_matrix(
-            mat_type="isotropic", mat_param=params
-        )
+        self.material_dict[1]["Parameter"] = mat.stiffness_matrix(mat_type="isotropic", mat_param=params)
         self.angle = [0, 0]
         params = [
             195000,  # dens
@@ -93,9 +90,7 @@ class VerificationModels:
             0.0,  # C56
             4200e6,
         ]  # C66
-        self.material_dict[2]["Parameter"] = mat.stiffness_matrix(
-            mat_type="anisotropic", mat_param=params
-        )
+        self.material_dict[2]["Parameter"] = mat.stiffness_matrix(mat_type="anisotropic", mat_param=params)
         self.bc_dict = [
             {
                 "name": "BC_1",
@@ -156,7 +151,6 @@ class VerificationModels:
         }
 
     def create_verification_models(self):
-
         self.dx_value[1] = self.avoid_middle_node(self.height, self.dx_value[1])
         self.dx_value[0] = self.dx_value[1]
         self.dx_value[2] = self.dx_value[1]
@@ -194,9 +188,7 @@ class VerificationModels:
             "isoMatTwo",
             "isoMatOne",
         ]
-        self.call_modelbuilder(
-            two_d=True, angle=[0, 0], filename="twoLayerIsoTension2D"
-        )
+        self.call_modelbuilder(two_d=True, angle=[0, 0], filename="twoLayerIsoTension2D")
         self.bc_dict.append(
             {
                 "name": "BC_7",
@@ -206,9 +198,7 @@ class VerificationModels:
                 "value": "0",
             }
         )
-        self.call_modelbuilder(
-            two_d=False, angle=[0, 0], filename="twoLayerIsoTension3D"
-        )
+        self.call_modelbuilder(two_d=False, angle=[0, 0], filename="twoLayerIsoTension3D")
         self.bc_dict[0]["coordinate"] = "y"
         self.bc_dict[1]["coordinate"] = "y"
         self.mat_block = [
@@ -242,9 +232,7 @@ class VerificationModels:
             "isoMatOne",
         ]
         del self.bc_dict[-1]
-        self.call_modelbuilder(
-            two_d=True, angle=[0, 0], filename="twoLayerIsoBending2D"
-        )
+        self.call_modelbuilder(two_d=True, angle=[0, 0], filename="twoLayerIsoBending2D")
         self.bc_dict.append(
             {
                 "name": "BC_7",
@@ -254,9 +242,7 @@ class VerificationModels:
                 "value": "0",
             }
         )
-        self.call_modelbuilder(
-            two_d=False, angle=[0, 0], filename="twoLayerIsoBending3D"
-        )
+        self.call_modelbuilder(two_d=False, angle=[0, 0], filename="twoLayerIsoBending3D")
         self.mat_block = [
             "anisoMat",
             "anisoMat",
@@ -394,7 +380,6 @@ class VerificationModels:
         return k
 
     def create_angles(self, y_value, angle):
-
         if y_value < self.height / 2:
             angle_y = angle[0]
         else:
@@ -440,7 +425,6 @@ class VerificationModels:
             angle_y = np.zeros(len(x_value))
             angle_z = np.zeros(len(x_value))
         for idx in enumerate(x_value):
-
             k[idx] = self.create_blocks(x_value[idx], y_value[idx], k[idx])
 
             if rot:
@@ -500,7 +484,6 @@ class VerificationModels:
         return block_def
 
     def write_file(self, writer, model):
-
         if self.block_def == "":
             block_def = self.create_blockdef(model)
         else:

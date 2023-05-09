@@ -5,7 +5,7 @@
             :options="cluster"
             v-model="job.cluster"
             label="Cluster"
-            @change="changeToXml(); changeNumberOfTasks();"
+            @change="changeNumberOfTasks();"
             standout
             dense
         ></q-select>
@@ -103,19 +103,8 @@
             };
         },
         methods: {
-            changeToXml() {
-                if (this.job.cluster == "FA-Cluster") {
-                    this.solver.filetype = "xml";
-                } else {
-                    this.solver.filetype = "yaml";
-                }
-            },
             changeNumberOfTasks() {
-                if (this.job.cluster == "FA-Cluster") {
-                    if (this.job.tasks > 32) {
-                    this.job.tasks = 32;
-                    }
-                } else if (this.job.cluster == "None") {
+                if (this.job.cluster == "None") {
                     this.job.tasks = 1;
                 }
             },

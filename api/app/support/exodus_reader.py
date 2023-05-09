@@ -111,7 +111,6 @@ class ExodusReader:
         return single, double, triple
 
     def read_timestep(file, timestep):
-
         with netCDF4.Dataset(file) as nc:
             # assert nc.version == np.float32(5.1)
             # assert nc.api_version == np.float32(5.1)
@@ -150,9 +149,7 @@ class ExodusReader:
                     for val in value:
                         info += [b"".join(c).decode("UTF-8") for c in val[:]]
                 elif key[:7] == "connect":
-                    meshio_type = ExodusReader.exodus_to_meshio_type[
-                        value.elem_type.upper()
-                    ]
+                    meshio_type = ExodusReader.exodus_to_meshio_type[value.elem_type.upper()]
                     cells.append((meshio_type, value[:] - 1))
                 elif key == "time_whole":
                     time = value[timestep]
@@ -259,9 +256,7 @@ class ExodusReader:
         )
 
     def read(file):
-
         with netCDF4.Dataset(file) as nc:
-
             points = np.zeros((len(nc.dimensions["num_nodes"]), 3))
             time = []
             point_data_names = []
@@ -291,9 +286,7 @@ class ExodusReader:
                     for val in value:
                         info += [b"".join(c).decode("UTF-8") for c in val[:]]
                 elif key[:7] == "connect":
-                    meshio_type = ExodusReader.exodus_to_meshio_type[
-                        value.elem_type.upper()
-                    ]
+                    meshio_type = ExodusReader.exodus_to_meshio_type[value.elem_type.upper()]
                     cells.append((meshio_type, value[:] - 1))
                 elif key == "time_whole":
                     time = value[:]
@@ -384,9 +377,7 @@ class ExodusReader:
             for name, idx0, idx1 in double:
                 global_data[name] = np.column_stack([gd[:, idx0], gd[:, idx1]])
             for name, idx0, idx1, idx2 in triple:
-                global_data[name] = np.column_stack(
-                    [gd[:, idx0], gd[:, idx1], gd[:, idx2]]
-                )
+                global_data[name] = np.column_stack([gd[:, idx0], gd[:, idx1], gd[:, idx2]])
 
             cell_data = {}
             block_data = []
@@ -414,9 +405,7 @@ class ExodusReader:
         )
 
     def get_number_of_steps(file):
-
         with netCDF4.Dataset(file) as nc:
-
             time = []
 
             for key, value in nc.variables.items():

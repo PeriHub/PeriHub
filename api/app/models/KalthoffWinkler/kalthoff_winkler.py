@@ -2,6 +2,7 @@
 doc
 """
 import numpy as np
+
 from support.base_models import (
     Adapt,
     Block,
@@ -22,201 +23,15 @@ from support.model_writer import ModelWriter
 
 
 class KalthoffWinkler:
-    bc1 = BoundaryCondition(
-        conditionsId=1,
-        name="BC_1",
-        NodeSets=None,
-        boundarytype="Prescribed Displacement",
-        blockId=2,
-        coordinate="x",
-        value="0*t",
-    )
-    bc2 = BoundaryCondition(
-        conditionsId=2,
-        name="BC_2",
-        NodeSets=None,
-        boundarytype="Prescribed Displacement",
-        blockId=3,
-        coordinate="x",
-        value="0*t",
-    )
-    bc3 = BoundaryCondition(
-        conditionsId=3,
-        name="BC_3",
-        NodeSets=None,
-        boundarytype="Prescribed Displacement",
-        blockId=4,
-        coordinate="x",
-        value="10*t",
-    )
-    mat_dict = Material(
-        id=1,
-        name="PMMA",
-        matType="Elastic Bond Based",
-        density=8.0e-6,
-        bulkModulus=1.2666666666666667e5,
-        shearModulus=None,
-        youngsModulus=None,
-        poissonsRatio=None,
-        tensionSeparation=False,
-        nonLinear=True,
-        planeStress=True,
-        materialSymmetry="Isotropic",
-        stabilizatonType="Global Stiffness",
-        thickness=10.0,
-        hourglassCoefficient=1.0,
-        actualHorizon=None,
-        yieldStress=None,
-        Parameter=None,
-        properties=None,
-        useCollocationNodes=True,
-    )
-
-    damage_dict = Damage(
-        id=1,
-        name="PMMADamage",
-        damageModel="Critical Stretch",
-        criticalStretch=0.012358773175687088,
-        criticalEnergy=0.0022170,
-        interblockdamageEnergy=0.01,
-        planeStress=True,
-        onlyTension=False,
-        detachedNodesCheck=True,
-        thickness=10,
-        hourglassCoefficient=1.0,
-        stabilizatonType="Global Stiffness",
-    )
-
-    bf1 = BondFilters(
-        id=1,
-        name="bf_1",
-        type="Rectangular_Plane",
-        normalX=0.0,
-        normalY=1.0,
-        normalZ=0.0,
-        lowerLeftCornerX=-0.5,
-        lowerLeftCornerY=25.125,
-        lowerLeftCornerZ=-0.5,
-        bottomUnitVectorX=1.0,
-        bottomUnitVectorY=0.0,
-        bottomUnitVectorZ=0.0,
-        bottomLength=50.5,
-        sideLength=1.0,
-        centerX=0.0,
-        centerY=1.0,
-        centerZ=0.0,
-        radius=1.0,
-        show=True,
-    )
-    bf2 = BondFilters(
-        id=1,
-        name="bf_2",
-        type="Rectangular_Plane",
-        normalX=0.0,
-        normalY=1.0,
-        normalZ=0.0,
-        lowerLeftCornerX=-0.5,
-        lowerLeftCornerY=-25.125,
-        lowerLeftCornerZ=-0.5,
-        bottomUnitVectorX=1.0,
-        bottomUnitVectorY=0.0,
-        bottomUnitVectorZ=0.0,
-        bottomLength=50.5,
-        sideLength=1.0,
-        centerX=0.0,
-        centerY=1.0,
-        centerZ=0.0,
-        radius=1.0,
-        show=True,
-    )
-
-    compute_dict1 = Compute(
-        id=1,
-        computeClass="Block_Data",
-        name="External_Displacement",
-        variable="Displacement",
-        calculationType="Minimum",
-        blockName="block_3",
-    )
-    compute_dict2 = Compute(
-        id=2,
-        computeClass="Block_Data",
-        name="External_Force",
-        variable="Force",
-        calculationType="Sum",
-        blockName="block_3",
-    )
-
-    output_dict1 = Output(
-        id=1,
-        name="Output1",
-        Displacement=True,
-        Force=True,
-        Damage=True,
-        Velocity=True,
-        Partial_Stress=False,
-        Number_Of_Neighbors=True,
-        Frequency=1,
-        InitStep=0,
-    )
-    solver_dict = Solver(
-        verbose=False,
-        initialTime=0.0,
-        finalTime=0.03,
-        fixedDt=None,
-        solvertype="Verlet",
-        safetyFactor=0.95,
-        numericalDamping=0.000005,
-        peridgimPreconditioner="None",
-        nonlinearSolver="Line Search Based",
-        numberOfLoadSteps=100,
-        maxSolverIterations=50,
-        relativeTolerance=1e-8,
-        maxAgeOfPrec=100,
-        directionMethod="Newton",
-        newton=Newton(),
-        lineSearchMethod="Polynomial",
-        verletSwitch=False,
-        verlet=Verlet(),
-        stopAfterDamageInitation=False,
-        stopBeforeDamageInitation=False,
-        adaptivetimeStepping=False,
-        adapt=Adapt(),
-        filetype="yaml",
-    )
-
-    contact_dict = Contact(
-        enabled=False,
-        searchRadius=0,
-        searchFrequency=0,
-        contactModels=None,
-        interactions=None,
-    )
-
     def __init__(
         self,
-        xend=100,
-        yend=100,
-        zend=0.003,
-        dx_value=[0.25, 0.25, 0.25],
+        model_data,
         filename="Kalthoff-Winkler",
         model_folder_name="",
-        model_data=None,
-        two_d=False,
-        rot=False,
-        angle=[0, 0],
-        material=[mat_dict],
-        damage=[damage_dict],
-        block=None,
-        contact=contact_dict,
-        boundary_condition=BoundaryConditions(conditions=[bc1, bc2, bc3]),
-        bond_filter=[bf1, bf2],
-        compute=[compute_dict1, compute_dict2],
-        output=[output_dict1],
-        solver=solver_dict,
         username="",
         max_nodes=10000000,
         ignore_mesh=False,
+        dx_value=[0.25, 0.25, 0.25],
     ):
         """
         definition der blocks
@@ -232,23 +47,23 @@ class KalthoffWinkler:
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None
-        self.two_d = two_d
+        self.two_d = model_data.model.twoDimensional
         self.ns_list = [3, 4]
         if not dx_value:
             dx_value = [0.001, 0.001, 0.001]
         self.dx_value = dx_value
-        if not angle:
+        if not model_data.model.angles:
             angle = [0, 0]
-        self.angle = angle
+        self.angle = model_data.model.angles
         self.xbegin = 0.0
-        self.ybegin = -yend / 2
-        self.xend = xend + dx_value[0]
-        self.yend = yend / 2 + dx_value[1]
+        self.ybegin = -model_data.model.height / 2
+        self.xend = model_data.model.length + dx_value[0]
+        self.yend = model_data.model.height / 2 + dx_value[1]
         # self.xend = xend
         # self.yend = yend/2
         # self.zend = zend
-        self.rot = rot
-        self.block_def = block
+        self.rot = model_data.model.rotatedAngles
+        self.block_def = model_data.blocks
         self.username = username
         self.max_nodes = max_nodes
         self.ignore_mesh = ignore_mesh
@@ -257,32 +72,23 @@ class KalthoffWinkler:
             self.zend = 0
             self.dx_value[2] = 1
         else:
-            self.zbegin = -zend
-            self.zend = zend + dx_value[2]
+            self.zbegin = -model_data.model.width
+            self.zend = model_data.model.width + dx_value[2]
 
         number_of_blocks = 4
 
         """ Definition of model
         """
-        self.damage_dict = damage
-        self.block_def = block
-        self.compute_dict = compute
-        self.output_dict = output
-        self.material_dict = material
-        self.bondfilters = bond_filter
-        self.contact_dict = contact
-        self.bc_dict = boundary_condition
-        self.solver_dict = solver
         self.model_data = model_data
 
         self.dam_block = [""] * number_of_blocks
-        self.dam_block[0] = self.damage_dict[0].name
-        self.dam_block[1] = self.damage_dict[0].name
-        self.dam_block[2] = self.damage_dict[0].name
-        self.dam_block[3] = self.damage_dict[0].name
+        self.dam_block[0] = self.model_data.damages[0].name
+        self.dam_block[1] = self.model_data.damages[0].name
+        self.dam_block[2] = self.model_data.damages[0].name
+        self.dam_block[3] = self.model_data.damages[0].name
 
         self.int_block_id = [""] * number_of_blocks
-        self.mat_block = [self.material_dict[0].name] * number_of_blocks
+        self.mat_block = [self.model_data.materials[0].name] * number_of_blocks
 
     def create_boundary_condition_block(self, x_value, y_value, k):
         k = np.where(
@@ -339,12 +145,7 @@ class KalthoffWinkler:
         )
 
         if len(x_value) > self.max_nodes:
-            return (
-                "The number of nodes ("
-                + str(len(x_value))
-                + ") is larger than the allowed "
-                + str(self.max_nodes)
-            )
+            return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(self.max_nodes)
 
         if self.ignore_mesh and self.block_def != "":
             writer = ModelWriter(model_class=self)

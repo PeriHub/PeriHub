@@ -16,6 +16,7 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
+
 from support.globals import log
 
 
@@ -107,7 +108,6 @@ class CrackLength:
 
     @staticmethod
     def getCrackLength(username, model_name, output, frequency):
-
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
         print(file)
@@ -235,9 +235,7 @@ class CrackLength:
             # plt.savefig("test.png")
 
             # arc_length = arclength(X[:, 0], regr.predict(X_poly)[:, 0], 0, 100)
-            arc_length = CrackLength.arclength(
-                np.array(x), np.array(regr.predict(x_poly)), 0, 100
-            )
+            arc_length = CrackLength.arclength(np.array(x), np.array(regr.predict(x_poly)), 0, 100)
             print(arc_length)
             Crack_length.append(arc_length)
 
@@ -254,7 +252,6 @@ class CrackLength:
 
     @staticmethod
     def calculate_k1(P, B, W, a):
-
         k1 = (
             P
             / B

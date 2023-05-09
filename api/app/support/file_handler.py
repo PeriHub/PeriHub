@@ -9,6 +9,7 @@ import time
 
 import jwt
 import paramiko
+
 from support.globals import log
 
 allowed_max_nodes = {
@@ -32,9 +33,7 @@ class FileHandler:
     def get_local_model_path(username, model_name, model_folder_name):
         """doc"""
 
-        return os.path.join(
-            FileHandler.get_local_user_path(username), model_name, model_folder_name
-        )
+        return os.path.join(FileHandler.get_local_user_path(username), model_name, model_folder_name)
 
     @staticmethod
     def get_remote_path():
@@ -52,9 +51,7 @@ class FileHandler:
     def get_remote_model_path(username, model_name, model_folder_name):
         """doc"""
 
-        return os.path.join(
-            FileHandler.get_remote_user_path(username), model_name, model_folder_name
-        )
+        return os.path.join(FileHandler.get_remote_user_path(username), model_name, model_folder_name)
 
     @staticmethod
     def _get_remote_umat_path(cluster):
@@ -135,10 +132,7 @@ class FileHandler:
                 shutil.rmtree(folder_path)
             elif recursive:
                 for subfoldername in os.listdir(folder_path):
-                    if (
-                        os.path.getmtime(os.path.join(folder_path, subfoldername))
-                        < now - days * 86400
-                    ):
+                    if os.path.getmtime(os.path.join(folder_path, subfoldername)) < now - days * 86400:
                         names.append(os.path.join(foldername, subfoldername))
                         shutil.rmtree(os.path.join(folder_path, subfoldername))
         return names
@@ -157,10 +151,7 @@ class FileHandler:
                 names.append(foldername)
             elif recursive:
                 for subfoldername in sftp.listdir(folder_path):
-                    if (
-                        os.path.getmtime(os.path.join(folder_path, subfoldername))
-                        < now - days * 86400
-                    ):
+                    if os.path.getmtime(os.path.join(folder_path, subfoldername)) < now - days * 86400:
                         names.append(os.path.join(folder_path, subfoldername))
                         FileHandler.remove_all_folder_sftp(
                             sftp,
@@ -175,13 +166,9 @@ class FileHandler:
 
         for filename in sftp.listdir(remotepath):
             for sub_filename in sftp.listdir(os.path.join(remotepath, filename)):
-                for sub_sub_file_name in sftp.listdir(
-                    os.path.join(remotepath, sub_filename)
-                ):
+                for sub_sub_file_name in sftp.listdir(os.path.join(remotepath, sub_filename)):
                     if recursive:
-                        for sub_sub_sub_file_name in sftp.listdir(
-                            os.path.join(remotepath, sub_sub_file_name)
-                        ):
+                        for sub_sub_sub_file_name in sftp.listdir(os.path.join(remotepath, sub_sub_file_name)):
                             sftp.remove(os.path.join(remotepath, sub_sub_sub_file_name))
                     sftp.remove(os.path.join(remotepath, sub_sub_file_name))
                 sftp.remove(os.path.join(remotepath, sub_filename))
@@ -204,12 +191,8 @@ class FileHandler:
         """doc"""
 
         if cluster == "None":
-            localpath = "./Output/" + os.path.join(
-                username, model_name, model_folder_name
-            )
-            remotepath = "./peridigmJobs/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            localpath = "./Output/" + os.path.join(username, model_name, model_folder_name)
+            remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
             if not os.path.exists(remotepath):
                 os.makedirs(remotepath)
                 # os.chown(remotepath, 'test')
@@ -225,23 +208,15 @@ class FileHandler:
                 for name in files:
                     if name.split(".")[-1] == "yaml":
                         input_exist = True
-                    if (
-                        name.split(".")[-1] == "txt"
-                        or name.split(".")[-1] == "e"
-                        or name.split(".")[-1] == "g"
-                    ):
+                    if name.split(".")[-1] == "txt" or name.split(".")[-1] == "e" or name.split(".")[-1] == "g":
                         mesh_exist = True
 
                 if not input_exist:
-                    log.warning(
-                        "Inputfile of " + model_name + " has not been created yet"
-                    )
+                    log.warning("Inputfile of " + model_name + " has not been created yet")
                     return "Inputfile of " + model_name + " has not been created yet"
 
                 if not mesh_exist:
-                    log.warning(
-                        "Meshfile of " + model_name + " has not been created yet"
-                    )
+                    log.warning("Meshfile of " + model_name + " has not been created yet")
                     return "Meshfile of " + model_name + " has not been created yet"
 
                 for name in files:
@@ -253,12 +228,8 @@ class FileHandler:
                     # os.chown(os.path.join(remotepath,name), 'test')
             return "Success"
 
-        localpath = FileHandler.get_local_model_path(
-            username, model_name, model_folder_name
-        )
-        remotepath = FileHandler.get_remote_model_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         userpath = FileHandler._get_user_path(username)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
@@ -315,9 +286,7 @@ class FileHandler:
     def copy_lib_to_cluster(username, model_name, model_folder_name, cluster):
         """doc"""
 
-        localpath = FileHandler.get_local_model_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
         remotepath = FileHandler._get_remote_umat_path(cluster)
         try:
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -348,17 +317,11 @@ class FileHandler:
         return "Shared libray can not been found"
 
     @staticmethod
-    def copy_file_to_from_peridigm_container(
-        username, model_name, model_folder_name, file_name, to_or_from
-    ):
+    def copy_file_to_from_peridigm_container(username, model_name, model_folder_name, file_name, to_or_from):
         """doc"""
 
-        localpath = FileHandler.get_local_model_path(
-            username, model_name, model_folder_name
-        )
-        remotepath = "./peridigmJobs/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
+        remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
         if not os.path.exists(remotepath):
             os.makedirs(remotepath)
             # os.chown(remotepath, 'test')
@@ -396,16 +359,12 @@ class FileHandler:
     ):
         """doc"""
         log.info("Start copying")
-        resultpath = "./Results/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
         if not os.path.exists(resultpath):
             os.makedirs(resultpath)
 
         if cluster == "None":
-            remotepath = "./peridigmJobs/" + os.path.join(
-                username, model_name, model_folder_name
-            )
+            remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
             for _, _, files in os.walk(remotepath):
                 if len(files) == 0:
                     return False
@@ -431,9 +390,7 @@ class FileHandler:
                     # os.chown(os.path.join(remotepath,name), 'test')
             return True
 
-        remotepath = FileHandler.get_remote_model_path(
-            username, model_name, model_folder_name
-        )
+        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         if tasks != 1:
             try:

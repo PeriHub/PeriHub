@@ -2,6 +2,7 @@
 doc
 """
 import numpy as np
+
 from support.geometry import Geometry
 from support.model_writer import ModelWriter
 
@@ -55,7 +56,6 @@ class XFEMDCB:
         vol = np.zeros(len(x_value))
         k = np.ones(len(x_value))
         for idx in range(0, len(x_value)):
-
             # if y_value[idx] >= self.yend / 2:
             #     k[idx] = self.create_load_block(x_value[idx], y_value[idx], k[idx])
             # else:
@@ -147,18 +147,7 @@ class XFEMDCB:
                     stringBC += str(num) + "\n"
                     kval = 2
                 vol = idx * idy
-                string += (
-                    str(length)
-                    + " "
-                    + str(height)
-                    + " "
-                    + "0"
-                    + " "
-                    + str(kval)
-                    + " "
-                    + str(vol)
-                    + "\n"
-                )
+                string += str(length) + " " + str(height) + " " + "0" + " " + str(kval) + " " + str(vol) + "\n"
         return string, stringBC, num, datx, daty
 
     # def createXML(

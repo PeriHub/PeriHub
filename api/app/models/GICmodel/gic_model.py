@@ -461,12 +461,7 @@ class GICmodel:
         # z_value = np.concatenate((z_value, z_value4))
 
         if len(x_value) > self.max_nodes:
-            return (
-                "The number of nodes ("
-                + str(len(x_value))
-                + ") is larger than the allowed "
-                + str(self.max_nodes)
-            )
+            return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(self.max_nodes)
 
         if self.ignore_mesh and self.block_def != "" and self.block_def != None:
             writer = ModelWriter(model_class=self)
@@ -513,9 +508,7 @@ class GICmodel:
                 self.dx_value[0] * self.dx_value[1] * self.dx_value[2],
             )
 
-            log.info(
-                f"BC and Blocks created in {(time.time() - start_time):.2f} seconds"
-            )
+            log.info(f"BC and Blocks created in {(time.time() - start_time):.2f} seconds")
 
             writer = ModelWriter(model_class=self)
 

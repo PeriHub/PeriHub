@@ -5,6 +5,7 @@ import os
 import time
 
 import numpy as np
+
 from support.globals import log
 from support.xml_creator import XMLcreator
 from support.yaml_creator import YAMLcreator
@@ -21,9 +22,7 @@ class ModelWriter:
         self.filename = model_class.filename
         self.model_folder_name = model_class.model_folder_name
         self.ns_name = "ns_" + model_class.filename
-        self.path = "Output/" + os.path.join(
-            model_class.username, model_class.filename, model_class.model_folder_name
-        )
+        self.path = "Output/" + os.path.join(model_class.username, model_class.filename, model_class.model_folder_name)
         self.mesh_file = model_class.model_data.model.mesh_file
         self.bc_dict = model_class.model_data.boundaryConditions
         self.solver_dict = model_class.model_data.solver

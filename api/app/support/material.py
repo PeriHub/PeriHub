@@ -5,6 +5,7 @@ Routines taken from
 edited by @author will_cr
 """
 import numpy as np
+
 from support.base_models import Parameter
 
 # from support.transformations import rotation_matrix
@@ -79,9 +80,7 @@ class MaterialRoutines:
     #     return self.get_transformation_matrix_from_matrix(rot.T, transformation_type)
 
     @staticmethod
-    def get_transformation_matrix_from_matrix(
-        rotation_matrix, transformation_type="epsilon"
-    ):
+    def get_transformation_matrix_from_matrix(rotation_matrix, transformation_type="epsilon"):
         """This method returns the transformation matrix for epsilon for the specified rotation matrix.
         For more information refer to:
         .. [Alt1996] Einfuehrung in die Mechanik der Laminat- und Sandwichtragwerke:

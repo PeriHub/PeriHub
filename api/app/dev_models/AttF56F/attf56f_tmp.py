@@ -58,7 +58,6 @@ n1 = 0
 n2 = 0
 for x_value in range(1, X_MAX + 1):
     for y_value in range(1, Y_MAX + 1):
-
         k = 1
         # if xMin + (x_value-1) * dx_value<-a/2:
         #  k=2;

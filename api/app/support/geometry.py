@@ -7,6 +7,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
+
 from support.globals import log
 
 
@@ -54,19 +55,14 @@ class Geometry:
             number_of_nodes = int(max_number_of_nodes * (i + 1) / number_of_circles)
             theta = np.linspace(0, 2 * np.pi, number_of_nodes)
 
-            gridx.extend(
-                coor[0] + radius * (i + 1) / number_of_circles * np.cos(theta[:-1])
-            )
-            gridy.extend(
-                coor[1] + radius * (i + 1) / number_of_circles * np.sin(theta[:-1])
-            )
+            gridx.extend(coor[0] + radius * (i + 1) / number_of_circles * np.cos(theta[:-1]))
+            gridy.extend(coor[1] + radius * (i + 1) / number_of_circles * np.sin(theta[:-1]))
             gridz.extend(0 * theta[:-1])
 
         # plt.scatter(gridx, gridy)
         # plt.show()
 
         if coor[2] == 0:
-
             grid_x_value = np.array(gridx).ravel()
             grid_y_value = np.array(gridy).ravel()
             grid_z_value = np.array(gridz).ravel()
@@ -89,25 +85,17 @@ class Geometry:
         return grid_x_value, grid_y_value, grid_z_value
 
     @staticmethod
-    def check_val_in_circle(
-        array_x, array_y, array_z, origin_x, origin_y, radius, in_circle
-    ):
+    def check_val_in_circle(array_x, array_y, array_z, origin_x, origin_y, radius, in_circle):
         """doc"""
         if in_circle:
             condition = np.where(
-                np.sqrt(
-                    np.power(array_x - origin_x, 2) + np.power(array_y - origin_y, 2)
-                )
-                <= radius,
+                np.sqrt(np.power(array_x - origin_x, 2) + np.power(array_y - origin_y, 2)) <= radius,
                 1.0,
                 0,
             )
         else:
             condition = np.where(
-                np.sqrt(
-                    np.power(array_x - origin_x, 2) + np.power(array_y - origin_y, 2)
-                )
-                <= radius,
+                np.sqrt(np.power(array_x - origin_x, 2) + np.power(array_y - origin_y, 2)) <= radius,
                 0,
                 1.0,
             )
@@ -228,10 +216,7 @@ class Geometry:
         y_value = np.concatenate(
             (
                 y_value,
-                height
-                - delta_height
-                + radius
-                - radius * np.cos((-alpha1) / 180 * np.pi),
+                height - delta_height + radius - radius * np.cos((-alpha1) / 180 * np.pi),
             )
         )
         #########
@@ -298,10 +283,7 @@ class Geometry:
         y_value = np.concatenate(
             (
                 y_value,
-                height
-                + radius
-                - delta_height
-                - radius * np.cos((-alpha) / 180 * np.pi),
+                height + radius - delta_height - radius * np.cos((-alpha) / 180 * np.pi),
             )
         )
         #########

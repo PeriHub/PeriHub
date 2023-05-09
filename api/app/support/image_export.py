@@ -7,6 +7,7 @@ import numpy as np
 from exodusreader.exodusreader import ExodusReader
 from fastapi import HTTPException, status
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from support.analysis import Analysis
 from support.base_models import Model
 from support.globals import log
@@ -78,9 +79,7 @@ class ImageExport:
             ) = Reader.read_timestep(file, step)
         except IndexError:
             number_of_steps = Reader.get_number_of_steps(file)
-            log.warning(
-                "Step can't be found, last step " + str(number_of_steps) + " used!"
-            )
+            log.warning("Step can't be found, last step " + str(number_of_steps) + " used!")
             (
                 points,
                 point_data,
@@ -153,15 +152,9 @@ class ImageExport:
                 np_first_points_z = np.array(block_points[:, 2])
 
                 if "Displacement" in point_data:
-                    np_displacement_x = np.array(
-                        point_data["Displacement"][block_ids, 0]
-                    )
-                    np_displacement_y = np.array(
-                        point_data["Displacement"][block_ids, 1]
-                    )
-                    np_displacement_z = np.array(
-                        point_data["Displacement"][block_ids, 2]
-                    )
+                    np_displacement_x = np.array(point_data["Displacement"][block_ids, 0])
+                    np_displacement_y = np.array(point_data["Displacement"][block_ids, 1])
+                    np_displacement_z = np.array(point_data["Displacement"][block_ids, 2])
 
                     np_points_x = np.add(
                         np_first_points_x,
@@ -192,10 +185,7 @@ class ImageExport:
                         ]
                     )
                 else:
-                    if (
-                        block_id in cell_data[variable][0]
-                        and max(cell_data[variable][0][block_id]) > 0
-                    ):
+                    if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
                         cell_value = np.concatenate(
                             [
                                 cell_value,
@@ -203,9 +193,7 @@ class ImageExport:
                             ]
                         )
                     else:
-                        cell_value = np.concatenate(
-                            [cell_value, np.full_like(np_points_x, 0)]
-                        )
+                        cell_value = np.concatenate([cell_value, np.full_like(np_points_x, 0)])
 
             if triangulate:
                 try:
@@ -225,12 +213,8 @@ class ImageExport:
                         np_first_points_x = np.array(block_points[:, 0])
                         np_first_points_y = np.array(block_points[:, 1])
 
-                        np_points_all_x = np.concatenate(
-                            [np_points_all_x, np_first_points_x]
-                        )
-                        np_points_all_y = np.concatenate(
-                            [np_points_all_y, np_first_points_y]
-                        )
+                        np_points_all_x = np.concatenate([np_points_all_x, np_first_points_x])
+                        np_points_all_y = np.concatenate([np_points_all_y, np_first_points_y])
 
                     triang = mtri.Triangulation(np_points_all_x, np_points_all_y)
                 try:
@@ -313,9 +297,7 @@ class ImageExport:
                     triang = mtri.Triangulation(np_first_points_x, np_first_points_y)
 
                 try:
-                    mask = ImageExport.long_edges(
-                        np_points_x, np_points_y, triang.triangles, dx_value
-                    )
+                    mask = ImageExport.long_edges(np_points_x, np_points_y, triang.triangles, dx_value)
                     triang.set_mask(mask)
 
                     tcf = ax.tricontourf(
@@ -418,18 +400,7 @@ class ImageExport:
 
         fig.set_size_inches(18.5, 18.5)
 
-        filepath = (
-            file[:-2]
-            + "_"
-            + x_variable
-            + "_"
-            + x_axis
-            + "_"
-            + y_variable
-            + "_"
-            + y_axis
-            + ".png"
-        )
+        filepath = file[:-2] + "_" + x_variable + "_" + x_axis + "_" + y_variable + "_" + y_axis + ".png"
         fig.savefig(filepath, dpi=400)
 
         # plt.colorbar()
