@@ -6,7 +6,8 @@ stages:
   - audit
   - build
 
-.install-deps-template: &install-deps
+.test-template: &test
+  stage: test
   only:
     refs:
       - main
@@ -15,15 +16,12 @@ stages:
   allow_failure: true
   before_script:
     - apt update && apt install -y make git
+    - pip install -r api/requirements.txt
     - pip install -r api/requirements-dev.txt
     - pip install -i https://test.pypi.org/simple/ exodusreader
     - pip install -i https://test.pypi.org/simple/ gcodereader
     - pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git
     - cd api/app
-
-.test-template: &test
-  <<: *install-deps
-  stage: test
   script: make test
   tags:
     - docker
@@ -32,7 +30,19 @@ stages:
   artifacts:
     when: always
     reports:
-      junit: build/tests.xml
+      junit: api/app/build/tests.xml
+
+.install-deps-template: &install-deps
+  only:
+    refs:
+      - main
+    changes:
+      - api/**/*
+  allow_failure: true
+  before_script:
+    - apt update && apt install -y make
+    - pip install -r api/requirements-dev.txt
+    - cd api/app
 
 .audit-template: &audit
   <<: *install-deps
@@ -54,7 +64,7 @@ check-code:
   artifacts:
     when: on_failure
     expose_as: "Linter Report"
-    paths: ["build/flake8.txt"]
+    paths: ["api/app/build/flake8.txt"]
 
 check-coverage:
   <<: *audit
@@ -65,7 +75,7 @@ check-coverage:
     when: always
     expose_as: "Coverage Report"
     paths:
-      - build/htmlcov
+      - api/app/build/htmlcov
     reports:
       coverage_report:
         coverage_format: cobertura

@@ -1,4 +1,3 @@
--r requirements.txt
 poetry
 pytest
 pytest-cov

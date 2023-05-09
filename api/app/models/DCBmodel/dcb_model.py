@@ -3,58 +3,21 @@ doc
 """
 import numpy as np
 
-from support.base_models import (
-    Adapt,
-    Block,
-    BondFilters,
-    BoundaryCondition,
-    BoundaryConditions,
-    Compute,
-    Contact,
-    Damage,
-    Material,
-    Newton,
-    Output,
-    Solver,
-    Verlet,
-)
+from support.base_models import Block
 from support.geometry import Geometry
 from support.model_writer import ModelWriter
 
 
 class DCBmodel:
-    contact_dict = Contact(
-        enabled=False,
-        searchRadius=0,
-        searchFrequency=0,
-        contactModels=None,
-        interactions=None,
-    )
-
     def __init__(
         self,
-        xend=0.045,
-        yend=0.01,
-        zend=0.003,
-        dx_value=None,
+        model_data,
         filename="DCBmodel",
         model_folder_name="",
-        two_d=False,
-        model_data=None,
-        rot="False",
-        angle=None,
-        material=None,
-        damage=None,
-        block=None,
-        contact=contact_dict,
-        boundary_condition=None,
-        bond_filter=None,
-        compute=None,
-        output=None,
-        solver=None,
         username="",
         max_nodes=100000,
         ignore_mesh=False,
+        dx_value=None,
     ):
         """
         definition der blocks
@@ -70,7 +33,7 @@ class DCBmodel:
         self.scal = 4.01
         self.disc_type = "txt"
         self.mesh_file = None
-        self.two_d = two_d
+        self.two_d = model_data.model.twoDimensional
         self.ns_list = [3, 4]
         if not dx_value:
             dx_value = [0.001, 0.001, 0.001]
@@ -79,11 +42,11 @@ class DCBmodel:
             angle = [0, 0]
         self.angle = angle
         self.xbegin = -0.005
-        self.ybegin = -yend
-        self.xend = xend + dx_value[0]
-        self.yend = yend + dx_value[1]
-        self.rot = rot
-        self.block_def = block
+        self.ybegin = -model_data.model.height
+        self.xend = model_data.model.length + dx_value[0]
+        self.yend = model_data.model.height + dx_value[1]
+        self.rot = model_data.model.rotatedAngles
+        self.block_def = model_data.blocks
         self.username = username
         self.max_nodes = max_nodes
         self.ignore_mesh = ignore_mesh
@@ -92,215 +55,21 @@ class DCBmodel:
             self.zend = 0
             self.dx_value[2] = 1
         else:
-            self.zbegin = -zend
-            self.zend = zend + dx_value[2]
+            self.zbegin = -model_data.model.width
+            self.zend = model_data.model.width + dx_value[2]
 
         number_of_blocks = 4
 
         """ Definition of model
         """
-        mat_name_list = ["PMMA"]
-        self.material_dict = []
-        if not damage:
-            damage_dict = Damage(
-                id=1,
-                name="PMMADamage",
-                damageModel="Critical Energy Correspondence",
-                criticalStretch=10,
-                criticalEnergy=5.1,
-                interblockdamageEnergy=0.01,
-                planeStress=True,
-                onlyTension=True,
-                detachedNodesCheck=True,
-                thickness=10,
-                hourglassCoefficient=1.0,
-                stabilizatonType="Global Stiffness",
-            )
-            self.damage_dict = [damage_dict]
-        else:
-            self.damage_dict = damage
-
-        if not compute:
-            compute_dict1 = Compute(
-                id=1,
-                name="External_Displacement",
-                variable="Displacement",
-                calculationType="Minimum",
-                blockName="block_3",
-            )
-            compute_dict2 = Compute(
-                id=2,
-                name="External_Force",
-                variable="Force",
-                calculationType="Sum",
-                blockName="block_3",
-            )
-            self.compute_dict = [compute_dict1, compute_dict2]
-        else:
-            self.compute_dict = compute
-
-        if not output:
-            output_dict1 = Output(
-                id=1,
-                name="Output1",
-                Displacement=True,
-                Force=True,
-                Damage=True,
-                Velocity=True,
-                Partial_Stress=False,
-                Number_Of_Neighbors=False,
-                Frequency=500,
-                InitStep=0,
-            )
-            output_dict2 = Output(
-                id=2,
-                name="Output2",
-                Displacement=False,
-                Force=False,
-                Damage=True,
-                Velocity=False,
-                Partial_Stress=True,
-                Number_Of_Neighbors=False,
-                Frequency=200,
-                InitStep=0,
-            )
-            self.output_dict = [output_dict1, output_dict2]
-        else:
-            self.output_dict = output
-
-        if not material:
-            i = 0
-            for material_name in mat_name_list:
-                mat_dict = Material(
-                    id=i + 1,
-                    name=material_name,
-                    matType="Linear Elastic Correspondence",
-                    density=1.95e-07,
-                    bulkModulus=None,
-                    shearModulus=None,
-                    youngsModulus=2.1e5,
-                    poissonsRatio=0.3,
-                    tensionSeparation=False,
-                    nonLinear=True,
-                    planeStress=True,
-                    materialSymmetry="Isotropic",
-                    stabilizatonType="Global Stiffness",
-                    thickness=10.0,
-                    hourglassCoefficient=1.0,
-                    actualHorizon=None,
-                    yieldStress=None,
-                    Parameter=None,
-                    properties=None,
-                )
-                i += 1
-                self.material_dict.append(mat_dict)
-        else:
-            self.material_dict = material
-
-        if not bond_filter:
-            bf1 = BondFilters(
-                id=1,
-                name="bf_1",
-                type="Rectangular_Plane",
-                normalX=0.0,
-                normalY=1.0,
-                normalZ=0.0,
-                lowerLeftCornerX=-0.06,
-                lowerLeftCornerY=0.0,
-                lowerLeftCornerZ=-0.01,
-                bottomUnitVectorX=1.0,
-                bottomUnitVectorY=0.0,
-                bottomUnitVectorZ=0.0,
-                bottomLength=0.01,
-                sideLength=0.01,
-                centerX=0.0,
-                centerY=1.0,
-                centerZ=0.0,
-                radius=1.0,
-                show=True,
-            )
-            self.bondfilters = [bf1]
-        else:
-            self.bondfilters = bond_filter
-        self.contact_dict = contact
-
-        if not boundary_condition:
-            bc1 = BoundaryCondition(
-                conditionsId=1,
-                name="BC_1",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=3,
-                coordinate="y",
-                value="0.004*t",
-            )
-            bc2 = BoundaryCondition(
-                conditionsId=2,
-                name="BC_2",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=4,
-                coordinate="y",
-                value="-0.004*t",
-            )
-            bc3 = BoundaryCondition(
-                conditionsId=3,
-                name="BC_3",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=1,
-                coordinate="z",
-                value="0*t",
-            )
-            bc4 = BoundaryCondition(
-                conditionsId=4,
-                name="BC_4",
-                NodeSets=None,
-                boundarytype="Prescribed Displacement",
-                blockId=2,
-                coordinate="z",
-                value="0*t",
-            )
-            self.bc_dict = BoundaryConditions(conditions=[bc1, bc2, bc3, bc4])
-        else:
-            self.bc_dict = boundary_condition
-
-        if not solver:
-            self.solver_dict = Solver(
-                verbose=False,
-                initialTime=0.0,
-                finalTime=0.075,
-                fixedDt=None,
-                solvertype="Verlet",
-                safetyFactor=0.95,
-                numericalDamping=0.000005,
-                peridgimPreconditioner="None",
-                nonlinearSolver="Line Search Based",
-                numberOfLoadSteps=100,
-                maxSolverIterations=50,
-                relativeTolerance=1e-8,
-                maxAgeOfPrec=100,
-                directionMethod="Newton",
-                newton=Newton(),
-                lineSearchMethod="Polynomial",
-                verletSwitch=False,
-                verlet=Verlet(),
-                stopAfterDamageInitation=False,
-                stopBeforeDamageInitation=False,
-                adaptivetimeStepping=False,
-                adapt=Adapt(),
-                filetype="yaml",
-            )
-        else:
-            self.solver_dict = solver
         self.model_data = model_data
 
         self.dam_block = [""] * number_of_blocks
-        self.dam_block[0] = "PMMADamage"
-        self.dam_block[1] = "PMMADamage"
+        self.dam_block[0] = self.model_data.damages[0].name
+        self.dam_block[1] = self.model_data.damages[0].name
 
         self.int_block_id = [""] * number_of_blocks
-        self.mat_block = ["PMMA"] * number_of_blocks
+        self.mat_block = [self.model_data.materials[0].name] * number_of_blocks
 
     def create_load_intro_node(self, x_value, y_value, k):
         """doc"""
