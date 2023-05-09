@@ -14,7 +14,7 @@ stages:
       - api/**/*
   allow_failure: true
   before_script:
-    - apt-get install -y make
+    - apt update && apt install -y make
     - pip install -r api/requirements-dev.txt
     - pip install -i https://test.pypi.org/simple/ exodusreader
     - cd api/app

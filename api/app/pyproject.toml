@@ -76,3 +76,4 @@ profile = 'black'
 
 [tool.pytest.ini_options]
 pythonpath = "."
+addopts = "--ignore=dev_models"

@@ -402,28 +402,12 @@ class ModelControl:
 
             elif model_name == "PlateWithHole":
                 plate_with_hole = PlateWithHole(
-                    model_folder_name=model_folder_name,
-                    xend=length,
-                    yend=height,
-                    zend=width,
-                    radius=radius,
-                    dx_value=dx_value,
-                    two_d=model_data.model.twoDimensional,
-                    rot=model_data.model.rotatedAngles,
-                    angle=model_data.model.angles,
-                    material=model_data.materials,
-                    damage=model_data.damages,
-                    block=model_data.blocks,
-                    boundary_condition=model_data.boundaryConditions,
-                    contact=model_data.contact,
-                    bond_filter=model_data.bondFilters,
-                    compute=model_data.computes,
-                    output=model_data.outputs,
-                    solver=model_data.solver,
                     model_data=model_data,
+                    model_folder_name=model_folder_name,
                     username=username,
                     max_nodes=max_nodes,
                     ignore_mesh=ignore_mesh,
+                    dx_value=dx_value,
                 )
                 result = plate_with_hole.create_model()
 
