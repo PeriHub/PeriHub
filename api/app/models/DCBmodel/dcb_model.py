@@ -197,7 +197,6 @@ class DCBmodel:
                 show=False,
             )
             block_dict.append(block_def)
-        # 3d tbd
         return block_dict
 
     def write_file(self, writer, block_len):

@@ -49,11 +49,11 @@ check-coverage:
     when: always
     expose_as: "Coverage Report"
     paths:
-      - api/app/build/htmlcov
+      - api/app/build/html
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: coverage.xml
+        path: api/app/build/coverage.xml
 
 .install-dev-deps-template: &install-dev-deps
   only:
