@@ -14,7 +14,7 @@ stages:
       - api/**/*
   allow_failure: true
   before_script:
-    - apt-get install build-essential -y
+    - apt-get install -y make
     - pip install -r api/requirements-dev.txt
     - pip install -i https://test.pypi.org/simple/ exodusreader
     - cd api/app

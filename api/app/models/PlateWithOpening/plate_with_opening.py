@@ -8,11 +8,11 @@ from support.geometry import Geometry
 from support.model_writer import ModelWriter
 
 
-class KalthoffWinkler:
+class PlateWithOpening:
     def __init__(
         self,
         model_data,
-        filename="Kalthoff-Winkler",
+        filename="PlateWithOpening",
         model_folder_name="",
         username="",
         max_nodes=10000000,
@@ -38,13 +38,11 @@ class KalthoffWinkler:
         if not dx_value:
             dx_value = [0.001, 0.001, 0.001]
         self.dx_value = dx_value
-        if not model_data.model.angles:
-            angle = [0, 0]
         self.angle = model_data.model.angles
         self.xbegin = 0.0
-        self.ybegin = -model_data.model.height / 2
-        self.xend = model_data.model.length + dx_value[0]
-        self.yend = model_data.model.height / 2 + dx_value[1]
+        self.ybegin = 0.0
+        self.xend = model_data.model.length
+        self.yend = model_data.model.height
         # self.xend = xend
         # self.yend = yend/2
         # self.zend = zend
@@ -59,7 +57,7 @@ class KalthoffWinkler:
             self.dx_value[2] = 1
         else:
             self.zbegin = -model_data.model.width
-            self.zend = model_data.model.width + dx_value[2]
+            self.zend = model_data.model.width
 
         number_of_blocks = 4
 
@@ -78,25 +76,8 @@ class KalthoffWinkler:
 
     def create_boundary_condition_block(self, x_value, y_value, k):
         k = np.where(
-            np.logical_and(
-                x_value > self.xend - self.dx_value[0] * 3,
-                np.logical_and(
-                    y_value < 90 + self.dx_value[0] * 3,
-                    y_value > 90 - self.dx_value[0] * 3,
-                ),
-            ),
+            x_value < self.dx_value[0] * 3,
             2,
-            k,
-        )
-        k = np.where(
-            np.logical_and(
-                x_value > self.xend - self.dx_value[0] * 3,
-                np.logical_and(
-                    y_value < -90 + self.dx_value[0] * 3,
-                    y_value > -90 - self.dx_value[0] * 3,
-                ),
-            ),
-            3,
             k,
         )
         return k
@@ -104,11 +85,8 @@ class KalthoffWinkler:
     def create_load_intro_node(self, x_value, y_value, k):
         """doc"""
         k = np.where(
-            np.logical_and(
-                x_value < self.dx_value[0] * 5,
-                np.logical_and(y_value <= 25, y_value >= -25),
-            ),
-            4,
+            x_value > self.xend - self.dx_value[0] * 2,
+            3,
             k,
         )
         return k
@@ -128,6 +106,17 @@ class KalthoffWinkler:
                 self.zend,
             ],
             dx_value=self.dx_value,
+        )
+
+        x_value, y_value, z_value = geo.check_val_in_rectangle(
+            x_value,
+            y_value,
+            z_value,
+            self.xend / 2,
+            self.yend / 2,
+            self.xend / 10,
+            self.yend / 10,
+            False,
         )
 
         if len(x_value) > self.max_nodes:

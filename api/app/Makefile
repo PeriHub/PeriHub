@@ -11,8 +11,8 @@ clean:
 prepare:
 	mkdir -p build
 
-test:
-	PYTHONPATH=. pytest -c setup.cfg --cov-report term-missing --junitxml=report.xml
+test: prepare
+	poetry run pytest --doctest-modules --junit-xml=build/tests.xml
 
 formatting:
 	poetry run black .

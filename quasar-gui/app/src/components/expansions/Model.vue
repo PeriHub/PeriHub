@@ -308,6 +308,7 @@
                 modelName: [
                     "Dogbone",
                     "Kalthoff-Winkler",
+                    "PlateWithOpening",
                     "PlateWithHole",
                     "GICmodel",
                     "GIICmodel",
@@ -324,12 +325,12 @@
         methods: {
             async resetData() {
 
-                let jsonFile = {};
-                
                 let route = '/assets/models/' + this.model.modelNameSelected + '/' + this.model.modelNameSelected + '.json';
                 this.$api.get(route)
                 .then((response) => {
-                    jsonFile = response.data
+                    let jsonFile = response.data
+                    console.log(jsonFile)
+                    parseFromJson(this.store.modelData,jsonFile)
                 })
                 .catch((error) => {
                     this.$q.notify({
@@ -337,8 +338,6 @@
                         message: error.response.data.detail
                     })
                 })
-
-                parseFromJson(this.store.modelData,jsonFile)
             },
         },
         watch: {

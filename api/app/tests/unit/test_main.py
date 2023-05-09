@@ -11,7 +11,7 @@ client = TestClient(app)
 
 @pytest.mark.parametrize(
     "model_name",
-    ["Dogbone", "CompactTension", "Kalthoff-Winkler", "ENFmodel", "PlateWithHole"],
+    ["Dogbone", "CompactTension", "Kalthoff-Winkler", "ENFmodel", "PlateWithHole", "PlateWithOpening"],
 )
 def test_generate_model(model_name):
     assets_path = "./assets/models"

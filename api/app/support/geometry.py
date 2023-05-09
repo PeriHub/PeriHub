@@ -85,6 +85,33 @@ class Geometry:
         return grid_x_value, grid_y_value, grid_z_value
 
     @staticmethod
+    def check_val_in_rectangle(array_x, array_y, array_z, origin_x, origin_y, height, length, in_rectangle):
+        """doc"""
+        if in_rectangle:
+            condition = np.where(
+                np.logical_and(
+                    np.logical_and(array_x <= origin_x + length / 2, array_x >= origin_x - length / 2),
+                    np.logical_and(array_y <= origin_y + height / 2, array_y >= origin_y - height / 2),
+                ),
+                1.0,
+                0,
+            )
+        else:
+            condition = np.where(
+                np.logical_and(
+                    np.logical_and(array_x <= origin_x + length / 2, array_x >= origin_x - length / 2),
+                    np.logical_and(array_y <= origin_y + height / 2, array_y >= origin_y - height / 2),
+                ),
+                0,
+                1.0,
+            )
+        return (
+            np.extract(condition, array_x),
+            np.extract(condition, array_y),
+            np.extract(condition, array_z),
+        )
+
+    @staticmethod
     def check_val_in_circle(array_x, array_y, array_z, origin_x, origin_y, radius, in_circle):
         """doc"""
         if in_circle:

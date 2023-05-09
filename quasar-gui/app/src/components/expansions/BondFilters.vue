@@ -83,7 +83,6 @@
                     <q-toggle
                         class="my-toggle"
                         v-model="bondFilter.show"
-                        @update:model-value="showHideBondFilters"
                         label="Show"
                         standout
                         dense
@@ -375,6 +374,15 @@
 
                     // this.viewStore.bondFilterPoints[i].bondFilterPolyString = bondFilterPolyString
                 }
+            },
+        },
+        watch: {
+            'store.modelData.bondFilters': {
+                handler() {
+                    console.log("bondFilters changed!");
+                    this.showHideBondFilters();
+                },
+            deep: true,
             },
         }
     })

@@ -44,6 +44,7 @@ from models.KICmodel.kic_model import KICmodel
 from models.KIICmodel.kiic_model import KIICmodel
 from models.OwnModel.own_model import OwnModel
 from models.PlateWithHole.plate_with_hole import PlateWithHole
+from models.PlateWithOpening.plate_with_opening import PlateWithOpening
 from models.Smetana.smetana import Smetana
 from support.analysis import Analysis
 from support.base_models import FileType, Jobs, Material, Model, ModelData, ResponseModel, RunData, Status
@@ -387,6 +388,17 @@ class ModelControl:
                     dx_value=dx_value,
                 )
                 result = kalthoff.create_model()
+
+            elif model_name == "PlateWithOpening":
+                plate_with_opening = PlateWithOpening(
+                    model_data=model_data,
+                    model_folder_name=model_folder_name,
+                    username=username,
+                    max_nodes=max_nodes,
+                    ignore_mesh=ignore_mesh,
+                    dx_value=dx_value,
+                )
+                result = plate_with_opening.create_model()
 
             elif model_name == "PlateWithHole":
                 plate_with_hole = PlateWithHole(

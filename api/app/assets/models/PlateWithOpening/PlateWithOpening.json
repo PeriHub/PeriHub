@@ -1,0 +1,362 @@
+{
+  "model": {
+    "modelNameSelected": "PlateWithOpening",
+    "modelFolderName": "Default",
+    "ownModel": false,
+    "translated": false,
+    "length": 100,
+    "width": null,
+    "height": 40,
+    "height2": null,
+    "structured": null,
+    "discretization": 21,
+    "horizon": null,
+    "twoDimensional": true,
+    "rotatedAngles": false,
+    "angles": [0, 0]
+  },
+  "materials": [
+    {
+      "id": 1,
+      "name": "PMMA",
+      "density": 8.0e-6,
+      "matType": "Elastic Bond Based",
+      "bulkModulus": 1.27e6,
+      "shearModulus": null,
+      "youngsModulus": null,
+      "poissonsRatio": null,
+      "tensionSeparation": false,
+      "nonLinear": false,
+      "planeStress": true,
+      "materialSymmetry": "Isotropic",
+      "stabilizatonType": "Global Stiffness",
+      "thickness": 10,
+      "hourglassCoefficient": 1,
+      "actualHorizon": null,
+      "yieldStress": null,
+      "Parameter": [
+        {
+          "name": "C11",
+          "value": null
+        },
+        {
+          "name": "C12",
+          "value": null
+        },
+        {
+          "name": "C13",
+          "value": null
+        },
+        {
+          "name": "C14",
+          "value": null
+        },
+        {
+          "name": "C15",
+          "value": null
+        },
+        {
+          "name": "C16",
+          "value": null
+        },
+        {
+          "name": "C22",
+          "value": null
+        },
+        {
+          "name": "C23",
+          "value": null
+        },
+        {
+          "name": "C24",
+          "value": null
+        },
+        {
+          "name": "C25",
+          "value": null
+        },
+        {
+          "name": "C26",
+          "value": null
+        },
+        {
+          "name": "C33",
+          "value": null
+        },
+        {
+          "name": "C34",
+          "value": null
+        },
+        {
+          "name": "C35",
+          "value": null
+        },
+        {
+          "name": "C36",
+          "value": null
+        },
+        {
+          "name": "C44",
+          "value": null
+        },
+        {
+          "name": "C45",
+          "value": null
+        },
+        {
+          "name": "C46",
+          "value": null
+        },
+        {
+          "name": "C55",
+          "value": null
+        },
+        {
+          "name": "C56",
+          "value": null
+        },
+        {
+          "name": "C66",
+          "value": null
+        }
+      ],
+      "properties": [
+        {
+          "id": 1,
+          "name": "Prop_1",
+          "value": null
+        }
+      ]
+    }
+  ],
+  "damages": [
+    {
+      "id": 1,
+      "name": "PMMADamage",
+      "damageModel": "Critical Stretch",
+      "criticalStretch": 0.002217,
+      "criticalEnergy": null,
+      "interblockdamageEnergy": null,
+      "planeStress": true,
+      "onlyTension": false,
+      "detachedNodesCheck": true,
+      "thickness": 10,
+      "hourglassCoefficient": 1,
+      "stabilizatonType": "Global Stiffness",
+      "criticalEnergyCalc":{
+        "calculateCriticalEnergy": false,
+        "k1c": null,
+        "youngsModulus": null
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "id": 1,
+      "name": "block_1",
+      "material": "PMMA",
+      "damageModel": "PMMADamage",
+      "show": true
+    },
+    {
+      "id": 2,
+      "name": "block_2",
+      "material": "PMMA",
+      "damageModel": "",
+      "show": true
+    },
+    {
+      "id": 3,
+      "name": "block_3",
+      "material": "PMMA",
+      "damageModel": "",
+      "show": true
+    }
+  ],
+  "contact": {
+    "enabled": false,
+    "searchRadius": "0.02",
+    "searchFrequency": "1",
+    "contactModels": [
+      {
+        "id": 1,
+        "name": "Contact Model",
+        "contactType": "Short Range Force",
+        "contactRadius": 0.000775,
+        "springConstant": 1000000000000
+      }
+    ],
+    "interactions": [
+      {
+        "id": 1,
+        "firstBlockId": 5,
+        "secondBlockId": 3,
+        "contactModelId": 1
+      }
+    ]
+  },
+  "boundaryConditions": {
+    "conditions": [
+    {
+      "conditionsId": 1,
+      "name": "BC_1",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 2,
+      "coordinate": "x",
+      "value": "0*t"
+    },
+    {
+      "conditionsId": 2,
+      "name": "BC_2",
+      "nodeSet": null,
+      "boundarytype": "Prescribed Displacement",
+      "blockId": 3,
+      "coordinate": "x",
+      "value": "1*t"
+    }
+  ]},
+  "bondFilters": [
+    {
+      "bondFiltersId": 1,
+      "name": "bf_1",
+      "type": "Rectangular_Plane",
+      "normalX": 0,
+      "normalY": 1,
+      "normalZ": 0,
+      "lowerLeftCornerX": "48",
+      "lowerLeftCornerY": 25,
+      "lowerLeftCornerZ": -5,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": "4",
+      "sideLength": "10",
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true
+    },
+    {
+      "bondFiltersId": 2,
+      "name": "bf_2",
+      "type": "Rectangular_Plane",
+      "normalX": 0,
+      "normalY": 1,
+      "normalZ": 0,
+      "lowerLeftCornerX": "48",
+      "lowerLeftCornerY": "15",
+      "lowerLeftCornerZ": -5,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": "4",
+      "sideLength": 10,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true
+    },
+    {
+      "bondFiltersId": 3,
+      "name": "bf_3",
+      "type": "Rectangular_Plane",
+      "normalX": "-1",
+      "normalY": "0",
+      "normalZ": 0,
+      "lowerLeftCornerX": "48",
+      "lowerLeftCornerY": "15",
+      "lowerLeftCornerZ": -5,
+      "bottomUnitVectorX": "0",
+      "bottomUnitVectorY": "1",
+      "bottomUnitVectorZ": 0,
+      "bottomLength": "10",
+      "sideLength": 10,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true,
+      "bondFilterId": 3
+    },
+    {
+      "bondFiltersId": 4,
+      "name": "bf_4",
+      "type": "Rectangular_Plane",
+      "normalX": "-1",
+      "normalY": "0",
+      "normalZ": 0,
+      "lowerLeftCornerX": "52",
+      "lowerLeftCornerY": "15",
+      "lowerLeftCornerZ": -5,
+      "bottomUnitVectorX": "0",
+      "bottomUnitVectorY": "1",
+      "bottomUnitVectorZ": 0,
+      "bottomLength": "10",
+      "sideLength": 10,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true,
+      "bondFilterId": 4
+    }
+  ],
+  "computes": [],
+  "outputs": [
+    {
+      "id": 1,
+      "name": "Output1",
+      "selectedOutputs": ["Displacement","Force","Damage","Velocity"],
+      "Frequency": "50",
+      "InitStep": 0
+    }
+  ],
+  "solver": {
+    "verbose": false,
+    "initialTime": 0,
+    "finalTime": 0.003,
+    "solvertype": "Verlet",
+    "safetyFactor": 0.95,
+    "numericalDamping": 0.000005,
+    "peridgimPreconditioner": "None",
+    "nonlinearSolver": "Line Search Based",
+    "numberOfLoadSteps": 100,
+    "maxSolverIterations": 50,
+    "relativeTolerance": 1e-8,
+    "maxAgeOfPrec": 100,
+    "directionMethod": "Newton",
+    "newton": {
+      "jacobianOperator": "Matrix-Free",
+      "preconditioner": "None"
+    },
+    "lineSearchMethod": "Polynomial",
+    "verletSwitch": true,
+    "verlet": {
+      "safetyFactor": 0.95,
+      "numericalDamping": 0.000005,
+      "outputFrequency": 7500
+    },
+    "stopAfterDamageInitation": false,
+    "stopBeforeDamageInitation": false,
+    "adaptivetimeStepping": false,
+    "adapt": {
+      "stableStepDifference": 4,
+      "maximumBondDifference": 4,
+      "stableBondDifference": 1
+    },
+    "filetype": "yaml"
+  },
+  "job":{
+    "cluster": "None",
+    "nodes": 1,
+    "tasks": 32,
+    "tasksPerNode": 32,
+    "cpusPerTask": 1,
+    "multithread": false,
+    "time": "00:20:00",
+    "account": 2263032
+  }
+}
