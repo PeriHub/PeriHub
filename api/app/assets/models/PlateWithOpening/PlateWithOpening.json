@@ -152,21 +152,21 @@
   ],
   "blocks": [
     {
-      "id": 1,
+      "blocksId": 1,
       "name": "block_1",
       "material": "Aluminium",
       "damageModel": "Damage",
       "show": true
     },
     {
-      "id": 2,
+      "blocksId": 2,
       "name": "block_2",
       "material": "Aluminium",
       "damageModel": "",
       "show": true
     },
     {
-      "id": 3,
+      "blocksId": 3,
       "name": "block_3",
       "material": "Aluminium",
       "damageModel": "",

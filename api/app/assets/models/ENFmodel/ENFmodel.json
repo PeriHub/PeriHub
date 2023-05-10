@@ -163,42 +163,42 @@
   ],
   "blocks": [
     {
-      "id": 1,
+      "blocksId": 1,
       "name": "block_1",
       "material": "Aluminium",
       "damageModel": "Damage",
       "show": true
     },
     {
-      "id": 2,
+      "blocksId": 2,
       "name": "block_2",
       "material": "Aluminium",
       "damageModel": "Damage",
       "show": true
     },
     {
-      "id": 3,
+      "blocksId": 3,
       "name": "block_3",
       "material": "Aluminium",
       "damageModel": "",
       "show": true
     },
     {
-      "id": 4,
+      "blocksId": 4,
       "name": "block_4",
       "material": "Aluminium",
       "damageModel": "",
       "show": true
     },
     {
-      "id": 5,
+      "blocksId": 5,
       "name": "block_5",
       "material": "Aluminium",
       "damageModel": "",
       "show": true
     },
     {
-      "id": 6,
+      "blocksId": 6,
       "name": "block_6",
       "material": "Aluminium",
       "damageModel": "",
@@ -262,6 +262,15 @@
         "nodeSet": null,
         "boundarytype": "Prescribed Displacement",
         "blockId": 5,
+        "coordinate": "y",
+        "value": "0"
+      },
+      {
+        "conditionsId": 5,
+        "name": "BC_5",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 6,
         "coordinate": "y",
         "value": "0"
       }

@@ -200,84 +200,84 @@
   ],
   "blocks": [
     {
-      "id": 1,
+      "blocksId": 1,
       "name": "block_1",
       "material": "Aluminum",
       "damageModel": "dam_1",
       "show": true
     },
     {
-      "id": 2,
+      "blocksId": 2,
       "name": "block_2",
       "material": "Aluminum",
       "damageModel": "dam_1",
       "show": true
     },
     {
-      "id": 3,
+      "blocksId": 3,
       "name": "block_3",
       "material": "Aluminum",
       "damageModel": "dam_1",
       "show": true
     },
     {
-      "id": 4,
+      "blocksId": 4,
       "name": "block_4",
       "material": "Aluminum",
       "damageModel": "dam_1",
       "show": true
     },
     {
-      "id": 5,
+      "blocksId": 5,
       "name": "block_5",
       "material": "Aluminum",
       "damageModel": "dam_1",
       "show": true
     },
     {
-      "id": 6,
+      "blocksId": 6,
       "name": "block_6",
       "material": "Aluminum",
       "damageModel": "dam_1",
       "show": true
     },
     {
-      "id": 7,
+      "blocksId": 7,
       "name": "block_7",
       "material": "Aluminum",
       "damageModel": "dam_1",
       "show": true
     },
     {
-      "id": 8,
+      "blocksId": 8,
       "name": "block_8",
       "material": "Aluminum",
       "damageModel": "dam_1",
       "show": true
     },
     {
-      "id": 9,
+      "blocksId": 9,
       "name": "block_9",
       "material": "Aluminum",
       "damageModel": "",
       "show": true
     },
     {
-      "id": 10,
+      "blocksId": 10,
       "name": "block_10",
       "material": "Aluminum",
       "damageModel": "",
       "show": true
     },
     {
-      "id": 11,
+      "blocksId": 11,
       "name": "block_11",
       "material": "Aluminum",
       "damageModel": "",
       "show": true
     },
     {
-      "id": 12,
+      "blocksId": 12,
       "name": "block_12",
       "material": "Aluminum",
       "damageModel": "",

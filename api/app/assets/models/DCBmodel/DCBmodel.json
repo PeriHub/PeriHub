@@ -156,28 +156,28 @@
   ],
   "blocks": [
     {
-      "id": 1,
+      "blocksId": 1,
       "name": "block_1",
       "material": "PMMA",
       "damageModel": "PMMADamage",
       "show": true
     },
     {
-      "id": 2,
+      "blocksId": 2,
       "name": "block_2",
       "material": "PMMA",
       "damageModel": "PMMADamage",
       "show": true
     },
     {
-      "id": 3,
+      "blocksId": 3,
       "name": "block_3",
       "material": "PMMA",
       "damageModel": "",
       "show": true
     },
     {
-      "id": 4,
+      "blocksId": 4,
       "name": "block_4",
       "material": "PMMA",
       "damageModel": "",
