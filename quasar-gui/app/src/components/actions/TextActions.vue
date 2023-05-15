@@ -39,7 +39,7 @@
     import rules from "assets/rules.js";
 
 export default defineComponent({
-    name: "ViewActions",
+    name: "TextActions",
         setup() {
             const $q = useQuasar()
             const store = useDefaultStore();

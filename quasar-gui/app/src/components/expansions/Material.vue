@@ -412,11 +412,12 @@
             const store = useModelStore();
             const viewStore = useViewStore();
             const materials = computed(() => store.modelData.materials)
+            const modelData = computed(() => store.modelData)
             const bus = inject('bus')
             return {
-                store,
                 viewStore,
                 materials,
+                modelData,
                 rules,
                 bus
             }
@@ -550,7 +551,7 @@
                 for (var i = 0; i < files.length; i++) {
                     formData.append("files", files[i]);
                 }
-                let params={model_name: this.store.modelData.model.modelNameSelected,
+                let params={model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName}
 
                 this.$api.post('/uploadfiles', formData, {params})
