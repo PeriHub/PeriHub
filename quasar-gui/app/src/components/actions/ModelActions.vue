@@ -360,6 +360,8 @@ export default defineComponent({
                 model_folder_name: this.modelData.model.modelFolderName
             }
 
+            this.viewStore.viewId = "model";
+            
             await this.$api.post('/generateModel', this.modelData, {params})
             .then((response) => {
                 this.$q.notify({
@@ -367,7 +369,6 @@ export default defineComponent({
                 })
                 this.bus.emit("viewInputFile",false)
                 if (this.modelData.model.ownModel == false) {
-                    this.viewStore.viewId = "model";
                     console.log("generateModel")
                     // if (this.viewStore.viewId != "model") {
                     this.bus.emit('viewPointData');

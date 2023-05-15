@@ -128,7 +128,7 @@
         }, 
         mounted(){
           console.log("ModelView mounted")
-          this.viewPointData()
+          // this.viewPointData()
         },
         methods: {
           async viewPointData() {
