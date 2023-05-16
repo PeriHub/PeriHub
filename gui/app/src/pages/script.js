@@ -116,7 +116,7 @@ export default {
         "Vector Poisson",
       ],
       materialSymmetry: ["Isotropic", "Anisotropic"],
-      stabilizatonType: [
+      stabilizationType: [
         "Bond Based",
         "State Based",
         "Sub Horizon",
@@ -150,7 +150,7 @@ export default {
           nonLinear: true,
           planeStress: true,
           materialSymmetry: "Isotropic",
-          stabilizatonType: "Global Stiffness",
+          stabilizationType: "Global Stiffness",
           thickness: 0.01,
           hourglassCoefficient: 1.0,
           actualHorizon: null,
@@ -208,7 +208,7 @@ export default {
           nonLinear: true,
           planeStress: true,
           materialSymmetry: "Isotropic",
-          stabilizatonType: "Global Stiffness",
+          stabilizationType: "Global Stiffness",
           thickness: 0.01,
           hourglassCoefficient: 1.0,
           actualHorizon: null,
@@ -266,7 +266,7 @@ export default {
         nonLinear: "Non linear",
         planeStress: "Plane Stress",
         materialSymmetry: "Material Symmetry",
-        stabilizatonType: "Stabilizaton Type",
+        stabilizationType: "Stabilization Type",
         thickness: "Thickness",
         hourglassCoefficient: "Hourglass Coefficient",
         actualHorizon: "Actual Horizon",
@@ -345,7 +345,7 @@ export default {
           detachedNodesCheck: true,
           thickness: 10.0,
           hourglassCoefficient: 1.0,
-          stabilizatonType: "Global Stiffness",
+          stabilizationType: "Global Stiffness",
           criticalEnergyCalc: {
             calculateCriticalEnergy: false,
             k1c: null,
@@ -365,7 +365,7 @@ export default {
         detachedNodesCheck: "Detached Nodes Check",
         thickness: "Thickness",
         hourglassCoefficient: "Hourglass Coefficient",
-        stabilizatonType: "Stabilizaton Type",
+        stabilizationType: "Stabilization Type",
       },
       // Blocks
       blocks: [

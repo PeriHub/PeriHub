@@ -55,7 +55,7 @@ class VerificationModels:
                 "poissonsRatio": 0.3,
                 "tensionSeparation": False,
                 "materialSymmetry": "Anisotropic",
-                "stabilizatonType": "Global Stiffness",
+                "stabilizationType": "Global Stiffness",
                 "thickness": 10.0,
                 "hourglassCoefficient": 1.0,
             }

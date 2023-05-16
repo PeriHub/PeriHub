@@ -191,9 +191,9 @@
                     <div class="row my-row">
                         <q-select 
                             class="my-input"
-                            :options="stabilizatonType"
-                            v-model="material.stabilizatonType"
-                            :label="materialKeys.stabilizatonType"
+                            :options="stabilizationType"
+                            v-model="material.stabilizationType"
+                            :label="materialKeys.stabilizationType"
                             standout
                             dense
                         ></q-select>
@@ -453,7 +453,7 @@
                     "Vector Poisson",
                 ],
                 materialSymmetry: ["Isotropic", "Anisotropic"],
-                stabilizatonType: [
+                stabilizationType: [
                     "Bond Based",
                     "State Based",
                     "Sub Horizon",
@@ -485,7 +485,7 @@
                     nonLinear: "Non linear",
                     planeStress: "Plane Stress",
                     materialSymmetry: "Material Symmetry",
-                    stabilizatonType: "Stabilizaton Type",
+                    stabilizationType: "Stabilization Type",
                     thickness: "Thickness",
                     hourglassCoefficient: "Hourglass Coefficient",
                     actualHorizon: "Actual Horizon",

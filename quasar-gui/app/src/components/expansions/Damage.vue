@@ -177,9 +177,9 @@
                     <div class="row my-row">
                         <q-select 
                             class="my-input"
-                            :options="stabilizatonType"
-                            v-model="damage.stabilizatonType"
-                            :label="damageKeys.stabilizatonType"
+                            :options="stabilizationType"
+                            v-model="damage.stabilizationType"
+                            :label="damageKeys.stabilizationType"
                             standout
                             dense
                         ></q-select>
@@ -270,9 +270,9 @@
                     detachedNodesCheck: "Detached Nodes Check",
                     thickness: "Thickness",
                     hourglassCoefficient: "Hourglass Coefficient",
-                    stabilizatonType: "Stabilizaton Type",
+                    stabilizationType: "Stabilization Type",
                 },
-                stabilizatonType: [
+                stabilizationType: [
                     "Bond Based",
                     "State Based",
                     "Sub Horizon",

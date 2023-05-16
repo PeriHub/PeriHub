@@ -73,7 +73,7 @@ class Material(BaseModel):
     nonLinear: bool
     planeStress: bool
     materialSymmetry: str
-    stabilizatonType: str
+    stabilizationType: str
     thickness: float
     hourglassCoefficient: float
     actualHorizon: Optional[float] = None
@@ -148,7 +148,7 @@ class Damage(BaseModel):
     detachedNodesCheck: bool
     thickness: float
     hourglassCoefficient: float
-    stabilizatonType: str
+    stabilizationType: str
 
 
 class Block(BaseModel):
@@ -337,7 +337,7 @@ class RunData(BaseModel):
                         "nonLinear": True,
                         "planeStress": True,
                         "materialSymmetry": "Isotropic",
-                        "stabilizatonType": "Global Stiffness",
+                        "stabilizationType": "Global Stiffness",
                         "thickness": "0.01",
                         "hourglassCoefficient": 1,
                         "actualHorizon": None,
@@ -380,7 +380,7 @@ class RunData(BaseModel):
                         "nonLinear": True,
                         "planeStress": True,
                         "materialSymmetry": "Isotropic",
-                        "stabilizatonType": "Global Stiffness",
+                        "stabilizationType": "Global Stiffness",
                         "thickness": "0.01",
                         "hourglassCoefficient": "1",
                         "actualHorizon": None,
@@ -459,7 +459,7 @@ default_model = {
             "nonLinear": True,
             "planeStress": True,
             "materialSymmetry": "Isotropic",
-            "stabilizatonType": "Global Stiffness",
+            "stabilizationType": "Global Stiffness",
             "thickness": "0.01",
             "hourglassCoefficient": 1,
             "actualHorizon": None,
@@ -502,7 +502,7 @@ default_model = {
             "nonLinear": True,
             "planeStress": True,
             "materialSymmetry": "Isotropic",
-            "stabilizatonType": "Global Stiffness",
+            "stabilizationType": "Global Stiffness",
             "thickness": "0.01",
             "hourglassCoefficient": "1",
             "actualHorizon": None,
@@ -546,7 +546,7 @@ default_model = {
             "detachedNodesCheck": True,
             "thickness": 10,
             "hourglassCoefficient": 1,
-            "stabilizatonType": "Global Stiffness",
+            "stabilizationType": "Global Stiffness",
             "criticalEnergyCalc": {
                 "calculateCriticalEnergy": False,
                 "k1c": None,

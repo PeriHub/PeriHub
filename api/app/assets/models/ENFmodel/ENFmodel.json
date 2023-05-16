@@ -31,7 +31,7 @@
       "nonLinear": false,
       "planeStress": true,
       "materialSymmetry": "Isotropic",
-      "stabilizatonType": "Global Stiffness",
+      "stabilizationType": "Global Stiffness",
       "thickness": "1",
       "hourglassCoefficient": 1,
       "actualHorizon": null,
@@ -153,7 +153,7 @@
       "detachedNodesCheck": true,
       "thickness": 10,
       "hourglassCoefficient": 1,
-      "stabilizatonType": "Global Stiffness",
+      "stabilizationType": "Global Stiffness",
       "criticalEnergyCalc": {
         "calculateCriticalEnergy": false,
         "k1c": "316.22776601683796",

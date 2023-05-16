@@ -116,7 +116,7 @@ class GICmodel:
         nonLinear=False,
         planeStress=True,
         materialSymmetry="Isotropic",
-        stabilizatonType="Global Stiffness",
+        stabilizationType="Global Stiffness",
         thickness=10.0,
         hourglassCoefficient=1.0,
         actualHorizon=None,
@@ -151,7 +151,7 @@ class GICmodel:
         detachedNodesCheck=True,
         thickness=10,
         hourglassCoefficient=1.0,
-        stabilizatonType="Global Stiffness",
+        stabilizationType="Global Stiffness",
     )
 
     compute_dict_1 = Compute(

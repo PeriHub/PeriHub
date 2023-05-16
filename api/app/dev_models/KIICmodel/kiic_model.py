@@ -94,7 +94,7 @@ class KIICmodel:
         nonLinear=False,
         planeStress=True,
         materialSymmetry="Isotropic",
-        stabilizatonType="Global Stiffness",
+        stabilizationType="Global Stiffness",
         thickness=10.0,
         hourglassCoefficient=1.0,
         actualHorizon=None,
@@ -116,7 +116,7 @@ class KIICmodel:
         detachedNodesCheck=True,
         thickness=1,
         hourglassCoefficient=1.0,
-        stabilizatonType="Global Stiffness",
+        stabilizationType="Global Stiffness",
     )
 
     compute_dict = Compute(

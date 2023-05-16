@@ -189,7 +189,9 @@ class XMLcreator:
                     + '"/>\n'
                 )
             string += (
-                '            <Parameter name="Stabilizaton Type" type="string" value="' + mat.stabilizatonType + '"/>\n'
+                '            <Parameter name="Stabilization Type" type="string" value="'
+                + mat.stabilizationType
+                + '"/>\n'
             )
             string += (
                 '            <Parameter name="Thickness" type="double" value="' + str(float(mat.thickness)) + '"/>\n'
@@ -454,8 +456,8 @@ class XMLcreator:
                 + '"/>\n'
             )
             string += (
-                '            <Parameter name="Stabilizaton Type" type="string" value="'
-                + str(dam.stabilizatonType)
+                '            <Parameter name="Stabilization Type" type="string" value="'
+                + str(dam.stabilizationType)
                 + '"/>\n'
             )
             string += "        </ParameterList>\n"
