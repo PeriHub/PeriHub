@@ -44,6 +44,16 @@
                 standout
                 dense
             ></q-input>
+            <q-input
+                class="my-input"
+                v-model="model.cracklength"
+                v-show="['GICmodel','GIICmodel','CompactTension'].includes(model.modelNameSelected)"
+                @update:model-value="bus.emit('updateCracklength')"
+                :rules="[rules.required, rules.float]"
+                label="Cracklength"
+                standout
+                dense
+            ></q-input>
             <q-toggle
                 class="my-toggle"
                 v-model="model.notchEnabled"
@@ -55,6 +65,7 @@
                 class="my-input"
                 v-model="model.width"
                 v-show="!model.ownModel & model.modelNameSelected!='RVE' & !model.twoDimensional"
+                @update:model-value="bus.emit('updateCracklength')"
                 :rules="[rules.required, rules.float]"
                 label="Width"
                 standout

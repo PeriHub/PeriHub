@@ -201,6 +201,9 @@
         created() {
             this.bus.on('showHideBondFilters', () => {
                 this.showHideBondFilters()
+            }),
+            this.bus.on('updateCracklength', () => {
+                this.updateCracklength()
             })
         },
         data() {
@@ -228,6 +231,23 @@
             };
         },
         methods: {
+            updateCracklength()  {
+                if(this.store.modelData.model.modelNameSelected=='CompactTension'){
+                    const cracklength = this.store.modelData.model.cracklength
+                    const length = this.store.modelData.model.length
+                    console.log(cracklength)
+                    console.log(length)
+                    const width = this.store.modelData.model.width
+                    this.store.modelData.bondFilters[0].bottomLength = +cracklength + 0.5 + 0.25 * +length
+                    if(this.store.modelData.model.twoDimensional){
+                        this.store.modelData.bondFilters[0].sideLength = 2.0
+                        this.store.modelData.bondFilters[0].lowerLeftCornerZ = -1
+                    }else{
+                        this.store.modelData.bondFilters[0].sideLength = width + 2.0
+                        this.store.modelData.bondFilters[0].lowerLeftCornerZ = (-width / 2) - 1
+                    }
+                }
+            },
             addBondFilter() {
                 const len = this.store.modelData.bondFilters.length;
                 let newItem = deepCopy(this.store.modelData.bondFilters[len - 1])
