@@ -27,11 +27,25 @@
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
-                    Which variable do you want to display ?
+                    Configurations
                     <q-input
                         v-model="gcodeDiscretization"
                         :rules="[rules.float]"
                         label="Discretization"
+                        clearable
+                        standout
+                    ></q-input>
+                    <q-input
+                        v-model="gcodeDt"
+                        :rules="[rules.float]"
+                        label="dt"
+                        clearable
+                        standout
+                    ></q-input>
+                    <q-input
+                        v-model="gcodeScale"
+                        :rules="[rules.float]"
+                        label="Scale"
                         clearable
                         standout
                     ></q-input>
@@ -132,6 +146,8 @@ export default defineComponent({
         return {
             dialogGcode: false,
             gcodeDiscretization: 1,
+            gcodeDt: 0.02,
+            gcodeScale: 0.001,
             gcodeFile: undefined,
         };
     },
@@ -294,7 +310,9 @@ export default defineComponent({
             let params={
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName,
-                discretization: this.gcodeDiscretization
+                discretization: this.gcodeDiscretization,
+                dt: this.gcodeDt,
+                scale: this.gcodeScale
             }
 
             await this.$api.post('/translateGcode', '', {params})

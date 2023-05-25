@@ -314,6 +314,7 @@ class ModelControl:
 
             own = OwnModel(
                 model_data=model_data,
+                filename=model_name,
                 model_folder_name=model_folder_name,
                 username=username,
                 disc_type=disc_type,
@@ -332,7 +333,7 @@ class ModelControl:
         )
 
     @app.post("/translateModel", tags=["Post Methods"])
-    def translate_model(model_name: str, model_folder_name: str, file_type: str, request: Request):
+    def translate_model(model_name: str, file_type: str, model_folder_name: str = "Default", request: Request = ""):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
@@ -448,7 +449,14 @@ class ModelControl:
         )
 
     @app.post("/translateGcode", tags=["Post Methods"])
-    async def translate_gcode(model_name: str, model_folder_name: str, discretization: float, request: Request):
+    async def translate_gcode(
+        model_name: str,
+        discretization: float,
+        dt: float,
+        scale: float,
+        model_folder_name: str = "Default",
+        request: Request = "",
+    ):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 
@@ -457,7 +465,7 @@ class ModelControl:
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
         # output_path = FileHandler.get_local_user_path(username)
 
-        gcodereader.GcodeReader.read(model_name, localpath, localpath, discretization)
+        gcodereader.GcodeReader.read(model_name, localpath, localpath, discretization, dt, scale)
 
         log.info(
             "%s has been translated in %.2f seconds",
@@ -472,8 +480,8 @@ class ModelControl:
     @app.post("/uploadfiles", tags=["Post Methods"])
     async def upload_files(
         model_name: str,
-        model_folder_name: str,
-        request: Request,
+        model_folder_name: str = "Default",
+        request: Request = "",
         files: List[UploadFile] = File(...),
     ):
         """doc"""
@@ -497,8 +505,8 @@ class ModelControl:
     @app.put("/writeInputFile", tags=["Put Methods"])
     def write_input_file(
         model_name: str,
-        model_folder_name: str,
         input_string: str,
+        model_folder_name: str = "Default",
         file_type: FileType = FileType.YAML,
         request: Request = "",
     ):
@@ -749,7 +757,7 @@ class ModelControl:
         )
 
     @app.get("/generateMesh", tags=["Get Methods"])
-    def generate_mesh(model_name: str, model_folder_name: str, param: str, request: Request):
+    def generate_mesh(model_name: str, param: str, model_folder_name: str = "Default", request: Request = ""):
         """doc"""
         username = FileHandler.get_user_name(request, dev)
 

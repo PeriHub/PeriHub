@@ -13,6 +13,7 @@
                 class="my-input"
                 v-model="model.modelFolderName"
                 label="Model Subname"
+                placeholder="Default"
                 standout
                 dense
             ></q-input>
@@ -340,9 +341,11 @@
             'store.modelData.model.modelNameSelected': {
                 handler() {
                     console.log(this.store.modelData.model.modelNameSelected)
-                    this.bus.emit("showModelImg", this.store.modelData.model.modelNameSelected)
+                    if(!this.store.modelData.model.ownModel){
+                        this.bus.emit("showModelImg", this.store.modelData.model.modelNameSelected)
+                        this.resetData()
+                    }
                     this.bus.emit("getStatus")
-                    this.resetData()
                 },
             },
         }
