@@ -455,9 +455,9 @@ class ModelControl:
         start_time = time.time()
 
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
-        output_path = FileHandler.get_local_user_path(username)
+        # output_path = FileHandler.get_local_user_path(username)
 
-        gcodereader.GcodeReader.read(model_name, localpath, output_path, discretization)
+        gcodereader.GcodeReader.read(model_name, localpath, localpath, discretization)
 
         log.info(
             "%s has been translated in %.2f seconds",
