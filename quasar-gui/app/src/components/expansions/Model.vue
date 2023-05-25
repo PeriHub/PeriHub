@@ -12,7 +12,6 @@
             <q-input 
                 class="my-input"
                 v-model="model.modelFolderName"
-                v-show="!model.ownModel"
                 label="Model Subname"
                 standout
                 dense

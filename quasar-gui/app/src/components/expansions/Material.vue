@@ -560,7 +560,7 @@
                         message: response.data.message
                     })
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.$q.notify({
                         type: 'negative',
                         message: error.response.data.detail
