@@ -78,6 +78,7 @@
                                 v-model="material.numStateVars"
                                 :rules="[rules.required, rules.int]"
                                 :label="materialKeys.numStateVars"
+                                @update:model-value="bus.emit('addStateVarsToOutput', material.numStateVars)"
                                 standout
                                 dense
                             ></q-input>

@@ -185,6 +185,9 @@
             }
         },
         created() {
+            this.bus.on('addStateVarsToOutput', (numStateVars) => {
+                this.addStateVarsToOutput(numStateVars)
+            })
         },
         data() {
             return {
@@ -268,6 +271,14 @@
                     }
                 })
             },
+            addStateVarsToOutput(numStateVars) {
+                for (var i = 1; i <= numStateVars; i++) {
+                    var name = "State_Parameter_Field_" + i.toString()
+                    if (!this.outputKeys.includes(name)){
+                        this.outputKeys.push("State_Parameter_Field_" + i.toString())
+                    }
+                }
+            },
             addCompute() {
                 const len = this.computes.length;
                 let newItem = deepCopy(this.computes[len - 1])
@@ -290,7 +301,7 @@
                 });
             },
             removeOutput(index) {
-            this.outputs.splice(index, 1);
+                this.outputs.splice(index, 1);
             },
         }
     })
