@@ -66,6 +66,7 @@ class SbatchCreator:
         string += "module load GCCcore/10.2.0" + "\n"
         string += "module load CMake/3.18.4" + "\n"
         string += "module load Eigen" + "\n"
+        string += "module load intel" + "\n"
         string += "export PATH=$PATH:/home/" + self.user + "/software/trilinos/bin" + "\n"
 
         string += (
