@@ -555,13 +555,13 @@ class ModelControl:
                 status_code=404,
                 detail=return_string,
             )
-        if user_mat:
-            return_string = FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster)
-            if return_string != "Success":
-                raise HTTPException(
-                    status_code=404,
-                    detail=return_string,
-                )
+
+        return_string = FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
+        if return_string != "Success":
+            raise HTTPException(
+                status_code=404,
+                detail=return_string,
+            )
 
         if cluster == "FA-Cluster":
             remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)

@@ -282,7 +282,7 @@ class FileHandler:
         return "Success"
 
     @staticmethod
-    def copy_lib_to_cluster(username, model_name, model_folder_name, cluster):
+    def copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat):
         """doc"""
 
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
@@ -300,14 +300,25 @@ class FileHandler:
             if len(files) == 0:
                 log.error("Shared libray can not been found")
             for name in files:
-                if name.split(".")[-1] == "so":
-                    print(os.path.join(root, name))
-                    print(os.path.join(remotepath, "libusermat.so"))
-                    sftp.put(
-                        os.path.join(root, name),
-                        os.path.join(remotepath, "libusermat.so"),
-                    )
-                    return "Success"
+                if user_mat:
+                    if name.split(".")[-1] == "so":
+                        print(os.path.join(root, name))
+                        print(os.path.join(remotepath, "libusermat.so"))
+                        sftp.put(
+                            os.path.join(remotepath, "libusermat.so"),
+                            os.path.join(remotepath, "libusermat_base.so"),
+                        )
+                        sftp.put(
+                            os.path.join(root, name),
+                            os.path.join(remotepath, "libusermat.so"),
+                        )
+                        return "Success"
+                else:
+                    if os.path.exists(os.path.join(remotepath, "libusermat_base.so")):
+                        sftp.put(
+                            os.path.join(remotepath, "libusermat_base.so"),
+                            os.path.join(remotepath, "libusermat.so"),
+                        )
 
         sftp.close()
         ssh.close()
