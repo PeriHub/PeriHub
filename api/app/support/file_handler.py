@@ -302,9 +302,11 @@ class FileHandler:
             for name in files:
                 if user_mat:
                     if name.split(".")[-1] == "so":
-                        print(os.path.join(root, name))
-                        print(os.path.join(remotepath, "libusermat.so"))
-                        if not os.path.exists(os.path.join(remotepath, "libusermat_base.so")):
+                        lib_file_path = os.path.join(remotepath, "libusermat.so")
+                        lib_base_file_path = os.path.join(remotepath, "libusermat_base.so")
+                        try:
+                            print(sftp.stat(lib_base_file_path))
+                        except IOError:
                             sftp.rename(
                                 os.path.join(remotepath, "libusermat.so"),
                                 os.path.join(remotepath, "libusermat_base.so"),
@@ -315,12 +317,15 @@ class FileHandler:
                         )
                         return "Success"
                 else:
-                    if os.path.exists(os.path.join(remotepath, "libusermat_base.so")):
-                        sftp.remove(os.path.join(remotepath, "libusermat.so"))
+                    try:
+                        print(sftp.stat(lib_base_file_path))
+                        # sftp.remove(os.path.join(remotepath, "libusermat.so"))
                         sftp.rename(
                             os.path.join(remotepath, "libusermat_base.so"),
                             os.path.join(remotepath, "libusermat.so"),
                         )
+                    except IOError:
+                        pass
 
         sftp.close()
         ssh.close()
