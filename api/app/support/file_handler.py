@@ -304,10 +304,9 @@ class FileHandler:
                     if name.split(".")[-1] == "so":
                         print(os.path.join(root, name))
                         print(os.path.join(remotepath, "libusermat.so"))
-                        sftp.put(
+                        sftp.rename(
                             os.path.join(remotepath, "libusermat.so"),
                             os.path.join(remotepath, "libusermat_base.so"),
-                            confirm=False,
                         )
                         sftp.put(
                             os.path.join(root, name),
