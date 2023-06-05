@@ -307,6 +307,7 @@ class FileHandler:
                         sftp.put(
                             os.path.join(remotepath, "libusermat.so"),
                             os.path.join(remotepath, "libusermat_base.so"),
+                            confirm=False,
                         )
                         sftp.put(
                             os.path.join(root, name),
