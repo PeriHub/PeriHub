@@ -132,11 +132,28 @@
                             standout
                             dense
                         ></q-select>
+                        <q-toggle
+                            class="my-toggle"
+                            v-model="output.useOutputFrequency"
+                            label="Use Output Frequency"
+                            standout
+                            dense
+                        ></q-toggle>
                         <q-input 
+                            v-if="output.useOutputFrequency"
                             class="my-input"
                             v-model="output.Frequency"
-                            :rules="[rules.required, rules.name]"
+                            :rules="[rules.int]"
                             label="Output Frequency"
+                            standout
+                            dense
+                        ></q-input>
+                        <q-input 
+                            v-if="!output.useOutputFrequency"
+                            class="my-input"
+                            v-model="output.numberOfOutputSteps"
+                            :rules="[rules.int]"
+                            label="Number of Outputs"
                             standout
                             dense
                         ></q-input>

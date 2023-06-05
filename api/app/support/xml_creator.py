@@ -774,7 +774,14 @@ class XMLcreator:
                 string += (
                     '        <Parameter name="Initial Output Step" type="int" value="' + str(out.InitStep) + '"/>\n'
                 )
-            string += '        <Parameter name="Output Frequency" type="int" value="' + str(out.Frequency) + '"/>\n'
+            if out.useOutputFrequency:
+                string += '        <Parameter name="Output Frequency" type="int" value="' + str(out.Frequency) + '"/>\n'
+            else:
+                string += (
+                    '        <Parameter name="Number of Output Steps" type="int" value="'
+                    + str(out.numberOfOutputSteps)
+                    + '"/>\n'
+                )
             string += '        <Parameter name="Parallel Write" type="bool" value="True"/>\n'
             if out.Write_After_Damage:
                 string += '        <Parameter name="Write After Damage" type="bool" value="True"/>\n'

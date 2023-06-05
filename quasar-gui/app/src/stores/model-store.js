@@ -372,6 +372,8 @@ export const useModelStore = defineStore("model", {
 
           Write_After_Damage: false,
           Frequency: 100,
+          numberOfOutputSteps: 100,
+          useOutputFrequency: false,
           InitStep: 0,
         },
       ],

@@ -244,7 +244,9 @@ class Output(BaseModel):
     selectedOutputs: Optional[List[str]] = None
 
     Write_After_Damage: Optional[bool] = None
-    Frequency: int
+    Frequency: Optional[int] = 100
+    numberOfOutputSteps: Optional[int] = 100
+    useOutputFrequency: Optional[bool] = False
     InitStep: int
 
 
