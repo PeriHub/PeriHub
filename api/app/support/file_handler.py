@@ -300,29 +300,29 @@ class FileHandler:
             if len(files) == 0:
                 log.error("Shared libray can not been found")
             for name in files:
+                lib_file_path = os.path.join(remotepath, "libusermat.so")
+                lib_base_file_path = os.path.join(remotepath, "libusermat_base.so")
                 if user_mat:
                     if name.split(".")[-1] == "so":
-                        lib_file_path = os.path.join(remotepath, "libusermat.so")
-                        lib_base_file_path = os.path.join(remotepath, "libusermat_base.so")
                         try:
                             print(sftp.stat(lib_base_file_path))
                         except IOError:
                             sftp.rename(
-                                os.path.join(remotepath, "libusermat.so"),
-                                os.path.join(remotepath, "libusermat_base.so"),
+                                lib_file_path,
+                                lib_base_file_path,
                             )
                         sftp.put(
                             os.path.join(root, name),
-                            os.path.join(remotepath, "libusermat.so"),
+                            lib_file_path,
                         )
                         return "Success"
                 else:
                     try:
                         print(sftp.stat(lib_base_file_path))
-                        # sftp.remove(os.path.join(remotepath, "libusermat.so"))
+                        # sftp.remove(lib_file_path)
                         sftp.rename(
-                            os.path.join(remotepath, "libusermat_base.so"),
-                            os.path.join(remotepath, "libusermat.so"),
+                            lib_base_file_path,
+                            lib_file_path,
                         )
                     except IOError:
                         pass
