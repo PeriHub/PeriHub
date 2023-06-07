@@ -324,8 +324,9 @@ class FileHandler:
                             lib_base_file_path,
                             lib_file_path,
                         )
+                        return "Success"
                     except IOError:
-                        pass
+                        return "Success"
 
         sftp.close()
         ssh.close()
