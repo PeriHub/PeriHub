@@ -29,12 +29,18 @@ RUN cmake --version
 
 #Build Trilinos
 RUN git clone https://github.com/trilinos/Trilinos.git trilinos; \
-    # git checkout trilinos-release-13-1-0; \
-    mkdir trilinos/build
+    cd trilinos; \
+    git checkout trilinos-release-13-2-0; \
+    mkdir build; \
+    ls -la; \
+    cd ..
 ADD trilinosCmake.sh /trilinos/build/trilinosCmake.sh
-RUN chmod +x /trilinos/build/trilinosCmake.sh
-RUN cd trilinos/build; \
-    ./trilinosCmake.sh; \
-    make && make install; \
+# RUN chmod +x /trilinos/build/trilinosCmake.sh
+RUN cd /trilinos/build; \
+    chmod +x trilinosCmake.sh; \
+    ls -la; \
+    # ./trilinosCmake.sh; \
+    bash trilinosCmake.sh; \
+    make -j 8 && make install; \
     cd ../..; \
     rm -rf trilinos
