@@ -24,7 +24,7 @@
       "bulkModulus": 1.27e6,
       "shearModulus": null,
       "youngsModulus": null,
-      "poissonsRatio": null,
+      "poissonsRatio": 0.3,
       "tensionSeparation": false,
       "nonLinear": false,
       "planeStress": true,
