@@ -11,7 +11,7 @@ from shepard_client.models.structured_data_reference import StructuredDataRefere
 
 HOST = "https://shepard-api.fa-services.intra.dlr.de/shepard/api"
 # APIKEY = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI4NTM1NzE5MS0xZTFiLTQ2MmEtYmQ5OS0xNTUyMGNlZTBjMGEiLCJpc3MiOiJodHRwczovL3NoZXBhcmQtYXBpLmZhLXNlcnZpY2VzLmludHJhLmRsci5kZS9zaGVwYXJkL2FwaS8iLCJuYmYiOjE2NTgxNTAwMTYsImlhdCI6MTY1ODE1MDAxNiwianRpIjoiYjVjOGU2MTEtY2ZmOS00NDI0LWJjMDEtNjE1ZTVmYzFhYjRjIn0.pxDk81-_EI2rF0HJf68yBx7dDO57bDl8WMr1O6-PHmVoompisb3daTQTuf0uPR3bxSFoSNkfRZpTypM6NoOSGmJ94eQPcRZo331MS1vNrhcPqz38tx4J0BiL_2idmh1aSmIDsbzsG8Zcv97mSL5Euh6kWe2DtDnlu-2i1LZmdcTpKbeFI2ixCJMtIy-YL4eNzdUtR41nBsRJpT-vkjeyCoN0zYLnV6DIWf6NnnxJycgZO027MHHcLbovIffNjDSiVgr37BoGQisRazV07bsOfUIjc14qvQlK3CaCP9JLOQ_oJy6tv9SUe00-prMG6U-y1iu1Tzt5EYQ5oApkhIS0_w"
-APIKEY = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyYTNmODM4YS1iNjU5LTRkMTgtYmYxMy0wNTkwOTgyMWZmMzQiLCJpc3MiOiJodHRwczovL3NoZXBhcmQtYXBpLmZhLXNlcnZpY2VzLmludHJhLmRsci5kZS9zaGVwYXJkL2FwaS8iLCJuYmYiOjE2NjkzMDM2ODQsImlhdCI6MTY2OTMwMzY4NCwianRpIjoiYTI3ZDQ0ODMtYTk4My00OTVhLTk5OGItNTA0OTA1MTNkY2M0In0.gwmamIIEAOah7M1bzK8Y5wwIHq-BmRb3-GlyCZl7PvsokTU3EuW-HRfHfRWq6z53v8iykyMg69B5hbiwv8nt2vVP3h86nOMUlZ1SwqL1VJGwSH1aLBDbNT2_RP-CR5mPITcnziQiERPNhy5ppX-ct-BpV3eRWnWCL0YKQJg2TYvzea53Re-VRGH0v-Je3HxpUISmsUBN56iQI8DEb94Vc9nYv_rdEB4cs9zmeYAV7CGTonE5aA6eWiyQRd-VtJ2uQnAQQz4Q9SJvU5s6ks4rPyHylwRVPirJMBCtfZnKd9wbdyUoG_zm67Yu_37RwviTuVdjlrhCOto0Ql1I8mFI8A"
+APIKEY = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyYTNmODM4YS1iNjU5LTRkMTgtYmYxMy0wNTkwOTgyMWZmMzQiLCJpc3MiOiJodHRwczovL3NoZXBhcmQtYXBpLmZhLXNlcnZpY2VzLmludHJhLmRsci5kZS9zaGVwYXJkL2FwaS8iLCJuYmYiOjE2ODY2NTg1MjUsImlhdCI6MTY4NjY1ODUyNSwianRpIjoiMDlhOTUxMmQtMjZiNS00Nzg3LWIzZGItNTU3ZjJlYzljMWY2In0.jtabm2bN164QqPDskNZ2saCHB0sLm1Nwo-9gmHxoDmeB_BMJY2uMleB2wSCEdJBJcBAPMhUWV0pzK4dVBp--MUW4UbVhf6iMzo4jAEtGtHFSpjcZftPSHInR17XJecE8VF5EhI2c51_KYjlHaqoMYRt0N0P5o8YaD-T3oD6VIXqmnaY3gfnelrD6bdKi9iH1O3PGjxvc-ZFg9EATUMZs--WAJMVZfdCeAhBYEIprSbN1XL3TR0J8x0hiGyfRgWZx4I0tUn0NjMziZnCFmjP5PlCckr3of3gJRfRJ4DLMgdWEPX3Ra_fMvS08kenSVC9nXb1EpceGAwsVd4KiRShH8w"
 # Set up configuration
 conf = Configuration(host=HOST, api_key={"apikey": APIKEY})
 conf.access_token = None
@@ -20,15 +20,15 @@ client = ApiClient(configuration=conf)
 # In order to upload structured data, you first need to create a container into which you can upload your data
 structureddata_api = StructureddataApi(client)
 
-collection_id = 12187
+collection_id = 22058
 # dataobject_id = 12196
-dataobject_id = 12211
-container_id = 12189
+dataobject_id = 22085
+container_id = 22060
 
 # Read local json data
 model = "Kalthoff-Winkler"
 # model = "Smetana"
-path = "gui/app/src/assets/models"
+path = "api/app/assets/models"
 # for model in next(os.walk(path))[1]:
     
 with open(os.path.join(path, model, model + ".json"), "r", encoding="UTF-8") as file:
