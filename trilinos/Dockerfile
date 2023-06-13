@@ -21,10 +21,11 @@ RUN apt-get -yq install g++ \
                         git \
                         libyaml-cpp-dev
 
-ADD https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-linux-x86_64.sh /cmake-3.20.5-Linux-x86_64.sh
-RUN mkdir /opt/cmake
-RUN sh /cmake-3.20.5-Linux-x86_64.sh --prefix=/opt/cmake --skip-license
-RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+RUN apt-get -yq cmake
+# ADD https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-linux-x86_64.sh /cmake-3.20.5-Linux-x86_64.sh
+# RUN mkdir /opt/cmake
+# RUN sh /cmake-3.20.5-Linux-x86_64.sh --prefix=/opt/cmake --skip-license
+# RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
 RUN cmake --version
 
 #Build Trilinos
@@ -32,13 +33,11 @@ RUN git clone https://github.com/trilinos/Trilinos.git trilinos; \
     cd trilinos; \
     git checkout trilinos-release-13-2-0; \
     mkdir build; \
-    ls -la; \
     cd ..
 ADD trilinosCmake.sh /trilinos/build/trilinosCmake.sh
 # RUN chmod +x /trilinos/build/trilinosCmake.sh
 RUN cd /trilinos/build; \
     chmod +x trilinosCmake.sh; \
-    ls -la; \
     # ./trilinosCmake.sh; \
     bash trilinosCmake.sh; \
     make -j 8 && make install; \
