@@ -167,13 +167,13 @@
                             class="my-input"
                             :options="materialSymmetry"
                             v-model="material.materialSymmetry"
-                            v-show="material.matType=='Linear Elastic Correspondence'"
+                            v-show="['Linear Elastic Correspondence','Anisotropic Elastic Bond Associated Correspondence'].include(material.matType)"
                             :label="materialKeys.materialSymmetry"
                             standout
                             dense
                         ></q-select>
                     </div>
-                    <div class="row my-row" v-if="material.materialSymmetry=='Anisotropic' & material.matType=='Linear Elastic Correspondence'">
+                    <div class="row my-row" v-if="material.materialSymmetry=='Anisotropic' & ['Linear Elastic Correspondence','Anisotropic Elastic Bond Associated Correspondence'].include(material.matType)">
                       <q-list
                         v-for="params in material.Parameter"
                         :key="params.index"
@@ -432,6 +432,8 @@
                     "Diffusion",
                     "Elastic",
                     "Elastic Bond Based",
+                    "Elastic Bond Associated Correspondence",
+                    "Anisotropic Elastic Bond Associated Correspondence",
                     "Elastic Correspondence",
                     "Elastic Correspondence Partial Stress",
                     "Elastic Hypoelastic Correspondence",
