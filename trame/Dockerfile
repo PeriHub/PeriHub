@@ -1,6 +1,9 @@
 FROM python:3.9
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
+ARG DEV
+ENV DEV $DEV
+
 RUN apt-get update --allow-insecure-repositories &&\
     apt-get install libglapi-mesa
 

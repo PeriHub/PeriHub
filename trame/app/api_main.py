@@ -50,7 +50,7 @@ app.add_middleware(
 )
 load_dotenv()
 
-dev = os.environ.get("DEV")
+dev = os.getenv("DEV")
 if dev:
     print("--- Running in development mode ---")
 
@@ -104,7 +104,7 @@ class Launcher:
             return "All ports are already used"
 
         command = (
-            "./paraView/ParaView-5.10.1-osmesa-MPI-Linux-Python3.9-x86_64/bin/pvpython main.py "
+            "./paraView/ParaView-5.11.1-osmesa-MPI-Linux-Python3.9-x86_64/bin/pvpython main.py "
             + username
             + " "
             + model_name
@@ -120,7 +120,7 @@ class Launcher:
             + str(num_of_blocks)
             + " --venv pvenv --port "
             + str(newPort)
-            + " --host 0.0.0.0"
+            + " --host 0.0.0.0 -m paraview.apps.trame --trame-app main"
             # + " --ssl 'adhoc'"
         )
 

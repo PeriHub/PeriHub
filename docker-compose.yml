@@ -68,6 +68,8 @@ services:
   trame:
     build:
       context: trame/.
+      args:
+        DEV: ${DEV}
     container_name: perihub_trame
     image: trame_image
     ports:

@@ -8,6 +8,7 @@ from trame.widgets import vuetify, paraview, trame
 from trame.ui.vuetify import SinglePageWithDrawerLayout
 
 
+import paraview as pv
 from paraview import simple
 
 # -----------------------------------------------------------------------------
@@ -100,6 +101,7 @@ state.time_value = time_values[0]
 state.times = len(time_values) - 1
 
 state.raycast = True
+state.axes_grid = True
 
 # get display properties
 Output1Display = simple.GetDisplayProperties(Output1, view=renderView1)
@@ -201,6 +203,14 @@ async def animate():
 #     glyph1.ScaleFactor = scale
 #     update_view()
 
+@state.change("axes_grid")
+def update_axes_grid(axes_grid, **kwargs):
+    if axes_grid:
+        renderView1.AxesGrid.Visibility = 1
+    else:
+        renderView1.AxesGrid.Visibility = 0
+    update_view()
+
 @state.change("raycast")
 def update_scale(raycast, **kwargs):
     if raycast:
@@ -224,7 +234,9 @@ def update_scale(displacement_magnitude, **kwargs):
 
 @state.change("time")
 def update_time(time, **kwargs):
-    # print("update_time", time)
+    if len(time_values) == 0:
+        return
+
     if time >= len(time_values):
         time = 0
         state.time = time
@@ -234,9 +246,14 @@ def update_time(time, **kwargs):
     update_view()
 
 @state.change("play")
-def update_play(play, **kwargs):
-    loop = asyncio.get_event_loop()
-    loop.create_task(animate())
+@asynchronous.task
+async def update_play(**kwargs):
+    while state.play:
+        with state:
+            state.time += 1
+            update_time(state.time)
+
+        await asyncio.sleep(0.1)
     
 @state.change("viewMode")
 def update_view(**kwargs):
@@ -275,24 +292,53 @@ view.UseColorPaletteForBackground = 1
 view.OrientationAxesVisibility = 1
 view = simple.Render()
 
+def standard_buttons():
+    vuetify.VCheckbox(
+        v_model=("raycast", True),
+        on_icon="mdi-flashlight",
+        off_icon="mdi-flashlight-off",
+        classes="mx-1",
+        hide_details=True,
+        dense=True,
+    )
+    vuetify.VCheckbox(
+        v_model=("axes_grid", True),
+        on_icon="mdi-cube-outline",
+        off_icon="mdi-cube-off-outline",
+        classes="mx-1",
+        hide_details=True,
+        dense=True,
+    )
+    vuetify.VCheckbox(
+        v_model=("$vuetify.theme.dark", True),
+        on_icon="mdi-lightbulb-off-outline",
+        off_icon="mdi-lightbulb-outline",
+        classes="mx-1",
+        hide_details=True,
+        dense=True,
+    )
+    # vuetify.VCheckbox(
+    #     v_model=("viewMode", "local"), # VtkRemoteLocalView => {namespace}Mode=['local', 'remote']
+    #     on_icon="mdi-lan-disconnect",
+    #     off_icon="mdi-lan-connect",
+    #     true_value="local",
+    #     false_value="remote",
+    #     classes="mx-1",
+    #     hide_details=True,
+    #     dense=True,
+    # )
+    with vuetify.VBtn(icon=True, click=ctrl.view_reset_camera):
+        vuetify.VIcon("mdi-crop-free")
+
 with SinglePageWithDrawerLayout(server) as layout:
 
     layout.icon.click = ctrl.view_reset_camera
     layout.title.set_text(OutputName)
     with layout.toolbar:
         vuetify.VSpacer()
-        vuetify.VSwitch(
-            v_model=("$vuetify.theme.dark", True),
-            hide_details=True,
-            dense=True,
-        ),
-        vuetify.VSwitch(
-            v_model=("raycast", True),
-            hide_details=True,
-            dense=True,
-        ),
         with vuetify.VBtn(icon=True, click=reload):
             vuetify.VIcon("mdi-reload")
+        vuetify.VDivider(vertical=True, classes="mx-2")
         vuetify.VTextField(
             v_model=("time_value", 0),
             disabled=True,
@@ -311,10 +357,8 @@ with SinglePageWithDrawerLayout(server) as layout:
         )
         with vuetify.VBtn(icon=True, dense=True, click=first_time_step):
             vuetify.VIcon("mdi-skip-previous")
-        vuetify.VDivider(vertical=True, classes="mx-2")
         with vuetify.VBtn(icon=True, dense=True, click=previous_time_step):
             vuetify.VIcon("mdi-rewind")
-        vuetify.VDivider(vertical=True, classes="mx-2")
         vuetify.VCheckbox(
             v_model=("play", False),
             off_icon="mdi-play",
@@ -322,10 +366,8 @@ with SinglePageWithDrawerLayout(server) as layout:
             hide_details=True,
             dense=True,
         )
-        vuetify.VDivider(vertical=True, classes="mx-2")
         with vuetify.VBtn(icon=True, dense=True, click=next_time_step):
             vuetify.VIcon("mdi-fast-forward")
-        vuetify.VDivider(vertical=True, classes="mx-2")
         with vuetify.VBtn(icon=True, dense=True, click=last_time_step):
             vuetify.VIcon("mdi-skip-next")
         vuetify.VDivider(vertical=True, classes="mx-2")
@@ -344,6 +386,9 @@ with SinglePageWithDrawerLayout(server) as layout:
             outlined=True,
             classes="pt-1",
         )
+        vuetify.VSpacer()
+        vuetify.VDivider(vertical=True, classes="mx-2")
+        standard_buttons()
 
     with layout.drawer as drawer:
         # drawer components
