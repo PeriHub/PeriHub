@@ -4,7 +4,7 @@ import paraview.web.venv
 import asyncio
 
 from trame.app import get_server, asynchronous
-from trame.widgets import vuetify, paraview, trame
+from trame.widgets import vuetify, paraview, trame, html
 from trame.ui.vuetify import SinglePageWithDrawerLayout
 
 
@@ -393,31 +393,49 @@ with SinglePageWithDrawerLayout(server) as layout:
     with layout.drawer as drawer:
         # drawer components
         drawer.width = 200
-        vuetify.VSelect(
-            # Contour By
-            label="Blocks",
-            v_model=("block_array_selection", block_array_selection),
-            items=("array_list", block_array),
-            hide_details=True,
-            dense=True,
-            outlined=True,
-            multiple=True,
-            clearable=True,
-            classes="pt-1",
-        )
+        with vuetify.VCard(
+            classes="mb-2 mx-1"
+        ):
+            with vuetify.VCardTitle(classes="py-0"):
+                html.Div("Blocks")
+                # vuetify.VSpacer()
+                # html.Div("{{ wavelet_size }}")
+
+            vuetify.VDivider()
+            with vuetify.VCardText():
+                vuetify.VSelect(
+                    # Contour By
+                    label="Blocks",
+                    v_model=("block_array_selection", block_array_selection),
+                    items=("array_list", block_array),
+                    hide_details=True,
+                    dense=True,
+                    outlined=True,
+                    multiple=True,
+                    clearable=True,
+                    classes="pt-1",
+                )
         vuetify.VDivider(classes="mb-2")
-        vuetify.VSwitch(
-            v_model=("apply_displacements", False),
-            label="Apply Displacements",
-            hide_details=True,
-            dense=True,
-        ),
-        vuetify.VTextField(
-            v_model=("displacement_magnitude", 1),
-            dense=True,
-            style="max-width: 200px",
-            classes="mx-2",
-        )
+        with vuetify.VCard(
+            classes="mb-2 mx-1"
+        ):
+            with vuetify.VCardTitle(classes="py-0"):
+                html.Div("Displacements")
+
+            vuetify.VDivider()
+            with vuetify.VCardText():
+                vuetify.VSwitch(
+                    v_model=("apply_displacements", False),
+                    label="Apply Displacements",
+                    hide_details=True,
+                    dense=True,
+                ),
+                vuetify.VTextField(
+                    v_model=("displacement_magnitude", 1),
+                    dense=True,
+                    style="max-width: 200px",
+                    classes="mx-2",
+                )
     with layout.content:
         with vuetify.VContainer(fluid=True, classes="pa-0 fill-height"):
             html_view = paraview.VtkRemoteView(view, namespace="view")
