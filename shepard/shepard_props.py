@@ -31,13 +31,15 @@ model = "CompactTension"
 path = "api/app/assets/models"
 # for model in next(os.walk(path))[1]:
 
-with open(os.path.join(path, model, model + ".json"), "r", encoding="UTF-8") as file:
+with open(
+    os.path.join(path, model, model + "Props.json"), "r", encoding="UTF-8"
+) as file:
     response = file.read()
 
     ###################### Structured Data ######################
     # Now you can upload some data into your newly created container
     payload = StructuredDataPayload(
-        structured_data=StructuredData(name=model),
+        structured_data=StructuredData(name=model + "Props"),
         payload=response,
     )
     created_structured_data = structureddata_api.create_structured_data(
@@ -51,7 +53,7 @@ with open(os.path.join(path, model, model + ".json"), "r", encoding="UTF-8") as 
     # With this identifier in combination with your container you can reference your data from anywhere
     structureddata_reference_api = StructureddataReferenceApi(client)
     reference_to_create = StructuredDataReference(
-        name="Model data reference",
+        name="Model props reference",
         structured_data_container_id=container_id,
         structured_data_oids=[created_structured_data.oid],
     )

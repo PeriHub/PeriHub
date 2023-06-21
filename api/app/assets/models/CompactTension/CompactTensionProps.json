@@ -1,0 +1,20 @@
+{
+    "props": [
+        {
+            "name": "disc40",
+            "model.discretization": 40
+        },
+        {
+            "name": "disc60",
+            "model.discretization": 60
+        },
+        {
+            "name": "disc80",
+            "model.discretization": 80
+        },
+        {
+            "name": "disc100",
+            "model.discretization": 100
+        }
+    ]
+}
