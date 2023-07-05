@@ -377,13 +377,15 @@ class ModelControl:
     async def websocket_endpoint_log(
         websocket: WebSocket,
         model_name: str = Query(...),
-        model_folder_name: str = Query(...),
+        model_folder_name: str = "Default",
         cluster: str = Query(...),
         token: str = Query(...),
     ):
         await websocket.accept()
         username = FileHandler.get_user_name_from_token(token, dev)
 
+        if model_folder_name == "undefined":
+            model_folder_name = "Default"
         if cluster == "None":
             remotepath = "./peridigmJobs/" + os.path.join(
                 username, model_name, model_folder_name
@@ -1511,7 +1513,12 @@ class ModelControl:
                         if not first_row:
                             str1 = "".join(row)
                             parts = str1.split()
-                            block_id_string += str(int(parts[3]) / max_block_id) + ","
+                            if max_block_id == 1:
+                                block_id_string += str(0.1) + ","
+                            else:
+                                block_id_string += (
+                                    str(int(parts[3]) / max_block_id) + ","
+                                )
                         first_row = False
                 response = [
                     point_string.rstrip(point_string[-1]),

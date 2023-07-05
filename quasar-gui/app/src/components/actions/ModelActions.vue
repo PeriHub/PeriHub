@@ -5,21 +5,10 @@
                 Load Model
             </q-tooltip>
         </q-btn>
-        <input
-            type="file"
-            style="display: none"
-            ref="fileInput"
-            accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp,.gcode"
-            @change="onFilePicked"
-        />
-        <input
-          type="file"
-          style="display: none"
-          ref="multifileInput"
-          multiple
-          accept="text/plain,.g"
-          @change="onMultiFilePicked"
-        />
+        <input type="file" style="display: none" ref="fileInput"
+            accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp,.gcode" @change="onFilePicked" />
+        <input type="file" style="display: none" ref="multifileInput" multiple accept="text/plain,.g"
+            @change="onMultiFilePicked" />
         <q-dialog v-model="dialogGcode" persistent max-width="800">
             <q-card>
                 <q-card-section>
@@ -28,27 +17,10 @@
 
                 <q-card-section class="q-pt-none">
                     Configurations
-                    <q-input
-                        v-model="gcodeDiscretization"
-                        :rules="[rules.float]"
-                        label="Discretization"
-                        clearable
-                        standout
-                    ></q-input>
-                    <q-input
-                        v-model="gcodeDt"
-                        :rules="[rules.float]"
-                        label="dt"
-                        clearable
-                        standout
-                    ></q-input>
-                    <q-input
-                        v-model="gcodeScale"
-                        :rules="[rules.float]"
-                        label="Scale"
-                        clearable
-                        standout
-                    ></q-input>
+                    <q-input v-model="gcodeDiscretization" :rules="[rules.float]" label="Discretization" clearable
+                        standout></q-input>
+                    <q-input v-model="gcodeDt" :rules="[rules.float]" label="dt" clearable standout></q-input>
+                    <q-input v-model="gcodeScale" :rules="[rules.float]" label="Scale" clearable standout></q-input>
                 </q-card-section>
                 <q-card-actions align="right">
                     <q-btn flat label="Ok" color="primary" v-close-popup @click="loadGcodeModel"></q-btn>
@@ -69,7 +41,8 @@
             </q-tooltip>
         </q-btn>
 
-        <q-btn v-if="modelData.modelmodelNameSelected=='RVE' & !modelData.modelownModel" flat icon="fas fa-cogs" @click="generateMesh">
+        <q-btn v-if="modelData.modelmodelNameSelected == 'RVE' & !modelData.modelownModel" flat icon="fas fa-cogs"
+            @click="generateMesh">
             <q-tooltip>
                 Generate Mesh
             </q-tooltip>
@@ -86,13 +59,13 @@
                 Upload Mesh and Nodesets
             </q-tooltip>
         </q-btn>
-        
+
         <q-btn flat icon="fas fa-download" @click="saveModel" :disable="!store.status.created">
             <q-tooltip>
                 Download Modelfiles
             </q-tooltip>
         </q-btn>
-        
+
         <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-backward" @click="switchModels">
             <q-tooltip>
                 Use predefined Models
@@ -116,32 +89,32 @@
 </template>
 
 <script>
-    import { computed, defineComponent } from 'vue'
-    import { parseFromJson } from '../../utils/functions.js'
-    import { useDefaultStore } from 'stores/default-store';
-    import { useModelStore } from 'stores/model-store';
-    import { useViewStore } from 'stores/view-store';
-    import { inject } from 'vue'
-    import rules from "assets/rules.js";
+import { computed, defineComponent } from 'vue'
+import { parseFromJson } from '../../utils/functions.js'
+import { useDefaultStore } from 'stores/default-store';
+import { useModelStore } from 'stores/model-store';
+import { useViewStore } from 'stores/view-store';
+import { inject } from 'vue'
+import rules from "assets/rules.js";
 
 export default defineComponent({
     name: "ModelActions",
-        setup() {
-            const store = useDefaultStore();
-            const modelStore = useModelStore();
-            const viewStore = useViewStore();
-            const modelData = computed(() => modelStore.modelData)
-            const bus = inject('bus')
+    setup() {
+        const store = useDefaultStore();
+        const modelStore = useModelStore();
+        const viewStore = useViewStore();
+        const modelData = computed(() => modelStore.modelData)
+        const bus = inject('bus')
 
-            return {
-                store,
-                viewStore,
-                modelStore,
-                modelData,
-                rules,
-                bus,
-            }
-        },
+        return {
+            store,
+            viewStore,
+            modelStore,
+            modelData,
+            rules,
+            bus,
+        }
+    },
     data() {
         return {
             dialogGcode: false,
@@ -206,24 +179,24 @@ export default defineComponent({
             for (var i = 0; i < files.length; i++) {
                 formData.append("files", files[i]);
             }
-            
-            let params={
+
+            let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName
             }
 
-            await this.$api.post('/uploadfiles', formData, {params})
-            .then((response) => {
-                this.$q.notify({
-                    message: response.data.message
+            await this.$api.post('/uploadfiles', formData, { params })
+                .then((response) => {
+                    this.$q.notify({
+                        message: response.data.message
+                    })
                 })
-            })
-            .catch((error) => {
-                this.$q.notify({
-                    type: 'negative',
-                    message: error.response.data.detail
+                .catch((error) => {
+                    this.$q.notify({
+                        type: 'negative',
+                        message: error.response.data.detail
+                    })
                 })
-            })
         },
         loadJsonFile(fr, file) {
             this.modelStore.modelData.model.ownMesh = false;
@@ -232,7 +205,7 @@ export default defineComponent({
 
             fr.onload = (e) => {
                 const result = JSON.parse(e.target.result);
-                parseFromJson(this.modelData,result)
+                parseFromJson(this.modelData, result)
             };
             fr.readAsText(file);
         },
@@ -301,13 +274,14 @@ export default defineComponent({
             const filetype = this.gcodeFile.name.split(".")[1];
 
             await this.translateGcode(this.gcodeFile, true);
+            this.bus.emit('viewPointData');
         },
         async translateGcode(file, upload) {
             if (upload) {
                 await this.uploadfiles([file]);
             }
-            
-            let params={
+
+            let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName,
                 discretization: this.gcodeDiscretization,
@@ -315,21 +289,21 @@ export default defineComponent({
                 scale: this.gcodeScale
             }
 
-            await this.$api.post('/translateGcode', '', {params})
-            .then((response) => {
-                this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + ".txt"
-                this.$q.notify({
-                    message: response.data.message
+            await this.$api.post('/translateGcode', '', { params })
+                .then((response) => {
+                    this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + ".txt"
+                    this.$q.notify({
+                        message: response.data.message
+                    })
+                    this.viewStore.viewId = "model";
+                    this.bus.emit('viewPointData');
                 })
-                this.viewStore.viewId = "model";
-                this.bus.emit('viewPointData');
-            })
-            .catch((error) => {
-                this.$q.notify({
-                    type: 'negative',
-                    message: error.message
+                .catch((error) => {
+                    this.$q.notify({
+                        type: 'negative',
+                        message: error.message
+                    })
                 })
-            })
 
             this.viewStore.modelLoading = false;
         },
@@ -345,76 +319,78 @@ export default defineComponent({
         },
         saveModel() {
 
-            let params = {model_name: this.modelData.model.modelNameSelected,
-                model_folder_name: this.modelData.model.modelFolderName}
-            this.$api.get('/getModel', {params, responseType: "blob"})
-            .then((response) => {
-                var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-                var fileLink = document.createElement("a");
-                fileLink.href = fileURL;
-                fileLink.setAttribute("download", this.modelData.model.modelNameSelected + "_" + this.modelData.model.modelFolderName + ".zip");
-                document.body.appendChild(fileLink);
-                fileLink.click();
-                this.$q.notify({
-                    message: response.data.message
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                model_folder_name: this.modelData.model.modelFolderName
+            }
+            this.$api.get('/getModel', { params, responseType: "blob" })
+                .then((response) => {
+                    var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                    var fileLink = document.createElement("a");
+                    fileLink.href = fileURL;
+                    fileLink.setAttribute("download", this.modelData.model.modelNameSelected + "_" + this.modelData.model.modelFolderName + ".zip");
+                    document.body.appendChild(fileLink);
+                    fileLink.click();
+                    this.$q.notify({
+                        message: response.data.message
+                    })
                 })
-            })
-            .catch((error) => {
-                this.$q.notify({
-                    type: 'negative',
-                    message: error.response.data.detail
+                .catch((error) => {
+                    this.$q.notify({
+                        type: 'negative',
+                        message: error.response.data.detail
+                    })
                 })
-            })
         },
-        async generateModel () {
+        async generateModel() {
 
             if (this.modelData.model.ownModel == false) {
                 this.viewStore.modelLoading = true;
             }
             this.viewStore.textLoading = true;
-            
-            let params={
+
+            let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName
             }
 
             this.viewStore.viewId = "model";
-            
-            await this.$api.post('/generateModel', this.modelData, {params})
-            .then((response) => {
-                this.$q.notify({
-                    message: response.data.message
-                })
-                this.bus.emit("viewInputFile",false)
-                if (this.modelData.model.ownModel == false) {
-                    console.log("generateModel")
-                    // if (this.viewStore.viewId != "model") {
-                    this.bus.emit('viewPointData');
-                    // }
-                }
-                this.bus.emit("getStatus")
-            })
-            .catch((error) => {
-                let message = "";
-                if (error.response!= undefined && error.response.status == 422) {
-                    for (let i in error.response.data.detail) {
-                        message += error.response.data.detail[i].loc[1] + " ";
-                        message += error.response.data.detail[i].loc[2] + ", ";
-                        message += error.response.data.detail[i].loc[3] + ", ";
-                        message += error.response.data.detail[i].msg + "\n";
+
+            await this.$api.post('/generateModel', this.modelData, { params })
+                .then((response) => {
+                    this.$q.notify({
+                        message: response.data.message
+                    })
+                    this.bus.emit("viewInputFile", false)
+                    if (this.modelData.model.ownModel == false) {
+                        console.log("generateModel")
+                        // if (this.viewStore.viewId != "model") {
+                        this.bus.emit('viewPointData');
+                        // }
                     }
-                    message = message.slice(0, -2);
-                }
-                else{
-                    message = error.message
-                }
-                this.$q.notify({
-                    color: 'negative',
-                    position: 'bottom-right',
-                    message: message,
-                    icon: 'report_problem'
+                    this.bus.emit("getStatus")
                 })
-            })
+                .catch((error) => {
+                    let message = "";
+                    if (error.response != undefined && error.response.status == 422) {
+                        for (let i in error.response.data.detail) {
+                            message += error.response.data.detail[i].loc[1] + " ";
+                            message += error.response.data.detail[i].loc[2] + ", ";
+                            message += error.response.data.detail[i].loc[3] + ", ";
+                            message += error.response.data.detail[i].msg + "\n";
+                        }
+                        message = message.slice(0, -2);
+                    }
+                    else {
+                        message = error.message
+                    }
+                    this.$q.notify({
+                        color: 'negative',
+                        position: 'bottom-right',
+                        message: message,
+                        icon: 'report_problem'
+                    })
+                })
 
             this.viewStore.modelLoading = false;
             this.viewStore.textLoading = false;
@@ -438,29 +414,29 @@ export default defineComponent({
             // Define the steps for introduction
             driver.defineSteps([
                 {
-                element: "#model-configuration",
-                popover: {
-                    className: "first-step-popover-class",
-                    title: "Title on Popover",
-                    description: "Body of the popover",
-                    position: "right",
-                },
-                },
-                {
-                element: "#model-output",
-                popover: {
-                    title: "Title on Popover",
-                    description: "Body of the popover",
-                    position: "left",
-                },
+                    element: "#model-configuration",
+                    popover: {
+                        className: "first-step-popover-class",
+                        title: "Title on Popover",
+                        description: "Body of the popover",
+                        position: "right",
+                    },
                 },
                 {
-                element: "#button-runModel",
-                popover: {
-                    title: "Title on Popover",
-                    description: "Body of the popover",
-                    position: "bottom",
+                    element: "#model-output",
+                    popover: {
+                        title: "Title on Popover",
+                        description: "Body of the popover",
+                        position: "left",
+                    },
                 },
+                {
+                    element: "#button-runModel",
+                    popover: {
+                        title: "Title on Popover",
+                        description: "Body of the popover",
+                        position: "bottom",
+                    },
                 },
             ]);
 
