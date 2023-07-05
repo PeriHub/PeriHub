@@ -752,28 +752,6 @@ class ModelControl:
             ssh.exec_command(command)
             ssh.close()
 
-            # await asyncio.sleep(30)
-            # # job_id=cara.sshClusterJob(command)
-
-            # current_jobs = FileHandler.write_get_cara_job_id()
-            # log.info(current_jobs)
-
-            # job_id = current_jobs.replace(initial_jobs, "").strip()
-
-            # if job_id == "":
-            #     log.warning("%s submission failed!", model_name)
-            #     raise HTTPException(
-            #         status_code=404,
-            #         detail=model_name + " submission failed!",
-            #     )
-
-            # FileHandler.write_cara_job_id_to_model(localpath, job_id)
-
-            # log.info("%s has been submitted with Job Id: %s", model_name, job_id.decode('utf-8'))
-            # return ResponseModel(
-            #     data=True,
-            #     message=model_name + " has been submitted with Job Id: " + job_id.decode('utf-8'),
-            # )
             log.info("%s has been submitted", model_name)
             return ResponseModel(
                 data=True,
