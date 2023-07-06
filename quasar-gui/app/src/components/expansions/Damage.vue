@@ -108,11 +108,13 @@ export default defineComponent({
         const store = useModelStore();
         const damages = computed(() => store.modelData.damages)
         const blocks = computed(() => store.modelData.blocks)
+        const materials = computed(() => store.modelData.materials)
         const bus = inject('bus')
         return {
             store,
             damages,
             blocks,
+            materials,
             rules,
             bus
         }
