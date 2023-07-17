@@ -9,8 +9,8 @@ from shepard_client.models.structured_data import StructuredData
 from shepard_client.api.structureddata_reference_api import StructureddataReferenceApi
 from shepard_client.models.structured_data_reference import StructuredDataReference
 
-HOST = "https://shepard-api.fa-services.intra.dlr.de/shepard/api"
-APIKEY = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyYTNmODM4YS1iNjU5LTRkMTgtYmYxMy0wNTkwOTgyMWZmMzQiLCJpc3MiOiJodHRwczovL3NoZXBhcmQtYXBpLmZhLXNlcnZpY2VzLmludHJhLmRsci5kZS9zaGVwYXJkL2FwaS8iLCJuYmYiOjE2ODY2NTg1MjUsImlhdCI6MTY4NjY1ODUyNSwianRpIjoiMDlhOTUxMmQtMjZiNS00Nzg3LWIzZGItNTU3ZjJlYzljMWY2In0.jtabm2bN164QqPDskNZ2saCHB0sLm1Nwo-9gmHxoDmeB_BMJY2uMleB2wSCEdJBJcBAPMhUWV0pzK4dVBp--MUW4UbVhf6iMzo4jAEtGtHFSpjcZftPSHInR17XJecE8VF5EhI2c51_KYjlHaqoMYRt0N0P5o8YaD-T3oD6VIXqmnaY3gfnelrD6bdKi9iH1O3PGjxvc-ZFg9EATUMZs--WAJMVZfdCeAhBYEIprSbN1XL3TR0J8x0hiGyfRgWZx4I0tUn0NjMziZnCFmjP5PlCckr3of3gJRfRJ4DLMgdWEPX3Ra_fMvS08kenSVC9nXb1EpceGAwsVd4KiRShH8w"
+HOST = os.getenv("HOST")
+APIKEY = os.getenv("APIKEY")
 
 # Set up configuration
 conf = Configuration(host=HOST, api_key={"apikey": APIKEY})

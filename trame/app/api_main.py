@@ -62,10 +62,12 @@ user_list = []
 pid_list = []
 time_list = []
 
+
 class ResponseModel(BaseModel):
     data: Any
     code = 200
     message: str
+
 
 class Launcher:
     """doc"""
@@ -138,7 +140,9 @@ class Launcher:
             # subprocess.call(command, shell=True)
         except subprocess.SubprocessError:
             return " results can not be found"
-        return ResponseModel(data=newPort, message=f"Trame instance launched on port {newPort}!")
+        return ResponseModel(
+            data=newPort, message=f"Trame instance launched on port {newPort}!"
+        )
 
     @app.post("/closeTrameInstance", tags=["Post Methods"])
     async def close_trame_instance(
@@ -201,4 +205,6 @@ class Launcher:
         print(used_ports)
         print(pid_list)
 
-        return ResponseModel(data=True, message=f"Trame instance on port {port} closed!")
+        return ResponseModel(
+            data=True, message=f"Trame instance on port {port} closed!"
+        )

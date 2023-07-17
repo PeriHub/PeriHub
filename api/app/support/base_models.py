@@ -1,28 +1,15 @@
 # pylint: disable=no-name-in-module
 import json
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
 
-class Status:
-    def __init__(self, created, submitted, results):
-        self.created = created
-        self.submitted = submitted
-        self.results = results
-
-
-class Jobs:
-    def __init__(self, id, name, sub_name, cluster, created, submitted, results, model):
-        self.id = id
-        self.name = name
-        self.sub_name = sub_name
-        self.cluster = cluster
-        self.created = created
-        self.submitted = submitted
-        self.results = results
-        self.model = model
+class Status(BaseModel):
+    created: Optional[bool] = False
+    submitted: Optional[bool] = False
+    results: Optional[bool] = False
 
 
 class Model(BaseModel):
@@ -49,8 +36,19 @@ class Model(BaseModel):
     mesh_file: Optional[str] = None
 
 
+class Jobs(BaseModel):
+    id: int
+    name: str
+    sub_name: str
+    cluster: str
+    created: bool
+    submitted: bool
+    results: bool
+    model: Optional[dict] = None
+
+
 class properties(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     name: str
     value: Optional[float] = None
 
@@ -61,7 +59,7 @@ class Parameter(BaseModel):
 
 
 class Material(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     name: str
     matType: str
     density: float
@@ -105,7 +103,7 @@ class Material(BaseModel):
 
 
 class AdditiveModel(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     name: str
     additiveType: str
     printTemp: float
@@ -118,7 +116,7 @@ class Additive(BaseModel):
 
 
 class InterBlock(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     firstBlockId: int
     secondBlockId: int
     value: float
@@ -130,7 +128,7 @@ class CriticalEnergyCalc(BaseModel):
 
 
 class Damage(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     name: str
     damageModel: str
     criticalStretch: Optional[float] = None
@@ -152,7 +150,7 @@ class Damage(BaseModel):
 
 
 class Block(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     name: str
     material: str
     damageModel: Optional[str] = None
@@ -162,7 +160,7 @@ class Block(BaseModel):
 
 
 class ContactModel(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     name: str
     contactType: str
     contactRadius: float
@@ -170,7 +168,7 @@ class ContactModel(BaseModel):
 
 
 class Interaction(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     firstBlockId: int
     secondBlockId: int
     contactModelId: int
@@ -185,9 +183,9 @@ class Contact(BaseModel):
 
 
 class BoundaryCondition(BaseModel):
-    conditionsId: Optional[int]
+    conditionsId: Optional[int] = None
     name: str
-    nodeSet: Optional[str] = None
+    nodeSet: Optional[int] = None
     boundarytype: str
     blockId: Optional[int] = None
     coordinate: str
@@ -195,17 +193,17 @@ class BoundaryCondition(BaseModel):
 
 
 class NodeSet(BaseModel):
-    nodeSetId: Optional[int]
+    nodeSetId: Optional[int] = None
     file: str
 
 
 class BoundaryConditions(BaseModel):
     conditions: List[BoundaryCondition]
-    nodeSets: Optional[List[NodeSet]]
+    nodeSets: Optional[List[NodeSet]] = None
 
 
 class BondFilters(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     name: str
     type: str
     normalX: float
@@ -227,7 +225,7 @@ class BondFilters(BaseModel):
 
 
 class Compute(BaseModel):
-    id: Optional[int]
+    id: Optional[int] = None
     computeClass: str
     name: str
     variable: str
@@ -239,7 +237,7 @@ class Compute(BaseModel):
 
 
 class Output(BaseModel):
-    outputsId: Optional[int]
+    outputsId: Optional[int] = None
     name: str
     selectedOutputs: Optional[List[str]] = None
 
@@ -317,7 +315,7 @@ class RunData(BaseModel):
     outputs: List[Output]
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "job": {
                     "cluster": "None",
@@ -716,7 +714,7 @@ class ModelData(BaseModel):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     class Config:
-        schema_extra = {"example": default_model}
+        json_schema_extra = {"example": default_model}
 
 
 class SmetanaData(BaseModel):
@@ -731,6 +729,6 @@ class SmetanaData(BaseModel):
 
 
 class ResponseModel(BaseModel):
-    data: Any
-    code = 200
+    data: Union[str, bool, dict, List[float], List[List[float]], Status, Jobs]
+    code: int = 200
     message: str

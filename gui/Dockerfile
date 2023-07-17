@@ -1,28 +1,32 @@
 # develop stage
-FROM node:16-alpine as develop-stage
+FROM node:lts-alpine as develop-stage
+WORKDIR /app
+COPY app/package*.json ./
+COPY app/. .
 
-LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
+# build stage
+FROM develop-stage as build-stage
 
 ARG DEV
 ENV DEV $DEV
-# ENV NODE_OPTIONS=--openssl-legacy-provider
+ARG DLR
+ENV DLR $DLR
 
-WORKDIR /app
-
-RUN if [ "$DEV" = "True" ]; then echo "VUE_APP_DEV=True" > .env; fi
-
-COPY app/package*.json ./
-
+RUN npm i -g @quasar/cli
 RUN npm install
-COPY app/. .
-
-# # build stage
-# FROM develop-stage as build-stage
-RUN npm run build
+RUN if [ "$DLR" = "True" ]; then \
+    if [ "$DEV" = "True" ]; then \
+    ENV_FILE=dlr_local quasar build; \
+    else \
+    ENV_FILE=dlr_production quasar build; \
+    fi \
+    else \
+    ENV_FILE=local quasar build; \
+    fi
 
 # production stage
 FROM nginx:alpine as production-stage
-COPY --from=develop-stage /app/dist /usr/share/nginx/html
+COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
 
-EXPOSE 90
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

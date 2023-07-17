@@ -24,9 +24,8 @@ from shepard_client.api.file_reference_api import FileReferenceApi
 from shepard_client.models.file_reference import FileReference
 
 
-
-HOST = "https://shepard-api.fa-services.intra.dlr.de/shepard/api"
-APIKEY = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyYTNmODM4YS1iNjU5LTRkMTgtYmYxMy0wNTkwOTgyMWZmMzQiLCJpc3MiOiJodHRwczovL3NoZXBhcmQtYXBpLmZhLXNlcnZpY2VzLmludHJhLmRsci5kZS9zaGVwYXJkL2FwaS8iLCJuYmYiOjE2ODY2NTg1MjUsImlhdCI6MTY4NjY1ODUyNSwianRpIjoiMDlhOTUxMmQtMjZiNS00Nzg3LWIzZGItNTU3ZjJlYzljMWY2In0.jtabm2bN164QqPDskNZ2saCHB0sLm1Nwo-9gmHxoDmeB_BMJY2uMleB2wSCEdJBJcBAPMhUWV0pzK4dVBp--MUW4UbVhf6iMzo4jAEtGtHFSpjcZftPSHInR17XJecE8VF5EhI2c51_KYjlHaqoMYRt0N0P5o8YaD-T3oD6VIXqmnaY3gfnelrD6bdKi9iH1O3PGjxvc-ZFg9EATUMZs--WAJMVZfdCeAhBYEIprSbN1XL3TR0J8x0hiGyfRgWZx4I0tUn0NjMziZnCFmjP5PlCckr3of3gJRfRJ4DLMgdWEPX3Ra_fMvS08kenSVC9nXb1EpceGAwsVd4KiRShH8w"
+HOST = os.getenv("HOST")
+APIKEY = os.getenv("APIKEY")
 
 # Set up configuration
 conf = Configuration(host=HOST, api_key={"apikey": APIKEY})
@@ -35,8 +34,7 @@ client = ApiClient(configuration=conf)
 
 # Create a collection
 collection_api = CollectionApi(client)
-collection_to_create = Collection(
-    name="PeriHub", description="PeriHub collection")
+collection_to_create = Collection(name="PeriHub", description="PeriHub collection")
 created_collection = collection_api.create_collection(collection=collection_to_create)
 print(created_collection)
 
@@ -57,10 +55,11 @@ models_data = []
 path = "api/app/assets/models"
 for model in next(os.walk(path))[1]:
     # print(model)
-    with open(os.path.join(path, model, model + ".json"), "r", encoding="UTF-8") as file:
+    with open(
+        os.path.join(path, model, model + ".json"), "r", encoding="UTF-8"
+    ) as file:
         response = file.read()
 
-        
         ###################### Data object ######################
         # Create a data object
         dataobject_api = DataObjectApi(client)
@@ -72,7 +71,6 @@ for model in next(os.walk(path))[1]:
         )
         print(created_dataobject)
 
-
         ###################### Structured Data ######################
         # Now you can upload some data into your newly created container
         payload = StructuredDataPayload(
@@ -80,17 +78,18 @@ for model in next(os.walk(path))[1]:
             payload=response,
         )
         created_structured_data = structureddata_api.create_structured_data(
-            structureddata_container_id=created_container.id, structured_data_payload=payload
+            structureddata_container_id=created_container.id,
+            structured_data_payload=payload,
         )
 
         # You have now received an object that is the unique identifier of your uploaded data
         print(created_structured_data)
 
-
         ###################### Image file ######################
         # Now you can upload a file into your newly created container
         created_file = file_api.create_file(
-            file_container_id=file_container.id, file=os.path.join(path, model, model + ".jpg")
+            file_container_id=file_container.id,
+            file=os.path.join(path, model, model + ".jpg"),
         )
         # You have now received an object that is the unique identifier of your uploaded file
         print(created_file)
@@ -98,7 +97,7 @@ for model in next(os.walk(path))[1]:
         print(created_collection.id)
         print(created_dataobject.id)
         time.sleep(5)
-    
+
         ###################### Reference structured Data ######################
         # With this identifier in combination with your container you can reference your data from anywhere
         structureddata_reference_api = StructureddataReferenceApi(client)
@@ -107,13 +106,14 @@ for model in next(os.walk(path))[1]:
             structured_data_container_id=created_container.id,
             structured_data_oids=[created_structured_data.oid],
         )
-        created_reference = structureddata_reference_api.create_structured_data_reference(
-            collection_id=created_collection.id,
-            data_object_id=created_dataobject.id,
-            structured_data_reference=reference_to_create,
+        created_reference = (
+            structureddata_reference_api.create_structured_data_reference(
+                collection_id=created_collection.id,
+                data_object_id=created_dataobject.id,
+                structured_data_reference=reference_to_create,
+            )
         )
         print(created_reference)
-
 
         ###################### Reference image files ######################
         # With this identifier in combination with your container you can reference your file from anywhere
@@ -129,7 +129,6 @@ for model in next(os.walk(path))[1]:
             file_reference=reference_to_create,
         )
         print(created_reference)
-
 
         # # And now you can download your data using this newly created reference
         # structured_datas = structureddata_reference_api.get_structured_data_payload(

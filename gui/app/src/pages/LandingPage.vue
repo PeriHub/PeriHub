@@ -1,165 +1,98 @@
 <template>
-  <v-container fluid class="pa-0" style="height: 100%">
-    <div id="app" class="scroll">
-      <v-container fluid style="height: 30%; min-height: 300px">
-        <v-row
-          dense
-          align="center"
-          justify="center"
-          style="height: 30%; min-height: 100px"
-        >
-          <h1>Welcome to PeriHub!</h1>
-        </v-row>
-        <v-row dense align="center" justify="center" style="height: 70%">
-          <p align="center" justify="center" style="max-width: 870px">
-            PeriHub is a platform that provides a numerical implementation of
-            the peridynamic theory. It is an extension of the open source
-            Peridigm software. Peridynamics is a non-local theory that overcomes
-            discontinuity problems of the classical theory of continuum
-            mechanics. It is an effective method to model fracture mechanics
-            problems.
-          </p>
-        </v-row>
-      </v-container>
-      <v-container fluid style="height: 70%; min-height: 450px">
-        <v-row justify="center">
-          <router-link class="card" to="perihub">
-            <v-card width="400px">
-              <v-img
-                src="../assets/dogbone.png"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              >
-                <v-card-title>PeriHub</v-card-title>
-              </v-img>
-            </v-card>
-          </router-link>
-          <router-link class="card" to="guide">
-            <v-card width="400px">
-              <v-img
-                src="../assets/compass.jpg"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              >
-                <v-card-title>Guide</v-card-title>
-              </v-img>
-            </v-card>
-          </router-link>
-          <router-link class="card" to="publications">
-            <v-card width="400px">
-              <v-img
-                src="../assets/books.jpg"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              >
-                <v-card-title>Publications</v-card-title>
-              </v-img>
-            </v-card>
-          </router-link>
-          <router-link class="card" to="literatureAnalysis">
-            <v-card width="400px">
-              <v-img
-                src="../assets/network.jpg"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              >
-                <v-card-title>Literature Analysis</v-card-title>
-              </v-img>
-            </v-card>
-          </router-link>
-          <router-link class="card" to="tools">
-            <v-card width="400px">
-              <v-img
-                src="../assets/math.jpg"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              >
-                <v-card-title>Tools</v-card-title>
-              </v-img>
-            </v-card>
-          </router-link>
-          <router-link class="card" to="mindMap">
-            <v-card width="400px">
-              <v-img
-                src="../assets/mindmap.jpg"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              >
-                <v-card-title>Mindmap</v-card-title>
-              </v-img>
-            </v-card>
-          </router-link>
-          <div class="card">
-            <v-card
-              width="400px"
-              href="https://perihub-api.fa-services.intra.dlr.de/docs"
-            >
-              <v-img
-                src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              >
-                <v-card-title>API</v-card-title>
-              </v-img>
-            </v-card>
-          </div>
-          <div class="card">
-            <v-card width="400px" href="https://gitlab.dlr.de/fa_sw/perihub">
-              <v-img
-                src="https://about.gitlab.com/images/press/logo/wm.svg"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              >
-                <v-card-title>GitLab</v-card-title>
-              </v-img>
-            </v-card>
-          </div>
-          <div class="card">
-            <v-card width="400px" href="https://github.com/PeriDoX/PeriDoX">
-              <v-img
-                src="https://github.githubassets.com/images/modules/open_graph/github-mark.png"
-                class="white--text align-end"
-                gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                height="200px"
-              >
-                <v-card-title>PeriDox</v-card-title>
-              </v-img>
-            </v-card>
-          </div>
-        </v-row>
-      </v-container>
+  <q-page class="justify-center">
+    <div class="row justify-center text-h1 q-pb-xl" style="padding: 50px">Welcome to PeriHub!</div>
+    <div class="row text-subtitle2" style="padding: 50px; text-align:center">
+      PeriHub is a platform that provides a numerical implementation of
+      the peridynamic theory. It is an extension of the open source
+      Peridigm software. Peridynamics is a non-local theory that overcomes
+      discontinuity problems of the classical theory of continuum
+      mechanics. It is an effective method to model fracture mechanics
+      problems.
     </div>
-  </v-container>
+    <div class="row justify-center full-width q-pa-md q-my-lg">
+      <router-link class="card" to="perihub">
+        <q-card class="my-card">
+          <q-img src="~assets/dogbone.png" height="200px">
+            <div class="text-h5 absolute-bottom text-right">
+              PeriHub
+            </div>
+          </q-img>
+        </q-card>
+      </router-link>
+      <router-link class="card" to="guide">
+        <q-card class="my-card">
+          <q-img src="~assets/compass.jpg" height="200px">
+            <div class="text-h5 absolute-bottom text-right">
+              Guide
+            </div>
+          </q-img>
+        </q-card>
+      </router-link>
+      <router-link class="card" to="publications">
+        <q-card class="my-card">
+          <q-img src="~assets/books.jpg" height="200px">
+            <div class="text-h5 absolute-bottom text-right">
+              Publications
+            </div>
+          </q-img>
+        </q-card>
+      </router-link>
+      <router-link class="card" to="tools">
+        <q-card class="my-card">
+          <q-img src="~assets/math.jpg" height="200px">
+            <div class="text-h5 absolute-bottom text-right">
+              Tools
+            </div>
+          </q-img>
+        </q-card>
+      </router-link>
+      <a class="card">
+        <q-card class="my-card" href="https://perihub-api.fa-services.intra.dlr.de/docs">
+          <q-img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" height="200px">
+            <div class="text-h5 absolute-bottom text-right">
+              API
+            </div>
+          </q-img>
+        </q-card>
+      </a>
+      <a class="card">
+        <q-card class="my-card" href="https://gitlab.dlr.de/fa_sw/perihub">
+          <q-img src="https://about.gitlab.com/images/press/logo/wm.svg" height="200px">
+            <div class="text-h5 absolute-bottom text-right">
+              GitLab
+            </div>
+          </q-img>
+        </q-card>
+      </a>
+      <a class="card"  href="https://github.com/PeriDoX/PeriDoX">
+        <q-card class="my-card">
+          <q-img src="https://github.githubassets.com/images/modules/open_graph/github-mark.png" height="200px">
+            <div class="text-h5 absolute-bottom text-right">
+              PeriDox
+            </div>
+          </q-img>
+        </q-card>
+      </a>
+    </div>
+  </q-page>
 </template>
 
 <script>
-export default {
-  name: "PeriHub",
-  components: {},
-  data() {
-    return {};
-  },
-  methods: {},
-};
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  name: 'IndexPage'
+})
 </script>
 <style>
+.my-card{
+  width: 400px;
+}
 .card {
   text-decoration: none;
   padding-right: 10px;
   padding-left: 10px;
   padding-top: 10px;
   padding-bottom: 10px;
-}
-.scroll {
-  height: 100%;
-  overflow-y: scroll;
 }
 </style>

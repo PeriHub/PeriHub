@@ -5,8 +5,7 @@ services:
     build:
       context: api/.
       args:
-        INTERNAL: ${INTERNAL}
-        # GITLAB_TOKEN: ${GITLAB_TOKEN}
+        DLR: ${DLR}
         DEV: ${DEV}
     container_name: perihub_periHubApi
     image: peri_hub_api_image
@@ -18,22 +17,11 @@ services:
     networks:
       - backend
 
-  # periHubGui:
-  #   build:
-  #     context: gui/.
-  #     args:
-  #       DEV: ${DEV}
-  #   container_name: perihub_periHubGui
-  #   image: peri_hub_gui_image
-  #   ports:
-  #     - 6010:80
-  #   networks:
-  #     - backend
-
   periHubGui:
     build:
-      context: quasar-gui/.
+      context: gui/.
       args:
+        DLR: ${DLR}
         DEV: ${DEV}
     container_name: perihub_periHubGui
     image: peri_hub_gui_image
@@ -43,11 +31,6 @@ services:
       - backend
 
   peridigm:
-    # build:
-    #   context: peridigm/.
-    # args:
-    #   GITHUB_USER: ${GITHUB_USER}
-    #   GITHUB_TOKEN: ${GITHUB_TOKEN}
     container_name: perihub_peridigm
     image: perihub/peridigm
     ports:
@@ -83,13 +66,9 @@ services:
       - ${VOLUME}peridigmJobs:/app/peridigmJobs
       - paraView_volume:/app/paraView
 
-  cron:
-    build: cron/.
-    container_name: perihub_cron
-    image: cron_image
-
 volumes:
   paraView_volume:
+
 
 networks:
   backend:

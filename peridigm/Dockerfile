@@ -2,13 +2,6 @@ FROM jthesse/trilinos
 
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
-# ARG PERIDOX
-# ENV PERIDOX $PERIDOX
-# ARG GITHUB_USER
-# ENV GITHUB_USER $GITHUB_USER
-# ARG GITHUB_TOKEN
-# ENV GITHUB_TOKEN $GITHUB_TOKEN
-
 ENV HOME /root
 
 WORKDIR /
@@ -19,11 +12,6 @@ RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
 RUN git clone https://github.com/PeriHub/Peridigm.git Peridigm
-# RUN git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/JTHesse/PeridigmDev.git Peridigm
-# RUN if [ "$PERIDOX" = "True" ]; then \
-#         git clone https://github.com/peridigm/peridigm.git Peridigm; else \
-#         git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@gitlab.dlr.de/fa_sw/peridynamik/peridigmDev.git Peridigm; \
-#     fi
 
 RUN mkdir /Peridigm/build
 
@@ -53,9 +41,9 @@ RUN mkdir /var/run/sshd
 
 RUN  echo 'root:root' | chpasswd
 RUN sed -i'' -e's/^#PermitRootLogin prohibit-password$/PermitRootLogin yes/' /etc/ssh/sshd_config \
-        && sed -i'' -e's/^#PasswordAuthentication yes$/PasswordAuthentication yes/' /etc/ssh/sshd_config \
-        && sed -i'' -e's/^#PermitEmptyPasswords no$/PermitEmptyPasswords yes/' /etc/ssh/sshd_config \
-        && sed -i'' -e's/^UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
+    && sed -i'' -e's/^#PasswordAuthentication yes$/PasswordAuthentication yes/' /etc/ssh/sshd_config \
+    && sed -i'' -e's/^#PermitEmptyPasswords no$/PermitEmptyPasswords yes/' /etc/ssh/sshd_config \
+    && sed -i'' -e's/^UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
 RUN service ssh start
 
 WORKDIR /app/

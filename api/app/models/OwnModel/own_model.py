@@ -1,4 +1,4 @@
-from support.model_writer import ModelWriter
+from support.writer.model_writer import ModelWriter
 
 
 class OwnModel:
