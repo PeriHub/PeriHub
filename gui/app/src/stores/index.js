@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import { store } from 'quasar/wrappers'
 import { createPinia } from 'pinia'
 

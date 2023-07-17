@@ -1,4 +1,6 @@
-// a Quasar CLI boot file (let's say /src/boot/bus.js)
+// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+//
+// SPDX-License-Identifier: Apache-2.0
 
 import { EventBus } from 'quasar'
 import { boot } from 'quasar/wrappers'

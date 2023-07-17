@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 from fastapi import APIRouter
 
 router = APIRouter(prefix="/docs", tags=["Documentation Methods"])

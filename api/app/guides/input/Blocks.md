@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Blocks
 
 The blocks configuration panel is needed to assign materials and damage models to each block:

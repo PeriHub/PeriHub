@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <template>
     <div>
         <q-list v-for="material, index in materials" :key="material.materialsId" style="padding: 0px">

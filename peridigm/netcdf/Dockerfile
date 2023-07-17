@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 FROM ubuntu:20.04
 
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 PROGRAM_VERSION = $(lastword $(shell poetry version --no-ansi))
 ALL_PYTHON_FILES = $(shell find src/gcodereader test doc -type f -name "*.py")
 

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 # FROM openjdk:slim
 # COPY --from=python:3.9 / /
 FROM python:3.11-slim

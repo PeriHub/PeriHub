@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <template>
     <div>
         <q-table flat :rows="rows" :columns="columns" row-key="id" :loading="loading" clickable @row-click="onRowClick">

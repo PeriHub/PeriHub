@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <template>
   <q-page class="justify-center">
     <div class="row justify-center text-h1 q-pb-xl" style="padding: 50px">Welcome to PeriHub!</div>

@@ -1,4 +1,7 @@
-# pylint: disable=no-name-in-module
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import json
 from enum import Enum
 from typing import List, Optional, Union

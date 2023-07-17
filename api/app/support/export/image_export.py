@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri

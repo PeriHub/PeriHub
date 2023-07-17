@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # PeriHub
 
 [![pipeline status](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/badges/main/pipeline.svg)](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/-/commits/main)

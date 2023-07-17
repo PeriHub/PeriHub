@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+//
+// SPDX-License-Identifier: Apache-2.0
+
 export default {
   rules: {
     required: (value) => !!value || value == 0 || "Required",

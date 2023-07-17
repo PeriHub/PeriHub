@@ -1,6 +1,6 @@
-# SPDX-FileCopyrightText: 2022 German Aerospace Center (DLR)
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0
 
 files: ^api/
 repos:

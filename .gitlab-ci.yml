@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 variables: &globals
   CI_REGISTRY_PATH: "harbor.fa-services.intra.dlr.de/hess_ja/"
 
@@ -110,34 +114,10 @@ build_gui_job:
     refs:
       - main
     changes:
-      - quasar-gui/**/*
+      - gui/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image quasar-gui/.
+    - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
-
-build_smetana_job:
-  stage: build
-  extends: [.build_before_script_template]
-  only:
-    refs:
-      - main
-    changes:
-      - smetana/**/*
-  script:
-    - docker build --build-arg GITLAB_TOKEN=$GITLAB_TOKEN -t ${CI_REGISTRY_PATH}smetana smetana/.
-    - docker push ${CI_REGISTRY_PATH}smetana
-
-build_cron_job:
-  stage: build
-  extends: [.build_before_script_template]
-  only:
-    refs:
-      - main
-    changes:
-      - cron/**/*
-  script:
-    - docker build -t ${CI_REGISTRY_PATH}cron_image cron/.
-    - docker push ${CI_REGISTRY_PATH}cron_image
 
 build_paraview_job:
   stage: build

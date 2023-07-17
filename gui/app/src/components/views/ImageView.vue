@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <template>
     <vue-image-zoomer :regular="viewStore.modelImg" :zoom-amount="3" :click-zoom="true" img-class="my-image"
         alt="ModelImag" />

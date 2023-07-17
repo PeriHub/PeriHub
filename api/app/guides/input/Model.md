@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Model
 
 The model configuration panel includes specific settings for the model generation, some settings are only needed for certain models:

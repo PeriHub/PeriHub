@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Job
 
 The job configuration panel specifies which Cluster will receive the job submission and who many processors are needed:

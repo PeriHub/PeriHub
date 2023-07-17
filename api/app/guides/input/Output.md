@@ -1,6 +1,12 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Output
 
-The output configuration panel defines which output files should be written and which variables are to be included: 
+The output configuration panel defines which output files should be written and which variables are to be included:
 
 Configuration | Description
 --- | ---
@@ -8,7 +14,7 @@ Name | Name of compute parameter
 Variable | Variable of compute parameter
 Calculation Type | Calculation Type of compute parameter
 Block Id | Direction of compute parameter
-| 
+|
 Name | Output file name
 Displacement | Enable Displacements for output
 Force | Enable Force for output

@@ -1,4 +1,7 @@
-# -*- coding: utf-8 -*-
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """Activate venv for current interpreter:
 
 Use `import venv` along with a `--venv path/to/venv/base`

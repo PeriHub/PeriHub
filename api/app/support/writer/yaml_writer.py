@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+
 class YAMLcreator:
     @staticmethod
     def translate_xml_to_yaml(string):

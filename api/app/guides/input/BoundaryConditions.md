@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Boundary Conditions
 
 With the boundary conditions panel the user can define multiple conditions for each blocks with a time dependent value:

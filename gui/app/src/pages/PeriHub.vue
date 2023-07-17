@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <template>
     <q-page class="flex-center">
         <q-splitter v-model="verticalSplitterModel" class="body" :limits="[30, 60]">

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """
 doc
 """
@@ -67,23 +71,21 @@ class FileHandler:
         """doc"""
 
         return "./PeridigmJobs/apiModels/" + username
-    
+
     @staticmethod
     def get_user_name_from_token(encoded_token, dev):
         """doc"""
 
         if dev:
             return "dev"
-        
+
         if encoded_token is None or encoded_token == "" or encoded_token == "undefined":
             return "guest"
 
-        decoded_token = jwt.decode(
-            encoded_token.split(" ")[1], options={"verify_signature": False}
-        )
+        decoded_token = jwt.decode(encoded_token.split(" ")[1], options={"verify_signature": False})
 
         return decoded_token["preferred_username"]
-    
+
     @staticmethod
     def get_user_name(request, dev):
         """doc"""

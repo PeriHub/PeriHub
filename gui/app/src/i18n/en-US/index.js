@@ -1,5 +1,6 @@
-// This is just an example,
-// so you can safely delete all default props below
+// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+//
+// SPDX-License-Identifier: Apache-2.0
 
 export default {
   failed: 'Action failed',
