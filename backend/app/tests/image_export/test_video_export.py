@@ -27,6 +27,6 @@ def test_get_gif():
         os.path.join(remote_path, file_name),
     )
 
-    response = client.get("/getGif")
+    response = client.get("/results/getGif")
     assert response.status_code == 200
     shutil.rmtree("./Results")

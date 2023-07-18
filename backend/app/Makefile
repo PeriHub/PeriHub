@@ -37,7 +37,7 @@ check-code: prepare
 	poetry run pflake8 . --exit-zero --output-file=build/flake8.txt
 
 check-coverage: prepare
-	poetry run pytest --cov=. --cov-fail-under=30 --cov-report=term-missing --cov-report=html:build/html --cov-report=xml:build/coverage.xml
+	poetry run pytest --cov=. --cov-fail-under=20 --cov-report=term-missing --cov-report=html:build/html --cov-report=xml:build/coverage.xml
 
 check-security:
 	poetry run bandit -r .

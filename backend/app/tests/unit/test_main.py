@@ -15,7 +15,14 @@ client = TestClient(app)
 
 @pytest.mark.parametrize(
     "model_name",
-    ["Dogbone", "CompactTension", "Kalthoff-Winkler", "ENFmodel", "PlateWithHole", "PlateWithOpening"],
+    [
+        "Dogbone",
+        "CompactTension",
+        "Kalthoff-Winkler",
+        "ENFmodel",
+        "PlateWithHole",
+        "PlateWithOpening",
+    ],
 )
 def test_generate_model(model_name):
     assets_path = "./assets/models"
@@ -26,6 +33,6 @@ def test_generate_model(model_name):
         encoding="UTF-8",
     ) as file:
         params = json.load(file)
-    response = client.post("/generateModel?model_name=" + model_name, json=params)
+    response = client.post("/generate/model?model_name=" + model_name, json=params)
     assert response.status_code == 200
     assert response.json()["data"]

@@ -27,6 +27,6 @@ def test_get_result_image_from_exodus():
         os.path.join(remote_path, file_name),
     )
 
-    response = client.get("/getImagePython")
+    response = client.get("/results/getImagePython")
     assert response.status_code == 200
     shutil.rmtree("./Results")
