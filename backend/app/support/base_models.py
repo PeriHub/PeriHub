@@ -702,7 +702,7 @@ default_model = {
 class ModelData(BaseModel):
     model: Model
     materials: List[Material]
-    additive: Union[Additive, None]
+    additive: Optional[Additive]
     damages: Optional[List[Damage]]
     blocks: List[Block]
     contact: Optional[Contact]

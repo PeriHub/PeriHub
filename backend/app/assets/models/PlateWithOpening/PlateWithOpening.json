@@ -13,7 +13,10 @@
     "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [0, 0]
+    "angles": [
+      0,
+      0
+    ]
   },
   "materials": [
     {
@@ -129,6 +132,18 @@
       ]
     }
   ],
+  "additive": {
+    "additiveModels": [
+      {
+        "additiveType": "Simple Additive",
+        "id": null,
+        "name": "Additive Model 1",
+        "printTemp": 200,
+        "timeFactor": 1
+      }
+    ],
+    "enabled": false
+  },
   "damages": [
     {
       "id": 1,
@@ -143,7 +158,7 @@
       "thickness": 10,
       "hourglassCoefficient": 1,
       "stabilizationType": "Global Stiffness",
-      "criticalEnergyCalc":{
+      "criticalEnergyCalc": {
         "calculateCriticalEnergy": false,
         "k1c": null,
         "youngsModulus": null
@@ -197,25 +212,26 @@
   },
   "boundaryConditions": {
     "conditions": [
-    {
-      "conditionsId": 1,
-      "name": "BC_1",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 2,
-      "coordinate": "x",
-      "value": "0*t"
-    },
-    {
-      "conditionsId": 2,
-      "name": "BC_2",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 3,
-      "coordinate": "x",
-      "value": "1*t"
-    }
-  ]},
+      {
+        "conditionsId": 1,
+        "name": "BC_1",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 2,
+        "coordinate": "x",
+        "value": "0*t"
+      },
+      {
+        "conditionsId": 2,
+        "name": "BC_2",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 3,
+        "coordinate": "x",
+        "value": "1*t"
+      }
+    ]
+  },
   "bondFilters": [
     {
       "bondFiltersId": 1,
@@ -309,7 +325,12 @@
     {
       "id": 1,
       "name": "Output1",
-      "selectedOutputs": ["Displacement","Force","Damage","Velocity"],
+      "selectedOutputs": [
+        "Displacement",
+        "Force",
+        "Damage",
+        "Velocity"
+      ],
       "Frequency": "50",
       "InitStep": 0
     }
@@ -349,7 +370,7 @@
     },
     "filetype": "yaml"
   },
-  "job":{
+  "job": {
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,

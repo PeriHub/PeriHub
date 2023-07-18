@@ -14,7 +14,12 @@
     "horizon": null,
     "twoDimensional": false,
     "rotatedAngles": true,
-    "angles": [45, 90, -45, 0],
+    "angles": [
+      45,
+      90,
+      -45,
+      0
+    ],
     "amplitudeFactor": 0.75,
     "wavelength": 3.0
   },
@@ -132,6 +137,18 @@
       ]
     }
   ],
+  "additive": {
+    "additiveModels": [
+      {
+        "additiveType": "Simple Additive",
+        "id": null,
+        "name": "Additive Model 1",
+        "printTemp": 200,
+        "timeFactor": 1
+      }
+    ],
+    "enabled": false
+  },
   "damages": [
     {
       "id": 1,
@@ -191,7 +208,7 @@
       "thickness": 1,
       "hourglassCoefficient": 1,
       "stabilizationType": "Global Stiffness",
-      "criticalEnergyCalc":{
+      "criticalEnergyCalc": {
         "calculateCriticalEnergy": false,
         "k1c": null,
         "youngsModulus": null
@@ -314,25 +331,26 @@
   },
   "boundaryConditions": {
     "conditions": [
-    {
-      "conditionsId": 1,
-      "name": "BC_1",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 1,
-      "coordinate": "x",
-      "value": "3*t"
-    },
-    {
-      "conditionsId": 2,
-      "name": "BC_2",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 4,
-      "coordinate": "x",
-      "value": "0.0"
-    }
-  ]},
+      {
+        "conditionsId": 1,
+        "name": "BC_1",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 1,
+        "coordinate": "x",
+        "value": "3*t"
+      },
+      {
+        "conditionsId": 2,
+        "name": "BC_2",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 4,
+        "coordinate": "x",
+        "value": "0.0"
+      }
+    ]
+  },
   "bondFilters": [],
   "computes": [
     {
@@ -356,14 +374,25 @@
     {
       "id": 1,
       "name": "Output1",
-      "selectedOutputs": ["Displacement","Force","Damage","Velocity","Partial_Stress","Number_Of_Neighbors"],
+      "selectedOutputs": [
+        "Displacement",
+        "Force",
+        "Damage",
+        "Velocity",
+        "Partial_Stress",
+        "Number_Of_Neighbors"
+      ],
       "Frequency": 50,
       "InitStep": 0
     },
     {
       "id": 2,
       "name": "Output2",
-      "selectedOutputs": ["Displacement","Force","Damage"],
+      "selectedOutputs": [
+        "Displacement",
+        "Force",
+        "Damage"
+      ],
       "Write_After_Damage": true,
       "Frequency": 10,
       "InitStep": 0
@@ -404,7 +433,7 @@
     },
     "filetype": "yaml"
   },
-  "job":{
+  "job": {
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,

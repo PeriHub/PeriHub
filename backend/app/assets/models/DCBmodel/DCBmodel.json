@@ -13,7 +13,10 @@
     "horizon": 0.01,
     "twoDimensional": true,
     "rotatedAngles": true,
-    "angles": [0, 0]
+    "angles": [
+      0,
+      0
+    ]
   },
   "materials": [
     {
@@ -133,6 +136,18 @@
       ]
     }
   ],
+  "additive": {
+    "additiveModels": [
+      {
+        "additiveType": "Simple Additive",
+        "id": null,
+        "name": "Additive Model 1",
+        "printTemp": 200,
+        "timeFactor": 1
+      }
+    ],
+    "enabled": false
+  },
   "damages": [
     {
       "id": 1,
@@ -147,7 +162,7 @@
       "thickness": 10,
       "hourglassCoefficient": 1,
       "stabilizationType": "Global Stiffness",
-      "criticalEnergyCalc":{
+      "criticalEnergyCalc": {
         "calculateCriticalEnergy": false,
         "k1c": null,
         "youngsModulus": null
@@ -208,43 +223,44 @@
   },
   "boundaryConditions": {
     "conditions": [
-    {
-      "conditionsId": 1,
-      "name": "BC_1",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 1,
-      "coordinate": "z",
-      "value": "0*t"
-    },
-    {
-      "conditionsId": 2,
-      "name": "BC_2",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 2,
-      "coordinate": "z",
-      "value": "0*t"
-    },
-    {
-      "conditionsId": 3,
-      "name": "BC_3",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 3,
-      "coordinate": "y",
-      "value": "0.04*t"
-    },
-    {
-      "conditionsId": 4,
-      "name": "BC_4",
-      "nodeSet": null,
-      "boundarytype": "Prescribed Displacement",
-      "blockId": 4,
-      "coordinate": "y",
-      "value": "-0.04*t"
-    }
-  ]},
+      {
+        "conditionsId": 1,
+        "name": "BC_1",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 1,
+        "coordinate": "z",
+        "value": "0*t"
+      },
+      {
+        "conditionsId": 2,
+        "name": "BC_2",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 2,
+        "coordinate": "z",
+        "value": "0*t"
+      },
+      {
+        "conditionsId": 3,
+        "name": "BC_3",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 3,
+        "coordinate": "y",
+        "value": "0.04*t"
+      },
+      {
+        "conditionsId": 4,
+        "name": "BC_4",
+        "nodeSet": null,
+        "boundarytype": "Prescribed Displacement",
+        "blockId": 4,
+        "coordinate": "y",
+        "value": "-0.04*t"
+      }
+    ]
+  },
   "bondFilters": [],
   "computes": [
     {
@@ -268,14 +284,22 @@
     {
       "id": 1,
       "name": "Output1",
-      "selectedOutputs": ["Displacement","Force","Damage","Velocity","Partial_Stress"],
+      "selectedOutputs": [
+        "Displacement",
+        "Force",
+        "Damage",
+        "Velocity",
+        "Partial_Stress"
+      ],
       "Frequency": "500",
       "InitStep": 0
     },
     {
       "id": 2,
       "name": "Output2",
-      "selectedOutputs": ["Damage"],
+      "selectedOutputs": [
+        "Damage"
+      ],
       "Frequency": 200,
       "InitStep": 0
     }
@@ -315,7 +339,7 @@
     },
     "filetype": "yaml"
   },
-  "job":{
+  "job": {
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,

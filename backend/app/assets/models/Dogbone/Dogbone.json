@@ -13,7 +13,10 @@
     "horizon": 1.0,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [0, 0]
+    "angles": [
+      0,
+      0
+    ]
   },
   "materials": [
     {
@@ -241,6 +244,18 @@
       ]
     }
   ],
+  "additive": {
+    "additiveModels": [
+      {
+        "additiveType": "Simple Additive",
+        "id": null,
+        "name": "Additive Model 1",
+        "printTemp": 200,
+        "timeFactor": 1
+      }
+    ],
+    "enabled": false
+  },
   "damages": [
     {
       "id": 1,
@@ -255,7 +270,7 @@
       "thickness": 10,
       "hourglassCoefficient": 1,
       "stabilizationType": "Global Stiffness",
-      "criticalEnergyCalc":{
+      "criticalEnergyCalc": {
         "calculateCriticalEnergy": false,
         "k1c": null,
         "youngsModulus": null
@@ -354,7 +369,13 @@
     {
       "id": 1,
       "name": "Output1",
-      "selectedOutputs": ["Displacement","Force","Damage","Velocity","Partial_Stress"],
+      "selectedOutputs": [
+        "Displacement",
+        "Force",
+        "Damage",
+        "Velocity",
+        "Partial_Stress"
+      ],
       "Frequency": "100",
       "InitStep": 0
     }
@@ -394,7 +415,7 @@
     },
     "filetype": "yaml"
   },
-  "job":{
+  "job": {
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,

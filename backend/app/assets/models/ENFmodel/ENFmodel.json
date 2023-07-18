@@ -15,7 +15,10 @@
     "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [0, 0]
+    "angles": [
+      0,
+      0
+    ]
   },
   "materials": [
     {
@@ -131,6 +134,18 @@
       ]
     }
   ],
+  "additive": {
+    "additiveModels": [
+      {
+        "additiveType": "Simple Additive",
+        "id": null,
+        "name": "Additive Model 1",
+        "printTemp": 200,
+        "timeFactor": 1
+      }
+    ],
+    "enabled": false
+  },
   "damages": [
     {
       "damagesId": 1,
@@ -327,14 +342,29 @@
     {
       "id": 1,
       "name": "Output1",
-      "selectedOutputs": ["Displacement","Force","Damage","Velocity","Partial_Stress","Number_Of_Neighbors","Von_Mises_Stress","Unrotated_Strain"],
+      "selectedOutputs": [
+        "Displacement",
+        "Force",
+        "Damage",
+        "Velocity",
+        "Partial_Stress",
+        "Number_Of_Neighbors",
+        "Von_Mises_Stress",
+        "Unrotated_Strain"
+      ],
       "Frequency": "100",
       "InitStep": 0
     },
     {
       "id": 2,
       "name": "Output2",
-      "selectedOutputs": ["Displacement","Damage","Partial_Stress","Von_Mises_Stress","Unrotated_Strain"],
+      "selectedOutputs": [
+        "Displacement",
+        "Damage",
+        "Partial_Stress",
+        "Von_Mises_Stress",
+        "Unrotated_Strain"
+      ],
       "Write_After_Damage": true,
       "Frequency": "1",
       "InitStep": 0
@@ -376,7 +406,7 @@
     "filetype": "yaml",
     "endStepAfterDamage": "3"
   },
-  "job":{
+  "job": {
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,
