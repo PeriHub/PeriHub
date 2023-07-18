@@ -732,6 +732,6 @@ class SmetanaData(BaseModel):
 
 
 class ResponseModel(BaseModel):
-    data: Union[str, bool, dict, List[float], List[List[float]], Status, Jobs]
+    data: Union[str, bool, dict, List[str], List[float], List[List[float]], Status, List[Jobs]]
     code: int = 200
     message: str

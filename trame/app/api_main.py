@@ -69,7 +69,7 @@ time_list = []
 
 class ResponseModel(BaseModel):
     data: Any
-    code = 200
+    code: int = 200
     message: str
 
 

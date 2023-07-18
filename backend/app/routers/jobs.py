@@ -339,7 +339,7 @@ def get_status(
 
     if cluster == "None":
         remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
-        log.info(remotepath)
+        # log.info(remotepath)
         if os.path.exists(os.path.join(remotepath, "pid.txt")):
             status.submitted = True
         if os.path.exists(remotepath):
