@@ -54,3 +54,7 @@ docker-compose up
 If docker finished building PeriHub, go to http://localhost:6010
 ## Contact
 * [Jan-Timo Hesse](mailto:Jan-Timo.Hesse@dlr.de)
+
+## License
+
+Please see the file [LICENSE.md](LICENSE.md) for further information about how the content is licensed.

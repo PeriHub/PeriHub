@@ -1,6 +1,10 @@
 # SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
 #
 # SPDX-License-Identifier: Apache-2.0
+#
+# SPDX-FileCopyrightText: 2020 Peridigm (Sandia Corporation)
+#
+# SPDX-License-Identifier: BSD-3-Clause
 
 FROM jthesse/trilinos
 

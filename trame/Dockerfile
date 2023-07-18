@@ -1,6 +1,10 @@
 # SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
 #
 # SPDX-License-Identifier: Apache-2.0
+#
+# SPDX-FileCopyrightText: 2023 Kitware Inc
+#
+# SPDX-License-Identifier: Apache-2.0
 
 FROM python:3.9
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"

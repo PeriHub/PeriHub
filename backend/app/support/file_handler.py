@@ -16,10 +16,7 @@ import paramiko
 from support.globals import log
 
 allowed_max_nodes = {
-    "hess_ja": {"allowedNodes": 1000000, "allowedFeSize": 15000000},
-    "will_cr": {"allowedNodes": 100000, "allowedFeSize": 15000000},
-    "garb_ma": {"allowedNodes": 100000, "allowedFeSize": 15000000},
-    "guest": {"allowedNodes": 10000, "allowedFeSize": 5242880},
+    "guest": {"allowedNodes": 1000000, "allowedFeSize": 15000000},
     "dev": {"allowedNodes": 10000000, "allowedFeSize": 150000000},
 }
 

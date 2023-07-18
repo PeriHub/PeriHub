@@ -11,15 +11,15 @@ ENV HOME /root
 
 RUN apt-get update
 RUN apt-get -yq install gcc \
-                        build-essential \
-                        wget \
-                        bzip2 \
-                        tar \
-                        zlib1g-dev \
-                        m4 \
-                        libopenmpi-dev \
-                        file \
-                        libcurl4-openssl-dev
+    build-essential \
+    wget \
+    bzip2 \
+    tar \
+    zlib1g-dev \
+    m4 \
+    libopenmpi-dev \
+    file \
+    libcurl4-openssl-dev
 
 #Build HDF5
 RUN wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.bz2; \
@@ -38,11 +38,10 @@ ADD largefiles.patch netcdf-c-4.8.0/largefiles.patch
 RUN cd netcdf-c-4.8.0; \
     patch -p1 < largefiles.patch; \
     ./configure --prefix=/usr/local/netcdf --disable-netcdf-4 --disable-dap \ 
-                CC=mpicc \
-                LDFLAGS=-L/usr/local/hdf5/lib \
-                CFLAGS=-I/usr/local/hdf5/include; \
+    CC=mpicc \
+    LDFLAGS=-L/usr/local/hdf5/lib \
+    CFLAGS=-I/usr/local/hdf5/include; \
     make; \
     make install;\
     cd ..;\
     rm -rf netcdf-c-4.8.0 v4.8.0.tar.gz
-    

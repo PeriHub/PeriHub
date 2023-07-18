@@ -1,6 +1,10 @@
 # SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
 #
 # SPDX-License-Identifier: Apache-2.0
+#
+# SPDX-FileCopyrightText: 2023 Trilinos Project <https://trilinos.github.io/license.html>
+#
+# SPDX-License-Identifier: BSD-3-Clause
 
 FROM perihub/netcdf
 
@@ -17,13 +21,13 @@ RUN apt -y install intel-oneapi-mkl
 RUN echo -e "source /opt/intel/oneapi/mkl/latest/env/vars.sh" >> ~/.bashrc
 
 RUN apt-get -yq install g++ \ 
-                        gfortran \
-                        python \ 
-                        libblas-dev \
-                        liblapack-dev \
-                        libboost-dev \
-                        git \
-                        libyaml-cpp-dev
+    gfortran \
+    python \ 
+    libblas-dev \
+    liblapack-dev \
+    libboost-dev \
+    git \
+    libyaml-cpp-dev
 
 RUN apt-get -yq cmake
 # ADD https://github.com/Kitware/CMake/releases/download/v3.20.5/cmake-3.20.5-linux-x86_64.sh /cmake-3.20.5-Linux-x86_64.sh

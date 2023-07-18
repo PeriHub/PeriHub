@@ -424,7 +424,6 @@ export const useModelStore = defineStore("model", {
         cpusPerTask: 1,
         multithread: false,
         time: "00:20:00",
-        // user: 'hess_ja',
         account: "2263032",
         // mail: 'jan-timo.hesse@dlr.de',
       },

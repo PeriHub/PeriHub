@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Frontend for PeriHub",
   "productName": "PeriHub",
-  "author": "hess_ja <jan-timo.hesse@dlr.de>",
+  "author": "Jan-Timo Hesse <jan-timo.hesse@dlr.de>",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue ./",
