@@ -34,5 +34,6 @@ def test_generate_model(model_name):
     ) as file:
         params = json.load(file)
     response = client.post("/generate/model?model_name=" + model_name, json=params)
+    print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
     assert response.status_code == 200
     assert response.json()["data"]
