@@ -16,7 +16,6 @@ stages:
       - main
     changes:
       - backend/**/*
-  allow_failure: true
   before_script:
     - apt update && apt install -y make git
     - pip install -r backend/requirements.txt
@@ -65,7 +64,6 @@ check-coverage:
       - main
     changes:
       - backend/**/*
-  allow_failure: true
   before_script:
     - apt update && apt install -y make
     - pip install -r backend/requirements-dev.txt
