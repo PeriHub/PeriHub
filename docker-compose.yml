@@ -7,7 +7,7 @@ version: "3"
 services:
   periHubApi:
     build:
-      context: api/.
+      context: backend/.
       args:
         DLR: ${DLR}
         DEV: ${DEV}
@@ -23,7 +23,7 @@ services:
 
   periHubGui:
     build:
-      context: gui/.
+      context: frontend/.
       args:
         DLR: ${DLR}
         DEV: ${DEV}

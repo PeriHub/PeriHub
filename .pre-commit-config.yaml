@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-files: ^api/
+files: ^backend/
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
@@ -30,4 +30,8 @@ repos:
     -   id: rst-backticks
     -   id: rst-directive-colons
     -   id: rst-inline-touching-normal
+# -   repo: https://github.com/fsfe/reuse-tool
+#     rev: v1.1.2
+#     hooks:
+#       - id: reuse
 

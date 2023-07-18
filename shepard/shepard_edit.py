@@ -32,7 +32,7 @@ container_id = 22060
 # Read local json data
 model = "CompactTension"
 # model = "Smetana"
-path = "api/app/assets/models"
+path = "backend/app/assets/models"
 # for model in next(os.walk(path))[1]:
 
 with open(os.path.join(path, model, model + ".json"), "r", encoding="UTF-8") as file:

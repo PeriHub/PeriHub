@@ -1,0 +1,16 @@
+/*
+  * SPDX-FileCopyrightText: 2023 Razvan Stoenescu
+  *
+  * SPDX-License-Identifier: MIT
+  */
+
+// app global css in SCSS form
+@font-face {
+  font-family: montserrat;
+  src: url(./fonts/Montserrat/Montserrat-Italic-VariableFont_wght.ttf);
+}
+
+// declare a class which applies it
+.my-font {
+  font-family: 'montserrat';
+}

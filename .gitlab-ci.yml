@@ -15,16 +15,16 @@ stages:
     refs:
       - main
     changes:
-      - api/**/*
+      - backend/**/*
   allow_failure: true
   before_script:
     - apt update && apt install -y make git
-    - pip install -r api/requirements.txt
-    - pip install -r api/requirements-dev.txt
+    - pip install -r backend/requirements.txt
+    - pip install -r backend/requirements-dev.txt
     - pip install -i https://test.pypi.org/simple/ exodusreader
     - pip install -i https://test.pypi.org/simple/ gcodereader
     - pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git
-    - cd api/app
+    - cd backend/app
 
 .test-template: &test
   <<: *install-deps
@@ -37,7 +37,7 @@ stages:
   artifacts:
     when: always
     reports:
-      junit: api/app/build/tests.xml
+      junit: backend/app/build/tests.xml
 
 test-linux-py3.11:
   image: python:3.11-slim
@@ -53,23 +53,23 @@ check-coverage:
     when: always
     expose_as: "Coverage Report"
     paths:
-      - api/app/build/html
+      - backend/app/build/html
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: api/app/build/coverage.xml
+        path: backend/app/build/coverage.xml
 
 .install-dev-deps-template: &install-dev-deps
   only:
     refs:
       - main
     changes:
-      - api/**/*
+      - backend/**/*
   allow_failure: true
   before_script:
     - apt update && apt install -y make
-    - pip install -r api/requirements-dev.txt
-    - cd api/app
+    - pip install -r backend/requirements-dev.txt
+    - cd backend/app
 
 
 .audit-template: &audit
@@ -88,35 +88,35 @@ check-code:
   artifacts:
     when: on_failure
     expose_as: "Linter Report"
-    paths: ["api/app/build/flake8.txt"]
+    paths: ["backend/app/build/flake8.txt"]
 
 check-formatting:
   <<: *audit
   script:
     - make check-formatting
 
-build_api_job:
+build_backend_job:
   stage: build
   extends: [.build_before_script_template]
   only:
     refs:
       - main
     changes:
-      - api/**/*
+      - backend/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}peri_hub_api_image api/.
+    - docker build -t ${CI_REGISTRY_PATH}peri_hub_api_image backend/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
 
-build_gui_job:
+build_frontend_job:
   stage: build
   extends: [.build_before_script_template]
   only:
     refs:
       - main
     changes:
-      - gui/**/*
+      - frontend/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image gui/.
+    - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image frontend/.
     - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
 
 build_paraview_job:

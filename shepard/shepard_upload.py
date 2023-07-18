@@ -56,7 +56,7 @@ file_container = file_api.create_file_container(file_container=container_to_crea
 
 # Read local json data
 models_data = []
-path = "api/app/assets/models"
+path = "backend/app/assets/models"
 for model in next(os.walk(path))[1]:
     # print(model)
     with open(
