@@ -20,7 +20,7 @@ from exodusreader.exodusreader import ExodusReader
 
 class CrackAnalysis:
     @staticmethod
-    def write_nodemap(file):
+    def write_nodemap(file, step):
         reader = ExodusReader()
 
         (
@@ -31,7 +31,7 @@ class CrackAnalysis:
             ns,
             block_data,
             times,
-        ) = reader.read_timestep(file, -1)
+        ) = reader.read_timestep(file, step)
 
         damage_blocks = cell_data["Damage"][0]
 

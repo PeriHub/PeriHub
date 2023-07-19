@@ -83,11 +83,35 @@ SPDX-License-Identifier: Apache-2.0
             </q-tooltip>
         </q-btn>
         <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)"
-            flat icon="fas fa-image" @click="getFractureAnalysis()" :disable="!status.results">
+            flat icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
             <q-tooltip>
                 Show Fracture Analysis
             </q-tooltip>
         </q-btn>
+        <q-dialog v-model="dialogGetFractureAnalysis" persistent max-width="800">
+            <q-card>
+                <q-card-section>
+                    <div class="text-h6">Show Fracture Analysis</div>
+                </q-card-section>
+
+                <q-card-section class="q-pt-none">
+                    Which output do you want to analyse?
+                </q-card-section>
+                <q-card-section class="q-pt-none">
+                    <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name"
+                        emit-value v-model="getImageOutput" label="Output Name" standout dense></q-select>
+                </q-card-section>
+                <q-card-section class="q-pt-none">
+                    <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
+                        standout dense></q-input>
+                </q-card-section>
+                <q-card-actions align="right">
+                    <q-btn flat label="Show" color="primary" v-close-popup @click="getFractureAnalysis"></q-btn>
+                    <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+
         <q-btn v-if="viewStore.viewId == 'image'" flat icon="fas fa-download" @click="downloadModelImage()"
             :disable="!status.results">
             <q-tooltip>
@@ -306,6 +330,8 @@ export default defineComponent({
             dialogShowResults: false,
             dialogGetImage: false,
             showResultsOutputName: "Output1",
+
+            dialogGetFractureAnalysis: false,
 
             dialogGetPlot: false,
             getPlotVariables: [],
@@ -665,7 +691,8 @@ export default defineComponent({
                 yield_stress: this.modelData.materials[0].yieldStress,
                 cluster: this.modelData.job.cluster,
                 tasks: this.modelData.job.tasks,
-                output: "Output2"
+                output: this.getImageOutput,
+                step: this.getImageStep,
             }
 
             await this.$api.get('/results/getFractureAnalysis', { params, responseType: "blob" })

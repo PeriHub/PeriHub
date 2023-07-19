@@ -137,6 +137,7 @@ def get_fracture_analysis(
     cluster: str = "None",
     tasks: int = 32,
     output: str = "Output1",
+    step: int = -1,
     request: Request = "",
 ):
     """doc"""
@@ -150,7 +151,7 @@ def get_fracture_analysis(
     resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-    file_name, filepath = CrackAnalysis.write_nodemap(file)
+    file_name, filepath = CrackAnalysis.write_nodemap(file, step)
 
     filepath = CrackAnalysis.fracture_analysis(
         model_name,
