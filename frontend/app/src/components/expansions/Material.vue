@@ -369,14 +369,41 @@ export default defineComponent({
                 const input_string = e.target.result;
 
                 let filtered_string = input_string.match(/\*User([\D\S]*?)\*/gi);
+                console.log(filtered_string)
                 let propsArray = filtered_string[0].split(/[\n,]/gi);
+                console.log(propsArray)
+                propsArray = propsArray.filter(value => value.trim() !== ""); // Remove empty values
+                console.log(propsArray);
                 propsArray = propsArray.slice(0, propsArray.length - 1);
+                console.log(propsArray)
 
-                if (propsArray[1].match(/\d+/) == propsArray.length - 2) {
+                const numConstants = propsArray.length - 2; // Determine number of constants dynamically
+                console.log(numConstants)
+                console.log(propsArray[1].match(/\d+/))
+                if (propsArray[1].match(/\d+/) == numConstants) {
                     this.materials[0].properties = [];
+
+                    // Extract parameter values
+                    let parameterString = input_string.match(/\*PARAMETER([\D\S]*?)\*HEADING/gi);
+                    let parameterValues = parameterString[0].match(/\w+=([\d.]+)/gi);
+                    console.log(parameterValues);
+
                     for (var i = 2; i < propsArray.length; i++) {
                         this.addProp(0);
-                        this.materials[0].properties[i - 2].value = propsArray[i].trim();
+
+                        // Replace placeholders with parameter values
+                        let propValue = propsArray[i].trim();
+                        if (propValue.startsWith("<") && propValue.endsWith(">")) {
+                            let paramName = propValue.slice(1, -1);
+                            let paramValue = parameterValues.find(param => param.startsWith(paramName + "="));
+                            if (paramValue) {
+                                propValue = paramValue.split("=")[1];
+                            } else {
+                                console.log(`Parameter ${paramName} not found.`);
+                            }
+                        }
+
+                        this.materials[0].properties[i - 2].value = propValue;
                     }
                 } else {
                     console.log("Length of Propsarray unexpected");
