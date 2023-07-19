@@ -407,6 +407,8 @@ export const useModelStore = defineStore("model", {
         },
         stopAfterDamageInitation: false,
         endStepAfterDamage: 3,
+        stopAfterCertainDamage: false,
+        maxDamageValue: 0.3,
         stopBeforeDamageInitation: false,
         adaptivetimeStepping: false,
         adapt: {

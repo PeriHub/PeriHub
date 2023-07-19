@@ -496,6 +496,14 @@ class XMLcreator:
                 + str(self.solver_dict.endStepAfterDamage)
                 + '"/>\n'
             )
+        if self.solver_dict.stopAfterCertainDamage:
+            string += '        <Parameter name="Stop after certain damage value" type="bool" value="True"/>\n'
+        if self.solver_dict.maxDamageValue:
+            string += (
+                '        <Parameter name="Max. damage value" type="double" value="'
+                + str(self.solver_dict.maxDamageValue)
+                + '"/>\n'
+            )
         if self.solver_dict.stopBeforeDamageInitation:
             string += '        <Parameter name="Stop before damage initiation" type="bool" value="True"/>\n'
         if self.solver_dict.solvertype == "Verlet":

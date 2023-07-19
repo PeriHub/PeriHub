@@ -295,6 +295,8 @@ class Solver(BaseModel):
     verlet: Optional[Verlet] = None
     stopAfterDamageInitation: Optional[bool] = None
     endStepAfterDamage: Optional[int] = None
+    stopAfterCertainDamage: Optional[bool] = None
+    maxDamageValue: Optional[float] = None
     stopBeforeDamageInitation: Optional[bool] = None
     adaptivetimeStepping: Optional[bool] = None
     adapt: Optional[Adapt] = None
