@@ -204,7 +204,7 @@ export default defineComponent({
                 console.log(this.store.modelData.model.modelNameSelected)
                 if (!this.store.modelData.model.ownModel) {
                     this.bus.emit("showModelImg", this.store.modelData.model.modelNameSelected)
-                    this.resetData()
+                    // this.resetData()
                 }
                 this.bus.emit("getStatus")
             },
