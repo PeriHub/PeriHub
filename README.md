@@ -16,20 +16,20 @@ PeriHub enables the generation, editing, execution and evaluation of standard pe
 - FA-Services: https://perihub.fa-services.intra.dlr.de/
 - API: https://perihub-api.fa-services.intra.dlr.de/docs
 
-![](backend/app/public/images/PeriHub.drawio.png)
+![](backend/app/assets/images/PeriHub.drawio.png)
 
 ### Generate model
-![](backend/app/public/gif/generateModel.gif)
+![](backend/app/assets/gif/generateModel.gif)
 ### View generated mesh
-![](backend/app/public/gif/viewMesh.gif)
+![](backend/app/assets/gif/viewMesh.gif)
 ### Edit input deck
-![](backend/app/public/gif/editInputDeck.gif)
+![](backend/app/assets/gif/editInputDeck.gif)
 ### Add materials or damage models
-![](backend/app/public/gif/addMaterialDamage.gif)
+![](backend/app/assets/gif/addMaterialDamage.gif)
 ### Submit model
-![](backend/app/public/gif/runModel.gif)
+![](backend/app/assets/gif/runModel.gif)
 ### Analyse results
-![](backend/app/public/gif/analyseResults.gif)
+![](backend/app/assets/gif/analyseResults.gif)
 
 
 ## Building locally
