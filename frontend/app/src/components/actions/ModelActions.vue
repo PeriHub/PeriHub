@@ -105,7 +105,6 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { parseFromJson } from '../../utils/functions.js'
 import { useDefaultStore } from 'stores/default-store';
 import { useModelStore } from 'stores/model-store';
 import { useViewStore } from 'stores/view-store';
@@ -192,6 +191,30 @@ export default defineComponent({
 
             this.viewStore.modelLoading = false;
         },
+        onFilePicked(event) {
+            const file = event.target.files[0];
+            const filetype = file.type;
+            if (file.length <= 0) {
+                return false;
+            }
+
+            const fr = new FileReader();
+
+            if (filetype == "application/json") {
+                this.loadJsonFile(fr, file);
+            } else if (file.name.includes(".yaml")) {
+                this.loadYamlModel(fr, file);
+            } else if (filetype == "text/xml") {
+                this.loadXmlModel(fr, file);
+            } else if (filetype == ".peridigm") {
+                this.loadPeridigmModel(fr, file);
+            } else if (file.name.includes(".gcode")) {
+                this.gcodeFile = file;
+                this.dialogGcode = true;
+            } else {
+                this.loadFeModel(file);
+            }
+        },
         onMultiFilePicked(event) {
             const files = event.target.files;
             const filetype = files[0].type;
@@ -235,7 +258,7 @@ export default defineComponent({
 
             fr.onload = (e) => {
                 const result = JSON.parse(e.target.result);
-                parseFromJson(this.modelData, result)
+                this.modelStore.modelData = structuredClone(result)
             };
             fr.readAsText(file);
         },

@@ -53,7 +53,6 @@ import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
 import { inject } from 'vue'
 import rules from "assets/rules.js";
-import { deepCopy } from '../../utils/functions.js'
 
 export default defineComponent({
     name: 'BoundaryConditionsSettings',
@@ -104,7 +103,7 @@ export default defineComponent({
     methods: {
         addCondition() {
             const len = this.boundaryConditions.conditions.length;
-            let newItem = deepCopy(this.boundaryConditions.conditions[len - 1])
+            let newItem = structuredClone(this.boundaryConditions.conditions[len - 1])
             newItem.boundaryConditionsId = len + 1
             newItem.name = "BC_" + (len + 1)
             this.boundaryConditions.conditions.push(newItem);

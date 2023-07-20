@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineStore } from "pinia";
-import { parseFromJson } from '../utils/functions.js'
 
 export const useModelStore = defineStore("model", {
   state: () => ({
@@ -433,10 +432,10 @@ export const useModelStore = defineStore("model", {
   }),
   actions: {
     initialiseStore() {
-      console.log("initialiseStore")
       if (localStorage.getItem("modelData")){
+        console.log("initialiseStore")
         var object = JSON.parse(localStorage.getItem("modelData"))
-        parseFromJson(this.modelData,object)
+        this.modelData = structuredClone(object)
       }
     },
   },

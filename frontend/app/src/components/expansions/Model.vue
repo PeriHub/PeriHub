@@ -147,7 +147,6 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 import { computed, defineComponent, inject } from 'vue'
 import { useModelStore } from 'stores/model-store';
-import { parseFromJson } from '../../utils/functions.js'
 import rules from "assets/rules.js";
 
 export default defineComponent({
@@ -189,7 +188,7 @@ export default defineComponent({
             this.$api.get(route)
                 .then((response) => {
                     let jsonFile = response.data
-                    parseFromJson(this.store.modelData, jsonFile)
+                    this.store.modelData = structuredClone(jsonFile)
                 })
                 .catch((error) => {
                     this.$q.notify({

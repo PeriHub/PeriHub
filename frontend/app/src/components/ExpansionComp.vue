@@ -92,6 +92,12 @@ export default defineComponent({
             panel: [false, false, false, false, false, false, false, false, false, false],
         }
     },
+    mounted() {
+        if (localStorage.getItem("panel")) {
+            var object = JSON.parse(localStorage.getItem("panel"))
+            this.panel = structuredClone(object)
+        }
+    },
     methods: {
         openHidePanels() {
             if (this.panel.includes(true)) {

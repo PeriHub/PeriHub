@@ -187,7 +187,6 @@ import { useModelStore } from 'stores/model-store';
 import { useViewStore } from 'stores/view-store';
 import { inject } from 'vue'
 import rules from "assets/rules.js";
-import { deepCopy } from '../../utils/functions.js'
 
 export default defineComponent({
     name: 'MaterialSettings',
@@ -416,7 +415,7 @@ export default defineComponent({
         },
         addMaterial() {
             const len = this.materials.length;
-            let newItem = deepCopy(this.materials[len - 1])
+            let newItem = structuredClone(this.materials[len - 1])
             newItem.materialsId = len + 1
             newItem.name = "Material" + (len + 1)
             this.materials.push(newItem);
@@ -428,7 +427,7 @@ export default defineComponent({
             const len = this.materials[index].properties.length;
             let newItem = {}
             if (len != 0) {
-                newItem = deepCopy(this.materials[index].properties[len - 1])
+                newItem = structuredClone(this.materials[index].properties[len - 1])
             }
             newItem.materialsPropId = len + 1
             newItem.name = "Prop_" + (len + 1)

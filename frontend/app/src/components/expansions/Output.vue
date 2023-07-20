@@ -88,7 +88,6 @@ import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
 import { inject } from 'vue'
 import rules from "assets/rules.js";
-import { deepCopy } from '../../utils/functions.js'
 
 export default defineComponent({
     name: 'OutputSettings',
@@ -204,7 +203,7 @@ export default defineComponent({
         },
         addCompute() {
             const len = this.computes.length;
-            let newItem = deepCopy(this.computes[len - 1])
+            let newItem = structuredClone(this.computes[len - 1])
             newItem.computesId = len + 1
             newItem.name = "Compute" + (len + 1)
             this.computes.push(newItem);

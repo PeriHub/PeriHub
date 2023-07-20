@@ -106,7 +106,6 @@ import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
 import { inject } from 'vue'
 import rules from "assets/rules.js";
-import { deepCopy } from '../../utils/functions.js'
 
 export default defineComponent({
     name: 'DamageSettings',
@@ -169,7 +168,7 @@ export default defineComponent({
     methods: {
         addDamage() {
             const len = this.damages.length;
-            let newItem = deepCopy(this.damages[len - 1])
+            let newItem = structuredClone(this.damages[len - 1])
             newItem.damagesId = len + 1
             newItem.name = "Damage" + (len + 1)
             this.damages.push(newItem);
@@ -184,7 +183,7 @@ export default defineComponent({
         },
         addInterBlock(index) {
             const len = this.damages[index].interBlocks.length;
-            let newItem = deepCopy(this.damages[index].interBlocks[len - 1])
+            let newItem = structuredClone(this.damages[index].interBlocks[len - 1])
             newItem.damagesInterId = len + 1
             newItem.firtsId = 1
             newItem.secondId = len + 1
