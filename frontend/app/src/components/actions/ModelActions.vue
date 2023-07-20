@@ -15,6 +15,9 @@ SPDX-License-Identifier: Apache-2.0
             accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp,.gcode" @change="onFilePicked" />
         <input type="file" style="display: none" ref="multifileInput" multiple accept="text/plain,.g"
             @change="onMultiFilePicked" />
+        <input type="file" style="display: none" ref="meshInput" accept="text/plain,.g" @change="onMeshPicked" />
+        <input type="file" style="display: none" ref="nodesetsInput" multiple accept="text/plain,.g"
+            @change="onNodesetsPicked" />
         <q-dialog v-model="dialogGcode" persistent max-width="800">
             <q-card>
                 <q-card-section>
@@ -62,7 +65,13 @@ SPDX-License-Identifier: Apache-2.0
 
         <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-upload" @click="uploadMesh">
             <q-tooltip>
-                Upload Mesh and Nodesets
+                Upload Mesh
+            </q-tooltip>
+        </q-btn>
+
+        <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-upload" @click="uploadNodesets">
+            <q-tooltip>
+                Upload Nodesets
             </q-tooltip>
         </q-btn>
 
@@ -103,6 +112,8 @@ import { useViewStore } from 'stores/view-store';
 import { inject } from 'vue'
 import rules from "assets/rules.js";
 
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
 export default defineComponent({
     name: "ModelActions",
     setup() {
@@ -140,31 +151,46 @@ export default defineComponent({
             this.$refs.fileInput.click();
         },
         uploadMesh() {
-            this.$refs.multifileInput.click();
+            this.$refs.meshInput.click();
         },
-        onFilePicked(event) {
-            const file = event.target.files[0];
-            const filetype = file.type;
-            if (file.length <= 0) {
+        uploadNodesets() {
+            this.$refs.nodesetsInput.click();
+        },
+        async onMeshPicked(event) {
+            const files = event.target.files;
+            const filetype = files[0].type;
+            if (files.length <= 0) {
                 return false;
             }
 
-            const fr = new FileReader();
+            this.viewStore.modelLoading = true;
+            await this.uploadfiles(files);
 
-            if (filetype == "application/json") {
-                this.loadJsonFile(fr, file);
-            } else if (file.name.includes(".yaml")) {
-                this.loadYamlModel(fr, file);
-            } else if (filetype == "text/xml") {
-                this.loadXmlModel(fr, file);
-            } else if (filetype == ".peridigm") {
-                this.loadPeridigmModel(fr, file);
-            } else if (file.name.includes(".gcode")) {
-                this.gcodeFile = file;
-                this.dialogGcode = true;
-            } else {
-                this.loadFeModel(file);
+            this.modelStore.modelData.model.modelNameSelected = files[0].name.split('.')[0]
+            this.modelStore.modelData.model.mesh_file = files[0].name
+            this.viewStore.viewId = "model";
+            await sleep(500)
+            this.bus.emit('viewPointData');
+            this.viewStore.modelLoading = false;
+        },
+        onNodesetsPicked(event) {
+            const files = event.target.files;
+            const filetype = files[0].type;
+            if (files.length <= 0) {
+                return false;
             }
+
+            this.viewStore.modelLoading = true;
+            this.uploadfiles(files);
+
+            for (var i = 0; i < files.length; i++) {
+                if (this.modelStore.modelData.boundaryConditions.conditions.length < i + 1) {
+                    this.bus.emit('addCondition')
+                }
+                this.modelStore.modelData.boundaryConditions.nodeSets[i].file = files[i].name
+            }
+
+            this.viewStore.modelLoading = false;
         },
         onMultiFilePicked(event) {
             const files = event.target.files;
@@ -176,9 +202,7 @@ export default defineComponent({
             this.viewStore.modelLoading = true;
             this.uploadfiles(files);
 
-            this.bus.emit('viewPointData');
             this.viewStore.modelLoading = false;
-            this.snackbar = true;
         },
         async uploadfiles(files) {
             const formData = new FormData();
@@ -280,7 +304,6 @@ export default defineComponent({
             const filetype = this.gcodeFile.name.split(".")[1];
 
             await this.translateGcode(this.gcodeFile, true);
-            this.bus.emit('viewPointData');
         },
         async translateGcode(file, upload) {
             if (upload) {
