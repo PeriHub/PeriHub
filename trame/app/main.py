@@ -142,6 +142,7 @@ renderView1.ResetCamera()
 # Callbacks
 # -----------------------------------------------------------------------------
 
+
 def last_time_step():
     state.time = state.times
     update_time(state.time)
@@ -149,9 +150,11 @@ def last_time_step():
     # state.flush("time")
     update_view()
 
+
 def reset():
     html_view.reset_camera
     # update_view()
+
 
 def first_time_step():
     state.time = 0
@@ -159,11 +162,13 @@ def first_time_step():
     # state.flush("time", "time_value")
     update_view()
 
+
 def previous_time_step():
     state.time -= 1
     update_time(state.time)
     # state.flush("time", "time_value")
     update_view()
+
 
 def next_time_step():
     state.time += 1
@@ -173,13 +178,15 @@ def next_time_step():
     # animationScene1.GoToNext()
     # update_view()
 
+
 def rescale():
     Output1Display.RescaleTransferFunctionToDataRange(False, True)
     update_view()
 
+
 def reload():
     simple.ReloadFiles(Output1)
-    
+
     # update animation scene based on data timesteps
     animationScene1.UpdateAnimationUsingDataTimeSteps()
 
@@ -193,6 +200,7 @@ def reload():
 
     update_view()
 
+
 async def animate():
     keep_going = True
     while keep_going:
@@ -202,10 +210,12 @@ async def animate():
             state.flush("time", "time_value")
         await asyncio.sleep(0.1)
 
+
 # @state.change("scale")
 # def update_scale(scale, **kwargs):
 #     glyph1.ScaleFactor = scale
 #     update_view()
+
 
 @state.change("axes_grid")
 def update_axes_grid(axes_grid, **kwargs):
@@ -215,6 +225,7 @@ def update_axes_grid(axes_grid, **kwargs):
         renderView1.AxesGrid.Visibility = 0
     update_view()
 
+
 @state.change("raycast")
 def update_scale(raycast, **kwargs):
     if raycast:
@@ -222,6 +233,7 @@ def update_scale(raycast, **kwargs):
     else:
         renderView1.EnableRayTracing = 0
     update_view()
+
 
 @state.change("apply_displacements")
 def update_scale(apply_displacements, **kwargs):
@@ -231,10 +243,12 @@ def update_scale(apply_displacements, **kwargs):
         Output1.ApplyDisplacements = 0
     update_view()
 
+
 @state.change("displacement_magnitude")
 def update_scale(displacement_magnitude, **kwargs):
     Output1.DisplacementMagnitude = float(displacement_magnitude)
     update_view()
+
 
 @state.change("time")
 def update_time(time, **kwargs):
@@ -249,6 +263,7 @@ def update_time(time, **kwargs):
     state.time_value = time_value
     update_view()
 
+
 @state.change("play")
 @asynchronous.task
 async def update_play(**kwargs):
@@ -258,10 +273,12 @@ async def update_play(**kwargs):
             update_time(state.time)
 
         await asyncio.sleep(0.1)
-    
+
+
 @state.change("viewMode")
 def update_view(**kwargs):
     ctrl.view_update()
+
 
 @state.change("nodal")
 def change_nodal(nodal, **kwargs):
@@ -279,10 +296,12 @@ def change_nodal(nodal, **kwargs):
     Output1Display.SetScalarBarVisibility(renderView1, True)
     update_view()
 
+
 @state.change("block_array_selection")
 def update_block_by_name(block_array_selection, **kwargs):
     Output1.ElementBlocks = block_array_selection
     update_view()
+
 
 # def update_reset_resolution():
 #     state.resolution = DEFAULT_RESOLUTION
@@ -295,6 +314,7 @@ view = simple.GetRenderView()
 view.UseColorPaletteForBackground = 1
 view.OrientationAxesVisibility = 1
 view = simple.Render()
+
 
 def standard_buttons():
     vuetify.VCheckbox(
@@ -334,8 +354,8 @@ def standard_buttons():
     with vuetify.VBtn(icon=True, click=ctrl.view_reset_camera):
         vuetify.VIcon("mdi-crop-free")
 
-with SinglePageWithDrawerLayout(server) as layout:
 
+with SinglePageWithDrawerLayout(server) as layout:
     layout.icon.click = ctrl.view_reset_camera
     layout.title.set_text(OutputName)
     with layout.toolbar:
@@ -397,9 +417,7 @@ with SinglePageWithDrawerLayout(server) as layout:
     with layout.drawer as drawer:
         # drawer components
         drawer.width = 200
-        with vuetify.VCard(
-            classes="mb-2 mx-1"
-        ):
+        with vuetify.VCard(classes="mb-2 mx-1"):
             with vuetify.VCardTitle(classes="py-0"):
                 html.Div("Blocks")
                 # vuetify.VSpacer()
@@ -420,9 +438,7 @@ with SinglePageWithDrawerLayout(server) as layout:
                     classes="pt-1",
                 )
         vuetify.VDivider(classes="mb-2")
-        with vuetify.VCard(
-            classes="mb-2 mx-1"
-        ):
+        with vuetify.VCard(classes="mb-2 mx-1"):
             with vuetify.VCardTitle(classes="py-0"):
                 html.Div("Displacements")
 

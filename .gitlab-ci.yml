@@ -2,9 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-variables: &globals
-  CI_REGISTRY_PATH: "harbor.fa-services.intra.dlr.de/${CI_REGISTRY_USER}/"
-
 stages:
   - test
   - audit

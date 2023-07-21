@@ -19,4 +19,5 @@ RUN wget -O paraView.tar.gz 'https://www.paraview.org/paraview-downloads/downloa
 RUN tar xvzf paraView.tar.gz
 
 EXPOSE 55
+
 ENTRYPOINT ["tail", "-f", "/dev/null"]

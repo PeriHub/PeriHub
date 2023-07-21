@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
         <div>
           © {{ new Date().getFullYear() }} German Aerospace Center (DLR) — <strong>PeriHub</strong> | Jan-Timo
-          Hesse | Christian Willberg | Falk Heinecke
+          Hesse | Christian Willberg
         </div>
       </div>
     </q-toolbar>
