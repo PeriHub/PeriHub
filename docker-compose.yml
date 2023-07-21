@@ -11,8 +11,8 @@ services:
       args:
         DLR: ${DLR}
         DEV: ${DEV}
-    container_name: perihub_periHubApi
-    image: peri_hub_api_image
+    container_name: perihub_periHubBackend
+    image: peri_hub_backend_image
     ports:
       - 6020:80
     volumes:
@@ -27,8 +27,8 @@ services:
       args:
         DLR: ${DLR}
         DEV: ${DEV}
-    container_name: perihub_periHubGui
-    image: peri_hub_gui_image
+    container_name: perihub_periHubFrontend
+    image: peri_hub_frontend_image
     ports:
       - 6010:80
     networks:

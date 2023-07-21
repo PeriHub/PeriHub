@@ -102,8 +102,8 @@ build_backend_job:
     changes:
       - backend/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}peri_hub_api_image backend/.
-    - docker push ${CI_REGISTRY_PATH}peri_hub_api_image
+    - docker build -t perihub/backend backend/.
+    - docker push perihub/backend
 
 build_frontend_job:
   stage: build
@@ -114,8 +114,8 @@ build_frontend_job:
     changes:
       - frontend/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}peri_hub_gui_image frontend/.
-    - docker push ${CI_REGISTRY_PATH}peri_hub_gui_image
+    - docker build -t perihub/frontend frontend/.
+    - docker push perihub/frontend
 
 build_paraview_job:
   stage: build
@@ -126,8 +126,8 @@ build_paraview_job:
     changes:
       - paraview/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}paraview_image paraview/.
-    - docker push ${CI_REGISTRY_PATH}paraview_image
+    - docker build -t perihub/paraview paraview/.
+    - docker push perihub/paraview
 
 build_trame_job:
   stage: build
@@ -138,8 +138,8 @@ build_trame_job:
     changes:
       - trame/**/*
   script:
-    - docker build -t ${CI_REGISTRY_PATH}trame_image trame/.
-    - docker push ${CI_REGISTRY_PATH}trame_image
+    - docker build -t perihub/trame trame/.
+    - docker push perihub/trame
 
 .build_before_script_template:
   image: docker:latest
@@ -147,6 +147,5 @@ build_trame_job:
     - docker:dind
   before_script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
-    - echo "$HARBOR_KEY" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY_PATH
   after_script:
     - docker logout
