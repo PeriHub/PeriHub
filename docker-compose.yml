@@ -5,13 +5,13 @@
 version: "3"
 
 services:
-  periHubApi:
+  periHubBackend:
     build:
       context: backend/.
       args:
         DLR: ${DLR}
         DEV: ${DEV}
-    container_name: perihub_periHubBackend
+    container_name: perihub_backend
     image: peri_hub_backend_image
     ports:
       - 6020:80
@@ -21,13 +21,13 @@ services:
     networks:
       - backend
 
-  periHubGui:
+  periHubFrontend:
     build:
       context: frontend/.
       args:
         DLR: ${DLR}
         DEV: ${DEV}
-    container_name: perihub_periHubFrontend
+    container_name: perihub_frontend
     image: peri_hub_frontend_image
     ports:
       - 6010:80

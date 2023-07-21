@@ -4,23 +4,35 @@ SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# PeriHub
+# PeriHub - Empowering Research with Peridynamic Modeling
 
-PeriHub enables the generation, editing, execution and evaluation of standard peridynamic models.
+PeriHub is a powerful software solution that can significantly benefit research in various fields. It is an extension of the open-source Peridigm software, providing a numerical implementation of the peridynamic theory. With PeriHub, researchers gain access to a valuable tool for addressing specific challenges and exploring diverse use cases in materials science, engineering, and related disciplines.
+
+## Key Features
+
+- **Peridynamic Modeling:** PeriHub excels at facilitating peridynamic modeling, enabling researchers to analyze material behavior and complex systems. Its unique approach empowers users to explore new frontiers and deepen their understanding of material behavior.
+
+- **User-Friendly Interface:** PeriHub offers a user-friendly interface, making it accessible to both experienced researchers and newcomers in the field. The platform's ease of use ensures efficient simulations, analysis of results, and gaining valuable insights into material behavior.
+
+- **REST API and GUI Support:** Researchers can seamlessly interact with PeriHub using its REST API and GUI support, providing flexibility and convenience in conducting simulations and research tasks.
+
+- **High-Quality and Reliable:** Developed collaboratively by a dedicated group of experts, PeriHub adheres to high standards of quality, reliability, and FAIRness (Findability, Accessibility, Interoperability, and Reusability). The German Aerospace Center (DLR) has played a significant role in fostering an environment that encourages innovation and interdisciplinary collaboration throughout the software's development process.
+
+- **Portability and Scalability:** PeriHub utilizes Docker containers, ensuring seamless integration and deployment across various computing environments. This approach enhances the software's portability, scalability, and ease of use, making it even more practical for research purposes.
 
 ![](backend/app/assets/images/PeriHub.drawio.png)
 
-### Generate model
+## Generate model
 ![](backend/app/assets/gif/generateModel.gif)
-### View generated mesh
+## View generated mesh
 ![](backend/app/assets/gif/viewMesh.gif)
-### Edit input deck
+## Edit input deck
 ![](backend/app/assets/gif/editInputDeck.gif)
-### Add materials or damage models
+## Add materials or damage models
 ![](backend/app/assets/gif/addMaterialDamage.gif)
-### Submit model
+## Submit model
 ![](backend/app/assets/gif/runModel.gif)
-### Analyse results
+## Analyse results
 ![](backend/app/assets/gif/analyseResults.gif)
 
 
@@ -44,6 +56,7 @@ Run docker-compose.
 docker-compose up
 ```
 If docker finished building PeriHub, go to http://localhost:6010
+
 ## Contact
 * [Jan-Timo Hesse](mailto:Jan-Timo.Hesse@dlr.de)
 
