@@ -86,7 +86,13 @@ class SbatchCreator:
 
         for out in self.output_dict:
             string += (
-                "python /home/" + self.user + "/peridigm/build/scripts/MergeFiles.py " + out.name + " " + str(self.tasks) + "\n"
+                "python /home/"
+                + self.user
+                + "/peridigm/build/scripts/MergeFiles.py "
+                + out.name
+                + " "
+                + str(self.tasks)
+                + "\n"
             )
 
         string += "rm *.e." + str(self.tasks) + ".*" + "\n"
