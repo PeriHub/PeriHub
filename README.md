@@ -6,15 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # PeriHub
 
-[![pipeline status](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/badges/main/pipeline.svg)](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/-/commits/main)
-[![coverage report](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/badges/main/coverage.svg)](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/-/commits/main)
-[![License](https://img.shields.io/badge/License-BSD-blue.svg)](https://gitlab.dlr.de/fa_sw/peridynamik/PeriHub/-/blob/main/LICENSE)
-
-
-PeriHub enables the generation, editing, execution and evaluation of standard peridynamic models
-
-- FA-Services: https://perihub.fa-services.intra.dlr.de/
-- API: https://perihub-api.fa-services.intra.dlr.de/docs
+PeriHub enables the generation, editing, execution and evaluation of standard peridynamic models.
 
 ![](backend/app/assets/images/PeriHub.drawio.png)
 
