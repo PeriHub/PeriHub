@@ -45,7 +45,7 @@ branch = true
 directory = "build/htmlcov"
 
 [tool.black]
-line-length = 130
+line-length = 120
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -70,7 +70,7 @@ exclude = '''
 '''
 
 [tool.isort]
-line_length = 130
+line_length = 120
 skip = "doc"
 profile = 'black'
 
@@ -79,5 +79,5 @@ pythonpath = "."
 addopts = "--ignore=dev_models"
 
 [tool.flake8]
-max-line-length = 130
+max-line-length = 120
 exclude = "./dev_models"
