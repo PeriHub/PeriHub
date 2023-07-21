@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Activate venv for current interpreter:
-
 Use `import venv` along with a `--venv path/to/venv/base`
 
 This can be used when you must use an existing Python interpreter, not the venv bin/python.

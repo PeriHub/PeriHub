@@ -2,11 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""
-doc
-"""
-# Copyright (C) 2021 Deutsches Zentrum fuer Luft- und Raumfahrt(DLR, German Aerospace Center) <www.dlr.de>
-
 import asyncio
 import os
 from re import match
@@ -14,8 +9,6 @@ from re import match
 import paramiko
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, WebSocket, status
-
-# from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
