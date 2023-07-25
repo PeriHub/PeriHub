@@ -88,12 +88,27 @@ SPDX-License-Identifier: Apache-2.0
                     <q-select class="my-input" :options="materialSymmetry" v-model="material.materialSymmetry"
                         v-show="['Linear Elastic Correspondence', 'Anisotropic Elastic Bond Associated Correspondence'].includes(material.matType)"
                         :label="materialKeys.materialSymmetry" standout dense></q-select>
+                    <q-toggle
+                        v-if="material.materialSymmetry == 'Anisotropic' & ['Linear Elastic Correspondence', 'Anisotropic Elastic Bond Associated Correspondence'].includes(material.matType)"
+                        class="my-toggle" v-model="material.stiffnessMatrix.calculateStiffnessMatrix"
+                        :label="materialKeys.stiffnessMatrix.calculateStiffnessMatrix" standout dense></q-toggle>
                 </div>
                 <div class="row my-row"
                     v-if="material.materialSymmetry == 'Anisotropic' & ['Linear Elastic Correspondence', 'Anisotropic Elastic Bond Associated Correspondence'].includes(material.matType)">
-                    <q-list v-for="params in material.Parameter" :key="params.index" style="padding: 0px">
-                        <q-input class="my-input" v-model="params.value" :rules="[rules.required, rules.float]"
-                            :label="params.name" standout dense></q-input>
+                    <q-list v-if="material.stiffnessMatrix.calculateStiffnessMatrix" style="padding: 0px">
+                        <q-item v-for="(value, key) in material.stiffnessMatrix.engineeringConstants" :key="key">
+                            <q-input class="my-input" v-model="material.stiffnessMatrix.engineeringConstants[key]"
+                                :rules="[rules.required, rules.float]"
+                                :label="materialKeys.stiffnessMatrix.engineeringConstants[key]" standout dense
+                                @update:model-value="calculateStiffnessMatrix(index)" clearable></q-input>
+                        </q-item>
+                    </q-list>
+                    <q-list style="padding: 0px">
+                        <q-item v-for="(value, key) in material.stiffnessMatrix.matrix" :key="key">
+                            <q-input class="my-input" v-model="material.stiffnessMatrix.matrix[key]"
+                                :rules="[rules.required, rules.float]" :label="materialKeys.stiffnessMatrix.matrix[key]"
+                                standout dense :readonly="material.stiffnessMatrix.calculateStiffnessMatrix"></q-input>
+                        </q-item>
                     </q-list>
                 </div>
                 <div class="row my-row">
@@ -187,6 +202,7 @@ import { useModelStore } from 'stores/model-store';
 import { useViewStore } from 'stores/view-store';
 import { inject } from 'vue'
 import rules from "assets/rules.js";
+import { matrix, inv } from 'mathjs'
 
 export default defineComponent({
     name: 'MaterialSettings',
@@ -274,27 +290,43 @@ export default defineComponent({
                 hourglassCoefficient: "Hourglass Coefficient",
                 actualHorizon: "Actual Horizon",
                 yieldStress: "Yield Stress",
-                Parameter_0: "C11",
-                Parameter_1: "C12",
-                Parameter_2: "C13",
-                Parameter_3: "C14",
-                Parameter_4: "C15",
-                Parameter_5: "C16",
-                Parameter_6: "C22",
-                Parameter_7: "C23",
-                Parameter_8: "C24",
-                Parameter_9: "C25",
-                Parameter_10: "C26",
-                Parameter_11: "C33",
-                Parameter_12: "C34",
-                Parameter_13: "C35",
-                Parameter_14: "C36",
-                Parameter_15: "C44",
-                Parameter_16: "C45",
-                Parameter_17: "C46",
-                Parameter_18: "C55",
-                Parameter_19: "C56",
-                Parameter_20: "C66",
+                stiffnessMatrix: {
+                    calculateStiffnessMatrix: "Calculate Stiffness Matrix",
+                    engineeringConstants: {
+                        E1: "E1",
+                        E2: "E2",
+                        E3: "E3",
+                        G12: "G12",
+                        G13: "G13",
+                        G23: "G23",
+                        nu12: "nu12",
+                        nu13: "nu13",
+                        nu23: "nu23"
+                    },
+                    matrix: {
+                        C11: "C11",
+                        C12: "C12",
+                        C13: "C13",
+                        C14: "C14",
+                        C15: "C15",
+                        C16: "C16",
+                        C22: "C22",
+                        C23: "C23",
+                        C24: "C24",
+                        C25: "C25",
+                        C26: "C26",
+                        C33: "C33",
+                        C34: "C34",
+                        C35: "C35",
+                        C36: "C36",
+                        C44: "C44",
+                        C45: "C45",
+                        C46: "C46",
+                        C55: "C55",
+                        C56: "C56",
+                        C66: "C66"
+                    }
+                },
                 computePartialStress: "Compute Partial Stress",
                 useCollocationNodes: "Use Collocation Nodes",
                 numStateVars: "Number of State Vars",
@@ -318,6 +350,64 @@ export default defineComponent({
         };
     },
     methods: {
+        calculateStiffnessMatrix(materialId) {
+            if (this.materials[materialId].stiffnessMatrix.calculateStiffnessMatrix) {
+
+                const E1 = this.materials[materialId].stiffnessMatrix.engineeringConstants.E1;   // Elastic modulus along the fiber direction (Pa)
+                const E2 = this.materials[materialId].stiffnessMatrix.engineeringConstants.E2;    // Elastic modulus transverse to the fiber direction (Pa)
+                const E3 = this.materials[materialId].stiffnessMatrix.engineeringConstants.E3;    // Elastic modulus transverse to the fiber direction (Pa)
+                const G12 = this.materials[materialId].stiffnessMatrix.engineeringConstants.G12;    // Shear modulus in the 1-2 plane (Pa)
+                const G13 = this.materials[materialId].stiffnessMatrix.engineeringConstants.G13;    // Shear modulus in the 1-3 plane (Pa)
+                const G23 = this.materials[materialId].stiffnessMatrix.engineeringConstants.G23;    // Shear modulus in the 2-3 plane (Pa)
+                const nu12 = this.materials[materialId].stiffnessMatrix.engineeringConstants.nu12;   // Poisson's ratio in the 1-2 plane
+                const nu13 = this.materials[materialId].stiffnessMatrix.engineeringConstants.nu13;   // Poisson's ratio in the 1-3 plane
+                const nu23 = this.materials[materialId].stiffnessMatrix.engineeringConstants.nu23;   // Poisson's ratio in the 2-3 plane
+
+                if (E1 != null && E2 != null && G12 != null && nu12 != null) {
+
+                    if (E3 === undefined) E3 = E2;
+                    if (G13 === undefined) G13 = G12;
+                    if (G23 === undefined) G23 = E2 / (2 * (1 + nu23));
+                    if (nu13 === undefined) nu13 = nu12;
+                    if (nu23 === undefined) nu23 = nu12;
+
+                    let compliance = matrix([
+                        [1 / E1, -nu12 / E1, -nu13 / E1, 0, 0, 0],
+                        [-nu12 / E1, 1 / E2, -nu23 / E2, 0, 0, 0],
+                        [-nu13 / E1, -nu23 / E2, 1 / E3, 0, 0, 0],
+                        [0, 0, 0, 1 / G23, 0, 0],
+                        [0, 0, 0, 0, 1 / G13, 0],
+                        [0, 0, 0, 0, 0, 1 / G12]
+                    ]);
+                    let stiffness = inv(compliance);
+                    stiffness = stiffness.toArray();
+
+                    this.materials[materialId].stiffnessMatrix.matrix = {
+                        C11: stiffness[0][0],
+                        C12: stiffness[0][1],
+                        C13: stiffness[0][2],
+                        C14: stiffness[0][3],
+                        C15: stiffness[0][4],
+                        C16: stiffness[0][5],
+                        C22: stiffness[1][1],
+                        C23: stiffness[1][2],
+                        C24: stiffness[1][3],
+                        C25: stiffness[1][4],
+                        C26: stiffness[1][5],
+                        C33: stiffness[2][2],
+                        C34: stiffness[2][3],
+                        C35: stiffness[2][4],
+                        C36: stiffness[2][5],
+                        C44: stiffness[3][3],
+                        C45: stiffness[3][4],
+                        C46: stiffness[3][5],
+                        C55: stiffness[4][4],
+                        C56: stiffness[4][5],
+                        C66: stiffness[5][5],
+                    };
+                }
+            }
+        },
         onMultiFilePicked(event) {
             const files = event.target.files;
             const filetype = files[0].type;

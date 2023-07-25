@@ -56,9 +56,46 @@ class properties(BaseModel):
     value: Optional[float] = None
 
 
-class Parameter(BaseModel):
-    name: str
-    value: Optional[float] = None
+class EngineeringConstants(BaseModel):
+    E1: Optional[float] = None
+    E2: Optional[float] = None
+    E3: Optional[float] = None
+    G12: Optional[float] = None
+    G13: Optional[float] = None
+    G23: Optional[float] = None
+    nu12: Optional[float] = None
+    nu13: Optional[float] = None
+    nu23: Optional[float] = None
+
+
+class Matrix(BaseModel):
+    C11: Optional[float] = None
+    C12: Optional[float] = None
+    C13: Optional[float] = None
+    C14: Optional[float] = None
+    C15: Optional[float] = None
+    C16: Optional[float] = None
+    C22: Optional[float] = None
+    C23: Optional[float] = None
+    C24: Optional[float] = None
+    C25: Optional[float] = None
+    C26: Optional[float] = None
+    C33: Optional[float] = None
+    C34: Optional[float] = None
+    C35: Optional[float] = None
+    C36: Optional[float] = None
+    C44: Optional[float] = None
+    C45: Optional[float] = None
+    C46: Optional[float] = None
+    C55: Optional[float] = None
+    C56: Optional[float] = None
+    C66: Optional[float] = None
+
+
+class StiffnessMatrix(BaseModel):
+    calculateStiffnessMatrix: Optional[bool] = None
+    engineeringConstants: EngineeringConstants
+    matrix: Matrix
 
 
 class Material(BaseModel):
@@ -79,7 +116,7 @@ class Material(BaseModel):
     hourglassCoefficient: float
     actualHorizon: Optional[float] = None
     yieldStress: Optional[float] = None
-    Parameter: Union[List[Parameter], None]
+    stiffnessMatrix: Optional[StiffnessMatrix] = None
     properties: Union[List[properties], None]
     numStateVars: Optional[int] = None
     computePartialStress: Optional[bool] = None
@@ -347,29 +384,43 @@ class RunData(BaseModel):
                         "hourglassCoefficient": 1,
                         "actualHorizon": None,
                         "yieldStress": None,
-                        "Parameter": [
-                            {"name": "C11", "value": None},
-                            {"name": "C12", "value": None},
-                            {"name": "C13", "value": None},
-                            {"name": "C14", "value": None},
-                            {"name": "C15", "value": None},
-                            {"name": "C16", "value": None},
-                            {"name": "C22", "value": None},
-                            {"name": "C23", "value": None},
-                            {"name": "C24", "value": None},
-                            {"name": "C25", "value": None},
-                            {"name": "C26", "value": None},
-                            {"name": "C33", "value": None},
-                            {"name": "C34", "value": None},
-                            {"name": "C35", "value": None},
-                            {"name": "C36", "value": None},
-                            {"name": "C44", "value": None},
-                            {"name": "C45", "value": None},
-                            {"name": "C46", "value": None},
-                            {"name": "C55", "value": None},
-                            {"name": "C56", "value": None},
-                            {"name": "C66", "value": None},
-                        ],
+                        "stiffnessMatrix": {
+                            "calculateStiffnessMatrix": False,
+                            "engineeringConstants": {
+                                "E1": None,
+                                "E2": None,
+                                "E3": None,
+                                "G12": None,
+                                "G13": None,
+                                "G23": None,
+                                "nu12": None,
+                                "nu13": None,
+                                "nu23": None,
+                            },
+                            "matrix": {
+                                "C11": None,
+                                "C12": None,
+                                "C13": None,
+                                "C14": None,
+                                "C15": None,
+                                "C16": None,
+                                "C22": None,
+                                "C23": None,
+                                "C24": None,
+                                "C25": None,
+                                "C26": None,
+                                "C33": None,
+                                "C34": None,
+                                "C35": None,
+                                "C36": None,
+                                "C44": None,
+                                "C45": None,
+                                "C46": None,
+                                "C55": None,
+                                "C56": None,
+                                "C66": None,
+                            },
+                        },
                         "properties": [{"id": 1, "name": "Prop_1", "value": None}],
                     },
                     {
@@ -390,29 +441,43 @@ class RunData(BaseModel):
                         "hourglassCoefficient": "1",
                         "actualHorizon": None,
                         "yieldStress": None,
-                        "Parameter": [
-                            {"name": "C11", "value": None},
-                            {"name": "C12", "value": None},
-                            {"name": "C13", "value": None},
-                            {"name": "C14", "value": None},
-                            {"name": "C15", "value": None},
-                            {"name": "C16", "value": None},
-                            {"name": "C22", "value": None},
-                            {"name": "C23", "value": None},
-                            {"name": "C24", "value": None},
-                            {"name": "C25", "value": None},
-                            {"name": "C26", "value": None},
-                            {"name": "C33", "value": None},
-                            {"name": "C34", "value": None},
-                            {"name": "C35", "value": None},
-                            {"name": "C36", "value": None},
-                            {"name": "C44", "value": None},
-                            {"name": "C45", "value": None},
-                            {"name": "C46", "value": None},
-                            {"name": "C55", "value": None},
-                            {"name": "C56", "value": None},
-                            {"name": "C66", "value": None},
-                        ],
+                        "stiffnessMatrix": {
+                            "calculateStiffnessMatrix": False,
+                            "engineeringConstants": {
+                                "E1": None,
+                                "E2": None,
+                                "E3": None,
+                                "G12": None,
+                                "G13": None,
+                                "G23": None,
+                                "nu12": None,
+                                "nu13": None,
+                                "nu23": None,
+                            },
+                            "matrix": {
+                                "C11": None,
+                                "C12": None,
+                                "C13": None,
+                                "C14": None,
+                                "C15": None,
+                                "C16": None,
+                                "C22": None,
+                                "C23": None,
+                                "C24": None,
+                                "C25": None,
+                                "C26": None,
+                                "C33": None,
+                                "C34": None,
+                                "C35": None,
+                                "C36": None,
+                                "C44": None,
+                                "C45": None,
+                                "C46": None,
+                                "C55": None,
+                                "C56": None,
+                                "C66": None,
+                            },
+                        },
                         "properties": [{"id": 1, "name": "Prop_1", "value": None}],
                     },
                 ],
@@ -469,29 +534,43 @@ default_model = {
             "hourglassCoefficient": 1,
             "actualHorizon": None,
             "yieldStress": None,
-            "Parameter": [
-                {"name": "C11", "value": None},
-                {"name": "C12", "value": None},
-                {"name": "C13", "value": None},
-                {"name": "C14", "value": None},
-                {"name": "C15", "value": None},
-                {"name": "C16", "value": None},
-                {"name": "C22", "value": None},
-                {"name": "C23", "value": None},
-                {"name": "C24", "value": None},
-                {"name": "C25", "value": None},
-                {"name": "C26", "value": None},
-                {"name": "C33", "value": None},
-                {"name": "C34", "value": None},
-                {"name": "C35", "value": None},
-                {"name": "C36", "value": None},
-                {"name": "C44", "value": None},
-                {"name": "C45", "value": None},
-                {"name": "C46", "value": None},
-                {"name": "C55", "value": None},
-                {"name": "C56", "value": None},
-                {"name": "C66", "value": None},
-            ],
+            "stiffnessMatrix": {
+                "calculateStiffnessMatrix": False,
+                "engineeringConstants": {
+                    "E1": None,
+                    "E2": None,
+                    "E3": None,
+                    "G12": None,
+                    "G13": None,
+                    "G23": None,
+                    "nu12": None,
+                    "nu13": None,
+                    "nu23": None,
+                },
+                "matrix": {
+                    "C11": None,
+                    "C12": None,
+                    "C13": None,
+                    "C14": None,
+                    "C15": None,
+                    "C16": None,
+                    "C22": None,
+                    "C23": None,
+                    "C24": None,
+                    "C25": None,
+                    "C26": None,
+                    "C33": None,
+                    "C34": None,
+                    "C35": None,
+                    "C36": None,
+                    "C44": None,
+                    "C45": None,
+                    "C46": None,
+                    "C55": None,
+                    "C56": None,
+                    "C66": None,
+                },
+            },
             "properties": [{"id": 1, "name": "Prop_1", "value": None}],
         },
         {
@@ -512,29 +591,43 @@ default_model = {
             "hourglassCoefficient": "1",
             "actualHorizon": None,
             "yieldStress": None,
-            "Parameter": [
-                {"name": "C11", "value": None},
-                {"name": "C12", "value": None},
-                {"name": "C13", "value": None},
-                {"name": "C14", "value": None},
-                {"name": "C15", "value": None},
-                {"name": "C16", "value": None},
-                {"name": "C22", "value": None},
-                {"name": "C23", "value": None},
-                {"name": "C24", "value": None},
-                {"name": "C25", "value": None},
-                {"name": "C26", "value": None},
-                {"name": "C33", "value": None},
-                {"name": "C34", "value": None},
-                {"name": "C35", "value": None},
-                {"name": "C36", "value": None},
-                {"name": "C44", "value": None},
-                {"name": "C45", "value": None},
-                {"name": "C46", "value": None},
-                {"name": "C55", "value": None},
-                {"name": "C56", "value": None},
-                {"name": "C66", "value": None},
-            ],
+            "stiffnessMatrix": {
+                "calculateStiffnessMatrix": False,
+                "engineeringConstants": {
+                    "E1": None,
+                    "E2": None,
+                    "E3": None,
+                    "G12": None,
+                    "G13": None,
+                    "G23": None,
+                    "nu12": None,
+                    "nu13": None,
+                    "nu23": None,
+                },
+                "matrix": {
+                    "C11": None,
+                    "C12": None,
+                    "C13": None,
+                    "C14": None,
+                    "C15": None,
+                    "C16": None,
+                    "C22": None,
+                    "C23": None,
+                    "C24": None,
+                    "C25": None,
+                    "C26": None,
+                    "C33": None,
+                    "C34": None,
+                    "C35": None,
+                    "C36": None,
+                    "C44": None,
+                    "C45": None,
+                    "C46": None,
+                    "C55": None,
+                    "C56": None,
+                    "C66": None,
+                },
+            },
             "properties": [{"id": 1, "name": "Prop_1", "value": None}],
         },
     ],

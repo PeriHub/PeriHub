@@ -150,6 +150,7 @@ export default defineComponent({
                         type: 'negative',
                         message: error.response.data.detail
                     })
+            this.loading = false;
                 })
             this.loading = false;
         },

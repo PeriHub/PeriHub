@@ -62,7 +62,7 @@ class ENFmodel:
             self.zbegin = -model_data.model.width / 2
             self.zend = model_data.model.width / 2
 
-        number_of_blocks = 6
+        number_of_blocks = 8
 
         """ Definition of model
         """
@@ -94,15 +94,18 @@ class ENFmodel:
         )
         k = np.where(
             np.logical_and(
-                x_value <= 4 * self.dx_value[0],
-                y_value <= 4 * self.dx_value[0],
+                (self.xend / 2) - (self.dx_value[0]) <= x_value,
+                np.logical_and(
+                    x_value <= (self.xend / 2) + (self.dx_value[0]),
+                    self.yend - (self.dx_value[0]) <= y_value,
+                ),
             ),
             4,
             k,
         )
         k = np.where(
             np.logical_and(
-                x_value >= self.xend - (4 * self.dx_value[0]),
+                x_value <= 4 * self.dx_value[0],
                 y_value <= 4 * self.dx_value[0],
             ),
             5,
@@ -110,13 +113,26 @@ class ENFmodel:
         )
         k = np.where(
             np.logical_and(
-                x_value <= 4 * self.dx_value[0],
-                np.logical_and(
-                    y_value <= 5 * self.dx_value[0] + self.yend / 2,
-                    y_value >= self.yend / 2,
-                ),
+                x_value < self.dx_value[0],
+                y_value < self.dx_value[0],
             ),
             6,
+            k,
+        )
+        k = np.where(
+            np.logical_and(
+                x_value >= self.xend - (4 * self.dx_value[0]),
+                y_value <= 4 * self.dx_value[0],
+            ),
+            7,
+            k,
+        )
+        k = np.where(
+            np.logical_and(
+                x_value > self.xend - (self.dx_value[0]),
+                y_value < self.dx_value[0],
+            ),
+            8,
             k,
         )
         return k

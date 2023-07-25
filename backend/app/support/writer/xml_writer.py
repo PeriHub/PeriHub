@@ -153,13 +153,13 @@ class XMLcreator:
                     + mat.materialSymmetry
                     + '"/>\n'
                 )
-                if mat.Parameter is not None:
-                    for param in mat.Parameter:
+                if mat.stiffnessMatrix is not None:
+                    for key, value in mat.stiffnessMatrix.matrix:
                         string += (
                             '            <Parameter name="'
-                            + param.name
+                            + key
                             + '" type="double" value="'
-                            + str(np.format_float_scientific(float(param.value)))
+                            + str(np.format_float_scientific(float(value)))
                             + '"/>\n'
                         )
 

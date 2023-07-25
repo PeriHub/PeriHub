@@ -37,92 +37,43 @@
       "hourglassCoefficient": 1,
       "actualHorizon": null,
       "yieldStress": null,
-      "Parameter": [
-        {
-          "name": "C11",
-          "value": null
+      "stiffnessMatrix": {
+        "calculateStiffnessMatrix": false,
+        "engineeringConstants": {
+          "E1": null,
+          "E2": null,
+          "E3": null,
+          "G12": null,
+          "G13": null,
+          "G23": null,
+          "nu12": null,
+          "nu13": null,
+          "nu23": null
         },
-        {
-          "name": "C12",
-          "value": null
-        },
-        {
-          "name": "C13",
-          "value": null
-        },
-        {
-          "name": "C14",
-          "value": null
-        },
-        {
-          "name": "C15",
-          "value": null
-        },
-        {
-          "name": "C16",
-          "value": null
-        },
-        {
-          "name": "C22",
-          "value": null
-        },
-        {
-          "name": "C23",
-          "value": null
-        },
-        {
-          "name": "C24",
-          "value": null
-        },
-        {
-          "name": "C25",
-          "value": null
-        },
-        {
-          "name": "C26",
-          "value": null
-        },
-        {
-          "name": "C33",
-          "value": null
-        },
-        {
-          "name": "C34",
-          "value": null
-        },
-        {
-          "name": "C35",
-          "value": null
-        },
-        {
-          "name": "C36",
-          "value": null
-        },
-        {
-          "name": "C44",
-          "value": null
-        },
-        {
-          "name": "C45",
-          "value": null
-        },
-        {
-          "name": "C46",
-          "value": null
-        },
-        {
-          "name": "C55",
-          "value": null
-        },
-        {
-          "name": "C56",
-          "value": null
-        },
-        {
-          "name": "C66",
-          "value": null
+        "matrix": {
+          "C11": null,
+          "C12": null,
+          "C13": null,
+          "C14": null,
+          "C15": null,
+          "C16": null,
+          "C22": null,
+          "C23": null,
+          "C24": null,
+          "C25": null,
+          "C26": null,
+          "C33": null,
+          "C34": null,
+          "C35": null,
+          "C36": null,
+          "C44": null,
+          "C45": null,
+          "C46": null,
+          "C55": null,
+          "C56": null,
+          "C66": null
         }
-      ],
+      },
       "properties": [
         {
           "id": 1,
@@ -149,92 +100,43 @@
       "hourglassCoefficient": "1",
       "actualHorizon": null,
       "yieldStress": null,
-      "Parameter": [
-        {
-          "name": "C11",
-          "value": null
+      "stiffnessMatrix": {
+        "calculateStiffnessMatrix": false,
+        "engineeringConstants": {
+          "E1": null,
+          "E2": null,
+          "E3": null,
+          "G12": null,
+          "G13": null,
+          "G23": null,
+          "nu12": null,
+          "nu13": null,
+          "nu23": null
         },
-        {
-          "name": "C12",
-          "value": null
-        },
-        {
-          "name": "C13",
-          "value": null
-        },
-        {
-          "name": "C14",
-          "value": null
-        },
-        {
-          "name": "C15",
-          "value": null
-        },
-        {
-          "name": "C16",
-          "value": null
-        },
-        {
-          "name": "C22",
-          "value": null
-        },
-        {
-          "name": "C23",
-          "value": null
-        },
-        {
-          "name": "C24",
-          "value": null
-        },
-        {
-          "name": "C25",
-          "value": null
-        },
-        {
-          "name": "C26",
-          "value": null
-        },
-        {
-          "name": "C33",
-          "value": null
-        },
-        {
-          "name": "C34",
-          "value": null
-        },
-        {
-          "name": "C35",
-          "value": null
-        },
-        {
-          "name": "C36",
-          "value": null
-        },
-        {
-          "name": "C44",
-          "value": null
-        },
-        {
-          "name": "C45",
-          "value": null
-        },
-        {
-          "name": "C46",
-          "value": null
-        },
-        {
-          "name": "C55",
-          "value": null
-        },
-        {
-          "name": "C56",
-          "value": null
-        },
-        {
-          "name": "C66",
-          "value": null
+        "matrix": {
+          "C11": null,
+          "C12": null,
+          "C13": null,
+          "C14": null,
+          "C15": null,
+          "C16": null,
+          "C22": null,
+          "C23": null,
+          "C24": null,
+          "C25": null,
+          "C26": null,
+          "C33": null,
+          "C34": null,
+          "C35": null,
+          "C36": null,
+          "C44": null,
+          "C45": null,
+          "C46": null,
+          "C55": null,
+          "C56": null,
+          "C66": null
         }
-      ],
+      },
       "properties": [
         {
           "id": 1,

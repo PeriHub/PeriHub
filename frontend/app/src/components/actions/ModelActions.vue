@@ -355,6 +355,7 @@ export default defineComponent({
                         type: 'negative',
                         message: error.message
                     })
+                    this.viewStore.modelLoading = false;
                 })
 
             this.viewStore.modelLoading = false;

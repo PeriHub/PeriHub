@@ -395,16 +395,20 @@ export default defineComponent({
                 })
                 .catch((error) => {
                     let message = "";
-                    if (error.response.status == 422) {
-                        for (let i in error.response.data.detail) {
-                            message += error.response.data.detail[i].loc[1] + " ";
-                            message += error.response.data.detail[i].loc[2] + ", ";
-                            message += error.response.data.detail[i].loc[3] + ", ";
-                            message += error.response.data.detail[i].msg + "\n";
+                    if (error.response != undefined) {
+                        if (error.response.status == 422) {
+                            for (let i in error.response.data.detail) {
+                                message += error.response.data.detail[i].loc[1] + " ";
+                                message += error.response.data.detail[i].loc[2] + ", ";
+                                message += error.response.data.detail[i].loc[3] + ", ";
+                                message += error.response.data.detail[i].msg + "\n";
+                            }
+                            message = message.slice(0, -2);
+                        } else {
+                            message = error.response.data.detail;
                         }
-                        message = message.slice(0, -2);
                     } else {
-                        message = error.response.data.detail;
+                        message = "Internal Error";
                     }
                     this.$q.notify({
                         color: 'negative',
@@ -412,6 +416,8 @@ export default defineComponent({
                         message: message,
                         icon: 'report_problem'
                     })
+                    this.submitLoading = false;
+                    throw new Error(message);
                 })
 
             this.bus.emit("enableWebsocket");
@@ -671,6 +677,7 @@ export default defineComponent({
                         type: 'negative',
                         message: error.response.statusText
                     })
+                    this.viewStore.modelLoading = false;
                 })
 
             this.viewStore.viewId = "image";
@@ -707,6 +714,7 @@ export default defineComponent({
                         type: 'negative',
                         message: JSON.stringify(error.message)
                     })
+                    this.viewStore.modelLoading = false;
                 })
 
             this.viewStore.viewId = "image";
