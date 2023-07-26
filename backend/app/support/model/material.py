@@ -10,7 +10,7 @@ edited by @author will_cr
 """
 import numpy as np
 
-from support.base_models import Parameter
+from support.base_models import Matrix
 
 # from support.transformations import rotation_matrix
 
@@ -20,45 +20,45 @@ class MaterialRoutines:
         self.angle = angle
 
     def stiffness_matrix(self, mat_type, mat_param=None):
-        parameter = []
         if mat_type == "anisotropic":
-            parameter = self.anisotropic(parameter, mat_param)
+            matrix = self.anisotropic(mat_param)
         # def isotropic(self, parameter, E, nu, K, G):
         #     if E !=0: parameter["Young's Modulus"] ={'value': E}
         #     if nu !=0: parameter["Poisson's Ratio"] = {'value':nu}
         #     if K !=0: parameter["Bulk Modulus"] = {'value':K}
         #     if G !=0: parameter["Shear Modulus"] = {'value':G}
-        return parameter
+        return matrix
 
     @staticmethod
-    def anisotropic(parameter, mat_param):
+    def anisotropic(mat_param):
         # CTensor = self.createStiffnessTensor()
         # CTensor = self.rotateStiffnessTensor(self.alpha, self.beta, self.gamma)
         # parameter = self.obtainTensorComponents()
-        parameter = []
 
-        parameter.append(Parameter(name="C11", value=mat_param[0]))
-        parameter.append(Parameter(name="C12", value=mat_param[1]))
-        parameter.append(Parameter(name="C13", value=mat_param[2]))
-        parameter.append(Parameter(name="C14", value=mat_param[3]))
-        parameter.append(Parameter(name="C15", value=mat_param[4]))
-        parameter.append(Parameter(name="C16", value=mat_param[5]))
-        parameter.append(Parameter(name="C22", value=mat_param[6]))
-        parameter.append(Parameter(name="C23", value=mat_param[7]))
-        parameter.append(Parameter(name="C24", value=mat_param[8]))
-        parameter.append(Parameter(name="C25", value=mat_param[9]))
-        parameter.append(Parameter(name="C26", value=mat_param[10]))
-        parameter.append(Parameter(name="C33", value=mat_param[11]))
-        parameter.append(Parameter(name="C34", value=mat_param[12]))
-        parameter.append(Parameter(name="C35", value=mat_param[13]))
-        parameter.append(Parameter(name="C36", value=mat_param[14]))
-        parameter.append(Parameter(name="C44", value=mat_param[15]))
-        parameter.append(Parameter(name="C45", value=mat_param[16]))
-        parameter.append(Parameter(name="C46", value=mat_param[17]))
-        parameter.append(Parameter(name="C55", value=mat_param[18]))
-        parameter.append(Parameter(name="C56", value=mat_param[19]))
-        parameter.append(Parameter(name="C66", value=mat_param[20]))
-        return parameter
+        matrix = Matrix(
+            C11=mat_param[0],
+            C12=mat_param[1],
+            C13=mat_param[2],
+            C14=mat_param[3],
+            C15=mat_param[4],
+            C16=mat_param[5],
+            C22=mat_param[6],
+            C23=mat_param[7],
+            C24=mat_param[8],
+            C25=mat_param[9],
+            C26=mat_param[10],
+            C33=mat_param[11],
+            C34=mat_param[12],
+            C35=mat_param[13],
+            C36=mat_param[14],
+            C44=mat_param[15],
+            C45=mat_param[16],
+            C46=mat_param[17],
+            C55=mat_param[18],
+            C56=mat_param[19],
+            C66=mat_param[20],
+        )
+        return matrix
 
     # def get_transformation_matrix_from_angle(
     #     self, angle, transformation_type="epsilon", rotationAxis="z"
