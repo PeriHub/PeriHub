@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+# SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -54,6 +54,9 @@ def get_image_python(
 
     resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+    if model_name in ["ENFmodel"]:
+        height *= 2
 
     # try:
     filepath = ImageExport.get_result_image_from_exodus(

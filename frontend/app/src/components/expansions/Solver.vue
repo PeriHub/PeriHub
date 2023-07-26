@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -14,8 +14,8 @@ SPDX-License-Identifier: Apache-2.0
             <q-input class="my-input" v-model="solver.finalTime" :rules="[rules.required, rules.name]"
                 :label="solverKeys.finalTime" standout dense></q-input>
             <q-input class="my-input" v-model="solver.fixedDt"
-                v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'" :rules="[rules.required, rules.name]"
-                :label="solverKeys.fixedDt" standout dense></q-input>
+                v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'"
+                :rules="[rules.required, rules.name]" :label="solverKeys.fixedDt" standout dense></q-input>
             <q-toggle class="my-toggle" v-model="solver.verbose" :label="solverKeys.verbose" standout dense></q-toggle>
         </div>
         <div class="row my-row">

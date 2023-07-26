@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+# SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -19,7 +19,7 @@ RUN apt-get -yq install git
 RUN apt-get -yq install openmpi-bin
 RUN apt-get -yq install openssh-server
 RUN apt-get -yq install libboost1.55
-RUN git clone https://github.com/PeriHub/Peridigm.git Peridigm
+RUN git clone https://gitlab.com/dlr-perihub/PeriHub/Peridigm.git Peridigm
 
 RUN mkdir /Peridigm/build
 

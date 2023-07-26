@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 ## Building locally
 Clone the repository
 ```
-git clone https://github.com/PeriHub/PeriHub.git
+git clone https://gitlab.com/dlr-perihub/PeriHub/PeriHub.git
 ```
 Go into the perihub folder.
 ```

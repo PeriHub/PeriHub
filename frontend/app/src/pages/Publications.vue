@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -39,11 +39,11 @@ SPDX-License-Identifier: Apache-2.0
         </div>
         <div>
           <span v-if="entry.entryTags.Journal"><em><span class="journal">{{
-            entry.entryTags.Journal
-          }}</span></em>&nbsp;</span>
+                          entry.entryTags.Journal
+                          }}</span></em>&nbsp;</span>
           <span v-if="entry.entryTags.journal"><em><span class="journal">{{
-            entry.entryTags.journal
-          }}</span></em>&nbsp;</span>
+                          entry.entryTags.journal
+                          }}</span></em>&nbsp;</span>
           <span v-if="entry.entryTags.Month"><span class="month">{{ entry.entryTags.Month }}</span>,&nbsp;</span>
           <span v-if="entry.entryTags.month"><span class="month">{{ entry.entryTags.month }}</span>,&nbsp;</span>
           <span v-if="entry.entryTags.Year"><span class="year">{{ entry.entryTags.Year }}</span></span>

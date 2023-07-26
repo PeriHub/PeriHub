@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -16,118 +16,46 @@ SPDX-License-Identifier: Apache-2.0
     <q-card-section>
       <div class="row">
         <div class="col">
-          <q-input 
-              class="my-input"
-              v-model="constants.bulkModulus"
-              :label="materialKeys.bulkModulus"
-              clearable
-              standout
-              dense
-          ></q-input>
-          <q-input 
-              class="my-input"
-              v-model="constants.shearModulus"
-              :label="materialKeys.shearModulus"
-              clearable
-              standout
-              dense
-          ></q-input>
-          <q-input 
-              class="my-input"
-              v-model="constants.youngsModulus"
-              :label="materialKeys.youngsModulus"
-              clearable
-              standout
-              dense
-          ></q-input>
-          <q-input 
-              class="my-input"
-              v-model="constants.poissonsRatio"
-              :label="materialKeys.poissonsRatio"
-              clearable
-              standout
-              dense
-          ></q-input>
-          <q-input 
-              class="my-input"
-              v-model="constants.pWaveModulus"
-              :label="materialKeys.pWaveModulus"
-              clearable
-              standout
-              dense
-          ></q-input>
-          <q-input 
-              class="my-input"
-              v-model="constants.lameFirst"
-              :label="materialKeys.lameFirst"
-              clearable
-              standout
-              dense
-          ></q-input>
+          <q-input class="my-input" v-model="constants.bulkModulus" :label="materialKeys.bulkModulus" clearable standout
+            dense></q-input>
+          <q-input class="my-input" v-model="constants.shearModulus" :label="materialKeys.shearModulus" clearable standout
+            dense></q-input>
+          <q-input class="my-input" v-model="constants.youngsModulus" :label="materialKeys.youngsModulus" clearable
+            standout dense></q-input>
+          <q-input class="my-input" v-model="constants.poissonsRatio" :label="materialKeys.poissonsRatio" clearable
+            standout dense></q-input>
+          <q-input class="my-input" v-model="constants.pWaveModulus" :label="materialKeys.pWaveModulus" clearable standout
+            dense></q-input>
+          <q-input class="my-input" v-model="constants.lameFirst" :label="materialKeys.lameFirst" clearable standout
+            dense></q-input>
         </div>
         <div class="col">
-          <q-input 
-              class="my-input"
-              v-model="calculated.bulkModulus"
-              :label="materialKeys.bulkModulus"
-              standout
-              dense
-          >
+          <q-input class="my-input" v-model="calculated.bulkModulus" :label="materialKeys.bulkModulus" standout dense>
             <template v-slot:append>
               <q-icon name='fas fa-copy' @click="copyText('bulkModulus')"></q-icon>
             </template>
           </q-input>
-          <q-input 
-              class="my-input"
-              v-model="calculated.shearModulus"
-              :label="materialKeys.shearModulus"
-              standout
-              dense
-          >
+          <q-input class="my-input" v-model="calculated.shearModulus" :label="materialKeys.shearModulus" standout dense>
             <template v-slot:append>
               <q-icon name='fas fa-copy' @click="copyText('shearModulus')"></q-icon>
             </template>
           </q-input>
-          <q-input 
-              class="my-input"
-              v-model="calculated.youngsModulus"
-              :label="materialKeys.youngsModulus"
-              standout
-              dense
-          >
+          <q-input class="my-input" v-model="calculated.youngsModulus" :label="materialKeys.youngsModulus" standout dense>
             <template v-slot:append>
               <q-icon name='fas fa-copy' @click="copyText('youngsModulus')"></q-icon>
             </template>
           </q-input>
-          <q-input 
-              class="my-input"
-              v-model="calculated.poissonsRatio"
-              :label="materialKeys.poissonsRatio"
-              standout
-              dense
-          >
+          <q-input class="my-input" v-model="calculated.poissonsRatio" :label="materialKeys.poissonsRatio" standout dense>
             <template v-slot:append>
               <q-icon name='fas fa-copy' @click="copyText('poissonsRatio')"></q-icon>
             </template>
           </q-input>
-          <q-input 
-              class="my-input"
-              v-model="calculated.pWaveModulus"
-              :label="materialKeys.pWaveModulus"
-              standout
-              dense
-          >
+          <q-input class="my-input" v-model="calculated.pWaveModulus" :label="materialKeys.pWaveModulus" standout dense>
             <template v-slot:append>
               <q-icon name='fas fa-copy' @click="copyText('pWaveModulus')"></q-icon>
             </template>
           </q-input>
-          <q-input 
-              class="my-input"
-              v-model="calculated.lameFirst"
-              :label="materialKeys.lameFirst"
-              standout
-              dense
-          >
+          <q-input class="my-input" v-model="calculated.lameFirst" :label="materialKeys.lameFirst" standout dense>
             <template v-slot:append>
               <q-icon name='fas fa-copy' @click="copyText('lameFirst')"></q-icon>
             </template>
@@ -368,6 +296,6 @@ export default defineComponent({
 </script>
 <style scoped>
 .my-input {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 </style>

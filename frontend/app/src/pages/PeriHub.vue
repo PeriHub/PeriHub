@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -9,8 +9,8 @@ SPDX-License-Identifier: Apache-2.0
         <q-splitter v-model="verticalSplitterModel" class="body" :limits="[30, 60]">
             <template v-slot:before>
                 <div class="q-pa-md">
-                    <ModelActions id="ModelActions"/>
-                    <ExpansionComp id="ExpansionComp"/>
+                    <ModelActions id="ModelActions" />
+                    <ExpansionComp id="ExpansionComp" />
                 </div>
             </template>
 
@@ -19,15 +19,15 @@ SPDX-License-Identifier: Apache-2.0
                     <template v-slot:before>
                         <q-resize-observer @resize="onResizeBefore" :debounce="0" />
                         <div class="q-pa-md">
-                            <ViewActions id="ViewActions"/>
-                            <ViewComp id="ViewComp"/>
+                            <ViewActions id="ViewActions" />
+                            <ViewComp id="ViewComp" />
                         </div>
                     </template>
                     <template v-slot:after>
                         <q-resize-observer @resize="onResizeAfter" :debounce="0" />
                         <div class="q-pa-md">
-                            <TextActions id="TextActions"/>
-                            <TextComp id="TextComp"/>
+                            <TextActions id="TextActions" />
+                            <TextComp id="TextComp" />
                         </div>
                     </template>
                 </q-splitter>
@@ -162,7 +162,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <style>
 .body {
-  height: calc(100vh - 117px);
-  flex: auto;
+    height: calc(100vh - 117px);
+    flex: auto;
 }
 </style>

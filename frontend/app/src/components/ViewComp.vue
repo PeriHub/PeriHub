@@ -1,19 +1,13 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
     <div :style="{'height': viewHeight}">
-        <q-tabs
-            v-model="store.viewId"
-            dense
-            class="text-grey"
-            active-color="primary"
-            indicator-color="primary"
-            align="justify"
-        >
+        <q-tabs v-model="store.viewId" dense class="text-grey" active-color="primary" indicator-color="primary"
+            align="justify">
             <q-tab name="image" label="Image"></q-tab>
             <q-tab name="model" label="Model"></q-tab>
             <q-tab name="jobs" label="Jobs"></q-tab>
@@ -24,31 +18,27 @@ SPDX-License-Identifier: Apache-2.0
         <q-separator></q-separator>
 
         <q-tab-panels v-model="store.viewId" animated style="height:100%">
-          <q-tab-panel name="image">
-            <ImageView></ImageView>
-          </q-tab-panel>
+            <q-tab-panel name="image">
+                <ImageView></ImageView>
+            </q-tab-panel>
 
-          <q-tab-panel name="model">
-            <ModelView></ModelView>
-          </q-tab-panel>
+            <q-tab-panel name="model">
+                <ModelView></ModelView>
+            </q-tab-panel>
 
-          <q-tab-panel name="jobs">
-            <JobsView></JobsView>
-          </q-tab-panel>
+            <q-tab-panel name="jobs">
+                <JobsView></JobsView>
+            </q-tab-panel>
 
-          <q-tab-panel name="plotly">
-            <PlotlyView></PlotlyView>
-          </q-tab-panel>
+            <q-tab-panel name="plotly">
+                <PlotlyView></PlotlyView>
+            </q-tab-panel>
 
-          <q-tab-panel name="trame">
-            <iframe
-                :src="store.resultPort"
-                width="100%"
-                height="100%"
-                frameborder="0"/>
-          </q-tab-panel>
+            <q-tab-panel name="trame">
+                <iframe :src="store.resultPort" width="100%" height="100%" frameborder="0" />
+            </q-tab-panel>
         </q-tab-panels>
-        
+
         <q-inner-loading :showing="store.modelLoading">
             <q-spinner-gears size="50px" color="primary"></q-spinner-gears>
         </q-inner-loading>

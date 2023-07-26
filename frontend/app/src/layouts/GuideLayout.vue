@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -7,21 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <q-layout view="hHh lpR fFf">
 
-    <MainHeader/>
+    <MainHeader />
 
-    <q-drawer
-        side="left" 
-        v-model="drawer"
-        show-if-above
-
-        :mini="miniState"
-        @mouseover="miniState = false"
-        @mouseout="miniState = true"
-
-        :width="300"
-        :breakpoint="500"
-        bordered
-        class="bg-grey-3">
+    <q-drawer side="left" v-model="drawer" show-if-above :mini="miniState" @mouseover="miniState = false"
+      @mouseout="miniState = true" :width="300" :breakpoint="500" bordered class="bg-grey-3">
       <GuideDrawer></GuideDrawer>
     </q-drawer>
 
@@ -29,7 +18,7 @@ SPDX-License-Identifier: Apache-2.0
       <router-view />
     </q-page-container>
 
-    <MainFooter/>
+    <MainFooter />
 
   </q-layout>
 </template>
@@ -72,7 +61,7 @@ export default defineComponent({
 })
 </script>
 <style scoped>
-.img{
-  width:100%
+.img {
+  width: 100%
 }
 </style>

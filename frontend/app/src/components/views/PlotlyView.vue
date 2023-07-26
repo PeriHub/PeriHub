@@ -1,17 +1,12 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
-    <VuePlotly 
-        :data="viewStore.plotData"
-        :layout="plotLayout"
-        :options="plotOptions"
-        :display-mode-bar="true"
-    >
-    </VuePlotly >
+    <VuePlotly :data="viewStore.plotData" :layout="plotLayout" :options="plotOptions" :display-mode-bar="true">
+    </VuePlotly>
 </template>
 
 <script>
@@ -76,5 +71,4 @@ SPDX-License-Identifier: Apache-2.0
     })
 </script>
 
-<style>
-</style>
+<style></style>

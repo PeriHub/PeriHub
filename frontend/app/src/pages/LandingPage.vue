@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -70,7 +70,7 @@ SPDX-License-Identifier: Apache-2.0
           </q-img>
         </q-card>
       </a>
-      <a class="card"  href="https://github.com/PeriDoX/PeriDoX">
+      <a class="card" href="https://github.com/PeriDoX/PeriDoX">
         <q-card class="my-card">
           <q-img src="https://github.githubassets.com/images/modules/open_graph/github-mark.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
@@ -91,9 +91,10 @@ export default defineComponent({
 })
 </script>
 <style>
-.my-card{
+.my-card {
   width: 400px;
 }
+
 .card {
   text-decoration: none;
   padding-right: 10px;

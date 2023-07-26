@@ -1,16 +1,12 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
     <q-scroll-area style="height:calc(100% - 15px);">
-        <prism-editor
-            v-model="viewStore.textOutput"
-            :highlight="highlighter"
-            line-numbers
-        ></prism-editor>
+        <prism-editor v-model="viewStore.textOutput" :highlight="highlighter" line-numbers></prism-editor>
     </q-scroll-area>
 </template>
 
@@ -49,5 +45,4 @@ SPDX-License-Identifier: Apache-2.0
     })
 </script>
 
-<style>
-</style>
+<style></style>
