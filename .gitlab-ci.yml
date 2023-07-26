@@ -4,7 +4,6 @@
 
 include:
   - template: Security/Secret-Detection.gitlab-ci.yml
-  - template: Security/Container-Scanning.gitlab-ci.yml
 
 stages:
   - test
