@@ -39,13 +39,13 @@ PeriHub is a powerful software solution that can significantly benefit research 
 ## Building locally
 Clone the repository
 ```
-git clone https://github.com/PeriHub/PeriHub.git
+git clone https://github.com/dlr-perihub/PeriHub.git
 ```
 Go into the perihub folder.
 ```
 cd perihub
 ```
-Create a .env file and save following variables.
+Create a .env file and save following variables, replace the `{PATHTOJOBFOLDER}` whith an existing directory, for example `/c/Users/YOU/perihubJobs` 
 ```
 echo "DEV=True
 DLR=False
