@@ -66,9 +66,13 @@ class VerificationModels:
             i += 1
         params = [270000, 7e10, 0.3, 0, 0]
         mat = MaterialRoutines()
-        self.material_dict[0]["Parameter"] = mat.stiffness_matrix(mat_type="isotropic", mat_param=params)
+        self.material_dict[0]["stiffnessMatrix"]["matrix"] = mat.stiffness_matrix(
+            mat_type="isotropic", mat_param=params
+        )
         params = [270000, 2.1e11, 0.3, 0, 0]
-        self.material_dict[1]["Parameter"] = mat.stiffness_matrix(mat_type="isotropic", mat_param=params)
+        self.material_dict[1]["stiffnessMatrix"]["matrix"] = mat.stiffness_matrix(
+            mat_type="isotropic", mat_param=params
+        )
         self.angle = [0, 0]
         params = [
             195000,  # dens
@@ -94,7 +98,9 @@ class VerificationModels:
             0.0,  # C56
             4200e6,
         ]  # C66
-        self.material_dict[2]["Parameter"] = mat.stiffness_matrix(mat_type="anisotropic", mat_param=params)
+        self.material_dict[2]["stiffnessMatrix"]["matrix"] = mat.stiffness_matrix(
+            mat_type="anisotropic", mat_param=params
+        )
         self.bc_dict = [
             {
                 "name": "BC_1",
