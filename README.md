@@ -35,27 +35,29 @@ PeriHub is a powerful software solution that can significantly benefit research 
 ## Analyse results
 ![](backend/app/assets/gif/analyseResults.gif)
 
+# Getting Started with PeriHub Services
 
-## Building locally
-Clone the repository
+To get started with PeriHub, you can use Docker Compose to easily set up the required services. Here's a step-by-step guide:
+
+- Clone the repository
 ```
 git clone https://github.com/dlr-perihub/PeriHub.git
 ```
-Go into the perihub folder.
+- Go into the perihub folder.
 ```
 cd perihub
 ```
-Create a .env file and save following variables, replace the `{PATHTOJOBFOLDER}` whith an existing directory, for example `/c/Users/YOU/perihubJobs` 
+- Create a .env file and save following variables, replace the `{PATHTOJOBFOLDER}` whith an existing directory, for example `/c/Users/YOU/perihubJobs` 
 ```
 echo "DEV=True
 DLR=False
 VOLUME={PATHTOJOBFOLDER}" >> .env
 ```
-Run docker-compose.
+- Run docker-compose.
 ```
 docker-compose up
 ```
-If docker finished building PeriHub, go to http://localhost:6010
+- If docker finished building PeriHub, go to http://localhost:6010
 
 ## Contact
 * [Jan-Timo Hesse](mailto:Jan-Timo.Hesse@dlr.de)
