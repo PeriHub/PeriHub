@@ -8,7 +8,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-from exodusreader.exodusreader import ExodusReader
+from exodusreader import exodusreader
 
 from support.base_models import Material, Model
 from support.globals import log
@@ -54,7 +54,6 @@ class Analysis:
 
     @staticmethod
     def get_global_data(file, variable, axis, absolute):
-        Reader = ExodusReader()
         (
             points,
             point_data,
@@ -63,7 +62,7 @@ class Analysis:
             ns,
             block_data,
             time,
-        ) = Reader.read(file)
+        ) = exodusreader.read(file)
 
         if variable == "Time":
             data = time
@@ -101,7 +100,7 @@ class Analysis:
         file = os.path.join(resultpath, model_name + "_Output1.e")
         file2 = os.path.join(resultpath, model_name + "_Output2.e")
 
-        # points, point_data, global_data, cell_data, ns, block_data, time = ExodusReader.read(file)
+        # points, point_data, global_data, cell_data, ns, block_data, time = exodusreader.read(file)
 
         Force = Analysis.get_global_data(file, "External_Force", "Y", True)
         Displ = Analysis.get_global_data(file, "External_Displacement", "Y", True)
@@ -167,8 +166,6 @@ class Analysis:
 
     @staticmethod
     def get_g1c(username, model_name, output, model: Model, material: Material):
-        Reader = ExodusReader()
-
         w = model.width
         a = model.cracklength
         # L = model.length
@@ -185,7 +182,7 @@ class Analysis:
             ns,
             block_data,
             time,
-        ) = Reader.read_timestep(file, -1)
+        ) = exodusreader.read_timestep(file, -1)
 
         GIC = 0
 
@@ -228,7 +225,7 @@ class Analysis:
             ns,
             block_data,
             time,
-        ) = ExodusReader.read_timestep(file, -1)
+        ) = exodusreader.read_timestep(file, -1)
 
         P = global_data["Crosshead_Force"][0][1]
         d = -global_data["Crosshead_Displacement"][0][1]
@@ -241,7 +238,6 @@ class Analysis:
 
     @staticmethod
     def get_result_file(username, model_name, output):
-        Reader = ExodusReader()
         resultpath = "./Results/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
@@ -253,7 +249,7 @@ class Analysis:
             ns,
             block_data,
             time,
-        ) = Reader.read_timestep(file, 0)
+        ) = exodusreader.read_timestep(file, 0)
 
         first_time = time.data.item()
         first_displ = global_data["External_Displacement"][0]
@@ -281,7 +277,7 @@ class Analysis:
             ns,
             block_data,
             time,
-        ) = Reader.read_timestep(file, -1)
+        ) = exodusreader.read_timestep(file, -1)
 
         last_time = time.data.item()
         last_displ = global_data["External_Displacement"][0]

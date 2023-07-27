@@ -7,7 +7,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 import numpy as np
-from exodusreader.exodusreader import ExodusReader
+from exodusreader import exodusreader
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
@@ -47,8 +47,6 @@ class VideoExport:
         y_max,
         size=20,
     ):
-        Reader = ExodusReader()
-
         (
             points,
             point_data,
@@ -57,7 +55,7 @@ class VideoExport:
             ns,
             block_data,
             time,
-        ) = Reader.read(file)
+        ) = exodusreader.read(file)
 
         use_cell_data = False
 
@@ -293,8 +291,6 @@ class VideoExport:
 
     @staticmethod
     def get_triangulated_mesh_from_exodus(file, displ_factor, timestep, max_edge_distance, length, height):
-        Reader = ExodusReader()
-
         (
             points,
             point_data,
@@ -303,7 +299,7 @@ class VideoExport:
             ns,
             block_data,
             time,
-        ) = Reader.read_timestep(file, timestep)
+        ) = exodusreader.read_timestep(file, timestep)
 
         fig = plt.figure(figsize=(20, 20 * (height / length)))
         fig.add_subplot(111)

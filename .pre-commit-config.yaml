@@ -11,7 +11,7 @@ repos:
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
 -   repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
     -   id: black
 # -   repo: https://gitlab.com/smop/pre-commit-hooks
@@ -24,14 +24,14 @@ repos:
     hooks:
     -   id: isort
 -   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
     -   id: python-no-log-warn
     -   id: rst-backticks
     -   id: rst-directive-colons
     -   id: rst-inline-touching-normal
 -   repo: https://github.com/fsfe/reuse-tool
-    rev: v1.1.2
+    rev: v2.1.0
     hooks:
       - id: reuse
 

@@ -20,3 +20,5 @@ netCDF4
 magicattr
 asyncio
 rich
+exodusreader
+gcodereader

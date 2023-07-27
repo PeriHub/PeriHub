@@ -6,7 +6,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 import numpy as np
-from exodusreader.exodusreader import ExodusReader
+from exodusreader import exodusreader
 from fastapi import HTTPException, status
 
 from support.globals import log
@@ -61,8 +61,6 @@ class ImageExport:
         azimuth,
         roll,
     ):
-        Reader = ExodusReader()
-
         try:
             (
                 points,
@@ -72,9 +70,9 @@ class ImageExport:
                 ns,
                 block_data,
                 time,
-            ) = Reader.read_timestep(file, step)
+            ) = exodusreader.read_timestep(file, step)
         except IndexError:
-            number_of_steps = Reader.get_number_of_steps(file)
+            number_of_steps = exodusreader.get_number_of_steps(file)
             log.warning("Step can't be found, last step " + str(number_of_steps) + " used!")
             (
                 points,
@@ -84,7 +82,7 @@ class ImageExport:
                 ns,
                 block_data,
                 time,
-            ) = Reader.read_timestep(file, number_of_steps)
+            ) = exodusreader.read_timestep(file, number_of_steps)
 
         use_cell_data = False
 

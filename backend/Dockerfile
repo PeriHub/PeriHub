@@ -19,8 +19,6 @@ RUN apt-get update --allow-insecure-repositories &&\
 COPY requirements.txt requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt &&\
-    pip install -i https://test.pypi.org/simple/ exodusreader &&\
-    pip install -i https://test.pypi.org/simple/ gcodereader &&\
     pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git
 
 RUN mkdir -p /root/.ssh && \

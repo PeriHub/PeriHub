@@ -20,8 +20,6 @@ stages:
     - apt update && apt install -y make git
     - pip install -r backend/requirements.txt
     - pip install -r backend/requirements-dev.txt
-    - pip install -i https://test.pypi.org/simple/ exodusreader
-    - pip install -i https://test.pypi.org/simple/ gcodereader
     - pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git
     - cd backend/app
 

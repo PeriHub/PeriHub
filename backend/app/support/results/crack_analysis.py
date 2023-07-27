@@ -15,14 +15,12 @@ from crackpy.fracture_analysis.plot import PlotSettings, Plotter
 from crackpy.fracture_analysis.write import OutputWriter
 from crackpy.structure_elements.data_files import Nodemap, NodemapStructure
 from crackpy.structure_elements.material import Material
-from exodusreader.exodusreader import ExodusReader
+from exodusreader import exodusreader
 
 
 class CrackAnalysis:
     @staticmethod
     def write_nodemap(file, step):
-        reader = ExodusReader()
-
         (
             points,
             point_data,
@@ -31,7 +29,7 @@ class CrackAnalysis:
             ns,
             block_data,
             times,
-        ) = reader.read_timestep(file, step)
+        ) = exodusreader.read_timestep(file, step)
 
         damage_blocks = cell_data["Damage"][0]
 
