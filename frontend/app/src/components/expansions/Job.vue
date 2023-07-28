@@ -52,20 +52,21 @@ export default defineComponent({
         const solver = computed(() => store.modelData.solver)
         const job = computed(() => store.modelData.job)
         const bus = inject('bus')
+
+        let cluster = ["None"];
+        if (process.env.VUE_APP_DLR) {
+            cluster.push("Cara")
+        }
         return {
             store,
             solver,
             job,
             rules,
-            bus
+            bus,
+            cluster
         }
     },
     created() {
-    },
-    data() {
-        return {
-            cluster: ["Cara", "None"], //'FA-Cluster',
-        };
     },
     methods: {
         changeNumberOfTasks() {
