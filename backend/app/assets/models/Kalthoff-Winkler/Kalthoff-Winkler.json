@@ -48,6 +48,12 @@
       "detachedNodesCheck": true,
       "thickness": 10,
       "hourglassCoefficient": 1,
+      "properties": [
+        {
+          "id": 1,
+          "name": "Prop_1"
+        }
+      ],
       "stabilizationType": "Global Stiffness",
       "criticalEnergyCalc": {
         "calculateCriticalEnergy": false,

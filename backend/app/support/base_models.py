@@ -117,7 +117,7 @@ class Material(BaseModel):
     actualHorizon: Optional[float] = None
     yieldStress: Optional[float] = None
     stiffnessMatrix: Optional[StiffnessMatrix] = None
-    properties: Optional[List[properties]] = None
+    properties: Union[List[properties], None]
     numStateVars: Optional[int] = None
     computePartialStress: Optional[bool] = None
     useCollocationNodes: Optional[bool] = None
