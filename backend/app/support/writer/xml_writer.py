@@ -828,21 +828,21 @@ class XMLcreator:
         string = "<ParameterList>\n"
         string += self.load_mesh()
 
-        if len(self.bondfilters) > 0:
+        if self.check_if_defined(self.bondfilters):
             string += self.create_bond_filter()
         string += "    </ParameterList>\n"
         string += self.material()
         if self.check_if_defined(self.additive_dict):
             if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:
                 string += self.additive()
-        if len(self.damage_dict) > 0:
+        if self.check_if_defined(self.damage_dict):
             string += self.damage()
         string += self.blocks()
         if self.check_if_defined(self.contact_dict):
             if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
                 string += self.contact()
 
-        if len(self.boundary_condition.conditions) > 0:
+        if self.check_if_defined(self.boundary_condition.conditions):
             string += self.create_boundary_condition()
         temp_enabled = self.temp_enabled(self.material_dict)
         string += self.solver(temp_enabled)
