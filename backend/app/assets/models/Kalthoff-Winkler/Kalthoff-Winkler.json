@@ -25,8 +25,6 @@
       "density": 8.0e-6,
       "matType": "Elastic Bond Based",
       "bulkModulus": 1.27e6,
-      "shearModulus": null,
-      "youngsModulus": null,
       "poissonsRatio": 0.3,
       "tensionSeparation": false,
       "nonLinear": false,
@@ -34,67 +32,9 @@
       "materialSymmetry": "Isotropic",
       "stabilizationType": "Global Stiffness",
       "thickness": 10,
-      "hourglassCoefficient": 1,
-      "actualHorizon": null,
-      "yieldStress": null,
-      "stiffnessMatrix": {
-        "calculateStiffnessMatrix": false,
-        "engineeringConstants": {
-          "E1": null,
-          "E2": null,
-          "E3": null,
-          "G12": null,
-          "G13": null,
-          "G23": null,
-          "nu12": null,
-          "nu13": null,
-          "nu23": null
-        },
-        "matrix": {
-          "C11": null,
-          "C12": null,
-          "C13": null,
-          "C14": null,
-          "C15": null,
-          "C16": null,
-          "C22": null,
-          "C23": null,
-          "C24": null,
-          "C25": null,
-          "C26": null,
-          "C33": null,
-          "C34": null,
-          "C35": null,
-          "C36": null,
-          "C44": null,
-          "C45": null,
-          "C46": null,
-          "C55": null,
-          "C56": null,
-          "C66": null
-        }
-      },
-      "properties": [
-        {
-          "id": 1,
-          "name": "Prop_1",
-          "value": null
-        }
-      ]
+      "hourglassCoefficient": 1
     }
   ],
-  "additive": {
-    "additiveModels": [
-      {
-        "additiveType": "Simple Additive",
-        "id": null,
-        "name": "Additive Model 1",
-        "printTemp": 200,
-        "timeFactor": 1
-      }
-    ],
-    "enabled": false
-  },
   "damages": [
     {
       "id": 1,
@@ -146,28 +86,6 @@
       "show": true
     }
   ],
-  "contact": {
-    "enabled": false,
-    "searchRadius": "0.02",
-    "searchFrequency": "1",
-    "contactModels": [
-      {
-        "id": 1,
-        "name": "Contact Model",
-        "contactType": "Short Range Force",
-        "contactRadius": 0.000775,
-        "springConstant": 1000000000000
-      }
-    ],
-    "interactions": [
-      {
-        "id": 1,
-        "firstBlockId": 5,
-        "secondBlockId": 3,
-        "contactModelId": 1
-      }
-    ]
-  },
   "boundaryConditions": {
     "conditions": [
       {
@@ -243,7 +161,6 @@
       "show": true
     }
   ],
-  "computes": [],
   "outputs": [
     {
       "id": 1,

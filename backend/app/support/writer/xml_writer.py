@@ -817,8 +817,9 @@ class XMLcreator:
                 else:
                     string += '            <Parameter name="' + output + '" type="bool" value="True"/>\n'
 
-            for compute in self.compute_dict:
-                string += '            <Parameter name="' + compute.name + '" type="bool" value="True"/>\n'
+            if self.check_if_defined(self.compute_dict):
+                for compute in self.compute_dict:
+                    string += '            <Parameter name="' + compute.name + '" type="bool" value="True"/>\n'
             string += "        </ParameterList>\n"
             string += "    </ParameterList>\n"
             idx += 1
@@ -846,7 +847,7 @@ class XMLcreator:
             string += self.create_boundary_condition()
         temp_enabled = self.temp_enabled(self.material_dict)
         string += self.solver(temp_enabled)
-        if len(self.compute_dict) > 0:
+        if self.check_if_defined(self.compute_dict):
             string += self.compute()
         string += self.output()
 
