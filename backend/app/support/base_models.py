@@ -631,6 +631,18 @@ default_model = {
             "properties": [{"id": 1, "name": "Prop_1", "value": None}],
         },
     ],
+    "additive": {
+        "additiveModels": [
+            {
+                "additiveType": "Simple Additive",
+                "id": None,
+                "name": "Additive Model 1",
+                "printTemp": 200,
+                "timeFactor": 1,
+            }
+        ],
+        "enabled": False,
+    },
     "damages": [
         {
             "id": 1,
