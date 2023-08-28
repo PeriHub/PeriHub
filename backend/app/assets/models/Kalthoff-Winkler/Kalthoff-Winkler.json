@@ -26,6 +26,12 @@
       "matType": "Elastic Bond Based",
       "bulkModulus": 1.27e6,
       "poissonsRatio": 0.3,
+      "properties": [
+        {
+          "id": 1,
+          "name": "Prop_1"
+        }
+      ],
       "tensionSeparation": false,
       "nonLinear": false,
       "planeStress": true,
@@ -48,12 +54,6 @@
       "detachedNodesCheck": true,
       "thickness": 10,
       "hourglassCoefficient": 1,
-      "properties": [
-        {
-          "id": 1,
-          "name": "Prop_1"
-        }
-      ],
       "stabilizationType": "Global Stiffness",
       "criticalEnergyCalc": {
         "calculateCriticalEnergy": false,
