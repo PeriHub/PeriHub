@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import math
 import os
 
 import numpy as np
@@ -16,6 +17,9 @@ from crackpy.fracture_analysis.write import OutputWriter
 from crackpy.structure_elements.data_files import Nodemap, NodemapStructure
 from crackpy.structure_elements.material import Material
 from exodusreader import exodusreader
+
+from support.base_models import Model
+from support.globals import log
 
 
 class CrackAnalysis:
@@ -278,3 +282,28 @@ class CrackAnalysis:
         writer.write_results()
 
         return os.path.join(nodemap_folder, "plots", "nodemap_right.png")
+
+    @staticmethod
+    def get_g2c(file: str, model: Model, length: float, width: float, crack_length: float, step: int = -1):
+        w = width
+        a = crack_length - length / 22
+        L = length / 2.2
+
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = exodusreader.read_timestep(file, step)
+
+        P = global_data["External_Force"][0][1]
+        d = -global_data["External_Displacement"][0][1]
+
+        GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3)))
+
+        log.info(GIIC)
+
+        return GIIC

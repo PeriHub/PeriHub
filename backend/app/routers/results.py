@@ -175,6 +175,39 @@ def get_fracture_analysis(
         return model_name + " results can not be found on " + cluster
 
 
+@router.get("/getEnfAnalysis")
+def get_enf_analysis(
+    model_name: str = "ENFmodel",
+    model_folder_name: str = "Default",
+    length: float = 15.0,
+    width: float = 1.0,
+    crack_length: float = 6.0,
+    cluster: str = "None",
+    tasks: int = 32,
+    output: str = "Output1",
+    step: int = -1,
+    request: Request = "",
+):
+    """doc"""
+    username = FileHandler.get_user_name(request, dev[0])
+
+    if not FileHandler.copy_results_from_cluster(
+        username, model_name, model_folder_name, cluster, False, tasks, output
+    ):
+        raise IOError  # NotFoundException(name=model_name)
+
+    resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
+    file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+    g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step)
+
+    try:
+        return g2c
+    except IOError:
+        log.error("%s results can not be found on %s", model_name, cluster)
+        return model_name + " results can not be found on " + cluster
+
+
 @router.get("/getGif")
 def get_gif(
     model_name: str = "Dogbone",

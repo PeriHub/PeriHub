@@ -6,13 +6,8 @@
     "translated": false,
     "length": "15",
     "cracklength": "6",
-    "width": null,
     "height": "1",
-    "height2": null,
-    "radius": null,
-    "structured": null,
-    "discretization": "20",
-    "horizon": null,
+    "discretization": "30",
     "twoDimensional": true,
     "rotatedAngles": false,
     "angles": [
@@ -26,8 +21,6 @@
       "name": "Aluminium",
       "density": "2.81e-9",
       "matType": "Linear Elastic Correspondence",
-      "bulkModulus": null,
-      "shearModulus": null,
       "youngsModulus": "71700",
       "poissonsRatio": "0.33",
       "tensionSeparation": true,
@@ -37,45 +30,7 @@
       "stabilizationType": "Global Stiffness",
       "thickness": "1",
       "hourglassCoefficient": 1,
-      "actualHorizon": null,
       "yieldStress": "99.3",
-      "stiffnessMatrix": {
-        "calculateStiffnessMatrix": false,
-        "engineeringConstants": {
-          "E1": null,
-          "E2": null,
-          "E3": null,
-          "G12": null,
-          "G13": null,
-          "G23": null,
-          "nu12": null,
-          "nu13": null,
-          "nu23": null
-        },
-        "matrix": {
-          "C11": null,
-          "C12": null,
-          "C13": null,
-          "C14": null,
-          "C15": null,
-          "C16": null,
-          "C22": null,
-          "C23": null,
-          "C24": null,
-          "C25": null,
-          "C26": null,
-          "C33": null,
-          "C34": null,
-          "C35": null,
-          "C36": null,
-          "C44": null,
-          "C45": null,
-          "C46": null,
-          "C55": null,
-          "C56": null,
-          "C66": null
-        }
-      },
       "properties": [
         {
           "id": 1,
@@ -103,7 +58,7 @@
       "name": "Damage",
       "damageModel": "Critical Energy Correspondence",
       "criticalStretch": null,
-      "criticalEnergy": "10",
+      "criticalEnergy": 1.3947001394700143,
       "interBlockDamage": true,
       "numberOfBlocks": 3,
       "interBlocks": [
@@ -186,9 +141,9 @@
     }
   ],
   "contact": {
-    "enabled": true,
-    "searchRadius": 0.01,
-    "searchFrequency": 100,
+    "enabled": false,
+    "searchRadius": "0.02",
+    "searchFrequency": "1",
     "contactModels": [
       {
         "id": 1,
@@ -201,8 +156,8 @@
     "interactions": [
       {
         "id": 1,
-        "firstBlockId": 1,
-        "secondBlockId": 2,
+        "firstBlockId": 5,
+        "secondBlockId": 3,
         "contactModelId": 1
       }
     ]
@@ -318,21 +273,10 @@
         "Unrotated_Strain"
       ],
       "Frequency": "100",
-      "InitStep": 0
-    },
-    {
-      "id": 2,
-      "name": "Output2",
-      "selectedOutputs": [
-        "Displacement",
-        "Damage",
-        "Partial_Stress",
-        "Von_Mises_Stress",
-        "Unrotated_Strain"
-      ],
-      "Write_After_Damage": true,
-      "Frequency": "1",
-      "InitStep": 0
+      "InitStep": 0,
+      "useOutputFrequency": false,
+      "numberOfOutputSteps": "100",
+      "Write_After_Damage": false
     }
   ],
   "solver": {

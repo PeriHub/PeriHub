@@ -425,24 +425,24 @@ class FileHandler:
 
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
-        if tasks != 1:
-            try:
-                command = "module load netCDF" + "\n"
-                command += "module load GCCcore/10.2.0" + "\n"
-                command += (
-                    "cd "
-                    + remotepath
-                    + "\n python /home/f_peridi/peridigm/build/scripts/MergeFiles.py "
-                    + model_name
-                    + "_"
-                    + output
-                    + " "
-                    + str(tasks)
-                )
-                ssh.exec_command(command)
-            except Exception:
-                log.error("MergeFiles.py failed")
-                pass
+        # if tasks != 1:
+        #     try:
+        #         command = "module load netCDF" + "\n"
+        #         command += "module load GCCcore/10.2.0" + "\n"
+        #         command += (
+        #             "cd "
+        #             + remotepath
+        #             + "\n python /home/f_peridi/peridigm/build/scripts/MergeFiles.py "
+        #             + model_name
+        #             + "_"
+        #             + output
+        #             + " "
+        #             + str(tasks)
+        #         )
+        #         ssh.exec_command(command)
+        #     except Exception:
+        #         log.error("MergeFiles.py failed")
+        #         pass
         try:
             for filename in sftp.listdir(remotepath):
                 if all_data or filename.endswith(".e"):

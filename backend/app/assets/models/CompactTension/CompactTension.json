@@ -333,7 +333,7 @@
       "numericalDamping": 0.000005,
       "outputFrequency": "100"
     },
-    "stopAfterDamageInitation": true,
+    "stopAfterDamageInitation": false,
     "stopBeforeDamageInitation": false,
     "adaptivetimeStepping": false,
     "adapt": {
@@ -343,7 +343,9 @@
     },
     "filetype": "yaml",
     "endStepAfterDamage": "3",
-    "dispEnabled": true
+    "dispEnabled": true,
+    "stopAfterCertainDamage": true,
+    "maxDamageValue": "0.3"
   },
   "job": {
     "cluster": "None",

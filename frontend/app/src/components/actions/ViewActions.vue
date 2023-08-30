@@ -112,6 +112,36 @@ SPDX-License-Identifier: Apache-2.0
             </q-card>
         </q-dialog>
 
+        <q-btn v-if="['ENFmodel'].includes(modelData.model.modelNameSelected)"
+            flat icon="fas fa-image" @click="dialogGetEnfAnalysis = true" :disable="!status.results">
+            <q-tooltip>
+                Show ENF Analysis
+            </q-tooltip>
+        </q-btn>
+        <q-dialog v-model="dialogGetEnfAnalysis" persistent max-width="800">
+            <q-card>
+                <q-card-section>
+                    <div class="text-h6">Show ENF Analysis</div>
+                </q-card-section>
+
+                <q-card-section class="q-pt-none">
+                    Which output do you want to analyse?
+                </q-card-section>
+                <q-card-section class="q-pt-none">
+                    <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name"
+                        emit-value v-model="getImageOutput" label="Output Name" standout dense></q-select>
+                </q-card-section>
+                <q-card-section class="q-pt-none">
+                    <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
+                        standout dense></q-input>
+                </q-card-section>
+                <q-card-actions align="right">
+                    <q-btn flat label="Show" color="primary" v-close-popup @click="getEnfAnalysis"></q-btn>
+                    <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+
         <q-btn v-if="viewStore.viewId == 'image'" flat icon="fas fa-download" @click="downloadModelImage()"
             :disable="!status.results">
             <q-tooltip>
@@ -332,6 +362,7 @@ export default defineComponent({
             showResultsOutputName: "Output1",
 
             dialogGetFractureAnalysis: false,
+            dialogGetEnfAnalysis: false,
 
             dialogGetPlot: false,
             getPlotVariables: [],
@@ -765,40 +796,35 @@ export default defineComponent({
             this.viewStore.viewId = 0;
             this.viewStore.modelLoading = false;
         },
-        async getG2c() {
-            let headersList = {
-                "Cache-Control": "no-cache",
-                Authorization: this.authToken,
-            };
-
-            let reqOptions = {
-                url: this.url + "calculateG2c",
-                params: {
-                    model_name: this.model.modelNameSelected,
-                    model_folder_name: this.modelData.model.modelFolderName,
-                    cluster: this.job.cluster,
-                    output: this.getG1cOutput,
-                },
-                data: this.model,
-                method: "POST",
-                responseType: "application/json",
-                headers: headersList,
-            };
-
+        async getEnfAnalysis() {
             this.viewStore.modelLoading = true;
-            var giic = 0;
-            await axios
-                .request(reqOptions)
-                .then((response) => (giic = response.data))
+
+            let params = {
+                model_name: this.modelData.model.modelNameSelected,
+                model_folder_name: this.modelData.model.modelFolderName,
+                length: this.modelData.model.length,
+                width: this.modelData.model.width,
+                crack_length: this.modelData.model.cracklength,
+                cluster: this.modelData.job.cluster,
+                tasks: this.modelData.job.tasks,
+                output: this.getImageOutput,
+                step: this.getImageStep,
+            }
+
+            await this.$api.get('/results/getEnfAnalysis', { params })
+                .then((response) => {
+                    console.log(response.data)
+                    this.$q.notify({
+                        message: "ENF analyzed",
+                    })
+                })
                 .catch((error) => {
-                    this.message = error;
-                    this.snackbar = true;
+                    this.$q.notify({
+                        type: 'negative',
+                        message: JSON.stringify(error.message)
+                    })
                     this.viewStore.modelLoading = false;
-                    return;
-                });
-            console.log(giic);
-            this.message = "GIIC = " + giic;
-            this.snackbar = true;
+                })
 
             this.viewStore.modelLoading = false;
         },
