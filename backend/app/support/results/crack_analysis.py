@@ -224,10 +224,10 @@ class CrackAnalysis:
                 integral_size_right=0.2,
                 integral_size_top=0.2,
                 integral_size_bottom=-0.2,
-                paths_distance_top=0.05,
+                paths_distance_top=(height / 2 - 0.25) / 10,
                 paths_distance_left=0.05,
                 paths_distance_right=0.05,
-                paths_distance_bottom=0.05,
+                paths_distance_bottom=(height / 2 - 0.25) / 10,
                 mask_tolerance=2,
                 buckner_williams_terms=[-1, 1, 2, 3, 4, 5],
             )
