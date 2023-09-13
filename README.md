@@ -22,45 +22,69 @@ PeriHub is a powerful software solution that can significantly benefit research 
 
 ![](backend/app/assets/images/PeriHub.drawio.png)
 
-## Generate model
-![](backend/app/assets/gif/generateModel.gif)
-## View generated mesh
-![](backend/app/assets/gif/viewMesh.gif)
-## Edit input deck
-![](backend/app/assets/gif/editInputDeck.gif)
-## Add materials or damage models
-![](backend/app/assets/gif/addMaterialDamage.gif)
-## Submit model
-![](backend/app/assets/gif/runModel.gif)
-## Analyse results
-![](backend/app/assets/gif/analyseResults.gif)
+### Generate model
+
+![](http://localhost:6020/assets/gif/generateModel.gif)
+
+### View generated mesh
+
+![](http://localhost:6020/assets/gif/viewMesh.gif)
+
+### Edit input deck
+
+![](http://localhost:6020/assets/gif/editInputDeck.gif)
+
+### Submit model
+
+![](http://localhost:6020/assets/gif/runModel.gif)
+
+### Analyse results
+
+![](http://localhost:6020/assets/gif/analyseResults.gif)
+
+### Plot results
+
+![](http://localhost:6020/assets/gif/plotResults.gif)
+
+## Analyse fracture
+
+![](backend/app/assets/gif/analyseFracture.gif)
 
 # Getting Started with PeriHub Services
 
 To get started with PeriHub, you can use Docker Compose to easily set up the required services. Here's a step-by-step guide:
 
 - Clone the repository
+
 ```
 git clone https://github.com/dlr-perihub/PeriHub.git
 ```
+
 - Go into the perihub folder.
+
 ```
 cd perihub
 ```
-- Create a .env file and save following variables, replace the `{PATHTOJOBFOLDER}` whith an existing directory, for example `/c/Users/YOU/perihubJobs` 
+
+- Create a .env file and save following variables, replace the `{PATHTOJOBFOLDER}` whith an existing directory, for example `/c/Users/YOU/perihubJobs`
+
 ```
 echo "DEV=True
 DLR=False
 VOLUME={PATHTOJOBFOLDER}" >> .env
 ```
+
 - Run docker-compose.
+
 ```
 docker-compose up
 ```
+
 - If docker finished building PeriHub, go to http://localhost:6010
 
 ## Contact
-* [Jan-Timo Hesse](mailto:Jan-Timo.Hesse@dlr.de)
+
+- [Jan-Timo Hesse](mailto:Jan-Timo.Hesse@dlr.de)
 
 ## License
 
