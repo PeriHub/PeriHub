@@ -24,27 +24,27 @@ PeriHub is a powerful software solution that can significantly benefit research 
 
 ### Generate model
 
-![](http://localhost:6020/assets/gif/generateModel.gif)
+![](backend/app/assets/gif/generateModel.gif)
 
 ### View generated mesh
 
-![](http://localhost:6020/assets/gif/viewMesh.gif)
+![](backend/app/assets/gif/viewMesh.gif)
 
 ### Edit input deck
 
-![](http://localhost:6020/assets/gif/editInputDeck.gif)
+![](backend/app/assets/gif/editInputDeck.gif)
 
 ### Submit model
 
-![](http://localhost:6020/assets/gif/runModel.gif)
+![](backend/app/assets/gif/runModel.gif)
 
 ### Analyse results
 
-![](http://localhost:6020/assets/gif/analyseResults.gif)
+![](backend/app/assets/gif/analyseResults.gif)
 
 ### Plot results
 
-![](http://localhost:6020/assets/gif/plotResults.gif)
+![](backend/app/assets/gif/plotResults.gif)
 
 ## Analyse fracture
 

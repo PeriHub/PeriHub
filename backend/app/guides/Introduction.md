@@ -37,7 +37,7 @@ PeriHub enables the generation, editing, execution and evaluation of standard pe
 
 ## Analyse fracture
 
-![](backend/app/assets/gif/analyseFracture.gif)
+![](http://localhost:6020/assets/gif/analyseFracture.gif)
 
 ## Building locally
 
