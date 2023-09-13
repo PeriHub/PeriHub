@@ -46,7 +46,7 @@ PeriHub is a powerful software solution that can significantly benefit research 
 
 ![](backend/app/assets/gif/plotResults.gif)
 
-## Analyse fracture
+### Analyse fracture
 
 ![](backend/app/assets/gif/analyseFracture.gif)
 
