@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from support.base_models import FileType, Jobs, ModelData, ResponseModel, Status
 from support.file_handler import FileHandler
-from support.globals import dev, log
+from support.globals import dev, dlr, log
 from support.writer.sbatch_writer import SbatchCreator
 
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
@@ -242,7 +242,8 @@ def get_jobs(
     if not os.path.exists(localpath):
         return ResponseModel(data=jobs, message="No jobs")
 
-    ssh, sftp = FileHandler.sftp_to_cluster("Cara")
+    if dlr[0] and not dev[0]:
+        ssh, sftp = FileHandler.sftp_to_cluster("Cara")
 
     for _, dirs, _ in os.walk(localpath):
         # log.info(dirs)
@@ -289,27 +290,29 @@ def get_jobs(
 
                 remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
-                if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
-                    job.cluster = "Cara"
-                    # try:
-                    for filename in sftp.listdir(remotepath):
-                        if filename.endswith(".e"):
-                            job.results = True
-                        if filename.endswith(".json"):
-                            filepath = os.path.join(remotepath, filename)
-                            with sftp.open(filepath) as f:
-                                data = json.load(f)
-                                job.model = data
-                    # except IOError:
-                    #     pass
+                if dlr[0] and not dev[0]:
+                    if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
+                        job.cluster = "Cara"
+                        # try:
+                        for filename in sftp.listdir(remotepath):
+                            if filename.endswith(".e"):
+                                job.results = True
+                            if filename.endswith(".json"):
+                                filepath = os.path.join(remotepath, filename)
+                                with sftp.open(filepath) as f:
+                                    data = json.load(f)
+                                    job.model = data
+                        # except IOError:
+                        #     pass
 
-                    job.submitted = FileHandler.cara_job_running(remotepath, model_name, model_folder_name)
+                        job.submitted = FileHandler.cara_job_running(remotepath, model_name, model_folder_name)
 
-                    # print(job.cluster)
-                    jobs.append(job)
+                        # print(job.cluster)
+                        jobs.append(job)
 
-    sftp.close()
-    ssh.close()
+    if dlr[0] and not dev[0]:
+        sftp.close()
+        ssh.close()
 
     return ResponseModel(data=jobs, message="Jobs found")
 
