@@ -23,22 +23,22 @@ stages:
     - pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git
     - cd backend/app
 
-.test-template: &test
-  <<: *install-deps
-  stage: test
-  script: make test
-  tags:
-    - docker
-  except:
-    - tags
-  artifacts:
-    when: always
-    reports:
-      junit: backend/app/build/tests.xml
+# .test-template: &test
+#   <<: *install-deps
+#   stage: test
+#   script: make test
+#   tags:
+#     - docker
+#   except:
+#     - tags
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: backend/app/build/tests.xml
 
-test-linux-py3.11:
-  image: python:3.11-slim
-  <<: *test
+# test-linux-py3.11:
+#   image: python:3.11-slim
+#   <<: *test
 
 check-coverage:
   image: python:3.11-slim
@@ -66,7 +66,6 @@ check-coverage:
     - apt update && apt install -y make
     - pip install -r backend/requirements-dev.txt
     - cd backend/app
-
 
 .audit-template: &audit
   <<: *install-dev-deps

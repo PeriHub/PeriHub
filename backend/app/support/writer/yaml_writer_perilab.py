@@ -117,7 +117,7 @@ class YAMLcreatorPeriLab:
                 material["Shear Modulus"] = float(np.format_float_scientific(float(mat.shearModulus)))
 
             if self.check_if_defined(mat.bulkModulus):
-                material["Bulk Modulus"] = float(np.format_float_scientific(float(mat.bu)))
+                material["Bulk Modulus"] = float(np.format_float_scientific(float(mat.bulkModulus)))
 
             if self.check_if_defined(mat.poissonsRatio):
                 material["Poisson's Ratio"] = float(np.format_float_scientific(float(mat.poissonsRatio)))
