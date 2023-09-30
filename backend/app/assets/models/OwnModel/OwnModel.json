@@ -185,6 +185,7 @@
       "name": "block_1",
       "material": "PMMAElast",
       "damageModel": "",
+      "density": "1.4e5",
       "show": true
     },
     {
@@ -192,6 +193,7 @@
       "name": "block_2",
       "material": "PMMAElast",
       "damageModel": "",
+      "density": "1.4e5",
       "show": true
     },
     {
@@ -199,6 +201,7 @@
       "name": "block_3",
       "material": "PMMA",
       "damageModel": "",
+      "density": "1.4e5",
       "show": true
     },
     {
@@ -206,6 +209,7 @@
       "name": "block_4",
       "material": "PMMAElast",
       "damageModel": "",
+      "density": "1.4e5",
       "show": true
     },
     {
@@ -213,6 +217,7 @@
       "name": "block_5",
       "material": "PMMAElast",
       "damageModel": "",
+      "density": "1.4e5",
       "show": true
     }
   ],
@@ -340,6 +345,7 @@
     "filetype": "yaml"
   },
   "job": {
+    "software": "PeriLab",
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,

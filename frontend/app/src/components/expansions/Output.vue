@@ -113,7 +113,7 @@ export default defineComponent({
             // this.outputKeys.push()
           }
           else if (software == "PeriLab") {
-            this.outputKeys.push("Displacement")
+            this.outputKeys.push("Displacements")
           }
         })
         this.bus.on('addStateVarsToOutput', (numStateVars) => {
@@ -147,7 +147,7 @@ export default defineComponent({
                 "Local_Angles",
                 "Orientations",
                 "Coordinates",
-                "Displacements",
+                "Displacement",
                 "Velocity",
                 "Acceleration",
                 "Temperature",

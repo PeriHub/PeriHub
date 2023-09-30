@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
                 <q-select v-if="additive.enabled" class="my-select" :options="additive.additiveModels" option-label="name"
                     option-value="name" emit-value v-model="block.additiveModel" :label="blockKeys.additiveModel" clearable
                     standout dense></q-select>
-                <q-input class="my-input" v-model="block.density" :rules="[rules.required, rules.posFloat]" :label="blockKeys.density"
+                <q-input v-if="job.software!='Peridigm'" class="my-input" v-model="block.density" :rules="[rules.required, rules.posFloat]" :label="blockKeys.density"
                     standout dense></q-input>
                 <q-toggle class="my-toggle" v-model="block.show" @update:model-value="bus.emit('filterPointData')"
                     label="Show" standout dense></q-toggle>
@@ -53,6 +53,7 @@ export default defineComponent({
         const damages = computed(() => store.modelData.damages)
         const additive = computed(() => store.modelData.additive)
         const blocks = computed(() => store.modelData.blocks)
+        const job = computed(() => store.modelData.job)
         const bus = inject('bus')
         return {
             store,
@@ -61,6 +62,7 @@ export default defineComponent({
             damages,
             additive,
             blocks,
+            job,
             rules,
             bus
         }

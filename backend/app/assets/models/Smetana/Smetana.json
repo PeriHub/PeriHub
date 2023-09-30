@@ -172,6 +172,7 @@
       "name": "block_1",
       "material": "Aluminum",
       "damageModel": "dam_1",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -179,6 +180,7 @@
       "name": "block_2",
       "material": "Aluminum",
       "damageModel": "dam_1",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -186,6 +188,7 @@
       "name": "block_3",
       "material": "Aluminum",
       "damageModel": "dam_1",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -193,6 +196,7 @@
       "name": "block_4",
       "material": "Aluminum",
       "damageModel": "dam_1",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -200,6 +204,7 @@
       "name": "block_5",
       "material": "Aluminum",
       "damageModel": "dam_1",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -207,6 +212,7 @@
       "name": "block_6",
       "material": "Aluminum",
       "damageModel": "dam_1",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -214,6 +220,7 @@
       "name": "block_7",
       "material": "Aluminum",
       "damageModel": "dam_1",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -221,6 +228,7 @@
       "name": "block_8",
       "material": "Aluminum",
       "damageModel": "dam_1",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -228,6 +236,7 @@
       "name": "block_9",
       "material": "Aluminum",
       "damageModel": "",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -235,6 +244,7 @@
       "name": "block_10",
       "material": "Aluminum",
       "damageModel": "",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -242,6 +252,7 @@
       "name": "block_11",
       "material": "Aluminum",
       "damageModel": "",
+      "density": 2.7e3,
       "show": true
     },
     {
@@ -249,6 +260,7 @@
       "name": "block_12",
       "material": "Aluminum",
       "damageModel": "",
+      "density": 2.7e3,
       "show": true
     }
   ],
@@ -385,6 +397,7 @@
     "filetype": "yaml"
   },
   "job": {
+    "software": "PeriLab",
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,

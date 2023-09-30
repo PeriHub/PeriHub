@@ -496,6 +496,7 @@ default_model = {
             "name": "block_1",
             "material": "PMMAElast",
             "damageModel": "",
+            "density": "1.4e5",
             "show": True,
         },
         {
@@ -503,6 +504,7 @@ default_model = {
             "name": "block_2",
             "material": "PMMAElast",
             "damageModel": "",
+            "density": "1.4e5",
             "show": True,
         },
         {
@@ -510,6 +512,7 @@ default_model = {
             "name": "block_3",
             "material": "PMMA",
             "damageModel": "",
+            "density": "1.4e5",
             "show": True,
         },
         {
@@ -517,6 +520,7 @@ default_model = {
             "name": "block_4",
             "material": "PMMAElast",
             "damageModel": "",
+            "density": "1.4e5",
             "show": True,
         },
         {
@@ -524,6 +528,7 @@ default_model = {
             "name": "block_5",
             "material": "PMMAElast",
             "damageModel": "",
+            "density": "1.4e5",
             "show": True,
         },
     ],

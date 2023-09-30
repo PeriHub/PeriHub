@@ -61,7 +61,7 @@ SPDX-License-Identifier: Apache-2.0
                     </div>
                 </div>
                 <div class="row my-row">
-                    <q-input class="my-input" v-model="material.density" :rules="[rules.required, rules.float]"
+                    <q-input v-if="job.software=='Peridigm'" class="my-input" v-model="material.density" :rules="[rules.required, rules.float]"
                         :label="materialKeys.density" standout dense></q-input>
                     <q-input class="my-input" v-model="material.poissonsRatio" :rules="[rules.required, rules.float]"
                         :label="materialKeys.poissonsRatio" clearable standout dense></q-input>
@@ -210,11 +210,13 @@ export default defineComponent({
         const store = useModelStore();
         const viewStore = useViewStore();
         const materials = computed(() => store.modelData.materials)
+        const job = computed(() => store.modelData.job)
         const modelData = computed(() => store.modelData)
         const bus = inject('bus')
         return {
             viewStore,
             materials,
+            job,
             modelData,
             rules,
             bus

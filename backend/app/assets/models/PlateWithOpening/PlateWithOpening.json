@@ -122,6 +122,7 @@
       "name": "block_1",
       "material": "Aluminium",
       "damageModel": "Damage",
+      "density": "2.81e-9",
       "show": true
     },
     {
@@ -129,6 +130,7 @@
       "name": "block_2",
       "material": "Aluminium",
       "damageModel": "",
+      "density": "2.81e-9",
       "show": true
     },
     {
@@ -136,6 +138,7 @@
       "name": "block_3",
       "material": "Aluminium",
       "damageModel": "",
+      "density": "2.81e-9",
       "show": true
     }
   ],
@@ -322,6 +325,7 @@
     "filetype": "yaml"
   },
   "job": {
+    "software": "PeriLab",
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,

@@ -380,6 +380,7 @@
     "filetype": "yaml"
   },
   "job": {
+    "software": "PeriLab",
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,

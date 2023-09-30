@@ -125,6 +125,7 @@
       "name": "block_1",
       "material": "Aluminium",
       "damageModel": "Damage",
+      "density": "2.81e-9",
       "show": true
     },
     {
@@ -132,6 +133,7 @@
       "name": "block_2",
       "material": "Aluminium",
       "damageModel": "",
+      "density": "2.81e-9",
       "show": true
     },
     {
@@ -139,6 +141,7 @@
       "name": "block_3",
       "material": "Aluminium",
       "damageModel": "",
+      "density": "2.81e-9",
       "show": true
     },
     {
@@ -146,6 +149,7 @@
       "name": "block_4",
       "material": "Aluminium",
       "damageModel": "",
+      "density": "2.81e-9",
       "show": true
     },
     {
@@ -153,6 +157,7 @@
       "name": "block_5",
       "material": "Aluminium",
       "damageModel": "",
+      "density": "2.81e-9",
       "show": true
     }
   ],
@@ -348,6 +353,7 @@
     "maxDamageValue": "0.3"
   },
   "job": {
+    "software": "PeriLab",
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,
