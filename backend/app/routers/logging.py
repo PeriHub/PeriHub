@@ -15,7 +15,7 @@ from support.globals import dev, log
 router = APIRouter(prefix="/log")
 
 
-async def log_reader(cluster, remotepath, file):
+async def log_reader(cluster, remotepath, file, software):
     log_lines = []
 
     if cluster == "None":
@@ -29,7 +29,7 @@ async def log_reader(cluster, remotepath, file):
         else:
             log_lines = ["No Logfile"]
     else:
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
         sftp.chdir(remotepath)
         file = sftp.file(file, "r")
         for line in file.readlines()[-100:]:
@@ -47,6 +47,7 @@ async def websocket_endpoint_log(
     model_folder_name: str = "Default",
     cluster: str = Query(...),
     token: str = Query(...),
+    software: str = "Peridigm",
 ):
     await websocket.accept()
     username = FileHandler.get_user_name_from_token(token, dev[0])
@@ -75,7 +76,7 @@ async def websocket_endpoint_log(
     else:
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
 
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
 
         try:
             output_files = sftp.listdir(remotepath)

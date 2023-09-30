@@ -82,7 +82,7 @@ SPDX-License-Identifier: Apache-2.0
         </q-btn>
     </div>
 </template>
-  
+
 <script>
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
@@ -107,6 +107,15 @@ export default defineComponent({
         }
     },
     created() {
+        this.bus.on('changeSoftware', (software) => {
+            console.log(software)
+          if (software == "Peridigm") {
+            // this.outputKeys.push()
+          }
+          else if (software == "PeriLab") {
+            this.outputKeys.push("Displacement")
+          }
+        })
         this.bus.on('addStateVarsToOutput', (numStateVars) => {
             this.addStateVarsToOutput(numStateVars)
         })
@@ -138,7 +147,7 @@ export default defineComponent({
                 "Local_Angles",
                 "Orientations",
                 "Coordinates",
-                "Displacement",
+                "Displacements",
                 "Velocity",
                 "Acceleration",
                 "Temperature",

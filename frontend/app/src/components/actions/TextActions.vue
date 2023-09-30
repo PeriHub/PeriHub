@@ -123,7 +123,8 @@ export default defineComponent({
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName,
                 own_model: this.modelData.model.ownModel,
-                cluster: this.modelData.job.cluster
+                cluster: this.modelData.job.cluster,
+                software: this.modelData.job.software
             }
 
             this.$api.get('/jobs/getStatus', { params })
@@ -153,6 +154,7 @@ export default defineComponent({
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName,
                 cluster: this.modelData.job.cluster,
+                software: this.modelData.job.software,
                 token: this.$api.defaults.headers.common['Authorization']
             };
 

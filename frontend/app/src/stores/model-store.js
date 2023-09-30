@@ -51,18 +51,18 @@ export const useModelStore = defineStore("model", {
           yieldStress: null,
           stiffnessMatrix: {
             calculateStiffnessMatrix: false,
-            engineeringConstants:{
+            engineeringConstants: {
               E1: null,
               E2: null,
-              E3:null,
+              E3: null,
               G12: null,
               G13: null,
               G23: null,
               nu12: null,
               nu13: null,
-              nu23: null
+              nu23: null,
             },
-            matrix:{
+            matrix: {
               C11: null,
               C12: null,
               C13: null,
@@ -83,8 +83,8 @@ export const useModelStore = defineStore("model", {
               C46: null,
               C55: null,
               C56: null,
-              C66: null
-            }
+              C66: null,
+            },
           },
           properties: [{ materialsPropId: 1, name: "Prop_1", value: 0.0 }],
           computePartialStress: false,
@@ -127,18 +127,18 @@ export const useModelStore = defineStore("model", {
           yieldStress: null,
           stiffnessMatrix: {
             calculateStiffnessMatrix: false,
-            engineeringConstants:{
+            engineeringConstants: {
               E1: null,
               E2: null,
-              E3:null,
+              E3: null,
               G12: null,
               G13: null,
               G23: null,
               nu12: null,
               nu13: null,
-              nu23: null
+              nu23: null,
             },
-            matrix:{
+            matrix: {
               C11: 165863.6296530634,
               C12: 4090.899504376252,
               C13: 2471.126276093059,
@@ -159,8 +159,8 @@ export const useModelStore = defineStore("model", {
               C46: 0.0,
               C55: 4200.0,
               C56: 0.0,
-              C66: 4200.0
-            }
+              C66: 4200.0,
+            },
           },
           properties: [{ materialsPropId: 1, name: "Prop_1", value: 0.0 }],
           computePartialStress: false,
@@ -234,6 +234,7 @@ export const useModelStore = defineStore("model", {
           damageModel: "",
           additiveModel: "",
           horizon: null,
+          density: null,
           show: true,
         },
         {
@@ -243,6 +244,7 @@ export const useModelStore = defineStore("model", {
           damageModel: "",
           additiveModel: "",
           horizon: null,
+          density: null,
           show: true,
         },
         {
@@ -252,6 +254,7 @@ export const useModelStore = defineStore("model", {
           damageModel: "PMMADamage",
           additiveModel: "",
           horizon: null,
+          density: null,
           show: true,
         },
         {
@@ -261,6 +264,7 @@ export const useModelStore = defineStore("model", {
           damageModel: "",
           additiveModel: "",
           horizon: null,
+          density: null,
           show: true,
         },
         {
@@ -270,6 +274,7 @@ export const useModelStore = defineStore("model", {
           damageModel: "",
           additiveModel: "",
           horizon: null,
+          density: null,
           show: true,
         },
       ],
@@ -446,6 +451,7 @@ export const useModelStore = defineStore("model", {
         filetype: "yaml",
       },
       job: {
+        software: "Peridigm",
         cluster: "None",
         nodes: 1,
         tasks: 32,
@@ -460,10 +466,10 @@ export const useModelStore = defineStore("model", {
   }),
   actions: {
     initialiseStore() {
-      if (localStorage.getItem("modelData")){
-        console.log("initialiseStore")
-        var object = JSON.parse(localStorage.getItem("modelData"))
-        this.modelData = structuredClone(object)
+      if (localStorage.getItem("modelData")) {
+        console.log("initialiseStore");
+        var object = JSON.parse(localStorage.getItem("modelData"));
+        this.modelData = structuredClone(object);
       }
     },
   },

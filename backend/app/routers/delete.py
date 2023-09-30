@@ -36,6 +36,7 @@ def delete_model_from_cluster(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     cluster: str = "None",
+    software: str = "Peridigm",
     request: Request = "",
 ):
     """doc"""
@@ -61,7 +62,7 @@ def delete_model_from_cluster(
             detail=cluster + " unknown",
         )
 
-    ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+    ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
 
     for filename in sftp.listdir(remotepath):
         sftp.remove(os.path.join(remotepath, filename))
@@ -100,6 +101,7 @@ def delete_user_data_from_cluster(
     check_date: bool,
     request: Request,
     days: Optional[int] = 7,
+    software: str = "Peridigm",
 ):
     """doc"""
 
@@ -110,7 +112,7 @@ def delete_user_data_from_cluster(
         else:
             remotepath = FileHandler.get_remote_path(cluster)
 
-            ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+            ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
 
             names = FileHandler.remove_folder_if_older_sftp(sftp, remotepath, days, True)
 
@@ -131,7 +133,7 @@ def delete_user_data_from_cluster(
 
     remotepath = FileHandler.get_remote_user_path(username)
 
-    ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+    ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
 
     FileHandler.remove_all_folder_ssh(ssh, remotepath)
 

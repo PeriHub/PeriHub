@@ -196,6 +196,7 @@ class Block(BaseModel):
     damageModel: Optional[str] = None
     additiveModel: Optional[str] = None
     horizon: Optional[float] = None
+    density: Optional[float] = None
     show: Optional[bool] = None
 
 
@@ -341,6 +342,7 @@ class Solver(BaseModel):
 
 
 class Job(BaseModel):
+    software: Optional[str] = "Peridigm"
     cluster: str
     nodes: Optional[int] = 1
     tasks: Optional[int] = 32

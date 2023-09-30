@@ -416,6 +416,7 @@ export default defineComponent({
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName,
                 file_type: this.modelData.solver.filetype,
+                software: this.modelData.job.software,
             }
 
             await this.$api.put('/jobs/run', this.modelData, { params })
@@ -464,7 +465,8 @@ export default defineComponent({
             let params = {
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName,
-                cluster: this.modelData.job.cluster
+                cluster: this.modelData.job.cluster,
+                software: this.modelData.job.software
             }
             await this.$api.put('/jobs/cancel', '', { params })
                 .then((response) => {
@@ -853,7 +855,8 @@ export default defineComponent({
             params = {
                 model_name: this.modelData.model.modelNameSelected,
                 model_folder_name: this.modelData.model.modelFolderName,
-                cluster: this.modelData.job.cluster
+                cluster: this.modelData.job.cluster,
+                software: this.modelData.job.software
             }
             this.$api.delete('/delete/modelFromCluster', { params })
                 .then((response) => {
@@ -890,7 +893,8 @@ export default defineComponent({
 
             params = {
                 cluster: this.modelData.job.cluster,
-                check_date: false
+                check_date: false,
+                software: this.modelData.job.software
             };
 
             this.$api.delete('/delete/userDataFromCluster', { params })

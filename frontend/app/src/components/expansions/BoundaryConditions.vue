@@ -47,7 +47,7 @@ SPDX-License-Identifier: Apache-2.0
         </q-btn>
     </div>
 </template>
-  
+
 <script>
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
@@ -88,6 +88,7 @@ export default defineComponent({
                 "Prescribed Temperature",
                 "Thermal Flux",
                 "Body Force",
+                "Displacements",
             ],
             coordinate: ["x", "y", "z"],
             boundaryKeys: {

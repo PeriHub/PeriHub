@@ -6,9 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
     <div>
+        <!-- <q-select class="my-select" :options="software" v-model="job.software" label="Software" standout dense></q-select> -->
         <q-select class="my-select" :options="cluster" v-model="job.cluster" label="Cluster"
             @change="changeNumberOfTasks();" standout dense></q-select>
-        <!-- <q-input 
+        <!-- <q-input
             class="my-input"
             v-model="job.nodes"
             v-show="job.cluster=='Cara'"
@@ -19,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0
         ></q-input> -->
         <q-input class="my-input" v-model="job.tasks" v-show="job.cluster == 'Cara'" :rules="[rules.required, rules.name]"
             label="Tasks" standout dense></q-input>
-        <!-- <q-input 
+        <!-- <q-input
             class="my-input"
             v-model="job.tasksPerNode"
             v-show="job.cluster=='Cara'"
@@ -38,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0
             label="Account" standout dense></q-input>
     </div>
 </template>
-  
+
 <script>
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
@@ -63,7 +64,7 @@ export default defineComponent({
             job,
             rules,
             bus,
-            cluster
+            cluster,
         }
     },
     created() {

@@ -89,6 +89,9 @@ SPDX-License-Identifier: Apache-2.0
 
         <q-space></q-space>
 
+        <q-select :options="software" v-model="modelStore.modelData.job.software" label="Software" standout dense @update:model-value="bus.emit('changeSoftware',modelStore.modelData.job.software)">
+        </q-select>
+
         <q-btn flat icon="fas fa-sort" @click="bus.emit('openHidePanels')">
             <q-tooltip>
                 Collapse/Expand all panel
@@ -121,6 +124,7 @@ export default defineComponent({
         const viewStore = useViewStore();
         const modelData = computed(() => modelStore.modelData)
         const bus = inject('bus')
+        let software = ["Peridigm", "PeriLab"]
 
         return {
             store,
@@ -129,6 +133,7 @@ export default defineComponent({
             modelData,
             rules,
             bus,
+            software
         }
     },
     data() {

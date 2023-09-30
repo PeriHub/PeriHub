@@ -201,7 +201,7 @@ class FileHandler:
         print(stderr.read().decode())
 
     @staticmethod
-    def copy_model_to_cluster(username, model_name, model_folder_name, cluster):
+    def copy_model_to_cluster(username, model_name, model_folder_name, cluster, software):
         """doc"""
 
         if cluster == "None":
@@ -245,7 +245,7 @@ class FileHandler:
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         userpath = FileHandler._get_user_path(username)
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
 
         try:
             sftp.chdir(userpath)
@@ -297,13 +297,13 @@ class FileHandler:
         return "Success"
 
     @staticmethod
-    def copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat):
+    def copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat, software):
         """doc"""
 
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
         remotepath = FileHandler._get_remote_umat_path(cluster)
         try:
-            ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+            ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
         except paramiko.SFTPError:
             log.error("ssh connection to " + cluster + " failed!")
             return "ssh connection to " + cluster + " failed!"
@@ -389,6 +389,7 @@ class FileHandler:
         tasks,
         output,
         filetype=".e",
+        software="Peridigm",
     ):
         """doc"""
         log.info("Start copying")
@@ -424,7 +425,7 @@ class FileHandler:
             return True
 
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
         # if tasks != 1:
         #     try:
         #         command = "module load netCDF" + "\n"
@@ -476,7 +477,7 @@ class FileHandler:
         return True
 
     @staticmethod
-    def sftp_to_cluster(cluster):
+    def sftp_to_cluster(cluster, software):
         """doc"""
 
         ssh = paramiko.SSHClient()
@@ -514,7 +515,10 @@ class FileHandler:
 
         elif cluster == "None":
             username = "root"
-            server = "perihub_peridigm"
+            if software == "Peridigm":
+                server = "perihub_peridigm"
+            elif software == "PeriLab":
+                server = "perihub_perilab"
             try:
                 ssh.connect(
                     server,
@@ -568,7 +572,7 @@ class FileHandler:
     @staticmethod
     def cara_job_running(remotepath, model_name, model_folder_name):
         """doc"""
-        ssh, sftp = FileHandler.sftp_to_cluster("Cara")
+        ssh, sftp = FileHandler.sftp_to_cluster("Cara", software)
         command = (
             "cd "
             + remotepath

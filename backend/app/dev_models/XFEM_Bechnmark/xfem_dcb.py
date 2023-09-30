@@ -74,7 +74,7 @@ class XFEMDCB:
         model = {"x": x_value, "y": y_value, "k": k, "vol": vol}
         # writer = ModelWriter(filename=self.filename)
         # writer.write_node_sets(model, self.ns_list)
-        # writer.write_mesh(model)
+        # writer.write_mesh(model, self.software)
         # self.writeXML(writer=writer, model=model)
 
         return model

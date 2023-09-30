@@ -44,6 +44,16 @@ services:
     networks:
       - backend
 
+  perilab:
+    container_name: perihub_perilab
+    image: perihub/perilab
+    ports:
+      - 6040:80
+    volumes:
+      - ${VOLUME}peridigmJobs:/app/peridigmJobs
+    networks:
+      - backend
+
   paraview:
     build:
       context: paraview/.

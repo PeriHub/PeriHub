@@ -17,6 +17,8 @@ SPDX-License-Identifier: Apache-2.0
                 <q-select v-if="additive.enabled" class="my-select" :options="additive.additiveModels" option-label="name"
                     option-value="name" emit-value v-model="block.additiveModel" :label="blockKeys.additiveModel" clearable
                     standout dense></q-select>
+                <q-input class="my-input" v-model="block.density" :rules="[rules.required, rules.posFloat]" :label="blockKeys.density"
+                    standout dense></q-input>
                 <q-toggle class="my-toggle" v-model="block.show" @update:model-value="bus.emit('filterPointData')"
                     label="Show" standout dense></q-toggle>
                 <q-btn v-if="model.ownModel" flat icon="fas fa-trash-alt" @click="removeBlock(index)">
@@ -35,7 +37,7 @@ SPDX-License-Identifier: Apache-2.0
         </q-btn>
     </div>
 </template>
-  
+
 <script>
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
@@ -73,6 +75,7 @@ export default defineComponent({
                 damageModel: "Damage Model",
                 additiveModel: "Additive Model",
                 horizon: "Horizon",
+                density: "Density",
             },
         };
     },

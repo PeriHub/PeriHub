@@ -57,6 +57,7 @@ class Dogbone:
         self.username = username
         self.max_nodes = max_nodes
         self.ignore_mesh = ignore_mesh
+        self.software = model_data.job.software
         if self.two_d:
             self.zend = 1
             self.dx_value[2] = 1
@@ -273,7 +274,7 @@ class Dogbone:
                         ]
                     )
                 )
-                writer.write_mesh_with_angles(model)
+                writer.write_mesh_with_angles(model, self.software)
             else:
                 model = np.transpose(
                     np.vstack(
@@ -286,7 +287,7 @@ class Dogbone:
                         ]
                     )
                 )
-                writer.write_mesh(model)
+                writer.write_mesh(model, self.software)
             writer.write_node_sets(model)
 
             block_len = int(max(k))
@@ -324,8 +325,8 @@ class Dogbone:
                 block.horizon = self.scal * max([self.dx_value[0], self.dx_value[1]])
             block_def = self.block_def
 
-        try:
-            writer.create_file(block_def)
-        except TypeError as exception:
-            return str(exception)
+        # try:
+        writer.create_file(block_def)
+        # except TypeError as exception:
+        #     return str(exception)
         return 0

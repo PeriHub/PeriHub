@@ -11,8 +11,8 @@ import time
 import numpy as np
 
 from support.globals import log
-from support.writer.xml_writer import XMLcreator
-from support.writer.yaml_writer import YAMLcreator
+from support.writer.yaml_writer_peridigm import YAMLcreatorPeridigm
+from support.writer.yaml_writer_perilab import YAMLcreatorPeriLab
 
 # from numba import jit
 
@@ -30,6 +30,7 @@ class ModelWriter:
         self.mesh_file = model_class.model_data.model.mesh_file
         self.bc_dict = model_class.model_data.boundaryConditions
         self.solver_dict = model_class.model_data.solver
+        self.job_dict = model_class.model_data.job
         self.model_data = model_class.model_data
         self.disc_type = model_class.disc_type
         if not os.path.exists("Output"):
@@ -74,10 +75,12 @@ class ModelWriter:
             file.write(string)
             np.savetxt(file, mesh_array, fmt=mesh_format, delimiter=" ")
 
-    def write_mesh(self, model):
+    def write_mesh(self, model, software="Peridigm"):
         """doc"""
         start_time = time.time()
         string = "# x y z block_id volume\n"
+        if software == "PeriLab":
+            string = "header: x y z block_id volume\n"
         self.mesh_file_writer(
             self.filename + ".txt",
             string,
@@ -86,10 +89,12 @@ class ModelWriter:
         )
         log.info("Mesh written in %.2f seconds", time.time() - start_time)
 
-    def write_mesh_with_angles(self, model):
+    def write_mesh_with_angles(self, model, software="Peridigm"):
         """doc"""
         start_time = time.time()
         string = "# x y z block_id volume angle_x angle_y angle_z\n"
+        if software == "PeriLab":
+            string = "header: x y z block_id volume angle_x angle_y angle_z\n"
         self.mesh_file_writer(
             self.filename + ".txt",
             string,
@@ -100,11 +105,12 @@ class ModelWriter:
 
     def create_file(self, block_def):
         """doc"""
-        xml = XMLcreator(self, block_def=block_def)
-        string = xml.create_xml()
-        if self.solver_dict.filetype == "yaml":
-            yaml = YAMLcreator()
-
-            string = yaml.translate_xml_to_yaml(string)
+        string = ""
+        if self.job_dict.software == "Peridigm":
+            yaml_peridigm = YAMLcreatorPeridigm(self, block_def=block_def)
+            string = yaml_peridigm.create_yaml()
+        elif self.job_dict.software == "PeriLab":
+            yaml_perilab = YAMLcreatorPeriLab(self, block_def=block_def)
+            string = yaml_perilab.create_yaml()
 
         self.file_writer(self.filename + "." + self.solver_dict.filetype, string)

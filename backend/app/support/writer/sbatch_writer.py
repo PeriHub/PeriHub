@@ -19,6 +19,7 @@ class SbatchCreator:
         output="",
         job="",
         usermail="",
+        software="Peridigm",
     ):
         """doc"""
         self.nodes = job.nodes
@@ -35,6 +36,7 @@ class SbatchCreator:
         self.mail = usermail
         self.output_dict = output
         self.remotepath = remotepath
+        self.software = software
 
     def create_sbatch(self):
         """doc"""
@@ -102,12 +104,27 @@ class SbatchCreator:
 
     def create_sh(self):
         """doc"""
-        string = "#!/bin/sh" + "\n"
-        # if self.tasks == 1:
-        string += ". /opt/intel/oneapi/mkl/latest/env/vars.sh \n"
-        string += "/Peridigm/build/src/Peridigm " + self.filename + "." + self.filetype + "& echo $! > pid.txt \n"
-        string += "pid=`cat pid.txt` \n"
-        string += "tail --pid=$pid -f /dev/null \n"
-        string += "rm pid.txt \n"
+
+        if self.software == "Peridigm":
+            string = "#!/bin/sh" + "\n"
+            # if self.tasks == 1:
+            string += ". /opt/intel/oneapi/mkl/latest/env/vars.sh \n"
+            string += "/Peridigm/build/src/Peridigm " + self.filename + "." + self.filetype + "& echo $! > pid.txt \n"
+            string += "pid=`cat pid.txt` \n"
+            string += "tail --pid=$pid -f /dev/null \n"
+            string += "rm pid.txt \n"
+        elif self.software == "PeriLab":
+            string = "#!/bin/sh" + "\n"
+            # if self.tasks == 1:
+            string += (
+                "/usr/local/julia/bin/julia /env/src/main.jl "
+                + self.filename
+                + "."
+                + self.filetype
+                + "& echo $! > pid.txt \n"
+            )
+            string += "pid=`cat pid.txt` \n"
+            string += "tail --pid=$pid -f /dev/null \n"
+            string += "rm pid.txt \n"
 
         return string

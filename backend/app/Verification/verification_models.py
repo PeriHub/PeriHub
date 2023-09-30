@@ -456,7 +456,7 @@ class VerificationModels:
                 "angle_y": angle_y,
                 "angle_z": angle_z,
             }
-            writer.write_mesh_with_angles(model)
+            writer.write_mesh_with_angles(model, self.software)
         else:
             model = {
                 "x": x_value,
@@ -465,7 +465,7 @@ class VerificationModels:
                 "k": k,
                 "vol": vol,
             }
-            writer.write_mesh(model)
+            writer.write_mesh(model, self.software)
         writer.write_node_sets(model)
         self.write_file(writer=writer, model=model)
 

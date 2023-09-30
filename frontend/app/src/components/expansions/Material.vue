@@ -195,7 +195,7 @@ SPDX-License-Identifier: Apache-2.0
         <input type="file" style="display: none" ref="propsInput" multiple accept=".inp" @change="onPropsFilePicked" />
     </div>
 </template>
-  
+
 <script>
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
@@ -251,6 +251,7 @@ export default defineComponent({
                 "Viscoelastic",
                 "Viscoplastic Needleman Correspondence",
                 "Vector Poisson",
+                "PD Solid Elastic",
             ],
             materialSymmetry: ["Isotropic", "Anisotropic"],
             stabilizationType: [

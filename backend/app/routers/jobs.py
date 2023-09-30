@@ -22,6 +22,7 @@ async def run_model(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     file_type: FileType = FileType.YAML,
+    software: str = "Peridigm",
     request: Request = "",
 ):
     """doc"""
@@ -36,7 +37,7 @@ async def run_model(
             break
 
     cluster = model_data.job.cluster
-    return_string = FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster)
+    return_string = FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster, software)
 
     if return_string != "Success":
         raise HTTPException(
@@ -44,7 +45,9 @@ async def run_model(
             detail=return_string,
         )
 
-    return_string = FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
+    return_string = FileHandler.copy_lib_to_cluster(
+        username, model_name, model_folder_name, cluster, user_mat, software
+    )
     if return_string != "Success":
         raise HTTPException(
             status_code=404,
@@ -81,6 +84,7 @@ async def run_model(
             output=model_data.outputs,
             job=model_data.job,
             usermail=usermail,
+            software=software,
         )
         sbatch_string = sbatch.create_sbatch()
         remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
@@ -102,6 +106,8 @@ async def run_model(
 
     elif cluster == "None":
         server = "perihub_peridigm"
+        if software == "PeriLab":
+            server = "perihub_perilab"
         remotepath = "/peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
         log.info(remotepath)
         if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
@@ -115,6 +121,7 @@ async def run_model(
             output=model_data.outputs,
             job=model_data.job,
             usermail=usermail,
+            software=software,
         )
         sh_string = sbatch.create_sh()
         with open(
@@ -166,6 +173,7 @@ def cancel_job(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     cluster: str = "None",
+    software: str = "Peridigm",
     request: Request = "",
 ):
     """doc"""
@@ -173,6 +181,8 @@ def cancel_job(
 
     if cluster == "None":
         server = "perihub_peridigm"
+        if software == "PeriLab":
+            server = "perihub_perilab"
         remotepath = "/peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -201,7 +211,7 @@ def cancel_job(
         return ResponseModel(data=True, message="Job has been canceled")
 
     remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-    ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+    ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
     # try:
     #     output_files = sftp.listdir(remotepath)
     #     filtered_values = list(
@@ -323,6 +333,7 @@ def get_status(
     model_folder_name: str = "Default",
     own_mesh: bool = False,
     cluster: str = "None",
+    software: str = "Peridigm",
     request: Request = "",
 ):
     """doc"""
@@ -352,7 +363,7 @@ def get_status(
 
     elif cluster == "Cara":
         remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
 
         try:
             for filename in sftp.listdir(remotepath):
