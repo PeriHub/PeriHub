@@ -27,7 +27,15 @@ module.exports = configure(function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
-    boot: ["i18n", "axios", "bus", "vtk", "notify-defaults", "zoom"],
+    boot: [
+      "i18n",
+      "axios",
+      "bus",
+      "chartkick",
+      "vtk",
+      "notify-defaults",
+      "zoom",
+    ],
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-css
     css: ["app.scss"],
@@ -52,8 +60,10 @@ module.exports = configure(function (ctx) {
 
       // transpile: false,
       // publicPath: '/',
-      
-      env: require('dotenv').config({ path: `.env.${process.env.ENV_FILE.toLowerCase()}` }).parsed,
+
+      env: require("dotenv").config({
+        path: `.env.${process.env.ENV_FILE.toLowerCase()}`,
+      }).parsed,
       // env: {
       //   VUE_APP_API: ctx.dev
       //     ? "http://localhost:6020"
