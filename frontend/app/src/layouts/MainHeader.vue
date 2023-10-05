@@ -40,6 +40,8 @@ SPDX-License-Identifier: Apache-2.0
 
       <q-space></q-space>
 
+      <q-toggle v-model="store.saveEnergy" checked-icon="eco" color="green" unchecked-icon="bolt"></q-toggle>
+
       <q-toggle v-model="store.darkMode" @click="toggleDarkMode" checked-icon="dark_mode" color="red"
         unchecked-icon="light_mode"></q-toggle>
 
@@ -81,10 +83,24 @@ export default defineComponent({
     return {
     };
   },
+  mounted() {
+    if (localStorage.getItem("saveEnergy")) {
+      this.store.saveEnergy = localStorage.getItem("saveEnergy") == "true";
+    }
+  },
   methods: {
     toggleDarkMode() {
       localStorage.setItem("darkMode", this.store.darkMode);
       this.$q.dark.toggle();
+    },
+  },
+  watch: {
+    'store.saveEnergy': {
+      handler() {
+        console.log("saveEnergy changed!");
+        localStorage.setItem("saveEnergy", JSON.stringify(this.store.saveEnergy));
+      },
+      deep: true,
     },
   }
 })

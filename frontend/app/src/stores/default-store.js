@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineStore } from "pinia";
-import { api, trameApi } from 'boot/axios'
+import { api, trameApi } from "boot/axios";
 import axios from "axios";
 
 export const useDefaultStore = defineStore("default", {
   state: () => ({
     darkMode: false,
+    saveEnergy: true,
 
     status: {
       created: false,
@@ -23,17 +24,17 @@ export const useDefaultStore = defineStore("default", {
     initialiseStore() {
       if (process.env.VUE_APP_DEV) {
         console.log(`I'm on a development build`);
-      }else{
+      } else {
         let reqOptions = {
           url: "https://perihub.fa-services.intra.dlr.de",
         };
-        axios
-          .request(reqOptions)
-          .then(response => {
-            api.defaults.headers.common['Authorization'] = response.headers.authorization
-            trameApi.defaults.headers.common['Authorization'] = response.headers.authorization
-            // console.log('login', {token: response.headers.authorization})
-          })
+        axios.request(reqOptions).then((response) => {
+          api.defaults.headers.common["Authorization"] =
+            response.headers.authorization;
+          trameApi.defaults.headers.common["Authorization"] =
+            response.headers.authorization;
+          // console.log('login', {token: response.headers.authorization})
+        });
       }
     },
   },

@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException, Query, WebSocket, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from routers import delete, docs, generate, jobs, model, results, translate, upload
+from routers import delete, docs, energy, generate, jobs, model, results, translate, upload
 from support.file_handler import FileHandler
 from support.globals import dev, dlr, log
 
@@ -66,6 +66,7 @@ app.include_router(jobs.router)
 app.include_router(results.router)
 app.include_router(delete.router)
 app.include_router(docs.router)
+app.include_router(energy.router)
 
 load_dotenv()
 
