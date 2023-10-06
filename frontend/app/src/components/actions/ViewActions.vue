@@ -438,7 +438,7 @@ export default defineComponent({
   methods: {
     async checkEnergy() {
       if (this.saveEnergy) {
-        this.$api.get('/energy/current')
+        await this.$api.get('/energy/current')
           .then((response) => {
             this.$q.notify({
               message: response.data.message
@@ -454,9 +454,12 @@ export default defineComponent({
             })
           })
         console.log(this.energyPercent)
-        if (this.energyPercent < 75) {
-          this.dialogEnergySavings = true
-        }
+        // if (this.energyPercent < 75) {
+        //   this.dialogEnergySavings = true
+        // }else {
+        //   this.runModel();
+        // }
+        this.dialogEnergySavings = true
       } else {
         this.runModel();
       }
