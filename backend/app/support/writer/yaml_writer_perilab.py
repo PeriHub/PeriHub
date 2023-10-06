@@ -259,10 +259,10 @@ class YAMLcreatorPeriLab:
     def solver(self, temp_enabled):
         data = {}
 
-        data["Solver For Displacement"] = self.solver_dict.dispEnabled
+        data["Solve For Displacement"] = self.solver_dict.dispEnabled
 
         if temp_enabled:
-            data["Solver For Temperature"] = True
+            data["Solve For Temperature"] = True
 
         data["Verbose"] = self.solver_dict.verbose
         data["Initial Time"] = float(self.solver_dict.initialTime)
