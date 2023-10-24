@@ -44,14 +44,17 @@ class ModelWriter:
                 node_set_ids.append(bcs.blockId)
         self.ns_list = node_set_ids
 
-    def write_node_sets(self, model):
+    def write_node_sets(self, model, software):
         """doc"""
         for idx, k in enumerate(self.ns_list):
             if k == 0:
                 points = np.where(model[:, 3] >= 0)
             else:
                 points = np.where(model[:, 3] == k)
-            string = ""
+            if software == "PeriLab":
+                string = "header: global_id\n"
+            else:
+                string = ""
             for point in points[0]:
                 string += str(int(point) + 1) + "\n"
             if k == 0:

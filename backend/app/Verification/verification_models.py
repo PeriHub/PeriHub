@@ -466,7 +466,7 @@ class VerificationModels:
                 "vol": vol,
             }
             writer.write_mesh(model, self.software)
-        writer.write_node_sets(model)
+        writer.write_node_sets(model, self.software)
         self.write_file(writer=writer, model=model)
 
         return model
