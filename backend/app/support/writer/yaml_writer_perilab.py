@@ -95,15 +95,25 @@ class YAMLcreatorPeriLab:
 
         return data
 
+    def preCalculation(self):
+        data = {}
+
+        data["Deformed Bond Geometry"] = True
+        data["Deformation Gradient"] = True
+        data["Shape Tensor"] = True
+        data["Bond Associated Shape Tensorr"] = False
+        data["Bond Associated Deformation Gradient"] = False
+
+        return data
+
     def materials(self):
         data = {}
 
         for mat in self.material_dict:
             material = {}
             material["Material Model"] = mat.matType
+            material["Symmetry"] = "isotropic plane stress"
             material["Plane Stress"] = mat.planeStress
-            material["Density"] = float(np.format_float_scientific(float(mat.density)))
-            print(material["Density"])
             if mat.materialSymmetry == "Anisotropic":
                 material["Material Symmetry"] = mat.materialSymmetry
                 if mat.stiffnessMatrix is not None:
@@ -454,6 +464,7 @@ class YAMLcreatorPeriLab:
         data["PeriLab"]["Discretization"] = self.load_mesh()
         if self.check_if_defined(self.bondfilters):
             data["PeriLab"]["Bond Filters"] = self.create_bond_filter()
+        data["PeriLab"]["Physics"]["Pre Calculation"] = self.preCalculation()
         data["PeriLab"]["Physics"]["Material Models"] = self.materials()
         if self.check_if_defined(self.additive_dict):
             if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:
