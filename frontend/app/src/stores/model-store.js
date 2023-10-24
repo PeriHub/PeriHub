@@ -404,6 +404,7 @@ export const useModelStore = defineStore("model", {
         {
           outputsId: 1,
           name: "Output1",
+          selectedFileType: "Exodus",
           selectedOutputs: [],
 
           Write_After_Damage: false,

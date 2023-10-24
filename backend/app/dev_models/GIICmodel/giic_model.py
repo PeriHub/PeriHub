@@ -565,7 +565,7 @@ class GIICmodel:
                         ]
                     )
                 )
-                writer.write_mesh(model, self.software)
+                writer.write_mesh(model, self.software, self.two_d)
             writer.write_node_sets(model, self.software)
 
             block_len = int(max(k))
