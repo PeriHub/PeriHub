@@ -221,10 +221,10 @@ class YAMLcreatorPeridigm:
                             + str(interBlock.firstBlockId)
                             + "_"
                             + str(interBlock.secondBlockId)
-                        ] = str(float(interBlock.value))
+                        ] = float(interBlock.value)
 
             elif dam.damageModel == "Von Mises Stress":
-                damage["Critical Von Mises Stress"] = str(float(dam.criticalVonMisesStress))
+                damage["Critical Von Mises Stress"] = float(dam.criticalVonMisesStress)
 
                 if self.check_if_defined(dam.criticalDamage):
                     damage["Critical Damage"] = float(dam.criticalDamage)

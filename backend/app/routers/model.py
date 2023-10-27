@@ -61,6 +61,8 @@ def get_point_data(
     own_model: bool = False,
     own_mesh: bool = False,
     mesh_file: str = "Dogbone.txt",
+    software: str = "Peridigm",
+    two_d: bool = False,
     request: Request = "",
 ):
     """doc"""
@@ -125,19 +127,28 @@ def get_point_data(
                     if not first_row:
                         str1 = "".join(row)
                         parts = str1.split()
-                        point_string += parts[0] + "," + parts[1] + "," + parts[2] + ","
-                        if int(parts[3]) > max_block_id:
-                            max_block_id = int(parts[3])
+                        if software == "PeriLab" and two_d:
+                            block_id = int(parts[2])
+                            point_string += parts[0] + "," + parts[1] + ",0.0,"
+                        else:
+                            block_id = int(parts[3])
+                            point_string += parts[0] + "," + parts[1] + "," + parts[2] + ","
+                        if block_id > max_block_id:
+                            max_block_id = block_id
                     first_row = False
                 first_row = True
                 for row in rows:
                     if not first_row:
                         str1 = "".join(row)
                         parts = str1.split()
+                        if software == "PeriLab" and two_d:
+                            block_id = int(parts[2])
+                        else:
+                            block_id = int(parts[3])
                         if max_block_id == 1:
                             block_id_string += str(0.1) + ","
                         else:
-                            block_id_string += str(int(parts[3]) / max_block_id) + ","
+                            block_id_string += str(block_id / max_block_id) + ","
                     first_row = False
             response = [
                 point_string.rstrip(point_string[-1]),
