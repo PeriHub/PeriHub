@@ -64,12 +64,12 @@ class Smetana:
         self.two_d = two_d
         self.path = "/app/Output/" + os.path.join(username, filename + model_folder_name)
 
-        self.bc_dict = model_data.model.boundaryConditions
-        self.damage_dict = model_data.model.damages
-        self.compute_dict = model_data.model.computes
-        self.output_dict = model_data.model.outputs
-        self.contact_dict = model_data.model.contact
-        self.solver_dict = model_data.model.solver
+        self.bc_dict = model_data.boundaryConditions
+        self.damage_dict = model_data.damages
+        self.compute_dict = model_data.computes
+        self.output_dict = model_data.outputs
+        self.contact_dict = model_data.contact
+        self.solver_dict = model_data.solver
 
     def create_model(self):
         """doc"""
