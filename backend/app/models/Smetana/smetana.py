@@ -62,7 +62,6 @@ class Smetana:
         self.wavelength = wavelength
         self.angle = angle
         self.two_d = two_d
-        self.path = "/app/Output/" + os.path.join(username, filename + model_folder_name)
 
         self.bc_dict = model_data.boundaryConditions
         self.damage_dict = model_data.damages
@@ -73,8 +72,6 @@ class Smetana:
 
     def create_model(self):
         """doc"""
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
 
         prop_params = {
             "filename": self.filename,
