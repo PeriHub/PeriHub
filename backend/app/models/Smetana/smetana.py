@@ -27,7 +27,7 @@ from support.base_models import (
     Solver,
     Verlet,
 )
-from support.globals import log
+from support.globals import dev, dlr, log
 
 
 class Smetana:
@@ -101,11 +101,12 @@ class Smetana:
             solver=self.solver_dict,
         )
 
-        if self.two_d:
-            url = "https://smetana-api.nimbus.dlr.de/generatePeridigm2DModel"
+        baseurl = "https://smetana-api.nimbus.dlr.de/"
 
+        if self.two_d:
+            url = baseurl + "generatePeridigm2DModel"
         else:
-            url = "https://smetana-api.nimbus.dlr.de/generatePeridigm3DModel"
+            url = baseurl + "generatePeridigm3DModel"
 
         response = requests.post(url, params=prop_params, data=data_params.json())
         log.info(response.text)
@@ -115,13 +116,13 @@ class Smetana:
             "username": self.username,
         }
 
-        url = "https://smetana-api.nimbus.dlr.de/getModel"
+        url = baseurl + "getModel"
 
         request = requests.get(url, params=prop_params)
 
         try:
             with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
-                localpath = "./Output/" + os.path.join(self.username, self.filename)
+                localpath = "./Output/" + os.path.join(self.username, self.filename, self.model_folder_name)
 
                 if not os.path.exists(localpath):
                     os.makedirs(localpath)
