@@ -420,7 +420,7 @@ class YAMLcreatorPeriLab:
         idx = 0
         for out in self.output_dict:
             output = {}
-            output["Output File Type"] = "Exodus"
+            output["Output Type"] = out.selectedFileType
             output["Output Filename"] = self.filename + "_" + out.name
 
             if out.InitStep != 0:

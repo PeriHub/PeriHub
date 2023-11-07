@@ -178,7 +178,7 @@ class KalthoffWinkler:
                         ]
                     )
                 )
-                writer.write_mesh_with_angles(model, self.software)
+                writer.write_mesh_with_angles(model, self.software, self.two_d)
             else:
                 model = np.transpose(
                     np.vstack(

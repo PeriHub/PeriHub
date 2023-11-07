@@ -99,17 +99,24 @@ class ModelWriter:
         )
         log.info("Mesh written in %.2f seconds", time.time() - start_time)
 
-    def write_mesh_with_angles(self, model, software="Peridigm"):
+    def write_mesh_with_angles(self, model, software="Peridigm", twoD=False):
         """doc"""
         start_time = time.time()
         string = "# x y z block_id volume angle_x angle_y angle_z\n"
+        values = "%.18e %.18e %.18e %d %.18e %.18e %.18e %.18e"
         if software == "PeriLab":
-            string = "header: x y z block_id volume angle_x angle_y angle_z\n"
+            if twoD:
+                string = "header: x y block_id volume Angles\n"
+                # remove z entry from model
+                model = np.delete(model, 2, axis=1)
+                values = "%.18e %.18e %d %.18e %.18e"
+            else:
+                string = "header: x y z block_id volume Angles_x Angles_y Angles_z\n"
         self.mesh_file_writer(
             self.filename + ".txt",
             string,
             model,
-            "%.18e %.18e %.18e %d %.18e %.18e %.18e %.18e",
+            values,
         )
         log.info("Mesh written in %.2f seconds", time.time() - start_time)
 

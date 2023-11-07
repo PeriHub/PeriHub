@@ -456,7 +456,7 @@ class VerificationModels:
                 "angle_y": angle_y,
                 "angle_z": angle_z,
             }
-            writer.write_mesh_with_angles(model, self.software)
+            writer.write_mesh_with_angles(model, self.software, self.two_d)
         else:
             model = {
                 "x": x_value,
