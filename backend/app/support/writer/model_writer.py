@@ -108,7 +108,7 @@ class ModelWriter:
             if twoD:
                 string = "header: x y block_id volume Angles\n"
                 # remove z entry from model
-                model = np.delete(model, 2, axis=1)
+                model = np.delete(model, [2, 6, 7], axis=1)
                 values = "%.18e %.18e %d %.18e %.18e"
             else:
                 string = "header: x y z block_id volume Angles_x Angles_y Angles_z\n"
