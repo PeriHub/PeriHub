@@ -244,6 +244,7 @@
     {
       "id": 1,
       "name": "Output1",
+      "selectedFileType": "Exodus",
       "selectedOutputs": [
         "Displacement",
         "Force",
@@ -261,6 +262,7 @@
     {
       "id": 2,
       "name": "Output2",
+      "selectedFileType": "Exodus",
       "selectedOutputs": [
         "Displacement",
         "Damage",

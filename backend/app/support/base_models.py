@@ -280,6 +280,7 @@ class Compute(BaseModel):
 class Output(BaseModel):
     outputsId: Optional[int] = None
     name: str
+    selectedFileType: Optional[str] = "Exodus"
     selectedOutputs: Optional[List[str]] = None
 
     Write_After_Damage: Optional[bool] = None

@@ -209,6 +209,7 @@
     {
       "id": 1,
       "name": "Output1",
+      "selectedFileType": "Exodus",
       "selectedOutputs": [
         "Displacement",
         "Force",
