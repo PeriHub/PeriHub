@@ -17,7 +17,7 @@ from support.writer.model_writer import ModelWriter
 class VerificationModels:
     def __init__(self):
         # https://wiki.dlr.de/display/PDWiki/Tests
-        self.scal = 4.01
+        self.scal = 3.01
         self.length = 0.021
         self.height = 0.002
         self.thickness = 0.001

@@ -450,14 +450,14 @@ class YAMLcreatorPeridigm:
         data = {"Peridigm": {}}
 
         data["Peridigm"]["Discretization"] = self.load_mesh()
-        if self.check_if_defined(self.bondfilters):
-            data["Peridigm"]["Bond Filters"] = self.create_bond_filter()
+        if self.check_if_defined(self.bondfilters) and len(self.bondfilters) > 0:
+            data["Peridigm"]["Discretization"]["Bond Filters"] = self.create_bond_filter()
         data["Peridigm"]["Materials"] = self.materials()
         if self.check_if_defined(self.additive_dict):
             if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:
                 data["Peridigm"]["Additive Models"] = self.additive()
         data["Peridigm"]["Blocks"] = self.blocks()
-        if self.check_if_defined(self.damage_dict):
+        if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
             data["Peridigm"]["Damage Models"] = self.damage()
         data["Peridigm"]["Solver"] = self.solver(self.temp_enabled(self.material_dict))
         if self.check_if_defined(self.boundary_condition.conditions):

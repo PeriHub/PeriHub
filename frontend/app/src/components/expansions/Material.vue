@@ -75,8 +75,7 @@ SPDX-License-Identifier: Apache-2.0
                         :label="materialKeys.youngsModulus" clearable standout dense></q-input>
                 </div>
                 <div class="row my-row">
-                    <q-input class="my-input" v-model="material.tensionSeparation" :rules="[rules.required, rules.float]"
-                        :label="materialKeys.tensionSeparation" clearable standout dense></q-input>
+                    <q-toggle class="my-toggle" v-model="material.tensionSeparation" :label="materialKeys.tensionSeparation" dense></q-toggle>
                     <q-toggle class="my-toggle" v-model="material.nonLinear" :label="materialKeys.nonLinear"
                         dense></q-toggle>
                     <q-toggle class="my-toggle" v-model="material.planeStress" :label="materialKeys.planeStress"

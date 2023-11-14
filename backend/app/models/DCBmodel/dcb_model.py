@@ -34,7 +34,7 @@ class DCBmodel:
 
         self.filename = filename
         self.model_folder_name = model_folder_name
-        self.scal = 4.01
+        self.scal = 3.01
         self.disc_type = "txt"
         self.mesh_file = None
         self.two_d = model_data.model.twoDimensional
@@ -43,10 +43,10 @@ class DCBmodel:
             dx_value = [0.001, 0.001, 0.001]
         self.dx_value = dx_value
         self.angle = model_data.model.angles
-        self.xbegin = -0.005
-        self.ybegin = -model_data.model.height
+        self.xbegin = 0
+        self.ybegin = -model_data.model.height - dx_value[1] / 2
         self.xend = model_data.model.length + dx_value[0]
-        self.yend = model_data.model.height + dx_value[1]
+        self.yend = model_data.model.height + dx_value[1] / 2
         self.rot = model_data.model.rotatedAngles
         self.block_def = model_data.blocks
         self.username = username

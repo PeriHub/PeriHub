@@ -34,7 +34,7 @@ class PlateWithHole:
 
         self.filename = filename
         self.model_folder_name = model_folder_name
-        self.scal = 4.01
+        self.scal = 3.01
         self.disc_type = "txt"
         self.mesh_file = None
         self.two_d = model_data.model.twoDimensional

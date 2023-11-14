@@ -4,15 +4,15 @@
     "modelFolderName": "Default",
     "ownModel": false,
     "translated": false,
-    "length": 0.05,
-    "width": 0.01,
-    "height": 0.03,
+    "length": 5,
+    "width": 0.1,
+    "height": 3,
     "height2": 0.013,
     "structured": false,
     "discretization": 10,
-    "horizon": 0.01,
+    "horizon": 1,
     "twoDimensional": true,
-    "rotatedAngles": true,
+    "rotatedAngles": false,
     "angles": [
       0,
       0
@@ -21,14 +21,14 @@
   "materials": [
     {
       "id": 1,
-      "name": "PMMA",
-      "density": 1.95e-7,
+      "name": "Aluminium",
+      "density": "2.7e-9",
       "matType": "Linear Elastic Correspondence",
       "bulkModulus": null,
       "shearModulus": null,
-      "youngsModulus": 210000,
+      "youngsModulus": "7.0e4",
       "poissonsRatio": 0.3,
-      "tensionSeparation": false,
+      "tensionSeparation": true,
       "nonLinear": false,
       "planeStress": true,
       "materialSymmetry": "Isotropic",
@@ -151,10 +151,10 @@
   "damages": [
     {
       "id": 1,
-      "name": "PMMADamage",
+      "name": "Damage",
       "damageModel": "Critical Energy Correspondence",
       "criticalStretch": 10,
-      "criticalEnergy": 5.1,
+      "criticalEnergy": 3.5714285714285716,
       "interblockdamageEnergy": 0.01,
       "planeStress": true,
       "onlyTension": true,
@@ -163,33 +163,34 @@
       "hourglassCoefficient": 1,
       "stabilizationType": "Global Stiffness",
       "criticalEnergyCalc": {
-        "calculateCriticalEnergy": false,
-        "k1c": null,
+        "calculateCriticalEnergy": true,
+        "k1c": "500",
         "youngsModulus": null
-      }
+      },
+      "interBlockDamage": false
     }
   ],
   "blocks": [
     {
       "blocksId": 1,
       "name": "block_1",
-      "material": "PMMA",
-      "damageModel": "PMMADamage",
+      "material": "Aluminium",
+      "damageModel": "Damage",
       "density": 1.95e-7,
       "show": true
     },
     {
       "blocksId": 2,
       "name": "block_2",
-      "material": "PMMA",
-      "damageModel": "PMMADamage",
+      "material": "Aluminium",
+      "damageModel": "Damage",
       "density": 1.95e-7,
       "show": true
     },
     {
       "blocksId": 3,
       "name": "block_3",
-      "material": "PMMA",
+      "material": "Aluminium",
       "damageModel": "",
       "density": 1.95e-7,
       "show": true
@@ -197,7 +198,7 @@
     {
       "blocksId": 4,
       "name": "block_4",
-      "material": "PMMA",
+      "material": "Aluminium",
       "damageModel": "",
       "density": 1.95e-7,
       "show": true
@@ -228,52 +229,57 @@
   "boundaryConditions": {
     "conditions": [
       {
-        "conditionsId": 1,
-        "name": "BC_1",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 1,
-        "coordinate": "z",
-        "value": "0*t"
-      },
-      {
-        "conditionsId": 2,
-        "name": "BC_2",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 2,
-        "coordinate": "z",
-        "value": "0*t"
-      },
-      {
         "conditionsId": 3,
-        "name": "BC_3",
+        "name": "BC_1",
         "nodeSet": null,
         "boundarytype": "Prescribed Displacement",
         "blockId": 3,
         "coordinate": "y",
-        "value": "0.04*t"
+        "value": "2*t"
       },
       {
         "conditionsId": 4,
-        "name": "BC_4",
+        "name": "BC_2",
         "nodeSet": null,
         "boundarytype": "Prescribed Displacement",
         "blockId": 4,
         "coordinate": "y",
-        "value": "-0.04*t"
+        "value": "-2*t"
       }
     ]
   },
-  "bondFilters": [],
+  "bondFilters": [
+    {
+      "bondFiltersId": 1,
+      "name": "bf_1",
+      "type": "Rectangular_Plane",
+      "normalX": 0,
+      "normalY": 1,
+      "normalZ": 0,
+      "lowerLeftCornerX": -0.5,
+      "lowerLeftCornerY": "0",
+      "lowerLeftCornerZ": -1,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": "2.0",
+      "sideLength": 2,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true,
+      "bondFilterId": 1
+    }
+  ],
   "computes": [
     {
       "id": 1,
       "computeClass": "Block_Data",
       "name": "External_Displacement",
       "variable": "Displacement",
-      "calculationType": "Minimum",
-      "blockName": "block_3"
+      "calculationType": "Maximum",
+      "blockName": "block_2"
     },
     {
       "id": 2,
@@ -281,7 +287,7 @@
       "name": "External_Force",
       "variable": "Force",
       "calculationType": "Sum",
-      "blockName": "block_3"
+      "blockName": "block_2"
     }
   ],
   "outputs": [
@@ -294,10 +300,14 @@
         "Force",
         "Damage",
         "Velocity",
-        "Partial_Stress"
+        "Partial_Stress",
+        "Number_Of_Neighbors"
       ],
-      "Frequency": "500",
-      "InitStep": 0
+      "useOutputFrequency": false,
+      "Frequency": 1,
+      "InitStep": 0,
+      "numberOfOutputSteps": "100",
+      "Write_After_Damage": false
     },
     {
       "id": 2,
@@ -306,14 +316,17 @@
       "selectedOutputs": [
         "Damage"
       ],
-      "Frequency": 200,
-      "InitStep": 0
+      "useOutputFrequency": false,
+      "Frequency": 1,
+      "InitStep": 0,
+      "Write_After_Damage": true,
+      "numberOfOutputSteps": "200"
     }
   ],
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": 0.075,
+    "finalTime": "0.006",
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,
@@ -343,7 +356,9 @@
       "maximumBondDifference": 4,
       "stableBondDifference": 1
     },
-    "filetype": "yaml"
+    "filetype": "yaml",
+    "dispEnabled": true,
+    "stopAfterCertainDamage": false
   },
   "job": {
     "software": "PeriLab",

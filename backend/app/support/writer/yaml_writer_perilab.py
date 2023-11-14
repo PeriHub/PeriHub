@@ -420,7 +420,7 @@ class YAMLcreatorPeriLab:
         idx = 0
         for out in self.output_dict:
             output = {}
-            output["Output Type"] = out.selectedFileType
+            output["Output File Type"] = out.selectedFileType
             output["Output Filename"] = self.filename + "_" + out.name
 
             if out.InitStep != 0:
@@ -462,7 +462,7 @@ class YAMLcreatorPeriLab:
         data["PeriLab"]["Physics"] = {}
 
         data["PeriLab"]["Discretization"] = self.load_mesh()
-        if self.check_if_defined(self.bondfilters):
+        if self.check_if_defined(self.bondfilters) and len(self.bondfilters) > 0:
             data["PeriLab"]["Bond Filters"] = self.create_bond_filter()
         data["PeriLab"]["Physics"]["Pre Calculation"] = self.preCalculation()
         data["PeriLab"]["Physics"]["Material Models"] = self.materials()
@@ -470,7 +470,7 @@ class YAMLcreatorPeriLab:
             if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:
                 data["PeriLab"]["Additive Models"] = self.additive()
         data["PeriLab"]["Blocks"] = self.blocks()
-        if self.check_if_defined(self.damage_dict):
+        if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
             data["PeriLab"]["Physics"]["Damage Models"] = self.damage()
         data["PeriLab"]["Solver"] = self.solver(self.temp_enabled(self.material_dict))
         if self.check_if_defined(self.boundary_condition.conditions):
