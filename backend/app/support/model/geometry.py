@@ -42,25 +42,33 @@ class Geometry:
         return grid_x_value, grid_y_value, grid_z_value
 
     @staticmethod
-    def create_cylinder(coor, dx_value, radius):
+    def create_cylinder(coor, dx_value, inner_radius, outer_radius):
         """doc"""
         start_time = time.time()
 
-        gridx = [coor[0]]
-        gridy = [coor[1]]
-        gridz = [coor[2]]
+        if inner_radius == 0:
+            gridx = [coor[0]]
+            gridy = [coor[1]]
+            gridz = [coor[2]]
+        else:
+            gridx = []
+            gridy = []
+            gridz = []
 
-        max_number_of_nodes = (2 * np.pi * radius) / dx_value[0]
+        radius_diff = outer_radius - inner_radius
+        max_number_of_nodes = (2 * np.pi * outer_radius) / dx_value[0]
+
         max_number_of_nodes = 2 * int(max_number_of_nodes / 2) + 1
 
-        number_of_circles = int(radius / dx_value[1])
+        number_of_circles = int(radius_diff / dx_value[1])
 
         for i in range(0, number_of_circles):
+            current_outer_radius = inner_radius + radius_diff * (i + 1) / number_of_circles
+
             number_of_nodes = int(max_number_of_nodes * (i + 1) / number_of_circles)
             theta = np.linspace(0, 2 * np.pi, number_of_nodes)
-
-            gridx.extend(coor[0] + radius * (i + 1) / number_of_circles * np.cos(theta[:-1]))
-            gridy.extend(coor[1] + radius * (i + 1) / number_of_circles * np.sin(theta[:-1]))
+            gridx.extend(coor[0] + current_outer_radius * np.cos(theta[:-1]))
+            gridy.extend(coor[1] + current_outer_radius * np.sin(theta[:-1]))
             gridz.extend(0 * theta[:-1])
 
         # plt.scatter(gridx, gridy)
@@ -76,7 +84,10 @@ class Geometry:
             gridy_3d = []
             gridz_3d = []
 
-            for z in np.arange(0, coor[2] + dx_value[2], dx_value[2]):
+            dx = dx_value[2]
+            if dx == 0:
+                dx = dx_value[0]
+            for z in np.arange(coor[2], coor[2] + dx, dx):
                 gridx_3d.extend(gridx)
                 gridy_3d.extend(gridy)
                 gridz_3d.extend(np.full_like(gridx, z))

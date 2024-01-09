@@ -313,6 +313,8 @@ class FileType(str, Enum):
 
 
 class Solver(BaseModel):
+    matEnabled: bool = True
+    damEnabled: bool = True
     dispEnabled: bool = True
     verbose: bool
     initialTime: float

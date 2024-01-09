@@ -132,9 +132,9 @@ class YAMLcreatorPeriLab:
             if self.check_if_defined(mat.poissonsRatio):
                 material["Poisson's Ratio"] = float(np.format_float_scientific(float(mat.poissonsRatio)))
 
-            material["Stabilization Type"] = mat.stabilizationType
-            material["Thickness"] = float(mat.thickness)
-            material["Hourglass Coefficient"] = float(mat.hourglassCoefficient)
+            # material["Stabilization Type"] = mat.stabilizationType
+            # material["Thickness"] = float(mat.thickness)
+            # material["Hourglass Coefficient"] = float(mat.hourglassCoefficient)
 
             if mat.tensionSeparation:
                 material["Tension Separation"] = mat.tensionSeparation
@@ -207,7 +207,7 @@ class YAMLcreatorPeriLab:
         for block in self.block_def:
             blocks = {}
 
-            blocks["Block Names"] = block.name
+            # blocks["Block Names"] = block.name
             blocks["Material Model"] = block.material
             if block.damageModel != "" and block.damageModel is not None:
                 blocks["Damage Model"] = block.damageModel
@@ -229,7 +229,7 @@ class YAMLcreatorPeriLab:
             damage["Damage Model"] = str(dam.damageModel)
 
             if dam.damageModel == "Critical Energy Correspondence":
-                damage["Critical Energy"] = float(dam.criticalEnergy)
+                damage["Critical Value"] = float(dam.criticalEnergy)
 
                 if dam.interBlockDamage:
                     damage["Interblock Damage"] = True
@@ -253,14 +253,14 @@ class YAMLcreatorPeriLab:
                     damage["Critical Damage To Neglect"] = float(dam.criticalDamageToNeglect)
 
             else:
-                damage["Critical Stretch"] = float(dam.criticalStretch)
+                damage["Critical Value"] = float(dam.criticalStretch)
 
-            damage["Plane Stress"] = self.two_d
-            damage["Only Tension"] = dam.onlyTension
-            damage["Detached Nodes Check"] = dam.detachedNodesCheck
-            damage["Thickness"] = float(dam.thickness)
-            damage["Hourglass Coefficient"] = float(dam.hourglassCoefficient)
-            damage["Stabilization Type"] = dam.stabilizationType
+            # damage["Plane Stress"] = self.two_d
+            # damage["Only Tension"] = dam.onlyTension
+            # damage["Detached Nodes Check"] = dam.detachedNodesCheck
+            # damage["Thickness"] = float(dam.thickness)
+            # damage["Hourglass Coefficient"] = float(dam.hourglassCoefficient)
+            # damage["Stabilization Type"] = dam.stabilizationType
 
             data[dam.name] = damage
 
@@ -269,12 +269,13 @@ class YAMLcreatorPeriLab:
     def solver(self, temp_enabled):
         data = {}
 
-        data["Solve For Displacement"] = self.solver_dict.dispEnabled
+        data["Material Models"] = self.solver_dict.matEnabled
+        data["Damage Models"] = self.solver_dict.damEnabled
 
         if temp_enabled:
             data["Solve For Temperature"] = True
 
-        data["Verbose"] = self.solver_dict.verbose
+        # data["Verbose"] = self.solver_dict.verbose
         data["Initial Time"] = float(self.solver_dict.initialTime)
         data["Final Time"] = float(self.solver_dict.finalTime)
 
@@ -429,7 +430,7 @@ class YAMLcreatorPeriLab:
                 output["Output Frequency"] = out.Frequency
             else:
                 output["Number of Output Steps"] = out.numberOfOutputSteps
-            output["Parallel Write"] = True
+            # output["Parallel Write"] = True
             if out.Write_After_Damage:
                 output["Write After Damage"] = True
 
@@ -479,7 +480,8 @@ class YAMLcreatorPeriLab:
             if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
                 data["PeriLab"]["Contact"] = self.contact()
         if self.check_if_defined(self.compute_dict):
-            data["PeriLab"]["Compute Class Parameters"] = self.compute()
+            if len(self.compute_dict) > 0:
+                data["PeriLab"]["Compute Class Parameters"] = self.compute()
         data["PeriLab"]["Outputs"] = self.output()
 
         yaml_string = yaml.dump(data, default_flow_style=False)

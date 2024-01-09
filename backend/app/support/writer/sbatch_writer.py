@@ -116,13 +116,7 @@ class SbatchCreator:
         elif self.software == "PeriLab":
             string = "#!/bin/sh" + "\n"
             # if self.tasks == 1:
-            string += (
-                "/usr/local/julia/bin/julia /env/src/main.jl "
-                + self.filename
-                + "."
-                + self.filetype
-                + "& echo $! > pid.txt \n"
-            )
+            string += "/env/build/bin/PeriLab " + self.filename + "." + self.filetype + "& echo $! > pid.txt \n"
             string += "pid=`cat pid.txt` \n"
             string += "tail --pid=$pid -f /dev/null \n"
             string += "rm pid.txt \n"

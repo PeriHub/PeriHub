@@ -34,15 +34,15 @@ services:
     networks:
       - backend
 
-  peridigm:
-    container_name: perihub_peridigm
-    image: perihub/peridigm
-    ports:
-      - 6030:80
-    volumes:
-      - ${VOLUME}peridigmJobs:/app/peridigmJobs
-    networks:
-      - backend
+  # peridigm:
+  #   container_name: perihub_peridigm
+  #   image: perihub/peridigm
+  #   ports:
+  #     - 6030:80
+  #   volumes:
+  #     - ${VOLUME}peridigmJobs:/app/peridigmJobs
+  #   networks:
+  #     - backend
 
   perilab:
     container_name: perihub_perilab

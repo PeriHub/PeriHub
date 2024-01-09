@@ -19,6 +19,7 @@ from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
 from models.OwnModel.own_model import OwnModel
 from models.PlateWithHole.plate_with_hole import PlateWithHole
 from models.PlateWithOpening.plate_with_opening import PlateWithOpening
+from models.RingOnRing.ring_on_ring import RingOnRing
 from models.Smetana.smetana import Smetana
 from support.base_models import ModelData, ResponseModel
 from support.file_handler import FileHandler
@@ -165,6 +166,17 @@ def generate_model(
                 dx_value=dx_value,
             )
             result = plate_with_hole.create_model()
+
+        elif model_name == "RingOnRing":
+            ring_on_ring = RingOnRing(
+                model_data=model_data,
+                model_folder_name=model_folder_name,
+                username=username,
+                max_nodes=max_nodes,
+                ignore_mesh=ignore_mesh,
+                dx_value=dx_value,
+            )
+            result = ring_on_ring.create_model()
 
         elif model_name == "CompactTension":
             compact_tension = CompactTension(

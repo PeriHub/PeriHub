@@ -416,6 +416,8 @@ export const useModelStore = defineStore("model", {
       ],
       solver: {
         dispEnabled: true,
+        matEnabled: true,
+        damEnabled: true,
         verbose: false,
         initialTime: 0.0,
         finalTime: 0.0075,

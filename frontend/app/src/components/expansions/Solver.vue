@@ -7,7 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 <template>
     <div>
         <div class="row my-row">
-            <q-toggle class="my-toggle" v-model="solver.dispEnabled" :label="solverKeys.dispEnabled" standout
+            <q-toggle class="my-toggle" v-model="solver.matEnabled" :label="solverKeys.matEnabled" standout
+                dense></q-toggle>
+            <q-toggle class="my-toggle" v-model="solver.damEnabled" :label="solverKeys.damEnabled" standout
                 dense></q-toggle>
             <q-input class="my-input" v-model="solver.initialTime" :rules="[rules.required, rules.name]"
                 :label="solverKeys.initialTime" standout dense></q-input>
@@ -94,7 +96,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
     </div>
 </template>
-  
+
 <script>
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
@@ -120,7 +122,8 @@ export default defineComponent({
     },
     data() {
         return {
-            solvertype: ["Verlet", "NOXQuasiStatic"],
+            solvertype: ["Verlet"],
+            // solvertype: ["Verlet", "NOXQuasiStatic"],
             peridgimPreconditioner: ["Full Tangent", "Block 3x3", "None"],
             nonlinearSolver: ["Line Search Based"],
             directionMethod: ["Newton", "NonlinearCG"],
@@ -129,7 +132,9 @@ export default defineComponent({
             lineSearchMethod: ["Polynomial"],
             filetype: ["yaml", "xml"],
             solverKeys: {
-                dispEnabled: "Solve For Displacement",
+                // dispEnabled: "Solve For Displacement",
+                matEnabled: "Material Models",
+                damEnabled: "Damage Models",
                 verbose: "Verbose",
                 initialTime: "Initial Time",
                 finalTime: "Final Time",
