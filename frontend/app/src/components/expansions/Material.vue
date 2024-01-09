@@ -246,6 +246,7 @@ export default defineComponent({
       //     "PD Solid Elastic",
       // ],
       materialModelName: [
+        "Bond-based Elastic",
         "PD Solid Elastic",
         "Correspondence Elastic"
       ],

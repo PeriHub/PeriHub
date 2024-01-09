@@ -20,6 +20,7 @@ export const useModelStore = defineStore("model", {
         height: 0.019,
         height2: 0.013,
         radius: 1.0,
+        radius2: 1.0,
         discretization: 21,
         horizon: 0.01,
         structured: true,

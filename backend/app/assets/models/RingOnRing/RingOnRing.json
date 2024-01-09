@@ -4,13 +4,14 @@
     "modelFolderName": "Default",
     "ownModel": false,
     "translated": false,
-    "length": 50,
+    "length": 100,
     "width": 0,
-    "height": 50,
+    "height": 100,
     "height2": null,
-    "radius": 10.0,
+    "radius": 9,
+    "radius2": 45,
     "structured": null,
-    "discretization": 50,
+    "discretization": 100,
     "horizon": null,
     "twoDimensional": false,
     "rotatedAngles": false,
@@ -22,13 +23,13 @@
   "materials": [
     {
       "id": 1,
-      "name": "Aluminum",
-      "density": 2.7e3,
-      "matType": "Elastic Correspondence",
+      "name": "Plate Material",
+      "density": 2700,
+      "matType": "Bond-based Elastic",
       "bulkModulus": null,
       "shearModulus": null,
-      "youngsModulus": 7.24e10,
-      "poissonsRatio": 0.33,
+      "youngsModulus": "70e3",
+      "poissonsRatio": "0.22",
       "tensionSeparation": false,
       "nonLinear": false,
       "planeStress": true,
@@ -81,7 +82,8 @@
           "name": "Prop_1",
           "value": null
         }
-      ]
+      ],
+      "enableThermal": false
     }
   ],
   "additive": {
@@ -101,7 +103,7 @@
       "id": 1,
       "name": "Damage",
       "damageModel": "Critical Stretch",
-      "criticalStretch": 0.002217,
+      "criticalStretch": "0.002",
       "criticalEnergy": null,
       "interblockdamageEnergy": null,
       "planeStress": true,
@@ -121,25 +123,25 @@
     {
       "blocksId": 1,
       "name": "block_1",
-      "material": "Aluminum",
+      "material": "Plate Material",
       "damageModel": "Damage",
-      "density": 2.7e3,
+      "density": "2500.0e-6",
       "show": true
     },
     {
       "blocksId": 2,
       "name": "block_2",
-      "material": "Aluminum",
+      "material": "Plate Material",
       "damageModel": "",
-      "density": 2.7e3,
+      "density": "2500.0e-6",
       "show": true
     },
     {
       "blocksId": 3,
       "name": "block_3",
-      "material": "Aluminum",
+      "material": "Plate Material",
       "damageModel": "",
-      "density": 2.7e3,
+      "density": "2500.0e-6",
       "show": true
     }
   ],
@@ -171,19 +173,19 @@
         "conditionsId": 1,
         "name": "BC_1",
         "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
+        "boundarytype": "Force Densities",
         "blockId": 2,
-        "coordinate": "y",
-        "value": "-1*t"
+        "coordinate": "z",
+        "value": "-5.1e10/60*t"
       },
       {
         "conditionsId": 2,
         "name": "BC_2",
         "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
+        "boundarytype": "Displacements",
         "blockId": 3,
-        "coordinate": "y",
-        "value": "1*t"
+        "coordinate": "z",
+        "value": "0"
       }
     ]
   },
@@ -195,21 +197,20 @@
       "name": "Output1",
       "selectedFileType": "Exodus",
       "selectedOutputs": [
-        "Displacement",
-        "Force",
-        "Damage",
-        "Velocity",
-        "Partial_Stress",
-        "Number_Of_Neighbors"
+        "Displacements",
+        "Damage"
       ],
       "Frequency": "50",
-      "InitStep": 0
+      "InitStep": 0,
+      "useOutputFrequency": false,
+      "numberOfOutputSteps": "100",
+      "Write_After_Damage": false
     }
   ],
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": 0.003,
+    "finalTime": "0.01",
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,
@@ -239,7 +240,11 @@
       "maximumBondDifference": 4,
       "stableBondDifference": 1
     },
-    "filetype": "yaml"
+    "filetype": "yaml",
+    "dispEnabled": true,
+    "stopAfterCertainDamage": false,
+    "matEnabled": true,
+    "damEnabled": true
   },
   "job": {
     "software": "PeriLab",

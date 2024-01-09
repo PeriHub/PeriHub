@@ -28,6 +28,7 @@ class Model(BaseModel):
     height: Optional[float] = None
     height2: Optional[float] = None
     radius: Optional[float] = None
+    radius2: Optional[float] = None
     structured: Optional[bool] = None
     discretization: int
     horizon: Optional[float] = None

@@ -49,21 +49,20 @@ class RingOnRing:
         # self.yend = yend + dx_value[1]
         self.xend = model_data.model.length / 2
         self.yend = model_data.model.height / 2
-        # self.zend = zend
         self.radius = model_data.model.radius
+        self.radius2 = model_data.model.radius2
         self.rot = model_data.model.rotatedAngles
         self.block_def = model_data.blocks
         self.username = username
         self.max_nodes = max_nodes
         self.ignore_mesh = ignore_mesh
         self.software = model_data.job.software
+        self.zbegin = 0
         if self.two_d:
-            self.zbegin = 0
             self.zend = 0
             self.dx_value[2] = 1
         else:
-            self.zbegin = -model_data.model.width
-            self.zend = model_data.model.width
+            self.zend = model_data.model.width - self.dx_value[2]
 
         number_of_blocks = 4
 
@@ -86,7 +85,7 @@ class RingOnRing:
         origin_y = 0
 
         k = np.where(
-            z_value > 0,
+            z_value > self.zend,
             2,
             k,
         )
@@ -115,11 +114,11 @@ class RingOnRing:
         )
         inner_radius1 = self.radius
         outer_radius1 = self.radius + 1
-        inner_radius2 = self.radius * 2
-        outer_radius2 = self.radius * 2 + 1
+        inner_radius2 = self.radius2
+        outer_radius2 = self.radius2 + 1
 
         x_value1, y_value1, z_value1 = geo.create_cylinder(
-            coor=[0, 0, self.dx_value[0]],
+            coor=[0, 0, self.zend + self.dx_value[2]],
             dx_value=self.dx_value,
             inner_radius=inner_radius1,
             outer_radius=outer_radius1,

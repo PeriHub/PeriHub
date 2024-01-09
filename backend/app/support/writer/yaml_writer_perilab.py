@@ -98,11 +98,11 @@ class YAMLcreatorPeriLab:
     def preCalculation(self):
         data = {}
 
-        data["Deformed Bond Geometry"] = True
-        data["Deformation Gradient"] = True
-        data["Shape Tensor"] = True
-        data["Bond Associated Shape Tensorr"] = False
-        data["Bond Associated Deformation Gradient"] = False
+        # data["Deformed Bond Geometry"] = True
+        # data["Deformation Gradient"] = True
+        # data["Shape Tensor"] = True
+        # data["Bond Associated Shape Tensorr"] = False
+        # data["Bond Associated Deformation Gradient"] = False
 
         return data
 
@@ -112,10 +112,13 @@ class YAMLcreatorPeriLab:
         for mat in self.material_dict:
             material = {}
             material["Material Model"] = mat.matType
-            material["Symmetry"] = "isotropic plane stress"
+            if mat.materialSymmetry == "Anisotropic" and mat.planeStress:
+                material["Symmetry"] = "anisotropic plane stress"
+            elif mat.materialSymmetry == "Isotropic" and mat.planeStress:
+                material["Symmetry"] = "isotropic plane stress"
             material["Plane Stress"] = mat.planeStress
             if mat.materialSymmetry == "Anisotropic":
-                material["Material Symmetry"] = mat.materialSymmetry
+                # material["Material Symmetry"] = mat.materialSymmetry
                 if mat.stiffnessMatrix is not None:
                     for key, value in mat.stiffnessMatrix.matrix:
                         material[key] = float(np.format_float_scientific(float(value)))

@@ -34,8 +34,10 @@ SPDX-License-Identifier: Apache-2.0
       label="Ply height" standout dense></q-input>
     <q-input v-show="model.modelNameSelected == 'Dogbone' & !model.ownModel" class="my-input" v-model="model.height2"
       :rules="[rules.required, rules.float]" label="Inner Height" standout dense></q-input>
-    <q-input v-show="model.modelNameSelected == 'PlateWithHole' & !model.ownModel" class="my-input" v-model="model.radius"
-      :rules="[rules.required, rules.float]" label="Radius" standout dense></q-input>
+    <q-input v-show="['PlateWithHole', 'RingOnRing'].includes(model.modelNameSelected) & !model.ownModel" class="my-input"
+      v-model="model.radius" :rules="[rules.required, rules.float]" label="Radius" standout dense></q-input>
+    <q-input v-show="model.modelNameSelected == 'RingOnRing' & !model.ownModel" class="my-input" v-model="model.radius2"
+      :rules="[rules.required, rules.float]" label="Radius 2" standout dense></q-input>
     <q-input class="my-input" v-model="model.discretization" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
       :rules="[rules.required, rules.int]" label="Discretization" standout dense></q-input>
     <q-input class="my-input" v-model="model.horizon" v-show="model.ownModel" :rules="[rules.required, rules.posFloat]"

@@ -73,7 +73,7 @@ def generate_model(
     cracklength = model_data.model.cracklength
     width = model_data.model.width
     height = model_data.model.height
-    if model_name in {"Dogbone", "Kalthoff-Winkler"}:
+    if model_name in {"Dogbone", "Kalthoff-Winkler", "RingOnRing"}:
         number_nodes = 2 * int(model_data.model.discretization / 2)
     else:
         number_nodes = 2 * int(model_data.model.discretization / 2) + 1
