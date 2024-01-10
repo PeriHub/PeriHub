@@ -227,10 +227,11 @@ def generate_model(
         )
         result = own.create_model()
 
-    log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
-
     if result != "Model created":
+        log.warning(result)
         return ResponseModel(data=False, message=result)
+
+    log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
 
     return ResponseModel(
         data=True,

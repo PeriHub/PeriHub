@@ -74,23 +74,23 @@ class YAMLcreatorPeriLab:
         for bond_filter in self.bondfilters:
             filter = {}
             filter["Type"] = bond_filter.type
-            filter["Normal_X"] = bond_filter.normalX
-            filter["Normal_Y"] = bond_filter.normalY
-            filter["Normal_Z"] = bond_filter.normalZ
+            filter["Normal X"] = bond_filter.normalX
+            filter["Normal Y"] = bond_filter.normalY
+            filter["Normal Z"] = bond_filter.normalZ
 
             if bond_filter.type == "Rectangular_Plane":
-                filter["Lower_Left_Corner_X"] = bond_filter.lowerLeftCornerX
-                filter["Lower_Left_Corner_Y"] = bond_filter.lowerLeftCornerY
-                filter["Lower_Left_Corner_Z"] = bond_filter.lowerLeftCornerZ
-                filter["Bottom_Unit_Vector_X"] = bond_filter.bottomUnitVectorX
-                filter["Bottom_Unit_Vector_Y"] = bond_filter.bottomUnitVectorY
-                filter["Bottom_Unit_Vector_Z"] = bond_filter.bottomUnitVectorZ
-                filter["Bottom_Length"] = bond_filter.bottomLength
-                filter["Side_Length"] = bond_filter.sideLength
+                filter["Lower Left Corner X"] = bond_filter.lowerLeftCornerX
+                filter["Lower Left Corner Y"] = bond_filter.lowerLeftCornerY
+                filter["Lower Left Corner Z"] = bond_filter.lowerLeftCornerZ
+                filter["Bottom Unit Vector X"] = bond_filter.bottomUnitVectorX
+                filter["Bottom Unit Vector Y"] = bond_filter.bottomUnitVectorY
+                filter["Bottom Unit Vector Z"] = bond_filter.bottomUnitVectorZ
+                filter["Bottom Length"] = bond_filter.bottomLength
+                filter["Side Length"] = bond_filter.sideLength
             elif bond_filter.type == "Disk":
-                filter["Center_X"] = bond_filter.centerX
-                filter["Center_Y"] = bond_filter.centerY
-                filter["Center_Z"] = bond_filter.centerZ
+                filter["Center X"] = bond_filter.centerX
+                filter["Center Y"] = bond_filter.centerY
+                filter["Center Z"] = bond_filter.centerZ
                 filter["Radius"] = bond_filter.radius
             data[bond_filter.name] = filter
 
@@ -139,14 +139,14 @@ class YAMLcreatorPeriLab:
             # material["Thickness"] = float(mat.thickness)
             # material["Hourglass Coefficient"] = float(mat.hourglassCoefficient)
 
-            if mat.tensionSeparation:
-                material["Tension Separation"] = mat.tensionSeparation
-            if self.check_if_defined(mat.actualHorizon):
-                material["Actual Horizon"] = float(mat.actualHorizon)
-            if self.check_if_defined(mat.yieldStress):
-                material["Yield Stress"] = float(mat.yieldStress)
-            if self.check_if_defined(mat.nonLinear):
-                material["Non linear"] = mat.nonLinear
+            # if mat.tensionSeparation:
+            #     material["Tension Separation"] = mat.tensionSeparation
+            # if self.check_if_defined(mat.actualHorizon):
+            #     material["Actual Horizon"] = float(mat.actualHorizon)
+            # if self.check_if_defined(mat.yieldStress):
+            #     material["Yield Stress"] = float(mat.yieldStress)
+            # if self.check_if_defined(mat.nonLinear):
+            #     material["Non linear"] = mat.nonLinear
             if self.check_if_defined(mat.numStateVars):
                 material["Number of State Vars"] = mat.numStateVars
             if self.check_if_defined(mat.properties) and "User" in mat.matType:
@@ -169,7 +169,6 @@ class YAMLcreatorPeriLab:
                 material["Apply Thermal Strain"] = mat.applyThermalStrain
             if self.check_if_defined(mat.applyHeatTransfer):
                 material["Apply Heat Transfer"] = mat.applyHeatTransfer
-            print(mat.thermalBondBased)
             if self.check_if_defined(mat.thermalBondBased):
                 material["Thermal Bond Based"] = mat.thermalBondBased
             if self.check_if_defined(mat.thermalExpansionCoefficient):
@@ -232,7 +231,7 @@ class YAMLcreatorPeriLab:
 
             damage["Damage Model"] = str(dam.damageModel)
 
-            if dam.damageModel == "Critical Energy Correspondence":
+            if dam.damageModel == "Critical Energy":
                 damage["Critical Value"] = float(dam.criticalEnergy)
 
             elif dam.damageModel == "Von Mises Stress":
@@ -245,8 +244,10 @@ class YAMLcreatorPeriLab:
                 if self.check_if_defined(dam.criticalDamageToNeglect):
                     damage["Critical Damage To Neglect"] = float(dam.criticalDamageToNeglect)
 
-            else:
+            elif dam.damageModel == "Critical Stretch":
                 damage["Critical Value"] = float(dam.criticalStretch)
+            else:
+                damage["Critical Value"] = 0.0
 
             if dam.interBlockDamage:
                 damage["Interblock Damage"] = {}
@@ -257,6 +258,12 @@ class YAMLcreatorPeriLab:
                         + "_"
                         + str(interBlock.secondBlockId)
                     ] = float(interBlock.value)
+            if dam.anistropicDamage:
+                damage["Anisotropic Damage"] = {}
+                damage["Anisotropic Damage"]["Critical Value X"] = float(dam.anistropicDamageX)
+                damage["Anisotropic Damage"]["Critical Value Y"] = float(dam.anistropicDamageY)
+                if not self.two_d:
+                    damage["Anisotropic Damage"]["Critical Value Z"] = float(dam.anistropicDamageZ)
             # damage["Plane Stress"] = self.two_d
             # damage["Only Tension"] = dam.onlyTension
             # damage["Detached Nodes Check"] = dam.detachedNodesCheck
@@ -284,13 +291,13 @@ class YAMLcreatorPeriLab:
         if self.solver_dict.stopAfterDamageInitation:
             data["Stop after damage initiation"] = True
 
-        if self.solver_dict.endStepAfterDamage:
+        if self.solver_dict.stopAfterCertainDamage and self.solver_dict.endStepAfterDamage:
             data["End step after damage"] = self.solver_dict.endStepAfterDamage
 
         if self.solver_dict.stopAfterCertainDamage:
             data["Stop after certain damage value"] = True
 
-        if self.solver_dict.maxDamageValue:
+        if self.solver_dict.stopAfterCertainDamage and self.solver_dict.maxDamageValue:
             data["Max. damage value"] = self.solver_dict.maxDamageValue
 
         if self.solver_dict.stopBeforeDamageInitation:
@@ -466,7 +473,7 @@ class YAMLcreatorPeriLab:
 
         data["PeriLab"]["Discretization"] = self.load_mesh()
         if self.check_if_defined(self.bondfilters) and len(self.bondfilters) > 0:
-            data["PeriLab"]["Bond Filters"] = self.create_bond_filter()
+            data["PeriLab"]["Discretization"]["Bond Filters"] = self.create_bond_filter()
         if self.check_if_defined(self.preCalculations) and len(self.preCalculations) > 0:
             data["PeriLab"]["Physics"]["Pre Calculation"] = self.preCalculation()
         data["PeriLab"]["Physics"]["Material Models"] = self.materials()

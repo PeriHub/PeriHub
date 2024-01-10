@@ -182,6 +182,10 @@ class Damage(BaseModel):
     interBlockDamage: Optional[bool] = None
     numberOfBlocks: Optional[int] = None
     interBlocks: Optional[List[InterBlock]] = None
+    anistropicDamage: Optional[bool] = None
+    anistropicDamageX: Optional[float] = None
+    anistropicDamageY: Optional[float] = None
+    anistropicDamageZ: Optional[float] = None
     planeStress: bool
     onlyTension: bool
     detachedNodesCheck: bool

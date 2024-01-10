@@ -202,9 +202,13 @@ class CompactTension:
             vol = np.zeros(len(x_value))
             k = np.ones(len(x_value))
             if self.rot:
-                angle_x = np.zeros(len(x_value))
-                angle_y = np.zeros(len(x_value))
-                angle_z = np.zeros(len(x_value))
+                angle_x = np.full_like(x_value, self.angle[0])
+                if self.two_d:
+                    angle_y = np.zeros(len(x_value))
+                    angle_z = np.zeros(len(x_value))
+                else:
+                    angle_y = np.full_like(x_value, self.angle[1])
+                    angle_z = np.full_like(x_value, self.angle[2])
 
             k = self.create_load_intro_node(x_value, y_value, k)
 
