@@ -5,7 +5,7 @@
     "ownModel": false,
     "translated": false,
     "length": 100,
-    "width": 0,
+    "width": 3,
     "height": 100,
     "height2": null,
     "radius": 9,
@@ -24,7 +24,7 @@
     {
       "id": 1,
       "name": "Plate Material",
-      "density": 2700,
+      "density": 2.5e-6,
       "matType": "Bond-based Elastic",
       "bulkModulus": null,
       "shearModulus": null,
@@ -105,6 +105,7 @@
       "damageModel": "Critical Stretch",
       "criticalStretch": "0.002",
       "criticalEnergy": null,
+      "interBlockDamage": true,
       "interblockdamageEnergy": null,
       "planeStress": true,
       "onlyTension": false,
@@ -116,7 +117,21 @@
         "calculateCriticalEnergy": false,
         "k1c": null,
         "youngsModulus": null
-      }
+      },
+      "interBlocks": [
+        {
+          "id": 1,
+          "firstBlockId": 1,
+          "secondBlockId": 2,
+          "value": 0.002
+        },
+        {
+          "id": 2,
+          "firstBlockId": 2,
+          "secondBlockId": 1,
+          "value": 0.002
+        }
+      ]
     }
   ],
   "blocks": [
@@ -125,15 +140,15 @@
       "name": "block_1",
       "material": "Plate Material",
       "damageModel": "Damage",
-      "density": "2500.0e-6",
+      "density": 2.5e-6,
       "show": true
     },
     {
       "blocksId": 2,
       "name": "block_2",
       "material": "Plate Material",
-      "damageModel": "",
-      "density": "2500.0e-6",
+      "damageModel": "Damage",
+      "density": 2.5e-6,
       "show": true
     },
     {
@@ -141,7 +156,15 @@
       "name": "block_3",
       "material": "Plate Material",
       "damageModel": "",
-      "density": "2500.0e-6",
+      "density": 2.5e-6,
+      "show": true
+    },
+    {
+      "blocksId": 4,
+      "name": "block_4",
+      "material": "Plate Material",
+      "damageModel": "",
+      "density": 2.5e-6,
       "show": true
     }
   ],
@@ -174,16 +197,16 @@
         "name": "BC_1",
         "nodeSet": null,
         "boundarytype": "Force Densities",
-        "blockId": 2,
+        "blockId": 3,
         "coordinate": "z",
-        "value": "-5.1e10/60*t"
+        "value": "(-5.1e1/60)*t"
       },
       {
         "conditionsId": 2,
         "name": "BC_2",
         "nodeSet": null,
         "boundarytype": "Displacements",
-        "blockId": 3,
+        "blockId": 4,
         "coordinate": "z",
         "value": "0"
       }
@@ -198,13 +221,30 @@
       "selectedFileType": "Exodus",
       "selectedOutputs": [
         "Displacements",
-        "Damage"
+        "Damage",
+        "Forces",
+        "Number of Neighbors"
       ],
       "Frequency": "50",
       "InitStep": 0,
       "useOutputFrequency": false,
       "numberOfOutputSteps": "100",
       "Write_After_Damage": false
+    },
+    {
+      "id": 2,
+      "name": "Output2",
+      "selectedFileType": "Exodus",
+      "selectedOutputs": [
+        "Displacements",
+        "Damage",
+        "Forces"
+      ],
+      "Frequency": "1",
+      "InitStep": 0,
+      "useOutputFrequency": true,
+      "numberOfOutputSteps": "100",
+      "Write_After_Damage": true
     }
   ],
   "solver": {

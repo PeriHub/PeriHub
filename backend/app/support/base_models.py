@@ -131,7 +131,7 @@ class Material(BaseModel):
     applyThermalFlow: Optional[bool] = None
     applyThermalStrain: Optional[bool] = None
     applyHeatTransfer: Optional[bool] = None
-    thermalBondBased: Optional[bool] = True
+    thermalBondBased: Optional[bool] = None
     thermalExpansionCoefficient: Optional[float] = None
     environmentalTemperature: Optional[float] = None
 
@@ -276,6 +276,14 @@ class Compute(BaseModel):
     xValue: Optional[float] = None
     yValue: Optional[float] = None
     zValue: Optional[float] = None
+
+
+class PreCalculations(BaseModel):
+    deformedBondGeometry: Optional[bool] = None
+    deformationGradient: Optional[bool] = None
+    shapeTensor: Optional[bool] = None
+    bondAssociatedShapeTensor: Optional[bool] = None
+    bondAssociateDeformationGradient: Optional[bool] = None
 
 
 class Output(BaseModel):
@@ -650,6 +658,7 @@ class ModelData(BaseModel):
     boundaryConditions: BoundaryConditions
     bondFilters: Optional[List[BondFilters]] = None
     computes: Optional[List[Compute]] = None
+    preCalculations: Optional[PreCalculations] = None
     outputs: List[Output]
     solver: Solver
     job: Job

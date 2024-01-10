@@ -37,7 +37,6 @@ class Geometry:
             grid_x_value = gridx.ravel()
             grid_y_value = gridy.ravel()
             grid_z_value = gridz.ravel()
-
         log.info(f"Points created  in {(time.time() - start_time):.2f} seconds")
         return grid_x_value, grid_y_value, grid_z_value
 

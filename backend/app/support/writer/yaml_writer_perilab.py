@@ -24,6 +24,7 @@ class YAMLcreatorPeriLab:
         self.output_dict = model_writer.model_data.outputs
         self.contact_dict = model_writer.model_data.contact
         self.bondfilters = model_writer.model_data.bondFilters
+        self.preCalculations = model_writer.model_data.preCalculations
         self.disc_type = model_writer.disc_type
         self.two_d = model_writer.model_data.model.twoDimensional
 
@@ -98,11 +99,11 @@ class YAMLcreatorPeriLab:
     def preCalculation(self):
         data = {}
 
-        # data["Deformed Bond Geometry"] = True
-        # data["Deformation Gradient"] = True
-        # data["Shape Tensor"] = True
-        # data["Bond Associated Shape Tensorr"] = False
-        # data["Bond Associated Deformation Gradient"] = False
+        data["Deformed Bond Geometry"] = True
+        data["Deformation Gradient"] = True
+        data["Shape Tensor"] = True
+        data["Bond Associated Shape Tensorr"] = False
+        data["Bond Associated Deformation Gradient"] = False
 
         return data
 
@@ -116,7 +117,6 @@ class YAMLcreatorPeriLab:
                 material["Symmetry"] = "anisotropic plane stress"
             elif mat.materialSymmetry == "Isotropic" and mat.planeStress:
                 material["Symmetry"] = "isotropic plane stress"
-            material["Plane Stress"] = mat.planeStress
             if mat.materialSymmetry == "Anisotropic":
                 # material["Material Symmetry"] = mat.materialSymmetry
                 if mat.stiffnessMatrix is not None:
@@ -169,6 +169,7 @@ class YAMLcreatorPeriLab:
                 material["Apply Thermal Strain"] = mat.applyThermalStrain
             if self.check_if_defined(mat.applyHeatTransfer):
                 material["Apply Heat Transfer"] = mat.applyHeatTransfer
+            print(mat.thermalBondBased)
             if self.check_if_defined(mat.thermalBondBased):
                 material["Thermal Bond Based"] = mat.thermalBondBased
             if self.check_if_defined(mat.thermalExpansionCoefficient):
@@ -234,17 +235,6 @@ class YAMLcreatorPeriLab:
             if dam.damageModel == "Critical Energy Correspondence":
                 damage["Critical Value"] = float(dam.criticalEnergy)
 
-                if dam.interBlockDamage:
-                    damage["Interblock Damage"] = True
-                    damage["Number of Blocks"] = dam.numberOfBlocks
-                    for interBlock in dam.interBlocks:
-                        damage[
-                            "Interblock Critical Energy "
-                            + str(interBlock.firstBlockId)
-                            + "_"
-                            + str(interBlock.secondBlockId)
-                        ] = float(interBlock.value)
-
             elif dam.damageModel == "Von Mises Stress":
                 damage["Critical Von Mises Stress"] = float(dam.criticalVonMisesStress)
 
@@ -258,6 +248,15 @@ class YAMLcreatorPeriLab:
             else:
                 damage["Critical Value"] = float(dam.criticalStretch)
 
+            if dam.interBlockDamage:
+                damage["Interblock Damage"] = {}
+                for interBlock in dam.interBlocks:
+                    damage["Interblock Damage"][
+                        "Interblock Critical Value "
+                        + str(interBlock.firstBlockId)
+                        + "_"
+                        + str(interBlock.secondBlockId)
+                    ] = float(interBlock.value)
             # damage["Plane Stress"] = self.two_d
             # damage["Only Tension"] = dam.onlyTension
             # damage["Detached Nodes Check"] = dam.detachedNodesCheck
@@ -468,7 +467,8 @@ class YAMLcreatorPeriLab:
         data["PeriLab"]["Discretization"] = self.load_mesh()
         if self.check_if_defined(self.bondfilters) and len(self.bondfilters) > 0:
             data["PeriLab"]["Bond Filters"] = self.create_bond_filter()
-        data["PeriLab"]["Physics"]["Pre Calculation"] = self.preCalculation()
+        if self.check_if_defined(self.preCalculations) and len(self.preCalculations) > 0:
+            data["PeriLab"]["Physics"]["Pre Calculation"] = self.preCalculation()
         data["PeriLab"]["Physics"]["Material Models"] = self.materials()
         if self.check_if_defined(self.additive_dict):
             if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:

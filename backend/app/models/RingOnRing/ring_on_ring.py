@@ -38,7 +38,7 @@ class RingOnRing:
         self.disc_type = "txt"
         self.mesh_file = None
         self.two_d = model_data.model.twoDimensional
-        self.ns_list = [1, 2, 3]
+        # self.ns_list = [1, 2, 3, 4]
         if not dx_value:
             dx_value = [0.001, 0.001, 0.001]
         self.dx_value = dx_value
@@ -62,7 +62,8 @@ class RingOnRing:
             self.zend = 0
             self.dx_value[2] = 1
         else:
-            self.zend = model_data.model.width - self.dx_value[2]
+            self.zbegin = -model_data.model.width / 2
+            self.zend = model_data.model.width / 2
 
         number_of_blocks = 4
 
@@ -85,13 +86,18 @@ class RingOnRing:
         origin_y = 0
 
         k = np.where(
-            z_value > self.zend,
+            z_value > 0,
             2,
             k,
         )
         k = np.where(
-            z_value < 0,
+            z_value > self.zend,
             3,
+            k,
+        )
+        k = np.where(
+            z_value < self.zbegin,
+            4,
             k,
         )
         return k
@@ -128,7 +134,7 @@ class RingOnRing:
         z_value = np.concatenate((z_value, z_value1))
 
         x_value2, y_value2, z_value2 = geo.create_cylinder(
-            coor=[0, 0, -self.dx_value[0]],
+            coor=[0, 0, self.zbegin - self.dx_value[0]],
             dx_value=self.dx_value,
             inner_radius=inner_radius2,
             outer_radius=outer_radius2,

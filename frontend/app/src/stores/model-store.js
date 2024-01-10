@@ -98,7 +98,7 @@ export const useModelStore = defineStore("model", {
           applyThermalFlow: false,
           applyThermalStrain: false,
           applyHeatTransfer: false,
-          thermalBondBased: null,
+          thermalBondBased: false,
           thermalExpansionCoefficient: null,
           environmentalTemperature: null,
           // 3dPrint
@@ -401,6 +401,13 @@ export const useModelStore = defineStore("model", {
           zValue: null,
         },
       ],
+      preCalculations: {
+        deformedBondGeometry: null,
+        deformationGradient: null,
+        shapeTensor: null,
+        bondAssociatedShapeTensor: null,
+        bondAssociatedDeformationGradient: null,
+      },
       outputs: [
         {
           outputsId: 1,
