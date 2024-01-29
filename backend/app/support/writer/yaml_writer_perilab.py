@@ -135,7 +135,7 @@ class YAMLcreatorPeriLab:
             if self.check_if_defined(mat.poissonsRatio):
                 material["Poisson's Ratio"] = float(np.format_float_scientific(float(mat.poissonsRatio)))
 
-            # material["Stabilization Type"] = mat.stabilizationType
+            material["Zero Energy Control"] = "Global"
             # material["Thickness"] = float(mat.thickness)
             # material["Hourglass Coefficient"] = float(mat.hourglassCoefficient)
 
@@ -303,14 +303,15 @@ class YAMLcreatorPeriLab:
         if self.solver_dict.stopBeforeDamageInitation:
             data["Stop before damage initiation"] = True
 
+        if self.check_if_defined(self.solver_dict.numericalDamping):
+            data["Numerical Damping"] = float(self.solver_dict.numericalDamping)
+
         if self.solver_dict.solvertype == "Verlet":
             data["Verlet"] = {}
             if self.check_if_defined(self.solver_dict.fixedDt):
                 data["Verlet"]["Fixed dt"] = float(self.solver_dict.fixedDt)
 
             data["Verlet"]["Safety Factor"] = float(self.solver_dict.safetyFactor)
-
-            data["Verlet"]["Numerical Damping"] = float(self.solver_dict.numericalDamping)
 
             if self.check_if_defined(self.solver_dict.adaptivetimeStepping) and self.solver_dict.adaptivetimeStepping:
                 data["Verlet"]["Adapt dt"] = True
@@ -419,7 +420,7 @@ class YAMLcreatorPeriLab:
                 compute["Calculation Type"] = out.calculationType
                 compute["Block"] = out.blockName
             compute["Variable"] = out.variable
-            compute["Output Label"] = out.name
+            # compute["Output Label"] = out.name
 
             data[out.name] = compute
 

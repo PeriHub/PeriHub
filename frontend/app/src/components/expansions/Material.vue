@@ -83,7 +83,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
         <div class="row my-row">
           <q-select class="my-input" :options="materialSymmetry" v-model="material.materialSymmetry"
-            v-show="['Linear Elastic Correspondence', 'Anisotropic Elastic Bond Associated Correspondence'].includes(material.matType)"
+            v-show="['Correspondence Elastic', 'Linear Elastic Correspondence', 'Anisotropic Elastic Bond Associated Correspondence'].includes(material.matType)"
             :label="materialKeys.materialSymmetry" standout dense></q-select>
           <q-toggle
             v-if="material.materialSymmetry == 'Anisotropic' & ['Linear Elastic Correspondence', 'Anisotropic Elastic Bond Associated Correspondence'].includes(material.matType)"
