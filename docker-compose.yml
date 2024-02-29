@@ -6,13 +6,8 @@ version: "3"
 
 services:
   periHubBackend:
-    build:
-      context: backend/.
-      args:
-        DLR: ${DLR}
-        DEV: ${DEV}
+    image: perihub/backend
     container_name: perihub_backend
-    image: peri_hub_backend_image
     ports:
       - 6020:80
     volumes:
@@ -22,27 +17,11 @@ services:
       - backend
 
   periHubFrontend:
-    build:
-      context: frontend/.
-      args:
-        DLR: ${DLR}
-        DEV: ${DEV}
-    container_name: perihub_frontend
-    image: peri_hub_frontend_image
+    image: perihub/frontend
     ports:
       - 6010:80
     networks:
       - backend
-
-  # peridigm:
-  #   container_name: perihub_peridigm
-  #   image: perihub/peridigm
-  #   ports:
-  #     - 6030:80
-  #   volumes:
-  #     - ${VOLUME}peridigmJobs:/app/peridigmJobs
-  #   networks:
-  #     - backend
 
   perilab:
     container_name: perihub_perilab
@@ -53,36 +32,6 @@ services:
       - ${VOLUME}peridigmJobs:/app/peridigmJobs
     networks:
       - backend
-
-  paraview:
-    build:
-      context: paraview/.
-    container_name: perihub_paraview
-    image: paraview_image
-    volumes:
-      - paraView_volume:/app/paraView
-
-  trame:
-    build:
-      context: trame/.
-      args:
-        DEV: ${DEV}
-    container_name: perihub_trame
-    image: trame_image
-    ports:
-      - 6040:80
-      - 6041:6041
-      - 6042:6042
-      - 6043:6043
-      - 6044:6044
-      - 6045:6045
-    volumes:
-      - ${VOLUME}peridigmJobs:/app/peridigmJobs
-      - paraView_volume:/app/paraView
-
-volumes:
-  paraView_volume:
-
 
 networks:
   backend:
