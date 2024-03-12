@@ -114,29 +114,29 @@ build_frontend_job:
     - docker build -t perihub/frontend frontend/.
     - docker push perihub/frontend
 
-build_paraview_job:
-  stage: build
-  extends: [.build_before_script_template]
-  only:
-    refs:
-      - main
-    changes:
-      - paraview/**/*
-  script:
-    - docker build -t perihub/paraview paraview/.
-    - docker push perihub/paraview
+# build_paraview_job:
+#   stage: build
+#   extends: [.build_before_script_template]
+#   only:
+#     refs:
+#       - main
+#     changes:
+#       - paraview/**/*
+#   script:
+#     - docker build -t perihub/paraview paraview/.
+#     - docker push perihub/paraview
 
-build_trame_job:
-  stage: build
-  extends: [.build_before_script_template]
-  only:
-    refs:
-      - main
-    changes:
-      - trame/**/*
-  script:
-    - docker build -t perihub/trame trame/.
-    - docker push perihub/trame
+# build_trame_job:
+#   stage: build
+#   extends: [.build_before_script_template]
+#   only:
+#     refs:
+#       - main
+#     changes:
+#       - trame/**/*
+#   script:
+#     - docker build -t perihub/trame trame/.
+#     - docker push perihub/trame
 
 .build_before_script_template:
   image: docker:latest

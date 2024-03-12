@@ -5,34 +5,38 @@
 version: "3"
 
 services:
-  periHubBackend:
+  backend:
     image: perihub/backend
+    build:
+      context: backend/.
     container_name: perihub_backend
     ports:
-      - 6020:80
+      - 5000:80
     volumes:
       - ${VOLUME}peridigmJobs:/app/peridigmJobs
       - ${VOLUME}rsaFiles:/app/rsaFiles
     networks:
-      - backend
+      - web_network
 
-  periHubFrontend:
+  frontend:
     image: perihub/frontend
+    build:
+      context: frontend/.
     ports:
-      - 6010:80
+      - 8000:80
     networks:
-      - backend
+      - web_network
 
   perilab:
     container_name: perihub_perilab
     image: perihub/perilab
     ports:
-      - 6040:80
+      - 6000:80
     volumes:
       - ${VOLUME}peridigmJobs:/app/peridigmJobs
     networks:
-      - backend
+      - web_network
 
 networks:
-  backend:
+  web_network:
     driver: bridge

@@ -6,14 +6,16 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <q-page class="justify-center">
-    <div class="row justify-center text-h1 q-pb-xl" style="padding: 50px">Welcome to PeriHub!</div>
-    <div class="row text-subtitle2" style="padding: 50px; text-align:center">
-      PeriHub is a platform that provides a numerical implementation of
-      the peridynamic theory. It is an extension of the open source
-      Peridigm software. Peridynamics is a non-local theory that overcomes
-      discontinuity problems of the classical theory of continuum
-      mechanics. It is an effective method to model fracture mechanics
-      problems.
+    <div class="column full-width">
+      <div class="row justify-center text-h3 q-pb-xl" style="padding: 20px; text-align:center">Welcome to PeriHub!</div>
+      <div class="row text-subtitle2 justify-center" style="padding: 20px; text-align:center">
+        PeriHub is a platform that provides a numerical implementation of
+        the peridynamic theory. It is an extension of the open source
+        Peridigm software. Peridynamics is a non-local theory that overcomes
+        discontinuity problems of the classical theory of continuum
+        mechanics. It is an effective method to model fracture mechanics
+        problems.
+      </div>
     </div>
     <div class="row justify-center full-width q-pa-md q-my-lg">
       <router-link class="card" to="perihub">

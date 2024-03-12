@@ -12,16 +12,16 @@ SPDX-License-Identifier: Apache-2.0
       dense></q-input>
     <q-input class="my-input" v-model="model.modelNameSelected" v-show="model.ownModel" :rules="[rules.required]"
       label="Model Name" standout dense></q-input>
-    <q-input class="my-input" v-model="model.meshFile" v-show="model.ownModel" :rules="[rules.required]" label="Mesh File"
-      standout dense></q-input>
+    <q-input class="my-input" v-model="model.meshFile" v-show="model.ownModel" :rules="[rules.required]"
+      label="Mesh File" standout dense></q-input>
     <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
       :rules="[rules.required, rules.float]" label="Length" standout dense></q-input>
     <q-input class="my-input" v-model="model.cracklength"
       v-show="['GICmodel', 'GIICmodel', 'CompactTension'].includes(model.modelNameSelected)"
       @update:model-value="bus.emit('updateCracklength')" :rules="[rules.required, rules.float]" label="Cracklength"
       standout dense></q-input>
-    <q-toggle class="my-toggle" v-model="model.notchEnabled" v-show="['CompactTension'].includes(model.modelNameSelected)"
-      label="Notch enabled" dense></q-toggle>
+    <q-toggle class="my-toggle" v-model="model.notchEnabled"
+      v-show="['CompactTension'].includes(model.modelNameSelected)" label="Notch enabled" dense></q-toggle>
     <q-input class="my-input" v-model="model.width"
       v-show="!model.ownModel & model.modelNameSelected != 'RVE' & !model.twoDimensional"
       @update:model-value="bus.emit('updateCracklength')" :rules="[rules.required, rules.float]" label="Width" standout
@@ -34,8 +34,9 @@ SPDX-License-Identifier: Apache-2.0
       label="Ply height" standout dense></q-input>
     <q-input v-show="model.modelNameSelected == 'Dogbone' & !model.ownModel" class="my-input" v-model="model.height2"
       :rules="[rules.required, rules.float]" label="Inner Height" standout dense></q-input>
-    <q-input v-show="['PlateWithHole', 'RingOnRing'].includes(model.modelNameSelected) & !model.ownModel" class="my-input"
-      v-model="model.radius" :rules="[rules.required, rules.float]" label="Radius" standout dense></q-input>
+    <q-input v-show="['PlateWithHole', 'RingOnRing'].includes(model.modelNameSelected) & !model.ownModel"
+      class="my-input" v-model="model.radius" :rules="[rules.required, rules.float]" label="Radius" standout
+      dense></q-input>
     <q-input v-show="model.modelNameSelected == 'RingOnRing' & !model.ownModel" class="my-input" v-model="model.radius2"
       :rules="[rules.required, rules.float]" label="Radius 2" standout dense></q-input>
     <q-input class="my-input" v-model="model.discretization" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
@@ -47,10 +48,10 @@ SPDX-License-Identifier: Apache-2.0
       label="Amplitude Factor" standout dense></q-input>
     <q-input class="my-input" v-model="model.wavelength" v-show="!model.ownModel & model.modelNameSelected == 'Smetana'"
       :rules="[rules.required, rules.posFloat]" label="Wavelength" standout dense></q-input>
-    <q-toggle class="my-toggle" v-show="model.modelNameSelected == 'Dogbone' & !model.ownModel" v-model="model.structured"
-      label="Structured" dense></q-toggle>
-    <q-toggle class="my-toggle" v-show="!model.ownModel & model.modelNameSelected != 'RVE'" v-model="model.twoDimensional"
-      label="Two Dimensional" dense></q-toggle>
+    <q-toggle class="my-toggle" v-show="model.modelNameSelected == 'Dogbone' & !model.ownModel"
+      v-model="model.structured" label="Structured" dense></q-toggle>
+    <q-toggle class="my-toggle" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
+      v-model="model.twoDimensional" label="Two Dimensional" dense></q-toggle>
     <q-toggle class="my-toggle" v-model="model.rotatedAngles"
       v-show="!model.ownModel & model.modelNameSelected != 'RVE' & model.modelNameSelected != 'Dogbone'"
       label="Rotated Angles" dense></q-toggle>
@@ -168,7 +169,7 @@ export default defineComponent({
       "OwnModel",
       "RingOnRing"
     ]
-    if (process.env.VUE_APP_DLR) {
+    if (process.env.DLR) {
       modelName.push("Smetana")
     }
     return {

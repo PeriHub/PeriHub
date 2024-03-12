@@ -8,13 +8,12 @@ export const useViewStore = defineStore("view", {
   state: () => ({
     viewId: "image",
     textId: "input",
-    modelImg: process.env.VUE_APP_API + "/assets/models/Dogbone/Dogbone.jpg",
+    modelImg: process.env.API + "/assets/models/Dogbone/Dogbone.jpg",
     modelLoading: false,
     textLoading: false,
     textOutput: "",
     logOutput: "",
-    bondFilterPoints: [
-    ],
+    bondFilterPoints: [],
     filteredPointString: [1, 0, 0],
     filteredBlockIdString: [1],
     dx_value: 0.1,

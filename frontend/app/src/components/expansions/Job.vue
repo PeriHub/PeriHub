@@ -18,8 +18,8 @@ SPDX-License-Identifier: Apache-2.0
             standout
             dense
         ></q-input> -->
-        <q-input class="my-input" v-model="job.tasks" v-show="job.cluster == 'Cara'" :rules="[rules.required, rules.name]"
-            label="Tasks" standout dense></q-input>
+        <q-input class="my-input" v-model="job.tasks" v-show="job.cluster == 'Cara'"
+            :rules="[rules.required, rules.name]" label="Tasks" standout dense></q-input>
         <!-- <q-input
             class="my-input"
             v-model="job.tasksPerNode"
@@ -31,12 +31,12 @@ SPDX-License-Identifier: Apache-2.0
         ></q-input> -->
         <q-input class="my-input" v-model="job.cpusPerTask" v-show="job.cluster == 'Cara'"
             :rules="[rules.required, rules.name]" label="CPUs per Task" standout dense></q-input>
-        <q-toggle class="my-toggle" v-model="job.multithread" v-show="job.cluster == 'Cara'" label="Multithreading" standout
-            dense></q-toggle>
-        <q-input class="my-input" v-model="job.time" v-show="job.cluster == 'Cara'" :rules="[rules.required, rules.name]"
-            label="Time" standout dense></q-input>
-        <q-input class="my-input" v-model="job.account" v-show="job.cluster == 'Cara'" :rules="[rules.required, rules.name]"
-            label="Account" standout dense></q-input>
+        <q-toggle class="my-toggle" v-model="job.multithread" v-show="job.cluster == 'Cara'" label="Multithreading"
+            standout dense></q-toggle>
+        <q-input class="my-input" v-model="job.time" v-show="job.cluster == 'Cara'"
+            :rules="[rules.required, rules.name]" label="Time" standout dense></q-input>
+        <q-input class="my-input" v-model="job.account" v-show="job.cluster == 'Cara'"
+            :rules="[rules.required, rules.name]" label="Account" standout dense></q-input>
     </div>
 </template>
 
@@ -55,7 +55,7 @@ export default defineComponent({
         const bus = inject('bus')
 
         let cluster = ["None"];
-        if (process.env.VUE_APP_DLR) {
+        if (process.env.DLR) {
             cluster.push("Cara")
         }
         return {

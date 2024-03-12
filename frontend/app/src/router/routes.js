@@ -16,6 +16,22 @@ const routes = [
         path: "/publications",
         component: () => import("pages/Publications.vue"),
       },
+      {
+        path: "/impressum",
+        component: () => import("pages/ImpressumPage.vue"),
+      },
+      {
+        path: "/privacy",
+        component: () => import("pages/PrivacyPage.vue"),
+      },
+      {
+        path: "/copyright",
+        component: () => import("pages/CopyrightPage.vue"),
+      },
+      {
+        path: "/accessibility",
+        component: () => import("pages/AccessibilityPage.vue"),
+      },
     ],
   },
   {

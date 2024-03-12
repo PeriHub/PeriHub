@@ -101,8 +101,8 @@ SPDX-License-Identifier: Apache-2.0
         CARA Enginframe
       </q-tooltip>
     </q-btn>
-    <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)" flat
-      icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
+    <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)"
+      flat icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
       <q-tooltip>
         Show Fracture Analysis
       </q-tooltip>
@@ -626,9 +626,9 @@ export default defineComponent({
           return;
         })
 
-      if (process.env.VUE_APP_DEV) {
-        this.viewStore.resultPort =
-          process.env.VUE_APP_TRAME_API.slice(0, process.env.VUE_APP_TRAME_API.length - 4) + this.port;
+      if (process.env.DEV) {
+        // this.viewStore.resultPort =
+        //   process.env.VUE_APP_TRAME_API.slice(0, process.env.VUE_APP_TRAME_API.length - 4) + this.port;
       } else {
         let id = parseInt(this.port) - 6040;
         this.viewStore.resultPort =

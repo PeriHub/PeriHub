@@ -56,14 +56,16 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-build
     build: {
-      vueRouterMode: "hash", // available values: 'hash', 'history'
+      vueRouterMode: "history", // available values: 'hash', 'history'
 
       // transpile: false,
       // publicPath: '/',
 
-      env: require("dotenv").config({
-        path: `.env.${process.env.ENV_FILE.toLowerCase()}`,
-      }).parsed,
+      env: {
+        API: ctx.dev ? "http://localhost:5000" : "api",
+        DLR: true,
+        DEV: ctx.dev,
+      },
       // env: {
       //   VUE_APP_API: ctx.dev
       //     ? "http://localhost:6020"

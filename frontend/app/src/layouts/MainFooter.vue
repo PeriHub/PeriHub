@@ -5,15 +5,21 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
-  <q-footer elevated color="primary">
+  <q-footer elevated color="primary" reveal>
     <q-toolbar>
       <div style="text-align: center; width:100%">
-        <div>
-          <q-btn flat text-color="white" label="ABOUT US" href="https://www.dlr.de/fa"></q-btn>
-          <q-btn flat text-color="white" label="BLOG" href="https://leichtbau.dlr.de/"></q-btn>
-          <q-btn flat text-color="white" label="CONTACT US" href="mailto:Jan-Timo.Hesse@dlr.de"></q-btn>
+        <div :style="{ fontSize: $q.screen.lt.md ? '10px' : '12px' }">
+          <q-btn :style="buttonStyle" flat text-color="white" label="ABOUT US" href="https://www.dlr.de/sy"></q-btn>
+          <q-btn :style="buttonStyle" flat text-color="white" label="BLOG" href="https://leichtbau.dlr.de/"></q-btn>
+          <q-btn :style="buttonStyle" flat text-color="white" label="CONTACT US"
+            href="mailto:Jan-Timo.Hesse@dlr.de"></q-btn> --
+          <q-btn :style="buttonStyle" flat text-color="white" label="IMPRESSUM" to="/impressum"></q-btn>
+          <q-btn :style="buttonStyle" flat text-color="white" label="PRIVACY POLICY" to="/privacy"></q-btn>
+          <q-btn :style="buttonStyle" flat text-color="white" label="TERMS OF USE" to="/copyright"></q-btn>
+          <q-btn :style="buttonStyle" flat text-color="white" label="ACCESSIBILITY STATEMENT"
+            to="/accessibility"></q-btn>
         </div>
-        <div>
+        <div :style="{ fontSize: $q.screen.lt.md ? '12' : '14' }">
           © {{ new Date().getFullYear() }} German Aerospace Center (DLR) — <strong>PeriHub</strong> | Jan-Timo
           Hesse | Christian Willberg
         </div>
@@ -27,6 +33,13 @@ import { defineComponent } from 'vue'
 import { useDefaultStore } from 'stores/default-store';
 export default defineComponent({
   name: "MainFooter",
+  computed: {
+    buttonStyle() {
+      return {
+        fontSize: this.$q.screen.lt.md ? '10px' : '12px'
+      };
+    }
+  },
   setup() {
     const store = useDefaultStore();
     return {
@@ -39,4 +52,10 @@ export default defineComponent({
   },
 })
 </script>
-<style></style>
+<style>
+.q-btn {
+  margin-right: 5px;
+  margin-left: 5px;
+  padding: 0px;
+}
+</style>

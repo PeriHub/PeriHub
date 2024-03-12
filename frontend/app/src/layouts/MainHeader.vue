@@ -8,27 +8,9 @@ SPDX-License-Identifier: Apache-2.0
   <q-header elevated class="bg-primary text-white">
     <q-toolbar>
       <router-link style="text-decoration: none; color: inherit" to="/">
-        <div class="row align-center">
-          <img src="~assets/PeriHubLogo2b.png" style="height: 50px; margin: 5px; width: auto;">
-
-          <!-- <q-toolbar-title>
-              PeriHub
-            </q-toolbar-title> -->
-        </div>
+        <q-img src="~assets/PeriHubLogo2b.png" style="height: 50px; margin: 5px; width: 50px;"></q-img>
       </router-link>
-      <!-- <q-btn flat color="secondary" icon-right="mail" label="On Right"></q-btn>
-          <q-btn flat round dense icon="gamepad"></q-btn> -->
-      <!-- <router-link style="text-decoration: none; color: inherit" to="/">
-            <div class="row">
-              <q-img
-                alt="DLR Logo"
-                src="~assets/DLR_Signet_weiss.png"
-                size="xs"
-              />
-              <h1>PeriHub</h1>
-            </div>
-          </router-link> -->
-
+      <!-- <q-toolbar-title>PeriHub</q-toolbar-title> -->
       <q-space></q-space>
 
       <q-tabs align="center">

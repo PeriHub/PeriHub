@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineStore } from "pinia";
-import { api, trameApi } from "boot/axios";
+// import { api, trameApi } from "boot/axios";
+import { api } from "boot/axios";
 import axios from "axios";
 
 export const useDefaultStore = defineStore("default", {
@@ -22,7 +23,7 @@ export const useDefaultStore = defineStore("default", {
       this.darkMode = !this.darkMode;
     },
     initialiseStore() {
-      if (process.env.VUE_APP_DEV) {
+      if (process.env.DEV) {
         console.log(`I'm on a development build`);
       } else {
         let reqOptions = {

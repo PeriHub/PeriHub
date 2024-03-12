@@ -37,7 +37,7 @@ SPDX-License-Identifier: Apache-2.0
             <q-expansion-item v-model="panel[9]" expand-separator icon="fas fa-calculator" label="Solver">
                 <SolverSettings></SolverSettings>
             </q-expansion-item>
-            <q-expansion-item v-if="VUE_APP_DLR" v-model="panel[10]" expand-separator icon="fas fa-flask" label="Job">
+            <q-expansion-item v-if="DLR" v-model="panel[10]" expand-separator icon="fas fa-flask" label="Job">
                 <JobSettings></JobSettings>
             </q-expansion-item>
         </q-list>
@@ -75,10 +75,10 @@ export default defineComponent({
     },
     setup() {
         const bus = inject('bus')
-        const VUE_APP_DLR = process.env.VUE_APP_DLR
+        const DLR = process.env.DLR
         return {
             bus,
-            VUE_APP_DLR
+            DLR
         }
     },
     created() {

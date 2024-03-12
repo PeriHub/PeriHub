@@ -40,14 +40,7 @@ app = FastAPI(openapi_tags=tags_metadata)
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
-origins = [
-    "http://localhost",
-    "http://localhost:6010",
-    "http://localhost:8080",
-    "https://localhost:6010",
-    "https://perihub.fa-services.intra.dlr.de",
-    "https://bpmn.nimbus.dlr.de",
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,

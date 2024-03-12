@@ -33,7 +33,7 @@ export default defineComponent({
     },
     methods: {
         showModelImg(modelName) {
-            this.viewStore.modelImg = process.env.VUE_APP_API + "/assets/models/" + modelName + "/" + modelName + ".jpg";
+            this.viewStore.modelImg = process.env.API + "/assets/models/" + modelName + "/" + modelName + ".jpg";
 
             this.viewStore.viewId = "image";
         },
