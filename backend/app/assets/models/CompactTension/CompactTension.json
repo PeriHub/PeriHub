@@ -21,12 +21,15 @@
     ],
     "notchEnabled": false
   },
+  "discretization": {
+    "distributionType": "Neighbor based"
+  },
   "materials": [
     {
       "id": 1,
       "name": "Aluminium",
       "density": "2.81e-9",
-      "matType": "Linear Elastic Correspondence",
+      "matType": "PD Solid Elastic",
       "bulkModulus": null,
       "shearModulus": null,
       "youngsModulus": "71700",
@@ -102,7 +105,7 @@
     {
       "id": 1,
       "name": "Damage",
-      "damageModel": "Critical Energy Correspondence",
+      "damageModel": "Critical Energy",
       "criticalStretch": null,
       "criticalEnergy": 5.578800557880057,
       "interblockdamageEnergy": null,
@@ -167,7 +170,7 @@
         "conditionsId": 1,
         "name": "BC_1",
         "nodeSet": null,
-        "boundarytype": "Body Force",
+        "boundarytype": "Force Densities",
         "blockId": 2,
         "coordinate": "y",
         "value": "50000*t"
@@ -176,37 +179,10 @@
         "conditionsId": 2,
         "name": "BC_2",
         "nodeSet": null,
-        "boundarytype": "Body Force",
+        "boundarytype": "Force Densities",
         "blockId": 3,
         "coordinate": "y",
         "value": "-50000*t"
-      },
-      {
-        "conditionsId": 3,
-        "name": "BC_3",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 2,
-        "coordinate": "x",
-        "value": "0"
-      },
-      {
-        "conditionsId": 4,
-        "name": "BC_4",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 3,
-        "coordinate": "x",
-        "value": "0"
-      },
-      {
-        "conditionsId": 5,
-        "name": "BC_5",
-        "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
-        "blockId": 1,
-        "coordinate": "z",
-        "value": "0"
       }
     ]
   },
@@ -266,7 +242,7 @@
       "id": 1,
       "computeClass": "Block_Data",
       "name": "External_Force",
-      "variable": "Force",
+      "variable": "Forces",
       "calculationType": "Sum",
       "blockName": "block_2"
     },
@@ -274,7 +250,7 @@
       "id": 2,
       "computeClass": "Block_Data",
       "name": "External_Displacement",
-      "variable": "Displacement",
+      "variable": "Displacements",
       "calculationType": "Maximum",
       "blockName": "block_2"
     }
@@ -285,34 +261,14 @@
       "name": "Output1",
       "selectedFileType": "Exodus",
       "selectedOutputs": [
-        "Displacement",
-        "Force",
-        "Damage",
-        "Partial_Stress",
-        "Number_Of_Neighbors",
-        "Unrotated_Strain"
+        "Displacements",
+        "Damage"
       ],
       "Frequency": "1",
       "InitStep": 0,
       "useOutputFrequency": false,
       "numberOfOutputSteps": "100",
       "Write_After_Damage": false
-    },
-    {
-      "id": 2,
-      "name": "Output2",
-      "selectedFileType": "Exodus",
-      "selectedOutputs": [
-        "Displacement",
-        "Damage",
-        "Partial_Stress",
-        "Number_Of_Neighbors",
-        "Unrotated_Strain"
-      ],
-      "Write_After_Damage": true,
-      "Frequency": "1",
-      "InitStep": 0,
-      "useOutputFrequency": true
     }
   ],
   "solver": {
@@ -352,7 +308,9 @@
     "endStepAfterDamage": "3",
     "dispEnabled": true,
     "stopAfterCertainDamage": true,
-    "maxDamageValue": "0.3"
+    "maxDamageValue": "0.3",
+    "damEnabled": true,
+    "matEnabled": true
   },
   "job": {
     "software": "PeriLab",

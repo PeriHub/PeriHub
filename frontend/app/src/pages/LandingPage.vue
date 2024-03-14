@@ -54,17 +54,17 @@ SPDX-License-Identifier: Apache-2.0
           </q-img>
         </q-card>
       </router-link>
-      <a class="card">
-        <q-card class="my-card" href="https://perihub-api.fa-services.intra.dlr.de/docs">
+      <router-link class="card" to="api/docs">
+        <q-card class="my-card">
           <q-img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
               API
             </div>
           </q-img>
         </q-card>
-      </a>
-      <a class="card">
-        <q-card class="my-card" href="https://gitlab.dlr.de/fa_sw/perihub">
+      </router-link>
+      <a class="card" href="https://gitlab.com/dlr-perihub/PeriHub">
+        <q-card class="my-card">
           <q-img src="https://about.gitlab.com/images/press/logo/wm.svg" height="200px">
             <div class="text-h5 absolute-bottom text-right">
               GitLab

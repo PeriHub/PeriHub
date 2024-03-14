@@ -11,9 +11,10 @@ SPDX-License-Identifier: Apache-2.0
       <q-tab name="image" label="Image"></q-tab>
       <q-tab name="model" label="Model"></q-tab>
       <q-tab name="jobs" label="Jobs"></q-tab>
+      <q-tab name="results" label="Results"></q-tab>
       <q-tab name="plotly" label="Plotly"></q-tab>
       <q-tab name="renewable" label="Renewable"></q-tab>
-      <q-tab name="trame" label="Trame"></q-tab>
+      <!-- <q-tab name="trame" label="Trame"></q-tab> -->
     </q-tabs>
 
     <q-separator></q-separator>
@@ -31,6 +32,10 @@ SPDX-License-Identifier: Apache-2.0
         <JobsView></JobsView>
       </q-tab-panel>
 
+      <q-tab-panel name="results">
+        <ResultsView></ResultsView>
+      </q-tab-panel>
+
       <q-tab-panel name="plotly">
         <PlotlyView></PlotlyView>
       </q-tab-panel>
@@ -39,9 +44,10 @@ SPDX-License-Identifier: Apache-2.0
         <RenewableView></RenewableView>
       </q-tab-panel>
 
-      <q-tab-panel name="trame">
+      <!-- <q-tab-panel name="trame">
         <iframe :src="viewStore.resultPort" width="100%" height="100%" frameborder="0" />
-      </q-tab-panel>
+      </q-tab-panel> -->
+
     </q-tab-panels>
 
     <q-inner-loading :showing="viewStore.modelLoading">
@@ -57,6 +63,7 @@ import ModelView from 'components/views/ModelView.vue'
 import JobsView from 'components/views/JobsView.vue'
 import PlotlyView from 'components/views/PlotlyView.vue'
 import RenewableView from 'components/views/RenewableView.vue'
+import ResultsView from 'components/views/ResultsView.vue'
 import { useDefaultStore } from 'stores/default-store';
 import { useViewStore } from 'stores/view-store';
 
@@ -67,12 +74,13 @@ export default defineComponent({
     ModelView,
     JobsView,
     PlotlyView,
-    RenewableView
+    RenewableView,
+    ResultsView
   },
   data() {
     return {
       viewHeight: "400px",
-      tab: "image",
+      tab: "results",
     };
   },
   setup() {

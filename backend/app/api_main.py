@@ -63,12 +63,15 @@ app.include_router(energy.router)
 
 load_dotenv()
 
-dev[0] = os.getenv("DEV")
-dlr[0] = os.getenv("DLR")
-if dev[0] == "True":
+dev = os.getenv("DEV")
+dlr = os.getenv("DLR")
+trial = os.getenv("TRIAL")
+if dev == "True":
     log.info("--- Running in development mode ---")
-if dlr[0] == "True":
+if dlr == "True":
     log.info("--- Running in DLR mode ---")
+if dlr == "True":
+    log.info("--- Running in trial mode ---")
 
 
 async def log_reader(cluster, remotepath, file, software):
@@ -104,9 +107,13 @@ async def websocket_endpoint_log(
     cluster: str = Query(...),
     software: str = "Peridigm",
     token: str = Query(...),
+    user_name: str = Query(...),
 ):
     await websocket.accept()
-    username = FileHandler.get_user_name_from_token(token, dev[0])
+
+    username = user_name
+    if user_name == None or user_name == "":
+        username = FileHandler.get_user_name_from_token(token, dev)
 
     if model_folder_name == "undefined":
         model_folder_name = "Default"

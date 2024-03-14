@@ -31,6 +31,9 @@ export const useModelStore = defineStore("model", {
         wavelength: 3.0,
         meshFile: "Dogbone.txt",
       },
+      discretization: {
+        distributionType: "Neighbor based",
+      },
       materials: [
         {
           materialsId: 1,

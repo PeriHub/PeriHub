@@ -22,7 +22,7 @@ def delete_model(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
     if os.path.exists(localpath):
@@ -40,7 +40,7 @@ def delete_model_from_cluster(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if cluster == "None":
         remotepath = "./peridigmJobs/" + os.path.join(username, model_name + model_folder_name)
@@ -86,7 +86,7 @@ def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7
         log.info("Nothing has been deleted")
         return ResponseModel(data=True, message="Nothing has been deleted")
 
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     localpath = "./Output/" + username
     if os.path.exists(localpath):
@@ -122,7 +122,7 @@ def delete_user_data_from_cluster(
         log.info("Data of %s has been deleted", names)
         return ResponseModel(data=True, message="Data of " + names + " has been deleted")
 
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if cluster == "None":
         remotepath = "./peridigmJobs/" + username

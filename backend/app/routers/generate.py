@@ -37,7 +37,7 @@ def generate_model(
 ):  # material: dict, Output: dict):
     """doc"""
 
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     max_nodes = FileHandler.get_max_nodes(username)
 
@@ -247,7 +247,7 @@ def generate_mesh(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     # json=param,
     # print(param)

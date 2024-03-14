@@ -23,7 +23,7 @@ async def upload_files(
     files: List[UploadFile] = File(...),
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
 
@@ -50,7 +50,7 @@ def write_input_file(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     with open(
         "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + "." + file_type,

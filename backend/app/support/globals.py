@@ -18,6 +18,6 @@ logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 log = logging.getLogger("rich")
 
-dev = [False]
-
-dlr = [False]
+dev = False
+dlr = False
+trial = True

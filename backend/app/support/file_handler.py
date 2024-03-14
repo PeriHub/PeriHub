@@ -12,8 +12,9 @@ import time
 
 import jwt
 import paramiko
+from random_username.generate import generate_username
 
-from support.globals import log
+from support.globals import log, trial
 
 allowed_max_nodes = {
     "guest": {"allowedNodes": 1000000, "allowedFeSize": 15000000},
@@ -86,6 +87,10 @@ class FileHandler:
     @staticmethod
     def get_user_name(request, dev):
         """doc"""
+        user_name = request.headers.get("userName")
+        if user_name is not None or user_name != "":
+            return user_name
+
         if dev:
             return "dev"
 
@@ -389,7 +394,7 @@ class FileHandler:
         tasks,
         output,
         filetype=".e",
-        software="Peridigm",
+        software="PeriLab",
     ):
         """doc"""
         log.info("Start copying")

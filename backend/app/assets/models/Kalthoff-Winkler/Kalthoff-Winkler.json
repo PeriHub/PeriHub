@@ -18,6 +18,9 @@
       0
     ]
   },
+  "discretization": {
+    "distributionType": "Neighbor based"
+  },
   "materials": [
     {
       "id": 1,

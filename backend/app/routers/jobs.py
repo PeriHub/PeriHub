@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from support.base_models import FileType, Jobs, ModelData, ResponseModel, Status
 from support.file_handler import FileHandler
-from support.globals import dev, dlr, log
+from support.globals import dev, dlr, log, trial
 from support.writer.sbatch_writer import SbatchCreator
 
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
@@ -26,7 +26,7 @@ async def run_model(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
     usermail = FileHandler.get_user_mail(request)
 
     material = model_data.materials
@@ -85,6 +85,7 @@ async def run_model(
             job=model_data.job,
             usermail=usermail,
             software=software,
+            trial=trial,
         )
         sbatch_string = sbatch.create_sbatch()
         remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
@@ -122,6 +123,7 @@ async def run_model(
             job=model_data.job,
             usermail=usermail,
             software=software,
+            trial=trial,
         )
         sh_string = sbatch.create_sh()
         with open(
@@ -177,7 +179,7 @@ def cancel_job(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if cluster == "None":
         server = "perihub_peridigm"
@@ -241,7 +243,7 @@ def get_jobs(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     jobs = []
 
@@ -252,7 +254,7 @@ def get_jobs(
     if not os.path.exists(localpath):
         return ResponseModel(data=jobs, message="No jobs")
 
-    if dlr[0] and not dev[0]:
+    if dlr and not dev:
         ssh, sftp = FileHandler.sftp_to_cluster("Cara")
 
     for _, dirs, _ in os.walk(localpath):
@@ -300,7 +302,7 @@ def get_jobs(
 
                 remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
-                if dlr[0] and not dev[0]:
+                if dlr and not dev:
                     if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
                         job.cluster = "Cara"
                         # try:
@@ -320,7 +322,7 @@ def get_jobs(
                         # print(job.cluster)
                         jobs.append(job)
 
-    if dlr[0] and not dev[0]:
+    if dlr and not dev:
         sftp.close()
         ssh.close()
 
@@ -337,7 +339,7 @@ def get_status(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     status = Status()
 

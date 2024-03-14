@@ -20,6 +20,7 @@ class SbatchCreator:
         job="",
         usermail="",
         software="Peridigm",
+        trial=True,
     ):
         """doc"""
         self.nodes = job.nodes
@@ -37,6 +38,7 @@ class SbatchCreator:
         self.output_dict = output
         self.remotepath = remotepath
         self.software = software
+        self.trial = trial
 
     def create_sbatch(self):
         """doc"""
@@ -109,14 +111,17 @@ class SbatchCreator:
             string = "#!/bin/sh" + "\n"
             # if self.tasks == 1:
             string += ". /opt/intel/oneapi/mkl/latest/env/vars.sh \n"
+            if self.trial:
+                string += "timeout 600s "
             string += "/Peridigm/build/src/Peridigm " + self.filename + "." + self.filetype + "& echo $! > pid.txt \n"
             string += "pid=`cat pid.txt` \n"
             string += "tail --pid=$pid -f /dev/null \n"
             string += "rm pid.txt \n"
         elif self.software == "PeriLab":
             string = "#!/bin/sh" + "\n"
-            # if self.tasks == 1:
-            string += "/env/build/bin/PeriLab " + self.filename + "." + self.filetype + "& echo $! > pid.txt \n"
+            if self.trial:
+                string += "timeout 600s "
+            string += "/app/PeriLab/bin/PeriLab -s " + self.filename + "." + self.filetype + "& echo $! > pid.txt \n"
             string += "pid=`cat pid.txt` \n"
             string += "tail --pid=$pid -f /dev/null \n"
             string += "rm pid.txt \n"

@@ -5,25 +5,31 @@
 version: "3"
 
 services:
-  backend:
+  perihub_backend:
     image: perihub/backend
     build:
       context: backend/.
     container_name: perihub_backend
     ports:
-      - 5000:80
+      - 5000:5000
+    environment:
+      - DLR=${DLR}
+      - TRIAL=${TRIAL}
     volumes:
       - ${VOLUME}peridigmJobs:/app/peridigmJobs
       - ${VOLUME}rsaFiles:/app/rsaFiles
     networks:
       - web_network
 
-  frontend:
+  perihub_frontend:
     image: perihub/frontend
     build:
       context: frontend/.
     ports:
       - 8000:80
+    environment:
+      - DLR=${DLR}
+      - TRIAL=${TRIAL}
     networks:
       - web_network
 

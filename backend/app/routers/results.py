@@ -6,8 +6,10 @@ import os
 import shutil
 from typing import Optional
 
+import numpy as np
+from exodusreader import exodusreader
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from support.base_models import ResponseModel
 from support.export.image_export import ImageExport
@@ -45,7 +47,7 @@ def get_image_python(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
         username, model_name, model_folder_name, cluster, False, tasks, output
@@ -108,7 +110,7 @@ def get_plot_python(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
         username, model_name, model_folder_name, cluster, False, tasks, output
@@ -144,7 +146,7 @@ def get_fracture_analysis(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
         username, model_name, model_folder_name, cluster, False, tasks, output
@@ -189,7 +191,7 @@ def get_enf_analysis(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
         username, model_name, model_folder_name, cluster, False, tasks, output
@@ -232,7 +234,7 @@ def get_gif(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
         username, model_name, model_folder_name, cluster, False, tasks, output
@@ -282,7 +284,7 @@ def get_triangulated_mesh_from_exodus(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
         username, model_name + model_folder_name, cluster, False, tasks, output
@@ -324,7 +326,7 @@ def get_plot(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
         username, model_name, model_folder_name, cluster, False, tasks, output
@@ -351,7 +353,7 @@ def get_results(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
         username, model_name, model_folder_name, cluster, all_data, tasks, output
@@ -381,3 +383,204 @@ def get_results(
     except IOError:
         log.error("%s results can not be found on %s", model_name, cluster)
         return model_name + " results can not be found on " + cluster
+
+
+@router.get("/getPointData")
+def get_point_data(
+    model_name: str = "Dogbone",
+    model_folder_name: str = "Default",
+    output: str = "Output1",
+    tasks: int = 32,
+    cluster: str = "None",
+    axis: str = "Magnitude",
+    step: int = 78,
+    displ_factor: float = 100,
+    variable: str = "Damage",
+    request: Request = "",
+):
+    """doc"""
+    username = FileHandler.get_user_name(request, dev)
+
+    if not FileHandler.copy_results_from_cluster(
+        username, model_name, model_folder_name, cluster, False, tasks, output
+    ):
+        raise IOError  # NotFoundException(name=model_name)
+
+    resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
+    file = os.path.join(resultpath, model_name + "_" + output + ".e")
+
+    number_of_steps = exodusreader.get_number_of_steps(file) - 3
+    try:
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = exodusreader.read_timestep(file, step)
+
+    except IndexError:
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = exodusreader.read_timestep(file, number_of_steps)
+    use_cell_data = False
+
+    variable_list = list(point_data.keys())
+    variable_list = list(set(item.rstrip("xyz") for item in variable_list))
+
+    np_points_all_z = None
+    use_multi_data = False
+
+    if variable in [
+        "Displacements",
+        "Forces",
+        "Partial_StressX",
+        "Partial_StressY",
+        "Partial_StressZ",
+    ]:
+        use_multi_data = True
+    axis_id = 0
+
+    if axis == "X":
+        axis_id = 0
+        if use_multi_data:
+            variable = variable + "x"
+    elif axis == "Y":
+        axis_id = 1
+        if use_multi_data:
+            variable = variable + "y"
+    elif axis == "Z":
+        axis_id = 2
+        if use_multi_data:
+            variable = variable + "z"
+    elif axis == "Magnitude":
+        axis_id = 0
+
+    if use_cell_data:
+        np_points_all_x = np.array([])
+        np_points_all_y = np.array([])
+        np_points_all_z = np.array([])
+
+        cell_value = np.array([])
+
+        for block_id in range(0, len(block_data)):
+            block_ids = block_data[block_id][:, 0]
+
+            block_points = points[block_ids]
+
+            np_first_points_x = np.array(block_points[:, 0])
+            np_first_points_y = np.array(block_points[:, 1])
+            np_first_points_z = np.array(block_points[:, 2])
+
+            if "Displacements" in point_data:
+                np_displacement_x = np.array(point_data["Displacements"][block_ids, 0])
+                np_displacement_y = np.array(point_data["Displacements"][block_ids, 1])
+                np_displacement_z = np.array(point_data["Displacements"][block_ids, 2])
+
+                np_points_x = np.add(
+                    np_first_points_x,
+                    np.multiply(np_displacement_x, displ_factor),
+                )
+                np_points_y = np.add(
+                    np_first_points_y,
+                    np.multiply(np_displacement_y, displ_factor),
+                )
+                np_points_z = np.add(
+                    np_first_points_z,
+                    np.multiply(np_displacement_z, displ_factor),
+                )
+            else:
+                np_points_x = np_first_points_x
+                np_points_y = np_first_points_y
+                np_points_z = np_first_points_z
+
+            np_points_all_x = np.concatenate([np_points_all_x, np_points_x])
+            np_points_all_y = np.concatenate([np_points_all_y, np_points_y])
+            np_points_all_z = np.concatenate([np_points_all_z, np_points_z])
+
+            if variable == "Block":
+                cell_value = np.concatenate(
+                    [
+                        cell_value,
+                        np.full_like(np_points_x, block_id),
+                    ]
+                )
+            else:
+                if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
+                    cell_value = np.concatenate(
+                        [
+                            cell_value,
+                            cell_data[variable][0][block_id],
+                        ]
+                    )
+                else:
+                    cell_value = np.concatenate([cell_value, np.full_like(np_points_x, 0)])
+
+    else:
+        np_first_points_x = np.array(points[:, 0])
+        np_first_points_y = np.array(points[:, 1])
+        np_first_points_z = np.array(points[:, 2])
+
+        try:
+            np_displacement_x = np.array(point_data["Displacementsx"])
+            np_displacement_y = np.array(point_data["Displacementsy"])
+            try:
+                np_displacement_z = np.array(point_data["Displacementsz"])
+                np_points_all_z = np.add(
+                    np_first_points_z,
+                    np.multiply(np_displacement_z, displ_factor),
+                )
+            except:
+                pass
+
+            np_points_all_x = np.add(
+                np_first_points_x,
+                np.multiply(np_displacement_x, displ_factor),
+            )
+            np_points_all_y = np.add(
+                np_first_points_y,
+                np.multiply(np_displacement_y, displ_factor),
+            )
+
+        except Exception:
+            print("No Displacements")
+            np_points_all_x = np_first_points_x
+            np_points_all_y = np_first_points_y
+            np_points_all_z = np_first_points_z
+
+        cell_value = []
+        if axis == "Magnitude" and use_multi_data:
+            cell_value_x = point_data[variable + "x"]
+            cell_value_y = point_data[variable + "y"]
+            cell_value = np.sqrt(cell_value_x**2 + cell_value_y**2)
+        else:
+            # cell_value = point_data[variable][:, axis_id]
+            cell_value = point_data[variable]
+    if np_points_all_z is None:
+        np_points_all_z = np.zeros_like(np_points_all_x)
+
+    min_cell_value = np.min(cell_value)
+    max_cell_value = np.max(cell_value)
+    if max_cell_value == min_cell_value:
+        normalized_cell_value = np.zeros_like(cell_value)
+    else:
+        normalized_cell_value = (cell_value - min_cell_value) / (max_cell_value - min_cell_value)
+
+    data = {
+        "nodes": np.ravel([np_points_all_x, np_points_all_y, np_points_all_z], order="F").tolist(),
+        "value": normalized_cell_value.tolist(),
+        "variables": variable_list,
+        "number_of_steps": number_of_steps,
+        "min_value": min_cell_value,
+        "max_value": max_cell_value,
+    }
+
+    return JSONResponse(content=data)

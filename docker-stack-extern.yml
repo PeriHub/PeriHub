@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+version: "3"
+
+services:
+  perihub_backend:
+    image: perihub/backend
+    restart: unless-stopped
+    volumes:
+      - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/peridigmJobs:/app/peridigmJobs
+      - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/rsaFiles:/app/rsaFiles
+    networks:
+      - web_network
+
+  perihub_frontend:
+    image: perihub/frontend
+    labels:
+      - traefik.enable=true
+      - "traefik.constraint-label=traefik-public"
+      - traefik.http.routers.perilab-results.rule=Host(`perihub.nimbus.dlr.de`)
+      - traefik.http.routers.perihub.tls=true
+      - traefik.http.routers.perihub.service=perihub
+      - "traefik.http.routers.perihub.entrypoints=websecure"
+      - traefik.http.services.perihub.loadbalancer.server.port=80
+      - traefik.docker.network=proxy
+    networks:
+      - web_network
+
+volumes:
+  paraView_volume:
+
+networks:
+  proxy_l:
+    external: true
+  web_network:
+    driver: bridge

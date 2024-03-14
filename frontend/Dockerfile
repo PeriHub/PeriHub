@@ -11,10 +11,10 @@ COPY app/. .
 # build stage
 FROM develop-stage as build-stage
 
-ARG DEV
-ENV DEV $DEV
 ARG DLR
 ENV DLR $DLR
+ARG TRIAL
+ENV TRIAL $TRIAL
 
 RUN npm i -g @quasar/cli
 RUN npm install

@@ -21,7 +21,7 @@ router = APIRouter(prefix="/model", tags=["Model Methods"])
 def get_max_fe_size(request: Request = ""):
     """doc"""
 
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     return FileHandler.get_max_fe_size(username)
 
@@ -33,7 +33,7 @@ def get_model(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     folder_path = os.path.join(FileHandler.get_local_user_path(username), model_name)
     zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
@@ -66,7 +66,7 @@ def get_point_data(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     point_string = ""
     block_id_string = ""
@@ -169,7 +169,7 @@ def view_input_file(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     if own_mesh:
         file_path = (

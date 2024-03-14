@@ -25,7 +25,7 @@ def translate_model(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     start_time = time.time()
 
@@ -149,7 +149,7 @@ async def translate_gcode(
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev[0])
+    username = FileHandler.get_user_name(request, dev)
 
     start_time = time.time()
 

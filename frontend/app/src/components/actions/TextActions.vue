@@ -155,7 +155,8 @@ export default defineComponent({
         model_folder_name: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
         software: this.modelData.job.software,
-        token: this.$api.defaults.headers.common['Authorization']
+        token: this.$api.defaults.headers.common['Authorization'],
+        user_name: this.$api.defaults.headers.common['userName'],
       };
 
       const queryString = Object.entries(params)

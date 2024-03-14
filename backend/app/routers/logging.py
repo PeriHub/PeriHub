@@ -50,7 +50,7 @@ async def websocket_endpoint_log(
     software: str = "Peridigm",
 ):
     await websocket.accept()
-    username = FileHandler.get_user_name_from_token(token, dev[0])
+    username = FileHandler.get_user_name_from_token(token, dev)
 
     if model_folder_name == "undefined":
         model_folder_name = "Default"
