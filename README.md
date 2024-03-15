@@ -69,9 +69,7 @@ cd perihub
 - Create a .env file and save following variables, replace the `{PATHTOJOBFOLDER}` whith an existing directory, for example `/c/Users/YOU/perihubJobs`
 
 ```
-echo "DEV=True
-DLR=False
-VOLUME={PATHTOJOBFOLDER}" >> .env
+echo "VOLUME={PATHTOJOBFOLDER}" >> .env
 ```
 
 - Run docker-compose.
