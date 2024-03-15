@@ -12,14 +12,10 @@ from app.api_main import app
 client = TestClient(app)
 
 
-def test_get_result_image_from_exodus():
-    dev = os.environ.get("DEV")
+def test_getPointData():
     test_path = "./tests/image_export/"
     file_name = "Dogbone_Output1.e"
-    if dev:
-        remote_path = "./Results/dev/Dogbone/Default"
-    else:
-        remote_path = "./Results/guest/Dogbone/Default"
+    remote_path = "./Results/guest/Dogbone/Default"
 
     os.makedirs(remote_path, exist_ok=True)
     shutil.copy(
@@ -27,6 +23,6 @@ def test_get_result_image_from_exodus():
         os.path.join(remote_path, file_name),
     )
 
-    response = client.get("/results/getImagePython")
-    assert response.status_code == 200
+    response = client.get("/results/getPointData")
+    assert response.json()["number_of_steps"] == 46
     shutil.rmtree("./Results")

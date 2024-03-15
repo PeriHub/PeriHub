@@ -16,12 +16,14 @@ client = TestClient(app)
 @pytest.mark.parametrize(
     "model_name",
     [
-        "Dogbone",
         "CompactTension",
-        "Kalthoff-Winkler",
+        "DCBmodel",
+        "Dogbone",
         "ENFmodel",
+        "Kalthoff-Winkler",
         "PlateWithHole",
         "PlateWithOpening",
+        "RingOnRing",
     ],
 )
 def test_generate_model(model_name):

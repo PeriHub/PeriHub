@@ -22,80 +22,6 @@ from support.results.crack_analysis import CrackAnalysis
 router = APIRouter(prefix="/results", tags=["Results Methods"])
 
 
-@router.get("/getImagePython")
-def get_image_python(
-    model_name: str = "Dogbone",
-    model_folder_name: str = "Default",
-    cluster: str = "None",
-    tasks: int = 32,
-    output: str = "Output1",
-    variable: str = "Displacement",
-    axis: str = "X",
-    displ_factor: int = 20,
-    marker_size: int = 16,
-    length: float = 0.13,
-    height: float = 0.02,
-    triangulate: bool = False,
-    dx_value: float = 0.004,
-    step: int = -1,
-    cb_left: Optional[bool] = False,
-    transparent: Optional[bool] = True,
-    three_d: Optional[bool] = False,
-    elevation: Optional[float] = 30,
-    azimuth: Optional[float] = 30,
-    roll: Optional[float] = 0,
-    request: Request = "",
-):
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output
-    ):
-        raise IOError  # NotFoundException(name=model_name)
-
-    resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
-    file = os.path.join(resultpath, model_name + "_" + output + ".e")
-
-    if model_name in ["ENFmodel"]:
-        height *= 2
-
-    # try:
-    filepath = ImageExport.get_result_image_from_exodus(
-        file,
-        displ_factor,
-        marker_size,
-        variable,
-        axis,
-        length,
-        height,
-        triangulate,
-        dx_value,
-        step,
-        cb_left,
-        transparent,
-        three_d,
-        elevation,
-        azimuth,
-        roll,
-    )
-    # except ValueError:
-    #     log.error("%s ValueError %s", model_name, cluster)
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST,
-    #         detail="ValueError",
-    #     )
-
-    try:
-        return FileResponse(filepath)
-    except IOError:
-        log.error("%s results can not be found on %s", model_name, cluster)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=model_name + " results can not be found on " + cluster,
-        )
-
-
 @router.get("/getPlotPython")
 def get_plot_python(
     model_name: str = "Dogbone",
@@ -210,106 +136,6 @@ def get_enf_analysis(
         return model_name + " results can not be found on " + cluster
 
 
-@router.get("/getGif")
-def get_gif(
-    model_name: str = "Dogbone",
-    model_folder_name: str = "Default",
-    cluster: str = "None",
-    output: str = "Output1",
-    tasks: int = 32,
-    variable: str = "Displacement",
-    axis: str = "X",
-    apply_displacements: bool = False,
-    displ_factor: int = 200,
-    max_edge_distance: float = 2.0,
-    length: float = 4.4,
-    height: float = 1.1,
-    fps: int = 2,
-    dpi: int = 100,
-    x_min: Optional[float] = None,
-    x_max: Optional[float] = None,
-    y_min: Optional[float] = None,
-    y_max: Optional[float] = None,
-    size: Optional[float] = 20,
-    request: Request = "",
-):
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output
-    ):
-        raise IOError  # NotFoundException(name=model_name)
-
-    resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
-    file = os.path.join(resultpath, model_name + "_" + output + ".e")
-
-    filepath = VideoExport.get_gif_from_exodus(
-        file,
-        apply_displacements,
-        displ_factor,
-        max_edge_distance,
-        variable,
-        axis,
-        length,
-        height,
-        fps,
-        dpi,
-        x_min,
-        x_max,
-        y_min,
-        y_max,
-        size,
-    )
-
-    try:
-        return FileResponse(filepath)
-    except IOError:
-        log.error("%s results can not be found on %s", model_name, cluster)
-        return model_name + " results can not be found on " + cluster
-
-
-@router.get("/getTriangulatedMeshFromExodus")
-def get_triangulated_mesh_from_exodus(
-    model_name: str = "Dogbone",
-    model_folder_name: str = "Default",
-    cluster: str = "None",
-    output: str = "Output1",
-    tasks: int = 32,
-    displ_factor: int = 10,
-    timestep: int = -1,
-    max_edge_distance: float = 0.5,
-    length: float = 0.13,
-    height: float = 0.02,
-    request: Request = "",
-):
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name + model_folder_name, cluster, False, tasks, output
-    ):
-        raise IOError  # NotFoundException(name=model_name)
-
-    resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
-    file = os.path.join(resultpath, model_name + "_" + output + ".e")
-
-    filepath = VideoExport.get_triangulated_mesh_from_exodus(
-        file,
-        displ_factor,
-        timestep,
-        max_edge_distance,
-        length,
-        height,
-    )
-
-    try:
-        return FileResponse(filepath)
-    except IOError:
-        log.error("%s results can not be found on %s", model_name, cluster)
-        return model_name + " results can not be found on " + cluster
-
-
 @router.get("/getPlot")
 def get_plot(
     model_name: str = "Dogbone",
@@ -395,7 +221,7 @@ def get_point_data(
     axis: str = "Magnitude",
     step: int = 78,
     displ_factor: float = 100,
-    variable: str = "Damage",
+    variable: str = "Displacements",
     request: Request = "",
 ):
     """doc"""

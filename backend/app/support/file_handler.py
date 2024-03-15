@@ -88,7 +88,7 @@ class FileHandler:
     def get_user_name(request, dev):
         """doc"""
         user_name = request.headers.get("userName")
-        if user_name is not None or user_name != "":
+        if user_name is not None and user_name != "":
             return user_name
 
         if dev:
