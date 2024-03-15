@@ -10,7 +10,7 @@ from re import findall
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse
 
-from support.base_models import FileType, ResponseModel
+from support.base_models import ResponseModel
 from support.file_handler import FileHandler
 from support.globals import dev, log
 
@@ -61,7 +61,6 @@ def get_point_data(
     own_model: bool = False,
     own_mesh: bool = False,
     mesh_file: str = "Dogbone.txt",
-    software: str = "Peridigm",
     two_d: bool = False,
     request: Request = "",
 ):
@@ -127,7 +126,7 @@ def get_point_data(
                     if not first_row:
                         str1 = "".join(row)
                         parts = str1.split()
-                        if software == "PeriLab" and two_d:
+                        if two_d:
                             block_id = int(parts[2])
                             point_string += parts[0] + "," + parts[1] + ",0.0,"
                         else:
@@ -141,7 +140,7 @@ def get_point_data(
                     if not first_row:
                         str1 = "".join(row)
                         parts = str1.split()
-                        if software == "PeriLab" and two_d:
+                        if two_d:
                             block_id = int(parts[2])
                         else:
                             block_id = int(parts[3])
@@ -165,7 +164,6 @@ def view_input_file(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     own_mesh: bool = False,
-    file_type: FileType = FileType.YAML,
     request: Request = "",
 ):
     """doc"""
@@ -173,17 +171,10 @@ def view_input_file(
 
     if own_mesh:
         file_path = (
-            "./peridigmJobs/"
-            + os.path.join(username, model_name, model_folder_name)
-            + "/"
-            + model_name
-            + "."
-            + file_type
+            "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".yaml"
         )
     else:
-        file_path = (
-            "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + "." + file_type
-        )
+        file_path = "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".yaml"
     if not os.path.exists(file_path):
         log.error("Inputfile can't be found")
         raise HTTPException(

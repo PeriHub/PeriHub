@@ -163,7 +163,6 @@ export default defineComponent({
         own_model: this.modelData.model.ownModel,
         own_mesh: this.modelData.model.ownMesh,
         mesh_file: this.modelData.model.meshFile,
-        software: this.modelData.job.software,
         two_d: this.modelData.model.twoDimensional
       }
       await this.$api.get('/model/getPointData', { params })

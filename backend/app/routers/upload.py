@@ -8,7 +8,7 @@ from typing import List
 
 from fastapi import APIRouter, File, Request, UploadFile
 
-from support.base_models import FileType, ResponseModel
+from support.base_models import ResponseModel
 from support.file_handler import FileHandler
 from support.globals import dev, log
 
@@ -46,7 +46,6 @@ def write_input_file(
     model_name: str,
     input_string: str,
     model_folder_name: str = "Default",
-    file_type: FileType = FileType.YAML,
     request: Request = "",
 ):
     """doc"""

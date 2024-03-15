@@ -74,7 +74,7 @@ if dlr == "True":
     log.info("--- Running in trial mode ---")
 
 
-async def log_reader(cluster, remotepath, file, software):
+async def log_reader(cluster, remotepath, file):
     log_lines = []
 
     if cluster == "None":
@@ -88,7 +88,7 @@ async def log_reader(cluster, remotepath, file, software):
         else:
             log_lines = ["No Logfile"]
     else:
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         sftp.chdir(remotepath)
         file = sftp.file(file, "r")
         for line in file.readlines()[-100:]:
@@ -105,7 +105,6 @@ async def websocket_endpoint_log(
     model_name: str = Query(...),
     model_folder_name: str = "Default",
     cluster: str = Query(...),
-    software: str = "Peridigm",
     token: str = Query(...),
     user_name: str = Query(...),
 ):
@@ -139,7 +138,7 @@ async def websocket_endpoint_log(
     else:
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
 
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster, software)
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
         try:
             output_files = sftp.listdir(remotepath)
@@ -160,7 +159,7 @@ async def websocket_endpoint_log(
     try:
         while True:
             await asyncio.sleep(1)
-            logs = await log_reader(cluster, remotepath, filtered_values[-1], software)
+            logs = await log_reader(cluster, remotepath, filtered_values[-1])
             await websocket.send_text(logs)
     except Exception as e:
         print(e)

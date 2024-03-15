@@ -16,31 +16,34 @@ SPDX-License-Identifier: Apache-2.0
       <q-expansion-item v-model="panel[2]" expand-separator icon="fas fa-toolbox" label="Material">
         <MaterialSettings></MaterialSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[3]" expand-separator icon="fas fa-toolbox" label="Additve">
+      <q-expansion-item v-model="panel[3]" expand-separator icon="fas fa-fire" label="Thermal">
+        <ThermalSettings></ThermalSettings>
+      </q-expansion-item>
+      <q-expansion-item v-model="panel[4]" expand-separator icon="fas fa-toolbox" label="Additve">
         <AdditiveSettings></AdditiveSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[4]" expand-separator icon="fas fa-cut" label="Damage Models">
+      <q-expansion-item v-model="panel[5]" expand-separator icon="fas fa-cut" label="Damage Models">
         <DamageSettings></DamageSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[5]" expand-separator icon="fas fa-th" label="Blocks">
+      <q-expansion-item v-model="panel[6]" expand-separator icon="fas fa-th" label="Blocks">
         <BlocksSettings></BlocksSettings>
       </q-expansion-item>
       <!-- <q-expansion-item v-model="panel[5]" expand-separator icon="fas fa-boxes-stacked" label="Contact">
                 <ContactSettings></ContactSettings>
             </q-expansion-item> -->
-      <q-expansion-item v-model="panel[6]" expand-separator icon="fas fa-project-diagram" label="Boundary Conditions">
+      <q-expansion-item v-model="panel[7]" expand-separator icon="fas fa-project-diagram" label="Boundary Conditions">
         <BoundaryConditionsSettings></BoundaryConditionsSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[7]" expand-separator icon="fas fa-filter" label="Bond Filters">
+      <q-expansion-item v-model="panel[8]" expand-separator icon="fas fa-filter" label="Bond Filters">
         <BondFilterSettings></BondFilterSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[8]" expand-separator icon="fas fa-sign-out-alt" label="Output">
+      <q-expansion-item v-model="panel[9]" expand-separator icon="fas fa-sign-out-alt" label="Output">
         <OutputSettings></OutputSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[9]" expand-separator icon="fas fa-calculator" label="Solver">
+      <q-expansion-item v-model="panel[10]" expand-separator icon="fas fa-calculator" label="Solver">
         <SolverSettings></SolverSettings>
       </q-expansion-item>
-      <q-expansion-item v-if="DLR" v-model="panel[10]" expand-separator icon="fas fa-flask" label="Job">
+      <q-expansion-item v-if="DLR" v-model="panel[11]" expand-separator icon="fas fa-flask" label="Job">
         <JobSettings></JobSettings>
       </q-expansion-item>
     </q-list>
@@ -52,6 +55,7 @@ import { defineComponent, inject } from 'vue'
 import ModelSettings from 'components/expansions/Model.vue'
 import DiscretizationSettings from 'components/expansions/Discretization.vue'
 import MaterialSettings from 'components/expansions/Material.vue'
+import ThermalSettings from 'components/expansions/Thermal.vue'
 import AdditiveSettings from 'components/expansions/Additive.vue'
 import DamageSettings from 'components/expansions/Damage.vue'
 import BlocksSettings from 'components/expansions/Blocks.vue'
@@ -68,6 +72,7 @@ export default defineComponent({
     ModelSettings,
     DiscretizationSettings,
     MaterialSettings,
+    ThermalSettings,
     AdditiveSettings,
     DamageSettings,
     BlocksSettings,

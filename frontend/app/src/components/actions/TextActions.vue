@@ -71,8 +71,7 @@ export default defineComponent({
       let params = {
         model_name: this.modelData.model.modelNameSelected,
         model_folder_name: this.modelData.model.modelFolderName,
-        own_mesh: this.modelData.model.ownMesh,
-        file_type: this.modelData.solver.filetype
+        own_mesh: this.modelData.model.ownMesh
       }
 
       this.$api.get('/model/viewInputFile', { params })
@@ -99,8 +98,7 @@ export default defineComponent({
       let params = {
         model_name: this.modelData.model.modelNameSelected,
         model_folder_name: this.modelData.model.modelFolderName,
-        input_string: this.viewStore.textOutput,
-        file_type: this.modelData.solver.filetype,
+        input_string: this.viewStore.textOutput
       }
 
       this.$api.put('/upload/inputFile', '', { params })
@@ -124,7 +122,6 @@ export default defineComponent({
         model_folder_name: this.modelData.model.modelFolderName,
         own_model: this.modelData.model.ownModel,
         cluster: this.modelData.job.cluster,
-        software: this.modelData.job.software
       }
 
       this.$api.get('/jobs/getStatus', { params })
@@ -143,6 +140,9 @@ export default defineComponent({
         })
     },
     async enableWebsocket() {
+      if (this.viewStore.textId != "log") {
+        return
+      }
       // Check if there is an existing connection
       if (this.connection) {
         // Close the existing connection
@@ -154,7 +154,6 @@ export default defineComponent({
         model_name: this.modelData.model.modelNameSelected,
         model_folder_name: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
-        software: this.modelData.job.software,
         token: this.$api.defaults.headers.common['Authorization'],
         user_name: this.$api.defaults.headers.common['userName'],
       };

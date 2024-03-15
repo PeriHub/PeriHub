@@ -20,8 +20,9 @@ SPDX-License-Identifier: Apache-2.0
           </q-btn>
         </div>
         <div class="row my-row">
-          <q-select class="my-input" :options="materialModelName" v-model="material.matType" :label="materialKeys.matType"
-            standout dense></q-select>
+          <q-select class="my-input" v-model="material.matType" use-input use-chips multiple input-debounce="0"
+            :options="filterOptions" @filter="filterFn" style="width: 250px; margin-bottom:20px;"
+            :label="materialKeys.matType" standout dense></q-select>
         </div>
         <div v-if="material.matType.includes('User')">
           <q-list v-for="prop, subindex in material.properties" :key="prop.materialsPropId" style="padding: 0px">
@@ -60,8 +61,6 @@ SPDX-License-Identifier: Apache-2.0
           </div>
         </div>
         <div class="row my-row">
-          <q-input v-if="job.software == 'Peridigm'" class="my-input" v-model="material.density"
-            :rules="[rules.required, rules.float]" :label="materialKeys.density" standout dense></q-input>
           <q-input class="my-input" v-model="material.poissonsRatio" :rules="[rules.required, rules.float]"
             :label="materialKeys.poissonsRatio" clearable standout dense></q-input>
         </div>
@@ -74,17 +73,12 @@ SPDX-License-Identifier: Apache-2.0
             :label="materialKeys.youngsModulus" clearable standout dense></q-input>
         </div>
         <div class="row my-row">
-          <q-toggle class="my-toggle" v-model="material.tensionSeparation" :label="materialKeys.tensionSeparation"
-            dense></q-toggle>
-          <q-toggle class="my-toggle" v-model="material.nonLinear" :label="materialKeys.nonLinear" dense></q-toggle>
-          <q-toggle class="my-toggle" v-model="material.planeStress" :label="materialKeys.planeStress" dense></q-toggle>
-          <q-toggle v-if="material.matType == 'Elastic'" class="my-toggle" v-model="material.computePartialStress"
-            :label="materialKeys.computePartialStress" dense></q-toggle>
-        </div>
-        <div class="row my-row">
           <q-select class="my-input" :options="materialSymmetry" v-model="material.materialSymmetry"
-            v-show="['Correspondence Elastic', 'Linear Elastic Correspondence', 'Anisotropic Elastic Bond Associated Correspondence'].includes(material.matType)"
             :label="materialKeys.materialSymmetry" standout dense></q-select>
+          <q-toggle class="my-toggle" v-model="material.planeStress"
+            :label="materialKeys.planeStress" standout dense></q-toggle>
+          <q-toggle class="my-toggle" v-model="material.planeStrain"
+            :label="materialKeys.planeStrain" standout dense></q-toggle>
           <q-toggle
             v-if="material.materialSymmetry == 'Anisotropic' & ['Linear Elastic Correspondence', 'Anisotropic Elastic Bond Associated Correspondence'].includes(material.matType)"
             class="my-toggle" v-model="material.stiffnessMatrix.calculateStiffnessMatrix"
@@ -126,53 +120,6 @@ SPDX-License-Identifier: Apache-2.0
         <div class="row my-row" v-show="material.matType.includes('Plastic')">
           <q-input class="my-input" v-model="material.yieldStress" :rules="[rules.required, rules.float]"
             :label="materialKeys.yieldStress" standout dense></q-input>
-        </div>
-        <q-separator></q-separator>
-        <h6 class="my-title">Thermal</h6>
-        <q-toggle class="my-toggle" v-model="material.enableThermal" label="Enabled" standout dense></q-toggle>
-        <div v-if="material.enableThermal">
-          <div class="row my-row">
-            <q-input class="my-input" v-model="material.specificHeatCapacity" :rules="[rules.required, rules.float]"
-              :label="materialKeys.specificHeatCapacity" standout dense></q-input>
-            <q-input class="my-input" v-model="material.thermalConductivity" :rules="[rules.required, rules.float]"
-              :label="materialKeys.thermalConductivity" standout dense></q-input>
-            <q-input class="my-input" v-model="material.heatTransferCoefficient" :rules="[rules.required, rules.float]"
-              :label="materialKeys.heatTransferCoefficient" standout dense></q-input>
-          </div>
-          <div class="row my-row">
-            <q-toggle class="my-toggle" v-model="material.applyThermalFlow" :label="materialKeys.applyThermalFlow"
-              dense></q-toggle>
-            <q-toggle class="my-toggle" v-model="material.applyThermalStrain" :label="materialKeys.applyThermalStrain"
-              dense></q-toggle>
-            <q-toggle class="my-toggle" v-model="material.applyHeatTransfer" :label="materialKeys.applyHeatTransfer"
-              dense></q-toggle>
-            <q-toggle class="my-toggle" v-model="material.thermalBondBased" :label="materialKeys.thermalBondBased"
-              dense></q-toggle>
-          </div>
-          <div class="row my-row">
-            <q-input class="my-input" v-model="material.thermalExpansionCoefficient"
-              :rules="[rules.required, rules.float]" :label="materialKeys.thermalExpansionCoefficient" clearable standout
-              dense></q-input>
-            <q-input class="my-input" v-model="material.environmentalTemperature" :rules="[rules.required, rules.float]"
-              :label="materialKeys.environmentalTemperature" clearable standout dense></q-input>
-          </div>
-          <q-separator></q-separator>
-          <h6 class="my-title">Additive</h6>
-          <div class="row my-row">
-            <q-input class="my-input" v-model="material.printBedTemperature" :rules="[rules.required, rules.float]"
-              :label="materialKeys.printBedTemperature" clearable standout dense></q-input>
-            <q-input class="my-input" v-model="material.printBedThermalConductivity"
-              :rules="[rules.required, rules.float]" :label="materialKeys.printBedThermalConductivity" clearable standout
-              dense></q-input>
-          </div>
-          <div class="row my-row">
-            <q-input class="my-input" v-model="material.volumeFactor" :rules="[rules.required, rules.float]"
-              :label="materialKeys.volumeFactor" clearable standout dense></q-input>
-            <q-input class="my-input" v-model="material.volumeLimit" :rules="[rules.required, rules.float]"
-              :label="materialKeys.volumeLimit" clearable standout dense></q-input>
-            <q-input class="my-input" v-model="material.surfaceCorrection" :rules="[rules.required, rules.float]"
-              :label="materialKeys.surfaceCorrection" clearable standout dense></q-input>
-          </div>
         </div>
       </div>
     </q-list>
@@ -245,10 +192,11 @@ export default defineComponent({
       //     "Vector Poisson",
       //     "PD Solid Elastic",
       // ],
-      materialModelName: [
+      materialModelNames: [
         "Bond-based Elastic",
         "PD Solid Elastic",
-        "Correspondence Elastic"
+        "Correspondence Elastic",
+        "Correspondence Plastic"
       ],
       materialSymmetry: ["Isotropic", "Anisotropic"],
       stabilizationType: [
@@ -273,16 +221,14 @@ export default defineComponent({
       },
       materialKeys: {
         name: "name",
-        matType: "Material Model",
-        density: "Density",
+        matType: "Material Models",
+        materialSymmetry: "Material Symmetry",
         bulkModulus: "Bulk Modulus",
         shearModulus: "Shear Modulus",
         youngsModulus: "Young's Modulus",
         poissonsRatio: "Poisson's Ratio",
-        tensionSeparation: "Tension Separation",
-        nonLinear: "Non linear",
         planeStress: "Plane Stress",
-        materialSymmetry: "Material Symmetry",
+        planeStrain: "Plane Strain",
         stabilizationType: "Stabilization Type",
         thickness: "Thickness",
         hourglassCoefficient: "Hourglass Coefficient",
@@ -328,26 +274,24 @@ export default defineComponent({
         computePartialStress: "Compute Partial Stress",
         useCollocationNodes: "Use Collocation Nodes",
         numStateVars: "Number of State Vars",
-        // Thermal
-        specificHeatCapacity: "Specific Heat Capacity",
-        thermalConductivity: "Thermal Conductivity",
-        heatTransferCoefficient: "Heat Transfer Coefficient",
-        applyThermalFlow: "Apply Thermal Flow",
-        applyThermalStrain: "Apply Thermal Strain",
-        applyHeatTransfer: "Apply Heat Transfer",
-        thermalBondBased: "Thermal Bond Based",
-        thermalExpansionCoefficient: "Thermal Expansion Coefficient",
-        environmentalTemperature: "Environmental Temperature",
-        // 3dPrint
-        printBedTemperature: "Print Bed Temperature",
-        printBedThermalConductivity: "Thermal Conductivity Print Bed",
-        volumeFactor: "Volume Factor",
-        volumeLimit: "Volume Limit",
-        surfaceCorrection: "Surface Correction",
       },
+      filterOptions: this.materialModelNames,
     };
   },
   methods: {
+    filterFn(val, update) {
+      update(() => {
+        if (val === '') {
+          this.filterOptions = this.materialModelNames
+        }
+        else {
+          const needle = val.toLowerCase()
+          this.filterOptions = this.materialModelNames.filter(
+            v => v.toLowerCase().indexOf(needle) > -1
+          )
+        }
+      })
+    },
     calculateStiffnessMatrix(materialId) {
       if (this.materials[materialId].stiffnessMatrix.calculateStiffnessMatrix) {
 

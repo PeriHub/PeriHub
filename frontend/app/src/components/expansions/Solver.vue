@@ -128,7 +128,6 @@ export default defineComponent({
       jacobianOperator: ["Matrix-Free", ""],
       preconditioner: ["User Defined", "None"],
       lineSearchMethod: ["Polynomial"],
-      filetype: ["yaml", "xml"],
       solverKeys: {
         // dispEnabled: "Solve For Displacement",
         matEnabled: "Material Models",

@@ -14,12 +14,10 @@ class SbatchCreator:
         self,
         filename="Model",
         model_folder_name="Default",
-        filetype="yaml",
         remotepath="",
         output="",
         job="",
         usermail="",
-        software="Peridigm",
         trial=True,
     ):
         """doc"""
@@ -31,13 +29,11 @@ class SbatchCreator:
         self.time = job.time
         self.filename = filename
         self.model_folder_name = model_folder_name
-        self.filetype = filetype
         self.user = "f_peridi"
         self.account = job.account
         self.mail = usermail
         self.output_dict = output
         self.remotepath = remotepath
-        self.software = software
         self.trial = trial
 
     def create_sbatch(self):
@@ -107,23 +103,12 @@ class SbatchCreator:
     def create_sh(self):
         """doc"""
 
-        if self.software == "Peridigm":
-            string = "#!/bin/sh" + "\n"
-            # if self.tasks == 1:
-            string += ". /opt/intel/oneapi/mkl/latest/env/vars.sh \n"
-            if self.trial:
-                string += "timeout 600s "
-            string += "/Peridigm/build/src/Peridigm " + self.filename + "." + self.filetype + "& echo $! > pid.txt \n"
-            string += "pid=`cat pid.txt` \n"
-            string += "tail --pid=$pid -f /dev/null \n"
-            string += "rm pid.txt \n"
-        elif self.software == "PeriLab":
-            string = "#!/bin/sh" + "\n"
-            if self.trial:
-                string += "timeout 600s "
-            string += "/app/PeriLab/bin/PeriLab -s " + self.filename + "." + self.filetype + "& echo $! > pid.txt \n"
-            string += "pid=`cat pid.txt` \n"
-            string += "tail --pid=$pid -f /dev/null \n"
-            string += "rm pid.txt \n"
+        string = "#!/bin/sh" + "\n"
+        if self.trial:
+            string += "timeout 600s "
+        string += "/app/PeriLab/bin/PeriLab -s " + self.filename + ".yaml & echo $! > pid.txt \n"
+        string += "pid=`cat pid.txt` \n"
+        string += "tail --pid=$pid -f /dev/null \n"
+        string += "rm pid.txt \n"
 
         return string

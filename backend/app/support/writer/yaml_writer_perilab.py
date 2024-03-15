@@ -32,13 +32,6 @@ class YAMLcreatorPeriLab:
     def check_if_defined(obj):
         return obj is not None and obj != 0 and obj != ""
 
-    @staticmethod
-    def temp_enabled(material_dict):
-        for mat in material_dict:
-            if mat.thermalConductivity is not None:
-                return True
-        return False
-
     def load_mesh(self):
         data = {}
         data["Node Sets"] = {}
@@ -112,11 +105,15 @@ class YAMLcreatorPeriLab:
 
         for mat in self.material_dict:
             material = {}
-            material["Material Model"] = mat.matType
+            material["Material Model"] = " + ".join([str(x) for x in mat.matType])
             if mat.materialSymmetry == "Anisotropic" and mat.planeStress:
                 material["Symmetry"] = "anisotropic plane stress"
             elif mat.materialSymmetry == "Isotropic" and mat.planeStress:
                 material["Symmetry"] = "isotropic plane stress"
+            elif mat.materialSymmetry == "Isotropic" and mat.planeStrain:
+                material["Symmetry"] = "isotropic plane strain"
+            elif mat.materialSymmetry == "Anisotropic" and mat.planeStrain:
+                material["Symmetry"] = "anisotropic plane strain"
             if mat.materialSymmetry == "Anisotropic":
                 # material["Material Symmetry"] = mat.materialSymmetry
                 if mat.stiffnessMatrix is not None:
@@ -157,34 +154,34 @@ class YAMLcreatorPeriLab:
                 material["Compute Partial Stress"] = mat.computePartialStress
             if self.check_if_defined(mat.useCollocationNodes):
                 material["Use Collocation Nodes"] = mat.useCollocationNodes
-            if self.check_if_defined(mat.specificHeatCapacity):
-                material["Specific Heat Capacity"] = float(mat.specificHeatCapacity)
-            if self.check_if_defined(mat.thermalConductivity):
-                material["Thermal Conductivity"] = float(mat.thermalConductivity)
-            if self.check_if_defined(mat.heatTransferCoefficient):
-                material["Heat Transfer Coefficient"] = float(mat.heatTransferCoefficient)
-            if self.check_if_defined(mat.applyThermalFlow):
-                material["Apply Thermal Flow"] = mat.applyThermalFlow
-            if self.check_if_defined(mat.applyThermalStrain):
-                material["Apply Thermal Strain"] = mat.applyThermalStrain
-            if self.check_if_defined(mat.applyHeatTransfer):
-                material["Apply Heat Transfer"] = mat.applyHeatTransfer
-            if self.check_if_defined(mat.thermalBondBased):
-                material["Thermal Bond Based"] = mat.thermalBondBased
-            if self.check_if_defined(mat.thermalExpansionCoefficient):
-                material["Thermal Expansion Coefficient"] = float(mat.thermalExpansionCoefficient)
-            if self.check_if_defined(mat.environmentalTemperature):
-                material["Environmental Temperature"] = float(mat.environmentalTemperature)
-            if self.check_if_defined(mat.printBedTemperature):
-                material["Print Bed Temperature"] = float(mat.printBedTemperature)
-            if self.check_if_defined(mat.printBedThermalConductivity):
-                material["Print Bed Thermal Conductivity"] = float(mat.printBedThermalConductivity)
-            if self.check_if_defined(mat.volumeFactor):
-                material["Volume Factor"] = float(mat.volumeFactor)
-            if self.check_if_defined(mat.volumeLimit):
-                material["Volume Limit"] = float(mat.volumeLimit)
-            if self.check_if_defined(mat.surfaceCorrection):
-                material["Surface Correction"] = float(mat.surfaceCorrection)
+            # if self.check_if_defined(mat.specificHeatCapacity):
+            #     material["Specific Heat Capacity"] = float(mat.specificHeatCapacity)
+            # if self.check_if_defined(mat.thermalConductivity):
+            #     material["Thermal Conductivity"] = float(mat.thermalConductivity)
+            # if self.check_if_defined(mat.heatTransferCoefficient):
+            #     material["Heat Transfer Coefficient"] = float(mat.heatTransferCoefficient)
+            # if self.check_if_defined(mat.applyThermalFlow):
+            #     material["Apply Thermal Flow"] = mat.applyThermalFlow
+            # if self.check_if_defined(mat.applyThermalStrain):
+            #     material["Apply Thermal Strain"] = mat.applyThermalStrain
+            # if self.check_if_defined(mat.applyHeatTransfer):
+            #     material["Apply Heat Transfer"] = mat.applyHeatTransfer
+            # if self.check_if_defined(mat.thermalBondBased):
+            #     material["Thermal Bond Based"] = mat.thermalBondBased
+            # if self.check_if_defined(mat.thermalExpansionCoefficient):
+            #     material["Thermal Expansion Coefficient"] = float(mat.thermalExpansionCoefficient)
+            # if self.check_if_defined(mat.environmentalTemperature):
+            #     material["Environmental Temperature"] = float(mat.environmentalTemperature)
+            # if self.check_if_defined(mat.printBedTemperature):
+            #     material["Print Bed Temperature"] = float(mat.printBedTemperature)
+            # if self.check_if_defined(mat.printBedThermalConductivity):
+            #     material["Print Bed Thermal Conductivity"] = float(mat.printBedThermalConductivity)
+            # if self.check_if_defined(mat.volumeFactor):
+            #     material["Volume Factor"] = float(mat.volumeFactor)
+            # if self.check_if_defined(mat.volumeLimit):
+            #     material["Volume Limit"] = float(mat.volumeLimit)
+            # if self.check_if_defined(mat.surfaceCorrection):
+            #     material["Surface Correction"] = float(mat.surfaceCorrection)
 
             data[mat.name] = material
 
@@ -275,14 +272,12 @@ class YAMLcreatorPeriLab:
 
         return data
 
-    def solver(self, temp_enabled):
+    def solver(self):
         data = {}
 
         data["Material Models"] = self.solver_dict.matEnabled
         data["Damage Models"] = self.solver_dict.damEnabled
-
-        if temp_enabled:
-            data["Solve For Temperature"] = True
+        data["Solve For Temperature"] = self.solver_dict.tempEnabled
 
         # data["Verbose"] = self.solver_dict.verbose
         data["Initial Time"] = float(self.solver_dict.initialTime)
@@ -484,7 +479,7 @@ class YAMLcreatorPeriLab:
         data["PeriLab"]["Blocks"] = self.blocks()
         if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
             data["PeriLab"]["Physics"]["Damage Models"] = self.damage()
-        data["PeriLab"]["Solver"] = self.solver(self.temp_enabled(self.material_dict))
+        data["PeriLab"]["Solver"] = self.solver()
         if self.check_if_defined(self.boundary_condition.conditions):
             data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions()
         if self.check_if_defined(self.contact_dict):

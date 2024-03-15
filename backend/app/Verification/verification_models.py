@@ -157,7 +157,6 @@ class VerificationModels:
             "NumberOfLoadSteps": 1000,
             "safetyFactor": 0.5,
             "numericalDamping": 0.00005,
-            "filetype": "xml",
         }
 
     def create_verification_models(self):
@@ -456,7 +455,7 @@ class VerificationModels:
                 "angle_y": angle_y,
                 "angle_z": angle_z,
             }
-            writer.write_mesh_with_angles(model, self.software, self.two_d)
+            writer.write_mesh_with_angles(model, self.two_d)
         else:
             model = {
                 "x": x_value,
@@ -465,8 +464,8 @@ class VerificationModels:
                 "k": k,
                 "vol": vol,
             }
-            writer.write_mesh(model, self.software, self.two_d)
-        writer.write_node_sets(model, self.software)
+            writer.write_mesh(model, self.two_d)
+        writer.write_node_sets(model)
         self.write_file(writer=writer, model=model)
 
         return model

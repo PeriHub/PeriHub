@@ -24,83 +24,21 @@
   "materials": [
     {
       "id": 1,
-      "name": "PMMA",
-      "matType": "Linear Elastic Correspondence",
-      "density": "1.4e5",
+      "name": "Aluminium",
+      "density": "2.81e-9",
+      "matType": [
+        "PD Solid Elastic"
+      ],
+      "materialSymmetry": "Isotropic",
+      "planeStress": true,
+      "planeStrain": false,
       "bulkModulus": null,
       "shearModulus": null,
-      "youngsModulus": "2.997e9",
-      "poissonsRatio": 0.3,
-      "tensionSeparation": false,
-      "nonLinear": true,
-      "planeStress": true,
-      "materialSymmetry": "Isotropic",
+      "youngsModulus": "71700",
+      "poissonsRatio": "0.33",
       "stabilizationType": "Global Stiffness",
-      "thickness": "0.01",
+      "thickness": "1",
       "hourglassCoefficient": 1,
-      "actualHorizon": null,
-      "yieldStress": null,
-      "stiffnessMatrix": {
-        "calculateStiffnessMatrix": false,
-        "engineeringConstants": {
-          "E1": null,
-          "E2": null,
-          "E3": null,
-          "G12": null,
-          "G13": null,
-          "G23": null,
-          "nu12": null,
-          "nu13": null,
-          "nu23": null
-        },
-        "matrix": {
-          "C11": null,
-          "C12": null,
-          "C13": null,
-          "C14": null,
-          "C15": null,
-          "C16": null,
-          "C22": null,
-          "C23": null,
-          "C24": null,
-          "C25": null,
-          "C26": null,
-          "C33": null,
-          "C34": null,
-          "C35": null,
-          "C36": null,
-          "C44": null,
-          "C45": null,
-          "C46": null,
-          "C55": null,
-          "C56": null,
-          "C66": null
-        }
-      },
-      "properties": [
-        {
-          "id": 1,
-          "name": "Prop_1",
-          "value": null
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "name": "PMMAElast",
-      "matType": "Linear Elastic Correspondence",
-      "density": "1.4e5",
-      "bulkModulus": null,
-      "shearModulus": null,
-      "youngsModulus": "2.997e9",
-      "poissonsRatio": "0.3",
-      "tensionSeparation": false,
-      "nonLinear": true,
-      "planeStress": true,
-      "materialSymmetry": "Isotropic",
-      "stabilizationType": "Global Stiffness",
-      "thickness": "0.01",
-      "hourglassCoefficient": "1",
       "actualHorizon": null,
       "yieldStress": null,
       "stiffnessMatrix": {
@@ -149,6 +87,25 @@
       ]
     }
   ],
+  "thermal": {
+    "enabled": false,
+    "thermalModels": [
+      {
+        "thermalModelsId": 1,
+        "name": "Thermal Model 1",
+        "applyThermalFlow": false,
+        "applyThermalExpansion": false,
+        "applyHeatTransfer": false,
+        "thermalType": "Bond based",
+        "thermalConductivity": null,
+        "heatTransferCoefficient": null,
+        "thermalExpansionCoefficient": null,
+        "environmentalTemperature": null,
+        "printTemp": 200.0,
+        "timeFactor": 1.0
+      }
+    ]
+  },
   "additive": {
     "additiveModels": [
       {
@@ -164,11 +121,11 @@
   "damages": [
     {
       "id": 1,
-      "name": "PMMADamage",
-      "damageModel": "Critical Energy Correspondence",
-      "criticalStretch": 10,
-      "criticalEnergy": "10.1",
-      "interblockdamageEnergy": "0.01",
+      "name": "Damage",
+      "damageModel": "Critical Energy",
+      "criticalStretch": null,
+      "criticalEnergy": 5.578800557880057,
+      "interblockdamageEnergy": null,
       "planeStress": true,
       "onlyTension": false,
       "detachedNodesCheck": true,
@@ -186,7 +143,7 @@
     {
       "blocksId": 1,
       "name": "block_1",
-      "material": "PMMAElast",
+      "material": "Aluminium",
       "damageModel": "",
       "density": "1.4e5",
       "show": true
@@ -194,7 +151,7 @@
     {
       "blocksId": 2,
       "name": "block_2",
-      "material": "PMMAElast",
+      "material": "Aluminium",
       "damageModel": "",
       "density": "1.4e5",
       "show": true
@@ -202,7 +159,7 @@
     {
       "blocksId": 3,
       "name": "block_3",
-      "material": "PMMA",
+      "material": "Aluminium",
       "damageModel": "",
       "density": "1.4e5",
       "show": true
@@ -210,7 +167,7 @@
     {
       "blocksId": 4,
       "name": "block_4",
-      "material": "PMMAElast",
+      "material": "Aluminium",
       "damageModel": "",
       "density": "1.4e5",
       "show": true
@@ -218,7 +175,7 @@
     {
       "blocksId": 5,
       "name": "block_5",
-      "material": "PMMAElast",
+      "material": "Aluminium",
       "damageModel": "",
       "density": "1.4e5",
       "show": true
@@ -252,7 +209,7 @@
         "conditionsId": 1,
         "name": "BC_1",
         "nodeSet": 1,
-        "boundarytype": "Prescribed Displacement",
+        "boundarytype": "Displacements",
         "blockId": 1,
         "coordinate": "x",
         "value": "0*t"
@@ -261,7 +218,7 @@
         "conditionsId": 2,
         "name": "BC_2",
         "nodeSet": 2,
-        "boundarytype": "Prescribed Displacement",
+        "boundarytype": "Displacements",
         "blockId": 5,
         "coordinate": "x",
         "value": "0.05*t"
@@ -284,7 +241,7 @@
       "id": 1,
       "computeClass": "Block_Data",
       "name": "External_Displacement",
-      "variable": "Displacement",
+      "variable": "Displacements",
       "calculationType": "Maximum",
       "blockName": "block_5"
     },
@@ -292,7 +249,7 @@
       "id": 2,
       "computeClass": "Block_Data",
       "name": "External_Force",
-      "variable": "Force",
+      "variable": "Forces",
       "calculationType": "Sum",
       "blockName": "block_5"
     }
@@ -303,11 +260,9 @@
       "name": "Output1",
       "selectedFileType": "Exodus",
       "selectedOutputs": [
-        "Displacement",
-        "Force",
-        "Damage",
-        "Velocity",
-        "Partial_Stress"
+        "Displacements",
+        "Forces",
+        "Damage"
       ],
       "Frequency": "100",
       "InitStep": 0
@@ -320,19 +275,6 @@
     "solvertype": "Verlet",
     "safetyFactor": "0.9",
     "numericalDamping": "0.0005",
-    "peridgimPreconditioner": "None",
-    "nonlinearSolver": "Line Search Based",
-    "numberOfLoadSteps": 100,
-    "maxSolverIterations": 50,
-    "relativeTolerance": 1e-8,
-    "maxAgeOfPrec": 100,
-    "directionMethod": "Newton",
-    "newton": {
-      "jacobianOperator": "Matrix-Free",
-      "preconditioner": "None"
-    },
-    "lineSearchMethod": "Polynomial",
-    "verletSwitch": true,
     "verlet": {
       "safetyFactor": 0.95,
       "numericalDamping": 0.000005,
@@ -346,7 +288,10 @@
       "maximumBondDifference": 4,
       "stableBondDifference": 1
     },
-    "filetype": "yaml"
+    "dispEnabled": true,
+    "damEnabled": true,
+    "matEnabled": true,
+    "tempEnabled": true
   },
   "job": {
     "software": "PeriLab",

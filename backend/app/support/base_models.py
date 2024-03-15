@@ -102,15 +102,13 @@ class StiffnessMatrix(BaseModel):
 class Material(BaseModel):
     id: Optional[int] = None
     name: str
-    matType: str
-    density: float
+    matType: List[str]
     bulkModulus: Optional[float] = None
     shearModulus: Optional[float] = None
     youngsModulus: Optional[float] = None
     poissonsRatio: Optional[float] = None
-    tensionSeparation: bool
-    nonLinear: bool
     planeStress: bool
+    planeStrain: bool
     materialSymmetry: str
     stabilizationType: str
     thickness: float
@@ -123,24 +121,25 @@ class Material(BaseModel):
     computePartialStress: Optional[bool] = None
     useCollocationNodes: Optional[bool] = None
 
-    # Thermal
-    enableThermal: Optional[bool] = None
-    specificHeatCapacity: Optional[float] = None
+
+class ThermalModel(BaseModel):
+    thermalModelsId: Optional[int] = None
+    name: str
+    applyThermalFlow: bool
+    applyThermalExpansion: bool
+    applyHeatTransfer: bool
+    thermalType: str
     thermalConductivity: Optional[float] = None
     heatTransferCoefficient: Optional[float] = None
-    applyThermalFlow: Optional[bool] = None
-    applyThermalStrain: Optional[bool] = None
-    applyHeatTransfer: Optional[bool] = None
-    thermalBondBased: Optional[bool] = None
     thermalExpansionCoefficient: Optional[float] = None
     environmentalTemperature: Optional[float] = None
+    printTemp: Optional[float] = None
+    timeFactor: Optional[float] = None
 
-    # 3dPrint
-    printBedTemperature: Optional[float] = None
-    printBedThermalConductivity: Optional[float] = None
-    volumeFactor: Optional[float] = None
-    volumeLimit: Optional[float] = None
-    surfaceCorrection: Optional[float] = None
+
+class Thermal(BaseModel):
+    enabled: bool
+    thermalModels: Union[List[ThermalModel], None]
 
 
 class AdditiveModel(BaseModel):
@@ -303,11 +302,6 @@ class Output(BaseModel):
     InitStep: int
 
 
-class Newton(BaseModel):
-    jacobianOperator: str = "Matrix-Free"
-    preconditioner: str = "None"
-
-
 class Verlet(BaseModel):
     safetyFactor: float = 0.95
     numericalDamping: float = 0.000005
@@ -320,15 +314,11 @@ class Adapt(BaseModel):
     stableBondDifference: int = 4
 
 
-class FileType(str, Enum):
-    YAML = "yaml"
-    XML = "xml"
-
-
 class Solver(BaseModel):
     matEnabled: bool = True
     damEnabled: bool = True
     dispEnabled: bool = True
+    tempEnabled: bool = True
     verbose: bool
     initialTime: float
     finalTime: float
@@ -336,16 +326,6 @@ class Solver(BaseModel):
     solvertype: str
     safetyFactor: float
     numericalDamping: float
-    peridgimPreconditioner: Optional[str] = None
-    nonlinearSolver: Optional[str] = None
-    numberOfLoadSteps: Optional[int] = None
-    maxSolverIterations: Optional[int] = None
-    relativeTolerance: Optional[float] = None
-    maxAgeOfPrec: Optional[int] = None
-    directionMethod: Optional[str] = None
-    newton: Optional[Newton] = None
-    lineSearchMethod: Optional[str] = None
-    verletSwitch: Optional[bool] = None
     verlet: Optional[Verlet] = None
     stopAfterDamageInitation: Optional[bool] = None
     endStepAfterDamage: Optional[int] = None
@@ -354,11 +334,9 @@ class Solver(BaseModel):
     stopBeforeDamageInitation: Optional[bool] = None
     adaptivetimeStepping: Optional[bool] = None
     adapt: Optional[Adapt] = None
-    filetype: FileType
 
 
 class Job(BaseModel):
-    software: Optional[str] = "Peridigm"
     cluster: str
     nodes: Optional[int] = 1
     tasks: Optional[int] = 32

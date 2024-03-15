@@ -54,7 +54,6 @@ class ENFmodel:
         self.username = username
         self.max_nodes = max_nodes
         self.ignore_mesh = ignore_mesh
-        self.software = model_data.job.software
         if self.two_d:
             self.zbegin = 0
             self.zend = 0
@@ -201,7 +200,7 @@ class ENFmodel:
                         ]
                     )
                 )
-                writer.write_mesh_with_angles(model, self.software, self.two_d)
+                writer.write_mesh_with_angles(model, self.two_d)
             else:
                 model = np.transpose(
                     np.vstack(
@@ -214,8 +213,8 @@ class ENFmodel:
                         ]
                     )
                 )
-                writer.write_mesh(model, self.software, self.two_d)
-            writer.write_node_sets(model, self.software)
+                writer.write_mesh(model, self.two_d)
+            writer.write_node_sets(model)
 
             block_len = int(max(k))
 

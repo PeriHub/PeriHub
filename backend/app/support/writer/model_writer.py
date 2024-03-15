@@ -44,17 +44,14 @@ class ModelWriter:
                 node_set_ids.append(bcs.blockId)
         self.ns_list = node_set_ids
 
-    def write_node_sets(self, model, software):
+    def write_node_sets(self, model):
         """doc"""
         for idx, k in enumerate(self.ns_list):
             if k == 0:
                 points = np.where(model[:, 3] >= 0)
             else:
                 points = np.where(model[:, 3] == k)
-            if software == "PeriLab":
-                string = "header: global_id\n"
-            else:
-                string = ""
+            string = "header: global_id\n"
             for point in points[0]:
                 string += str(int(point) + 1) + "\n"
             if k == 0:
@@ -78,19 +75,17 @@ class ModelWriter:
             file.write(string)
             np.savetxt(file, mesh_array, fmt=mesh_format, delimiter=" ")
 
-    def write_mesh(self, model, software="Peridigm", twoD=False):
+    def write_mesh(self, model, twoD=False):
         """doc"""
         start_time = time.time()
-        string = "# x y z block_id volume\n"
         values = "%.18e %.18e %.18e %d %.18e"
-        if software == "PeriLab":
-            if twoD:
-                string = "header: x y block_id volume\n"
-                # remove z entry from model
-                model = np.delete(model, 2, axis=1)
-                values = "%.18e %.18e %d %.18e"
-            else:
-                string = "header: x y z block_id volume\n"
+        if twoD:
+            string = "header: x y block_id volume\n"
+            # remove z entry from model
+            model = np.delete(model, 2, axis=1)
+            values = "%.18e %.18e %d %.18e"
+        else:
+            string = "header: x y z block_id volume\n"
         self.mesh_file_writer(
             self.filename + ".txt",
             string,
@@ -99,19 +94,17 @@ class ModelWriter:
         )
         log.info("Mesh written in %.2f seconds", time.time() - start_time)
 
-    def write_mesh_with_angles(self, model, software="Peridigm", twoD=False):
+    def write_mesh_with_angles(self, model, twoD=False):
         """doc"""
         start_time = time.time()
-        string = "# x y z block_id volume angle_x angle_y angle_z\n"
         values = "%.18e %.18e %.18e %d %.18e %.18e %.18e %.18e"
-        if software == "PeriLab":
-            if twoD:
-                string = "header: x y block_id volume Angles\n"
-                # remove z entry from model
-                model = np.delete(model, [2, 6, 7], axis=1)
-                values = "%.18e %.18e %d %.18e %.18e"
-            else:
-                string = "header: x y z block_id volume Angles_x Angles_y Angles_z\n"
+        if twoD:
+            string = "header: x y block_id volume Angles\n"
+            # remove z entry from model
+            model = np.delete(model, [2, 6, 7], axis=1)
+            values = "%.18e %.18e %d %.18e %.18e"
+        else:
+            string = "header: x y z block_id volume Angles_x Angles_y Angles_z\n"
         self.mesh_file_writer(
             self.filename + ".txt",
             string,
@@ -123,11 +116,7 @@ class ModelWriter:
     def create_file(self, block_def):
         """doc"""
         string = ""
-        if self.job_dict.software == "Peridigm":
-            yaml_peridigm = YAMLcreatorPeridigm(self, block_def=block_def)
-            string = yaml_peridigm.create_yaml()
-        elif self.job_dict.software == "PeriLab":
-            yaml_perilab = YAMLcreatorPeriLab(self, block_def=block_def)
-            string = yaml_perilab.create_yaml()
+        yaml_perilab = YAMLcreatorPeriLab(self, block_def=block_def)
+        string = yaml_perilab.create_yaml()
 
-        self.file_writer(self.filename + "." + self.solver_dict.filetype, string)
+        self.file_writer(self.filename + ".yaml", string)

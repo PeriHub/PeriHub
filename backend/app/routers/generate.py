@@ -12,15 +12,18 @@ import requests
 from fastapi import APIRouter, Request
 
 from models.CompactTension.compact_tension import CompactTension
-from models.DCBmodel.dcb_model import DCBmodel
+
+# from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
-from models.ENFmodel.enf_model import ENFmodel
-from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
+
+# from models.ENFmodel.enf_model import ENFmodel
+# from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
 from models.OwnModel.own_model import OwnModel
-from models.PlateWithHole.plate_with_hole import PlateWithHole
-from models.PlateWithOpening.plate_with_opening import PlateWithOpening
-from models.RingOnRing.ring_on_ring import RingOnRing
-from models.Smetana.smetana import Smetana
+
+# from models.PlateWithHole.plate_with_hole import PlateWithHole
+# from models.PlateWithOpening.plate_with_opening import PlateWithOpening
+# from models.RingOnRing.ring_on_ring import RingOnRing
+# from models.Smetana.smetana import Smetana
 from support.base_models import ModelData, ResponseModel
 from support.file_handler import FileHandler
 from support.globals import dev, log
@@ -101,8 +104,8 @@ def generate_model(
     log.info("Create %s", model_name)
 
     if model_data.model.ownModel is False:
-        if model_name == "ENFmodel":
-            enf = ENFmodel(
+        if model_name == "CompactTension":
+            model = CompactTension(
                 model_data=model_data,
                 model_folder_name=model_folder_name,
                 username=username,
@@ -110,18 +113,18 @@ def generate_model(
                 ignore_mesh=ignore_mesh,
                 dx_value=dx_value,
             )
-            result = enf.create_model()
+            result = model.create_model()
 
-        elif model_name == "DCBmodel":
-            dcb = DCBmodel(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = dcb.create_model()
+        # elif model_name == "DCBmodel":
+        #     dcb = DCBmodel(
+        #         model_data=model_data,
+        #         model_folder_name=model_folder_name,
+        #         username=username,
+        #         max_nodes=max_nodes,
+        #         ignore_mesh=ignore_mesh,
+        #         dx_value=dx_value,
+        #     )
+        #     result = dcb.create_model()
 
         elif model_name == "Dogbone":
             dogbone = Dogbone(
@@ -134,78 +137,78 @@ def generate_model(
             )
             result = dogbone.create_model()
 
-        elif model_name == "Kalthoff-Winkler":
-            kalthoff = KalthoffWinkler(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = kalthoff.create_model()
+        # elif model_name == "Kalthoff-Winkler":
+        #     kalthoff = KalthoffWinkler(
+        #         model_data=model_data,
+        #         model_folder_name=model_folder_name,
+        #         username=username,
+        #         max_nodes=max_nodes,
+        #         ignore_mesh=ignore_mesh,
+        #         dx_value=dx_value,
+        #     )
+        #     result = kalthoff.create_model()
 
-        elif model_name == "PlateWithOpening":
-            plate_with_opening = PlateWithOpening(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = plate_with_opening.create_model()
+        # elif model_name == "PlateWithOpening":
+        #     plate_with_opening = PlateWithOpening(
+        #         model_data=model_data,
+        #         model_folder_name=model_folder_name,
+        #         username=username,
+        #         max_nodes=max_nodes,
+        #         ignore_mesh=ignore_mesh,
+        #         dx_value=dx_value,
+        #     )
+        #     result = plate_with_opening.create_model()
 
-        elif model_name == "PlateWithHole":
-            plate_with_hole = PlateWithHole(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = plate_with_hole.create_model()
+        # elif model_name == "PlateWithHole":
+        #     plate_with_hole = PlateWithHole(
+        #         model_data=model_data,
+        #         model_folder_name=model_folder_name,
+        #         username=username,
+        #         max_nodes=max_nodes,
+        #         ignore_mesh=ignore_mesh,
+        #         dx_value=dx_value,
+        #     )
+        #     result = plate_with_hole.create_model()
 
-        elif model_name == "RingOnRing":
-            ring_on_ring = RingOnRing(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = ring_on_ring.create_model()
+        # elif model_name == "RingOnRing":
+        #     ring_on_ring = RingOnRing(
+        #         model_data=model_data,
+        #         model_folder_name=model_folder_name,
+        #         username=username,
+        #         max_nodes=max_nodes,
+        #         ignore_mesh=ignore_mesh,
+        #         dx_value=dx_value,
+        #     )
+        #     result = ring_on_ring.create_model()
 
-        elif model_name == "CompactTension":
-            compact_tension = CompactTension(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = compact_tension.create_model()
+        # elif model_name == "ENFModel":
+        #     enf = ENFmodel(
+        #         model_data=model_data,
+        #         model_folder_name=model_folder_name,
+        #         username=username,
+        #         max_nodes=max_nodes,
+        #         ignore_mesh=ignore_mesh,
+        #         dx_value=dx_value,
+        #     )
+        #     result = enf.create_model()
 
-        elif model_name == "Smetana":
-            smetana = Smetana(
-                model_folder_name=model_folder_name,
-                mesh_res=model_data.model.discretization,
-                xend=length,
-                plyThickness=height,
-                zend=width,
-                dx_value=dx_value,
-                model_data=model_data,
-                username=username,
-                ignore_mesh=ignore_mesh,
-                amplitude_factor=model_data.model.amplitudeFactor,
-                wavelength=model_data.model.wavelength,
-                angle=model_data.model.angles,
-                two_d=model_data.model.twoDimensional,
-            )
-            result = smetana.create_model()
+        # elif model_name == "Smetana":
+        #     smetana = Smetana(
+        #         model_folder_name=model_folder_name,
+        #         mesh_res=model_data.model.discretization,
+        #         xend=length,
+        #         plyThickness=height,
+        #         zend=width,
+        #         dx_value=dx_value,
+        #         model_data=model_data,
+        #         username=username,
+        #         ignore_mesh=ignore_mesh,
+        #         amplitude_factor=model_data.model.amplitudeFactor,
+        #         wavelength=model_data.model.wavelength,
+        #         angle=model_data.model.angles,
+        #         two_d=model_data.model.twoDimensional,
+        #     )
+        #     result = smetana.create_model()
 
         else:
             log.error("Model Name unknown")

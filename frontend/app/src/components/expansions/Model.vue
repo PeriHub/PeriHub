@@ -160,14 +160,14 @@ export default defineComponent({
     const bus = inject('bus')
     let modelName = [
       "Dogbone",
-      "Kalthoff-Winkler",
-      "PlateWithOpening",
-      "PlateWithHole",
-      "ENFmodel",
-      "DCBmodel",
+      // "Kalthoff-Winkler",
+      // "PlateWithOpening",
+      // "PlateWithHole",
+      // "ENFmodel",
+      // "DCBmodel",
       "CompactTension",
-      "OwnModel",
-      "RingOnRing"
+      // "OwnModel",
+      // "RingOnRing"
     ]
     if (process.env.DLR) {
       modelName.push("Smetana")

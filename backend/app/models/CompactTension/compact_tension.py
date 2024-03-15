@@ -56,7 +56,6 @@ class CompactTension:
         self.username = username
         self.max_nodes = max_nodes
         self.ignore_mesh = ignore_mesh
-        self.software = model_data.job.software
         self.notch_enabled = model_data.model.notchEnabled
         if self.two_d:
             self.zbegin = 0
@@ -234,7 +233,7 @@ class CompactTension:
                         ]
                     )
                 )
-                writer.write_mesh_with_angles(model, self.software, self.two_d)
+                writer.write_mesh_with_angles(model, self.two_d)
             else:
                 model = np.transpose(
                     np.vstack(
@@ -247,8 +246,8 @@ class CompactTension:
                         ]
                     )
                 )
-                writer.write_mesh(model, self.software, self.two_d)
-            writer.write_node_sets(model, self.software)
+                writer.write_mesh(model, self.two_d)
+            writer.write_node_sets(model)
 
             block_len = int(max(k))
 

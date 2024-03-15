@@ -57,7 +57,6 @@ class Smetana:
         self.dx_value = dx_value
         self.username = username
         self.ignore_mesh = ignore_mesh
-        self.software = model_data.job.software
         self.amplitude_factor = amplitude_factor
         self.wavelength = wavelength
         self.angle = angle
@@ -84,7 +83,6 @@ class Smetana:
             "amplitudeFactor": self.amplitude_factor,
             "wavelength": self.wavelength,
             "ignore_mesh": self.ignore_mesh,
-            "software": self.software,
         }
 
         data_params = SmetanaData(

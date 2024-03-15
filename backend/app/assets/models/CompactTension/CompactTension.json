@@ -29,15 +29,15 @@
       "id": 1,
       "name": "Aluminium",
       "density": "2.81e-9",
-      "matType": "PD Solid Elastic",
+      "matType": [
+        "PD Solid Elastic"
+      ],
+      "materialSymmetry": "isotropic plane stress",
       "bulkModulus": null,
       "shearModulus": null,
       "youngsModulus": "71700",
       "poissonsRatio": "0.33",
-      "tensionSeparation": true,
-      "nonLinear": false,
       "planeStress": true,
-      "materialSymmetry": "Isotropic",
       "stabilizationType": "Global Stiffness",
       "thickness": "1",
       "hourglassCoefficient": 1,
@@ -89,6 +89,25 @@
       ]
     }
   ],
+  "thermal": {
+    "enabled": false,
+    "thermalModels": [
+      {
+        "thermalModelsId": 1,
+        "name": "Thermal Model 1",
+        "applyThermalFlow": false,
+        "applyThermalExpansion": false,
+        "applyHeatTransfer": false,
+        "thermalType": "Bond based",
+        "thermalConductivity": null,
+        "heatTransferCoefficient": null,
+        "thermalExpansionCoefficient": null,
+        "environmentalTemperature": null,
+        "printTemp": 200.0,
+        "timeFactor": 1.0
+      }
+    ]
+  },
   "additive": {
     "additiveModels": [
       {
@@ -128,7 +147,10 @@
       "name": "block_1",
       "material": "Aluminium",
       "damageModel": "Damage",
+      "additiveModel": "",
+      "thermalModel": "",
       "density": "2.81e-9",
+      "specificHeatCapacity": null,
       "show": true
     },
     {
@@ -136,7 +158,10 @@
       "name": "block_2",
       "material": "Aluminium",
       "damageModel": "",
+      "additiveModel": "",
+      "thermalModel": "",
       "density": "2.81e-9",
+      "specificHeatCapacity": null,
       "show": true
     },
     {
@@ -144,7 +169,10 @@
       "name": "block_3",
       "material": "Aluminium",
       "damageModel": "",
+      "additiveModel": "",
+      "thermalModel": "",
       "density": "2.81e-9",
+      "specificHeatCapacity": null,
       "show": true
     },
     {
@@ -152,7 +180,10 @@
       "name": "block_4",
       "material": "Aluminium",
       "damageModel": "",
+      "additiveModel": "",
+      "thermalModel": "",
       "density": "2.81e-9",
+      "specificHeatCapacity": null,
       "show": true
     },
     {
@@ -160,7 +191,10 @@
       "name": "block_5",
       "material": "Aluminium",
       "damageModel": "",
+      "additiveModel": "",
+      "thermalModel": "",
       "density": "2.81e-9",
+      "specificHeatCapacity": null,
       "show": true
     }
   ],
@@ -278,19 +312,7 @@
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,
-    "peridgimPreconditioner": "Full Tangent",
-    "nonlinearSolver": "Line Search Based",
     "numberOfLoadSteps": "100",
-    "maxSolverIterations": 50,
-    "relativeTolerance": "100000",
-    "maxAgeOfPrec": 100,
-    "directionMethod": "Newton",
-    "newton": {
-      "jacobianOperator": "Matrix-Free",
-      "preconditioner": "None"
-    },
-    "lineSearchMethod": "Polynomial",
-    "verletSwitch": true,
     "verlet": {
       "safetyFactor": 0.95,
       "numericalDamping": 0.000005,
@@ -304,16 +326,15 @@
       "maximumBondDifference": 4,
       "stableBondDifference": 1
     },
-    "filetype": "yaml",
     "endStepAfterDamage": "3",
     "dispEnabled": true,
     "stopAfterCertainDamage": true,
     "maxDamageValue": "0.3",
     "damEnabled": true,
-    "matEnabled": true
+    "matEnabled": true,
+    "tempEnabled": true
   },
   "job": {
-    "software": "PeriLab",
     "cluster": "None",
     "nodes": 1,
     "tasks": 32,

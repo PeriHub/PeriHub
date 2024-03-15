@@ -13,8 +13,8 @@ SPDX-License-Identifier: Apache-2.0
           standout dense></q-input>
         <q-select class="my-select" :options="computeClass" v-model="compute.computeClass"
           :label="computeKeys.computeClass" standout dense></q-select>
-        <q-select class="my-select" :options="variables" v-model="compute.variable" :label="computeKeys.variable" standout
-          dense></q-select>
+        <q-select class="my-select" :options="variables" v-model="compute.variable" :label="computeKeys.variable"
+          standout dense></q-select>
       </div>
       <div class="row my-row" v-show="compute.computeClass == 'Block_Data'">
         <q-select class="my-select" :options="calculationType" v-model="compute.calculationType"
@@ -61,8 +61,8 @@ SPDX-License-Identifier: Apache-2.0
           <q-select class="my-input" v-model="output.selectedOutputs" use-input use-chips multiple input-debounce="0"
             :options="filterOptions" @filter="filterFn" style="width: 250px; margin-bottom:20px;" standout
             dense></q-select>
-          <q-select v-if="job.software == 'PeriLab'" class="my-input" v-model="output.selectedFileType"
-            :options="fileTypes" input-debounce="0" style="width: 250px; margin-bottom:20px;" standout dense></q-select>
+          <q-select class="my-input" v-model="output.selectedFileType" :options="fileTypes" input-debounce="0"
+            style="width: 250px; margin-bottom:20px;" standout dense></q-select>
           <q-toggle class="my-toggle" v-model="output.useOutputFrequency" label="Use Output Frequency" standout
             dense></q-toggle>
           <q-input v-if="output.useOutputFrequency" class="my-input" v-model="output.Frequency" :rules="[rules.int]"
@@ -111,15 +111,6 @@ export default defineComponent({
     }
   },
   created() {
-    this.bus.on('changeSoftware', (software) => {
-      console.log(software)
-      if (software == "Peridigm") {
-        // this.outputKeys.push()
-      }
-      else if (software == "PeriLab") {
-        this.outputKeys.push("Displacements")
-      }
-    })
     this.bus.on('addStateVarsToOutput', (numStateVars) => {
       this.addStateVarsToOutput(numStateVars)
     })
