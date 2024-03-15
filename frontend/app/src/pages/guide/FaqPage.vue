@@ -1,4 +1,9 @@
-<!-- frontend/app/src/pages/guide/FaqPage.vue -->
+<!--
+SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <template>
   <div>
     <h1>Frequently Asked Questions</h1>

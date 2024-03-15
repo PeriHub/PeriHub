@@ -198,7 +198,6 @@ class Dogbone:
                                 mat_num = idx + 1
                         k.append(mat_num)
 
-
                 vol = np.full_like(
                     x_value,
                     self.dx_value[0] * self.dx_value[0] * vol_factor,
