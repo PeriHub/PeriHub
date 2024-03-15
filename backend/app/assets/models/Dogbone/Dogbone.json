@@ -27,20 +27,21 @@
       "name": "Aluminium",
       "density": "2.81e-9",
       "matType": [
-        "PD Solid Elastic"
+        "PD Solid Elastic",
+        "PD Solid Plastic"
       ],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
       "planeStrain": false,
       "bulkModulus": null,
       "shearModulus": null,
-      "youngsModulus": "71700",
-      "poissonsRatio": "0.33",
+      "youngsModulus": 7.0e+5,
+      "poissonsRatio": 0.33,
       "stabilizationType": "Global Stiffness",
-      "thickness": "1",
+      "thickness": 1,
       "hourglassCoefficient": 1,
       "actualHorizon": null,
-      "yieldStress": null,
+      "yieldStress": 20,
       "stiffnessMatrix": {
         "calculateStiffnessMatrix": false,
         "engineeringConstants": {
@@ -124,12 +125,12 @@
       "name": "Damage",
       "damageModel": "Critical Energy",
       "criticalStretch": null,
-      "criticalEnergy": 5.578800557880057,
+      "criticalEnergy": 5.0,
       "interblockdamageEnergy": null,
       "planeStress": true,
       "onlyTension": false,
       "detachedNodesCheck": true,
-      "thickness": 10,
+      "thickness": 1,
       "hourglassCoefficient": 1,
       "stabilizationType": "Global Stiffness",
       "criticalEnergyCalc": {
@@ -145,7 +146,7 @@
       "name": "block_1",
       "material": "Aluminium",
       "damageModel": "",
-      "density": "1.4e5",
+      "density": "1.4e-8",
       "show": true
     },
     {
@@ -153,15 +154,15 @@
       "name": "block_2",
       "material": "Aluminium",
       "damageModel": "",
-      "density": "1.4e5",
+      "density": "1.4e-8",
       "show": true
     },
     {
       "blocksId": 3,
       "name": "block_3",
       "material": "Aluminium",
-      "damageModel": "",
-      "density": "1.4e5",
+      "damageModel": "Damage",
+      "density": "1.4e-8",
       "show": true
     },
     {
@@ -169,7 +170,7 @@
       "name": "block_4",
       "material": "Aluminium",
       "damageModel": "",
-      "density": "1.4e5",
+      "density": "1.4e-8",
       "show": true
     },
     {
@@ -177,7 +178,7 @@
       "name": "block_5",
       "material": "Aluminium",
       "damageModel": "",
-      "density": "1.4e5",
+      "density": "1.4e-8",
       "show": true
     }
   ],
@@ -221,7 +222,7 @@
         "boundarytype": "Displacements",
         "blockId": 5,
         "coordinate": "x",
-        "value": "0.05*t"
+        "value": "0.5*t"
       }
     ],
     "nodeSets": [
@@ -262,7 +263,8 @@
       "selectedOutputs": [
         "Displacements",
         "Forces",
-        "Damage"
+        "Damage",
+        "von Mises Stress"
       ],
       "Frequency": "100",
       "InitStep": 0
@@ -271,7 +273,7 @@
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": "0.0075",
+    "finalTime": "1e-5",
     "solvertype": "Verlet",
     "safetyFactor": "0.9",
     "numericalDamping": "0.0005",

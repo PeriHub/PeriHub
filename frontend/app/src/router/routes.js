@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import GuidePage from "pages/GuidePage.vue";
+import IntroductionPage from "pages/guide/IntroductionPage.vue";
+import GettingStartedPage from "pages/guide/GettingStartedPage.vue";
 
 const routes = [
   {
@@ -35,9 +36,15 @@ const routes = [
     ],
   },
   {
-    path: "/guide/:id",
+    path: "/guide",
     component: () => import("layouts/GuideLayout.vue"),
-    children: [{ path: "", component: GuidePage }],
+    children: [
+      { path: "/guide/Introduction", component: () => import("pages/guide/IntroductionPage.vue") },
+      { path: "/guide/GettingStarted", component: () => import("pages/guide/GettingStartedPage.vue") },
+      { path: "/guide/Buttons", component: () => import("pages/guide/ButtonPage.vue") },
+      { path: "/guide/Output", component: () => import("pages/guide/OutputPage.vue") },
+      { path: "/guide/faq", component: () => import("pages/guide/FaqPage.vue") },
+    ],
   },
   { path: "/guide", redirect: "/guide/Introduction" },
 

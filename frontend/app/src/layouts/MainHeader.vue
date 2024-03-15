@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
 
       <q-tabs align="center">
         <q-route-tab to="/perihub" label="Perihub" />
-        <q-route-tab to="/guide" label="Guide" />
+        <q-route-tab to="/guide/introduction" label="Guide" />
         <q-route-tab to="/tools" label="Tools" />
         <q-route-tab to="/publications" label="Publications" />
       </q-tabs>
@@ -33,15 +33,15 @@ SPDX-License-Identifier: Apache-2.0
         </q-tooltip>
       </q-btn>
 
-      <q-btn flat dense icon="fas fa-bolt" href="https://perihub-api.fa-services.intra.dlr.de/docs">
+      <q-btn flat dense icon="fas fa-bolt" to="/api/docs">
         <q-tooltip>
           PeriHub-API
         </q-tooltip>
       </q-btn>
 
-      <q-btn flat dense icon="fab fa-github" href="https://github.com/PeriDoX/PeriDoX">
+      <q-btn flat dense icon="fab fa-youtube" href="https://www.youtube.com/@PeriHub">
         <q-tooltip>
-          PeriDoX
+          YouTube
         </q-tooltip>
       </q-btn>
 

@@ -21,7 +21,6 @@ from support.base_models import (
     ContactModel,
     Damage,
     Interaction,
-    Newton,
     Output,
     SmetanaData,
     Solver,

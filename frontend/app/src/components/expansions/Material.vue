@@ -117,7 +117,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-model="material.actualHorizon" :rules="[rules.required, rules.float]"
             :label="materialKeys.actualHorizon" standout dense></q-input>
         </div>
-        <div class="row my-row" v-show="material.matType.includes('Plastic')">
+        <div class="row my-row" v-show="material.matType.some(type => type.includes('Plastic'))">
           <q-input class="my-input" v-model="material.yieldStress" :rules="[rules.required, rules.float]"
             :label="materialKeys.yieldStress" standout dense></q-input>
         </div>
@@ -195,6 +195,7 @@ export default defineComponent({
       materialModelNames: [
         "Bond-based Elastic",
         "PD Solid Elastic",
+        "PD Solid Plastic",
         "Correspondence Elastic",
         "Correspondence Plastic"
       ],

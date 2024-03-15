@@ -9,6 +9,7 @@ SPDX-License-Identifier: Apache-2.0
     <h1>Publications</h1>
     <ul>
       <q-list v-for="entry in bib_entries" :key="entry.entryTags.URL">
+        <q-card flat bordered style="padding: 10px; margin: 10px;">
         <div v-if="entry.entryTags.Title">
           <div v-if="entry.entryTags.URL">
             <a :href="entry.entryTags.URL"><span class="title">{{ entry.entryTags.Title }}</span></a>
@@ -49,6 +50,7 @@ SPDX-License-Identifier: Apache-2.0
           <span v-if="entry.entryTags.Year"><span class="year">{{ entry.entryTags.Year }}</span></span>
           <span v-if="entry.entryTags.year"><span class="year">{{ entry.entryTags.year }}</span></span>.
         </div>
+        </q-card>
       </q-list>
     </ul>
   </q-page>
@@ -80,9 +82,10 @@ export default defineComponent({
           this.bib_entries = bibtexParse.toJSON(this.bib_data);
         })
         .catch((error) => {
+          console.log(error)
           this.$q.notify({
             type: 'negative',
-            message: error.response.data.detail
+            message: error
           })
         })
     },

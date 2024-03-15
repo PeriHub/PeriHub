@@ -186,6 +186,7 @@ def cancel_job(
         except paramiko.SSHException:
             log.error("ssh connection to %s failed!", server)
             return "ssh connection to " + server + " failed!"
+        #TODO: check if job is still running
         command = (
             "kill -9 `cat /app"
             + os.path.join(remotepath, "pid.txt")

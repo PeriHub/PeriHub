@@ -162,7 +162,10 @@ export default defineComponent({
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
 
-      const socket_path = `ws${process.env.API.split("http")[1]}/log?${queryString}`;
+      let socket_path = `ws://localhost:5000/log?${queryString}`;
+      if (process.env.DEV) {
+        socket_path = `ws${process.env.API.split("http")[1]}/log?${queryString}`;
+      }
 
       // const socket_path = "ws" + process.env.API.split("http")[1] + '/log?token=' + this.$api.defaults.headers.common['Authorization']
       console.log(socket_path)

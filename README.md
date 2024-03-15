@@ -20,35 +20,35 @@ PeriHub is a powerful software solution that can significantly benefit research 
 
 - **Portability and Scalability:** PeriHub utilizes Docker containers, ensuring seamless integration and deployment across various computing environments. This approach enhances the software's portability, scalability, and ease of use, making it even more practical for research purposes.
 
-![](backend/app/assets/images/PeriHub.drawio.png)
+![](frontend/app/src/assets/images/PeriHub.drawio.png)
 
 ### Generate model
 
-![](backend/app/assets/gif/generateModel.gif)
+![](frontend/app/src/assets/gif/generateModel.gif)
 
 ### View generated mesh
 
-![](backend/app/assets/gif/viewMesh.gif)
+![](frontend/app/src/assets/gif/viewMesh.gif)
 
 ### Edit input deck
 
-![](backend/app/assets/gif/editInputDeck.gif)
+![](frontend/app/src/assets/gif/editInputDeck.gif)
 
 ### Submit model
 
-![](backend/app/assets/gif/runModel.gif)
+![](frontend/app/src/assets/gif/runModel.gif)
 
 ### Analyse results
 
-![](backend/app/assets/gif/analyseResults.gif)
+![](frontend/app/src/assets/gif/analyseResults.gif)
 
 ### Plot results
 
-![](backend/app/assets/gif/plotResults.gif)
+![](frontend/app/src/assets/gif/plotResults.gif)
 
 ### Analyse fracture
 
-![](backend/app/assets/gif/analyseFracture.gif)
+![](frontend/app/src/assets/gif/analyseFracture.gif)
 
 # Getting Started with PeriHub Services
 
@@ -60,16 +60,10 @@ To get started with PeriHub, you can use Docker Compose to easily set up the req
 git clone https://github.com/dlr-perihub/PeriHub.git
 ```
 
-- Go into the perihub folder.
+- Go into the PeriHub folder.
 
 ```
-cd perihub
-```
-
-- Create a .env file and save following variables, replace the `{PATHTOJOBFOLDER}` whith an existing directory, for example `/c/Users/YOU/perihubJobs`
-
-```
-echo "VOLUME={PATHTOJOBFOLDER}" >> .env
+cd PeriHub
 ```
 
 - Run docker-compose.
@@ -78,7 +72,7 @@ echo "VOLUME={PATHTOJOBFOLDER}" >> .env
 docker-compose up
 ```
 
-- If docker finished building PeriHub, go to http://localhost:6010
+- If docker finished building PeriHub, go to http://localhost:8000
 
 ## Contact
 

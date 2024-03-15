@@ -7,42 +7,37 @@ version: "3"
 services:
   perihub_backend:
     image: perihub/backend
+    container_name: perihub_backend
     build:
       context: backend/.
-    container_name: perihub_backend
     ports:
       - 5000:5000
     environment:
       - DLR=${DLR}
       - TRIAL=${TRIAL}
     volumes:
-      - ${VOLUME}peridigmJobs:/app/peridigmJobs
-      - ${VOLUME}rsaFiles:/app/rsaFiles
-    networks:
-      - web_network
+      - perihub:/app/peridigmJobs
 
   perihub_frontend:
     image: perihub/frontend
+    container_name: perihub_frontend
     build:
       context: frontend/.
+    depends_on:
+      - perihub_backend
     ports:
       - 8000:80
     environment:
       - DLR=${DLR}
       - TRIAL=${TRIAL}
-    networks:
-      - web_network
 
   perilab:
-    container_name: perihub_perilab
     image: perihub/perilab
+    container_name: perihub_perilab
     ports:
       - 6000:80
     volumes:
-      - ${VOLUME}peridigmJobs:/app/peridigmJobs
-    networks:
-      - web_network
+      - perihub:/app/peridigmJobs
 
-networks:
-  web_network:
-    driver: bridge
+volumes:
+  perihub: {}

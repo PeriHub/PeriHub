@@ -23,26 +23,8 @@ export const useDefaultStore = defineStore("default", {
       this.darkMode = !this.darkMode;
     },
     initialiseStore() {
-      if (process.env.TRIAL) {
-        console.log(`I'm on a trial build`);
-        if (localStorage.getItem("userName") != null) {
-          api.defaults.headers.common["userName"] =
-            localStorage.getItem("userName");
-        } else {
-          let reqOptions = {
-            url: "https://randomuser.me/api",
-          };
-          axios.request(reqOptions).then((response) => {
-            const uuid = response.data.results[0].login.uuid;
-            console.log(uuid);
-            api.defaults.headers.common["userName"] = uuid;
-            localStorage.setItem("userName", uuid);
-          });
-        }
-      }
-      if (process.env.DEV) {
-        console.log(`I'm on a development build`);
-      } else {
+      if (process.env.DLR) {
+        console.log(`I'm on a DLR build`);
         let reqOptions = {
           url: "https://perihub.fa-services.intra.dlr.de",
         };
@@ -53,7 +35,36 @@ export const useDefaultStore = defineStore("default", {
             response.headers.authorization;
           // console.log('login', {token: response.headers.authorization})
         });
+        return
       }
+
+      let uuid = "user";
+
+      if (process.env.TRIAL) {
+        console.log(`I'm on a trial build`);
+        if (localStorage.getItem("userName") != null) {
+          api.defaults.headers.common["userName"] =
+            localStorage.getItem("userName");
+            return
+        } else {
+          let reqOptions = {
+            url: "https://randomuser.me/api",
+          };
+          axios.request(reqOptions).then((response) => {
+            uuid = response.data.results[0].login.uuid;
+          });
+        }
+      }
+      if (process.env.DEV) {
+        console.log(`I'm on a development build`);
+        uuid = "dev"
+      } 
+      else {
+        console.log(`I'm on a local build`);
+      }
+      console.log(uuid);
+      api.defaults.headers.common["userName"] = uuid;
+      localStorage.setItem("userName", uuid);
     },
   },
 });

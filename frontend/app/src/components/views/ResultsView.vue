@@ -222,7 +222,7 @@ export default {
         .catch(() => {
           this.$q.notify({
             type: 'negative',
-            message: 'Loading failed',
+            message: 'Results cannot be loaded',
           })
         })
       console.log(data)

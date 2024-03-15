@@ -13,7 +13,6 @@ logging.basicConfig(
     datefmt="[%X]",
     handlers=[RichHandler(level=logging.INFO)],
 )
-logging.getLogger("matplotlib").setLevel(logging.ERROR)
 logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 log = logging.getLogger("rich")

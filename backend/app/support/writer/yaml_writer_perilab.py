@@ -140,8 +140,8 @@ class YAMLcreatorPeriLab:
             #     material["Tension Separation"] = mat.tensionSeparation
             # if self.check_if_defined(mat.actualHorizon):
             #     material["Actual Horizon"] = float(mat.actualHorizon)
-            # if self.check_if_defined(mat.yieldStress):
-            #     material["Yield Stress"] = float(mat.yieldStress)
+            if self.check_if_defined(mat.yieldStress):
+                material["Yield Stress"] = float(mat.yieldStress)
             # if self.check_if_defined(mat.nonLinear):
             #     material["Non linear"] = mat.nonLinear
             if self.check_if_defined(mat.numStateVars):
@@ -277,7 +277,7 @@ class YAMLcreatorPeriLab:
 
         data["Material Models"] = self.solver_dict.matEnabled
         data["Damage Models"] = self.solver_dict.damEnabled
-        data["Solve For Temperature"] = self.solver_dict.tempEnabled
+        data["Thermal Models"] = self.solver_dict.tempEnabled
 
         # data["Verbose"] = self.solver_dict.verbose
         data["Initial Time"] = float(self.solver_dict.initialTime)
@@ -286,14 +286,14 @@ class YAMLcreatorPeriLab:
         if self.solver_dict.stopAfterDamageInitation:
             data["Stop after damage initiation"] = True
 
-        if self.solver_dict.stopAfterCertainDamage and self.solver_dict.endStepAfterDamage:
-            data["End step after damage"] = self.solver_dict.endStepAfterDamage
+        # if self.solver_dict.stopAfterCertainDamage and self.solver_dict.endStepAfterDamage:
+        #     data["End step after damage"] = self.solver_dict.endStepAfterDamage
 
-        if self.solver_dict.stopAfterCertainDamage:
-            data["Stop after certain damage value"] = True
+        # if self.solver_dict.stopAfterCertainDamage:
+        #     data["Stop after certain damage value"] = True
 
-        if self.solver_dict.stopAfterCertainDamage and self.solver_dict.maxDamageValue:
-            data["Max. damage value"] = self.solver_dict.maxDamageValue
+        # if self.solver_dict.stopAfterCertainDamage and self.solver_dict.maxDamageValue:
+        #     data["Max. damage value"] = self.solver_dict.maxDamageValue
 
         if self.solver_dict.stopBeforeDamageInitation:
             data["Stop before damage initiation"] = True

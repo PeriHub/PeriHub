@@ -8,7 +8,6 @@ doc
 import math
 import time
 
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import interp1d
 
@@ -69,9 +68,6 @@ class Geometry:
             gridx.extend(coor[0] + current_outer_radius * np.cos(theta[:-1]))
             gridy.extend(coor[1] + current_outer_radius * np.sin(theta[:-1]))
             gridz.extend(0 * theta[:-1])
-
-        # plt.scatter(gridx, gridy)
-        # plt.show()
 
         if coor[2] == 0:
             grid_x_value = np.array(gridx).ravel()
@@ -167,8 +163,6 @@ class Geometry:
         y = np.array([width / 2, width / 2, 0.0, 0.0])
 
         f = interp1d(x, y)
-        plt.scatter(array_x, f(array_x))
-        plt.show()
         # print(f(array_x))
         condition = np.where(
             np.logical_and(

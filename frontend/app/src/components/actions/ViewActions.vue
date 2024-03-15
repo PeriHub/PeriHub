@@ -61,46 +61,12 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-eye" @click="showResultsDialog" :disable="!status.results">
+    <q-btn flat icon="fas fa-eye" @click="viewStore.viewId = 'results'" :disable="!status.results">
       <q-tooltip>
         Show Results
       </q-tooltip>
     </q-btn>
-    <q-btn v-if="port != null" flat icon="fas fa-times" @click="closeTrame" :disable="!status.results">
-      <q-tooltip>
-        Close Trame
-      </q-tooltip>
-    </q-btn>
-    <q-dialog v-model="dialogShowResults" persistent max-width="800">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Show Results</div>
-        </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          Which output do you want to show ?
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
-            v-model="showResultsOutputName" label="Output Name" standout dense></q-select>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="showResults(showResultsOutputName)"></q-btn>
-          <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-btn v-if="viewStore.viewId == 'trame'" flat icon="fas fa-external-link-alt" @click="openResults">
-      <q-tooltip>
-        Open Results
-      </q-tooltip>
-    </q-btn>
-    <q-btn v-if="modelData.job.cluster == 'Cara'" flat icon="fas fa-external-link-alt" @click="openCara">
-      <q-tooltip>
-        CARA Enginframe
-      </q-tooltip>
-    </q-btn>
     <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)"
       flat icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
       <q-tooltip>
@@ -505,9 +471,9 @@ export default defineComponent({
           throw new Error(message);
         })
 
+      this.viewStore.textId = "log";
       this.bus.emit("enableWebsocket");
       this.viewStore.viewId = "jobs";
-      this.viewStore.textId = "log";
       await sleep(1000);
       this.bus.emit("getStatus");
       this.submitLoading = false;
@@ -568,103 +534,6 @@ export default defineComponent({
         })
 
       this.resultsLoading = false;
-    },
-    openCara() {
-      window.open("https://cara.dlr.de/enginframe/vdi/vdi.xml", "_blank");
-    },
-    openResults() {
-      window.open(this.viewStore.resultPort, "_blank");
-    },
-    showResultsDialog() {
-      if (this.modelData.outputs.length == 1) {
-        this.showResults(this.modelData.outputs[0].name)
-      } else {
-        this.dialogShowResults = true
-      }
-    },
-    async showResults(outputName) {
-      this.viewStore.modelLoading = true;
-
-      var index = this.modelData.outputs.findIndex((o) => o.name == outputName);
-      let outputList = this.modelData.outputs[index].selectedOutputs;
-      const stressIndex = outputList.indexOf("Partial_Stress");
-      if (stressIndex > -1) {
-        outputList.splice(stressIndex, 1);
-        outputList.push("Partial_StressX")
-        outputList.push("Partial_StressY")
-        outputList.push("Partial_StressZ")
-      }
-      console.log(outputList);
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
-        output_name: this.modelData.outputs[index].name,
-        output_list: outputList.toString(),
-        dx_value: this.viewStore.dx_value,
-        num_of_blocks: this.modelData.blocks.length,
-        duration: 600
-      }
-
-      console.log(this.port)
-      await this.$trameApi.post('/launchTrameInstance', '', { params })
-        .then((response) => {
-          this.$q.notify({
-            message: response.data.message
-          })
-          this.port = response.data.data
-        })
-        .catch((error) => {
-          this.$q.notify({
-            type: 'negative',
-            message: error.response.data.detail
-          })
-
-          this.viewStore.modelLoading = false;
-          return;
-        })
-
-      if (process.env.DEV) {
-        // this.viewStore.resultPort =
-        //   process.env.VUE_APP_TRAME_API.slice(0, process.env.VUE_APP_TRAME_API.length - 4) + this.port;
-      } else {
-        let id = parseInt(this.port) - 6040;
-        this.viewStore.resultPort =
-          "http://perihub-trame-gui" +
-          id.toString() +
-          ".fa-services.intra.dlr.de:443";
-      }
-      // console.log(this.port)
-      // console.log(process.env.VUE_APP_TRAME_API)
-      // console.log(this.viewStore.resultPort)
-
-      await sleep(17000);
-      this.viewStore.modelLoading = false;
-      window.open(this.viewStore.resultPort, "_blank");
-
-      // this.viewStore.viewId = "trame";
-      // document.querySelectorAll("iframe").forEach(function (e) {
-      //     e.src += "";
-      // });
-    },
-    closeTrame() {
-      let params = {
-        port: this.port,
-        cron: false,
-      }
-
-      this.$trameApi.post('/closeTrameInstance', '', { params })
-        .then((response) => {
-          this.$q.notify({
-            message: response.data.message
-          })
-        })
-        .catch((error) => {
-          this.$q.notify({
-            type: 'negative',
-            message: error.response.data.detail
-          })
-        })
-      this.port = null;
     },
     updatePlotVariables() {
       let items = [];

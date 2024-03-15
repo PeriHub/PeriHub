@@ -12,47 +12,12 @@ from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 
 from support.base_models import ResponseModel
-from support.export.image_export import ImageExport
-from support.export.video_export import VideoExport
 from support.file_handler import FileHandler
 from support.globals import dev, log
 from support.results.analysis import Analysis
 from support.results.crack_analysis import CrackAnalysis
 
 router = APIRouter(prefix="/results", tags=["Results Methods"])
-
-
-@router.get("/getPlotPython")
-def get_plot_python(
-    model_name: str = "Dogbone",
-    model_folder_name: str = "Default",
-    cluster: str = "None",
-    tasks: int = 32,
-    output: str = "Output1",
-    x_variable: str = "Time",
-    x_axis: str = "X",
-    y_variable: str = "External_Displacement",
-    y_axis: str = "X",
-    request: Request = "",
-):
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output
-    ):
-        raise IOError  # NotFoundException(name=model_name)
-
-    resultpath = "./Results/" + os.path.join(username, model_name)
-    file = os.path.join(resultpath, model_name + "_" + output + ".e")
-
-    filepath = ImageExport.get_plot_image_from_exodus(file, x_variable, x_axis, y_variable, y_axis)
-
-    try:
-        return FileResponse(filepath)
-    except IOError:
-        log.error("%s results can not be found on %s", model_name, cluster)
-        return model_name + " results can not be found on " + cluster
 
 
 @router.get("/getFractureAnalysis")

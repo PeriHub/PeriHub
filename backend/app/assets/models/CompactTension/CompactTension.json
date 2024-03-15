@@ -28,16 +28,16 @@
     {
       "id": 1,
       "name": "Aluminium",
-      "density": "2.81e-9",
       "matType": [
         "PD Solid Elastic"
       ],
-      "materialSymmetry": "isotropic plane stress",
+      "materialSymmetry": "Isotropic",
+      "planeStress": true,
+      "planeStrain": false,
       "bulkModulus": null,
       "shearModulus": null,
       "youngsModulus": "71700",
       "poissonsRatio": "0.33",
-      "planeStress": true,
       "stabilizationType": "Global Stiffness",
       "thickness": "1",
       "hourglassCoefficient": 1,
@@ -308,7 +308,7 @@
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": "0.003",
+    "finalTime": "0.0001",
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,
@@ -328,11 +328,11 @@
     },
     "endStepAfterDamage": "3",
     "dispEnabled": true,
-    "stopAfterCertainDamage": true,
+    "stopAfterCertainDamage": false,
     "maxDamageValue": "0.3",
     "damEnabled": true,
     "matEnabled": true,
-    "tempEnabled": true
+    "tempEnabled": false
   },
   "job": {
     "cluster": "None",

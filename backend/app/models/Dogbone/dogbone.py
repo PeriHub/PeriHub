@@ -7,7 +7,6 @@ doc
 """
 import time
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from support.base_models import Block
@@ -188,21 +187,17 @@ class Dogbone:
                                 if geo.check_val_greater(xval, val):
                                     mat_num = idx + 1
                             k.append(mat_num)
-                        # plt.scatter(x_value_0, upper_y_value)
-                        # plt.scatter(x_value_0, lower_y_value)
 
                     x_value = np.concatenate((x_value, x_value_0))
                     y_value = np.concatenate((y_value, np.zeros_like(x_value_0)))
                     z_value = np.concatenate((z_value, np.full_like(x_value_0, zval)))
                     vol_factor = np.concatenate((vol_factor, np.ones_like(x_value_0)))
-                    # plt.scatter(x_value_0, np.zeros_like(x_value_0))
                     for xval in x_value_0:
                         for idx, val in enumerate(block_def):
                             if geo.check_val_greater(xval, val):
                                 mat_num = idx + 1
                         k.append(mat_num)
 
-                # plt.show()
 
                 vol = np.full_like(
                     x_value,
@@ -247,8 +242,6 @@ class Dogbone:
                                 y_value.append(yval)
                                 z_value.append(zval)
                                 k.append(mat_num)
-                plt.scatter(x_value, y_value)
-                plt.show()
                 vol = np.full_like(x_value, self.dx_value[0] * self.dx_value[0])
 
             if self.rot:

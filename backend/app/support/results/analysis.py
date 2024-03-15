@@ -6,7 +6,6 @@ import json
 import math
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 from exodusreader import exodusreader
 
@@ -86,127 +85,6 @@ class Analysis:
                 elif axis == "Magnitude":
                     data = [item[0] for item in global_data[variable]]
         return data
-
-    @staticmethod
-    def get_g1c_k1c(username, model_name, model: Model, youngs_modulus):
-        B = 1
-        if model.width is not None:
-            B = model.width
-        a = model.cracklength
-        W = model.length
-        # E = youngs_modulus
-
-        resultpath = "./Results/" + os.path.join(username, model_name)
-        file = os.path.join(resultpath, model_name + "_Output1.e")
-        file2 = os.path.join(resultpath, model_name + "_Output2.e")
-
-        # points, point_data, global_data, cell_data, ns, block_data, time = exodusreader.read(file)
-
-        Force = Analysis.get_global_data(file, "External_Force", "Y", True)
-        Displ = Analysis.get_global_data(file, "External_Displacement", "Y", True)
-
-        Force2 = Analysis.get_global_data(file2, "External_Force", "Y", True)
-        Displ2 = Analysis.get_global_data(file2, "External_Displacement", "Y", True)
-
-        fig, ax = plt.subplots()
-
-        ax.plot(Displ, Force)
-        ax.set_xlabel("Displacement [mm]")
-        ax.set_ylabel("Force [N]")
-
-        fig.set_size_inches(18.5, 18.5)
-        ax.fill_between(
-            Displ,
-            Force,
-            0,
-            where=Displ < Displ2[0],
-            color="gray",
-            alpha=0.5,
-        )
-
-        imagepath = os.path.join(resultpath, "Energy.png")
-        fig.savefig(imagepath)
-
-        print(Force)
-        print(Displ)
-
-        from scipy import integrate
-
-        # x = np.linspace(-2, 2, num=20)
-        # y = x
-        Energy = -integrate.simpson(Force, Displ)
-
-        print("Energy: " + str(Energy))
-
-        P = Force2[0]
-
-        print(P)
-        print(B)
-        print(W)
-        print(a)
-
-        alpha = a / W
-        print("alpha: " + str(alpha))
-
-        f = Analysis.calculate_calibration_factor_f(alpha)
-        print("f: " + str(f))
-        phi = Analysis.calculate_calibration_factor_phi(alpha)
-        print("phi: " + str(phi))
-
-        KIC = Analysis.calculate_k1(P, B, W, f)
-        print("KIC: " + str(KIC))
-
-        GIC = Analysis.calculate_g1(Energy, B, W, phi)
-        print("GIC: " + str(GIC))
-
-        E_test = math.pow(KIC, 2) / GIC
-        print("E_test: " + str(E_test))
-
-        return imagepath
-
-    @staticmethod
-    def get_g1c(username, model_name, output, model: Model, material: Material):
-        w = model.width
-        a = model.cracklength
-        # L = model.length
-        # E = material.youngsModulus
-
-        resultpath = "./Results/" + os.path.join(username, model_name)
-        file = os.path.join(resultpath, model_name + "_" + output + ".e")
-
-        (
-            points,
-            point_data,
-            global_data,
-            cell_data,
-            ns,
-            block_data,
-            time,
-        ) = exodusreader.read_timestep(file, -1)
-
-        GIC = 0
-
-        if model_name == "GICmodel":
-            P_low = global_data["Lower_Load_Force"][1]
-            P_up = global_data["Upper_Load_Force"][1]
-            d_low = global_data["Lower_Load_Displacement"][1]
-            d_up = global_data["Upper_Load_Displacement"][1]
-
-            delta = d_up + abs(d_low)
-
-            Delta = 1
-
-            print(P_low)
-            print(P_up)
-            print(d_low)
-            print(d_up)
-            print(delta)
-            print(w)
-            print(a)
-
-            GIC = (3 * P_up * delta) / (2 * w * (a + abs(Delta)))
-
-        return GIC
 
     @staticmethod
     def get_result_file(username, model_name, output):

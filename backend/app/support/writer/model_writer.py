@@ -11,7 +11,6 @@ import time
 import numpy as np
 
 from support.globals import log
-from support.writer.yaml_writer_peridigm import YAMLcreatorPeridigm
 from support.writer.yaml_writer_perilab import YAMLcreatorPeriLab
 
 # from numba import jit

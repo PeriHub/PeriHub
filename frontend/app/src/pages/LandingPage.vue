@@ -27,7 +27,7 @@ SPDX-License-Identifier: Apache-2.0
           </q-img>
         </q-card>
       </router-link>
-      <router-link class="card" to="guide">
+      <router-link class="card" to="guide/introduction">
         <q-card class="my-card">
           <q-img src="~assets/compass.jpg" height="200px">
             <div class="text-h5 absolute-bottom text-right">
@@ -72,11 +72,20 @@ SPDX-License-Identifier: Apache-2.0
           </q-img>
         </q-card>
       </a>
-      <a class="card" href="https://github.com/PeriDoX/PeriDoX">
+      <a class="card" href="https://perilab-results.nimbus-extern.dlr.de">
         <q-card class="my-card">
-          <q-img src="https://github.githubassets.com/images/modules/open_graph/github-mark.png" height="200px">
+          <q-img src="~assets/dogbone.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
-              PeriDox
+              PeriLab-Results
+            </div>
+          </q-img>
+        </q-card>
+      </a>
+      <a class="card" href="https://www.youtube.com/@PeriHub">
+        <q-card class="my-card">
+          <q-img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_(2017).svg/2560px-YouTube_full-color_icon_(2017).svg.png" height="200px">
+            <div class="text-h5 absolute-bottom text-right">
+              YouTube
             </div>
           </q-img>
         </q-card>
