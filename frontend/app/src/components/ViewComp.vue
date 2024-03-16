@@ -10,6 +10,7 @@ SPDX-License-Identifier: Apache-2.0
       align="justify">
       <q-tab name="image" label="Image"></q-tab>
       <q-tab name="model" label="Model"></q-tab>
+      <q-tab name="cad" label="CAD"></q-tab>
       <q-tab name="jobs" label="Jobs"></q-tab>
       <q-tab name="results" label="Results"></q-tab>
       <q-tab name="plotly" label="Plotly"></q-tab>
@@ -26,6 +27,10 @@ SPDX-License-Identifier: Apache-2.0
 
       <q-tab-panel name="model">
         <ModelView></ModelView>
+      </q-tab-panel>
+
+      <q-tab-panel name="cad">
+        <CadView></CadView>
       </q-tab-panel>
 
       <q-tab-panel name="jobs">
@@ -60,6 +65,7 @@ SPDX-License-Identifier: Apache-2.0
 import { inject, defineComponent } from 'vue'
 import ImageView from 'components/views/ImageView.vue'
 import ModelView from 'components/views/ModelView.vue'
+import CadView from 'components/views/CadView.vue'
 import JobsView from 'components/views/JobsView.vue'
 import PlotlyView from 'components/views/PlotlyView.vue'
 import RenewableView from 'components/views/RenewableView.vue'
@@ -72,6 +78,7 @@ export default defineComponent({
   components: {
     ImageView,
     ModelView,
+    CadView,
     JobsView,
     PlotlyView,
     RenewableView,

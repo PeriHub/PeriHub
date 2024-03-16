@@ -25,7 +25,7 @@ tags_metadata = [
     {"name": "Upload Methods", "description": "Upload files"},
     {"name": "Translate Methods", "description": "Translate model or gcode"},
     {"name": "Jobs Methods", "description": "Run, cancel or write jobs"},
-    {"name": "Results Methods", "description": "Get results"},
+    {"name": "simulations Methods", "description": "Get results"},
     {
         "name": "Delete Methods",
         "description": "Delete user or model data",
@@ -117,7 +117,7 @@ async def websocket_endpoint_log(
     if model_folder_name == "undefined":
         model_folder_name = "Default"
     if cluster == "None":
-        remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
         try:
             output_files = os.listdir(remotepath)
             filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))

@@ -15,7 +15,7 @@ client = TestClient(app)
 def test_getPointData():
     test_path = "./tests/image_export/"
     file_name = "Dogbone_Output1.e"
-    remote_path = "./Results/guest/Dogbone/Default"
+    remote_path = "./simulations/guest/Dogbone/Default"
 
     os.makedirs(remote_path, exist_ok=True)
     shutil.copy(
@@ -25,4 +25,4 @@ def test_getPointData():
 
     response = client.get("/results/getPointData")
     assert response.json()["number_of_steps"] == 46
-    shutil.rmtree("./Results")
+    shutil.rmtree("./simulations")

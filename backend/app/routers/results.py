@@ -44,7 +44,7 @@ def get_fracture_analysis(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
+    resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     file_name, filepath = CrackAnalysis.write_nodemap(file, step)
@@ -89,7 +89,7 @@ def get_enf_analysis(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
+    resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step)
@@ -124,7 +124,7 @@ def get_plot(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
+    resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
@@ -154,8 +154,8 @@ def get_results(
             detail=model_name + " results can not be found on " + cluster,
         )
 
-    # resultpath = './Results/' + os.path.join(username, model_name)
-    userpath = "./Results/" + username
+    # resultpath = './simulations/' + os.path.join(username, model_name)
+    userpath = "./simulations/" + username
     folder_path = os.path.join(userpath, model_name)
     zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
 
@@ -197,7 +197,7 @@ def get_point_data(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
+    resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     number_of_steps = exodusreader.get_number_of_steps(file) - 3

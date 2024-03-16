@@ -6,7 +6,9 @@ import os
 import subprocess
 import time
 
+import numpy as np
 import paramiko
+import pygalmesh
 from fastapi import APIRouter, Request
 from gcodereader import gcodereader
 
@@ -19,9 +21,10 @@ router = APIRouter(prefix="/translate", tags=["Translate Methods"])
 
 @router.post("/model")
 def translate_model(
+    file: str,
     model_name: str,
-    file_type: str,
     model_folder_name: str = "Default",
+    discretization: float = 2,
     request: Request = "",
 ):
     """doc"""
@@ -34,99 +37,52 @@ def translate_model(
     if not os.path.exists(localpath):
         os.makedirs(localpath)
 
-    inputformat = "'ansys (cdb)'"
-    if file_type == "cdb":
-        inputformat = "ansys"
-    if file_type == "inp":
-        inputformat = "abaqus"
-        # inputformat = "'ansys (cdb)'"
-
-    command = (
-        "java -jar ./support/jCoMoT/jCoMoT-0.0.1-all.jar -ifile "
-        + os.path.join(localpath, model_name + "." + file_type)
-        + " -iformat "
-        + inputformat
-        + " -oformat peridigm -opath "
-        + localpath
-    )  # + \
-    # " && mv " + os.path.join(localpath, 'mesh.g.ascii ') + os.path.join(localpath, model_name) + '.g.ascii' + \
-    # " && mv " + os.path.join(localpath, 'model.peridigm ') + os.path.join(localpath, model_name) + '.peridigm'
-    # " && mv " + os.path.join(localpath, 'discretization.g.ascii ') + os.path.join(localpath, model_name)
-    # + '.g.ascii' + \
-    try:
-        subprocess.call(command, shell=True)
-    except subprocess.SubprocessError:
-        log.error("%s results can not be found", model_name)
-        return "%s results can not be found", model_name
-
-    log.info("Rename mesh File")
-    os.rename(
-        os.path.join(localpath, "mesh.g.ascii"),
-        os.path.join(localpath, model_name + ".g.ascii"),
-    )
-    log.info("Rename peridigm File")
-    os.rename(
-        os.path.join(localpath, "model.peridigm"),
-        os.path.join(localpath, model_name + ".peridigm"),
+    model_file = os.path.join(localpath, file)
+    mesh = pygalmesh.generate_volume_mesh_from_surface_mesh(
+        model_file,
+        lloyd=True,
+        odt=False,
+        perturb=True,
+        exude=True,
+        max_edge_size_at_feature_edges=1.0,
+        min_facet_angle=25,
+        max_radius_surface_delaunay_ball=1.4,  # Adjusted for better volume meshing
+        max_facet_distance=5,
+        max_circumradius_edge_ratio=3,
+        max_cell_circumradius=1.0,
+        exude_sliver_bound=0.0,
+        exude_time_limit=0.0,
+        verbose=False,
+        reorient=True,
+        seed=0,
     )
 
-    log.info("Copy mesh File")
-    if (
-        FileHandler.copy_file_to_from_peridigm_container(username, model_name, model_name + ".g.ascii", True)
-        != "Success"
-    ):
-        log.error("%s can not be translated", model_name)
-        return "%s can not be translated", model_name
+    # Write the volume mesh to a VTK file
+    # vtk_file = os.path.join(localpath,model_name+".vtk")
+    # mesh.write(vtk_file)
+    # Get volume elements and their nodes
+    volume_elements = mesh.get_cells_type("tetra")
+    nodes = mesh.points
 
-    log.info("Copy peridigm File")
-    if (
-        FileHandler.copy_file_to_from_peridigm_container(username, model_name, model_name + ".peridigm", True)
-        != "Success"
-    ):
-        log.error("%s can not be translated", model_name)
-        return "%s can not be translated", model_name
+    # Calculate volumes of tetrahedral elements
+    def tetrahedron_volume(p1, p2, p3, p4):
+        return np.abs(np.dot((p2 - p1), np.cross((p3 - p1), (p4 - p1)))) / 6
 
-    # if return_string!='Success':
-    #     return return_string
+    element_volumes = []
+    print(len(volume_elements))
+    for element in volume_elements:
+        p1, p2, p3, p4 = [nodes[i] for i in element]
+        volume = tetrahedron_volume(p1, p2, p3, p4)
+        element_volumes.append(volume)
 
-    server = "perihub_peridigm"
-    remotepath = "/app/peridigmJobs/" + os.path.join(username, model_name)
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    try:
-        ssh.connect(
-            server,
-            username="root",
-            allow_agent=False,
-            password="root",
-        )
-    except paramiko.SSHException:
-        log.error("ssh connection to %s failed!", server)
-        return "ssh connection to " + server + " failed!"
-    command = (
-        "/usr/local/netcdf/bin/ncgen "
-        + os.path.join(remotepath, model_name)
-        + ".g.ascii -o "
-        + os.path.join(remotepath, model_name)
-        + ".g"
-        + " && python3 /peridigm/scripts/peridigm_to_yaml.py "
-        + os.path.join(remotepath, model_name)
-        + ".peridigm"
-        + " && rm "
-        + os.path.join(remotepath, model_name)
-        + ".peridigm"
-    )
-    # ' && rm ' +  os.path.join(remotepath, model_name) + '.g.ascii' + \
-    log.info("Peridigm to yaml")
-    _, stdout, _ = ssh.exec_command(command)
-    stdout.channel.set_combine_stderr(True)
-    # output = stdout.readlines()
-    ssh.close()
-
-    log.info("Copy mesh File")
-    FileHandler.copy_file_to_from_peridigm_container(username, model_name, model_name + ".g", False)
-    log.info("Copy yaml File")
-    FileHandler.copy_file_to_from_peridigm_container(username, model_name, model_name + ".yaml", False)
+    # Save elements and volumes to a text file
+    txt_file = os.path.join(localpath, model_name + ".txt")
+    with open(txt_file, "w") as file:
+        file.write("#header: x y z block_id volume\n")
+        for element, volume in zip(volume_elements, element_volumes):
+            p1, p2, p3, p4 = nodes[element]
+            centroid = np.mean([p1, p2, p3, p4], axis=0)
+            file.write(f"{centroid[0]} {centroid[1]} {centroid[2]} {1} {volume}\n")
 
     log.info(
         "%s has been translated in %.2f seconds",

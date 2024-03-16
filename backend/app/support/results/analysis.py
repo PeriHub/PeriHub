@@ -88,7 +88,7 @@ class Analysis:
 
     @staticmethod
     def get_result_file(username, model_name, output):
-        resultpath = "./Results/" + os.path.join(username, model_name)
+        resultpath = "./simulations/" + os.path.join(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
         (

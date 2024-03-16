@@ -12,7 +12,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
     <input type="file" style="display: none" ref="fileInput"
-      accept="application/json,application/xml,.yaml,.peridigm,.bdf,.cdb,.inp,.gcode" @change="onFilePicked" />
+      accept="application/json,.yaml,.cdb,.inp,.gcode,.stl" @change="onFilePicked" />
     <input type="file" style="display: none" ref="multifileInput" multiple accept="text/plain,.g"
       @change="onMultiFilePicked" />
     <input type="file" style="display: none" ref="meshInput" accept="text/plain,.g" @change="onMeshPicked" />
@@ -33,6 +33,24 @@ SPDX-License-Identifier: Apache-2.0
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Ok" color="primary" v-close-popup @click="loadGcodeModel"></q-btn>
+          <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="dialogTranslate" persistent max-width="800">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Translator</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Configurations
+          <q-input v-model="translatorDiscretization" :rules="[rules.float]" label="Discretization" clearable
+            standout></q-input>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Ok" color="primary" v-close-popup @click="loadMeshioModel"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -138,6 +156,9 @@ export default defineComponent({
       gcodeDt: 0.02,
       gcodeScale: 0.001,
       gcodeFile: undefined,
+      dialogTranslate: false,
+      translatorDiscretization: 1,
+      meshioFile: undefined,
     };
   },
   methods: {
@@ -208,7 +229,8 @@ export default defineComponent({
         this.gcodeFile = file;
         this.dialogGcode = true;
       } else {
-        this.loadFeModel(file);
+        this.meshioFile = file;
+        this.dialogTranslate = true;
       }
     },
     onMultiFilePicked(event) {
@@ -285,27 +307,58 @@ export default defineComponent({
       };
       fr.readAsText(file);
     },
-    async loadFeModel(file) {
-      this.modelStore.modelData.model.ownMesh = true;
+    async loadMeshioModel() {
+      this.dialogTranslate = false;
+      this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = true;
-      this.modelStore.modelData.model.translated = true;
+      this.modelStore.modelData.model.translated = false;
+      this.modelStore.modelData.model.twoDimensional = false;
 
       this.viewStore.modelLoading = true;
-      this.textLoading = true;
-
-      if (file.length <= 0) {
+      
+      if (this.meshioFile == undefined) {
         return false;
       }
 
-      if (await this.checkFeSize(file)) {
-        this.modelStore.modelData.model.modelNameSelected = file.name.split(".")[0];
-        const filetype = file.name.split(".")[1];
+      // if (await this.checkFeSize(file)) {
+      if (true) {
+        this.modelStore.modelData.model.modelNameSelected = this.meshioFile.name.split(".")[0];
 
-        await this.translateModel(file, filetype, true);
+        await this.translateModel(this.meshioFile, true);
       } else {
         this.viewStore.modelLoading = false;
-        this.textLoading = false;
       }
+    },
+    async translateModel(file, upload) {
+      if (upload) {
+        await this.uploadfiles([file]);
+      }
+
+      let params = {
+        file: file.name,
+        model_name: this.modelData.model.modelNameSelected,
+        model_folder_name: this.modelData.model.modelFolderName,
+        discretization: 2,
+      }
+      console.log(params)
+      await this.$api.post('/translate/model', '', { params })
+        .then((response) => {
+          this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + ".txt"
+          this.$q.notify({
+            message: response.data.message
+          })
+          this.viewStore.viewId = "model";
+          this.bus.emit('viewPointData');
+        })
+        .catch((error) => {
+          this.$q.notify({
+            type: 'negative',
+            message: error.message
+          })
+          this.viewStore.modelLoading = false;
+        })
+
+      this.viewStore.modelLoading = false;
     },
     async loadGcodeModel() {
       this.dialogGcode = false;

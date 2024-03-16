@@ -50,28 +50,7 @@ async def run_model(
             detail=return_string,
         )
 
-    if cluster == "FA-Cluster":
-        remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
-        ssh = FileHandler.ssh_to_cluster("FA-Cluster")
-        command = (
-            "cd "
-            + remotepath
-            + " \n qperidigm -d -c "
-            + str(model_data.job.tasks)
-            + " -O tgz -J "
-            + model_name
-            + " -E /home/f_peridi/Peridigm/build/bin/Peridigm "
-            + model_name
-            + "."
-            + file_type
-        )
-        ssh.exec_command(command)
-        ssh.close()
-
-        log.info("%s has been submitted", model_name)
-        return ResponseModel(data=True, message=model_name + " has been submitted")
-
-    elif cluster == "Cara":
+    if cluster == "Cara":
         # initial_jobs = FileHandler.write_get_cara_job_id()
         # log.info(initial_jobs)
         sbatch = SbatchCreator(
@@ -102,7 +81,7 @@ async def run_model(
 
     elif cluster == "None":
         server = "perihub_perilab"
-        remotepath = "/peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
         log.info(remotepath)
         if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
             log.warning("%s already submitted", model_name)
@@ -173,7 +152,7 @@ def cancel_job(
 
     if cluster == "None":
         server = "perihub_perilab"
-        remotepath = "/peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
@@ -236,7 +215,7 @@ def get_jobs(
 
     jobs = []
 
-    localpath = os.path.join("./Output", username, model_name)
+    localpath = os.path.join("./simulations", username, model_name)
 
     # print(localpath)
 
@@ -262,7 +241,7 @@ def get_jobs(
                     results=False,
                 )
 
-                remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
+                remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
                 if os.path.exists(os.path.join(remotepath)):
                     job.cluster = "None"
                     if os.path.exists(os.path.join(remotepath, "pid.txt")):
@@ -331,10 +310,7 @@ def get_status(
 
     status = Status()
 
-    if own_mesh:
-        localpath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
-    else:
-        localpath = "./Output/" + os.path.join(username, model_name, model_folder_name)
+    localpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
 
     # log.info("localpath: %s", localpath)
 
@@ -342,7 +318,7 @@ def get_status(
         status.created = True
 
     if cluster == "None":
-        remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
         # log.info(remotepath)
         if os.path.exists(os.path.join(remotepath, "pid.txt")):
             status.submitted = True

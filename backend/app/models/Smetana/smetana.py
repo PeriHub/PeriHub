@@ -116,7 +116,7 @@ class Smetana:
 
         try:
             with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
-                localpath = "./Output/" + os.path.join(self.username, self.filename, self.model_folder_name)
+                localpath = "./simulations/" + os.path.join(self.username, self.filename, self.model_folder_name)
 
                 if not os.path.exists(localpath):
                     os.makedirs(localpath)

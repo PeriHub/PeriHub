@@ -11,7 +11,7 @@ ARG DLR
 ENV DLR $DLR
 
 RUN apt-get update --allow-insecure-repositories &&\
-    apt-get install libglu1-mesa libglib2.0-0 git -y
+    apt-get install libglu1-mesa libglib2.0-0 git build-essential libcgal-dev libeigen3-dev -y
 
 COPY requirements.txt requirements.txt
 

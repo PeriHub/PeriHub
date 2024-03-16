@@ -42,17 +42,17 @@ def delete_model_from_cluster(
     username = FileHandler.get_user_name(request, dev)
 
     if cluster == "None":
-        remotepath = "./peridigmJobs/" + os.path.join(username, model_name + model_folder_name)
+        remotepath = "./simulations/" + os.path.join(username, model_name + model_folder_name)
         if os.path.exists(remotepath):
             shutil.rmtree(remotepath)
         log.info("%s has been deleted", model_name)
         return ResponseModel(data=True, message=model_name + " has been deleted")
 
     if cluster == "FA-Cluster":
-        remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = "./simulations/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
     elif cluster == "Cara":
-        remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = "./simulations/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
     else:
         log.info("%s unknown", cluster)
@@ -76,7 +76,7 @@ def delete_model_from_cluster(
 def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7):
     """doc"""
     if check_date:
-        localpath = "./Output"
+        localpath = "./simulations"
         if os.path.exists(localpath):
             names = FileHandler.remove_folder_if_older(localpath, days, True)
             if len(names) != 0:
@@ -87,7 +87,7 @@ def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7
 
     username = FileHandler.get_user_name(request, dev)
 
-    localpath = "./Output/" + username
+    localpath = "./simulations/" + username
     if os.path.exists(localpath):
         shutil.rmtree(localpath)
     log.info("Data of %s has been deleted", username)
@@ -105,7 +105,7 @@ def delete_user_data_from_cluster(
 
     if check_date:
         if cluster == "None":
-            localpath = "./peridigmJobs"
+            localpath = "./simulations"
             names = FileHandler.remove_folder_if_older(localpath, days, True)
         else:
             remotepath = FileHandler.get_remote_path(cluster)
@@ -123,7 +123,7 @@ def delete_user_data_from_cluster(
     username = FileHandler.get_user_name(request, dev)
 
     if cluster == "None":
-        remotepath = "./peridigmJobs/" + username
+        remotepath = "./simulations/" + username
         if os.path.exists(remotepath):
             shutil.rmtree(remotepath)
         log.info("Data of %s has been deleted", username)

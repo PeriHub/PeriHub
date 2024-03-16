@@ -9,7 +9,7 @@ services:
     image: perihub/backend
     restart: unless-stopped
     volumes:
-      - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/peridigmJobs:/app/peridigmJobs
+      - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/peridigmJobs:/app/simulations
       - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/rsaFiles:/app/rsaFiles
     networks:
       - web_network

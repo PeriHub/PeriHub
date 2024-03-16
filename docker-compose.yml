@@ -16,7 +16,7 @@ services:
       - DLR=${DLR}
       - TRIAL=${TRIAL}
     volumes:
-      - perihub:/app/peridigmJobs
+      - ${VOLUME}:/app/simulations
 
   perihub_frontend:
     image: perihub/frontend
@@ -37,7 +37,4 @@ services:
     ports:
       - 6000:80
     volumes:
-      - perihub:/app/peridigmJobs
-
-volumes:
-  perihub: {}
+      - ${VOLUME}:/app/simulations

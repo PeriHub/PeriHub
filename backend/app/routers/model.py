@@ -72,7 +72,7 @@ def get_point_data(
     if own_mesh:
         try:
             with open(
-                "./peridigmJobs/"
+                "./simulations/"
                 + os.path.join(username, model_name, model_folder_name)
                 + "/"
                 + model_name
@@ -109,10 +109,10 @@ def get_point_data(
         max_block_id = 1
         try:
             if own_model:
-                mesh_path = "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + mesh_file
+                mesh_path = "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + mesh_file
             else:
                 mesh_path = (
-                    "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".txt"
+                    "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".txt"
                 )
 
             with open(
@@ -163,18 +163,12 @@ def get_point_data(
 def view_input_file(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
-    own_mesh: bool = False,
     request: Request = "",
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    if own_mesh:
-        file_path = (
-            "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".yaml"
-        )
-    else:
-        file_path = "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".yaml"
+    file_path = "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".yaml"
     if not os.path.exists(file_path):
         log.error("Inputfile can't be found")
         raise HTTPException(

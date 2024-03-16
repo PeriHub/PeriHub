@@ -261,7 +261,7 @@ def generate_mesh(
     )
     try:
         with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
-            localpath = "./Output/" + os.path.join(username, model_name, model_folder_name)
+            localpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
 
             if not os.path.exists(localpath):
                 os.makedirs(localpath)
@@ -281,7 +281,7 @@ def generate_mesh(
 
     # return requests.patch('https://localhost:5000/1/PyCODAC/api/micofam/%7Bzip%7D', headers=headers, files=files)
 
-    # file_path = './Output/' + os.path.join(username, model_name) + '/'  + model_name + '.' + file_type
+    # file_path = './simulations/' + os.path.join(username, model_name) + '/'  + model_name + '.' + file_type
     # if not os.path.exists(file_path):
     #     return 'Inputfile can\'t be found'
     # try:

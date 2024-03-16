@@ -28,7 +28,7 @@ class FileHandler:
     def get_local_user_path(username):
         """doc"""
 
-        return "./Output/" + username
+        return "./simulations/" + username
 
     @staticmethod
     def get_local_model_path(username, model_name, model_folder_name):
@@ -210,41 +210,6 @@ class FileHandler:
         """doc"""
 
         if cluster == "None":
-            localpath = "./Output/" + os.path.join(username, model_name, model_folder_name)
-            remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
-            if not os.path.exists(remotepath):
-                os.makedirs(remotepath)
-                # os.chown(remotepath, 'test')
-            if not os.path.exists(localpath):
-                log.warning(model_name + " has not been created yet")
-                return model_name + " has not been created yet"
-            for root, _, files in os.walk(localpath):
-                if len(files) == 0:
-                    log.warning(model_name + " has not been created yet")
-                    return model_name + " has not been created yet"
-                input_exist = False
-                mesh_exist = False
-                for name in files:
-                    if name.split(".")[-1] == "yaml":
-                        input_exist = True
-                    if name.split(".")[-1] == "txt" or name.split(".")[-1] == "e" or name.split(".")[-1] == "g":
-                        mesh_exist = True
-
-                if not input_exist:
-                    log.warning("Inputfile of " + model_name + " has not been created yet")
-                    return "Inputfile of " + model_name + " has not been created yet"
-
-                if not mesh_exist:
-                    log.warning("Meshfile of " + model_name + " has not been created yet")
-                    return "Meshfile of " + model_name + " has not been created yet"
-
-                for name in files:
-                    shutil.copy(
-                        os.path.join(root, name),
-                        os.path.join(remotepath, name),
-                    )
-                    # os.chmod(os.path.join(remotepath,name), 0o0777)
-                    # os.chown(os.path.join(remotepath,name), 'test')
             return "Success"
 
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
@@ -359,7 +324,7 @@ class FileHandler:
         """doc"""
 
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
-        remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
         if not os.path.exists(remotepath):
             os.makedirs(remotepath)
             # os.chown(remotepath, 'test')
@@ -390,12 +355,12 @@ class FileHandler:
     ):
         """doc"""
         log.info("Start copying")
-        resultpath = "./Results/" + os.path.join(username, model_name, model_folder_name)
+        resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
         if not os.path.exists(resultpath):
             os.makedirs(resultpath)
 
         if cluster == "None":
-            remotepath = "./peridigmJobs/" + os.path.join(username, model_name, model_folder_name)
+            remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
             for _, _, files in os.walk(remotepath):
                 if len(files) == 0:
                     return False

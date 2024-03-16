@@ -27,8 +27,7 @@
       "name": "Aluminium",
       "density": "2.81e-9",
       "matType": [
-        "PD Solid Elastic",
-        "PD Solid Plastic"
+        "PD Solid Elastic"
       ],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
@@ -293,7 +292,7 @@
     "dispEnabled": true,
     "damEnabled": true,
     "matEnabled": true,
-    "tempEnabled": true
+    "tempEnabled": false
   },
   "job": {
     "software": "PeriLab",

@@ -52,7 +52,7 @@ def write_input_file(
     username = FileHandler.get_user_name(request, dev)
 
     with open(
-        "./Output/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + "." + file_type,
+        "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".yaml",
         "w",
         encoding="UTF-8",
     ) as file:

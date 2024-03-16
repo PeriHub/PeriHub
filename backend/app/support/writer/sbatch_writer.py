@@ -96,7 +96,7 @@ class SbatchCreator:
             )
 
         string += "rm *.e." + str(self.tasks) + ".*" + "\n"
-        string += "rm Output*.log" + "\n"
+        string += "rm simulations*.log" + "\n"
 
         return string
 
