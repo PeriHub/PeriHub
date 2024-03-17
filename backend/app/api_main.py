@@ -50,7 +50,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 app.include_router(generate.router)
 app.include_router(model.router)
 app.include_router(upload.router)

@@ -17,7 +17,7 @@ stages:
     changes:
       - backend/**/*
   before_script:
-    - apt update && apt install -y make git
+    - apt update && apt install -y make git build-essential libcgal-dev libeigen3-dev -y
     - pip install -r backend/requirements.txt
     - pip install -r backend/requirements-dev.txt
     - pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git

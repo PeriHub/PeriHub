@@ -105,7 +105,6 @@ export default defineComponent({
 .my-card {
   width: 400px;
 }
-
 .card {
   text-decoration: none;
   padding-right: 10px;
