@@ -6,15 +6,12 @@ import os
 import subprocess
 import time
 
-import numpy as np
-import paramiko
-import pygalmesh
 from fastapi import APIRouter, Request
 from gcodereader import gcodereader
 
 from support.base_models import ResponseModel
 from support.file_handler import FileHandler
-from support.globals import dev, log
+from support.globals import dev, log, trial
 
 router = APIRouter(prefix="/translate", tags=["Translate Methods"])
 
@@ -38,51 +35,38 @@ def translate_model(
         os.makedirs(localpath)
 
     model_file = os.path.join(localpath, file)
-    mesh = pygalmesh.generate_volume_mesh_from_surface_mesh(
-        model_file,
-        lloyd=True,
-        odt=False,
-        perturb=True,
-        exude=True,
-        max_edge_size_at_feature_edges=1.0,
-        min_facet_angle=25,
-        max_radius_surface_delaunay_ball=1.4,  # Adjusted for better volume meshing
-        max_facet_distance=5,
-        max_circumradius_edge_ratio=3,
-        max_cell_circumradius=1.0,
-        exude_sliver_bound=0.0,
-        exude_time_limit=0.0,
-        verbose=False,
-        reorient=True,
-        seed=0,
-    )
 
-    # Write the volume mesh to a VTK file
-    # vtk_file = os.path.join(localpath,model_name+".vtk")
-    # mesh.write(vtk_file)
-    # Get volume elements and their nodes
-    volume_elements = mesh.get_cells_type("tetra")
-    nodes = mesh.points
-
-    # Calculate volumes of tetrahedral elements
-    def tetrahedron_volume(p1, p2, p3, p4):
-        return np.abs(np.dot((p2 - p1), np.cross((p3 - p1), (p4 - p1)))) / 6
-
-    element_volumes = []
-    print(len(volume_elements))
-    for element in volume_elements:
-        p1, p2, p3, p4 = [nodes[i] for i in element]
-        volume = tetrahedron_volume(p1, p2, p3, p4)
-        element_volumes.append(volume)
-
-    # Save elements and volumes to a text file
-    txt_file = os.path.join(localpath, model_name + ".txt")
-    with open(txt_file, "w") as file:
-        file.write("#header: x y z block_id volume\n")
-        for element, volume in zip(volume_elements, element_volumes):
-            p1, p2, p3, p4 = nodes[element]
-            centroid = np.mean([p1, p2, p3, p4], axis=0)
-            file.write(f"{centroid[0]} {centroid[1]} {centroid[2]} {1} {volume}\n")
+    timeout = 60
+    print(trial)
+    if trial:
+        timeout = 10
+    try:
+        result = subprocess.run(
+            [
+                "python",
+                "./support/model/meshing.py",
+                "--model_file",
+                model_file,
+                "--discretization",
+                str(discretization),
+                "--localpath",
+                localpath,
+                "--model_name",
+                model_name,
+            ],
+            timeout=timeout,
+        )  # Set the timeout to 60 seconds
+    except subprocess.TimeoutExpired:
+        log.info(
+            "%s took too long. %.2f seconds",
+            model_name,
+            time.time() - start_time,
+        )
+        return ResponseModel(
+            data=False,
+            message=f"{model_name} took too long. Try to increase the discretization parameter",
+        )
+        # Add code here to handle the timeout, such as terminating the process or raising an exception
 
     log.info(
         "%s has been translated in %.2f seconds",

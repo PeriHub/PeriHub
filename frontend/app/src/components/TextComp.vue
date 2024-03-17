@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div :style="{ 'height': textHeight }">
     <q-tabs v-model="store.textId" dense class="text-grey" active-color="primary" indicator-color="primary"
-      align="justify" @update:model-value="bus.emit('enableWebsocket')">
+      align="justify" @update:model-value="updateTextView">
       <q-tab name="input" label="Input"></q-tab>
       <q-tab name="log" label="Log"></q-tab>
     </q-tabs>
@@ -59,5 +59,15 @@ export default defineComponent({
       this.textHeight = height - 113 + 'px'
     })
   },
+  methods: {
+    updateTextView() {
+      if (this.store.textId === 'input') {
+        this.bus.emit('viewInputFile')
+      }
+      else if (this.store.textId === 'log') {
+        this.bus.emit('enableWebsocket')
+      }
+    }
+  }
 })
 </script>

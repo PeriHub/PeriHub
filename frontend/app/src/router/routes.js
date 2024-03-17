@@ -2,9 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import IntroductionPage from "pages/guide/IntroductionPage.vue";
-import GettingStartedPage from "pages/guide/GettingStartedPage.vue";
-
 const routes = [
   {
     path: "/",
@@ -35,18 +32,6 @@ const routes = [
       },
     ],
   },
-  {
-    path: "/guide",
-    component: () => import("layouts/GuideLayout.vue"),
-    children: [
-      { path: "/guide/Introduction", component: () => import("pages/guide/IntroductionPage.vue") },
-      { path: "/guide/GettingStarted", component: () => import("pages/guide/GettingStartedPage.vue") },
-      { path: "/guide/Buttons", component: () => import("pages/guide/ButtonPage.vue") },
-      { path: "/guide/Output", component: () => import("pages/guide/OutputPage.vue") },
-      { path: "/guide/faq", component: () => import("pages/guide/FaqPage.vue") },
-    ],
-  },
-  { path: "/guide", redirect: "/guide/Introduction" },
 
   // Always leave this as last one,
   // but you can also remove it

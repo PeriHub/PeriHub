@@ -12,7 +12,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
     <input type="file" style="display: none" ref="fileInput"
-      accept="application/json,.yaml,.cdb,.inp,.gcode,.stl" @change="onFilePicked" />
+      accept="application/json,.yaml,.cdb,.inp,.gcode,.obj" @change="onFilePicked" />
     <input type="file" style="display: none" ref="multifileInput" multiple accept="text/plain,.g"
       @change="onMultiFilePicked" />
     <input type="file" style="display: none" ref="meshInput" accept="text/plain,.g" @change="onMeshPicked" />
@@ -338,17 +338,25 @@ export default defineComponent({
         file: file.name,
         model_name: this.modelData.model.modelNameSelected,
         model_folder_name: this.modelData.model.modelFolderName,
-        discretization: 2,
+        discretization: this.translatorDiscretization,
       }
       console.log(params)
       await this.$api.post('/translate/model', '', { params })
         .then((response) => {
           this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + ".txt"
-          this.$q.notify({
-            message: response.data.message
-          })
+          if (response.data.data) {
+            this.$q.notify({
+              message: response.data.message
+            })
           this.viewStore.viewId = "model";
           this.bus.emit('viewPointData');
+          }
+          else {
+          this.$q.notify({
+            type: 'negative',
+            message: response.data.message
+          })
+          }
         })
         .catch((error) => {
           this.$q.notify({

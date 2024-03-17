@@ -15,7 +15,6 @@ SPDX-License-Identifier: Apache-2.0
 
       <q-tabs align="center">
         <q-route-tab to="/perihub" label="Perihub" />
-        <q-route-tab to="/guide/introduction" label="Guide" />
         <q-route-tab to="/tools" label="Tools" />
         <q-route-tab to="/publications" label="Publications" />
       </q-tabs>

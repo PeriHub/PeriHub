@@ -19,4 +19,4 @@ log = logging.getLogger("rich")
 
 dev = False
 dlr = False
-trial = True
+trial = False

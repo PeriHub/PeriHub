@@ -6,8 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <q-page class="flex-center">
-    <h1>Publications</h1>
-    <ul>
+    <ul style="padding: 20px;">
       <q-list v-for="entry in bib_entries" :key="entry.entryTags.URL">
         <q-card flat bordered style="padding: 10px; margin: 10px;">
         <div v-if="entry.entryTags.Title">

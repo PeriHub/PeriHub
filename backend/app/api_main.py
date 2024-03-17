@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 
 from routers import delete, docs, energy, generate, jobs, model, results, translate, upload
 from support.file_handler import FileHandler
-from support.globals import dev, dlr, log
+from support.globals import dev, dlr, log, trial
 
 tags_metadata = [
     {
@@ -63,14 +63,14 @@ app.include_router(energy.router)
 
 load_dotenv()
 
-dev = os.getenv("DEV")
-dlr = os.getenv("DLR")
-trial = os.getenv("TRIAL")
-if dev == "True":
+dev = os.getenv("DEV") == "True"
+dlr = os.getenv("DLR") == "True"
+trial = os.getenv("TRIAL") == "True"
+if dev:
     log.info("--- Running in development mode ---")
-if dlr == "True":
+if dlr:
     log.info("--- Running in DLR mode ---")
-if dlr == "True":
+if trial:
     log.info("--- Running in trial mode ---")
 
 

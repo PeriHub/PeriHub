@@ -15,8 +15,8 @@ RUN apt-get update --allow-insecure-repositories &&\
 
 COPY requirements.txt requirements.txt
 
-RUN pip install --no-cache-dir -r requirements.txt &&\
-    pip install --no-cache-dir --upgrade git+https://github.com/JTHesse/crackpy.git
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir git+https://github.com/JTHesse/crackpy.git
 
 RUN mkdir -p /root/.ssh && \
     chmod 0700 /root/.ssh

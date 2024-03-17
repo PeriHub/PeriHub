@@ -27,7 +27,7 @@ SPDX-License-Identifier: Apache-2.0
           </q-img>
         </q-card>
       </router-link>
-      <router-link class="card" to="guide/introduction">
+      <a class="card" href="https://gitlab.com/dlr-perihub/PeriHub/-/wikis/Introduction">
         <q-card class="my-card">
           <q-img src="~assets/compass.jpg" height="200px">
             <div class="text-h5 absolute-bottom text-right">
@@ -35,7 +35,7 @@ SPDX-License-Identifier: Apache-2.0
             </div>
           </q-img>
         </q-card>
-      </router-link>
+      </a>
       <router-link class="card" to="publications">
         <q-card class="my-card">
           <q-img src="~assets/books.jpg" height="200px">

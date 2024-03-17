@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
             </template>
 
             <template v-slot:after>
-                <q-splitter v-model="horizontalSplitterModel" horizontal>
+                <q-splitter v-model="horizontalSplitterModel" horizontal :limits="[1, 99]">
                     <template v-slot:before>
                         <q-resize-observer @resize="onResizeBefore" :debounce="0" />
                         <div class="q-pa-md">
@@ -107,7 +107,7 @@ SPDX-License-Identifier: Apache-2.0
                         popover: {
                             className: "first-step-popover-class",
                             title: "ModelActions",
-                            description: "Body of the popover",
+                            description: "Here you are able to upload, save, switch and generate models",
                             position: "right",
                         },
                     },
@@ -115,7 +115,7 @@ SPDX-License-Identifier: Apache-2.0
                         element: "#ExpansionComp",
                         popover: {
                             title: "ExpansionComp",
-                            description: "Body of the popover",
+                            description: "Here you can find the configuration for your simulation",
                             position: "right",
                         },
                     },
@@ -123,7 +123,7 @@ SPDX-License-Identifier: Apache-2.0
                         element: "#ViewActions",
                         popover: {
                             title: "ViewActions",
-                            description: "Body of the popover",
+                            description: "Here you are able to submit your simulation, view your results and download them",
                             position: "left",
                         },
                     },
@@ -131,7 +131,7 @@ SPDX-License-Identifier: Apache-2.0
                         element: "#ViewComp",
                         popover: {
                             title: "ViewComp",
-                            description: "Body of the popover",
+                            description: "This is where your simulation results are displayed",
                             position: "left",
                         },
                     },
@@ -139,7 +139,7 @@ SPDX-License-Identifier: Apache-2.0
                         element: "#TextActions",
                         popover: {
                             title: "TextActions",
-                            description: "Body of the popover",
+                            description: "If you want to edit your input-deck you can save it here",
                             position: "left",
                         },
                     },
@@ -147,7 +147,7 @@ SPDX-License-Identifier: Apache-2.0
                         element: "#TextComp",
                         popover: {
                             title: "TextComp",
-                            description: "Body of the popover",
+                            description: "This is where your input-deck or log-file is displayed",
                             position: "left",
                         },
                     },

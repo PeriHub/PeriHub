@@ -14,7 +14,7 @@ SPDX-License-Identifier: Apache-2.0
       <q-tab name="jobs" label="Jobs"></q-tab>
       <q-tab name="results" label="Results"></q-tab>
       <q-tab name="plotly" label="Plotly"></q-tab>
-      <q-tab name="renewable" label="Renewable"></q-tab>
+      <q-tab v-show="store.saveEnergy" name="renewable" label="Renewable"></q-tab>
       <!-- <q-tab name="trame" label="Trame"></q-tab> -->
     </q-tabs>
 
@@ -45,7 +45,7 @@ SPDX-License-Identifier: Apache-2.0
         <PlotlyView></PlotlyView>
       </q-tab-panel>
 
-      <q-tab-panel name="renewable" v-if="store.saveEnergy">
+      <q-tab-panel name="renewable">
         <RenewableView></RenewableView>
       </q-tab-panel>
 

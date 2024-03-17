@@ -6,11 +6,11 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div class="row">
-    <q-btn flat icon="fas fa-sync-alt" @click="viewInputFile(false)" :disable="!store.status.created">
+    <!-- <q-btn flat icon="fas fa-sync-alt" @click="viewInputFile(false)" :disable="!store.status.created">
       <q-tooltip>
         Reload Inputfile
       </q-tooltip>
-    </q-btn>
+    </q-btn> -->
     <q-btn flat icon="fas fa-save" @click="writeInputFile"
       :disable="!store.status.created || viewStore.textId != 'input'">
       <q-tooltip>
@@ -140,9 +140,6 @@ export default defineComponent({
         })
     },
     async enableWebsocket() {
-      if (this.viewStore.textId != "log") {
-        return
-      }
       // Check if there is an existing connection
       if (this.connection) {
         // Close the existing connection

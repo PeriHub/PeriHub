@@ -21,7 +21,7 @@ SPDX-License-Identifier: Apache-2.0
           :label="blockKeys.density" standout dense></q-input>
         <q-toggle class="my-toggle" v-model="block.show" @update:model-value="bus.emit('filterPointData')" label="Show"
           standout dense></q-toggle>
-        <q-btn v-if="model.ownModel" flat icon="fas fa-trash-alt" @click="removeBlock(index)">
+        <q-btn v-if="model.ownModel" flat icon="fas fa-trash-alt" @click="removeBlock(block.blocksId - 1)">
           <q-tooltip>
             Remove Block
           </q-tooltip>
@@ -90,6 +90,7 @@ export default defineComponent({
       this.blocks.push(newItem);
     },
     removeBlock(index) {
+      console.log(index)
       this.blocks.splice(index, 1);
     },
   }

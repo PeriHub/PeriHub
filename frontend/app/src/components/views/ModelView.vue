@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div style="height:calc(100% - 60px);">
     <div class="row">
-      <div style="width: 200px;">
+      <div style="width: 100px;">
         <q-btn v-if="!modelData.modelownModel" flat icon="fas fa-sync-alt" @click="viewPointData">
           <q-tooltip>
             Reload Model
@@ -19,7 +19,6 @@ SPDX-License-Identifier: Apache-2.0
           </q-tooltip>
         </q-btn>
       </div>
-      <q-space></q-space>
       <div style="min-width: 100px; margin-right:20px">
         <q-slider v-model="multiplier" :min="1" :max="200" :step="1" label :label-value="'Radius: ' + multiplier + ' %'"
           switch-label-side @change="updatePoints" color="gray"></q-slider>
@@ -47,7 +46,7 @@ SPDX-License-Identifier: Apache-2.0
         <vtk-polydata :points="viewStore.filteredPointString">
           <vtk-cell-data>
             <vtk-data-array registration="setScalars" name="scalars" :values="viewStore.filteredBlockIdString"
-              :state="{ rangeMax: 12 }" />
+              :state="{ rangeMax: 100, rangeMin: -100 }" />
           </vtk-cell-data>
         </vtk-polydata>
         <vtk-algorithm vtkClass="vtkSphereSource"

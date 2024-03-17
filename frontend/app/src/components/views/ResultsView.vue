@@ -113,7 +113,7 @@ export default {
   data() {
     return {
       modelParams: {
-        variable: "Damage",
+        variable: "Displacements",
         axis: "Magnitude",
         displFactor: 1,
         step: 1,
