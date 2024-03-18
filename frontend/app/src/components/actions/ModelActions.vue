@@ -11,8 +11,8 @@ SPDX-License-Identifier: Apache-2.0
         Load Model
       </q-tooltip>
     </q-btn>
-    <input type="file" style="display: none" ref="fileInput"
-      accept="application/json,.yaml,.cdb,.inp,.gcode,.obj" @change="onFilePicked" />
+    <input type="file" style="display: none" ref="fileInput" accept="application/json,.yaml,.cdb,.inp,.gcode,.obj"
+      @change="onFilePicked" />
     <input type="file" style="display: none" ref="multifileInput" multiple accept="text/plain,.g"
       @change="onMultiFilePicked" />
     <input type="file" style="display: none" ref="meshInput" accept="text/plain,.g" @change="onMeshPicked" />
@@ -258,9 +258,17 @@ export default defineComponent({
 
       await this.$api.post('/upload/files', formData, { params })
         .then((response) => {
-          this.$q.notify({
-            message: response.data.message
-          })
+          if (response.data.data) {
+            this.$q.notify({
+              message: response.data.message
+            })
+          }
+          else {
+            this.$q.notify({
+              type: 'negative',
+              message: response.data.message
+            })
+          }
         })
         .catch((error) => {
           this.$q.notify({
@@ -315,7 +323,7 @@ export default defineComponent({
       this.modelStore.modelData.model.twoDimensional = false;
 
       this.viewStore.modelLoading = true;
-      
+
       if (this.meshioFile == undefined) {
         return false;
       }
@@ -348,14 +356,14 @@ export default defineComponent({
             this.$q.notify({
               message: response.data.message
             })
-          this.viewStore.viewId = "model";
-          this.bus.emit('viewPointData');
+            this.viewStore.viewId = "model";
+            this.bus.emit('viewPointData');
           }
           else {
-          this.$q.notify({
-            type: 'negative',
-            message: response.data.message
-          })
+            this.$q.notify({
+              type: 'negative',
+              message: response.data.message
+            })
           }
         })
         .catch((error) => {

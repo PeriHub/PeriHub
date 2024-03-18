@@ -6,7 +6,6 @@ fastapi
 uvicorn[standard]
 scipy
 numpy
-# pandas
 paramiko
 aiofiles
 python-multipart
@@ -14,12 +13,10 @@ pyjwt
 requests
 zipfile2
 python-dotenv
-# scikit-learn
-# netCDF4
-# magicattr
 asyncio
 rich
 exodusreader
 gcodereader
 random-username
 pygalmesh
+python-magic

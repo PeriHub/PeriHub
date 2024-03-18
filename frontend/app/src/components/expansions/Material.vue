@@ -375,9 +375,17 @@ export default defineComponent({
 
       this.$api.post('/upload/files', formData, { params })
         .then((response) => {
-          this.$q.notify({
-            message: response.data.message
-          })
+          if (response.data.data) {
+            this.$q.notify({
+              message: response.data.message
+            })
+          }
+          else {
+            this.$q.notify({
+              type: 'negative',
+              message: response.data.message
+            })
+          }
         })
         .catch((error) => {
           this.$q.notify({

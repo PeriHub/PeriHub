@@ -66,6 +66,12 @@ git clone https://github.com/dlr-perihub/PeriHub.git
 cd PeriHub
 ```
 
+- Copy the .env file and edit its contents.
+
+```
+cp .env.example .env
+```
+
 - Run docker-compose.
 
 ```

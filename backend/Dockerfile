@@ -11,7 +11,7 @@ ARG DLR
 ENV DLR $DLR
 
 RUN apt-get update --allow-insecure-repositories &&\
-    apt-get install libglu1-mesa libglib2.0-0 git build-essential libcgal-dev libeigen3-dev -y
+    apt-get install libglu1-mesa libglib2.0-0 git build-essential libcgal-dev libeigen3-dev libmagic1 -y
 
 COPY requirements.txt requirements.txt
 
@@ -25,7 +25,6 @@ WORKDIR /app/
 
 EXPOSE 5000
 
-COPY ./app/guides /app/guides
 COPY ./app/assets /app/assets
 COPY ./app/models /app/models
 COPY ./app/Publications /app/Publications

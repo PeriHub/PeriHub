@@ -9,8 +9,7 @@ services:
     image: perihub/backend
     restart: unless-stopped
     volumes:
-      - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/peridigmJobs:/app/simulations
-      - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/rsaFiles:/app/rsaFiles
+      - perihub:/app/simulations
     networks:
       - web_network
 
@@ -19,20 +18,28 @@ services:
     labels:
       - traefik.enable=true
       - "traefik.constraint-label=traefik-public"
-      - traefik.http.routers.perilab-results.rule=Host(`perihub.nimbus.dlr.de`)
+      - traefik.http.routers.perilab-results.rule=Host(`perihub.nimbus-extern.dlr.de`)
       - traefik.http.routers.perihub.tls=true
       - traefik.http.routers.perihub.service=perihub
-      - "traefik.http.routers.perihub.entrypoints=websecure"
+      - "traefik.http.routers.perihub.entrypoints=dlrinternal"
       - traefik.http.services.perihub.loadbalancer.server.port=80
-      - traefik.docker.network=proxy
+      - traefik.docker.network=dlr-internal
     networks:
       - web_network
+      - dlr-internal
+
+  perilab:
+    image: perihub/perilab
+    ports:
+      - 6000:80
+    volumes:
+      - perihub:/app/simulations
 
 volumes:
-  paraView_volume:
+  perihub:
 
 networks:
-  proxy_l:
+  dlr-internal:
     external: true
   web_network:
     driver: bridge

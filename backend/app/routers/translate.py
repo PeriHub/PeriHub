@@ -36,7 +36,7 @@ def translate_model(
 
     model_file = os.path.join(localpath, file)
 
-    timeout = 60
+    timeout = 300
     print(trial)
     if trial:
         timeout = 10

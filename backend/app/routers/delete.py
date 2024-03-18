@@ -48,9 +48,6 @@ def delete_model_from_cluster(
         log.info("%s has been deleted", model_name)
         return ResponseModel(data=True, message=model_name + " has been deleted")
 
-    if cluster == "FA-Cluster":
-        remotepath = "./simulations/apiModels/" + os.path.join(username, model_name, model_folder_name)
-
     elif cluster == "Cara":
         remotepath = "./simulations/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
