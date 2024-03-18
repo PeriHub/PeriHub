@@ -97,12 +97,12 @@ async def run_model(
         )
         sh_string = sbatch.create_sh()
         with open(
-            os.path.join("." + remotepath, "runPeridigm.sh"),
+            os.path.join("." + remotepath, "runPerilab.sh"),
             "w",
             encoding="UTF-8",
         ) as file:
             file.write(sh_string)
-        os.chmod(os.path.join("." + remotepath, "runPeridigm.sh"), 0o0755)
+        os.chmod(os.path.join("." + remotepath, "runPerilab.sh"), 0o0755)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
@@ -122,7 +122,7 @@ async def run_model(
             + model_name
             + ".log \n sh /app"
             + remotepath
-            + "/runPeridigm.sh > "
+            + "/runPerilab.sh > "
             + model_name
             + ".log 2>&1"
         )

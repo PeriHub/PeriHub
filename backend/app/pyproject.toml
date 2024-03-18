@@ -11,7 +11,7 @@ authors = ["Jan-Timo Hesse"]
 readme = "README.md"
 include = ["README.md", "changelog.md", "LICENSE", "doc", "*.rst", "conf.py", "Makefile"]
 repository = "https://gitlab.com/dlr-perihub/PeriHub"
-keywords = ["perihub","peridigm","peridynamics"]
+keywords = ["perihub","perilab","peridynamics"]
 
 [tool.poetry.scripts]
 #sample-calculator = "sample_calculator.main:cmd_main"

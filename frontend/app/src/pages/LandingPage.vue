@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
       <div class="row text-subtitle2 justify-center" style="padding: 20px; text-align:center">
         PeriHub is a platform that provides a numerical implementation of
         the peridynamic theory. It is an extension of the open source
-        Peridigm software. Peridynamics is a non-local theory that overcomes
+        PeriLab software. Peridynamics is a non-local theory that overcomes
         discontinuity problems of the classical theory of continuum
         mechanics. It is an effective method to model fracture mechanics
         problems.
@@ -83,7 +83,9 @@ SPDX-License-Identifier: Apache-2.0
       </a>
       <a class="card" href="https://www.youtube.com/@PeriHub">
         <q-card class="my-card">
-          <q-img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_(2017).svg/2560px-YouTube_full-color_icon_(2017).svg.png" height="200px">
+          <q-img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_(2017).svg/2560px-YouTube_full-color_icon_(2017).svg.png"
+            height="200px">
             <div class="text-h5 absolute-bottom text-right">
               YouTube
             </div>
@@ -105,6 +107,7 @@ export default defineComponent({
 .my-card {
   width: 400px;
 }
+
 .card {
   text-decoration: none;
   padding-right: 10px;

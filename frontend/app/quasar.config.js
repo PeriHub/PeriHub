@@ -167,7 +167,7 @@ module.exports = configure(function (ctx) {
       manifest: {
         name: `PeriHub`,
         short_name: `PeriHub`,
-        description: `PeriHub is a platform that provides a numerical implementation of the peridynamic theory. It is an extension of the open source Peridigm software. Peridynamics is a non-local theory that overcomes discontinuity problems of the classical theory of continuum mechanics. It is an effective method to model fracture mechanics problems.`,
+        description: `PeriHub is a platform that provides a numerical implementation of the peridynamic theory. It is an extension of the open source PeriLab software. Peridynamics is a non-local theory that overcomes discontinuity problems of the classical theory of continuum mechanics. It is an effective method to model fracture mechanics problems.`,
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",

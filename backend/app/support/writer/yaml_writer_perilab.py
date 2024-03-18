@@ -314,39 +314,6 @@ class YAMLcreatorPeriLab:
                 data["Verlet"]["Maximum Bond Difference"] = self.solver_dict.adapt.maximumBondDifference
                 data["Verlet"]["Stable Bond Difference"] = self.solver_dict.adapt.stableBondDifference
 
-        elif self.solver_dict.solvertype == "NOXQuasiStatic":
-            data["Peridigm Preconditioner"] = self.solver_dict.peridgimPreconditioner
-
-            data["NOXQuasiStatic"] = {}
-            data["NOXQuasiStatic"]["Nonlinear Solver"] = self.solver_dict.nonlinearSolver
-            data["NOXQuasiStatic"]["Number of Load Steps"] = self.solver_dict.numberOfLoadSteps
-            data["NOXQuasiStatic"]["Max Solver Iterations"] = self.solver_dict.maxSolverIterations
-            data["NOXQuasiStatic"]["Relative Tolerance"] = float(self.solver_dict.relativeTolerance)
-            data["NOXQuasiStatic"]["Max Age Of Prec"] = self.solver_dict.maxAgeOfPrec
-            data["NOXQuasiStatic"]["Direction"] = {}
-            data["NOXQuasiStatic"]["Direction"]["Method"] = self.solver_dict.directionMethod
-            if self.solver_dict.directionMethod == "Newton":
-                data["NOXQuasiStatic"]["Direction"]["Newton"] = {}
-                data["NOXQuasiStatic"]["Direction"]["Newton"]["Linear Solver"] = {}
-                data["NOXQuasiStatic"]["Direction"]["Newton"]["Linear Solver"][
-                    "Jacobian Operator"
-                ] = self.solver_dict.newton.jacobianOperator
-                data["NOXQuasiStatic"]["Direction"]["Newton"]["Linear Solver"][
-                    "Preconditioner"
-                ] = self.solver_dict.newton.preconditioner
-            data["NOXQuasiStatic"]["Line Search"] = {}
-            data["NOXQuasiStatic"]["Line Search"]["Method"] = self.solver_dict.lineSearchMethod
-
-            if self.solver_dict.verletSwitch:
-                data["NOXQuasiStatic"]["Switch to Verlet"] = {}
-                data["NOXQuasiStatic"]["Switch to Verlet"]["Safety Factor"] = float(
-                    self.solver_dict.verlet.safetyFactor
-                )
-                data["NOXQuasiStatic"]["Switch to Verlet"]["Numerical Damping"] = float(
-                    self.solver_dict.verlet.numericalDamping
-                )
-                data["NOXQuasiStatic"]["Switch to Verlet"]["Output Frequency"] = self.solver_dict.verlet.outputFrequency
-
         else:
             data["Verlet"] = {}
 

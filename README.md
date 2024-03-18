@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # PeriHub - Empowering Research with Peridynamic Modeling
 
-PeriHub is a powerful software solution that can significantly benefit research in various fields. It is an extension of the open-source Peridigm software, providing a numerical implementation of the peridynamic theory. With PeriHub, researchers gain access to a valuable tool for addressing specific challenges and exploring diverse use cases in materials science, engineering, and related disciplines.
+PeriHub is a powerful software solution that can significantly benefit research in various fields. It is an extension of the open-source PeriLab software, providing a numerical implementation of the peridynamic theory. With PeriHub, researchers gain access to a valuable tool for addressing specific challenges and exploring diverse use cases in materials science, engineering, and related disciplines.
 
 ## Key Features
 
