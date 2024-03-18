@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-version: "3"
+version: "3.7"
 
 services:
   perihub_backend:
@@ -19,13 +19,15 @@ services:
     image: perihub/frontend
     labels:
       - traefik.enable=true
-      - traefik.constraint-label=traefik-public
       - traefik.http.routers.perilab-results.rule=Host(`perihub.nimbus-extern.dlr.de`)
       - traefik.http.routers.perihub.tls=true
       - traefik.http.routers.perihub.service=perihub
       - traefik.http.routers.perihub.entrypoints=dlrinternal
       - traefik.http.services.perihub.loadbalancer.server.port=80
       - traefik.docker.network=dlr-internal
+    restart: unless-stopped
+    depends_on:
+      - perihub_backend
     networks:
       - web_network
       - dlr-internal
@@ -38,6 +40,8 @@ services:
       - 6000:80
     volumes:
       - perihub:/app/simulations
+    networks:
+      - web_network
 
 volumes:
   perihub:

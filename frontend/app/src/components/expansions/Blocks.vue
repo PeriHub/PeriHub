@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   <div>
     <q-list v-for="block in blocks" :key="block.blocksId" style="padding: 0px">
       <div class="row my-row">
-        <q-input class="my-input" v-model="block.name" :rules="[rules.required, rules.name]" :label="blockKeys.name"
+        <q-input class="small-input" v-model="block.name" :rules="[rules.required, rules.name]" :label="blockKeys.name"
           standout dense></q-input>
         <q-select class="my-select" :options="materials" option-label="name" option-value="name" emit-value
           v-model="block.material" :label="blockKeys.material" standout dense></q-select>
@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
         <q-select v-if="additive.enabled" class="my-select" :options="additive.additiveModels" option-label="name"
           option-value="name" emit-value v-model="block.additiveModel" :label="blockKeys.additiveModel" clearable
           standout dense></q-select>
-        <q-input class="my-input" v-model="block.density" :rules="[rules.required, rules.posFloat]"
+        <q-input class="small-input" v-model="block.density" :rules="[rules.required, rules.posFloat]"
           :label="blockKeys.density" standout dense></q-input>
         <q-toggle class="my-toggle" v-model="block.show" @update:model-value="bus.emit('filterPointData')" label="Show"
           standout dense></q-toggle>
@@ -96,3 +96,9 @@ export default defineComponent({
   }
 })
 </script>
+<style>
+.small-input {
+  width: 100px;
+  margin-left: 10px;
+}
+</style>
