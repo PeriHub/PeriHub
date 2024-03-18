@@ -12,21 +12,25 @@ services:
       - perihub:/app/simulations
     networks:
       - web_network
+    environment:
+      - TRIAL=${TRIAL}
 
   perihub_frontend:
     image: perihub/frontend
     labels:
       - traefik.enable=true
-      - "traefik.constraint-label=traefik-public"
+      - traefik.constraint-label=traefik-public
       - traefik.http.routers.perilab-results.rule=Host(`perihub.nimbus-extern.dlr.de`)
       - traefik.http.routers.perihub.tls=true
       - traefik.http.routers.perihub.service=perihub
-      - "traefik.http.routers.perihub.entrypoints=dlrinternal"
+      - traefik.http.routers.perihub.entrypoints=dlrinternal
       - traefik.http.services.perihub.loadbalancer.server.port=80
       - traefik.docker.network=dlr-internal
     networks:
       - web_network
       - dlr-internal
+    environment:
+      - TRIAL=${TRIAL}
 
   perilab:
     image: perihub/perilab
