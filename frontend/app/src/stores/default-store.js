@@ -26,7 +26,7 @@ export const useDefaultStore = defineStore("default", {
       if (process.env.DLR) {
         console.log(`I'm on a DLR build`);
         let reqOptions = {
-          url: "https://perihub.fa-services.intra.dlr.de",
+          url: "https://perihub.nimbus.dlr.de",
         };
         axios.request(reqOptions).then((response) => {
           api.defaults.headers.common["Authorization"] =
@@ -35,7 +35,7 @@ export const useDefaultStore = defineStore("default", {
             response.headers.authorization;
           // console.log('login', {token: response.headers.authorization})
         });
-        return
+        return;
       }
 
       let uuid = "user";
@@ -45,7 +45,7 @@ export const useDefaultStore = defineStore("default", {
         if (localStorage.getItem("userName") != null) {
           api.defaults.headers.common["userName"] =
             localStorage.getItem("userName");
-            return
+          return;
         } else {
           let reqOptions = {
             url: "https://randomuser.me/api",
@@ -57,9 +57,8 @@ export const useDefaultStore = defineStore("default", {
       }
       if (process.env.DEV) {
         console.log(`I'm on a development build`);
-        uuid = "dev"
-      } 
-      else {
+        uuid = "dev";
+      } else {
         console.log(`I'm on a local build`);
       }
       console.log(uuid);

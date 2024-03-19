@@ -5,9 +5,55 @@
 version: "3"
 
 services:
+  perihub-auth-proxy:
+    image: harbor.fa-services.intra.dlr.de/quay/oauth2-proxy/oauth2-proxy:latest
+    command:
+      - --http-address=0.0.0.0:4180 #the addresss auth proxy listens on
+      - --insecure-oidc-allow-unverified-email=true #required because ldap users in keycloak have no verified e-mail
+      - --email-domain=* #we could set @dlr.de here, but since our keycloak does not allow self-registration and is hooked on ldap, we can relax here...
+      - --cookie-secure=true #sets the secure cookie flag (requires https)
+      - --upstream=http://perihub_backend:80 #the internal url to proxy to, i.e. our app we want to serve once we're authenticated
+      - --cookie-domain=.nimbus.dlr.de # Required so cookie can be read on all subdomains.
+      - --whitelist-domain=.nimbus.dlr.de # Required to allow redirection back to original requested target.
+      - --client-id=fa_perihub #see keycloak client configuration
+      - --redirect-url=https://perihub.nimbus.dlr.de/oauth2/callback #the /oauth2/callback is necessary for the auth proxy
+      - --oidc-issuer-url=https://keycloak.nimbus.dlr.de/realms/DLR-all #note that /.well-known/openid-configuration is automatically added at the end; this serves the public keycloak config
+      - --provider=oidc #there is no explicit "keycloak"-provider but keycloak is based on oidc
+      - --provider-display-name=DLR #this text is printed on the "sign in with <foo>" button of the auth proxy landing page
+      - --pass-access-token=true #we can pass the keycloak access token in the X-Forwarded-Access-Token header if the app should need the entire token.
+      #- --set-xauthrequest=true
+      - --set-authorization-header=true
+      #- --set-basic-auth=true
+      - --footer=By clicking the button above, you will be forwarded to Keycloak which is the identity provider hosted by the DLR Institute of Composite Structures and Adaptive Systems.
+      - --banner=Welcome to this test app! Simply use your DLR credentials on the next page to authenticate.
+      - --skip-provider-button=true #disables the "sign in with DLR" button page
+    environment:
+      #we could configure this as a command line argument like the other options above, but it's safer in the environmentals.
+      #this cookie secret is used to encrypt the cookie. this must be 16, 24 or 32 bytes exactly, see documentation on how to generate such a secret:
+      OAUTH2_PROXY_COOKIE_SECRET: ${PERIHUB_AUTHPROXY_COOKIE_SECRET}
+      #This is the client secret for this specific app as configured in the keycloak admin web interface:
+      OAUTH2_PROXY_CLIENT_SECRET: ${PERIHUB_KC_CLIENT_SECRET}
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.constraint-label=traefik-public"
+        - "traefik.http.routers.perihub.entrypoints=websecure"
+        - "traefik.http.routers.perihub.rule=Host(`perihub.nimbus.dlr.de`)"
+        - "traefik.http.routers.perihub.tls=true"
+        - "traefik.http.routers.perihub.service=perihub"
+        - "traefik.http.services.perihub.loadbalancer.server.port=4180"
+        - "traefik.docker.network=proxy_l"
+        - "enable.autoupdate.dockerhub=true"
+    networks:
+      - proxy_l
+      - web_network
+
   perihub_backend:
     image: perihub/backend
-    restart: unless-stopped
     volumes:
       - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/peridigmJobs:/app/simulations
       - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/rsaFiles:/app/rsaFiles
@@ -19,18 +65,10 @@ services:
 
   perihub_frontend:
     image: perihub/frontend
-    labels:
-      - traefik.enable=true
-      - traefik.constraint-label=traefik-public
-      - traefik.http.routers.perilab-results.rule=Host(`perihub.nimbus.dlr.de`)
-      - traefik.http.routers.perihub.tls=true
-      - traefik.http.routers.perihub.service=perihub
-      - traefik.http.routers.perihub.entrypoints=websecure
-      - traefik.http.services.perihub.loadbalancer.server.port=80
-      - traefik.docker.network=proxy
+    depends_on:
+      - perihub_backend
     networks:
       - web_network
-      - proxy_l
     environment:
       - DLR=${DLR}
       - TRIAL=${TRIAL}
@@ -40,13 +78,10 @@ services:
     ports:
       - 6000:80
     volumes:
-      - perihub:/app/simulations
-
-volumes:
-  perihub:
+      - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/peridigmJobs:/app/simulations
 
 networks:
   proxy_l:
     external: true
   web_network:
-    driver: bridge
+    driver: overlay

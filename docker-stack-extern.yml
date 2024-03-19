@@ -11,7 +11,7 @@ services:
     volumes:
       - perihub:/app/simulations
     networks:
-      - web_network
+      - perihub_network
     environment:
       - TRIAL=${TRIAL}
 
@@ -29,7 +29,7 @@ services:
     depends_on:
       - perihub_backend
     networks:
-      - web_network
+      - perihub_network
       - dlr-internal
     environment:
       - TRIAL=${TRIAL}
@@ -41,7 +41,7 @@ services:
     volumes:
       - perihub:/app/simulations
     networks:
-      - web_network
+      - perihub_network
 
 volumes:
   perihub:
@@ -49,5 +49,5 @@ volumes:
 networks:
   dlr-internal:
     external: true
-  web_network:
+  perihub_network:
     driver: bridge

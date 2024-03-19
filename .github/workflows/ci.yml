@@ -1,0 +1,81 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: CI
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - "backend/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - "backend/**"
+jobs:
+  build:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build Docker image
+        run: docker build -t perihub/backend ./backend
+      - name: Run Docker container
+        run: docker run -d -p 5000:5000 perihub/backend
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install dependencies
+        working-directory: ./frontend/app
+        run: npm ci
+      - name: Install Playwright Browsers
+        working-directory: ./frontend/app
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        working-directory: ./frontend/app
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        working-directory: ./frontend/app
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+      - name: Build Docker image
+        run: docker build -t perihub/frontend ./frontend
+      - name: Publish to Registry
+        run: docker push perihub/backend
+      - name: Publish to Registry
+        run: docker push perihub/frontend
+  # ci:
+  #   defaults:
+  #     run:
+  #       working-directory: ./backend/app
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: ["3.11"]
+  #       poetry-version: ["1.7.1"]
+  #       os: [ubuntu-22.04]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v4
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #     - name: Run image
+  #       uses: abatilo/actions-poetry@v2
+  #       with:
+  #         poetry-version: ${{ matrix.poetry-version }}
+  #     - name: View poetry --help
+  #       run: poetry --help
