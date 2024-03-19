@@ -1,62 +1,62 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
   <div>
-    <q-select class="my-select" :options="modelName" v-model="model.modelNameSelected" v-show="!model.ownModel"
+    <q-select class="my-select" :options="modelName" v-model="mod    el.modelNameSelected" v-show="    !model.ownModel"
       label="Model Name" standout dense></q-select>
     <q-input class="my-input" v-model="model.modelFolderName" label="Model Subname" placeholder="Default" standout
       dense></q-input>
     <q-input class="my-input" v-model="model.modelNameSelected" v-show="model.ownModel" :rules="[rules.required]"
       label="Model Name" standout dense></q-input>
-    <q-input class="my-input" v-model="model.meshFile" v-show="model.ownModel" :rules="[rules.required]"
+    <q-input class="my-input" v-model="model.mesh    File" v-show="model.ownModel" :rules="[rules.required]"
       label="Mesh File" standout dense></q-input>
-    <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
-      :rules="[rules.required, rules.float]" label="Length" standout dense></q-input>
-    <q-input class="my-input" v-model="model.cracklength"
-      v-show="['GICmodel', 'GIICmodel', 'CompactTension'].includes(model.modelNameSelected)"
-      @update:model-value="bus.emit('updateCracklength')" :rules="[rules.required, rules.float]" label="Cracklength"
+    <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & model.mode    lNameSelected != 'RVE'"
+      :rules="[rules.requ    ired, rules.float]" label="Length" standout dense></q-input>
+    <q-input class="my-input" v-model="model.cracklen    gth"
+      v-show="['GICmodel', 'GIICmodel', 'CompactTe    nsion'].includes(mode    l.modelNameSelected)"
+      @update:model-value="bus.emit('upda    teCracklength')" :rules="[rules.required,     rules.float]" label="Cracklength"
       standout dense></q-input>
-    <q-toggle class="my-toggle" v-model="model.notchEnabled"
-      v-show="['CompactTension'].includes(model.modelNameSelected)" label="Notch enabled" dense></q-toggle>
-    <q-input class="my-input" v-model="model.width"
-      v-show="!model.ownModel & model.modelNameSelected != 'RVE' & !model.twoDimensional"
-      @update:model-value="bus.emit('updateCracklength')" :rules="[rules.required, rules.float]" label="Width" standout
+    <q-toggle class="my-toggle" v-model="model.notchEnabl    ed"
+      v-show="['Compa    ctTension'].includes(model.modelNam    eSelected)" label="Notch enabled" dense></q-toggle>
+    <q-input class="my-input" v-model="model.wid    th"
+      v-show="!mo    del.ownModel &     model.modelNameSelected != '    RVE' & !model.twoDimensional"
+      @update:model-value="bus.emit('updateCracklength'    )" :rules="[rules.requir    ed, rules.float]" label="Width" standout
       dense></q-input>
     <q-input class="my-input" v-model="model.height"
-      v-show="!model.ownModel & !['RVE', 'CompactTension', 'Smetana'].includes(model.modelNameSelected)"
+      v-show="!m    odel.ownModel & !['RVE', 'Com    pactTension', 'Smetana'].includes(mo    del.modelNameSelected)"
       :rules="[rules.required, rules.float]" label="Height" standout dense></q-input>
-    <q-input class="my-input" v-model="model.height"
-      v-show="!model.ownModel & ['Smetana'].includes(model.modelNameSelected)" :rules="[rules.required, rules.float]"
+    <q-input class="my-input" v-model="mode    l.height"
+      v-show="!model.ownMo    del & ['Smetana'].includes(mode    l.modelNameSelected)" :rules="[rules.requi    red, rules.float]"
       label="Ply height" standout dense></q-input>
-    <q-input v-show="model.modelNameSelected == 'Dogbone' & !model.ownModel" class="my-input" v-model="model.height2"
-      :rules="[rules.required, rules.float]" label="Inner Height" standout dense></q-input>
-    <q-input v-show="['PlateWithHole', 'RingOnRing'].includes(model.modelNameSelected) & !model.ownModel"
+    <q-input v-show="model.modelNa    meSelected == 'Dogbone' & !mo    del.ownModel" class="my-input" v-model="m    odel.height2"
+      :rules="[rules.required,     rules.float]" label="Inner Height" standout dense></q-input>
+    <q-input v-show="['PlateWithHole',     'RingOnRing'].includes(model.mod    elNameSelected) & !model.ownModel"
       class="my-input" v-model="model.radius" :rules="[rules.required, rules.float]" label="Radius" standout
       dense></q-input>
-    <q-input v-show="model.modelNameSelected == 'RingOnRing' & !model.ownModel" class="my-input" v-model="model.radius2"
-      :rules="[rules.required, rules.float]" label="Radius 2" standout dense></q-input>
+    <q-input v-show="model.modelNameSelected =    = 'RingOnRing' & !model.ownMode    l" class="my-input" v-model="model.radius2"
+      :rules="[ru    les.required, rules.float]" label="Radius 2" standout dense></q-input>
     <q-input class="my-input" v-model="model.discretization" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
       :rules="[rules.required, rules.int]" label="Discretization" standout dense></q-input>
-    <q-input class="my-input" v-model="model.horizon" v-show="model.ownModel" :rules="[rules.required, rules.posFloat]"
+    <q-input class="my-input" v-model="model.horizon" v-show="model.ownModel" :rules="[rules.required, rul    es.posFloat]"
       label="Horizon" standout dense></q-input>
-    <q-input class="my-input" v-model="model.amplitudeFactor"
-      v-show="!model.ownModel & model.modelNameSelected == 'Smetana'" :rules="[rules.required, rules.posFloat]"
+    <q-input class="my-input" v-model="model.amplitudeF    actor"
+      v-show="!model.ow    nModel & model.modelNameSelected == 'Smetana'" :rules="[rules.required, rules.posFloat]"
       label="Amplitude Factor" standout dense></q-input>
-    <q-input class="my-input" v-model="model.wavelength" v-show="!model.ownModel & model.modelNameSelected == 'Smetana'"
+    <q-input class="my-input" v-model="model.wavelength" v-show="!model.ownModel & model.modelNameSelected == 'Smetan    a'"
       :rules="[rules.required, rules.posFloat]" label="Wavelength" standout dense></q-input>
-    <q-toggle class="my-toggle" v-show="model.modelNameSelected == 'Dogbone' & !model.ownModel"
+    <q-toggle class="my-toggle" v-show="model.modelNameSelected     == 'Dogbone' & !m    odel.ownMo    del"
       v-model="model.structured" label="Structured" dense></q-toggle>
-    <q-toggle class="my-toggle" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
+    <q-toggle class="my-toggle" v-show="!model.ownModel & mo    del.modelNameSelected != 'RVE'"
       v-model="model.twoDimensional" label="Two Dimensional" dense></q-toggle>
     <q-toggle class="my-toggle" v-model="model.rotatedAngles"
-      v-show="!model.ownModel & model.modelNameSelected != 'RVE' & model.modelNameSelected != 'Dogbone'"
+      v-show="!model.ownModel & model.modelNameS    elected != 'RVE' & model.modelNameSelec    ted != 'Dogbone'"
       label="Rotated Angles" dense></q-toggle>
     <div class="row"
-      v-show="model.rotatedAngles & !model.ownModel & model.modelNameSelected != 'RVE' & model.modelNameSelected != 'Dogbone'">
+      v-show="model.rotatedAngles & !model.    ownModel & model.    modelNameS    elected != 'RVE' & model.modelNameSelected     != 'Dogbone'">
       <div class="my-input">
         <q-input v-model="model.angles[0]" label="Angle 0" standout dense></q-input>
       </div>

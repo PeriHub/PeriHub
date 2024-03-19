@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -9,49 +9,49 @@ SPDX-License-Identifier: Apache-2.0
     <q-toggle class="my-toggle" v-model="thermal.enabled" label="Enabled" standout dense></q-toggle>
     <div v-if="thermal.enabled">
       <q-separator></q-separator>
-      <q-list v-for="thermalModel, index in thermal.thermalModels" :key="thermalModel.thermalModelId"
+      <q-list v-for="th    ermalModel, index in thermal.thermalModels" :key="thermalModel.thermalModelId"
         style="padding: 0px">
         <div class="row my-row">
           <div class="row my-row">
             <q-input class="my-input" v-model="thermal.specificHeatCapacity" :rules="[rules.required, rules.float]"
-              :label="thermalKeys.specificHeatCapacity" standout dense></q-input>
-            <q-input class="my-input" v-model="thermal.thermalConductivity" :rules="[rules.required, rules.float]"
-              :label="thermalKeys.thermalConductivity" standout dense></q-input>
-            <q-input class="my-input" v-model="thermal.heatTransferCoefficient" :rules="[rules.required, rules.float]"
-              :label="thermalKeys.heatTransferCoefficient" standout dense></q-input>
+              :label="therm    alKeys.specificHeatCapacity" standout dense></q-input>
+            <q-input class="my-input" v-model="thermal.thermalC    onductivity" :rules="[rules.required,     rules.float]"
+              :label="therm    alKeys.thermalConductivity" standout dense></q-input>
+            <q-input class="my-input" v-model="thermal.heatTransfe    rCoefficient" :rules="[    rules.required, rules.float    ]"
+              :label="thermal    Keys.heatTransferCoefficient" standout dense></q-input>
           </div>
           <div class="row my-row">
-            <q-toggle class="my-toggle" v-model="thermal.applyThermalFlow" :label="thermalKeys.applyThermalFlow"
+            <q-toggle class="my-toggle" v-model="therm    al.applyThermalFlow" :label="thermalKeys.applyTherm    alFlow"
               dense></q-toggle>
-            <q-toggle class="my-toggle" v-model="thermal.applyThermalStrain" :label="thermalKeys.applyThermalStrain"
+            <q-toggle class="my-toggle" v-model="ther    mal.applyThermalStrain" :label="thermal    Keys.applyTherma    lStrain"
               dense></q-toggle>
-            <q-toggle class="my-toggle" v-model="thermal.applyHeatTransfer" :label="thermalKeys.applyHeatTransfer"
+            <q-toggle class="my-toggle" v-model="thermal.applyHeatTran    sfer" :label="thermalKeys.app    lyHeatTransfer"
               dense></q-toggle>
-            <q-toggle class="my-toggle" v-model="thermal.thermalBondBased" :label="thermalKeys.thermalBondBased"
+            <q-toggle class="my-toggle" v-model="t    hermal.thermalBondBased" :label="thermalKeys    .thermalBondBased"
               dense></q-toggle>
           </div>
           <div class="row my-row">
-            <q-input class="my-input" v-model="thermal.thermalExpansionCoefficient"
-              :rules="[rules.required, rules.float]" :label="thermalKeys.thermalExpansionCoefficient" clearable standout
+            <q-input class="my-input" v-model="ther    mal.thermalExpansionCoefficient"
+              :rules="[rules.required, rules.float    ]" :label="thermalKeys.thermalExpansionCoefficient" clearable standout
               dense></q-input>
-            <q-input class="my-input" v-model="thermal.environmentalTemperature" :rules="[rules.required, rules.float]"
-              :label="thermalKeys.environmentalTemperature" clearable standout dense></q-input>
+            <q-input class="my-input" v-model="thermal.e    nvironmentalTemperature" :rules="[rules.required, rules.float]"
+              :label="thermalKeys.environmentalTempera    ture" clearable standout dense></q-input>
           </div>
           <q-separator></q-separator>
           <h6 class="my-title">Additive</h6>
           <div class="row my-row">
-            <q-input class="my-input" v-model="thermal.printBedTemperature" :rules="[rules.required, rules.float]"
-              :label="thermalKeys.printBedTemperature" clearable standout dense></q-input>
-            <q-input class="my-input" v-model="thermal.printBedThermalConductivity"
-              :rules="[rules.required, rules.float]" :label="thermalKeys.printBedThermalConductivity" clearable standout
+            <q-input class="my-input" v-model="thermal.printBed    Temperature" :rules="[rules.required, r    ules.float]"
+              :label="thermalKeys.p    rintBedTemperature" clearable standout dense></q-input>
+            <q-input class="my-input" v-model="the    rmal.printBedThermalConductivity"
+              :rules="[rules.required, rules.float]    " :label="thermalKeys.printBedTh    ermalConductivity" clearable standout
               dense></q-input>
           </div>
           <div class="row my-row">
-            <q-input class="my-input" v-model="thermal.volumeFactor" :rules="[rules.required, rules.float]"
-              :label="thermalKeys.volumeFactor" clearable standout dense></q-input>
-            <q-input class="my-input" v-model="thermal.volumeLimit" :rules="[rules.required, rules.float]"
-              :label="thermalKeys.volumeLimit" clearable standout dense></q-input>
-            <q-input class="my-input" v-model="thermal.surfaceCorrection" :rules="[rules.required, rules.float]"
+            <q-input class="my-input" v-model="thermal.volu    meFactor" :rules="[rules.required, r    ules.float]"
+              :label="therm    alKeys.volumeFactor" clearable standout dense></q-input>
+            <q-input class="my-input" v-model="therma    l.volumeLimit" :rules="[rules.required,     rules.float]"
+              :label="thermal    Keys.volumeLimit" clearable standout dense></q-input>
+            <q-input class="my-input" v-model="thermal.    surfaceCorrection" :rules="[ru    les.required, rules.float]"
               :label="thermalKeys.surfaceCorrection" clearable standout dense></q-input>
           </div>
           <q-btn flat icon="fas fa-trash-alt" @click="removethermalModel(index)">

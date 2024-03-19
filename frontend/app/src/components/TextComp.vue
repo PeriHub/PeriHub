@@ -1,11 +1,11 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
-  <div :style="{ 'height': textHeight }">
+  <div :style="{ 'height': textHei  ght }">
     <q-tabs v-model="store.textId" dense class="text-grey" active-color="primary" indicator-color="primary"
       align="justify" @update:model-value="updateTextView">
       <q-tab name="input" label="Input"></q-tab>

@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -8,12 +8,13 @@ SPDX-License-Identifier: Apache-2.0
 
 The output configuration panel defines which output files should be written and which variables are to be included:
 
-Configuration | Description
---- | ---
-Name | Name of compute parameter
-Variable | Variable of compute parameter
-Calculation Type | Calculation Type of compute parameter
-Block Id | Direction of compute parameter
+| Configuration    | Description                           |
+| ---------------- | ------------------------------------- |
+| Name             | Name of compute parameter             |
+| Variable         | Variable of compute parameter         |
+| Calculation Type | Calculation Type of compute parameter |
+| Block Id         | Direction of compute parameter        |
+
 |
 Name | Output file name
 Displacement | Enable Displacements for output

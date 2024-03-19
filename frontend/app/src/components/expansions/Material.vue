@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -75,10 +75,10 @@ SPDX-License-Identifier: Apache-2.0
         <div class="row my-row">
           <q-select class="my-input" :options="materialSymmetry" v-model="material.materialSymmetry"
             :label="materialKeys.materialSymmetry" standout dense></q-select>
-          <q-toggle class="my-toggle" v-model="material.planeStress"
-            :label="materialKeys.planeStress" standout dense></q-toggle>
-          <q-toggle class="my-toggle" v-model="material.planeStrain"
-            :label="materialKeys.planeStrain" standout dense></q-toggle>
+          <q-toggle class="my-toggle" v-model="material.planeStress" :label="materialKeys.planeStress" standout
+            dense></q-toggle>
+          <q-toggle class="my-toggle" v-model="material.planeStrain" :label="materialKeys.planeStrain" standout
+            dense></q-toggle>
           <q-toggle
             v-if="material.materialSymmetry == 'Anisotropic' & ['Linear Elastic Correspondence', 'Anisotropic Elastic Bond Associated Correspondence'].includes(material.matType)"
             class="my-toggle" v-model="material.stiffnessMatrix.calculateStiffnessMatrix"

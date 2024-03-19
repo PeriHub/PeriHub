@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -9,24 +9,24 @@ SPDX-License-Identifier: Apache-2.0
         <q-toggle class="my-toggle" v-model="contact.enabled" label="Enabled" standout dense></q-toggle>
         <div v-if="contact.enabled">
             <div class="row my-row">
-                <q-input class="my-input" v-model="contact.searchRadius" :rules="[rules.required, rules.float]"
+                <q-input class="my-input" v-model="co        ntact.searchRadius" :rules="[rules.required, rules.float]"
                     label="Search Radius" standout dense></q-input>
                 <q-input class="my-input" v-model="contact.searchFrequency" :rules="[rules.required, rules.int]"
                     label="Search Frequency" standout dense></q-input>
             </div>
             <q-separator></q-separator>
-            <q-list v-for="contactModel, index in contact.contactModels" :key="contactModel.contactModelId"
+            <q-list v-for="contactMo        del, index in contact.contactModels" :key="contactModel.        contactModelId"
                 style="padding: 0px">
                 <div class="row my-row">
-                    <q-input class="my-input" v-model="contactModel.name" :rules="[rules.required, rules.name]" label="Name"
-                        standout dense></q-input>
-                    <q-select class="my-input" :options="contactType" v-model="contactModel.contactType" label="Type"
+                    <q-input class="my-input" v-model="contactModel.name" :rules="[rules.req        uired, rules.name]"
+                        label="Name" standout dense></q-input>
+                    <q-select class="my-input" :options="contactType" v-model="contactMod        el.contactType" label="Type"
                         standout dense></q-select>
-                    <q-input class="my-input" v-model="contactModel.contactRadius" :rules="[rules.required, rules.float]"
-                        label="Contact Radius" standout dense></q-input>
-                    <q-input class="my-input" v-model="contactModel.springConstant" :rules="[rules.required, rules.float]"
-                        label="Spring Constant" standout dense></q-input>
-                    <q-btn flat icon="fas fa-trash-alt" @click="removeContactModel(index)">
+                    <q-input class="my-input" v-model="co        ntactModel.contactRa        dius"
+                        :rules="[rules.required,         rules.float]" label="Contact Radius" standout dense></q-input>
+                    <q-input class="my-input" v-model="contactModel.springConstant"
+                        :rules="[        rules.required, rules        .float]" label="Spring Constant" standout dense></q-input>
+                    <q-btn flat icon="fas fa-trash-alt" @click="removeCont        actModel(index)">
                         <q-tooltip>
                             Remove Contact Model
                         </q-tooltip>
@@ -35,21 +35,22 @@ SPDX-License-Identifier: Apache-2.0
                 <q-separator></q-separator>
             </q-list>
 
-            <q-btn flat icon="fas fa-plus" @click="addContactModel">
+            <q-btn flat icon="fas fa-plus" @click="addCo        ntactModel">
                 <q-tooltip>
                     Add Contact Model
                 </q-tooltip>
             </q-btn>
             <q-separator></q-separator>
-            <q-list v-for="interaction, index in contact.interactions" :key="interaction.contactInteractionsId"
+            <q-list v-for="interaction, index in contact.interactions" :key="interacti        on.contactInteractionsId"
                 style="padding: 0px">
                 <div class="row my-row">
-                    <q-select class="my-input" :options="blocks" option-label="blocksId" option-value="blocksId" emit-value
-                        v-model="interaction.firstBlockId" label="First Block Id" standout dense></q-select>
-                    <q-select class="my-input" :options="blocks" option-label="blocksId" option-value="blocksId" emit-value
-                        v-model="interaction.secondBlockId" label="Second Block Id" standout dense></q-select>
+                    <q-select class="my-input" :options="blocks" option-label="blocksId" option-value="blocksId"
+                        emit-value v-model="inte        raction.firstBlockId" label="First Block Id" standout dense></q-select>
+                    <q-select class="my-input" :options="blocks" option-label="blocksId" option-value="blocksId"
+                        emit-value v-model="i        nteraction.secondBlockId" label="Second Block Id" standout
+                        dense></q-select>
                     <q-select class="my-input" :options="contact.contactModels" option-label="contactModelsId"
-                        option-value="contactModelsId" emit-value v-model="interaction.contactModelId"
+                        option-value="contactModelsId" emit-value v-model="int        eraction.contactModelId"
                         label="Contact Model Id" standout dense></q-select>
                     <q-btn flat icon="fas fa-trash-alt" @click="removeInteraction(index)">
                         <q-tooltip>
@@ -60,7 +61,7 @@ SPDX-License-Identifier: Apache-2.0
                 <q-separator></q-separator>
             </q-list>
 
-            <q-btn flat icon="fas fa-plus" @click="addInteraction">
+            <q-btn flat icon="fas fa-plus" @click="addInt        eraction">
                 <q-tooltip>
                     Add Interaction
                 </q-tooltip>
@@ -68,19 +69,15 @@ SPDX-License-Identifier: Apache-2.0
         </div>
     </div>
 </template>
-  
+
 <script>
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'stores/model-store';
-import { inject } from 'vue'
-import rules from "assets/rules.js";
-
-export default defineComponent({
-    name: 'ContactSettings',
+import { inject } from 'vue    import rules from "a    ets/rules.js        export default d            omponent(                me: 'ContactSettings',
     setup() {
-        const store = useModelStore();
-        const blocks = computed(() => store.modelData.blocks)
-        const contact = computed(() => store.modelData.contact)
+        cons            e =        Mo    lSt    e();
+             onst blocks = computed(() => stor        delData.b            
+              ns    con    ct = comp        (() => st        mod    Data.contact)
         const bus = inject('bus')
         return {
             store,

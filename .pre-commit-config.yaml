@@ -1,37 +1,36 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 #
 # SPDX-License-Identifier: Apache-2.0
 
 files: ^backend/
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
--   repo: https://github.com/psf/black
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/psf/black
     rev: 23.7.0
     hooks:
-    -   id: black
-# -   repo: https://gitlab.com/smop/pre-commit-hooks
-#     rev: v1.0.0
-#     hooks:
-#     -   id: check-poetry
-    #-   id: check-gitlab-ci  # does not work on win since it should execute bash
--   repo: https://github.com/PyCQA/isort
+      - id: black
+  # -   repo: https://gitlab.com/smop/pre-commit-hooks
+  #     rev: v1.0.0
+  #     hooks:
+  #     -   id: check-poetry
+  #-   id: check-gitlab-ci  # does not work on win since it should execute bash
+  - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
-    -   id: isort
--   repo: https://github.com/pre-commit/pygrep-hooks
+      - id: isort
+  - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
-    -   id: python-no-log-warn
-    -   id: rst-backticks
-    -   id: rst-directive-colons
-    -   id: rst-inline-touching-normal
--   repo: https://github.com/fsfe/reuse-tool
+      - id: python-no-log-warn
+      - id: rst-backticks
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
+  - repo: https://github.com/fsfe/reuse-tool
     rev: v2.1.0
     hooks:
       - id: reuse
-

@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -9,18 +9,18 @@ SPDX-License-Identifier: Apache-2.0
     <q-toggle class="my-toggle" v-model="additive.enabled" label="Enabled" standout dense></q-toggle>
     <div v-if="additive.enabled">
       <q-separator></q-separator>
-      <q-list v-for="additiveModel, index in additive.additiveModels" :key="additiveModel.additiveModelId"
+      <q-list v-for="    additiveModel, index in additive.addit    iveModels" :key="additiveModel.additiveModelId"
         style="padding: 0px">
         <div class="row my-row">
           <q-input class="my-input" v-model="additiveModel.name" :rules="[rules.required, rules.name]" label="Name"
             standout dense></q-input>
-          <q-select class="my-input" :options="additiveTypes" v-model="additiveModel.additiveType" label="Type" standout
+          <q-select class="my-input" :options="additiveTyp    es" v-model="additiveModel.additiv    eType" label="Type" standout
             dense></q-select>
-          <q-input class="my-input" v-model="additiveModel.printTemp" :rules="[rules.required, rules.float]"
+          <q-input class="my-input" v-model="additive    Model.printTemp" :rules="[rules.requir    ed, rules.float]"
             label="Print Temperature" standout dense></q-input>
-          <q-input class="my-input" v-model="additiveModel.timeFactor" :rules="[rules.required, rules.float]"
+          <q-input class="my-input" v-model="a    dditiveModel.timeFactor" :rules="[rules.required, rules    .float]"
             label="Time Factor" standout dense></q-input>
-          <q-btn flat icon="fas fa-trash-alt" @click="removeAdditiveModel(index)">
+          <q-btn flat icon="fas fa-trash-alt" @click="rem    oveAdditiveModel(index)">
             <q-tooltip>
               Remove Additive Model
             </q-tooltip>

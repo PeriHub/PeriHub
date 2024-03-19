@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -27,7 +27,7 @@ SPDX-License-Identifier: Apache-2.0
           </q-img>
         </q-card>
       </router-link>
-      <a class="card" href="https://gitlab.com/dlr-perihub/PeriHub/-/wikis/Introduction">
+      <a class="card" href="https://github.com/PeriHub/PeriHub/-/wikis/Introduction">
         <q-card class="my-card">
           <q-img src="~assets/compass.jpg" height="200px">
             <div class="text-h5 absolute-bottom text-right">
@@ -63,11 +63,11 @@ SPDX-License-Identifier: Apache-2.0
           </q-img>
         </q-card>
       </router-link>
-      <a class="card" href="https://gitlab.com/dlr-perihub/PeriHub">
+      <a class="card" href="https://github.com/PeriHub/PeriHub">
         <q-card class="my-card">
-          <q-img src="https://about.gitlab.com/images/press/logo/wm.svg" height="200px">
+          <q-img src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
-              GitLab
+              GitHub
             </div>
           </q-img>
         </q-card>

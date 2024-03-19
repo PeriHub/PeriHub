@@ -1,38 +1,38 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
   <div>
-    <q-list v-for="nodeSet in boundaryConditions.nodeSets" :key="nodeSet.nodeSetId" style="padding: 0px">
+    <q-list v-for="nodeSet in boundaryConditions.nodeSets" :key="nodeS    et.nodeSetId" style="padding: 0px">
       <div class="row my-row">
-        <q-input class="my-input" v-model="nodeSet.file" :rules="[rules.required, rules.name]" label="Nodeset" standout
+        <q-input class="my-input" v-model="nodeSet.    file" :rules="[rules.required, rules.name]" label="Nodeset" standout
           dense></q-input>
       </div>
       <q-separator></q-separator>
     </q-list>
-    <q-list v-for="boundaryCondition, index in boundaryConditions.conditions" :key="boundaryCondition.conditionsId"
+    <q-list v-for="boundaryCondition, index in boun    daryConditions.    conditions" :key="boundaryCondition.condi    tionsId"
       style="padding: 0px">
       <div class="row my-row">
-        <q-input class="my-input" v-model="boundaryCondition.name" :rules="[rules.required, rules.name]"
-          :label="boundaryKeys.name" standout dense></q-input>
-        <q-select class="my-select" :options="boundarytype" v-model="boundaryCondition.boundarytype"
-          :label="boundaryKeys.boundarytype" standout dense></q-select>
-        <q-select class="my-select" :options="boundaryConditions.nodeSets" option-label="nodeSetId"
-          option-value="nodeSetId" emit-value v-model="boundaryCondition.nodeSet" :label="boundaryKeys.nodeSet" standout
+        <q-input class="my-input" v-model="boundaryConditio    n.name" :rules="[rules.    required, rules.name]"
+          :label="boundar    yKeys.name" standout dense></q-input>
+        <q-select class="my-select" :options="boundar    ytype" v-model="boundaryCondition    .boundarytype"
+          :label="bou    ndaryKeys.boundaryty    pe" standout dense></q-select>
+        <q-select class="my-select" :options="boundaryConditions    .nodeSets" option-label="nodeSetId"
+          option-value="nodeSetId" emit-value v-model="boundaryCondition.nodeSet" :label="boundar    yKeys.nodeSet" standout
           dense style="width: 100px"></q-select>
       </div>
       <div class="row my-row">
         <!-- <q-select v-show="!model.ownModel" class="my-select" :options="blocks" option-label="blocksId"
           option-value="blocksId" emit-value v-model="boundaryCondition.blockId" :label="boundaryKeys.blockId" standout
           dense style="width: 100px"></q-select> -->
-        <q-select class="my-select" :options="coordinate" v-model="boundaryCondition.coordinate"
+        <q-select class="my-select" :options="c    oordinate" v-model="boundaryCon    dition.coordinate    "
           :label="boundaryKeys.coordinate" standout dense style="width: 120px"></q-select>
-        <q-input class=" my-input" v-model="boundaryCondition.value" :rules="[rules.required, rules.name]"
-          :label="boundaryKeys.value" standout dense></q-input>
-        <q-btn flat icon="fas fa-trash-alt" @click="removeCondition(index)">
+        <q-input class=" my-input" v-model="boundaryConditi    on.value" :rules="[rules.required, rul    es.name]"
+          :label="boundaryKey    s.value" standout dense></q-input>
+        <q-btn flat icon="fas fa-trash-alt" @click="remov    eCondition(index)">
           <q-tooltip>
             Remove Condition
           </q-tooltip>
@@ -41,7 +41,7 @@ SPDX-License-Identifier: Apache-2.0
       <q-separator></q-separator>
     </q-list>
 
-    <q-btn flat icon="fas fa-plus" @click="addCondition">
+    <q-btn flat icon="fas fa-plus" @click="addConditio    n">
       <q-tooltip>
         Add Condition
       </q-tooltip>

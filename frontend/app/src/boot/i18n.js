@@ -1,18 +1,18 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { boot } from 'quasar/wrappers'
-import { createI18n } from 'vue-i18n'
-import messages from 'src/i18n'
+import { boot } from "quasar/wrappers";
+import { createI18n } from "vue-i18n";
+import messages from "src/i18n";
 
 export default boot(({ app }) => {
   const i18n = createI18n({
-    locale: 'en-US',
+    locale: "en-US",
     globalInjection: true,
-    messages
-  })
+    messages,
+  });
 
   // Set i18n instance on app
-  app.use(i18n)
-})
+  app.use(i18n);
+});

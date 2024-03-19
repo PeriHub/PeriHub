@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -17,8 +17,8 @@ The Modelview is able to show four different visual outputs:
 - Plotly view:
   - Similar to images the user also hast the ability to retrieve a csv file from the ParaView instance. The data will then by visible and manageable in a Plotly environment.
 
-| Model view | VTK view |
-:---:|:---:
-![drawing](/images/modelView1.PNG)|![drawing](/images/modelView2.PNG)
-| **ParaView image** | **Plotly view** |
-![drawing](/images/modelView3.PNG)|![drawing](/images/modelView4.PNG)
+|             Model view             |              VTK view              |
+| :--------------------------------: | :--------------------------------: |
+| ![drawing](/images/modelView1.PNG) | ![drawing](/images/modelView2.PNG) |
+|         **ParaView image**         |          **Plotly view**           |
+| ![drawing](/images/modelView3.PNG) | ![drawing](/images/modelView4.PNG) |

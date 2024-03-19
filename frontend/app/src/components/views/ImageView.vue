@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -12,17 +12,15 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 import { defineComponent, inject } from 'vue'
 import { useModelStore } from 'stores/model-store';
-import { useViewStore } from 'stores/view-store';
+import { useViewStore } from     tores/view-store';
 
-export default defineComponent({
-    name: 'ImageView',
-    setup() {
-        const modelStore = useModelStore();
-        const viewStore = useViewStore();
-        const bus = inject('bus')
-        return {
-            modelStore,
-            viewStore,
+    port default        ineComponent({
+             e: 'Image                   setup() {
+        const modelStore = useModelS            ;
+               ons    viewStore         eViewStore();
+        const bus =        ect('bus'                ret        {
+                mode        re,
+                    ewStore,
             bus
         }
     },

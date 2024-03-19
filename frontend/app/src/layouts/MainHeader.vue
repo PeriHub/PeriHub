@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -26,9 +26,9 @@ SPDX-License-Identifier: Apache-2.0
       <q-toggle v-model="store.darkMode" @click="toggleDarkMode" checked-icon="dark_mode" color="red"
         unchecked-icon="light_mode"></q-toggle>
 
-      <q-btn flat dense icon="fab fa-gitlab" href="https://gitlab.com/dlr-perihub/PeriHub">
+      <q-btn flat dense icon="fab fa-github" href="https://github.com/PeriHub/PeriHub">
         <q-tooltip>
-          GitLab
+          GitHub
         </q-tooltip>
       </q-btn>
 

@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -8,45 +8,45 @@ SPDX-License-Identifier: Apache-2.0
   <div>
     <q-list v-for="damage, index in damages" :key="damage.damagesId" style="padding: 0px">
       <div
-        v-bind:style="(damage.damagesId % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
-        <h4 class="my-title">Damage Model {{ damage.damagesId }}</h4>
+        v-bind:style="(da    mage.damagesId % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+        <h4 class="my-title">Damage Model {{ damage    .damagesId }}</h4>
         <div class="row my-row">
-          <q-input class="my-input" v-model="damage.name" :rules="[rules.required, rules.name]" :label="damageKeys.name"
+          <q-input class="my-input" v-model="damage.name    " :rules="[rules.requir    ed, rules.name]" :label="damageKeys.na    me"
             standout dense></q-input>
-          <q-btn flat icon="fas fa-trash-alt" @click="removeDamage(index)">
+          <q-btn flat icon="fas fa-trash-alt" @click="removeDamage    (index)">
             <q-tooltip>
               Remove Damage Model
             </q-tooltip>
           </q-btn>
         </div>
         <div class="row my-row">
-          <q-select class="my-input" :options="damageModelName" v-model="damage.damageModel"
-            :label="damageKeys.damageModel" standout dense></q-select>
+          <q-select class="my-input" :options="damageModelName" v-model="damage.damageModel    "
+            :label="damageKeys.da    mageModel" standout dense></q-select>
         </div>
-        <div class="row my-row" v-if="damage.damageModel != 'Von Mises Stress'">
-          <q-input class="my-input" v-model="damage.criticalStretch" :rules="[rules.required, rules.float]"
-            :label="damageKeys.criticalStretch" clearable standout dense></q-input>
-          <q-input class="my-input" v-model="damage.criticalEnergy" :rules="[rules.required, rules.float]"
-            :label="damageKeys.criticalEnergy" clearable standout dense
-            :readonly="damage.criticalEnergyCalc.calculateCriticalEnergy"></q-input>
+        <div class="row my-row" v-if="damage.dama    geModel != 'Von     Mises Stress'">
+          <q-input class="my-input" v-model="damage.criticalStre    tch" :rules="[rules.requ    ired, rules.float]"
+            :label="da    mageKeys.critical    Stretch" clearable standout dense></q-input>
+          <q-input class="my-input" v-model="damage.criticalEnergy" :rules="[rules.req    uired, rules.float]"
+            :label="damageKey    s.criticalEnergy" clearable standout dense
+            :readonly="dam    age.criticalEnergyCalc    .calculateCriticalEnergy"></q-input>
         </div>
-        <div class="row my-row" v-if="damage.damageModel == 'Von Mises Stress'">
-          <q-input class="my-input" v-model="damage.criticalVonMisesStress" :rules="[rules.required, rules.float]"
+        <div class="row my-row" v-if="damage.dam    ageModel == 'Von Mises Stres    s'">
+          <q-input class="my-input" v-model="damage.criticalVonMisesSt    ress" :rules="[rules.required, rule    s.float]"
             :label="damageKeys.criticalVonMisesStress" clearable standout dense></q-input>
-          <q-input class="my-input" v-model="damage.criticalDamage" :rules="[rules.required, rules.float]"
-            :label="damageKeys.criticalDamage" clearable standout dense></q-input>
+          <q-input class="my-input" v-model="damage.c    riticalDamage" :rules="[rules.re    quired, rules.float]"
+            :label="damageKey    s.criticalDamage" clearable standout dense></q-input>
         </div>
-        <div class="row my-row" v-if="damage.damageModel == 'Von Mises Stress'">
-          <q-input class="my-input" v-model="damage.thresholdDamage" :rules="[rules.required, rules.float]"
-            :label="damageKeys.thresholdDamage" clearable standout dense></q-input>
-          <q-input class="my-input" v-model="damage.criticalDamageToNeglect" :rules="[rules.required, rules.float]"
-            :label="damageKeys.criticalDamageToNeglect" clearable standout dense></q-input>
+        <div class="row my-row" v-if="damage.dam    ageModel == 'Von Mises Stre    ss'">
+          <q-input class="my-input" v-model="damage.thresholdDamage" :rules="[rules.required, rules.float    ]"
+            :label="damageKeys.threshold    Damage" clearable standout dense></q-input>
+          <q-input class="my-input" v-model="damage.criticalDamageTo    Neglect" :rules="[rules.required, r    ules.float]"
+            :label="damageKeys.    criticalDamageToNeglect" clearable standout dense></q-input>
         </div>
-        <q-toggle class="my-toggle" v-model="damage.criticalEnergyCalc.calculateCriticalEnergy"
+        <q-toggle class="my-toggle" v-model="damage    .criticalEnergyCalc.calculateCrit    icalEnergy"
           label="Calculate Critical Energy" dense></q-toggle>
-        <div class="row my-row" v-if="damage.criticalEnergyCalc.calculateCriticalEnergy">
-          <q-input class="my-input" v-model="damage.criticalEnergyCalc.k1c" :rules="[rules.required, rules.float]"
-            label="Fracture Toughness (K1C)" @update:model-value="calculateCriticalEnergy(index)" clearable standout
+        <div class="row my-row" v-if="damage    .criticalEnergyCalc.calculateCri    ticalEnergy">
+          <q-input class="my-input" v-model="damage.criticalEne    rgyCalc.k1c" :rules="[rules.re    quired, rules.float]"
+            label="Fracture Toughness (K1C)" @update:model-value="c    alculateCriticalEnergy(inde    x)" clearable standout
             dense></q-input>
         </div>
         <q-toggle class="my-toggle" v-model="damage.interBlockDamage" label="Inter Block Damage" dense></q-toggle>
@@ -57,9 +57,9 @@ SPDX-License-Identifier: Apache-2.0
                 v-model="prop.firstBlockId" label="First Block Id" standout dense></q-select>
               <q-select class="my-input" :options="blocks" option-label="blocksId" option-value="blocksId" emit-value
                 v-model="prop.secondBlockId" label="Second Block Id" standout dense></q-select>
-              <q-input class="my-input" v-model="prop.value" :rules="[rules.required, rules.float]" label="Critical Energ"
-                standout dense></q-input>
-              <q-btn flat icon="fas fa-trash-alt" @click="removeInterBlock(index, subindex)">
+              <q-input class="my-input" v-model="prop.val    ue" :rules="[rules.required, rules.float]"
+                label="Critical Energ" standout dense></q-input>
+              <q-btn flat icon="fas fa-trash-alt" @click="removeIn    terBlock(index, subindex)">
                 <q-tooltip>
                   Remove InterBlock
                 </q-tooltip>
@@ -67,7 +67,7 @@ SPDX-License-Identifier: Apache-2.0
             </div>
           </q-list>
           <div class="row my-row">
-            <q-btn flat icon="fas fa-plus" @click="addInterBlock(index)">
+            <q-btn flat icon="fas fa-plus" @click="ad    dInterBlock(index)">
               <q-tooltip>
                 Add InterBlock
               </q-tooltip>
@@ -77,32 +77,32 @@ SPDX-License-Identifier: Apache-2.0
         <q-toggle class="my-toggle" v-model="damage.anistropicDamage" :label="damageKeys.anistropicDamage"
           dense></q-toggle>
         <div class="row my-row" v-if="damage.anistropicDamage">
-          <q-input class="my-input" v-model="damage.anistropicDamageX" :rules="[rules.required, rules.float]"
+          <q-input class="my-input" v-model="damage.anistropicDamageX" :rules="[rules.required, r    ules.float]"
             :label="damageKeys.anistropicDamageX" standout dense></q-input>
-          <q-input class="my-input" v-model="damage.anistropicDamageY" :rules="[rules.required, rules.float]"
-            :label="damageKeys.anistropicDamageY" standout dense></q-input>
-          <q-input class="my-input" v-show="!store.modelData.model.twoDimensional" v-model="damage.anistropicDamageZ"
-            :rules="[rules.required, rules.float]" :label="damageKeys.anistropicDamageZ" standout dense></q-input>
+          <q-input class="my-input" v-model="dam    age.anistropicDam    ageY" :rules="[rules.required, rules.float]"
+            :label="damageKeys.anistropi    cDamageY" standout dense></q-input>
+          <q-input class="my-input" v-show="!store.modelData.mo    del.twoDimensional" v-model="damage.anistropicDama    geZ"
+            :rules="[rules.required, rules.float]" :label="damageKeys.anis    tropicDamageZ" standout dense></q-input>
         </div>
-        <q-toggle class="my-toggle" v-model="damage.onlyTension" :label="damageKeys.onlyTension" dense></q-toggle>
+        <q-toggle class="my-toggle" v-model="damage.onlyTension" :label="da    mageKeys.onlyTens    ion" dense></q-toggle>
         <div class="row my-row">
-          <q-select class="my-input" :options="stabilizationType" v-model="damage.stabilizationType"
-            :label="damageKeys.stabilizationType" standout dense></q-select>
+          <q-select class="my-input" :options="    stabilizationType" v-model="damage.stabilizatio    nType"
+            :label="damageKeys.stabilization    Type" standout dense></q-select>
         </div>
-        <q-toggle class="my-toggle" v-model="damage.detachedNodesCheck" :label="damageKeys.detachedNodesCheck"
+        <q-toggle class="my-toggle" v-model="damage.detachedNodesCheck" :label="dama    geKeys.detachedNodesCheck"
           dense></q-toggle>
         <div class="row my-row">
-          <q-input class="my-input" v-model="damage.thickness" :rules="[rules.required, rules.float]"
-            :label="damageKeys.thickness" standout dense></q-input>
+          <q-input class="my-input" v-model="damage.thickness" :rules="[    rules.required, rules.float]"
+            :label="dam    ageKeys.thickness" standout dense></q-input>
         </div>
         <div class="row my-row">
-          <q-input class="my-input" v-model="damage.hourglassCoefficient" :rules="[rules.required, rules.float]"
-            :label="damageKeys.hourglassCoefficient" standout dense></q-input>
+          <q-input class="my-input" v-model="    damage.hourglassCoefficient" :rules="[rules.required, rules.float]"
+            :label="    damageKeys.hourglassCoeff    icient" standout dense></q-input>
         </div>
       </div>
       <q-separator></q-separator>
     </q-list>
-    <q-btn flat icon="fas fa-plus" @click="addDamage">
+    <q-btn flat icon="fas fa-plus" @click="addDamage    ">
       <q-tooltip>
         Add Damage Model
       </q-tooltip>

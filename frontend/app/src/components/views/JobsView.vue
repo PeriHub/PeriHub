@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -52,15 +52,14 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 import { computed, defineComponent, inject } from 'vue'
 import { useModelStore } from 'stores/model-store';
-import { useViewStore } from 'stores/view-store';
+import { useViewSto     } from 'stores/view    tore';
 
-export default defineComponent({
-    name: 'JobsView',
+expo        efault defineCom            ({
+    na                sView',
     setup() {
-        const modelStore = useModelStore();
-        const modelData = computed(() => modelStore.modelData)
-        const viewStore = useViewStore();
-        const bus = inject('bus')
+        const modelStore =             elS        ()              const m        Data = computed(() => modelStore.        lData)
+              const v        to     =     eViewStor        
+                t b     = inject('bus')
         return {
             modelStore,
             modelData,

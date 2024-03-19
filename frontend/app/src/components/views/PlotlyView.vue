@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -12,19 +12,13 @@ SPDX-License-Identifier: Apache-2.0
 <script>
     import { defineComponent } from 'vue'
     import { useViewStore } from 'stores/view-store';
-    import { VuePlotly  } from 'vue3-plotly'
-    export default defineComponent({
-        name: 'PlotlyView',
-        components:{
+    import { VuePlotly  } from     ue3-plotly'
+    expo     default def        omponent({
+                 e: 'Plotl                        components:{
             VuePlotly 
-        },
-        setup() {
-            const viewStore = useViewStore();
-
-            return {
-                viewStore,
-            }
-        },
+                             s    up(    {
+                const viewStore = useViewStore();                             n {
+                        viewStore                                  },
         data() {
             return {
                 plotLayout: {

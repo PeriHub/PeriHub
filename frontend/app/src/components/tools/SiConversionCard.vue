@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -51,7 +51,8 @@ SPDX-License-Identifier: Apache-2.0
               <q-icon name='fas fa-copy' @click="copyText('velocity')"></q-icon>
             </template>
           </q-input>
-          <q-input class="my-input" v-model="conversionResults.acceleration" label="Acceleration [mm/s^2]" standout dense>
+          <q-input class="my-input" v-model="conversionResults.acceleration" label="Acceleration [mm/s^2]" standout
+            dense>
             <template v-slot:append>
               <q-icon name='fas fa-copy' @click="copyText('acceleration')"></q-icon>
             </template>

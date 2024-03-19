@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -15,17 +15,16 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 import { defineComponent } from 'vue'
 import ConversionCard from 'components/tools/ConversionCard.vue'
-import SiConversionCard from 'components/tools/SiConversionCard.vue'
-import StiffnessCard from 'components/tools/StiffnessCard.vue'
+import SiConversionCard     om 'components/tools    iConversionC        vue'
+import Stif            ard from                 nts/tools/StiffnessCard.vue'
 
-export default defineComponent({
-    name: "GuidePage",
+export default defi            one        
+      na    : "GuidePa        
     components: {
-        ConversionCard,
-        SiConversionCard,
-        StiffnessCard
-    },
-});
+        Conver        Card,
+               iConver        Ca    ,
+          Stif        sCard
+           });
 </script>
 
 <style></style>

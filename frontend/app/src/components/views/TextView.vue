@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -14,11 +14,11 @@ SPDX-License-Identifier: Apache-2.0
     import { defineComponent } from 'vue'
     import { useViewStore } from 'stores/view-store';
     
-    import { PrismEditor } from "vue-prism-editor";
-    import "vue-prism-editor/dist/prismeditor.min.css"; // import the styles somewhere
-    import { highlight, languages } from "prismjs/components/prism-core";
-    import "prismjs/components/prism-clike";
-    import "prismjs/components/prism-javascript";
+    import { PrismEditor }    rom "vue-prism-edito    ;
+    import        e-prism-editor/d            ismeditor                "; // import the styles somewhere
+    import { hi            t,         ua    s }    rom "prism        omponents/prism-core";
+    import        ismjs/com            s/prism        ke    
+      import "p        js/compon        /pr    m-javascript";
     import "prismjs/themes/prism-tomorrow.css"; // import syntax highlighting styles
     export default defineComponent({
         name: 'TextView',

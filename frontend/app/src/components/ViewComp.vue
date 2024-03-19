@@ -1,12 +1,12 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
-  <div :style="{ 'height': viewHeight }">
-    <q-tabs v-model="viewStore.viewId" dense class="text-grey" active-color="primary" indicator-color="primary"
+  <div :style="{ 'height': viewHei  ght }">
+    <q-tabs v-model="viewStore.viewI  d" dense class="text-grey" active-color="primary" indicator-color="primary"
       align="justify">
       <q-tab name="image" label="Image"></q-tab>
       <q-tab name="model" label="Model"></q-tab>

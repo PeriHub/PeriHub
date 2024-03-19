@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -10,7 +10,7 @@ license = "Apache-2.0"
 authors = ["Jan-Timo Hesse"]
 readme = "README.md"
 include = ["README.md", "changelog.md", "LICENSE", "doc", "*.rst", "conf.py", "Makefile"]
-repository = "https://gitlab.com/dlr-perihub/PeriHub"
+repository = "https://github.com/PeriHub/PeriHub"
 keywords = ["perihub","perilab","peridynamics"]
 
 [tool.poetry.scripts]

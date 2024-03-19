@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -8,9 +8,9 @@ SPDX-License-Identifier: Apache-2.0
 
 The blocks configuration panel is needed to assign materials and damage models to each block:
 
-Configuration | Description
---- | ---
-Block Name | Current used Block
-Material | Used Material for the block
-Damage Model | Used Damage Model for the block
-Show | Switch to show block in the VTK view
+| Configuration | Description                          |
+| ------------- | ------------------------------------ |
+| Block Name    | Current used Block                   |
+| Material      | Used Material for the block          |
+| Damage Model  | Used Damage Model for the block      |
+| Show          | Switch to show block in the VTK view |

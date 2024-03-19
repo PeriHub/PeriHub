@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -19,9 +19,12 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-model="constants.E1" :label="materialKeys.E1" clearable standout dense></q-input>
           <q-input class="my-input" v-model="constants.E2" :label="materialKeys.E2" clearable standout dense></q-input>
           <q-input class="my-input" v-model="constants.E3" :label="materialKeys.E3" clearable standout dense></q-input>
-          <q-input class="my-input" v-model="constants.G12" :label="materialKeys.G12" clearable standout dense></q-input>
-          <q-input class="my-input" v-model="constants.G13" :label="materialKeys.G13" clearable standout dense></q-input>
-          <q-input class="my-input" v-model="constants.G23" :label="materialKeys.G23" clearable standout dense></q-input>
+          <q-input class="my-input" v-model="constants.G12" :label="materialKeys.G12" clearable standout
+            dense></q-input>
+          <q-input class="my-input" v-model="constants.G13" :label="materialKeys.G13" clearable standout
+            dense></q-input>
+          <q-input class="my-input" v-model="constants.G23" :label="materialKeys.G23" clearable standout
+            dense></q-input>
           <q-input class="my-input" v-model="constants.nu12" :label="materialKeys.nu12" clearable standout
             dense></q-input>
           <q-input class="my-input" v-model="constants.nu13" :label="materialKeys.nu13" clearable standout

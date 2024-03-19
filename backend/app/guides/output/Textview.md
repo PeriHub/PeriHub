@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -13,6 +13,6 @@ The Textview will show two different files:
 - Log file:
   - For a running simulation the log file can be retrieved manually or automatically.
 
-| Input file | Log file |
-:---:|:---:
-![drawing](/images/textView1.PNG)|![drawing](/images/textView2.PNG)
+|            Input file             |             Log file              |
+| :-------------------------------: | :-------------------------------: |
+| ![drawing](/images/textView1.PNG) | ![drawing](/images/textView2.PNG) |

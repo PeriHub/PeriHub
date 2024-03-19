@@ -1,9 +1,9 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import enUS from './en-US'
+import enUS from "./en-US";
 
 export default {
-  'en-US': enUS
-}
+  "en-US": enUS,
+};

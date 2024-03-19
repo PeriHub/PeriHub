@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://gitlab.com/dlr-perihub/PeriHub>
+SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -38,12 +38,10 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
     import ModelActions from 'src/components/actions/ModelActions.vue'
-    import ExpansionComp from 'src/components/ExpansionComp.vue'
-    import ViewActions from 'src/components/actions/ViewActions.vue'
-    import ViewComp from 'src/components/ViewComp.vue'
-    import TextActions from 'src/components/actions/TextActions.vue'
-    import TextComp from 'src/components/TextComp.vue'
-    import { useDefaultStore } from 'stores/default-store';
+    import ExpansionComp from 'src/components/ExpansionC    p.vue'
+    import Vi    Actions from        c/components/act            iewAction                   import ViewComp from 'src/components/ViewComp.                       rt    ext    tions from        c/components/actions/TextActions.        
+    impo            tComp f        's    /co    onents/Te        mp.vue'
+         mpo     { useDefaultStore } from 'stores/default-store';
     import Driver from "driver.js";
     import "driver.js/dist/driver.min.css";
 
