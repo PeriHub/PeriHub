@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div class="row">
     <q-btn flat icon="fas fa-play" @click="checkEnergy" :loading="submitLoading"
-      :disable="su      bmitLoading || !status.created" v-if="!status.submitted">
+      :disable="submitLoading || !status.created" v-if="!status.submitted">
       <q-tooltip>
         Submit Model
       </q-tooltip>
@@ -32,13 +32,13 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-times" @click="ca      ncelJob" :loading="submitLoading" v-if="status.submitte      d">
+    <q-btn flat icon="fas fa-times" @click="cancelJob" :loading="submitLoading" v-if="status.submitted">
       <q-tooltip>
         Cancel Job
       </q-tooltip>
     </q-btn>
-    <q-btn flat icon="fas fa-download" @click="d      ialog = true" :loading="result      sLoading"
-      :disable="resultsLoading || !s      tatus.results">
+    <q-btn flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading"
+      :disable="resultsLoading || !status.results">
       <q-tooltip>
         Download Results
       </q-tooltip>
@@ -55,25 +55,25 @@ SPDX-License-Identifier: Apache-2.0
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="All data" color="primary" v-close-popup @click="saveResults(true)"></q-btn>
-          <q-btn flat label="Only the results" color="primary" v-close-popup @click="saveResults(fa      lse)"></q-btn>
+          <q-btn flat label="Only the results" color="primary" v-close-popup @click="saveResults(false)"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-eye" @click="viewStor      e.viewId = 'results'" :disable="!status.results">
+    <q-btn flat icon="fas fa-eye" @click="viewStore.viewId = 'results'" :disable="!status.results">
       <q-tooltip>
         Show Results
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="['CompactTensio      n', 'KICmodel', 'KIIC      model', 'ENFmodel'].include      s(modelData.model      .modelNameSelected)"
-      flat icon="fas fa-image" @click="d      ialogGetFractureAnalysis = true" :disable="!status.re      sults">
+    <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)"
+      flat icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
       <q-tooltip>
         Show Fracture Analysis
       </q-tooltip>
     </q-btn>
-    <q-dialog v-model="dialogGetFractureAnalysis      " persistent max-width="800">
+    <q-dialog v-model="dialogGetFractureAnalysis" persistent max-width="800">
       <q-card>
         <q-card-section>
           <div class="text-h6">Show Fracture Analysis</div>
@@ -83,22 +83,22 @@ SPDX-License-Identifier: Apache-2.0
           Which output do you want to analyse?
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="modelData.outpu      ts" option-label="name" option-value="name" emit-value
+          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
             v-model="getImageOutput" label="Output Name" standout dense></q-select>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImageSte      p" :rules="[rules.required, rul      es.name]" label="Time Step"
+          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
             standout dense></q-input>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="getFractureAnalysis      "></q-btn>
+          <q-btn flat label="Show" color="primary" v-close-popup @click="getFractureAnalysis"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-btn v-if="['ENFmodel'].includes(mod      elData.model.modelNameSelected)" flat icon="fas fa-image"
-      @click="      dialogGetEnfAnalysis = true" :disable="!status.results">
+    <q-btn v-if="['ENFmodel'].includes(modelData.model.modelNameSelected)" flat icon="fas fa-image"
+      @click="dialogGetEnfAnalysis = true" :disable="!status.results">
       <q-tooltip>
         Show ENF Analysis
       </q-tooltip>
@@ -113,28 +113,28 @@ SPDX-License-Identifier: Apache-2.0
           Which output do you want to analyse?
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="modelD      ata.outputs" option-label="name" option-value="name" emit-value
+          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
             v-model="getImageOutput" label="Output Name" standout dense></q-select>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImageStep" :rules="[r      ules.required, rules.name]" label="Time Step"
+          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
             standout dense></q-input>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="get      EnfAnalysis"></q-btn>
+          <q-btn flat label="Show" color="primary" v-close-popup @click="getEnfAnalysis"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-btn v-if="viewStore.vie      wId == 'image'" flat icon="fas fa-download" @click="downloadModelImage      ()"
-      :disable="!status      .results">
+    <q-btn v-if="viewStore.viewId == 'image'" flat icon="fas fa-download" @click="downloadModelImage()"
+      :disable="!status.results">
       <q-tooltip>
         Download Image
       </q-tooltip>
     </q-btn>
-    <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlo      tVariables()"
-      :disable="!status.results || modelD      ata.computes.length == 0">
+    <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()"
+      :disable="!status.results || modelData.computes.length == 0">
       <q-tooltip>
         Show Plot
       </q-tooltip>
@@ -153,11 +153,11 @@ SPDX-License-Identifier: Apache-2.0
             v-model="getPlotOutput" label="Output Name" standout dense></q-select>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="getPlot      Variables" v-model="getPlotVariableX" label="Variable" standout
+          <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableX" label="Variable" standout
             dense></q-select>
-          <q-select class="my-select" :options="getImageAxis" :readonly="getPl      otVariableX == 'Damage'"
-            v-model="g      etPlotAxisX" label="Axis" standout dense></q-select>
-          <q-toggle class="my-toggle" v-model="getPlotAb      soluteX" label="Absolute" dense></q-toggle>
+          <q-select class="my-select" :options="getImageAxis" :readonly="getPlotVariableX == 'Damage'"
+            v-model="getPlotAxisX" label="Axis" standout dense></q-select>
+          <q-toggle class="my-toggle" v-model="getPlotAbsoluteX" label="Absolute" dense></q-toggle>
         </q-card-section>
         <q-card-section class="q-pt-none">
           <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableY" label="Variable" standout
@@ -190,31 +190,31 @@ SPDX-License-Identifier: Apache-2.0
         </q-card-section>
         <q-card-section class="q-pt-none">
           <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
-            v-model="getIma      geOutput" label="Output Name" standout dense></q-select>
+            v-model="getImageOutput" label="Output Name" standout dense></q-select>
           <q-select class="my-select" :options="getImageVariable" v-model="getImageVariableSelected" label="Variable"
             standout dense></q-select>
           <q-select class="my-select" :options="getImageAxis" :readonly="getImageVariableSelected == 'Damage'"
             v-model="getImageAxisSelected" label="Axis" standout dense></q-select>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImage      DisplFactor" :rules="[rules.required, rules.name]"
+          <q-input class="my-input" v-model="getImageDisplFactor" :rules="[rules.required, rules.name]"
             label="Displacement Factor" standout dense></q-input>
-          <q-input class="my-input" v-show="!getImageTriangulate" v-model="get      ImageMarkerSize"
-            :rules="[rule      s.required, rules.name]" label="Marker Size" standout dense></q-input>
-          <q-input class="my-input" v-model="      getImageStep" :rules="[rules.required,       rules.name]" label="Time Step"
+          <q-input class="my-input" v-show="!getImageTriangulate" v-model="getImageMarkerSize"
+            :rules="[rules.required, rules.name]" label="Marker Size" standout dense></q-input>
+          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
             standout dense></q-input>
           <q-toggle class="my-toggle" v-model="getImageTriangulate" label="Triangulate" dense></q-toggle>
           <q-input class="my-input" v-model="getImageDxFactor" :rules="[rules.required, rules.name]" label="Dx Factor"
             standout dense></q-input>
           <q-toggle class="my-toggle" v-model="getImageThreeD" label="Three Dimensional" dense></q-toggle>
           <div class="row my-row" v-show="getImageThreeD">
-            <q-input class="my-input" v-model="getImage      Elevation" label="Elevation" standout dense></q-input>
-            <q-input class="my-input" v-model="g      etImageAzi      muth" label="Azimuth" standout dense></q-input>
+            <q-input class="my-input" v-model="getImageElevation" label="Elevation" standout dense></q-input>
+            <q-input class="my-input" v-model="getImageAzimuth" label="Azimuth" standout dense></q-input>
             <q-input class="my-input" v-model="getImageRoll" label="Roll" standout dense></q-input>
           </div>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="getImagePytho      n"></q-btn>
+          <q-btn flat label="Show" color="primary" v-close-popup @click="getImagePython"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -251,14 +251,14 @@ SPDX-License-Identifier: Apache-2.0
           all User data?
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Model data" color="primary" v-close-popup @click="dialogDeleteModel       = true"></q-btn>
+          <q-btn flat label="Model data" color="primary" v-close-popup @click="dialogDeleteModel = true"></q-btn>
           <q-btn flat label="Cookies" color="primary" v-close-popup @click="dialogDeleteCookies = true"></q-btn>
-          <q-btn flat label="User data" color="primary" v-close-popup @click="dialogDe      leteUserData = true"></q-btn>
+          <q-btn flat label="User data" color="primary" v-close-popup @click="dialogDeleteUserData = true"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="dialogDeleteMo      del" persistent max-width="500">
+    <q-dialog v-model="dialogDeleteModel" persistent max-width="500">
       <q-card>
         <q-card-section>
           <div class="text-h6">Delete Model</div>
@@ -283,12 +283,12 @@ SPDX-License-Identifier: Apache-2.0
           Are you sure, you want to delete all Cookies?
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Yes" color="primary" v-close-popup @click="del      eteCookies"></q-btn>
+          <q-btn flat label="Yes" color="primary" v-close-popup @click="deleteCookies"></q-btn>
           <q-btn flat label="No" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="dialogDeleteUserData      " persistent max-width="500">
+    <q-dialog v-model="dialogDeleteUserData" persistent max-width="500">
       <q-card>
         <q-card-section>
           <div class="text-h6">Delete User Data</div>

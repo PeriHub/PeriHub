@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-select class="my-select" :options="distributionTypes" v-model="discretization.distrib    utionType"
+    <q-select class="my-select" :options="distributionTypes" v-model="discretization.distributionType"
       label="Distribution Type" standout dense></q-select>
   </div>
 </template>

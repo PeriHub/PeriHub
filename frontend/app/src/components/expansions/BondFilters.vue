@@ -6,62 +6,62 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-list v-for="bondFilter, index in store.modelData.bondFilters" :key="bondFilter.bondFilters    Id"
+    <q-list v-for="bondFilter, index in store.modelData.bondFilters" :key="bondFilter.bondFiltersId"
       style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="bondFilter.name" :rules="[rules.required, rules.name]"
           :label="bondFilterKeys.name" standout dense></q-input>
         <q-select class="my-select" :options="bondFiltertype" v-model="bondFilter.type" :label="bondFilterKeys.type"
           standout dense></q-select>
-        <q-input v-if="bon    dFilter.type == 'Rec    tangular_Plane'" class="my-input" v-model="bondFilter.bo    ttomLength"
-          :rules="[rules.    required, rules.name]" :label="b    ondFilterKeys.bottomLen    gth" standout dense></q-input>
-        <q-input v-if="bondFilter    .type == 'Rectangular_Plane    '" class="my-input" v-model="bondFil    ter.sideLength"
-          :rules="[rules.required, ru    les.name]" :label="bondF    ilterKeys.sideLength" standout dense></q-input>
-        <q-input v-if="    bondFilter.type =    = 'Disk'" class="my-input" v-model="bondFilter.radius"
-          :rules="[rules.requir    ed, rules.name]" :label="bondFilterKey    s.radius" standout dense></q-input>
-        <q-btn flat icon="fas fa-trash-alt" @click="removeBo    ndFilter(index)">
+        <q-input v-if="bondFilter.type == 'Rectangular_Plane'" class="my-input" v-model="bondFilter.bottomLength"
+          :rules="[rules.required, rules.name]" :label="bondFilterKeys.bottomLength" standout dense></q-input>
+        <q-input v-if="bondFilter.type == 'Rectangular_Plane'" class="my-input" v-model="bondFilter.sideLength"
+          :rules="[rules.required, rules.name]" :label="bondFilterKeys.sideLength" standout dense></q-input>
+        <q-input v-if="bondFilter.type == 'Disk'" class="my-input" v-model="bondFilter.radius"
+          :rules="[rules.required, rules.name]" :label="bondFilterKeys.radius" standout dense></q-input>
+        <q-btn flat icon="fas fa-trash-alt" @click="removeBondFilter(index)">
           <q-tooltip>
             Remove Bond Filter
           </q-tooltip>
         </q-btn>
       </div>
       <div class="row my-row">
-        <q-input class="my-input" v-model="bo    ndFilter.normalX" :rules="[ru    les.required, r    ules.float]"
-          :label="bondFilter    Keys.normalX" standout dense></q-input>
-        <q-input class="my-input" v-model="bondFilter.norm    alY" :rules="[rules.required, rules    .float]"
+        <q-input class="my-input" v-model="bondFilter.normalX" :rules="[rules.required, rules.float]"
+          :label="bondFilterKeys.normalX" standout dense></q-input>
+        <q-input class="my-input" v-model="bondFilter.normalY" :rules="[rules.required, rules.float]"
           :label="bondFilterKeys.normalY" standout dense></q-input>
-        <q-input class="my-input" v-model="bondFilter.normalZ" :rules="[rules.required, rules.f    loat]"
+        <q-input class="my-input" v-model="bondFilter.normalZ" :rules="[rules.required, rules.float]"
           :label="bondFilterKeys.normalZ" standout dense></q-input>
         <q-toggle class="my-toggle" v-model="bondFilter.show" label="Show" standout dense></q-toggle>
       </div>
-      <div class="row my-row" v-show="bondFi    lter.type == 'Rectangular_P    lane'">
-        <q-input class="my-input" v-model="bondFilter.lowerLeftCorn    erX" :rules="[rules.required, rule    s.float]"
-          :label="bondFilterKey    s.lowerLeftCornerX" standout dense></q-input>
-        <q-input class="my-input" v-model="bondFilter.    lowerLeftCornerY" :rules="[rules.re    quired, rules.float]"
-          :label="bo    ndFilterKeys.lowerLeftCornerY" standout dense></q-input>
-        <q-input class="my-input" v-model="    bondFilter.lowerLeftCornerZ" :rules="[rules.required, rules    .float]"
-          :label="bondFilterKeys.low    erLeftCornerZ" standout dense></q-input>
+      <div class="row my-row" v-show="bondFilter.type == 'Rectangular_Plane'">
+        <q-input class="my-input" v-model="bondFilter.lowerLeftCornerX" :rules="[rules.required, rules.float]"
+          :label="bondFilterKeys.lowerLeftCornerX" standout dense></q-input>
+        <q-input class="my-input" v-model="bondFilter.lowerLeftCornerY" :rules="[rules.required, rules.float]"
+          :label="bondFilterKeys.lowerLeftCornerY" standout dense></q-input>
+        <q-input class="my-input" v-model="bondFilter.lowerLeftCornerZ" :rules="[rules.required, rules.float]"
+          :label="bondFilterKeys.lowerLeftCornerZ" standout dense></q-input>
       </div>
-      <div class="row my-row" v-show="bondFilter.type     == 'Rectangular_Plane'">
-        <q-input class="my-input" v-model="bondFilter.bottomUnitVectorX" :rules="[rules.required, rule    s.float]"
-          :label="bondFilterKeys.b    ottomUnitVectorX" standout dense></q-input>
+      <div class="row my-row" v-show="bondFilter.type == 'Rectangular_Plane'">
+        <q-input class="my-input" v-model="bondFilter.bottomUnitVectorX" :rules="[rules.required, rules.float]"
+          :label="bondFilterKeys.bottomUnitVectorX" standout dense></q-input>
         <q-input class="my-input" v-model="bondFilter.bottomUnitVectorY" :rules="[rules.required, rules.float]"
           :label="bondFilterKeys.bottomUnitVectorY" standout dense></q-input>
         <q-input class="my-input" v-model="bondFilter.bottomUnitVectorZ" :rules="[rules.required, rules.float]"
-          :label="bondFilterKeys.bot    tomUnitVectorZ" standout dense></q-input>
+          :label="bondFilterKeys.bottomUnitVectorZ" standout dense></q-input>
       </div>
       <div class="row my-row" v-show="bondFilter.type == 'Disk'">
-        <q-input class="my-input" v-model="bondFil    ter.centerX" :rules="[rules.required, rules.float]"
+        <q-input class="my-input" v-model="bondFilter.centerX" :rules="[rules.required, rules.float]"
           :label="bondFilterKeys.centerX" standout dense></q-input>
         <q-input class="my-input" v-model="bondFilter.centerY" :rules="[rules.required, rules.float]"
-          :label="bondFilterKeys.centerY    " standout dense></q-input>
-        <q-input class="my-input" v-model="bondFilter.centerZ" :rules="[rules.required, rules.f    loat]"
-          :label="bondF    ilterKeys.    centerZ" standout dense></q-input>
+          :label="bondFilterKeys.centerY" standout dense></q-input>
+        <q-input class="my-input" v-model="bondFilter.centerZ" :rules="[rules.required, rules.float]"
+          :label="bondFilterKeys.centerZ" standout dense></q-input>
       </div>
       <q-separator></q-separator>
     </q-list>
 
-    <q-btn flat icon="fas fa-plus" @click="addBondFi    lter">
+    <q-btn flat icon="fas fa-plus" @click="addBondFilter">
       <q-tooltip>
         Add Bond Filter
       </q-tooltip>

@@ -3,7 +3,6 @@ SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 
 SPDX-License-Identifier: Apache-2.0
 -->
-
 <template>
   <div>
     <div class="row my-row">
@@ -11,22 +10,22 @@ SPDX-License-Identifier: Apache-2.0
       <q-toggle class="my-toggle" v-model="solver.damEnabled" :label="solverKeys.damEnabled" standout dense></q-toggle>
       <q-toggle class="my-toggle" v-model="solver.tempEnabled" :label="solverKeys.tempEnabled" standout
         dense></q-toggle>
-      <q-input class="my-input" v-model="solver.initialTime" :rules="[rules.required, rules.name      ]"
-        :label="solverKeys.i      nitialTime" standout dense></q-input>
-      <q-input class="my-input" v-model="solver.finalTime" :rules="[rules.required, ru      les.name]"
-        :label="solverKeys.fi      nalTime" standout dense></q-input>
-      <q-input class="my-input" v-model="solver.fi      xedDt"
-        v-show="solver.solvertype == 'Implicit      ' | solver.solvertype       == 'Verlet'" :rules="[rules.r      equired, rules.name]"
-        :label="      solverKeys.fixe      dDt" standout dense></q-input>
-      <q-toggle class="my-toggle" v-model="solver.v      erbose" :label="solv      erKeys.verbose" standout dense></q-toggle>
+      <q-input class="my-input" v-model="solver.initialTime" :rules="[rules.required, rules.name]"
+        :label="solverKeys.initialTime" standout dense></q-input>
+      <q-input class="my-input" v-model="solver.finalTime" :rules="[rules.required, rules.name]"
+        :label="solverKeys.finalTime" standout dense></q-input>
+      <q-input class="my-input" v-model="solver.fixedDt"
+        v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'" :rules="[rules.required, rules.name]"
+        :label="solverKeys.fixedDt" standout dense></q-input>
+      <q-toggle class="my-toggle" v-model="solver.verbose" :label="solverKeys.verbose" standout dense></q-toggle>
     </div>
     <div class="row my-row">
-      <q-select class="my-input" :options="solvertype" v-model="solver.solvert      ype" :label="solverKeys.solvertype"
+      <q-select class="my-input" :options="solvertype" v-model="solver.solvertype" :label="solverKeys.solvertype"
         standout dense></q-select>
-      <q-input class="my-input" v-model="solver.safetyFactor" :rules="[rules.required, ru      les.name]"
-        :label="solverKeys      .safetyFactor" standout dense></q-input>
-      <q-input class="my-input" v-model="solver.numericalDamping      " :rules="[rules.required, rules.name      ]"
-        :label="solverKeys.numericalDamp      ing" standout dense></q-input>
+      <q-input class="my-input" v-model="solver.safetyFactor" :rules="[rules.required, rules.name]"
+        :label="solverKeys.safetyFactor" standout dense></q-input>
+      <q-input class="my-input" v-model="solver.numericalDamping" :rules="[rules.required, rules.name]"
+        :label="solverKeys.numericalDamping" standout dense></q-input>
     </div>
     <!-- <div class="row my-row" v-show="solver.solvertype == 'NOXQuasiStatic'">
             <q-select class="my-input" :options="peridgimPreconditioner" v-model="solver.peridgimPreconditioner"
@@ -65,7 +64,7 @@ SPDX-License-Identifier: Apache-2.0
                 :label="solverKeys.verlet.outputFrequency" standout dense></q-input>
         </div> -->
     <div class="row my-row" v-show="solver.solvertype == 'Verlet'">
-      <q-toggle class="my-toggle" v-model="solver.adaptiveti      meStepping" :label="solverKeys.a      daptivetimeStepping"
+      <q-toggle class="my-toggle" v-model="solver.adaptivetimeStepping" :label="solverKeys.adaptivetimeStepping"
         standout dense></q-toggle>
     </div>
     <!-- <div class="row my-row">
