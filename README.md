@@ -26,35 +26,33 @@ PeriHub is a powerful software solution that can significantly benefit research 
 
 - **Portability and Scalability:** PeriHub utilizes Docker containers, ensuring seamless integration and deployment across various computing environments. This approach enhances the software's portability, scalability, and ease of use, making it even more practical for research purposes.
 
-![](frontend/app/src/assets/images/PeriHub.drawio.png)
-
 ### Generate model
 
-![](frontend/app/src/assets/gif/generateModel.gif)
+![](docs/assets/gif/generateModel.gif)
 
 ### View generated mesh
 
-![](frontend/app/src/assets/gif/viewMesh.gif)
+![](docs/assets/gif/viewMesh.gif)
 
 ### Edit input deck
 
-![](frontend/app/src/assets/gif/editInputDeck.gif)
+![](docs/assets/gif/editInputDeck.gif)
 
 ### Submit model
 
-![](frontend/app/src/assets/gif/runModel.gif)
+![](docs/assets/gif/runModel.gif)
 
 ### Analyse results
 
-![](frontend/app/src/assets/gif/analyseResults.gif)
+![](docs/assets/gif/analyseResults.gif)
 
 ### Plot results
 
-![](frontend/app/src/assets/gif/plotResults.gif)
+![](docs/assets/gif/plotResults.gif)
 
 ### Analyse fracture
 
-![](frontend/app/src/assets/gif/analyseFracture.gif)
+![](docs/assets/gif/analyseFracture.gif)
 
 # Getting Started with PeriHub Services
 
