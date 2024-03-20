@@ -1,8 +1,9 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
+---
+layout: default
+title: Solver
+parent: Input
+nav_order: 2
+---
 
 # Solver
 

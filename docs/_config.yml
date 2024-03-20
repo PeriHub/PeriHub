@@ -5,4 +5,12 @@ theme: just-the-docs
 url: https://PeriHub.github.io/PeriHub
 
 aux_links:
-  Template Repository: https://github.com//PeriHub/PeriHub
+  PeriHub Repository: https://github.com//PeriHub/PeriHub
+
+favicon_ico: "/assets/images/favicon.ico"
+logo: "/assets/images/PeriHubLogo2b.png"
+footer_content:
+  "Copyright &copy; 2024 German Aerospace Center (DLR) — <strong>PeriHub</strong> | Jan-Timo
+  Hesse | Christian Willberg"
+mermaid:
+  version: "9.1.6"
