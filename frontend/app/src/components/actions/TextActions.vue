@@ -159,6 +159,7 @@ export default defineComponent({
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
 
+      // TODO: socket path wont work on build
       let socket_path = `ws://localhost:5000/log?${queryString}`;
       if (process.env.DEV) {
         socket_path = `ws${process.env.API.split("http")[1]}/log?${queryString}`;

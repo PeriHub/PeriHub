@@ -38,6 +38,7 @@ export const useDefaultStore = defineStore("default", {
         return;
       }
 
+      // TODO: user name needs to change
       let uuid = "user";
 
       if (process.env.TRIAL) {

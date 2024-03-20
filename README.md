@@ -57,7 +57,7 @@ To get started with PeriHub, you can use Docker Compose to easily set up the req
 - Clone the repository
 
 ```
-git clone https://github.com/dlr-perihub/PeriHub.git
+git clone https://github.com/PeriHub/PeriHub.git
 ```
 
 - Go into the PeriHub folder.
