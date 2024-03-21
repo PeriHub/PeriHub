@@ -54,9 +54,9 @@ export default defineComponent({
     const job = computed(() => store.modelData.job)
     const bus = inject('bus')
     let cluster = ["None"];
-    if (process.env.DLR) {
-      cluster.push("Cara")
-    }
+    // if (process.env.DLR) {
+    //   cluster.push("Cara")
+    // }
     return {
       store,
       solver,

@@ -88,7 +88,7 @@ class FileHandler:
     def get_user_name(request, dev):
         """doc"""
         user_name = request.headers.get("userName")
-        if user_name is not None and user_name != "":
+        if user_name is not None and user_name != "" and user_name != "undefined":
             return user_name
 
         if dev:
@@ -270,6 +270,9 @@ class FileHandler:
     def copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat):
         """doc"""
 
+        if cluster == "None":
+            return "Success"
+
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
         remotepath = FileHandler._get_remote_umat_path(cluster)
         try:
@@ -277,6 +280,8 @@ class FileHandler:
         except paramiko.SFTPError:
             log.error("ssh connection to " + cluster + " failed!")
             return "ssh connection to " + cluster + " failed!"
+        except Exception as e:
+            return str(e)
 
         if not os.path.exists(localpath):
             log.error("Shared libray can not been found")
@@ -354,37 +359,14 @@ class FileHandler:
         username, model_name, model_folder_name, cluster, all_data, tasks, output, filetype=".e"
     ):
         """doc"""
-        log.info("Start copying")
         resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
         if not os.path.exists(resultpath):
             os.makedirs(resultpath)
 
         if cluster == "None":
-            remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
-            for _, _, files in os.walk(remotepath):
-                if len(files) == 0:
-                    return False
-
-                for filename in files:
-                    if all_data or filetype in filename:
-                        log.info("Copy: " + filename)
-                        if os.path.exists(os.path.join(resultpath, filename)):
-                            if not filecmp.cmp(
-                                os.path.join(remotepath, filename),
-                                os.path.join(resultpath, filename),
-                            ):
-                                shutil.copy(
-                                    os.path.join(remotepath, filename),
-                                    os.path.join(resultpath, filename),
-                                )
-                        else:
-                            shutil.copy(
-                                os.path.join(remotepath, filename),
-                                os.path.join(resultpath, filename),
-                            )
-                    # os.chmod(os.path.join(remotepath,name), 0o0777)
-                    # os.chown(os.path.join(remotepath,name), 'test')
             return True
+
+        log.info("Start copying")
 
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -487,7 +469,10 @@ class FileHandler:
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")
-                return "ssh connection to " + server + " failed!"
+                raise Exception("ssh connection to " + server + " failed!")
+            except Exception as e:
+                log.error("An error occurred:", e)
+                raise Exception("An error occurred:" + e)
 
         sftp = ssh.open_sftp()
         return ssh, sftp

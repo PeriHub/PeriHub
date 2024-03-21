@@ -30,7 +30,7 @@ repos:
       - id: rst-backticks
       - id: rst-directive-colons
       - id: rst-inline-touching-normal
-  - repo: https://github.com/fsfe/reuse-tool
-    rev: v2.1.0
-    hooks:
-      - id: reuse
+  # - repo: https://github.com/fsfe/reuse-tool
+  #   rev: v2.1.0
+  #   hooks:
+  #     - id: reuse

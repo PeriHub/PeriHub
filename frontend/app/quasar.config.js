@@ -17,7 +17,7 @@ const ESLintPlugin = require("eslint-webpack-plugin");
 const { configure } = require("quasar/wrappers");
 
 require("dotenv").config();
-
+// console.log(process.env);
 module.exports = configure(function (ctx) {
   return {
     // https://v2.quasar.dev/quasar-cli-webpack/supporting-ts
@@ -33,7 +33,8 @@ module.exports = configure(function (ctx) {
       "i18n",
       "axios",
       "bus",
-      "chartkick",
+      // "chartkick",
+      "keycloak",
       "vtk",
       "notify-defaults",
       "zoom",
@@ -65,9 +66,11 @@ module.exports = configure(function (ctx) {
 
       env: {
         API: ctx.dev ? "http://localhost:5000" : "api",
-        DLR: process.env.DLR,
         TRIAL: process.env.TRIAL,
         DEV: ctx.dev,
+        KEYCLOAK_URL: process.env.KEYCLOAK_URL,
+        REALM: process.env.REALM,
+        CLIENT_ID: process.env.CLIENT_ID,
       },
       vueCompiler: true,
       // Add dependencies for transpiling with Babel (Array of string/regex)

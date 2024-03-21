@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
       <div class="row">
         <p>
           This accessibility statement is valid for the website of <a
-            href="https://perilab-results.nimbus-extern.dlr.de">https://perilab-results.nimbus-extern.dlr.de</a>.<br>
+            href="https://perihub.nimbus-extern.dlr.de">https://perihub.nimbus-extern.dlr.de</a>.<br>
           <br />
 
           As a public sector body of the German Federal Government within the meaning of EU Directive 2016/2102, we

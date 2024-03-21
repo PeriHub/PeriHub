@@ -107,3 +107,8 @@ export default defineComponent({
   },
 })
 </script>
+<style>
+.q-tab-panel {
+  padding: 0px;
+}
+</style>

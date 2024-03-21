@@ -11,10 +11,14 @@ COPY app/. .
 # build stage
 FROM develop-stage as build-stage
 
-ARG DLR
-ENV DLR $DLR
 ARG TRIAL
 ENV TRIAL $TRIAL
+ARG KEYCLOAK_URL
+ENV KEYCLOAK_URL $KEYCLOAK_URL
+ARG REALM
+ENV REALM $REALM
+ARG CLIENT_ID
+ENV CLIENT_ID $CLIENT_ID
 
 RUN npm i -g @quasar/cli
 RUN npm install

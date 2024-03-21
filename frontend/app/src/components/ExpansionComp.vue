@@ -43,9 +43,9 @@ SPDX-License-Identifier: Apache-2.0
       <q-expansion-item v-model="panel[10]" expand-separator icon="fas fa-calculator" label="Solver">
         <SolverSettings></SolverSettings>
       </q-expansion-item>
-      <q-expansion-item v-if="DLR" v-model="panel[11]" expand-separator icon="fas fa-flask" label="Job">
+      <!-- <q-expansion-item v-if="DLR" v-model="panel[11]" expand-separator icon="fas fa-flask" label="Job">
         <JobSettings></JobSettings>
-      </q-expansion-item>
+      </q-expansion-item> -->
     </q-list>
   </q-scroll-area>
 </template>
@@ -64,7 +64,7 @@ import BoundaryConditionsSettings from 'components/expansions/BoundaryConditions
 import BondFilterSettings from 'components/expansions/BondFilters.vue'
 import OutputSettings from 'components/expansions/Output.vue'
 import SolverSettings from 'components/expansions/Solver.vue'
-import JobSettings from 'components/expansions/Job.vue'
+// import JobSettings from 'components/expansions/Job.vue'
 
 export default defineComponent({
   name: "ExpansionComp",
@@ -81,14 +81,14 @@ export default defineComponent({
     BondFilterSettings,
     OutputSettings,
     SolverSettings,
-    JobSettings
+    // JobSettings
   },
   setup() {
     const bus = inject('bus')
-    const DLR = process.env.DLR
+    // const DLR = process.env.DLR
     return {
       bus,
-      DLR
+      // DLR
     }
   },
   created() {

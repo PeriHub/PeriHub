@@ -22,49 +22,5 @@ export const useDefaultStore = defineStore("default", {
     toggleDarkMode() {
       this.darkMode = !this.darkMode;
     },
-    initialiseStore() {
-      if (process.env.DLR) {
-        console.log(`I'm on a DLR build`);
-        let reqOptions = {
-          url: "https://perihub.nimbus.dlr.de",
-        };
-        axios.request(reqOptions).then((response) => {
-          api.defaults.headers.common["Authorization"] =
-            response.headers.authorization;
-          trameApi.defaults.headers.common["Authorization"] =
-            response.headers.authorization;
-          // console.log('login', {token: response.headers.authorization})
-        });
-        return;
-      }
-
-      // TODO: user name needs to change
-      let uuid = "user";
-
-      if (process.env.TRIAL) {
-        console.log(`I'm on a trial build`);
-        if (localStorage.getItem("userName") != null) {
-          api.defaults.headers.common["userName"] =
-            localStorage.getItem("userName");
-          return;
-        } else {
-          let reqOptions = {
-            url: "https://randomuser.me/api",
-          };
-          axios.request(reqOptions).then((response) => {
-            uuid = response.data.results[0].login.uuid;
-          });
-        }
-      }
-      if (process.env.DEV) {
-        console.log(`I'm on a development build`);
-        uuid = "dev";
-      } else {
-        console.log(`I'm on a local build`);
-      }
-      console.log(uuid);
-      api.defaults.headers.common["userName"] = uuid;
-      localStorage.setItem("userName", uuid);
-    },
   },
 });

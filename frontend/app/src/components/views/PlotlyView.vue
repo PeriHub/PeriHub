@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
-  <VuePlotly :data="viewStore.plotData" :layout="plotLayout" :options="plotOptions" :display-mode-bar="true">
+  <VuePlotly :data="viewStore.plotData" :layout="viewStore.plotLayout" :options="plotOptions" :display-mode-bar="true">
   </VuePlotly>
 </template>
 
@@ -27,40 +27,6 @@ export default defineComponent({
   },
   data() {
     return {
-      plotLayout: {
-        // title: 'this.model.modelNameSelected',
-        showlegend: true,
-        // margin: { t: 50 },
-        hovermode: "compare",
-        bargap: 0,
-        xaxis: {
-          showgrid: true,
-          zeroline: true,
-          color: "white",
-        },
-        yaxis: {
-          showgrid: true,
-          zeroline: true,
-          color: "white",
-        },
-        xaxis2: {
-          showgrid: false,
-          zeroline: false,
-        },
-        yaxis2: {
-          showgrid: true,
-          zeroline: false,
-        },
-        plot_bgcolor: "#2D2D2D",
-        paper_bgcolor: "#2D2D2D",
-        font: {
-          color: "white",
-        },
-        modebar: {
-          color: "white",
-          // color: "#6E6E6E"
-        },
-      },
       plotOptions: {
         scrollZoom: true,
         setBackground: "black",

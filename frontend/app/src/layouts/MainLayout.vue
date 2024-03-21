@@ -49,7 +49,6 @@ export default defineComponent({
     },
   },
   async beforeMount() {
-    await this.store.initialiseStore();
     await this.modelStore.initialiseStore();
     if (localStorage.getItem("darkMode") == "true") {
       this.store.darkMode = true;

@@ -169,9 +169,9 @@ export default defineComponent({
       // "OwnModel",
       // "RingOnRing"
     ]
-    if (process.env.DLR) {
-      modelName.push("Smetana")
-    }
+    // if (process.env.DLR) {
+    //   modelName.push("Smetana")
+    // }
     return {
       store,
       model,

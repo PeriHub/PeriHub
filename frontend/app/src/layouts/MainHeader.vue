@@ -26,6 +26,12 @@ SPDX-License-Identifier: Apache-2.0
       <q-toggle v-model="store.darkMode" @click="toggleDarkMode" checked-icon="dark_mode" color="red"
         unchecked-icon="light_mode"></q-toggle>
 
+      <q-btn flat dense icon="fas fa-compass" href="https://perihub.github.io/PeriHub/">
+        <q-tooltip>
+          Documentations
+        </q-tooltip>
+      </q-btn>
+
       <q-btn flat dense icon="fab fa-github" href="https://github.com/PeriHub/PeriHub">
         <q-tooltip>
           GitHub

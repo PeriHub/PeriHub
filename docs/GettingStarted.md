@@ -22,7 +22,6 @@ Create a .env file and save following variables.
 
 ```
 echo "DEV=True
-DLR=False
 VOLUME={PATHTOJOBFOLDER}" >> .env
 ```
 

@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
-  <div style="height: 100%; width: 100%;">
+  <div style="height: 100%; width: 100%; overflow: hidden">
     <div style="height:100%;">
       <div class="row" :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
         <q-btn flat dense icon="fas fa-sync-alt" @click="viewPointData">
@@ -28,9 +28,12 @@ SPDX-License-Identifier: Apache-2.0
                 :step="1" label :label-value="'Time Step: ' + modelParams.step" switch-label-side color="secondary"
                 @change="viewPointData"></q-slider>
             </q-item-section>
+            <q-item-section side>
+              {{ time }}
+            </q-item-section>
           </q-item>
         </div>
-        <div class="settings-column">
+        <!-- <div class="settings-column">
           <q-select class="textfield-col" :options="variableOptions" v-model="modelParams.variable" label="Variable"
             outlined dense @update:model-value="viewPointData"></q-select>
         </div>
@@ -41,7 +44,7 @@ SPDX-License-Identifier: Apache-2.0
         <div class="settings-column">
           <q-input v-model.number="modelParams.displFactor" type="number" label="Displ. Magnitude" outlined dense
             debounce:500 @update:model-value="viewPointData"></q-input>
-        </div>
+        </div> -->
         <div>
           <q-item>
             <q-item-section style="width: 10px; margin-right:20px" side>
@@ -88,6 +91,14 @@ SPDX-License-Identifier: Apache-2.0
           </vtk-glyph-representation>
         </vtk-view>
       </div>
+    </div>
+    <div class="variables" :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
+      <q-select class="variable" :options="variableOptions" v-model="modelParams.variable" label="Variable" outlined
+        dense @update:model-value="viewPointData"></q-select>
+      <q-select class="variable" :options="axisOptions" v-model="modelParams.axis" label="Axis" outlined dense
+        @update:model-value="viewPointData"></q-select>
+      <q-input class="variable" v-model.number="modelParams.displFactor" type="number" label="Displ. Magnitude" outlined
+        dense debounce:500 @update:model-value="viewPointData"></q-input>
     </div>
     <vertical-colored-legend class="legend" :min="minValue" :max="maxValue" :key="legendKey" />
   </div>
@@ -143,6 +154,7 @@ export default {
       maxValue: 100,
       minValue: 0,
       legendKey: 0,
+      time: 0,
     };
   },
 
@@ -237,6 +249,7 @@ export default {
       this.minValue = data["min_value"]
       this.variableOptions = data["variables"]
       this.modelParams.numberOfSteps = data["number_of_steps"]
+      this.time = data["time"]
     },
   },
   watch: {
@@ -267,6 +280,17 @@ export default {
   bottom: 160px;
   left: 20px;
   width: 100px;
+}
+
+.variables {
+  position: absolute;
+  top: 60px;
+  left: 16px;
+  width: 150px;
+}
+
+.variable {
+  padding: 10px
 }
 
 .settings {

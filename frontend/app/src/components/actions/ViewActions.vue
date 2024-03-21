@@ -146,13 +146,13 @@ SPDX-License-Identifier: Apache-2.0
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          Which variable do you want to use for the x-axis?
+          Which output do you want to plot?
         </q-card-section>
         <q-card-section class="q-pt-none">
           <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
             v-model="getPlotOutput" label="Output Name" standout dense></q-select>
         </q-card-section>
-        <q-card-section class="q-pt-none">
+        <!-- <q-card-section class="q-pt-none">
           <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableX" label="Variable" standout
             dense></q-select>
           <q-select class="my-select" :options="getImageAxis" :readonly="getPlotVariableX == 'Damage'"
@@ -165,10 +165,10 @@ SPDX-License-Identifier: Apache-2.0
           <q-select class="my-select" :options="getImageAxis" :readonly="getPlotVariableY == 'Damage'"
             v-model="getPlotAxisY" label="Axis" standout dense></q-select>
           <q-toggle class="my-toggle" v-model="getPlotAbsoluteY" label="Absolute" dense></q-toggle>
-        </q-card-section>
+        </q-card-section> -->
         <q-card-actions align="right">
           <q-btn flat label="Show" color="primary" v-close-popup @click="getPlot(false)"></q-btn>
-          <q-btn flat label="Append" color="primary" v-close-popup @click="getPlot(true)"></q-btn>
+          <!-- <q-btn flat label="Append" color="primary" v-close-popup @click="getPlot(true)"></q-btn> -->
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -399,6 +399,29 @@ export default defineComponent({
       port: null,
 
       plotRawData: null,
+
+      color: [
+        "#00658b",
+        "#d2ae3d",
+        "#82a043",
+        "#666666",
+        "#3b98cb",
+        "#f2cd51",
+        "#a6bf51",
+        "#858585",
+        "#6cb9dc",
+        "#f8de53",
+        "#cad55c",
+        "#b1b1b1",
+        "#a7d3ec",
+        "#fcea7a",
+        "#d9df78",
+        "#cfcfcf",
+        "#d1e8fa",
+        "#fff8be",
+        "#e6eaaf",
+        "#ebebeb"
+      ]
     };
   },
   methods: {
@@ -440,9 +463,17 @@ export default defineComponent({
 
       await this.$api.put('/jobs/run', this.modelData, { params })
         .then((response) => {
-          this.$q.notify({
-            message: response.data.message
-          })
+          if (response.data.data) {
+            this.$q.notify({
+              message: response.data.message
+            })
+          }
+          else {
+            this.$q.notify({
+              type: 'negative',
+              message: response.data.message
+            })
+          }
         })
         .catch((error) => {
           let message = "";
@@ -553,16 +584,18 @@ export default defineComponent({
         cluster: this.modelData.job.cluster,
         output: this.getPlotOutput,
         tasks: this.modelData.job.tasks,
-        x_variable: this.getPlotVariableX,
-        x_axis: this.getPlotAxisX,
-        x_absolute: this.getPlotAbsoluteX,
-        y_variable: this.getPlotVariableY,
-        y_axis: this.getPlotAxisY,
-        y_absolute: this.getPlotAbsoluteY,
+        // x_variable: this.getPlotVariableX,
+        // x_axis: this.getPlotAxisX,
+        // x_absolute: this.getPlotAbsoluteX,
+        // y_variable: this.getPlotVariableY,
+        // y_axis: this.getPlotAxisY,
+        // y_absolute: this.getPlotAbsoluteY,
       }
+      let plotRawData = null;
+
       await this.$api.get('/results/getPlot', { params })
         .then((response) => {
-          this.plotRawData = response.data.data
+          plotRawData = response.data.data
           this.$q.notify({
             message: response.data.message,
           })
@@ -574,23 +607,21 @@ export default defineComponent({
           })
         })
 
-      let newPlot = {
-        name: "",
-        x: [],
-        y: [],
-        type: "scatter",
-      };
-
-      newPlot.x = this.plotRawData[0];
-      newPlot.y = this.plotRawData[1];
-      newPlot.name = this.getPlotVariableY;
-
-      if (append) {
-        this.viewStore.plotData.push(newPlot);
-      } else {
-        let newPlotData = [newPlot];
-        this.viewStore.plotData = newPlotData;
+      let tempData = []
+      let tempLayout = structuredClone(this.viewStore.plotLayout)
+      const firstPropety = Object.keys(plotRawData)[0]
+      let id = 0
+      for (const propertyName in plotRawData) {
+        if (propertyName != firstPropety) {
+          tempData.push({ name: propertyName, x: plotRawData[firstPropety], y: plotRawData[propertyName], type: "scatter", marker: { color: this.color[id] } })
+          id += 1
+        }
       }
+      tempLayout.xaxis.title = firstPropety
+      tempLayout.title = this.$route.params.id
+
+      this.viewStore.plotData = structuredClone(tempData)
+      this.viewStore.plotLayout = structuredClone(tempLayout)
 
       this.viewStore.viewId = "plotly";
       this.viewStore.modelLoading = false;

@@ -13,7 +13,6 @@ services:
     ports:
       - 5000:5000
     environment:
-      - DLR=${DLR}
       - TRIAL=${TRIAL}
     volumes:
       - ${VOLUME}:/app/simulations
@@ -23,13 +22,15 @@ services:
     container_name: perihub_frontend
     build:
       context: frontend/.
+      args:
+        - TRIAL=${TRIAL}
+        - KEYCLOAK_URL=${KEYCLOAK_URL}
+        - REALM=${REALM}
+        - CLIENT_ID=${CLIENT_ID}
     depends_on:
       - perihub_backend
     ports:
       - 8000:80
-    environment:
-      - DLR=${DLR}
-      - TRIAL=${TRIAL}
 
   perilab:
     image: perihub/perilab
@@ -38,3 +39,6 @@ services:
       - 6000:80
     volumes:
       - ${VOLUME}:/app/simulations
+
+networks:
+  web_network:

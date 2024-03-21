@@ -160,16 +160,25 @@ export default defineComponent({
         .join('&');
 
       // TODO: socket path wont work on build
-      let socket_path = `ws://localhost:5000/log?${queryString}`;
-      if (process.env.DEV) {
-        socket_path = `ws${process.env.API.split("http")[1]}/log?${queryString}`;
+      let socket_path = `ws://${window.location.host}/ws?${queryString}`;
+      if (window.location.protocol === "https:") {
+        socket_path = `wss://${window.location.host}/ws?${queryString}`;
       }
-
-      // const socket_path = "ws" + process.env.API.split("http")[1] + '/log?token=' + this.$api.defaults.headers.common['Authorization']
+      if (process.env.DEV) {
+        socket_path = `ws://localhost:5000/ws?${queryString}`;
+      }
+      console.log(window.location.protocol)
       console.log(socket_path)
       this.connection = new WebSocket(socket_path);
       this.connection.onmessage = (event) => {
         this.viewStore.logOutput = event.data;
+      }
+      this.connection.onerror = (event) => {
+        console.log(event)
+        this.$q.notify({
+          type: 'negative',
+          message: event
+        })
       }
     },
   },

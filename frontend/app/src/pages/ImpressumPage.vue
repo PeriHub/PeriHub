@@ -48,7 +48,7 @@ SPDX-License-Identifier: Apache-2.0
             <b>Haftungshinweis</b> <br> <br/>
 
             Das DLR ist als Inhaltsanbieter nach § 7 Abs. 1 Telemediengesetz für die „eigenen Inhalte“, die auf
-            <a href="https://ngt_bit.nimbus.dlr.de/">https://ngt_bit.nimbus.dlr.de/</a>
+            <a href="https://perihub.nimbus.dlr.de/">https://perihub.nimbus.dlr.de/</a>
             zur Nutzung bereitgehalten werden, nach den allgemeinen Gesetzen verantwortlich. Von diesen eigenen Inhalten sind Querverweise („Links“) auf die von anderen Anbietern bereitgehaltenen Inhalte zu unterscheiden. Durch den Querverweis hält das DLR insofern „fremde Inhalte“ zur Nutzung bereit, die durch den Hinweis „[extern]“oder den Link entsprechend gekennzeichnet sind. Diese fremden Inhalte wurden bei der erstmaligen Link-Setzung daraufhin überprüft, ob durch sie eine mögliche zivilrechtliche oder strafrechtliche Verantwortlichkeit ausgelöst wird. Es ist jedoch nicht auszuschließen, dass die Inhalte im Nachhinein von den jeweiligen Anbietern verändert werden. Das DLR überprüft die Inhalte, auf die es in seinem Angebot verweist, nicht ständig auf Veränderungen, die eine Verantwortlichkeit neu begründen könnten. Sollten Sie der Ansicht sein, dass die verlinkten externen Seiten gegen geltendes Recht verstoßen oder sonst unangemessene Inhalte haben, so teilen Sie uns dies bitte mit.
           </p> -->
 
@@ -104,7 +104,7 @@ SPDX-License-Identifier: Apache-2.0
 
           According to section 7 first paragraph of the German Telemedia Act, DLR as the content provider is responsible
           for its own content which it provides for use on this website <a
-            href="https://perilab-results.nimbus-extern.dlr.de">https://perilab-results.nimbus-extern.dlr.de</a>, in
+            href="https://perihub.nimbus-extern.dlr.de">https://perihub.nimbus-extern.dlr.de</a>, in
           accordance with the general
           laws. Cross-references ("links") to content provided by other content providers must be distinguished from
           DLR´s own content. By means of the cross-reference DLR provides third-party content for use which is marked

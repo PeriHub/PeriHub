@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import csv
 import os
 import shutil
 from typing import Optional
@@ -108,12 +109,12 @@ def get_plot(
     cluster: str = "None",
     output: str = "Output1",
     tasks: int = 32,
-    x_variable: str = "Time",
-    x_axis: str = "X",
-    x_absolute: bool = True,
-    y_variable: str = "External_Displacement",
-    y_axis: str = "X",
-    y_absolute: bool = True,
+    # x_variable: str = "Time",
+    # x_axis: str = "X",
+    # x_absolute: bool = True,
+    # y_variable: str = "External_Displacement",
+    # y_axis: str = "X",
+    # y_absolute: bool = True,
     request: Request = "",
 ):
     """doc"""
@@ -125,12 +126,33 @@ def get_plot(
         raise IOError  # NotFoundException(name=model_name)
 
     resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
-    file = os.path.join(resultpath, model_name + "_" + output + ".e")
+    file = os.path.join(resultpath, model_name + "_" + output + ".csv")
 
-    x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
-    y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
+    # x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
+    # y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
 
-    return ResponseModel(data=[x_data, y_data], message="Plot received")
+    data = {}
+    first_row = True
+    # try:
+    with open(file, "r", encoding="UTF-8") as csv_file:
+        reader = csv.reader(csv_file)
+        for row in reader:
+            if first_row:
+                # Extract column names from the first row
+                column_names = row
+                for column_name in column_names:
+                    data[column_name] = []
+
+                first_row = False
+            else:
+                # Populate data dictionary with values
+                for i, value in enumerate(row):
+                    data[column_names[i]].append(value)
+
+    return ResponseModel(data=data, message="Plot received")
+    # except IOError:
+    #     log.error("%s results can not be found on %s", model_name, cluster)
+    #     return ResponseModel(data=data, message=model_name + " results can not be found on " + cluster)
 
 
 @router.get("/getResults")
@@ -364,7 +386,7 @@ def get_point_data(
         normalized_cell_value = np.zeros_like(cell_value)
     else:
         normalized_cell_value = (cell_value - min_cell_value) / (max_cell_value - min_cell_value)
-
+    print(time)
     data = {
         "nodes": np.ravel([np_points_all_x, np_points_all_y, np_points_all_z], order="F").tolist(),
         "value": normalized_cell_value.tolist(),
@@ -372,6 +394,7 @@ def get_point_data(
         "number_of_steps": number_of_steps,
         "min_value": min_cell_value,
         "max_value": max_cell_value,
+        "time": np.format_float_scientific(time, 2),
     }
 
     return JSONResponse(content=data)

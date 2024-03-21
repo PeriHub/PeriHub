@@ -8,7 +8,7 @@ from re import match
 
 import paramiko
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Query, WebSocket, status
+from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -63,12 +63,9 @@ app.include_router(energy.router)
 load_dotenv()
 
 dev = os.getenv("DEV") == "True"
-dlr = os.getenv("DLR") == "True"
 trial = os.getenv("TRIAL") == "True"
 if dev:
     log.info("--- Running in development mode ---")
-if dlr:
-    log.info("--- Running in DLR mode ---")
 if trial:
     log.info("--- Running in trial mode ---")
 
@@ -98,7 +95,7 @@ async def log_reader(cluster, remotepath, file):
     return log_lines
 
 
-@app.websocket("/log")
+@app.websocket("/ws")
 async def websocket_endpoint_log(
     websocket: WebSocket,
     model_name: str = Query(...),
@@ -110,7 +107,7 @@ async def websocket_endpoint_log(
     await websocket.accept()
 
     username = user_name
-    if user_name == None or user_name == "":
+    if user_name == None or user_name == "" or user_name == "undefined":
         username = FileHandler.get_user_name_from_token(token, dev)
 
     if model_folder_name == "undefined":
@@ -160,7 +157,12 @@ async def websocket_endpoint_log(
             await asyncio.sleep(1)
             logs = await log_reader(cluster, remotepath, filtered_values[-1])
             await websocket.send_text(logs)
+    except WebSocketDisconnect:
+        print("websocket disconnect")
     except Exception as e:
         print(e)
     finally:
-        await websocket.close()
+        try:
+            await websocket.close()
+        except RuntimeError as e:
+            pass

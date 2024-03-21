@@ -60,7 +60,6 @@ services:
     networks:
       - web_network
     environment:
-      - DLR=${DLR}
       - TRIAL=${TRIAL}
 
   perihub_frontend:
@@ -70,7 +69,6 @@ services:
     networks:
       - web_network
     environment:
-      - DLR=${DLR}
       - TRIAL=${TRIAL}
 
   perilab:

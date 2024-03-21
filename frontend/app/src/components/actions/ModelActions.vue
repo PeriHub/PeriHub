@@ -564,3 +564,8 @@ export default defineComponent({
   },
 })
 </script>
+<style>
+.q-btn {
+  padding-right: 5px;
+}
+</style>

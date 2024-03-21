@@ -38,16 +38,16 @@ async def run_model(
     return_string = FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster)
 
     if return_string != "Success":
-        raise HTTPException(
-            status_code=404,
-            detail=return_string,
+        return ResponseModel(
+            data=False,
+            message=return_string,
         )
 
     return_string = FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
     if return_string != "Success":
-        raise HTTPException(
-            status_code=404,
-            detail=return_string,
+        return ResponseModel(
+            data=False,
+            message=return_string,
         )
 
     if cluster == "Cara":
@@ -114,7 +114,10 @@ async def run_model(
             )
         except paramiko.SSHException:
             log.error("ssh connection to %s failed!", server)
-            return "ssh connection to " + server + " failed!"
+            return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
+        except Exception as e:
+            log.error(e)
+            return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
         command = (
             "cd /app"
             + remotepath

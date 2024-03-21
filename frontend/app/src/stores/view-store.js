@@ -26,6 +26,35 @@ export const useViewStore = defineStore("view", {
         type: "scatter",
       },
     ],
+    plotLayout: {
+      title: "Model",
+      showlegend: true,
+      legend: {
+        orientation: "h",
+      },
+      // margin: { t: 50 },
+      hovermode: "compare",
+      bargap: 0,
+      xaxis: {
+        showgrid: true,
+        zeroline: true,
+        color: "white",
+      },
+      yaxis: {
+        showgrid: true,
+        zeroline: true,
+        color: "white",
+      },
+      plot_bgcolor: "#2D2D2D",
+      paper_bgcolor: "#2D2D2D",
+      font: {
+        color: "white",
+      },
+      modebar: {
+        color: "white",
+        // color: "#6E6E6E"
+      },
+    },
   }),
   actions: {},
 });

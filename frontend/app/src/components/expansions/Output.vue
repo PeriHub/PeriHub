@@ -58,9 +58,12 @@ SPDX-License-Identifier: Apache-2.0
           </q-btn>
         </div>
         <div class="row my-row">
-          <q-select class="my-input" v-model="output.selectedOutputs" use-input use-chips multiple input-debounce="0"
-            :options="filterOptions" @filter="filterFn" style="width: 250px; margin-bottom:20px;" standout
-            dense></q-select>
+          <q-select v-if="output.selectedFileType == 'Exodus'" class="my-input" v-model="output.selectedOutputs"
+            use-input use-chips multiple input-debounce="0" :options="filterOptions" @filter="filterFn"
+            style="width: 250px; margin-bottom:20px;" standout dense></q-select>
+          <q-select v-if="output.selectedFileType == 'CSV'" class="my-input" v-model="output.selectedOutputs" use-input
+            use-chips multiple input-debounce="0" :options="filterOptionsCsv" @filter="filterFnCsv"
+            style="width: 250px; margin-bottom:20px;" standout dense></q-select>
           <q-select class="my-input" v-model="output.selectedFileType" :options="fileTypes" input-debounce="0"
             style="width: 250px; margin-bottom:20px;" standout dense></q-select>
           <q-toggle class="my-toggle" v-model="output.useOutputFrequency" label="Use Output Frequency" standout
@@ -198,6 +201,7 @@ export default defineComponent({
       //   "PiolaStressTimesInvShapeTensor",
       // ],
       filterOptions: this.outputKeys,
+      filterOptionsCsv: this.outputKeys,
     };
   },
   methods: {
@@ -209,6 +213,23 @@ export default defineComponent({
         else {
           const needle = val.toLowerCase()
           this.filterOptions = this.outputKeys.filter(
+            v => v.toLowerCase().indexOf(needle) > -1
+          )
+        }
+      })
+    },
+    filterFnCsv(val, update) {
+      update(() => {
+        let outputKeys = []
+        for (var i = 0; i < this.computes.length; i++) {
+          outputKeys.push(this.computes[i].name)
+        }
+        if (val === '') {
+          this.filterOptionsCsv = outputKeys
+        }
+        else {
+          const needle = val.toLowerCase()
+          this.filterOptionsCsv = outputKeys.filter(
             v => v.toLowerCase().indexOf(needle) > -1
           )
         }
