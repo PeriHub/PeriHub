@@ -44,7 +44,7 @@ class Jobs(BaseModel):
     id: int
     name: str
     sub_name: str
-    cluster: str
+    cluster: bool
     created: bool
     submitted: bool
     results: bool
@@ -337,7 +337,7 @@ class Solver(BaseModel):
 
 
 class Job(BaseModel):
-    cluster: str
+    cluster: bool
     nodes: Optional[int] = 1
     tasks: Optional[int] = 32
     tasksPerNode: Optional[int] = 32
@@ -356,7 +356,7 @@ class RunData(BaseModel):
         json_schema_extra = {
             "example": {
                 "job": {
-                    "cluster": "None",
+                    "cluster": False,
                     "tasks": 1,
                     "time": "00:20:00",
                     "account": "2263032",
@@ -608,7 +608,7 @@ default_model = {
         "filetype": "yaml",
     },
     "job": {
-        "cluster": "None",
+        "cluster": False,
         "nodes": 1,
         "tasks": 32,
         "tasksPerNode": 32,

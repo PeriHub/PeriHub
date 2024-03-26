@@ -35,28 +35,18 @@ def delete_model(
 def delete_model_from_cluster(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
-    cluster: str = "None",
+    cluster: bool = False,
     request: Request = "",
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    if cluster == "None":
-        remotepath = "./simulations/" + os.path.join(username, model_name + model_folder_name)
+    remotepath = "./simulations/" + os.path.join(username, model_name + model_folder_name)
+    if not cluster:
         if os.path.exists(remotepath):
             shutil.rmtree(remotepath)
         log.info("%s has been deleted", model_name)
         return ResponseModel(data=True, message=model_name + " has been deleted")
-
-    elif cluster == "Cara":
-        remotepath = "./simulations/apiModels/" + os.path.join(username, model_name, model_folder_name)
-
-    else:
-        log.info("%s unknown", cluster)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=cluster + " unknown",
-        )
 
     ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
@@ -93,7 +83,7 @@ def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7
 
 @router.delete("/userDataFromCluster")
 def delete_user_data_from_cluster(
-    cluster: str,
+    cluster: bool,
     check_date: bool,
     request: Request,
     days: Optional[int] = 7,
@@ -101,7 +91,7 @@ def delete_user_data_from_cluster(
     """doc"""
 
     if check_date:
-        if cluster == "None":
+        if not cluster:
             localpath = "./simulations"
             names = FileHandler.remove_folder_if_older(localpath, days, True)
         else:
@@ -119,7 +109,7 @@ def delete_user_data_from_cluster(
 
     username = FileHandler.get_user_name(request, dev)
 
-    if cluster == "None":
+    if not cluster:
         remotepath = "./simulations/" + username
         if os.path.exists(remotepath):
             shutil.rmtree(remotepath)

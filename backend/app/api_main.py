@@ -7,14 +7,13 @@ import os
 from re import match
 
 import paramiko
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from routers import delete, docs, energy, generate, jobs, model, results, translate, upload
 from support.file_handler import FileHandler
-from support.globals import dev, dlr, log, trial
+from support.globals import dev, log, trial
 
 tags_metadata = [
     {
@@ -60,10 +59,6 @@ app.include_router(delete.router)
 app.include_router(docs.router)
 app.include_router(energy.router)
 
-load_dotenv()
-
-dev = os.getenv("DEV") == "True"
-trial = os.getenv("TRIAL") == "True"
 if dev:
     log.info("--- Running in development mode ---")
 if trial:
@@ -73,13 +68,13 @@ if trial:
 async def log_reader(cluster, remotepath, file):
     log_lines = []
 
-    if cluster == "None":
+    if not cluster:
         log_file = os.path.join(remotepath, file)
 
         # log.info("log_file: %s", log_file)
         if os.path.exists(log_file):
             with open(log_file, "r") as file:
-                for line in file.readlines()[-100:]:
+                for line in file.readlines():
                     log_lines.append(line)
         else:
             log_lines = ["No Logfile"]
@@ -87,7 +82,7 @@ async def log_reader(cluster, remotepath, file):
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         sftp.chdir(remotepath)
         file = sftp.file(file, "r")
-        for line in file.readlines()[-100:]:
+        for line in file.readlines():
             log_lines.append(line)
         sftp.close()
         ssh.close()
@@ -100,7 +95,7 @@ async def websocket_endpoint_log(
     websocket: WebSocket,
     model_name: str = Query(...),
     model_folder_name: str = "Default",
-    cluster: str = Query(...),
+    cluster: bool = Query(...),
     token: str = Query(...),
     user_name: str = Query(...),
 ):
@@ -112,7 +107,7 @@ async def websocket_endpoint_log(
 
     if model_folder_name == "undefined":
         model_folder_name = "Default"
-    if cluster == "None":
+    if not cluster:
         remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
         try:
             output_files = os.listdir(remotepath)

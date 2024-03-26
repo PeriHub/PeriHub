@@ -347,7 +347,7 @@ export const useModelStore = defineStore("model", {
         },
       },
       job: {
-        cluster: "None",
+        cluster: false,
         nodes: 1,
         tasks: 32,
         tasksPerNode: 32,

@@ -14,7 +14,7 @@ import jwt
 import paramiko
 from random_username.generate import generate_username
 
-from support.globals import log, trial
+from support.globals import cluster_password, cluster_url, cluster_user, log, trial
 
 allowed_max_nodes = {
     "guest": {"allowedNodes": 1000000, "allowedFeSize": 15000000},
@@ -58,11 +58,11 @@ class FileHandler:
     def _get_remote_umat_path(cluster):
         """doc"""
 
-        if cluster == "None":
+        if not cluster:
             return "/Peridigm/src/materials/umats/"
-        if cluster == "Cara":
+        else:
             return "/home/f_peridi/software/peridigm/"
-        return "./peridigm/src/src/materials/umats/"
+        # return "./peridigm/src/src/materials/umats/"
 
     @staticmethod
     def _get_user_path(username):
@@ -209,7 +209,7 @@ class FileHandler:
     def copy_model_to_cluster(username, model_name, model_folder_name, cluster):
         """doc"""
 
-        if cluster == "None":
+        if not cluster:
             return "Success"
 
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
@@ -270,7 +270,7 @@ class FileHandler:
     def copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat):
         """doc"""
 
-        if cluster == "None":
+        if not cluster:
             return "Success"
 
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
@@ -278,8 +278,8 @@ class FileHandler:
         try:
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         except paramiko.SFTPError:
-            log.error("ssh connection to " + cluster + " failed!")
-            return "ssh connection to " + cluster + " failed!"
+            log.error("ssh connection to cluster failed!")
+            return "ssh connection to cluster failed!"
         except Exception as e:
             return str(e)
 
@@ -363,7 +363,7 @@ class FileHandler:
         if not os.path.exists(resultpath):
             os.makedirs(resultpath)
 
-        if cluster == "None":
+        if not cluster:
             return True
 
         log.info("Start copying")
@@ -393,17 +393,20 @@ class FileHandler:
                 if all_data or filename.endswith(".e"):
                     if os.path.exists(os.path.join(resultpath, filename)):
                         remote_info = sftp.stat(os.path.join(remotepath, filename))
-                        remote_size = remote_info.st_size
-                        local_size = os.path.getsize(os.path.join(resultpath, filename))
+                        remote_time = remote_info.st_mtime
+                        # remote_size = remote_info.st_size
+                        local_time = os.path.get(os.path.join(resultpath, filename))
+                        # local_size = os.path.getsize(os.path.join(resultpath, filename))
                         print(
                             "compare "
                             + filename
-                            + " remote_size: "
-                            + str(remote_size)
-                            + ", localsize: "
-                            + str(local_size)
+                            + " remote_time: "
+                            + str(remote_time)
+                            + ", local_time: "
+                            + str(local_time)
                         )
-                        if abs(remote_size - local_size) > 5:
+                        if remote_time > local_time:
+                            log.info("Copy " + filename)
                             sftp.get(
                                 os.path.join(remotepath, filename),
                                 os.path.join(resultpath, filename),
@@ -427,37 +430,24 @@ class FileHandler:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-        if cluster == "FA-Cluster":
-            username = "f_peridi"
-            server = "129.247.54.37"
+        if cluster:
+            username = cluster_user
+            server = cluster_url
+            # password = cluster_password
             keypath = "./rsaFiles/id_rsa_cluster"
             try:
                 ssh.connect(
                     server,
                     username=username,
                     allow_agent=False,
+                    # password=password,
                     key_filename=keypath,
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")
                 return "ssh connection to " + server + " failed!"
 
-        elif cluster == "Cara":
-            username = "f_peridi"
-            server = "cara.dlr.de"
-            keypath = "./rsaFiles/id_rsa_cara"
-            try:
-                ssh.connect(
-                    server,
-                    username=username,
-                    allow_agent=False,
-                    key_filename=keypath,
-                )
-            except paramiko.SSHException:
-                log.error("ssh connection to " + server + " failed!")
-                return "ssh connection to " + server + " failed!"
-
-        elif cluster == "None":
+        elif not cluster:
             username = "root"
             server = "perihub_perilab"
             try:
@@ -489,15 +479,11 @@ class FileHandler:
     def ssh_to_cluster(cluster):
         """doc"""
 
-        if cluster == "FA-Cluster":
-            username = "f_peridi"
-            server = "129.247.54.37"
-            keypath = "./rsaFiles/id_rsa_cluster"
-
-        elif cluster == "Cara":
-            username = "f_peridi"
-            server = "cara.dlr.de"
-            keypath = "./rsaFiles/id_rsa_cara"
+        if cluster:
+            username = cluster_user
+            server = cluster_url
+            # keypath = "./rsaFiles/id_rsa_cluster"
+            password = cluster_password
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -506,6 +492,7 @@ class FileHandler:
                 server,
                 username=username,
                 allow_agent=False,
+                # password=password,
                 key_filename=keypath,
             )
         except paramiko.SSHException:
@@ -516,7 +503,7 @@ class FileHandler:
     @staticmethod
     def cara_job_running(remotepath, model_name, model_folder_name):
         """doc"""
-        ssh, sftp = FileHandler.sftp_to_cluster("Cara")
+        ssh, sftp = FileHandler.sftp_to_cluster(True)
         command = (
             "cd "
             + remotepath
@@ -539,7 +526,7 @@ class FileHandler:
     # @staticmethod
     # def write_get_cara_job_ids():
     #     """doc"""
-    #     ssh, sftp = FileHandler.sftp_to_cluster("Cara")
+    #     ssh, sftp = FileHandler.sftp_to_cluster(True)
     #     command = " squeue -u f_peridi | grep -o -E '[0-9]{7}' > jobIds.txt"
     #     ssh.exec_command(command)
     #     job_ids_file = sftp.file("./jobIds.txt", "r")

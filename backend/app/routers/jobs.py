@@ -50,7 +50,7 @@ async def run_model(
             message=return_string,
         )
 
-    if cluster == "Cara":
+    if cluster:
         # initial_jobs = FileHandler.write_get_cara_job_id()
         # log.info(initial_jobs)
         sbatch = SbatchCreator(
@@ -63,7 +63,7 @@ async def run_model(
         )
         sbatch_string = sbatch.create_sbatch()
         remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
-        ssh, sftp = FileHandler.sftp_to_cluster("Cara")
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         file = sftp.file(remotepath + "/" + model_name + ".sbatch", "w", -1)
         file.write(sbatch_string)
         file.flush()
@@ -79,7 +79,7 @@ async def run_model(
             message=model_name + " has been submitted",
         )
 
-    elif cluster == "None":
+    elif not cluster:
         server = "perihub_perilab"
         remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
         log.info(remotepath)
@@ -147,13 +147,13 @@ async def run_model(
 def cancel_job(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
-    cluster: str = "None",
+    cluster: bool = False,
     request: Request = "",
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    if cluster == "None":
+    if not cluster:
         server = "perihub_perilab"
         remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
         ssh = paramiko.SSHClient()
@@ -225,7 +225,7 @@ def get_jobs(
         return ResponseModel(data=jobs, message="No jobs")
 
     if dlr and not dev:
-        ssh, sftp = FileHandler.sftp_to_cluster("Cara")
+        ssh, sftp = FileHandler.sftp_to_cluster(True)
 
     for _, dirs, _ in os.walk(localpath):
         # log.info(dirs)
@@ -237,7 +237,7 @@ def get_jobs(
                     id=len(jobs) + 1,
                     name=model_name,
                     sub_name=model_folder_name,
-                    cluster="",
+                    cluster=False,
                     created=True,
                     submitted=False,
                     results=False,
@@ -245,7 +245,7 @@ def get_jobs(
 
                 remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
                 if os.path.exists(os.path.join(remotepath)):
-                    job.cluster = "None"
+                    job.cluster = False
                     if os.path.exists(os.path.join(remotepath, "pid.txt")):
                         job.submitted = True
 
@@ -264,7 +264,7 @@ def get_jobs(
                         id=len(jobs) + 1,
                         name=model_name,
                         sub_name=model_folder_name,
-                        cluster="",
+                        cluster=False,
                         created=True,
                         submitted=False,
                         results=False,
@@ -274,7 +274,7 @@ def get_jobs(
 
                 if dlr and not dev:
                     if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
-                        job.cluster = "Cara"
+                        job.cluster = True
                         # try:
                         for filename in sftp.listdir(remotepath):
                             if filename.endswith(".e"):
@@ -304,7 +304,7 @@ def get_status(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     own_mesh: bool = False,
-    cluster: str = "None",
+    cluster: bool = False,
     request: Request = "",
 ):
     """doc"""
@@ -319,7 +319,7 @@ def get_status(
     if os.path.exists(localpath):
         status.created = True
 
-    if cluster == "None":
+    if not cluster:
         remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
         # log.info(remotepath)
         if os.path.exists(os.path.join(remotepath, "pid.txt")):
@@ -329,7 +329,7 @@ def get_status(
                 if ".e" in files:
                     status.results = True
 
-    elif cluster == "Cara":
+    else:
         remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 

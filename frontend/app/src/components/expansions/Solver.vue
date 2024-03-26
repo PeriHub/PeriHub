@@ -90,7 +90,7 @@ SPDX-License-Identifier: Apache-2.0
                 :label="solverKeys.adapt.stableBondDifference" standout dense></q-input>
         </div>
         <div class="row my-row" v-show="solver.solvertype == 'Verlet' & solver.adaptivetimeStepping">
-            <q-select class="my-input" :options="filetype" v-model="solver.filetype" v-show="job.cluster == 'Cara'"
+            <q-select class="my-input" :options="filetype" v-model="solver.filetype" v-show="job.cluster"
                 :label="solverKeys.filetype" standout dense></q-select>
         </div> -->
   </div>

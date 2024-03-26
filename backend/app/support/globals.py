@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import os
 
+from dotenv import load_dotenv
 from rich.logging import RichHandler
 
 FORMAT = "%(message)s"
@@ -17,6 +19,12 @@ logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 log = logging.getLogger("rich")
 
-dev = False
-dlr = False
-trial = False
+load_dotenv()
+
+# Access the variables using os.getenv
+dev = os.getenv("DEV", default=False)
+dlr = os.getenv("DLR", default=False)
+trial = os.getenv("TRIAL", default=False)
+cluster_url = os.getenv("CLUSTER_URL", default="")
+cluster_user = os.getenv("CLUSTER_USER", default="")
+cluster_password = os.getenv("CLUSTER_PASSWORD", default="")

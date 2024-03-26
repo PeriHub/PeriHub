@@ -86,16 +86,6 @@ export default defineComponent({
         { name: 'id', required: true, hidden: true },
       ],
       rows: [
-        // {
-        //     id: 1,
-        //     name: "ENFmodel",
-        //     sub_name: "_1",
-        //     cluster: "Cara",
-        //     created: true,
-        //     submitted: false,
-        //     results: true,
-        //     model: {}
-        // }
       ]
     };
   },

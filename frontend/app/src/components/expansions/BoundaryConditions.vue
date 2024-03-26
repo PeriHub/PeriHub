@@ -20,14 +20,14 @@ SPDX-License-Identifier: Apache-2.0
           :label="boundaryKeys.name" standout dense></q-input>
         <q-select class="my-select" :options="boundarytype" v-model="boundaryCondition.boundarytype"
           :label="boundaryKeys.boundarytype" standout dense></q-select>
-        <q-select class="my-select" :options="boundaryConditions.nodeSets" option-label="nodeSetId"
+        <!-- <q-select class="my-select" :options="boundaryConditions.nodeSets" option-label="nodeSetId"
           option-value="nodeSetId" emit-value v-model="boundaryCondition.nodeSet" :label="boundaryKeys.nodeSet" standout
+          dense style="width: 100px"></q-select> -->
+        <q-select v-show="!model.ownModel" class="my-select" :options="blocks" option-label="blocksId"
+          option-value="blocksId" emit-value v-model="boundaryCondition.blockId" :label="boundaryKeys.blockId" standout
           dense style="width: 100px"></q-select>
       </div>
       <div class="row my-row">
-        <!-- <q-select v-show="!model.ownModel" class="my-select" :options="blocks" option-label="blocksId"
-          option-value="blocksId" emit-value v-model="boundaryCondition.blockId" :label="boundaryKeys.blockId" standout
-          dense style="width: 100px"></q-select> -->
         <q-select class="my-select" :options="coordinate" v-model="boundaryCondition.coordinate"
           :label="boundaryKeys.coordinate" standout dense style="width: 120px"></q-select>
         <q-input class=" my-input" v-model="boundaryCondition.value" :rules="[rules.required, rules.name]"
@@ -114,16 +114,16 @@ export default defineComponent({
       let newItem = structuredClone(this.boundaryConditions.conditions[len - 1])
       newItem.boundaryConditionsId = len + 1
       newItem.name = "BC_" + (len + 1)
-      newItem.nodeSet = len + 1
+      newItem.blockId = len + 1
       this.boundaryConditions.conditions.push(newItem);
-      this.boundaryConditions.nodeSets.push({
-        nodeSetId: len + 1,
-        file: "ns_bc" + len,
-      });
+      // this.boundaryConditions.nodeSets.push({
+      //   nodeSetId: len + 1,
+      //   file: "ns_bc" + len,
+      // });
     },
     removeCondition(index) {
       this.boundaryConditions.conditions.splice(index, 1);
-      this.boundaryConditions.nodeSets.splice(index, 1);
+      // this.boundaryConditions.nodeSets.splice(index, 1);
     },
   }
 })

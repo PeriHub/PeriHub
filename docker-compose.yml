@@ -10,12 +10,17 @@ services:
     container_name: perihub_backend
     build:
       context: backend/.
+      args:
+        - CLUSTER_URL=${CLUSTER_URL}
     ports:
       - 5000:5000
     environment:
       - TRIAL=${TRIAL}
+      - CLUSTER_URL=${CLUSTER_URL}
+      - CLUSTER_USER=${CLUSTER_USER}
     volumes:
       - ${VOLUME}:/app/simulations
+      - ${VOLUME}/rsaFiles:/app/rsaFiles
 
   perihub_frontend:
     image: perihub/frontend
@@ -27,6 +32,7 @@ services:
         - KEYCLOAK_URL=${KEYCLOAK_URL}
         - REALM=${REALM}
         - CLIENT_ID=${CLIENT_ID}
+        - CLUSTER_URL=${CLUSTER_URL}
     depends_on:
       - perihub_backend
     ports:

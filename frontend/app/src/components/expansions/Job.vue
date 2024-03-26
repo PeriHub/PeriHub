@@ -7,35 +7,35 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div>
     <!-- <q-select class="my-select" :options="software" v-model="job.software" label="Software" standout dense></q-select> -->
-    <q-select class="my-select" :options="cluster" v-model="job.cluster" label="Cluster"
-      @change="changeNumberOfTasks();" standout dense></q-select>
+    <q-toggle class="my-toggle" v-model="job.cluster" label="Cluster" standout dense
+      @change="changeNumberOfTasks();"></q-toggle>
     <!-- <q-input
           class="my-input"
           v-model="job.nodes"
-          v-show="job.cluster=='Cara'"
+          v-show="job.cluster"
           :rules="[rules.required, rules.name]"
           label="Nodes"
           standout
           dense
       ></q-input> -->
-    <q-input class="my-input" v-model="job.tasks" v-show="job.cluster == 'Cara'" :rules="[rules.required, rules.name]"
+    <q-input class="my-input" v-model="job.tasks" v-show="job.cluster" :rules="[rules.required, rules.name]"
       label="Tasks" standout dense></q-input>
     <!-- <q-input
           class="my-input"
           v-model="job.tasksPerNode"
-          v-show="job.cluster=='Cara'"
+          v-show="job.cluster"
           :rules="[rules.required, rules.name]"
           label="Tasks per Node"
           standout
           dense
       ></q-input> -->
-    <q-input class="my-input" v-model="job.cpusPerTask" v-show="job.cluster == 'Cara'"
-      :rules="[rules.required, rules.name]" label="CPUs per Task" standout dense></q-input>
-    <q-toggle class="my-toggle" v-model="job.multithread" v-show="job.cluster == 'Cara'" label="Multithreading" standout
+    <q-input class="my-input" v-model="job.cpusPerTask" v-show="job.cluster" :rules="[rules.required, rules.name]"
+      label="CPUs per Task" standout dense></q-input>
+    <q-toggle class="my-toggle" v-model="job.multithread" v-show="job.cluster" label="Multithreading" standout
       dense></q-toggle>
-    <q-input class="my-input" v-model="job.time" v-show="job.cluster == 'Cara'" :rules="[rules.required, rules.name]"
-      label="Time" standout dense></q-input>
-    <q-input class="my-input" v-model="job.account" v-show="job.cluster == 'Cara'" :rules="[rules.required, rules.name]"
+    <q-input class="my-input" v-model="job.time" v-show="job.cluster" :rules="[rules.required, rules.name]" label="Time"
+      standout dense></q-input>
+    <q-input class="my-input" v-model="job.account" v-show="job.cluster" :rules="[rules.required, rules.name]"
       label="Account" standout dense></q-input>
   </div>
 </template>
@@ -53,7 +53,7 @@ export default defineComponent({
     const solver = computed(() => store.modelData.solver)
     const job = computed(() => store.modelData.job)
     const bus = inject('bus')
-    let cluster = ["None"];
+    let cluster = false;
     // if (process.env.DLR) {
     //   cluster.push("Cara")
     // }
@@ -70,7 +70,7 @@ export default defineComponent({
   },
   methods: {
     changeNumberOfTasks() {
-      if (this.job.cluster == "None") {
+      if (!this.job.cluster) {
         this.job.tasks = 1;
       }
     },

@@ -71,6 +71,7 @@ module.exports = configure(function (ctx) {
         KEYCLOAK_URL: process.env.KEYCLOAK_URL,
         REALM: process.env.REALM,
         CLIENT_ID: process.env.CLIENT_ID,
+        CLUSTER_URL: process.env.CLUSTER_URL,
       },
       vueCompiler: true,
       // Add dependencies for transpiling with Babel (Array of string/regex)
