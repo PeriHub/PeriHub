@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from support.base_models import Jobs, ModelData, ResponseModel, Status
 from support.file_handler import FileHandler
-from support.globals import dev, dlr, log, trial
+from support.globals import cluster_enabled, dev, log, trial
 from support.writer.sbatch_writer import SbatchCreator
 
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
@@ -224,7 +224,7 @@ def get_jobs(
     if not os.path.exists(localpath):
         return ResponseModel(data=jobs, message="No jobs")
 
-    if dlr and not dev:
+    if cluster_enabled:
         ssh, sftp = FileHandler.sftp_to_cluster(True)
 
     for _, dirs, _ in os.walk(localpath):
@@ -272,7 +272,7 @@ def get_jobs(
 
                 remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
-                if dlr and not dev:
+                if cluster_enabled:
                     if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
                         job.cluster = True
                         # try:
@@ -287,12 +287,12 @@ def get_jobs(
                         # except IOError:
                         #     pass
 
-                        job.submitted = FileHandler.cara_job_running(remotepath, model_name, model_folder_name)
+                        job.submitted = FileHandler.cluster_job_running(remotepath, model_name, model_folder_name)
 
                         # print(job.cluster)
                         jobs.append(job)
 
-    if dlr and not dev:
+    if cluster_enabled:
         sftp.close()
         ssh.close()
 
@@ -344,6 +344,6 @@ def get_status(
 
         sftp.close()
         ssh.close()
-        status.submitted = FileHandler.cara_job_running(remotepath, model_name, model_folder_name)
+        status.submitted = FileHandler.cluster_job_running(remotepath, model_name, model_folder_name)
 
     return ResponseModel(data=status, message="Status received")

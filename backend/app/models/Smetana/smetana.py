@@ -26,7 +26,7 @@ from support.base_models import (
     Solver,
     Verlet,
 )
-from support.globals import dev, dlr, log
+from support.globals import dev, log
 
 
 class Smetana:

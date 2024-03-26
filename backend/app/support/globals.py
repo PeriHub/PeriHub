@@ -23,8 +23,10 @@ load_dotenv()
 
 # Access the variables using os.getenv
 dev = os.getenv("DEV", default=False)
-dlr = os.getenv("DLR", default=False)
 trial = os.getenv("TRIAL", default=False)
 cluster_url = os.getenv("CLUSTER_URL", default="")
 cluster_user = os.getenv("CLUSTER_USER", default="")
 cluster_password = os.getenv("CLUSTER_PASSWORD", default="")
+cluster_enabled = False
+if cluster_url != "":
+    cluster_enabled = True

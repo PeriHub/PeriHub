@@ -482,8 +482,8 @@ class FileHandler:
         if cluster:
             username = cluster_user
             server = cluster_url
-            # keypath = "./rsaFiles/id_rsa_cluster"
-            password = cluster_password
+            keypath = "./rsaFiles/id_rsa_cluster"
+            # password = cluster_password
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -501,7 +501,7 @@ class FileHandler:
         return ssh
 
     @staticmethod
-    def cara_job_running(remotepath, model_name, model_folder_name):
+    def cluster_job_running(remotepath, model_name, model_folder_name):
         """doc"""
         ssh, sftp = FileHandler.sftp_to_cluster(True)
         command = (
