@@ -395,7 +395,7 @@ class FileHandler:
                         remote_info = sftp.stat(os.path.join(remotepath, filename))
                         remote_time = remote_info.st_mtime
                         # remote_size = remote_info.st_size
-                        local_time = os.path.get(os.path.join(resultpath, filename))
+                        local_time = os.path.getmtime(os.path.join(resultpath, filename))
                         # local_size = os.path.getsize(os.path.join(resultpath, filename))
                         print(
                             "compare "
