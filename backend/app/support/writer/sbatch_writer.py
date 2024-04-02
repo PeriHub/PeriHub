@@ -79,7 +79,7 @@ class SbatchCreator:
         string = "#!/bin/sh" + "\n"
         if self.trial:
             string += "timeout 600s "
-        string += "/app/PeriLab/bin/PeriLab -s " + self.filename + ".yaml & echo $! > pid.txt \n"
+        string += "/app/PeriLab/bin/PeriLab -v -s " + self.filename + ".yaml & echo $! > pid.txt \n"
         string += "pid=`cat pid.txt` \n"
         string += "tail --pid=$pid -f /dev/null \n"
         string += "rm pid.txt \n"

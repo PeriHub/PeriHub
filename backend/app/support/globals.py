@@ -22,8 +22,12 @@ log = logging.getLogger("rich")
 load_dotenv()
 
 # Access the variables using os.getenv
-dev = os.getenv("DEV", default=False)
-trial = os.getenv("TRIAL", default=False)
+trial = False
+dev = False
+if os.getenv("TRIAL") == "True":
+    trial = True
+if os.getenv("DEV") == "True":
+    dev = True
 cluster_url = os.getenv("CLUSTER_URL", default="")
 cluster_user = os.getenv("CLUSTER_USER", default="")
 cluster_password = os.getenv("CLUSTER_PASSWORD", default="")

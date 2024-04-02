@@ -13,7 +13,7 @@ export default async ({ app }) => {
   if (process.env.KEYCLOAK_URL == null) {
     let uuid = "user";
 
-    if (process.env.TRIAL) {
+    if (process.env.TRIAL == "True") {
       console.log(`I'm on a trial build`);
       if (localStorage.getItem("userName") != null) {
         api.defaults.headers.common["userName"] =
