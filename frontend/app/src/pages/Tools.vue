@@ -9,6 +9,7 @@ SPDX-License-Identifier: Apache-2.0
     <ConversionCard />
     <SiConversionCard />
     <StiffnessCard />
+    <AmplitudeCard />
   </q-page>
 </template>
 
@@ -17,13 +18,15 @@ import { defineComponent } from 'vue'
 import ConversionCard from 'components/tools/ConversionCard.vue'
 import SiConversionCard from 'components/tools/SiConversionCard.vue'
 import StiffnessCard from 'components/tools/StiffnessCard.vue'
+import AmplitudeCard from 'components/tools/AmplitudeCard.vue'
 
 export default defineComponent({
   name: "ToolsPage",
   components: {
     ConversionCard,
     SiConversionCard,
-    StiffnessCard
+    StiffnessCard,
+    AmplitudeCard
   },
 });
 </script>

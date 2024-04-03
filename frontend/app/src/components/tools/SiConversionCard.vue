@@ -20,6 +20,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-model="conversion.length" label="Length [m]" clearable standout dense></q-input>
           <q-input class="my-input" v-model="conversion.velocity" label="Velocity [m/s]" clearable standout
             dense></q-input>
+          <q-input class="my-input" v-model="conversion.force" label="Force [N]" clearable standout dense></q-input>
           <q-input class="my-input" v-model="conversion.acceleration" label="Acceleration [m/s^2]" clearable standout
             dense></q-input>
           <q-input class="my-input" v-model="conversion.moment" label="Moment [Nm]" clearable standout dense></q-input>
@@ -49,6 +50,11 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-model="conversionResults.velocity" label="Velocity [mm/s]" standout dense>
             <template v-slot:append>
               <q-icon name='fas fa-copy' @click="copyText('velocity')"></q-icon>
+            </template>
+          </q-input>
+          <q-input class="my-input" v-model="conversionResults.force" label="Force [N]" standout dense>
+            <template v-slot:append>
+              <q-icon name='fas fa-copy' @click="copyText('force')"></q-icon>
             </template>
           </q-input>
           <q-input class="my-input" v-model="conversionResults.acceleration" label="Acceleration [mm/s^2]" standout
@@ -112,6 +118,7 @@ export default defineComponent({
         mass: null,
         length: null,
         velocity: null,
+        force: null,
         acceleration: null,
         moment: null,
         pressure: null,
@@ -125,6 +132,7 @@ export default defineComponent({
         mass: null,
         length: null,
         velocity: null,
+        force: null,
         acceleration: null,
         moment: null,
         pressure: null,
@@ -142,6 +150,7 @@ export default defineComponent({
       const mass = this.conversion.mass;
       const length = this.conversion.length;
       const velocity = this.conversion.velocity;
+      const force = this.conversion.force;
       const acceleration = this.conversion.acceleration;
       const moment = this.conversion.moment;
       const pressure = this.conversion.pressure;
@@ -159,6 +168,9 @@ export default defineComponent({
       }
       if (velocity != null) {
         this.conversionResults.velocity = velocity * 1000;
+      }
+      if (force != null) {
+        this.conversionResults.force = force;
       }
       if (acceleration != null) {
         this.conversionResults.acceleration = acceleration * 1000;
