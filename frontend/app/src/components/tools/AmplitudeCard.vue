@@ -22,8 +22,8 @@ SPDX-License-Identifier: Apache-2.0
               dense></q-input>
             <q-input class="my-input" v-model="amplitude.frequency" label="Frequency" standout dense></q-input>
             <q-input class="my-input" v-model="amplitude.end" label="Time" standout dense></q-input>
-            <q-input class="my-input" v-show="amplitude.type == 'Sinus'" v-model="amplitude.t_max" label="t Max"
-              standout dense></q-input>
+            <!-- <q-input class="my-input" v-show="amplitude.type == 'Sinus'" v-model="amplitude.t_max" label="t Max"
+              standout dense></q-input> -->
             <q-select class="my-select" :options="amplitudeTypes" v-model="amplitude.type" label="Type of Amplitude"
               standout dense></q-select>
           </div>
@@ -284,7 +284,7 @@ export default defineComponent({
       var n = 100 * this.amplitude.frequency;
       var max = parseFloat(this.amplitude.max);
       var min = parseFloat(this.amplitude.min);
-      var t_max = parseFloat(this.amplitude.t_max);
+      // var t_max = parseFloat(this.amplitude.t_max);
       var offset = (max + min) / 2;
       var frequency = parseFloat(this.amplitude.frequency);
       var end = parseFloat(this.amplitude.end);
@@ -292,19 +292,10 @@ export default defineComponent({
       for (var i = 0; i < n; i++) {
         var t = (i / (n - 1)) * end;
         tempData[0].x[i] = t;
-        if (t > t_max) {
-          tempData[0].y[i] = R * Math.sin(2 * Math.PI * frequency * (t - t_max) + Math.PI / 2) + offset; // Sinuskurve mit konstanter Amplitude
-        } else {
-          tempData[0].y[i] = (max / t_max * t);
-        }
+        tempData[0].y[i] = R * Math.sin(2 * Math.PI * frequency * t - Math.PI / 2) + offset; // Sinuskurve mit konstanter Amplitude
       }
       this.plotData = structuredClone(tempData);
-      this.valueOutput =
-        "if t > " + t_max.toString() + " \n" +
-        " return " + R.toString() + " * sin(2 * pi * " + this.amplitude.frequency.toString() + " * (t - " + t_max.toString() + ") + pi / 2) + " + offset.toString() + " \n" +
-        "else \n" +
-        " return ( " + max.toString() + " / " + t_max.toString() + " * t ) \n" +
-        "end";
+      this.valueOutput = R.toString() + " * sin(2 * pi * " + this.amplitude.frequency.toString() + " * t - pi / 2) + " + offset.toString();
     },
 
   },
