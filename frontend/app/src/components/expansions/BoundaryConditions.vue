@@ -28,6 +28,8 @@ SPDX-License-Identifier: Apache-2.0
           dense style="width: 100px"></q-select>
       </div>
       <div class="row my-row">
+        <q-select class="my-select" :options="boundaryVariables" v-model="boundaryCondition.variable"
+          :label="boundaryKeys.variable" standout dense></q-select>
         <q-select class="my-select" :options="coordinate" v-model="boundaryCondition.coordinate"
           :label="boundaryKeys.coordinate" standout dense style="width: 120px"></q-select>
         <q-input class=" my-input" v-model="boundaryCondition.value" :rules="[rules.required, rules.name]"
@@ -79,19 +81,11 @@ export default defineComponent({
   },
   data() {
     return {
-      // boundarytype: [
-      //     "Initial Displacement",
-      //     "Initial Velocity",
-      //     "Prescribed Displacement",
-      //     "Prescribed Fluid Pressure U",
-      //     "Initial Fluid Pressure U",
-      //     "Initial Temperature",
-      //     "Prescribed Temperature",
-      //     "Thermal Flux",
-      //     "Body Force",
-      //     "Displacements",
-      // ],
       boundarytype: [
+          "Dirichlet",
+          "Initial",
+      ],
+      boundaryVariables: [
         "Displacements",
         "Force Densities",
         "Temperature",
@@ -102,6 +96,7 @@ export default defineComponent({
         name: "name",
         nodeSet: "Node Set",
         boundarytype: "Type",
+        variable: "Variable",
         blockId: "Block Id",
         coordinate: "Coordinate",
         value: "Value",

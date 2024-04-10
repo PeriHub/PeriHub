@@ -204,7 +204,8 @@
         "conditionsId": 1,
         "name": "BC_1",
         "nodeSet": null,
-        "boundarytype": "Force Densities",
+        "boundarytype": "Dirichlet",
+        "variable": "Force Densities",
         "blockId": 2,
         "coordinate": "y",
         "value": "50000*t"
@@ -213,7 +214,8 @@
         "conditionsId": 2,
         "name": "BC_2",
         "nodeSet": null,
-        "boundarytype": "Force Densities",
+        "boundarytype": "Dirichlet",
+        "variable": "Force Densities",
         "blockId": 3,
         "coordinate": "y",
         "value": "-50000*t"

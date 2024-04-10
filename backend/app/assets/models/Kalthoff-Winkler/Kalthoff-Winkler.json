@@ -139,7 +139,8 @@
         "conditionsId": 1,
         "name": "BC_1",
         "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
+        "boundarytype": "Dirichlet",
+        "variable": "Displacements",
         "blockId": 2,
         "coordinate": "x",
         "value": "0*t"
@@ -148,7 +149,8 @@
         "conditionsId": 2,
         "name": "BC_2",
         "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
+        "boundarytype": "Dirichlet",
+        "variable": "Displacements",
         "blockId": 3,
         "coordinate": "x",
         "value": "0*t"
@@ -157,7 +159,8 @@
         "conditionsId": 3,
         "name": "BC_3",
         "nodeSet": null,
-        "boundarytype": "Prescribed Displacement",
+        "boundarytype": "Dirichlet",
+        "variable": "Displacements",
         "blockId": 4,
         "coordinate": "x",
         "value": "100*t"

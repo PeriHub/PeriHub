@@ -330,13 +330,14 @@ class YAMLcreatorPeriLab:
             cond = {}
             node_set_id = self.ns_list.index(condition.blockId)
             cond["Type"] = condition.boundarytype
+            cond["Variable"] = condition.variable
 
             if self.check_if_defined(condition.nodeSet):
                 cond["Node Set"] = "Node Set " + str(condition.nodeSet)
             else:
                 cond["Node Set"] = "Node Set " + str(node_set_id + 1)
 
-            if "Temperature" not in condition.boundarytype:
+            if "Temperature" not in condition.variable:
                 cond["Coordinate"] = condition.coordinate
             cond["Value"] = condition.value
 

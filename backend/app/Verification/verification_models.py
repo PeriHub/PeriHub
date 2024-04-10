@@ -104,42 +104,48 @@ class VerificationModels:
         self.bc_dict = [
             {
                 "name": "BC_1",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 3,
                 "coordinate": "x",
                 "value": str(self.amp) + "*t",
             },
             {
                 "name": "BC_2",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 4,
                 "coordinate": "x",
                 "value": str(self.amp) + "*t",
             },
             {
                 "name": "BC_3",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 5,
                 "coordinate": "x",
                 "value": "0",
             },
             {
                 "name": "BC_4",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "x",
                 "value": "0",
             },
             {
                 "name": "BC_5",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 5,
                 "coordinate": "y",
                 "value": "0",
             },
             {
                 "name": "BC_6",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "y",
                 "value": "0",
@@ -180,7 +186,8 @@ class VerificationModels:
         self.bc_dict.append(
             {
                 "name": "BC_7",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "z",
                 "value": "0",
@@ -201,7 +208,8 @@ class VerificationModels:
         self.bc_dict.append(
             {
                 "name": "BC_7",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "z",
                 "value": "0",
@@ -224,7 +232,8 @@ class VerificationModels:
         self.bc_dict.append(
             {
                 "name": "BC_7",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "z",
                 "value": "0",
@@ -245,7 +254,8 @@ class VerificationModels:
         self.bc_dict.append(
             {
                 "name": "BC_7",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "z",
                 "value": "0",
@@ -272,7 +282,8 @@ class VerificationModels:
         self.bc_dict.append(
             {
                 "name": "BC_7",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "z",
                 "value": "0",
@@ -292,7 +303,8 @@ class VerificationModels:
         self.bc_dict.append(
             {
                 "name": "BC_7",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "z",
                 "value": "0",
@@ -315,7 +327,8 @@ class VerificationModels:
         self.bc_dict.append(
             {
                 "name": "BC_7",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "z",
                 "value": "0",
@@ -335,7 +348,8 @@ class VerificationModels:
         self.bc_dict.append(
             {
                 "name": "BC_7",
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 6,
                 "coordinate": "z",
                 "value": "0",

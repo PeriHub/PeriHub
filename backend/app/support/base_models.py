@@ -232,6 +232,7 @@ class BoundaryCondition(BaseModel):
     name: str
     nodeSet: Optional[int] = None
     boundarytype: str
+    variable: str
     blockId: Optional[int] = None
     coordinate: str
     value: str
@@ -532,7 +533,8 @@ default_model = {
                 "conditionsId": 1,
                 "name": "BC_1",
                 "nodeSet": 1,
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 1,
                 "coordinate": "x",
                 "value": "0*t",
@@ -541,7 +543,8 @@ default_model = {
                 "conditionsId": 2,
                 "name": "BC_2",
                 "nodeSet": 2,
-                "boundarytype": "Prescribed Displacement",
+                "boundarytype": "Dirichlet",
+                "variable": "Displacements",
                 "blockId": 5,
                 "coordinate": "x",
                 "value": "0.05*t",

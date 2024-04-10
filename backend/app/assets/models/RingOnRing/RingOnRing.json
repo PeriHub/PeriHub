@@ -208,7 +208,8 @@
         "conditionsId": 2,
         "name": "BC_2",
         "nodeSet": null,
-        "boundarytype": "Displacements",
+        "boundarytype": "Dirichlet",
+        "variable": "Displacements",
         "blockId": 4,
         "coordinate": "z",
         "value": "0"
