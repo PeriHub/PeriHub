@@ -11,7 +11,7 @@ class YAMLcreatorPeriLab:
     def __init__(self, model_writer, block_def=None):
         self.filename = model_writer.filename
         self.ns_name = model_writer.ns_name
-        self.ns_list = model_writer.ns_list
+        self.node_set_ids = model_writer.node_set_ids
         self.block_def = block_def
 
         self.mesh_file = model_writer.model_data.model.mesh_file
@@ -43,7 +43,7 @@ class YAMLcreatorPeriLab:
                 for nodeSet in self.boundary_condition.nodeSets:
                     data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
             else:
-                for idx in range(0, len(self.ns_list)):
+                for idx in range(0, len(self.node_set_ids)):
                     data["Node Sets"]["Node Set " + str(idx + 1)] = self.ns_name + "_" + str(idx + 1) + ".txt"
 
             if self.check_if_defined(self.mesh_file):
@@ -328,7 +328,7 @@ class YAMLcreatorPeriLab:
 
         for condition in self.boundary_condition.conditions:
             cond = {}
-            node_set_id = self.ns_list.index(condition.blockId)
+            node_set_id = self.node_set_ids.index(condition.blockId)
             cond["Type"] = condition.boundarytype
             cond["Variable"] = condition.variable
 

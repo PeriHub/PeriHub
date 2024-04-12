@@ -300,7 +300,9 @@ export default defineComponent({
 
   },
   mounted() {
-    this.amplitude = JSON.parse(localStorage.getItem("amplitude"));
+    if (localStorage.getItem("amplitude")) {
+      this.amplitude = JSON.parse(localStorage.getItem("amplitude"));
+    }
     if (this.amplitude.type == "Type 1") {
       this.plot();
     } else if (this.amplitude.type == "Type 2") {

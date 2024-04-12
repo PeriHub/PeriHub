@@ -82,12 +82,13 @@ export default defineComponent({
   data() {
     return {
       boundarytype: [
-          "Dirichlet",
-          "Initial",
+        "Dirichlet",
+        "Initial",
       ],
       boundaryVariables: [
         "Displacements",
         "Force Densities",
+        "Forces",
         "Temperature",
         "Damage"
       ],

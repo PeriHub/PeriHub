@@ -34,20 +34,20 @@ class ModelWriter:
         self.job_dict = model_class.model_data.job
         self.model_data = model_class.model_data
         self.disc_type = model_class.disc_type
+        self.ns_list = model_class.ns_list
         if not os.path.exists("simulations"):
             os.mkdir("simulations")
 
-        number_of_ns = 0
         node_set_ids = []
         for bcs in self.bc_dict.conditions:
             if bcs.blockId not in node_set_ids:
-                number_of_ns += 1
                 node_set_ids.append(bcs.blockId)
-        self.ns_list = node_set_ids
+        self.node_set_ids = node_set_ids
 
     def write_node_sets(self, model):
         """doc"""
-        for idx, k in enumerate(self.ns_list):
+        number_of_ns = 0
+        for idx, k in enumerate(self.node_set_ids):
             if k == 0:
                 points = np.where(model[:, 3] >= 0)
             else:
@@ -59,6 +59,13 @@ class ModelWriter:
                 self.file_writer(self.ns_name + "_all.txt", string)
             else:
                 self.file_writer(self.ns_name + "_" + str(idx + 1) + ".txt", string)
+                number_of_ns += 1
+
+        for idx, points in enumerate(self.ns_list):
+            string = "header: global_id\n"
+            for point in points:
+                string += str(int(point) + 1) + "\n"
+            self.file_writer(self.ns_name + "_" + str(idx + 1 + number_of_ns) + ".txt", string)
 
     def file_writer(self, filename, string):
         """doc"""

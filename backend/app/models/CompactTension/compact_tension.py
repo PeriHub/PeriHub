@@ -38,7 +38,7 @@ class CompactTension:
         self.disc_type = "txt"
         self.mesh_file = None
         self.two_d = model_data.model.twoDimensional
-        self.ns_list = [3, 4]
+        self.ns_list = []
         if not dx_value:
             dx_value = [0.001, 0.001, 0.001]
         self.dx_value = dx_value
@@ -112,6 +112,18 @@ class CompactTension:
             2,
             k,
         )
+        # Center of the circle
+        center_x = 0.25 * self.length
+        center_y = 0.275 * self.length
+
+        # Calculate distances of all points from the center
+        distances = np.sqrt((x_value - center_x) ** 2 + (y_value - center_y) ** 2)
+
+        # Find the index of the point closest to the center
+        closest_index = np.argmin(distances)
+
+        self.ns_list.append([closest_index])
+
         condition = np.where(
             ((x_value - 0.25 * self.length) ** 2) + ((y_value + 0.275 * self.length) ** 2)
             <= (0.125 * self.length) ** 2,
@@ -123,6 +135,18 @@ class CompactTension:
             3,
             k,
         )
+
+        # Center of the circle
+        center_x = 0.25 * self.length
+        center_y = -0.275 * self.length
+
+        # Calculate distances of all points from the center
+        distances = np.sqrt((x_value - center_x) ** 2 + (y_value - center_y) ** 2)
+
+        # Find the index of the point closest to the center
+        closest_index = np.argmin(distances)
+
+        self.ns_list.append([closest_index])
         # k = np.where(
         #     np.logical_and(
         #         np.logical_and(
