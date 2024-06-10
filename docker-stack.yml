@@ -12,7 +12,7 @@ services:
       - --insecure-oidc-allow-unverified-email=true #required because ldap users in keycloak have no verified e-mail
       - --email-domain=* #we could set @dlr.de here, but since our keycloak does not allow self-registration and is hooked on ldap, we can relax here...
       - --cookie-secure=true #sets the secure cookie flag (requires https)
-      - --upstream=http://perihub_backend:80 #the internal url to proxy to, i.e. our app we want to serve once we're authenticated
+      - --upstream=http://perihub_frontend:80 #the internal url to proxy to, i.e. our app we want to serve once we're authenticated
       - --cookie-domain=.nimbus.dlr.de # Required so cookie can be read on all subdomains.
       - --whitelist-domain=.nimbus.dlr.de # Required to allow redirection back to original requested target.
       - --client-id=fa_perihub #see keycloak client configuration

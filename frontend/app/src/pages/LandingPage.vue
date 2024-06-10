@@ -29,7 +29,7 @@ SPDX-License-Identifier: Apache-2.0
       </router-link>
       <a class="card" href="https://github.com/PeriHub/PeriHub/-/wikis/Introduction">
         <q-card class="my-card">
-          <q-img src="~assets/compass.jpg" height="200px">
+          <q-img src="~assets/compass.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
               Guide
             </div>
@@ -38,7 +38,7 @@ SPDX-License-Identifier: Apache-2.0
       </a>
       <router-link class="card" to="publications">
         <q-card class="my-card">
-          <q-img src="~assets/books.jpg" height="200px">
+          <q-img src="~assets/books.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
               Publications
             </div>
@@ -47,7 +47,7 @@ SPDX-License-Identifier: Apache-2.0
       </router-link>
       <router-link class="card" to="tools">
         <q-card class="my-card">
-          <q-img src="~assets/math.jpg" height="200px">
+          <q-img src="~assets/tools.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
               Tools
             </div>
@@ -74,7 +74,7 @@ SPDX-License-Identifier: Apache-2.0
       </a>
       <a class="card" href="https://perilab-results.nimbus-extern.dlr.de">
         <q-card class="my-card">
-          <q-img src="~assets/dogbone.png" height="200px">
+          <q-img src="~assets/perilab.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
               PeriLab-Results
             </div>

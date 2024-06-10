@@ -4,6 +4,7 @@
 
 import json
 import os
+import socket
 
 import paramiko
 from fastapi import APIRouter, HTTPException, Request
@@ -115,8 +116,13 @@ async def run_model(
         except paramiko.SSHException:
             log.error("ssh connection to %s failed!", server)
             return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
+        except socket.gaierror:
+            log.error("ssh connection to %s failed! Is the PeriLab Service running?", server)
+            return ResponseModel(
+                data=False, message="ssh connection to " + server + " failed! Is the PeriLab Service running?"
+            )
         except Exception as e:
-            log.error(e)
+            log.error(type(e))
             return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
         command = (
             "cd /app"
