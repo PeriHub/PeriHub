@@ -33,7 +33,7 @@ module.exports = configure(function (ctx) {
       "i18n",
       "axios",
       "bus",
-      // "chartkick",
+      "chartkick",
       "keycloak",
       "vtk",
       "notify-defaults",

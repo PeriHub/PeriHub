@@ -66,6 +66,10 @@ SPDX-License-Identifier: Apache-2.0
     <div class="row my-row" v-show="solver.solvertype == 'Verlet'">
       <q-toggle class="my-toggle" v-model="solver.adaptivetimeStepping" :label="solverKeys.adaptivetimeStepping"
         standout dense></q-toggle>
+      <q-toggle class="my-toggle" v-model="solver.calculateCauchy" :label="solverKeys.calculateCauchy" standout
+        dense></q-toggle>
+      <q-toggle class="my-toggle" v-model="solver.calculateVonMises" :label="solverKeys.calculateVonMises" standout
+        dense></q-toggle>
     </div>
     <!-- <div class="row my-row">
             <q-toggle class="my-toggle" v-model="solver.stopAfterDamageInitation"
@@ -170,6 +174,8 @@ export default defineComponent({
           maximumBondDifference: "Maximum Bond Difference",
           stableBondDifference: "Stable Bond Difference",
         },
+        calculateCauchy: "Calculate Cauchy",
+        calculateVonMises: "Calculate von Mises",
       },
     };
   },

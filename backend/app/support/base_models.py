@@ -335,6 +335,8 @@ class Solver(BaseModel):
     stopBeforeDamageInitation: Optional[bool] = None
     adaptivetimeStepping: Optional[bool] = None
     adapt: Optional[Adapt] = None
+    calculateCauchy: Optional[bool] = None
+    calculateVonMises: Optional[bool] = None
 
 
 class Job(BaseModel):

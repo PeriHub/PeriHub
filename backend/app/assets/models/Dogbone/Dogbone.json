@@ -25,7 +25,6 @@
     {
       "id": 1,
       "name": "Aluminium",
-      "density": "2.81e-9",
       "matType": [
         "PD Solid Elastic"
       ],
@@ -124,8 +123,25 @@
       "name": "Damage",
       "damageModel": "Critical Energy",
       "criticalStretch": null,
-      "criticalEnergy": 5.0,
-      "interblockdamageEnergy": null,
+      "criticalEnergy": "1e-8",
+      "criticalVonMisesStress": null,
+      "criticalDamage": null,
+      "thresholdDamage": null,
+      "criticalDamageToNeglect": null,
+      "interBlockDamage": false,
+      "numberOfBlocks": 5,
+      "interBlocks": [
+        {
+          "damagesInterId": 1,
+          "firstBlockId": 1,
+          "secondBlockId": 2,
+          "value": 0.1
+        }
+      ],
+      "anistropicDamage": false,
+      "anistropicDamageX": null,
+      "anistropicDamageY": null,
+      "anistropicDamageZ": null,
       "planeStress": true,
       "onlyTension": false,
       "detachedNodesCheck": true,
@@ -267,7 +283,24 @@
         "Damage",
         "von Mises Stress"
       ],
+      "Write_After_Damage": false,
       "Frequency": "100",
+      "numberOfOutputSteps": 100,
+      "useOutputFrequency": false,
+      "InitStep": 0
+    },
+    {
+      "id": 2,
+      "name": "Output2",
+      "selectedFileType": "CSV",
+      "selectedOutputs": [
+        "External_Displacement",
+        "External_Force"
+      ],
+      "Write_After_Damage": false,
+      "Frequency": "100",
+      "numberOfOutputSteps": 100,
+      "useOutputFrequency": false,
       "InitStep": 0
     }
   ],
@@ -294,7 +327,9 @@
     "dispEnabled": true,
     "damEnabled": true,
     "matEnabled": true,
-    "tempEnabled": false
+    "tempEnabled": false,
+    "calculateCauchy": false,
+    "calculateVonMises": true
   },
   "job": {
     "software": "PeriLab",

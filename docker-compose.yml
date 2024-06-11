@@ -45,6 +45,3 @@ services:
       - 6000:80
     volumes:
       - ${VOLUME}:/app/simulations
-
-networks:
-  web_network:

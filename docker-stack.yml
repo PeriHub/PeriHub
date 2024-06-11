@@ -77,6 +77,8 @@ services:
       - 6000:80
     volumes:
       - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/peridigmJobs:/app/simulations
+    networks:
+      - web_network
 
 networks:
   proxy_l:

@@ -321,6 +321,12 @@ class YAMLcreatorPeriLab:
 
             data["Verlet"]["Numerical Damping"] = float(self.solver_dict.numericalDamping)
 
+        if self.check_if_defined(self.solver_dict.calculateCauchy):
+            data["Calculate Cauchy"] = self.solver_dict.calculateCauchy
+
+        if self.check_if_defined(self.solver_dict.calculateVonMises):
+            data["Calculate von Mises"] = self.solver_dict.calculateVonMises
+
         return data
 
     def create_boundary_conditions(self):

@@ -27,7 +27,7 @@ SPDX-License-Identifier: Apache-2.0
           </q-img>
         </q-card>
       </router-link>
-      <a class="card" href="https://github.com/PeriHub/PeriHub/-/wikis/Introduction">
+      <a class="card" href="https://perihub.github.io/PeriHub/">
         <q-card class="my-card">
           <q-img src="~assets/compass.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
