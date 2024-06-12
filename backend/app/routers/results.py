@@ -198,8 +198,119 @@ def get_results(
         return model_name + " results can not be found on " + cluster
 
 
+def get_cell_data(variable, points, point_data, cell_data, block_data, displ_factor):
+    np_points_all_x = np.array([])
+    np_points_all_y = np.array([])
+    np_points_all_z = np.array([])
+
+    cell_value = np.array([])
+
+    for block_id in range(0, len(block_data)):
+        block_ids = block_data[block_id][:, 0]
+
+        block_points = points[block_ids]
+
+        np_first_points_x = np.array(block_points[:, 0])
+        np_first_points_y = np.array(block_points[:, 1])
+        np_first_points_z = np.array(block_points[:, 2])
+
+        if "Displacements" in point_data:
+            np_displacement_x = np.array(point_data["Displacements"][block_ids, 0])
+            np_displacement_y = np.array(point_data["Displacements"][block_ids, 1])
+            np_displacement_z = np.array(point_data["Displacements"][block_ids, 2])
+
+            np_points_x = np.add(
+                np_first_points_x,
+                np.multiply(np_displacement_x, displ_factor),
+            )
+            np_points_y = np.add(
+                np_first_points_y,
+                np.multiply(np_displacement_y, displ_factor),
+            )
+            np_points_z = np.add(
+                np_first_points_z,
+                np.multiply(np_displacement_z, displ_factor),
+            )
+        else:
+            np_points_x = np_first_points_x
+            np_points_y = np_first_points_y
+            np_points_z = np_first_points_z
+
+        np_points_all_x = np.concatenate([np_points_all_x, np_points_x])
+        np_points_all_y = np.concatenate([np_points_all_y, np_points_y])
+        np_points_all_z = np.concatenate([np_points_all_z, np_points_z])
+
+        if variable == "Block":
+            cell_value = np.concatenate(
+                [
+                    cell_value,
+                    np.full_like(np_points_x, block_id),
+                ]
+            )
+        else:
+            if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
+                cell_value = np.concatenate(
+                    [
+                        cell_value,
+                        cell_data[variable][0][block_id],
+                    ]
+                )
+            else:
+                cell_value = np.concatenate([cell_value, np.full_like(np_points_x, 0)])
+
+    return np_points_all_x, np_points_all_y, np_points_all_z, cell_value
+
+
+def get_point_data(variable, axis, displ_factor, use_multi_data, points, point_data):
+    np_first_points_x = np.array(points[:, 0])
+    np_first_points_y = np.array(points[:, 1])
+    np_first_points_z = np.array(points[:, 2])
+
+    np_points_all_z = None
+
+    try:
+        np_displacement_x = np.array(point_data["Displacementsx"])
+        np_displacement_y = np.array(point_data["Displacementsy"])
+        try:
+            np_displacement_z = np.array(point_data["Displacementsz"])
+            np_points_all_z = np.add(
+                np_first_points_z,
+                np.multiply(np_displacement_z, displ_factor),
+            )
+        except:
+            pass
+
+        np_points_all_x = np.add(
+            np_first_points_x,
+            np.multiply(np_displacement_x, displ_factor),
+        )
+        np_points_all_y = np.add(
+            np_first_points_y,
+            np.multiply(np_displacement_y, displ_factor),
+        )
+
+    except Exception:
+        print("No Displacements")
+        np_points_all_x = np_first_points_x
+        np_points_all_y = np_first_points_y
+        np_points_all_z = np_first_points_z
+
+    cell_value = []
+    if axis == "Magnitude" and use_multi_data:
+        cell_value_x = point_data[variable + "x"]
+        cell_value_y = point_data[variable + "y"]
+        cell_value = np.sqrt(cell_value_x**2 + cell_value_y**2)
+    else:
+        if point_data.keys().__contains__(variable):
+            cell_value = point_data[variable]
+        else:
+            cell_value = np.full_like(np_points_all_x, 0)
+
+    return np_points_all_x, np_points_all_y, np_points_all_z, cell_value
+
+
 @router.get("/getPointData")
-def get_point_data(
+def get_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     output: str = "Output1",
@@ -209,6 +320,7 @@ def get_point_data(
     step: int = 78,
     displ_factor: float = 100,
     variable: str = "Displacements",
+    filter: str = "",
     request: Request = "",
 ):
     """doc"""
@@ -277,108 +389,31 @@ def get_point_data(
     elif axis == "Magnitude":
         axis_id = 0
 
+    filter_value = []
+    use_filter = len(filter) > 0
+
     if use_cell_data:
-        np_points_all_x = np.array([])
-        np_points_all_y = np.array([])
-        np_points_all_z = np.array([])
-
-        cell_value = np.array([])
-
-        for block_id in range(0, len(block_data)):
-            block_ids = block_data[block_id][:, 0]
-
-            block_points = points[block_ids]
-
-            np_first_points_x = np.array(block_points[:, 0])
-            np_first_points_y = np.array(block_points[:, 1])
-            np_first_points_z = np.array(block_points[:, 2])
-
-            if "Displacements" in point_data:
-                np_displacement_x = np.array(point_data["Displacements"][block_ids, 0])
-                np_displacement_y = np.array(point_data["Displacements"][block_ids, 1])
-                np_displacement_z = np.array(point_data["Displacements"][block_ids, 2])
-
-                np_points_x = np.add(
-                    np_first_points_x,
-                    np.multiply(np_displacement_x, displ_factor),
-                )
-                np_points_y = np.add(
-                    np_first_points_y,
-                    np.multiply(np_displacement_y, displ_factor),
-                )
-                np_points_z = np.add(
-                    np_first_points_z,
-                    np.multiply(np_displacement_z, displ_factor),
-                )
-            else:
-                np_points_x = np_first_points_x
-                np_points_y = np_first_points_y
-                np_points_z = np_first_points_z
-
-            np_points_all_x = np.concatenate([np_points_all_x, np_points_x])
-            np_points_all_y = np.concatenate([np_points_all_y, np_points_y])
-            np_points_all_z = np.concatenate([np_points_all_z, np_points_z])
-
-            if variable == "Block":
-                cell_value = np.concatenate(
-                    [
-                        cell_value,
-                        np.full_like(np_points_x, block_id),
-                    ]
-                )
-            else:
-                if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
-                    cell_value = np.concatenate(
-                        [
-                            cell_value,
-                            cell_data[variable][0][block_id],
-                        ]
-                    )
-                else:
-                    cell_value = np.concatenate([cell_value, np.full_like(np_points_x, 0)])
+        np_points_all_x, np_points_all_y, np_points_all_z, cell_value = get_cell_data(
+            points, point_data, cell_data, block_data, axis_id, variable
+        )
 
     else:
-        np_first_points_x = np.array(points[:, 0])
-        np_first_points_y = np.array(points[:, 1])
-        np_first_points_z = np.array(points[:, 2])
-
-        try:
-            np_displacement_x = np.array(point_data["Displacementsx"])
-            np_displacement_y = np.array(point_data["Displacementsy"])
-            try:
-                np_displacement_z = np.array(point_data["Displacementsz"])
-                np_points_all_z = np.add(
-                    np_first_points_z,
-                    np.multiply(np_displacement_z, displ_factor),
-                )
-            except:
-                pass
-
-            np_points_all_x = np.add(
-                np_first_points_x,
-                np.multiply(np_displacement_x, displ_factor),
-            )
-            np_points_all_y = np.add(
-                np_first_points_y,
-                np.multiply(np_displacement_y, displ_factor),
+        np_points_all_x, np_points_all_y, np_points_all_z, cell_value = get_point_data(
+            variable, axis, displ_factor, use_multi_data, points, point_data
+        )
+        if use_filter:
+            _, _, _, filter_value = get_point_data(
+                filter, "Not_Magnitude", displ_factor, use_multi_data, points, point_data
             )
 
-        except Exception:
-            print("No Displacements")
-            np_points_all_x = np_first_points_x
-            np_points_all_y = np_first_points_y
-            np_points_all_z = np_first_points_z
-
-        cell_value = []
-        if axis == "Magnitude" and use_multi_data:
-            cell_value_x = point_data[variable + "x"]
-            cell_value_y = point_data[variable + "y"]
-            cell_value = np.sqrt(cell_value_x**2 + cell_value_y**2)
-        else:
-            # cell_value = point_data[variable][:, axis_id]
-            cell_value = point_data[variable]
     if np_points_all_z is None:
         np_points_all_z = np.zeros_like(np_points_all_x)
+
+    if use_filter:
+        cell_value = cell_value[filter_value != 0]
+        np_points_all_x = np_points_all_x[filter_value != 0]
+        np_points_all_y = np_points_all_y[filter_value != 0]
+        np_points_all_z = np_points_all_z[filter_value != 0]
 
     min_cell_value = np.min(cell_value)
     max_cell_value = np.max(cell_value)

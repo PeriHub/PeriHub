@@ -75,7 +75,7 @@ export default {
   },
   data() {
     return {
-      verticalSplitterModel: 50,
+      verticalSplitterModel: 40,
       horizontalSplitterModel: 50,
     };
   },

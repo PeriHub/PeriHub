@@ -18,6 +18,26 @@ SPDX-License-Identifier: Apache-2.0
             Reset Camera
           </q-tooltip>
         </q-btn>
+        <q-btn flat dense icon="fas fa-backward" @click="backward()">
+          <q-tooltip>
+            Backward
+          </q-tooltip>
+        </q-btn>
+        <q-btn :disabled="!playing" flat dense icon="fas fa-pause" @click="pause()">
+          <q-tooltip>
+            Pause
+          </q-tooltip>
+        </q-btn>
+        <q-btn :disabled="playing" flat dense icon="fas fa-play" @click="play()">
+          <q-tooltip>
+            Play
+          </q-tooltip>
+        </q-btn>
+        <q-btn flat dense icon="fas fa-forward" @click="forward()">
+          <q-tooltip>
+            Forward
+          </q-tooltip>
+        </q-btn>
         <div>
           <q-item>
             <q-item-section style="width: 10px; margin-right:20px" side>
@@ -99,6 +119,8 @@ SPDX-License-Identifier: Apache-2.0
         @update:model-value="viewPointData"></q-select>
       <q-input class="variable" v-model.number="modelParams.displFactor" type="number" label="Displ. Magnitude" outlined
         dense debounce:500 @update:model-value="viewPointData"></q-input>
+      <q-select class="variable" :options="filterOptions" v-model="modelParams.filter" label="Filter" outlined dense
+        @update:model-value="viewPointData"></q-select>
     </div>
     <vertical-colored-legend class="legend" :min="minValue" :max="maxValue" :key="legendKey" />
   </div>
@@ -128,18 +150,25 @@ export default {
         axis: "Magnitude",
         displFactor: 1,
         step: 1,
-        numberOfSteps: 100
+        numberOfSteps: 100,
+        filter: "",
+        output: "Output1"
       },
       variableOptions: [
         "Displacements",
         "Damage",
-        "Forces"
+        "Forces",
+        "Temperature"
       ],
       axisOptions: [
         "X",
         "Y",
         "Z",
         "Magnitude"
+      ],
+      filterOptions: [
+        "Displacements",
+        "Damage",
       ],
       sphere: "Sphere",
       resolution: 6,
@@ -155,12 +184,15 @@ export default {
       minValue: 0,
       legendKey: 0,
       time: 0,
+      playing: false,
+      timer: null
     };
   },
 
   mounted() {
     console.log("ModelView mounted")
-    this.viewPointData()
+    this.viewPointData();
+    this.$refs.view.resetCamera();
   },
   methods: {
     async viewPointData() {
@@ -172,7 +204,6 @@ export default {
       await this.updatePoints();
 
       this.modelLoading = false;
-      this.$refs.view.resetCamera();
     },
     // filterPointData() {
     //   console.log("filterPointData")
@@ -216,12 +247,13 @@ export default {
         model_name: this.modelData.model.modelNameSelected,
         model_folder_name: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
-        output: this.getPlotOutput,
+        output: this.modelParams.output,
         tasks: this.modelData.job.tasks,
         axis: this.modelParams.axis,
         step: this.modelParams.step,
         displ_factor: this.modelParams.displFactor,
         variable: this.modelParams.variable,
+        filter: this.modelParams.filter
       }
       let data = null;
       await this.$api.get('/results/getPointData', { params })
@@ -251,6 +283,28 @@ export default {
       this.modelParams.numberOfSteps = data["number_of_steps"]
       this.time = data["time"]
     },
+    play() {
+      this.playing = true
+      this.timer = setInterval(this.forward, 1000)
+    },
+    pause() {
+      this.playing = false
+      clearInterval(this.timer)
+    },
+    backward() {
+      if (this.modelParams.step > 1) {
+        this.modelParams.step = this.modelParams.step - 1
+        this.viewPointData()
+      }
+    },
+    forward() {
+      if (this.modelParams.step < this.modelParams.numberOfSteps) {
+        this.modelParams.step = this.modelParams.step + 1
+        this.viewPointData()
+      } else {
+        this.pause()
+      }
+    }
   },
   watch: {
     maxValue(newValue) {
