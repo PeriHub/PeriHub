@@ -126,7 +126,7 @@
       "name": "Damage",
       "damageModel": "Critical Energy",
       "criticalStretch": null,
-      "criticalEnergy": 5.578800557880057,
+      "criticalEnergy": 0.05,
       "interblockdamageEnergy": null,
       "planeStress": true,
       "onlyTension": true,
@@ -135,7 +135,7 @@
       "hourglassCoefficient": "1",
       "stabilizationType": "Global Stiffness",
       "criticalEnergyCalc": {
-        "calculateCriticalEnergy": true,
+        "calculateCriticalEnergy": false,
         "k1c": "632.4555320336759",
         "youngsModulus": null
       }
@@ -208,7 +208,7 @@
         "variable": "Force Densities",
         "blockId": 2,
         "coordinate": "y",
-        "value": "50000*t"
+        "value": "30000*t"
       },
       {
         "conditionsId": 2,
@@ -218,7 +218,7 @@
         "variable": "Force Densities",
         "blockId": 3,
         "coordinate": "y",
-        "value": "-50000*t"
+        "value": "-30000*t"
       }
     ]
   },
@@ -298,7 +298,8 @@
       "selectedFileType": "Exodus",
       "selectedOutputs": [
         "Displacements",
-        "Damage"
+        "Damage",
+        "von Mises Stress"
       ],
       "Frequency": "1",
       "InitStep": 0,
@@ -334,7 +335,8 @@
     "maxDamageValue": "0.3",
     "damEnabled": true,
     "matEnabled": true,
-    "tempEnabled": false
+    "tempEnabled": false,
+    "calculateVonMises": true
   },
   "job": {
     "cluster": false,

@@ -148,6 +148,7 @@ export default defineComponent({
         "Specific Volume",
         "Strain",
         "Cauchy Stress",
+        "von Mises Stress",
         "Angles",
         "Orientations"
       ],
