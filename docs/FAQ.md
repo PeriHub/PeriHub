@@ -30,11 +30,11 @@ PeriHub is suitable for researchers, engineers, and students working in the fiel
 
 ### Is PeriHub open source?
 
-Yes, PeriHub is an open-source project released under [insert license here]. This means that the source code is freely available for anyone to use, modify, and distribute, subject to the terms of the license.
+Yes, PeriHub is an open-source project released under the [Apache 2.0 license](https://github.com/PeriHub/PeriHub/blob/main/LICENSES/Apache-2.0.txt). This means that the source code is freely available for anyone to use, modify, and distribute, subject to the terms of the license.
 
 ### How can I get started with PeriHub?
 
-To get started with PeriHub, simply visit our website [insert link here] and follow the instructions for downloading and installing the framework. We also provide documentation and tutorials to help you get up to speed quickly.
+To get started with PeriHub, simply visit our [getting started guide](https://perihub.github.io/PeriHub/GettingStarted.html) and follow the instructions for downloading and installing the framework. We also provide documentation and tutorials to help you get up to speed quickly.
 
 ### Can I contribute to the development of PeriHub?
 
@@ -42,7 +42,7 @@ Absolutely! We welcome contributions from the community to help improve PeriHub 
 
 ### Where can I get help or support?
 
-If you have any questions, encounter issues, or just want to connect with other users and developers, you can join our community forum [insert link here]. Our team and community members are always ready to help and provide support.
+If you have any questions, encounter issues, or just want to connect with other users and developers, you can go ahead and start a new [discussion](https://github.com/PeriHub/PeriHub/discussions/new/choose). Our team and community members are always ready to help and provide support.
 
 ### Is there a cost associated with using PeriHub?
 
@@ -58,7 +58,7 @@ We strive to regularly update PeriHub with new features, improvements, and bug f
 
 ### Where can I report bugs or request features?
 
-If you encounter any bugs or have ideas for new features, please submit them to our issue tracker [insert link here]. Your feedback is invaluable in helping us improve PeriHub for everyone.
+If you encounter any bugs or have ideas for new features, please submit them to our [issue tracker](https://github.com/PeriHub/PeriHub/discussions/new/choose). Your feedback is invaluable in helping us improve PeriHub for everyone.
 
 ### Can I use PeriHub to teach or conduct research?
 
@@ -75,7 +75,3 @@ Security is a top priority for us, and we take all necessary precautions to ensu
 ### Can I use PeriHub with other simulation software or tools?
 
 PeriHub is designed to be compatible with a wide range of simulation software and tools, allowing users to integrate it seamlessly into their existing workflows. If you have specific compatibility requirements or need assistance with integration, please reach out to our support team for assistance.
-
-### Where can I find more information about PeriHub?
-
-For more information about PeriHub, including documentation, tutorials, and user testimonials, please visit our website [insert link here]. You can also follow us on social media and subscribe to our newsletter for updates and announcements.

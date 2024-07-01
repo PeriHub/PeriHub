@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: 🚀 Feature request
+description: If you have a feature request 💡
+title: "[Feature]: "
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request form!
+  - type: textarea
+    id: what
+    attributes:
+      label: What are you trying to do and how would you want to do it differently?
+      value: "I would like to ..."
+    validations:
+      required: true
+  - type: textarea
+    id: related
+    attributes:
+      label: Is it something you currently cannot do? Is this related to an issue/problem?
+    validations:
+      required: false
+  - type: textarea
+    id: idea
+    attributes:
+      label: Implementation details
+      description: Let us know if you already have an idea for how to implement this feature.
+    validations:
+      required: false
+  - type: dropdown
+    id: pr-submit
+    attributes:
+      label: Would you be willing to submit a PR?
+      options:
+        - "Yes"
+        - "No"
+      default: 1
+    validations:
+      required: true
