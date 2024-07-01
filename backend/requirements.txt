@@ -18,5 +18,5 @@ rich
 exodusreader
 gcodereader
 random-username
-pygalmesh
+# pygalmesh
 python-magic

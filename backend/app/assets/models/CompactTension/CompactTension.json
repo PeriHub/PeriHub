@@ -29,7 +29,8 @@
       "id": 1,
       "name": "Aluminium",
       "matType": [
-        "PD Solid Elastic"
+        "Correspondence Elastic",
+        "Correspondence Plastic"
       ],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
@@ -299,7 +300,8 @@
       "selectedOutputs": [
         "Displacements",
         "Damage",
-        "von Mises Stress"
+        "Cauchy Stress",
+        "Strain"
       ],
       "Frequency": "1",
       "InitStep": 0,

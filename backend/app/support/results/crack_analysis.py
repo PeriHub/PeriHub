@@ -35,33 +35,16 @@ class CrackAnalysis:
             times,
         ) = exodusreader.read_timestep(file, step)
 
-        damage_blocks = cell_data["Damage"][0]
-
-        np_points_x = np.array([])
-        np_points_y = np.array([])
-        np_displ_x = np.array([])
-        np_displ_y = np.array([])
-        np_eps_x = np.array([])
-        np_eps_y = np.array([])
-        np_eps_xy = np.array([])
-        np_sig_x = np.array([])
-        np_sig_y = np.array([])
-        np_sig_xy = np.array([])
-
-        for block_id, _ in enumerate(block_data):
-            if block_id in damage_blocks:
-                block_ids = block_data[block_id][:, 0]
-                block_points = points[block_ids]
-                np_points_x = np.concatenate([np_points_x, np.array(block_points[:, 0])])
-                np_points_y = np.concatenate([np_points_y, np.array(block_points[:, 1])])
-                np_displ_x = np.concatenate([np_displ_x, np.array(point_data["Displacement"][block_ids, 0])])
-                np_displ_y = np.concatenate([np_displ_y, np.array(point_data["Displacement"][block_ids, 1])])
-                np_eps_x = np.concatenate([np_eps_x, np.array(cell_data["Unrotated_StrainXX"][0][block_id])])
-                np_eps_y = np.concatenate([np_eps_y, np.array(cell_data["Unrotated_StrainYY"][0][block_id])])
-                np_eps_xy = np.concatenate([np_eps_xy, np.array(cell_data["Unrotated_StrainXY"][0][block_id])])
-                np_sig_x = np.concatenate([np_sig_x, np.array(cell_data["Partial_StressXX"][0][block_id])])
-                np_sig_y = np.concatenate([np_sig_y, np.array(cell_data["Partial_StressYY"][0][block_id])])
-                np_sig_xy = np.concatenate([np_sig_xy, np.array(cell_data["Partial_StressXY"][0][block_id])])
+        np_points_x = np.array(points[:, 0])
+        np_points_y = np.array(points[:, 1])
+        np_displ_x = np.array(point_data["Displacementsx"])
+        np_displ_y = np.array(point_data["Displacementsy"])
+        np_eps_x = np.array(point_data["Strainxx"])
+        np_eps_y = np.array(point_data["Strainyy"])
+        np_eps_xy = np.array(point_data["Strainxy"])
+        np_sig_x = np.array(point_data["Cauchy Stressxx"])
+        np_sig_y = np.array(point_data["Cauchy Stressyy"])
+        np_sig_xy = np.array(point_data["Cauchy Stressxy"])
 
         np_points_z = np.empty_like(np_points_x)
         np_displ_z = np.empty_like(np_displ_x)
@@ -70,23 +53,23 @@ class CrackAnalysis:
 
         headerCols = [
             "#",
-            "index;",
-            "x_undf;",
-            "y_undf;",
-            "z_undf;",
-            "ux;",
-            "uy;",
-            "uz;",
-            "eps_x",
-            "eps_y",
-            "eps_xy",
+            "ID;",
+            "x_undef;",
+            "y_undef;",
+            "z_undef;",
+            "u;",
+            "v;",
+            "w;",
+            "epsx",
+            "epsy",
+            "epsxy",
             "eps_eqv",
-            "s_x",
-            "s_y",
+            "s_xx",
+            "s_yy",
             "s_xy",
         ]
         formatter = [
-            "%15.8e",
+            "%d",
             "%15.8e",
             "%15.8e",
             "%15.8e",

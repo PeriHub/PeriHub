@@ -359,7 +359,9 @@ def get_data(
     use_cell_data = False
 
     variable_list = list(point_data.keys())
-    variable_list = list(set(item.rstrip("xyz") for item in variable_list))
+    variable_list = list(
+        set([entry[:-1] if entry[-1].lower() in ["x", "y", "z"] else entry for entry in variable_list])
+    )
 
     np_points_all_z = None
     use_multi_data = False
@@ -367,9 +369,12 @@ def get_data(
     if variable in [
         "Displacements",
         "Forces",
-        "Partial_StressX",
-        "Partial_StressY",
-        "Partial_StressZ",
+        "Strainx",
+        "Strainy",
+        "Strainz",
+        "Cauchy Stressx",
+        "Cauchy Stressy",
+        "Cauchy Stressz",
     ]:
         use_multi_data = True
     axis_id = 0
