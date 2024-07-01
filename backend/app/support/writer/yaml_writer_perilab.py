@@ -71,6 +71,9 @@ class YAMLcreatorPeriLab:
             filter["Normal Y"] = bond_filter.normalY
             filter["Normal Z"] = bond_filter.normalZ
 
+            if self.check_if_defined(bond_filter.allow_contact):
+                filter["Allow Contact"] = bond_filter.allow_contact
+
             if bond_filter.type == "Rectangular_Plane":
                 filter["Lower Left Corner X"] = bond_filter.lowerLeftCornerX
                 filter["Lower Left Corner Y"] = bond_filter.lowerLeftCornerY

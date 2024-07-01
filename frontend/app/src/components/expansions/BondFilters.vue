@@ -19,6 +19,8 @@ SPDX-License-Identifier: Apache-2.0
           :rules="[rules.required, rules.name]" :label="bondFilterKeys.sideLength" standout dense></q-input>
         <q-input v-if="bondFilter.type == 'Disk'" class="my-input" v-model="bondFilter.radius"
           :rules="[rules.required, rules.name]" :label="bondFilterKeys.radius" standout dense></q-input>
+        <q-toggle class="my-toggle" v-model="bondFilter.allow_contact" :label="bondFilterKeys.allow_contact" standout
+          dense></q-toggle>
         <q-btn flat icon="fas fa-trash-alt" @click="removeBondFilter(index)">
           <q-tooltip>
             Remove Bond Filter
@@ -103,6 +105,7 @@ export default defineComponent({
       bondFilterKeys: {
         name: "name",
         type: "Type",
+        allow_contact: "Allow Contact",
         normalX: "Normal_X",
         normalY: "Normal_Y",
         normalZ: "Normal_Z",
@@ -149,6 +152,7 @@ export default defineComponent({
           "bondFiltersId": 1,
           "name": "bf_1",
           "type": "Rectangular_Plane",
+          "allow_contact": false,
           "normalX": 0,
           "normalY": 1,
           "normalZ": 0,

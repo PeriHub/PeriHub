@@ -15,8 +15,8 @@ from models.CompactTension.compact_tension import CompactTension
 
 # from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
+from models.ENFmodel.enf_model import ENFmodel
 
-# from models.ENFmodel.enf_model import ENFmodel
 # from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
 from models.OwnModel.own_model import OwnModel
 
@@ -181,16 +181,16 @@ def generate_model(
         #     )
         #     result = ring_on_ring.create_model()
 
-        # elif model_name == "ENFModel":
-        #     enf = ENFmodel(
-        #         model_data=model_data,
-        #         model_folder_name=model_folder_name,
-        #         username=username,
-        #         max_nodes=max_nodes,
-        #         ignore_mesh=ignore_mesh,
-        #         dx_value=dx_value,
-        #     )
-        #     result = enf.create_model()
+        elif model_name == "ENFmodel":
+            enf = ENFmodel(
+                model_data=model_data,
+                model_folder_name=model_folder_name,
+                username=username,
+                max_nodes=max_nodes,
+                ignore_mesh=ignore_mesh,
+                dx_value=dx_value,
+            )
+            result = enf.create_model()
 
         # elif model_name == "Smetana":
         #     smetana = Smetana(

@@ -141,6 +141,7 @@ export default defineComponent({
         "Damage",
         "Forces",
         "Number of Neighbors",
+        "Number of Filtered Neighbors",
         "Activation_Time",
         "Temperature",
         "Heat Flow",

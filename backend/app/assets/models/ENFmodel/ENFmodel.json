@@ -23,12 +23,15 @@
       "id": 1,
       "name": "Aluminium",
       "density": "2.81e-9",
-      "matType": "Correspondence Elastic",
+      "matType": [
+        "Correspondence Elastic"
+      ],
       "youngsModulus": "71700",
       "poissonsRatio": "0.33",
       "tensionSeparation": false,
       "nonLinear": false,
-      "planeStress": false,
+      "planeStress": true,
+      "planeStrain": false,
       "materialSymmetry": "Isotropic",
       "stabilizationType": "Global Stiffness",
       "thickness": "1",
@@ -43,6 +46,25 @@
       ]
     }
   ],
+  "thermal": {
+    "enabled": false,
+    "thermalModels": [
+      {
+        "thermalModelsId": 1,
+        "name": "Thermal Model 1",
+        "applyThermalFlow": false,
+        "applyThermalExpansion": false,
+        "applyHeatTransfer": false,
+        "thermalType": "Bond based",
+        "thermalConductivity": null,
+        "heatTransferCoefficient": null,
+        "thermalExpansionCoefficient": null,
+        "environmentalTemperature": null,
+        "printTemp": 200.0,
+        "timeFactor": 1.0
+      }
+    ]
+  },
   "additive": {
     "additiveModels": [
       {
@@ -180,7 +202,8 @@
         "conditionsId": 1,
         "name": "BC_1",
         "nodeSet": null,
-        "boundarytype": "Force Densities",
+        "boundarytype": "Dirichlet",
+        "variable": "Force Densities",
         "blockId": 4,
         "coordinate": "y",
         "value": "-50000*t"
@@ -212,6 +235,7 @@
       "bondFiltersId": 1,
       "name": "bf_1",
       "type": "Rectangular_Plane",
+      "allow_contact": true,
       "normalX": 0,
       "normalY": 1,
       "normalZ": 0,
@@ -263,7 +287,9 @@
         "Displacements",
         "Damage",
         "Forces",
-        "Number of Neighbors"
+        "von Mises Stress",
+        "Number of Neighbors",
+        "Number of Filtered Neighbors"
       ],
       "Frequency": "100",
       "InitStep": 0,
@@ -307,9 +333,11 @@
     },
     "filetype": "yaml",
     "endStepAfterDamage": "3",
+    "stopAfterCertainDamage": false,
     "matEnabled": true,
     "damEnabled": true,
-    "stopAfterCertainDamage": false
+    "tempEnabled": false,
+    "calculateVonMises": true
   },
   "job": {
     "software": "PeriLab",

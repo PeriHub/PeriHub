@@ -163,7 +163,7 @@ export default defineComponent({
       // "Kalthoff-Winkler",
       // "PlateWithOpening",
       // "PlateWithHole",
-      // "ENFmodel",
+      "ENFmodel",
       // "DCBmodel",
       "CompactTension",
       // "OwnModel",

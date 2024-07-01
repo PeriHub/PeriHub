@@ -252,6 +252,7 @@ class BondFilters(BaseModel):
     id: Optional[int] = None
     name: str
     type: str
+    allow_contact: Optional[bool] = False
     normalX: float
     normalY: float
     normalZ: float
