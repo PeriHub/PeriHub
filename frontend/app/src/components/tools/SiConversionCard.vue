@@ -28,6 +28,8 @@ SPDX-License-Identifier: Apache-2.0
             dense></q-input>
           <q-input class="my-input" v-model="conversion.density" label="Density [kg/m^3]" clearable standout
             dense></q-input>
+          <q-input class="my-input" v-model="conversion.densityLb" label="Density [lb/in^3]" clearable standout
+            dense></q-input>
           <q-input class="my-input" v-model="conversion.densityGramm" label="Density [g/cm^3]" clearable standout
             dense></q-input>
           <q-input class="my-input" v-model="conversion.energy" label="Energy [J]" clearable standout dense></q-input>
@@ -78,6 +80,11 @@ SPDX-License-Identifier: Apache-2.0
               <q-icon name='fas fa-copy' @click="copyText('density')"></q-icon>
             </template>
           </q-input>
+          <q-input class="my-input" v-model="conversionResults.densityLb" label="Density [t/mm^3]" standout dense>
+            <template v-slot:append>
+              <q-icon name='fas fa-copy' @click="copyText('densityLb')"></q-icon>
+            </template>
+          </q-input>
           <q-input class="my-input" v-model="conversionResults.densityGramm" label="Density [t/mm^3]" standout dense>
             <template v-slot:append>
               <q-icon name='fas fa-copy' @click="copyText('densityGramm')"></q-icon>
@@ -123,6 +130,7 @@ export default defineComponent({
         moment: null,
         pressure: null,
         density: null,
+        densityLb: null,
         densityGramm: null,
         energy: null,
         energyReleaseRate: null,
@@ -137,6 +145,7 @@ export default defineComponent({
         moment: null,
         pressure: null,
         density: null,
+        densityLb: null,
         densityGramm: null,
         energy: null,
         energyReleaseRate: null,
@@ -155,6 +164,7 @@ export default defineComponent({
       const moment = this.conversion.moment;
       const pressure = this.conversion.pressure;
       const density = this.conversion.density;
+      const densityLb = this.conversion.densityLb;
       const densityGramm = this.conversion.densityGramm;
       const energy = this.conversion.energy;
       const energyReleaseRate = this.conversion.energyReleaseRate;
@@ -183,6 +193,9 @@ export default defineComponent({
       }
       if (density != null) {
         this.conversionResults.density = density / Math.pow(10, 12);
+      }
+      if (densityLb != null) {
+        this.conversionResults.densityLb = densityLb * 0.000027679905 / 1000;
       }
       if (densityGramm != null) {
         this.conversionResults.densityGramm = densityGramm / Math.pow(10, 9);

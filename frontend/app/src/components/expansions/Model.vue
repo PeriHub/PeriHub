@@ -166,6 +166,7 @@ export default defineComponent({
       "ENFmodel",
       // "DCBmodel",
       "CompactTension",
+      "G1Cmodel",
       // "OwnModel",
       // "RingOnRing"
     ]

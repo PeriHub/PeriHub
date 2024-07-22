@@ -16,6 +16,7 @@ from models.CompactTension.compact_tension import CompactTension
 # from models.DCBmodel.dcb_model import DCBmodel
 from models.Dogbone.dogbone import Dogbone
 from models.ENFmodel.enf_model import ENFmodel
+from models.G1Cmodel.g1c_model import G1Cmodel
 
 # from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
 from models.OwnModel.own_model import OwnModel
@@ -106,6 +107,17 @@ def generate_model(
     if model_data.model.ownModel is False:
         if model_name == "CompactTension":
             model = CompactTension(
+                model_data=model_data,
+                model_folder_name=model_folder_name,
+                username=username,
+                max_nodes=max_nodes,
+                ignore_mesh=ignore_mesh,
+                dx_value=dx_value,
+            )
+            result = model.create_model()
+
+        elif model_name == "G1Cmodel":
+            model = G1Cmodel(
                 model_data=model_data,
                 model_folder_name=model_folder_name,
                 username=username,
