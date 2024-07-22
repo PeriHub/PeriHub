@@ -27,7 +27,7 @@
   "materials": [
     {
       "id": 1,
-      "name": "Aluminium",
+      "name": "Resin",
       "matType": [
         "Correspondence Elastic",
         "Correspondence Plastic"
@@ -153,7 +153,7 @@
           "secondBlockId": 1,
           "value": 1.336
         }
-      ],
+      ]
     }
   ],
   "blocks": [
@@ -221,7 +221,7 @@
         "nodeSet": null,
         "boundarytype": "Dirichlet",
         "variable": "Displacements",
-        "blockId": 2,
+        "blockId": 4,
         "coordinate": "y",
         "value": "10*t"
       },
@@ -231,7 +231,7 @@
         "nodeSet": null,
         "boundarytype": "Dirichlet",
         "variable": "Displacements",
-        "blockId": 3,
+        "blockId": 5,
         "coordinate": "y",
         "value": "0*t"
       }
