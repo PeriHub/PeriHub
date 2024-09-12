@@ -456,6 +456,7 @@ export default defineComponent({
     async runModel() {
 
       this.submitLoading = true;
+      this.viewStore.textLoading = true;
       let params = {
         model_name: this.modelData.model.modelNameSelected,
         model_folder_name: this.modelData.model.modelFolderName
@@ -503,8 +504,8 @@ export default defineComponent({
         })
 
       this.viewStore.textId = "log";
-      this.bus.emit("enableWebsocket");
       this.viewStore.viewId = "jobs";
+      this.bus.emit("enableWebsocket");
       await sleep(1000);
       this.bus.emit("getStatus");
       this.submitLoading = false;

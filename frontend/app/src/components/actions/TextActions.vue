@@ -31,6 +31,8 @@ import { inject } from 'vue'
 import { useQuasar } from 'quasar'
 import rules from "assets/rules.js";
 
+const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
 export default defineComponent({
   name: "TextActions",
   setup() {
@@ -140,9 +142,12 @@ export default defineComponent({
         })
     },
     async enableWebsocket() {
+      await sleep(40000);
+      console.log("enableWebsocket")
       // Check if there is an existing connection
       if (this.connection) {
         // Close the existing connection
+        console.log("close existing connection")
         await this.connection.close();
         this.connection = null; // Reset the connection variable
       }
@@ -165,7 +170,7 @@ export default defineComponent({
         socket_path = `wss://${window.location.host}/ws?${queryString}`;
       }
       if (process.env.DEV) {
-        socket_path = `ws://localhost:5000/ws?${queryString}`;
+        socket_path = `ws://localhost:8000/ws?${queryString}`;
       }
       console.log(window.location.protocol)
       console.log(socket_path)
@@ -180,6 +185,7 @@ export default defineComponent({
           message: event
         })
       }
+      this.viewStore.textLoading = false;
     },
   },
   mounted() {
