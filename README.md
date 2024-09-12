@@ -83,7 +83,7 @@ cp .env.example .env
 docker-compose up
 ```
 
-- If docker finished building PeriHub, go to http://localhost:8000
+- If docker finished building PeriHub, go to http://localhost:8080
 
 ## Contact
 

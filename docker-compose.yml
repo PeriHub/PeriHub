@@ -13,7 +13,7 @@ services:
       args:
         - CLUSTER_URL=${CLUSTER_URL}
     ports:
-      - 5000:5000
+      - 8000:8000
     environment:
       - TRIAL=${TRIAL}
       - CLUSTER_URL=${CLUSTER_URL}
@@ -36,12 +36,13 @@ services:
     depends_on:
       - perihub_backend
     ports:
-      - 8000:80
+      - 8080:80
 
   perilab:
     image: perihub/perilab
     container_name: perihub_perilab
     ports:
       - 6000:80
+      - 22:22
     volumes:
       - ${VOLUME}:/app/simulations

@@ -65,7 +65,7 @@ module.exports = configure(function (ctx) {
       // publicPath: '/',
 
       env: {
-        API: ctx.dev ? "http://localhost:5000" : "api",
+        API: ctx.dev ? "http://localhost:8000" : "api",
         TRIAL: process.env.TRIAL,
         DEV: ctx.dev,
         KEYCLOAK_URL: process.env.KEYCLOAK_URL,

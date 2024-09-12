@@ -23,7 +23,7 @@ RUN mkdir -p /root/.ssh && \
 
 WORKDIR /app/
 
-EXPOSE 5000
+EXPOSE 8000
 
 COPY ./app/assets /app/assets
 COPY ./app/models /app/models
@@ -34,4 +34,4 @@ COPY ./app/api_main.py /app/api_main.py
 
 RUN if [ "$CLUSTER_URL" != "" ]; then echo "Host $CLUSTER_URL\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 
-CMD ["uvicorn", "api_main:app", "--host", "0.0.0.0", "--port", "5000", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app", "--root-path", "/api"]
+CMD ["uvicorn", "api_main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app", "--root-path", "/api"]
