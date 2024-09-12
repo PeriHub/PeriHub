@@ -9,9 +9,9 @@ from typing import List
 import magic
 from fastapi import APIRouter, File, Request, UploadFile
 
-from support.base_models import ResponseModel
-from support.file_handler import FileHandler
-from support.globals import dev, log
+from ..support.base_models import ResponseModel
+from ..support.file_handler import FileHandler
+from ..support.globals import dev, log
 
 router = APIRouter(prefix="/upload", tags=["Upload Methods"])
 

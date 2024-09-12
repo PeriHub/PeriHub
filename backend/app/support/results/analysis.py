@@ -9,8 +9,8 @@ import os
 import numpy as np
 from exodusreader import exodusreader
 
-from support.base_models import Material, Model
-from support.globals import log
+from ..base_models import Material, Model
+from ..globals import log
 
 
 class Analysis:

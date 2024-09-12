@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import requests
 from fastapi import APIRouter
 
-from support.base_models import ResponseModel
+from ..support.base_models import ResponseModel
 
 router = APIRouter(prefix="/energy", tags=["Upload Methods"])
 

@@ -11,9 +11,9 @@ from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnec
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from routers import delete, docs, energy, generate, jobs, model, results, translate, upload
-from support.file_handler import FileHandler
-from support.globals import dev, log, trial
+from .routers import delete, docs, energy, generate, jobs, model, results, translate, upload
+from .support.file_handler import FileHandler
+from .support.globals import dev, log, trial
 
 tags_metadata = [
     {

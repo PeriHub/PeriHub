@@ -18,8 +18,8 @@ from crackpy.structure_elements.data_files import Nodemap, NodemapStructure
 from crackpy.structure_elements.material import Material
 from exodusreader import exodusreader
 
-from support.base_models import Model
-from support.globals import log
+from ..base_models import Model
+from ..globals import log
 
 
 class CrackAnalysis:

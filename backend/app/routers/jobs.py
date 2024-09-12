@@ -9,10 +9,10 @@ import socket
 import paramiko
 from fastapi import APIRouter, HTTPException, Request
 
-from support.base_models import Jobs, ModelData, ResponseModel, Status
-from support.file_handler import FileHandler
-from support.globals import cluster_enabled, dev, log, trial
-from support.writer.sbatch_writer import SbatchCreator
+from ..support.base_models import Jobs, ModelData, ResponseModel, Status
+from ..support.file_handler import FileHandler
+from ..support.globals import cluster_enabled, dev, log, trial
+from ..support.writer.sbatch_writer import SbatchCreator
 
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
 
@@ -81,7 +81,7 @@ async def run_model(
         )
 
     elif not cluster:
-        server = "perihub_perilab"
+        server = "localhost"
         remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
         log.info(remotepath)
         if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
@@ -109,6 +109,7 @@ async def run_model(
         try:
             ssh.connect(
                 server,
+                port=22,
                 username="root",
                 allow_agent=False,
                 password="root",
@@ -160,7 +161,7 @@ def cancel_job(
     username = FileHandler.get_user_name(request, dev)
 
     if not cluster:
-        server = "perihub_perilab"
+        server = "localhost"
         remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

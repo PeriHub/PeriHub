@@ -14,7 +14,7 @@ import jwt
 import paramiko
 from random_username.generate import generate_username
 
-from support.globals import cluster_password, cluster_url, cluster_user, log, trial
+from ..support.globals import cluster_password, cluster_url, cluster_user, log, trial
 
 allowed_max_nodes = {
     "guest": {"allowedNodes": 1000000, "allowedFeSize": 15000000},
@@ -449,7 +449,7 @@ class FileHandler:
 
         elif not cluster:
             username = "root"
-            server = "perihub_perilab"
+            server = "localhost"
             try:
                 ssh.connect(
                     server,

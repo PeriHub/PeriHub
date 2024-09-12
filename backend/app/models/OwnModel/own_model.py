@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from support.writer.model_writer import ModelWriter
+from ...support.writer.model_writer import ModelWriter
 
 
 class OwnModel:

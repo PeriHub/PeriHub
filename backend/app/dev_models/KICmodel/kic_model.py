@@ -7,7 +7,7 @@ doc
 """
 import numpy as np
 
-from support.base_models import (
+from ...support.base_models import (
     Adapt,
     Block,
     BondFilters,
@@ -24,8 +24,8 @@ from support.base_models import (
     Solver,
     Verlet,
 )
-from support.model.geometry import Geometry
-from support.writer.model_writer import ModelWriter
+from ...support.model.geometry import Geometry
+from ...support.writer.model_writer import ModelWriter
 
 
 class KICmodel:

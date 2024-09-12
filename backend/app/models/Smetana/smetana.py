@@ -12,7 +12,7 @@ import zipfile
 import requests
 
 # import smetana
-from support.base_models import (
+from ..support.base_models import (
     Adapt,
     BoundaryCondition,
     BoundaryConditions,
@@ -26,7 +26,7 @@ from support.base_models import (
     Solver,
     Verlet,
 )
-from support.globals import dev, log
+from ..support.globals import dev, log
 
 
 class Smetana:

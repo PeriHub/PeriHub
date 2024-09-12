@@ -11,23 +11,23 @@ from re import match
 import requests
 from fastapi import APIRouter, Request
 
-from models.CompactTension.compact_tension import CompactTension
+from ..models.CompactTension.compact_tension import CompactTension
 
-# from models.DCBmodel.dcb_model import DCBmodel
-from models.Dogbone.dogbone import Dogbone
-from models.ENFmodel.enf_model import ENFmodel
-from models.G1Cmodel.g1c_model import G1Cmodel
+# from ..models.DCBmodel.dcb_model import DCBmodel
+from ..models.Dogbone.dogbone import Dogbone
+from ..models.ENFmodel.enf_model import ENFmodel
+from ..models.G1Cmodel.g1c_model import G1Cmodel
 
-# from models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
-from models.OwnModel.own_model import OwnModel
+# from ..models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
+from ..models.OwnModel.own_model import OwnModel
 
-# from models.PlateWithHole.plate_with_hole import PlateWithHole
-# from models.PlateWithOpening.plate_with_opening import PlateWithOpening
-# from models.RingOnRing.ring_on_ring import RingOnRing
-# from models.Smetana.smetana import Smetana
-from support.base_models import ModelData, ResponseModel
-from support.file_handler import FileHandler
-from support.globals import dev, log
+# from ..models.PlateWithHole.plate_with_hole import PlateWithHole
+# from ..models.PlateWithOpening.plate_with_opening import PlateWithOpening
+# from ..models.RingOnRing.ring_on_ring import RingOnRing
+# from ..models.Smetana.smetana import Smetana
+from ..support.base_models import ModelData, ResponseModel
+from ..support.file_handler import FileHandler
+from ..support.globals import dev, log
 
 router = APIRouter(prefix="/generate", tags=["Generate Methods"])
 

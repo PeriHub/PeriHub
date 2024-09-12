@@ -11,7 +11,7 @@ import time
 import numpy as np
 from scipy.interpolate import interp1d
 
-from support.globals import log
+from ...support.globals import log
 
 
 class Geometry:

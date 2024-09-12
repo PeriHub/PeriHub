@@ -10,9 +10,9 @@ from re import findall
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse
 
-from support.base_models import ResponseModel
-from support.file_handler import FileHandler
-from support.globals import dev, log
+from ..support.base_models import ResponseModel
+from ..support.file_handler import FileHandler
+from ..support.globals import dev, log
 
 router = APIRouter(prefix="/model", tags=["Model Methods"])
 

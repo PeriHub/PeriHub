@@ -7,8 +7,8 @@ doc
 """
 import numpy as np
 
-from support.model.geometry import Geometry
-from support.writer.model_writer import ModelWriter
+from ...support.model.geometry import Geometry
+from ...support.writer.model_writer import ModelWriter
 
 
 class XFEMDCB:

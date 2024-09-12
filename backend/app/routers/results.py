@@ -12,11 +12,11 @@ from exodusreader import exodusreader
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 
-from support.base_models import ResponseModel
-from support.file_handler import FileHandler
-from support.globals import dev, log
-from support.results.analysis import Analysis
-from support.results.crack_analysis import CrackAnalysis
+from ..support.base_models import ResponseModel
+from ..support.file_handler import FileHandler
+from ..support.globals import dev, log
+from ..support.results.analysis import Analysis
+from ..support.results.crack_analysis import CrackAnalysis
 
 router = APIRouter(prefix="/results", tags=["Results Methods"])
 

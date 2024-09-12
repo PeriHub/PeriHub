@@ -9,9 +9,9 @@ import time
 from fastapi import APIRouter, Request
 from gcodereader import gcodereader
 
-from support.base_models import ResponseModel
-from support.file_handler import FileHandler
-from support.globals import dev, log, trial
+from ..support.base_models import ResponseModel
+from ..support.file_handler import FileHandler
+from ..support.globals import dev, log, trial
 
 router = APIRouter(prefix="/translate", tags=["Translate Methods"])
 
