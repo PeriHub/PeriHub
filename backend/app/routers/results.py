@@ -360,7 +360,7 @@ def get_data(
         except IndexError:
             raise HTTPException(
                 status_code=404,
-                detail=model_name + " results can not be found on " + cluster,
+                detail=model_name + " results can not be found, maybe they are not generated yet.",
             )
 
     use_cell_data = False
