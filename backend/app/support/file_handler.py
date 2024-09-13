@@ -449,20 +449,27 @@ class FileHandler:
 
         elif not cluster:
             username = "root"
-            server = "localhost"
-            try:
-                ssh.connect(
-                    server,
-                    username=username,
-                    allow_agent=False,
-                    password="root",
-                )
-            except paramiko.SSHException:
-                log.error("ssh connection to " + server + " failed!")
-                raise Exception("ssh connection to " + server + " failed!")
-            except Exception as e:
-                log.error("An error occurred:", e)
-                raise Exception("An error occurred:" + e)
+            server = "perihub_perilab"
+
+            while True:
+                try:
+                    ssh.connect(
+                        server,
+                        username=username,
+                        allow_agent=False,
+                        password="root",
+                    )
+                except paramiko.SSHException:
+                    if server != "localhost":
+                        server = "localhost"
+                        continue
+                    else:
+                        log.error("ssh connection to " + server + " failed!")
+                        raise Exception("ssh connection to " + server + " failed!")
+                except Exception as e:
+                    log.error("An error occurred:", e)
+                    raise Exception("An error occurred:" + e)
+                break
 
         sftp = ssh.open_sftp()
         return ssh, sftp

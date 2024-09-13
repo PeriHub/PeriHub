@@ -505,10 +505,11 @@ export default defineComponent({
 
       this.viewStore.textId = "log";
       this.viewStore.viewId = "jobs";
-      this.bus.emit("enableWebsocket");
       await sleep(1000);
       this.bus.emit("getStatus");
       this.submitLoading = false;
+      await sleep(10000);
+      this.bus.emit("enableWebsocket");
     },
     async cancelJob() {
 

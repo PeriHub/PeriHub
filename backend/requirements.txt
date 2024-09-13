@@ -2,8 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-fastapi
-uvicorn[standard]
+fastapi[standard]
 scipy
 numpy
 paramiko

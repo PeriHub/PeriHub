@@ -442,20 +442,20 @@ class YAMLcreatorPeriLab:
 
     def create_yaml(self):
         data = {"PeriLab": {}}
-        data["PeriLab"]["Physics"] = {}
+        data["PeriLab"]["Models"] = {}
 
         data["PeriLab"]["Discretization"] = self.load_mesh()
         if self.check_if_defined(self.bondfilters) and len(self.bondfilters) > 0:
             data["PeriLab"]["Discretization"]["Bond Filters"] = self.create_bond_filter()
         if self.check_if_defined(self.preCalculations) and len(self.preCalculations) > 0:
-            data["PeriLab"]["Physics"]["Pre Calculation"] = self.preCalculation()
-        data["PeriLab"]["Physics"]["Material Models"] = self.materials()
+            data["PeriLab"]["Models"]["Pre Calculation"] = self.preCalculation()
+        data["PeriLab"]["Models"]["Material Models"] = self.materials()
         if self.check_if_defined(self.additive_dict):
             if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:
                 data["PeriLab"]["Additive Models"] = self.additive()
         data["PeriLab"]["Blocks"] = self.blocks()
         if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
-            data["PeriLab"]["Physics"]["Damage Models"] = self.damage()
+            data["PeriLab"]["Models"]["Damage Models"] = self.damage()
         data["PeriLab"]["Solver"] = self.solver()
         if self.check_if_defined(self.boundary_condition.conditions):
             data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions()

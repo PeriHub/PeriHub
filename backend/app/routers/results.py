@@ -347,15 +347,22 @@ def get_data(
         ) = exodusreader.read_timestep(file, step)
 
     except IndexError:
-        (
-            points,
-            point_data,
-            global_data,
-            cell_data,
-            ns,
-            block_data,
-            time,
-        ) = exodusreader.read_timestep(file, number_of_steps)
+        try:
+            (
+                points,
+                point_data,
+                global_data,
+                cell_data,
+                ns,
+                block_data,
+                time,
+            ) = exodusreader.read_timestep(file, number_of_steps)
+        except IndexError:
+            raise HTTPException(
+                status_code=404,
+                detail=model_name + " results can not be found on " + cluster,
+            )
+
     use_cell_data = False
 
     variable_list = list(point_data.keys())

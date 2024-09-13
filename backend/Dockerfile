@@ -25,6 +25,7 @@ WORKDIR /app/
 
 EXPOSE 8000
 
+COPY ./app/__init__.py /app/__init__.py
 COPY ./app/assets /app/assets
 COPY ./app/models /app/models
 COPY ./app/Publications /app/Publications
@@ -34,4 +35,4 @@ COPY ./app/api_main.py /app/api_main.py
 
 RUN if [ "$CLUSTER_URL" != "" ]; then echo "Host $CLUSTER_URL\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 
-CMD ["uvicorn", "api_main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips='*'", "--reload", "--reload-dir", "/app", "--root-path", "/api"]
+CMD ["fastapi", "run", "api_main.py", "--port", "8000", "--root-path", "/api"]

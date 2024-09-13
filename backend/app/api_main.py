@@ -65,12 +65,10 @@ if trial:
     log.info("--- Running in trial mode ---")
 
 
-async def log_reader(cluster, remotepath, file):
+async def log_reader(cluster, log_file):
     log_lines = []
 
     if not cluster:
-        log_file = os.path.join(remotepath, file)
-
         # log.info("log_file: %s", log_file)
         if os.path.exists(log_file):
             with open(log_file, "r") as file:
@@ -80,7 +78,6 @@ async def log_reader(cluster, remotepath, file):
             log_lines = ["No Logfile"]
     else:
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
-        sftp.chdir(remotepath)
         file = sftp.file(file, "r")
         for line in file.readlines():
             log_lines.append(line)
@@ -112,6 +109,8 @@ async def websocket_endpoint_log(
         try:
             output_files = os.listdir(remotepath)
             filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
+            paths = [os.path.join(remotepath, basename) for basename in filtered_values]
+            latest_file = max(paths, key=os.path.getctime)
         except IOError:
             log.error("LogFile can not be found in %s", remotepath)
 
@@ -134,6 +133,8 @@ async def websocket_endpoint_log(
         try:
             output_files = sftp.listdir(remotepath)
             filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
+            paths = [os.path.join(remotepath, basename) for basename in filtered_values]
+            latest_file = max(paths, key=os.path.getctime)
         except paramiko.SFTPError:
             log.error("LogFile can not be found in %s", remotepath)
             raise HTTPException(
@@ -150,7 +151,7 @@ async def websocket_endpoint_log(
     try:
         while True:
             await asyncio.sleep(1)
-            logs = await log_reader(cluster, remotepath, filtered_values[-1])
+            logs = await log_reader(cluster, latest_file)
             await websocket.send_text(logs)
     except WebSocketDisconnect:
         print("websocket disconnect")

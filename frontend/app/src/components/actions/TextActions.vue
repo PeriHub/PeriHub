@@ -142,7 +142,6 @@ export default defineComponent({
         })
     },
     async enableWebsocket() {
-      await sleep(40000);
       console.log("enableWebsocket")
       // Check if there is an existing connection
       if (this.connection) {

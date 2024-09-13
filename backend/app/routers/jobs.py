@@ -81,7 +81,7 @@ async def run_model(
         )
 
     elif not cluster:
-        server = "localhost"
+        server = "perihub_perilab"
         remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
         log.info(remotepath)
         if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
@@ -106,25 +106,33 @@ async def run_model(
         os.chmod(os.path.join("." + remotepath, "runPerilab.sh"), 0o0755)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        try:
-            ssh.connect(
-                server,
-                port=22,
-                username="root",
-                allow_agent=False,
-                password="root",
-            )
-        except paramiko.SSHException:
-            log.error("ssh connection to %s failed!", server)
-            return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
-        except socket.gaierror:
-            log.error("ssh connection to %s failed! Is the PeriLab Service running?", server)
-            return ResponseModel(
-                data=False, message="ssh connection to " + server + " failed! Is the PeriLab Service running?"
-            )
-        except Exception as e:
-            log.error(type(e))
-            return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
+
+        while True:
+            try:
+                ssh.connect(
+                    server,
+                    port=22,
+                    username="root",
+                    allow_agent=False,
+                    password="root",
+                )
+            except paramiko.SSHException:
+                if server != "localhost":
+                    log.info("retrying ssh connection to %s", server)
+                    server = "localhost"
+                    continue
+                else:
+                    log.error("ssh connection to %s failed!", server)
+                    return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
+            except socket.gaierror:
+                log.error("ssh connection to %s failed! Is the PeriLab Service running?", server)
+                return ResponseModel(
+                    data=False, message="ssh connection to " + server + " failed! Is the PeriLab Service running?"
+                )
+            except Exception as e:
+                log.error(type(e))
+                return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
+            break
         command = (
             "cd /app"
             + remotepath
@@ -161,20 +169,26 @@ def cancel_job(
     username = FileHandler.get_user_name(request, dev)
 
     if not cluster:
-        server = "localhost"
+        server = "perihub_perilab"
         remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        try:
-            ssh.connect(
-                server,
-                username="root",
-                allow_agent=False,
-                password="root",
-            )
-        except paramiko.SSHException:
-            log.error("ssh connection to %s failed!", server)
-            return "ssh connection to " + server + " failed!"
+        while True:
+            try:
+                ssh.connect(
+                    server,
+                    username="root",
+                    allow_agent=False,
+                    password="root",
+                )
+            except paramiko.SSHException:
+                if server != "localhost":
+                    server = "localhost"
+                    continue
+                else:
+                    log.error("ssh connection to %s failed!", server)
+                    return "ssh connection to " + server + " failed!"
+            break
         command = (
             "kill $(cat /app"
             + os.path.join(remotepath, "pid.txt")
