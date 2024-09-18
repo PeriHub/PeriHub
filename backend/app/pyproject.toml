@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [tool.poetry]
-name = "periub"
-version = "0.1.0"
+name = "perihub"
+version = "0.3.1"
 description = "PeriHub"
 license = "Apache-2.0"
 authors = ["Jan-Timo Hesse"]
