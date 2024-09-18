@@ -30,9 +30,9 @@ jobs:
       - name: Publish to Registry
         run: docker push perihub/frontend:${{ steps.get_version.outputs.PERIHUB_VERSION }}
       - name: Retag latest
-        run: docker tag perihub/backend:${{ steps.get_version.outputs.PERILAB_VERSION }} perihub/backend:latest
+        run: docker tag perihub/backend:${{ steps.get_version.outputs.PERIHUB_VERSION }} perihub/backend:latest
       - name: Retag latest
-        run: docker tag perihub/frontend:${{ steps.get_version.outputs.PERILAB_VERSION }} perihub/frontend:latest
+        run: docker tag perihub/frontend:${{ steps.get_version.outputs.PERIHUB_VERSION }} perihub/frontend:latest
       - name: Publish to Registry
         run: docker push perihub/backend:latest
       - name: Publish to Registry
