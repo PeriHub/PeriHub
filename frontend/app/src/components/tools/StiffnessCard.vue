@@ -116,18 +116,18 @@ export default defineComponent({
         C55: null,
         C56: null,
         C66: null,
-        stiffnessString: "",
+        stiffnessString: '',
       },
       materialKeys: {
-        E1: "E1",
-        E2: "E2",
-        E3: "E3",
-        G12: "G12",
-        G13: "G13",
-        G23: "G23",
-        nu12: "nu12",
-        nu13: "nu13",
-        nu23: "nu23",
+        E1: 'E1',
+        E2: 'E2',
+        E3: 'E3',
+        G12: 'G12',
+        G13: 'G13',
+        G23: 'G23',
+        nu12: 'nu12',
+        nu13: 'nu13',
+        nu23: 'nu23',
       },
     }
   },
@@ -169,17 +169,17 @@ export default defineComponent({
         [this.calculated.C55, this.calculated.C56],
         [this.calculated.C66],
       ];
-      const names = [["C11", "C12", "C13", "C14", "C15", "C16"],
-      ["C22", "C23", "C24", "C25", "C26"],
-      ["C33", "C34", "C35", "C36"],
-      ["C44", "C45", "C46"],
-      ["C55", "C56"],
-      ["C66"]];
+      const names = [['C11', 'C12', 'C13', 'C14', 'C15', 'C16'],
+      ['C22', 'C23', 'C24', 'C25', 'C26'],
+      ['C33', 'C34', 'C35', 'C36'],
+      ['C44', 'C45', 'C46'],
+      ['C55', 'C56'],
+      ['C66']];
 
-      this.calculated.stiffnessString = ""
+      this.calculated.stiffnessString = ''
       for (let i = 0; i < names.length; i++) {
         for (let j = 0; j < names[i].length; j++) {
-          this.calculated.stiffnessString += names[i][j] + ": " + stiffnessMatrix[i][j].toFixed(4) + "\n";
+          this.calculated.stiffnessString += names[i][j] + ': ' + stiffnessMatrix[i][j].toFixed(4) + '\n';
         }
       }
       // this.calculated.bulkModulus = Number(
@@ -226,15 +226,15 @@ export default defineComponent({
     },
   },
   mounted() {
-    if (localStorage.getItem("constants")) {
-      var object = JSON.parse(localStorage.getItem("constants"))
+    if (localStorage.getItem('constants')) {
+      var object = JSON.parse(localStorage.getItem('constants'))
       this.constants = structuredClone(object)
     }
   },
   watch: {
     constants: {
       handler() {
-        console.log("constants changed!");
+        console.log('constants changed!');
         let num = 0;
         var con = [];
         for (con in this.constants) {
@@ -248,7 +248,7 @@ export default defineComponent({
         if (num != 9) {
           this.resetResult();
         }
-        localStorage.setItem("constants", JSON.stringify(this.constants));
+        localStorage.setItem('constants', JSON.stringify(this.constants));
       },
       deep: true,
     },

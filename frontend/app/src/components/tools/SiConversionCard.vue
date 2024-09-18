@@ -217,7 +217,7 @@ export default defineComponent({
   watch: {
     conversion: {
       handler() {
-        console.log("conversion changed!");
+        console.log('conversion changed!');
         let num = 0;
         var con = [];
         for (con in this.conversion) {
@@ -228,7 +228,7 @@ export default defineComponent({
         if (num > 0) {
           this.convertTypical();
         }
-        localStorage.setItem("conversion", JSON.stringify(this.conversion));
+        localStorage.setItem('conversion', JSON.stringify(this.conversion));
       },
       deep: true,
     },

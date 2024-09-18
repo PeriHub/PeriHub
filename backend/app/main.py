@@ -78,7 +78,7 @@ async def log_reader(cluster, log_file):
             log_lines = ["No Logfile"]
     else:
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
-        file = sftp.file(file, "r")
+        file = sftp.file(log_file, "r")
         for line in file.readlines():
             log_lines.append(line)
         sftp.close()
@@ -127,14 +127,22 @@ async def websocket_endpoint_log(
 
     else:
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+        log.info("remotepath: %s", remotepath)
 
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
         try:
-            output_files = sftp.listdir(remotepath)
+            output_files = [x.filename for x in sorted(sftp.listdir_attr(remotepath), key=lambda f: f.st_mtime)]
+            log.info("output_files: %s", output_files)
             filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
+            log.info("filtered_values: %s", filtered_values)
+            if len(filtered_values) == 0:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="LogFile can't be found in " + remotepath,
+                )
             paths = [os.path.join(remotepath, basename) for basename in filtered_values]
-            latest_file = max(paths, key=os.path.getctime)
+            latest_file = paths[-1]
         except paramiko.SFTPError:
             log.error("LogFile can not be found in %s", remotepath)
             raise HTTPException(

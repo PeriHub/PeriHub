@@ -10,10 +10,7 @@
     "discretization": "30",
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [
-      0,
-      0
-    ]
+    "angles": [0, 0]
   },
   "discretization": {
     "distributionType": "Neighbor based"
@@ -23,9 +20,7 @@
       "id": 1,
       "name": "Aluminium",
       "density": "2.81e-9",
-      "matType": [
-        "Correspondence Elastic"
-      ],
+      "matType": ["Correspondence Elastic"],
       "youngsModulus": "71700",
       "poissonsRatio": "0.33",
       "tensionSeparation": false,
@@ -342,6 +337,7 @@
   "job": {
     "software": "PeriLab",
     "cluster": false,
+    "sbatch": false,
     "nodes": 1,
     "tasks": 32,
     "tasksPerNode": 32,

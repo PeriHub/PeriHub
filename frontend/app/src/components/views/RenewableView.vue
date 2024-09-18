@@ -11,7 +11,8 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 import { defineComponent } from 'vue'
 import { inject } from 'vue'
-import { useViewStore } from 'stores/view-store';
+import { useViewStore } from 'src/stores/view-store';
+import { getPrognosisEnergy } from 'src/client';
 export default defineComponent({
   name: 'RenewableView',
   setup() {
@@ -31,18 +32,18 @@ export default defineComponent({
   methods: {},
   async mounted() {
 
-    this.$api.get('/energy/prognosis')
+    await getPrognosisEnergy()
       .then((response) => {
         this.$q.notify({
-          message: response.data.message
+          message: response.message
         })
-        this.plot_data = response.data.data;
+        this.plot_data = response.data;
       })
       .catch((error) => {
         this.$q.notify({
           color: 'negative',
           position: 'bottom-right',
-          message: response.data.message,
+          message: response.message,
           icon: 'report_problem'
         })
       })

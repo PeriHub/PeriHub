@@ -11,13 +11,13 @@ from fastapi import APIRouter, HTTPException, Request
 
 from ..support.base_models import Jobs, ModelData, ResponseModel, Status
 from ..support.file_handler import FileHandler
-from ..support.globals import cluster_enabled, dev, log, trial
+from ..support.globals import cluster_enabled, cluster_perilab_path, dev, log, trial
 from ..support.writer.sbatch_writer import SbatchCreator
 
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
 
 
-@router.put("/run")
+@router.put("/run", operation_id="run_model")
 async def run_model(
     model_data: ModelData,
     model_name: str = "Dogbone",
@@ -36,6 +36,7 @@ async def run_model(
             break
 
     cluster = model_data.job.cluster
+    sbatch = model_data.job.sbatch
     return_string = FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster)
 
     if return_string != "Success":
@@ -51,7 +52,7 @@ async def run_model(
             message=return_string,
         )
 
-    if cluster:
+    if cluster and sbatch:
         # initial_jobs = FileHandler.write_get_cara_job_id()
         # log.info(initial_jobs)
         sbatch = SbatchCreator(
@@ -63,7 +64,7 @@ async def run_model(
             trial=trial,
         )
         sbatch_string = sbatch.create_sbatch()
-        remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         file = sftp.file(remotepath + "/" + model_name + ".sbatch", "w", -1)
         file.write(sbatch_string)
@@ -71,6 +72,37 @@ async def run_model(
         sftp.close()
 
         command = "cd " + remotepath + " \n sbatch " + model_name + ".sbatch"
+        ssh.exec_command(command)
+        ssh.close()
+
+        log.info("%s has been submitted", model_name)
+        return ResponseModel(
+            data=True,
+            message=model_name + " has been submitted",
+        )
+
+    elif cluster:
+        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+        if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
+            log.warning("%s already submitted", model_name)
+            return model_name + " already submitted"
+        sbatch = SbatchCreator(
+            filename=model_name,
+            model_folder_name=model_folder_name,
+            remotepath=remotepath,
+            output=model_data.outputs,
+            job=model_data.job,
+            usermail=usermail,
+            trial=trial,
+        )
+        sh_string = sbatch.create_sh(False, cluster_perilab_path)
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        file = sftp.file(remotepath + "/" + "runPerilab.sh", "w", -1)
+        file.write(sh_string)
+        file.flush()
+        sftp.close()
+
+        command = "cd " + remotepath + " \n sh runPerilab.sh"
         ssh.exec_command(command)
         ssh.close()
 
@@ -117,33 +149,23 @@ async def run_model(
                     password="root",
                 )
             except paramiko.SSHException:
+                log.error("ssh connection to %s failed!", server)
+                return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
+            except socket.gaierror:
                 if server != "localhost":
-                    log.info("retrying ssh connection to %s", server)
                     server = "localhost"
+                    log.info("retrying ssh connection to %s", server)
                     continue
                 else:
-                    log.error("ssh connection to %s failed!", server)
-                    return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
-            except socket.gaierror:
-                log.error("ssh connection to %s failed! Is the PeriLab Service running?", server)
-                return ResponseModel(
-                    data=False, message="ssh connection to " + server + " failed! Is the PeriLab Service running?"
-                )
+                    log.error("ssh connection to %s failed! Is the PeriLab Service running?", server)
+                    return ResponseModel(
+                        data=False, message="ssh connection to " + server + " failed! Is the PeriLab Service running?"
+                    )
             except Exception as e:
                 log.error(type(e))
                 return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
             break
-        command = (
-            "cd /app"
-            + remotepath
-            + " \n rm "
-            + model_name
-            + ".log \n sh /app"
-            + remotepath
-            + "/runPerilab.sh > "
-            + model_name
-            + ".log 2>&1"
-        )
+        command = "cd /app" + remotepath + " \n sh /app" + remotepath + "/runPerilab.sh"
         ssh.exec_command(command)
         # stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
         # stdout=stdout.readlines()
@@ -158,7 +180,7 @@ async def run_model(
     return cluster + " unknown"
 
 
-@router.put("/cancel")
+@router.put("/cancel", operation_id="cancel_job")
 def cancel_job(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -181,7 +203,7 @@ def cancel_job(
                     allow_agent=False,
                     password="root",
                 )
-            except paramiko.SSHException:
+            except socket.gaierror:
                 if server != "localhost":
                     server = "localhost"
                     continue
@@ -228,7 +250,7 @@ def cancel_job(
     )
 
 
-@router.get("/getJobs")
+@router.get("/getJobs", operation_id="get_jobs")
 def get_jobs(
     model_name: str = "Dogbone",
     request: Request = "",
@@ -320,7 +342,7 @@ def get_jobs(
     return ResponseModel(data=jobs, message="Jobs found")
 
 
-@router.get("/getStatus")
+@router.get("/getStatus", operation_id="get_status")
 def get_status(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",

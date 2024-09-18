@@ -167,8 +167,8 @@ SPDX-License-Identifier: Apache-2.0
           <q-toggle class="my-toggle" v-model="getPlotAbsoluteY" label="Absolute" dense></q-toggle>
         </q-card-section> -->
         <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="getPlot(false)"></q-btn>
-          <!-- <q-btn flat label="Append" color="primary" v-close-popup @click="getPlot(true)"></q-btn> -->
+          <q-btn flat label="Show" color="primary" v-close-popup @click="_getPlot(false)"></q-btn>
+          <!-- <q-btn flat label="Append" color="primary" v-close-popup @click="_getPlot(true)"></q-btn> -->
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -308,18 +308,19 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useDefaultStore } from 'stores/default-store';
-import { useModelStore } from 'stores/model-store';
-import { useViewStore } from 'stores/view-store';
+import { useDefaultStore } from 'src/stores/default-store';
+import { useModelStore } from 'src/stores/model-store';
+import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
 import { useQuasar } from 'quasar'
-import rules from "assets/rules.js";
+import { getCurrentEnergy, runModel, cancelJob, getResults, getPlot, getFractureAnalysis, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
+import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export default defineComponent({
-  name: "ViewActions",
+  name: 'ViewActions',
   components: {
     RenewableView
   },
@@ -351,19 +352,19 @@ export default defineComponent({
       dialog: false,
       dialogShowResults: false,
       dialogGetImage: false,
-      showResultsOutputName: "Output1",
+      showResultsOutputName: 'Output1',
 
       dialogGetFractureAnalysis: false,
       dialogGetEnfAnalysis: false,
 
       dialogGetPlot: false,
       getPlotVariables: [],
-      getPlotOutput: "Output1",
-      getPlotVariableX: "Time",
-      getPlotAxisX: "X",
+      getPlotOutput: 'Output1',
+      getPlotVariableX: 'Time',
+      getPlotAxisX: 'X',
       getPlotAbsoluteX: true,
-      getPlotVariableY: "External_Displacement",
-      getPlotAxisY: "X",
+      getPlotVariableY: 'External_Displacement',
+      getPlotAxisY: 'X',
       getPlotAbsoluteY: true,
 
       dialogDeleteData: false,
@@ -372,20 +373,20 @@ export default defineComponent({
       dialogDeleteUserData: false,
 
       dialogGetImagePython: false,
-      getImageOutput: "Output1",
+      getImageOutput: 'Output1',
       getImageVariable: [
-        "Displacement",
-        "Force",
-        "Damage",
-        "Temperature",
-        "Partial_StressX",
-        "Partial_StressY",
-        "Partial_StressZ",
-        "Number_Of_Neighbors",
+        'Displacement',
+        'Force',
+        'Damage',
+        'Temperature',
+        'Partial_StressX',
+        'Partial_StressY',
+        'Partial_StressZ',
+        'Number_Of_Neighbors',
       ],
-      getImageVariableSelected: "Displacement",
-      getImageAxis: ["Magnitude", "X", "Y", "Z"],
-      getImageAxisSelected: "Magnitude",
+      getImageVariableSelected: 'Displacement',
+      getImageAxis: ['Magnitude', 'X', 'Y', 'Z'],
+      getImageAxisSelected: 'Magnitude',
       getImageDisplFactor: 20,
       getImageMarkerSize: 16,
       getImageTriangulate: false,
@@ -401,44 +402,44 @@ export default defineComponent({
       plotRawData: null,
 
       color: [
-        "#00658b",
-        "#d2ae3d",
-        "#82a043",
-        "#666666",
-        "#3b98cb",
-        "#f2cd51",
-        "#a6bf51",
-        "#858585",
-        "#6cb9dc",
-        "#f8de53",
-        "#cad55c",
-        "#b1b1b1",
-        "#a7d3ec",
-        "#fcea7a",
-        "#d9df78",
-        "#cfcfcf",
-        "#d1e8fa",
-        "#fff8be",
-        "#e6eaaf",
-        "#ebebeb"
+        '#00658b',
+        '#d2ae3d',
+        '#82a043',
+        '#666666',
+        '#3b98cb',
+        '#f2cd51',
+        '#a6bf51',
+        '#858585',
+        '#6cb9dc',
+        '#f8de53',
+        '#cad55c',
+        '#b1b1b1',
+        '#a7d3ec',
+        '#fcea7a',
+        '#d9df78',
+        '#cfcfcf',
+        '#d1e8fa',
+        '#fff8be',
+        '#e6eaaf',
+        '#ebebeb'
       ]
     };
   },
   methods: {
     async checkEnergy() {
       if (this.saveEnergy) {
-        await this.$api.get('/energy/current')
+        await getCurrentEnergy()
           .then((response) => {
             this.$q.notify({
-              message: response.data.message
+              message: response.message
             })
-            this.energyPercent = response.data.data;
+            this.energyPercent = response.da.data;
           })
           .catch((error) => {
             this.$q.notify({
               color: 'negative',
               position: 'bottom-right',
-              message: response.data.message,
+              message: response.message,
               icon: 'report_problem'
             })
           })
@@ -457,41 +458,37 @@ export default defineComponent({
 
       this.submitLoading = true;
       this.viewStore.textLoading = true;
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName
-      }
 
-      await this.$api.put('/jobs/run', this.modelData, { params })
+      await runModel({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, requestBody: this.modelData })
         .then((response) => {
-          if (response.data.data) {
+          if (response.data) {
             this.$q.notify({
-              message: response.data.message
+              message: response.message
             })
           }
           else {
             this.$q.notify({
               type: 'negative',
-              message: response.data.message
+              message: response.message
             })
           }
         })
         .catch((error) => {
-          let message = "";
+          let message = '';
           if (error.response != undefined) {
             if (error.response.status == 422) {
-              for (let i in error.response.data.detail) {
-                message += error.response.data.detail[i].loc[1] + " ";
-                message += error.response.data.detail[i].loc[2] + ", ";
-                message += error.response.data.detail[i].loc[3] + ", ";
-                message += error.response.data.detail[i].msg + "\n";
+              for (let i in error.response.detail) {
+                message += error.response.detail[i].loc[1] + ' ';
+                message += error.response.detail[i].loc[2] + ', ';
+                message += error.response.detail[i].loc[3] + ', ';
+                message += error.response.detail[i].msg + '\n';
               }
               message = message.slice(0, -2);
             } else {
-              message = error.response.data.detail;
+              message = error.response.detail;
             }
           } else {
-            message = "Internal Error";
+            message = 'Internal Error';
           }
           this.$q.notify({
             color: 'negative',
@@ -503,26 +500,25 @@ export default defineComponent({
           throw new Error(message);
         })
 
-      this.viewStore.textId = "log";
-      this.viewStore.viewId = "jobs";
+      this.viewStore.textId = 'log';
+      this.viewStore.viewId = 'jobs';
       await sleep(1000);
-      this.bus.emit("getStatus");
+      this.bus.emit('getStatus');
       this.submitLoading = false;
       await sleep(10000);
-      this.bus.emit("enableWebsocket");
+      this.bus.emit('enableWebsocket');
     },
     async cancelJob() {
 
       this.submitLoading = true;
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
-        cluster: this.modelData.job.cluster,
-      }
-      await this.$api.put('/jobs/cancel', '', { params })
+      await cancelJob({
+        modelName: this.modelData.model.modelNameSelected,
+        modelFolderName: this.modelData.model.modelFolderName,
+        cluster: this.modelData.job.cluster
+      })
         .then((response) => {
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
         })
         .catch(() => {
@@ -534,26 +530,24 @@ export default defineComponent({
           })
         })
 
-      this.bus.emit("getStatus");
+      this.bus.emit('getStatus');
       this.submitLoading = false;
     },
     async saveResults(allData) {
       this.resultsLoading = true;
-
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
+      await getResults({
+        modelName: this.modelData.model.modelNameSelected,
+        modelFolderName: this.modelData.model.modelFolderName,
         output: this.getPlotOutput,
         tasks: this.modelData.job.tasks,
         cluster: this.modelData.job.cluster,
-        allData: allData,
-      }
-      await this.$api.get('/results/getResults', { params, responseType: "blob" })
+        allData: allData
+      })
         .then((response) => {
-          var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-          var fileLink = document.createElement("a");
+          var fileURL = window.URL.createObjectURL(new Blob([response]));
+          var fileLink = document.createElement('a');
           fileLink.href = fileURL;
-          fileLink.setAttribute("download", this.modelData.model.modelNameSelected + "_" + this.modelData.model.modelFolderName + ".zip");
+          fileLink.setAttribute('download', this.modelData.model.modelNameSelected + '_' + this.modelData.model.modelFolderName + '.zip');
           document.body.appendChild(fileLink);
           fileLink.click();
         })
@@ -574,33 +568,50 @@ export default defineComponent({
       for (var i = 0; i < this.modelData.computes.length; i++) {
         items.push(this.modelData.computes[i].name);
       }
-      items.push("Time");
+      items.push('Time');
       this.getPlotVariables = items;
     },
-    async getPlot(append) {
+    async _getPlot(append) {
       this.viewStore.modelLoading = true;
-
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
-        cluster: this.modelData.job.cluster,
-        output: this.getPlotOutput,
-        tasks: this.modelData.job.tasks,
-        // x_variable: this.getPlotVariableX,
-        // x_axis: this.getPlotAxisX,
-        // x_absolute: this.getPlotAbsoluteX,
-        // y_variable: this.getPlotVariableY,
-        // y_axis: this.getPlotAxisY,
-        // y_absolute: this.getPlotAbsoluteY,
-      }
       let plotRawData = null;
 
-      await this.$api.get('/results/getPlot', { params })
+      await getPlot({
+        modelName: this.modelData.model.modelNameSelected,
+        modelFolderName: this.modelData.model.modelFolderName,
+        cluster: this.modelData.job.cluster,
+        output: this.getPlotOutput,
+        tasks: this.modelData.job.tasks
+      })
         .then((response) => {
-          plotRawData = response.data.data
-          this.$q.notify({
-            message: response.data.message,
-          })
+          if (response.data == false) {
+            this.$q.notify({
+              type: 'negative',
+              message: response.message,
+            })
+          } else {
+            plotRawData = response.data
+            this.$q.notify({
+              message: response.message,
+            })
+
+            let tempData = []
+            let tempLayout = structuredClone(this.viewStore.plotLayout)
+            const firstPropety = Object.keys(plotRawData)[0]
+            let id = 0
+            for (const propertyName in plotRawData) {
+              if (propertyName != firstPropety) {
+                tempData.push({ name: propertyName, x: plotRawData[firstPropety], y: plotRawData[propertyName], type: 'scatter', marker: { color: this.color[id] } })
+                id += 1
+              }
+            }
+            tempLayout.xaxis.title = firstPropety
+            tempLayout.title = this.$route.params.id
+
+            this.viewStore.plotData = structuredClone(tempData)
+            this.viewStore.plotLayout = structuredClone(tempLayout)
+
+            this.viewStore.viewId = 'plotly';
+          }
         })
         .catch(() => {
           this.$q.notify({
@@ -608,92 +619,70 @@ export default defineComponent({
             message: 'Failed',
           })
         })
-
-      let tempData = []
-      let tempLayout = structuredClone(this.viewStore.plotLayout)
-      const firstPropety = Object.keys(plotRawData)[0]
-      let id = 0
-      for (const propertyName in plotRawData) {
-        if (propertyName != firstPropety) {
-          tempData.push({ name: propertyName, x: plotRawData[firstPropety], y: plotRawData[propertyName], type: "scatter", marker: { color: this.color[id] } })
-          id += 1
-        }
-      }
-      tempLayout.xaxis.title = firstPropety
-      tempLayout.title = this.$route.params.id
-
-      this.viewStore.plotData = structuredClone(tempData)
-      this.viewStore.plotLayout = structuredClone(tempLayout)
-
-      this.viewStore.viewId = "plotly";
       this.viewStore.modelLoading = false;
     },
-    async getImagePython() {
+    // async getImagePython() {
 
-      this.viewStore.modelLoading = true;
+    //   this.viewStore.modelLoading = true;
 
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
-        cluster: this.modelData.job.cluster,
-        tasks: this.modelData.job.tasks,
-        output: this.getImageOutput,
-        variable: this.getImageVariableSelected,
-        axis: this.getImageAxisSelected,
-        displ_factor: this.getImageDisplFactor,
-        marker_size: this.getImageMarkerSize,
-        length: this.modelData.model.length,
-        height: this.modelData.model.height,
-        triangulate: this.getImageTriangulate,
-        dx_value: this.viewStore.dx_value * this.getImageDxFactor,
-        step: this.getImageStep,
-        three_d: this.getImageThreeD,
-        elevation: this.getImageElevation,
-        azimuth: this.getImageAzimuth,
-        roll: this.getImageRoll,
-      }
+    //   await getImagePython({
+    //     model_name: this.modelData.model.modelNameSelected,
+    //     model_folder_name: this.modelData.model.modelFolderName,
+    //     cluster: this.modelData.job.cluster,
+    //     tasks: this.modelData.job.tasks,
+    //     output: this.getImageOutput,
+    //     variable: this.getImageVariableSelected,
+    //     axis: this.getImageAxisSelected,
+    //     displ_factor: this.getImageDisplFactor,
+    //     marker_size: this.getImageMarkerSize,
+    //     length: this.modelData.model.length,
+    //     height: this.modelData.model.height,
+    //     triangulate: this.getImageTriangulate,
+    //     dx_value: this.viewStore.dx_value * this.getImageDxFactor,
+    //     step: this.getImageStep,
+    //     three_d: this.getImageThreeD,
+    //     elevation: this.getImageElevation,
+    //     azimuth: this.getImageAzimuth,
+    //     roll: this.getImageRoll
+    //   })
+    //     .then((response) => {
+    //       this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response]))
+    //     })
+    //     .catch((error) => {
+    //       console.log(error.response)
+    //       console.log(error.response.detail)
+    //       this.$q.notify({
+    //         type: 'negative',
+    //         message: error.response.statusText
+    //       })
+    //       this.viewStore.modelLoading = false;
+    //     })
 
-      await this.$api.get('/results/getImagePython', { params, responseType: "blob" })
-        .then((response) => {
-          this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
-        })
-        .catch((error) => {
-          console.log(error.response)
-          console.log(error.response.detail)
-          this.$q.notify({
-            type: 'negative',
-            message: error.response.statusText
-          })
-          this.viewStore.modelLoading = false;
-        })
-
-      this.viewStore.viewId = "image";
-      this.viewStore.modelLoading = false;
-    },
+    //   this.viewStore.viewId = 'image';
+    //   this.viewStore.modelLoading = false;
+    // },
     async getFractureAnalysis() {
 
       this.viewStore.modelLoading = true;
 
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
+      await getFractureAnalysis({
+        modelName: this.modelData.model.modelNameSelected,
+        modelFolderName: this.modelData.model.modelFolderName,
         length: this.modelData.model.length,
         height: this.modelData.model.height,
-        crack_length: this.modelData.model.cracklength,
-        young_modulus: this.modelData.materials[0].youngsModulus,
-        poissions_ratio: this.modelData.materials[0].poissonsRatio,
-        yield_stress: this.modelData.materials[0].yieldStress,
+        crackLength: this.modelData.model.cracklength,
+        youngModulus: this.modelData.materials[0].youngsModulus,
+        poissionsRatio: this.modelData.materials[0].poissonsRatio,
+        yieldStress: this.modelData.materials[0].yieldStress,
         cluster: this.modelData.job.cluster,
         tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
         step: this.getImageStep,
-      }
-
-      await this.$api.get('/results/getFractureAnalysis', { params, responseType: "blob" })
+      })
         .then((response) => {
-          this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
+          this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response]))
           this.$q.notify({
-            message: "Fracture analyzed",
+            message: 'Fracture analyzed',
           })
         })
         .catch((error) => {
@@ -704,60 +693,59 @@ export default defineComponent({
           this.viewStore.modelLoading = false;
         })
 
-      this.viewStore.viewId = "image";
+      this.viewStore.viewId = 'image';
       this.viewStore.modelLoading = false;
     },
     async downloadModelImage() {
-      var fileLink = document.createElement("a");
+      var fileLink = document.createElement('a');
       fileLink.href = this.viewStore.modelImg;
-      fileLink.setAttribute("download", this.modelData.model.modelNameSelected + ".png");
+      fileLink.setAttribute('download', this.modelData.model.modelNameSelected + '.png');
       document.body.appendChild(fileLink);
       fileLink.click();
     },
-    async getG1c() {
-      let headersList = {
-        "Cache-Control": "no-cache",
-        Authorization: this.authToken,
-      };
+    // async getG1c() {
+    //   let headersList = {
+    //     'Cache-Control': 'no-cache',
+    //     Authorization: this.authToken,
+    //   };
 
-      let reqOptions = {
-        url: this.url + "calculateG1c",
-        params: {
-          youngs_modulus: this.materials[0].youngsModulus,
-          model_name: this.model.modelNameSelected,
-          model_folder_name: this.modelData.model.modelFolderName,
-          cluster: this.job.cluster,
-        },
-        data: this.model,
-        method: "POST",
-        responseType: "blob",
-        headers: headersList,
-      };
+    //   let reqOptions = {
+    //     url: this.url + 'calculateG1c',
+    //     params: {
+    //       youngs_modulus: this.materials[0].youngsModulus,
+    //       model_name: this.model.modelNameSelected,
+    //       model_folder_name: this.modelData.model.modelFolderName,
+    //       cluster: this.job.cluster,
+    //     },
+    //     data: this.model,
+    //     method: 'POST',
+    //     responseType: 'blob',
+    //     headers: headersList,
+    //   };
 
-      this.viewStore.modelLoading = true;
-      await axios
-        .request(reqOptions)
-        .then(
-          (response) =>
-          (this.modelImg = window.URL.createObjectURL(
-            new Blob([response.data])
-          ))
-        )
-        .catch((error) => {
-          this.message = error;
-          this.snackbar = true;
-          this.viewStore.modelLoading = false;
-          return;
-        });
-      this.viewStore.viewId = 0;
-      this.viewStore.modelLoading = false;
-    },
+    //   this.viewStore.modelLoading = true;
+    //   await axios
+    //     .request(reqOptions)
+    //     .then(
+    //       (response) =>
+    //       (this.modelImg = window.URL.createObjectURL(
+    //         new Blob([response.data])
+    //       ))
+    //     )
+    //     .catch((error) => {
+    //       this.message = error;
+    //       this.snackbar = true;
+    //       this.viewStore.modelLoading = false;
+    //       return;
+    //     });
+    //   this.viewStore.viewId = 0;
+    //   this.viewStore.modelLoading = false;
+    // },
     async getEnfAnalysis() {
       this.viewStore.modelLoading = true;
 
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
+      await getEnfAnalysis({
+        modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName,
         length: this.modelData.model.length,
         width: this.modelData.model.width,
         crack_length: this.modelData.model.cracklength,
@@ -765,13 +753,11 @@ export default defineComponent({
         tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
         step: this.getImageStep,
-      }
-
-      await this.$api.get('/results/getEnfAnalysis', { params })
+      })
         .then((response) => {
-          console.log(response.data)
+          console.log(response)
           this.$q.notify({
-            message: "ENF analyzed",
+            message: 'ENF analyzed',
           })
         })
         .catch((error) => {
@@ -786,15 +772,13 @@ export default defineComponent({
     },
     async deleteModel() {
 
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
-        cluster: this.modelData.job.cluster
-      }
-      this.$api.delete('/delete/model', { params })
+      await deleteModel({
+        modelName: this.modelData.model.modelNameSelected,
+        modelFolderName: this.modelData.model.modelFolderName
+      })
         .then((response) => {
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
         })
         .catch(() => {
@@ -806,15 +790,14 @@ export default defineComponent({
           })
         })
 
-      params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
-        cluster: this.modelData.job.cluster,
-      }
-      this.$api.delete('/delete/modelFromCluster', { params })
+      await deleteModelFromCluster({
+        modelName: this.modelData.model.modelNameSelected,
+        modelFolderName: this.modelData.model.modelFolderName,
+        cluster: this.modelData.job.cluster
+      })
         .then((response) => {
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
         })
         .catch(() => {
@@ -828,11 +811,10 @@ export default defineComponent({
     },
     async deleteUserData() {
 
-      let params = { check_date: false };
-      this.$api.delete('/delete/userData', { params })
+      await deleteUserData({ checkDate: false })
         .then((response) => {
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
         })
         .catch(() => {
@@ -844,15 +826,12 @@ export default defineComponent({
           })
         })
 
-      params = {
-        cluster: this.modelData.job.cluster,
-        check_date: false,
-      };
-
-      this.$api.delete('/delete/userDataFromCluster', { params })
+      await deleteUserDataFromCluster({
+        cluster: this.modelData.job.cluster, checkDate: false
+      })
         .then((response) => {
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
         })
         .catch(() => {
@@ -864,12 +843,12 @@ export default defineComponent({
           })
         })
 
-      this.bus.emit("getStatus");
+      this.bus.emit('getStatus');
     },
     deleteCookies() {
-      localStorage.removeItem("darkMode");
-      localStorage.removeItem("modelData");
-      localStorage.removeItem("panel");
+      localStorage.removeItem('darkMode');
+      localStorage.removeItem('modelData');
+      localStorage.removeItem('panel');
     },
   },
 })

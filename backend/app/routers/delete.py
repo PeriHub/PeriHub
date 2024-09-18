@@ -15,7 +15,7 @@ from ..support.globals import dev, log
 router = APIRouter(prefix="/delete", tags=["Delete Methods"])
 
 
-@router.delete("/model")
+@router.delete("/model", operation_id="delete_model")
 def delete_model(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -31,7 +31,7 @@ def delete_model(
     return ResponseModel(data=True, message=model_name + " has been deleted")
 
 
-@router.delete("/modelFromCluster")
+@router.delete("/modelFromCluster", operation_id="delete_model_from_cluster")
 def delete_model_from_cluster(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -41,7 +41,7 @@ def delete_model_from_cluster(
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    remotepath = "./simulations/" + os.path.join(username, model_name + model_folder_name)
+    remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
     if not cluster:
         if os.path.exists(remotepath):
             shutil.rmtree(remotepath)
@@ -59,7 +59,7 @@ def delete_model_from_cluster(
     return ResponseModel(data=True, message=model_name + " has been deleted")
 
 
-@router.delete("/userData")
+@router.delete("/userData", operation_id="delete_user_data")
 def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7):
     """doc"""
     if check_date:
@@ -81,7 +81,7 @@ def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7
     return ResponseModel(data=True, message="Data of " + username + " has been deleted")
 
 
-@router.delete("/userDataFromCluster")
+@router.delete("/userDataFromCluster", operation_id="delete_user_data_from_cluster")
 def delete_user_data_from_cluster(
     cluster: bool,
     check_date: bool,

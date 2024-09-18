@@ -149,8 +149,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent, inject } from 'vue'
-import { useModelStore } from 'stores/model-store';
-import rules from "assets/rules.js";
+import { useModelStore } from 'src/stores/model-store';
+import { getConfig } from 'src/client'
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'ModelSettings',
@@ -159,16 +160,16 @@ export default defineComponent({
     const model = computed(() => store.modelData.model)
     const bus = inject('bus')
     let modelName = [
-      "Dogbone",
-      // "Kalthoff-Winkler",
-      // "PlateWithOpening",
-      // "PlateWithHole",
-      "ENFmodel",
-      // "DCBmodel",
-      "CompactTension",
-      "G1Cmodel",
-      // "OwnModel",
-      // "RingOnRing"
+      'Dogbone',
+      // 'Kalthoff-Winkler',
+      // 'PlateWithOpening',
+      // 'PlateWithHole',
+      'ENFmodel',
+      // 'DCBmodel',
+      'CompactTension',
+      'G1Cmodel',
+      // 'OwnModel',
+      // 'RingOnRing'
     ]
     // if (process.env.DLR) {
     //   modelName.push("Smetana")
@@ -188,17 +189,13 @@ export default defineComponent({
   },
   methods: {
     async resetData() {
-
-      let route = '/assets/models/' + this.model.modelNameSelected + '/' + this.model.modelNameSelected + '.json';
-      this.$api.get(route)
-        .then((response) => {
-          let jsonFile = response.data
-          this.store.modelData = structuredClone(jsonFile)
-        })
+      await getConfig({ modelName: this.model.modelNameSelected }).then((response) => {
+        this.store.modelData = structuredClone(response)
+      })
         .catch((error) => {
           this.$q.notify({
             type: 'negative',
-            message: error.response.data.detail
+            message: error.response.detail
           })
         })
     },
@@ -208,10 +205,10 @@ export default defineComponent({
       handler() {
         console.log(this.store.modelData.model.modelNameSelected)
         if (!this.store.modelData.model.ownModel) {
-          this.bus.emit("showModelImg", this.store.modelData.model.modelNameSelected)
+          this.bus.emit('showModelImg', this.store.modelData.model.modelNameSelected)
           // this.resetData()
         }
-        this.bus.emit("getStatus")
+        this.bus.emit('getStatus')
       },
     },
   }

@@ -31,8 +31,8 @@ COPY ./app/models /app/models
 COPY ./app/Publications /app/Publications
 COPY ./app/support /app/support
 COPY ./app/routers /app/routers
-COPY ./app/api_main.py /app/api_main.py
+COPY ./app/main.py /app/main.py
 
 RUN if [ "$CLUSTER_URL" != "" ]; then echo "Host $CLUSTER_URL\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 
-CMD ["fastapi", "run", "api_main.py", "--port", "8000", "--root-path", "/api"]
+CMD ["fastapi", "run", "main.py", "--port", "8000", "--root-path", "/api"]

@@ -43,8 +43,8 @@ SPDX-License-Identifier: Apache-2.0
             <q-item-section style="width: 10px; margin-right:20px" side>
               <q-icon color=" #cfcfcf" name="fas fa-clock" />
             </q-item-section>
-            <q-item-section>
-              <q-slider style="width: 100px" v-model="modelParams.step" :min="1" :max="modelParams.numberOfSteps"
+            <q-item-section v-if="modelParams.numberOfSteps > 0">
+              <q-slider style="width: 100px" v-model="modelParams.step" :min="0" :max="modelParams.numberOfSteps"
                 :step="1" label :label-value="'Time Step: ' + modelParams.step" switch-label-side color="secondary"
                 @change="viewPointData"></q-slider>
             </q-item-section>
@@ -128,10 +128,11 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
+import { useModelStore } from 'src/stores/model-store';
 import VerticalColoredLegend from 'src/components/tools/VerticalColoredLegend.vue';
+import { getPointDataResults } from 'src/client';
 export default {
-  name: "PeriLab_Web_Results",
+  name: 'PeriLab_Web_Results',
   components: {
     VerticalColoredLegend
   },
@@ -146,38 +147,38 @@ export default {
   data() {
     return {
       modelParams: {
-        variable: "Displacements",
-        axis: "Magnitude",
+        variable: 'Displacements',
+        axis: 'Magnitude',
         displFactor: 1,
         step: 1,
         numberOfSteps: 100,
-        filter: "",
-        output: "Output1"
+        filter: '',
+        output: 'Output1'
       },
       variableOptions: [
-        "Displacements",
-        "Damage",
-        "Forces",
-        "Temperature"
+        'Displacements',
+        'Damage',
+        'Forces',
+        'Temperature'
       ],
       axisOptions: [
-        "X",
-        "Y",
-        "Z",
-        "Magnitude"
+        'X',
+        'Y',
+        'Z',
+        'Magnitude'
       ],
       filterOptions: [
-        "Displacements",
-        "Damage",
+        'Displacements',
+        'Damage',
       ],
-      sphere: "Sphere",
+      sphere: 'Sphere',
       resolution: 6,
       radius: 0.2,
       dx_value: 0.2,
       multiplier: 100,
       pointString: [1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0, 5, 0, 0, 6, 0, 0, 7, 0, 0, 8, 0, 0, 9, 0, 0, 10, 0, 0, 11, 0, 0],
       blockIdString: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-      file: "DCBmodel_Output1.e",
+      file: 'DCBmodel_Output1.e',
       modelLoading: false,
       drawer: false,
       maxValue: 100,
@@ -190,13 +191,13 @@ export default {
   },
 
   mounted() {
-    console.log("ModelView mounted")
+    console.log('ModelView mounted')
     this.viewPointData();
     this.$refs.view.resetCamera();
   },
   methods: {
     async viewPointData() {
-      console.log("viewPointData")
+      console.log('viewPointData')
       this.modelLoading = true;
 
       await this.getPointDataAndUpdateDx();
@@ -206,7 +207,7 @@ export default {
       this.modelLoading = false;
     },
     // filterPointData() {
-    //   console.log("filterPointData")
+    //   console.log('filterPointData')
     //   var idx = 0;
     //   let filteredBlockIdStringTemp = [];
     //   let filteredPointStringTemp = [];
@@ -228,7 +229,7 @@ export default {
     // },
     async updatePoints() {
       this.modelLoading = true;
-      console.log("updatePoints")
+      console.log('updatePoints')
       // if (this.radius < 0.01) {
       //   this.multiplier = (1 - this.radius / 0.5) * 30;
       //   this.radius=0.01
@@ -242,46 +243,49 @@ export default {
     },
     async getPointDataAndUpdateDx() {
 
-      console.log("getPointDataAndUpdateDx")
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
+      console.log('getPointDataAndUpdateDx')
+      let data = null;
+      await getPointDataResults({
+        modelName: this.modelData.model.modelNameSelected,
+        modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
         output: this.modelParams.output,
         tasks: this.modelData.job.tasks,
         axis: this.modelParams.axis,
         step: this.modelParams.step,
-        displ_factor: this.modelParams.displFactor,
+        displFactor: this.modelParams.displFactor,
         variable: this.modelParams.variable,
         filter: this.modelParams.filter
-      }
-      let data = null;
-      await this.$api.get('/results/getPointData', { params })
+      })
         .then((response) => {
-          data = response.data
-          // this.$q.notify({
-          //   message: "Test"
-          // })
+          data = response
+          if (response.data == false) {
+            this.$q.notify({
+              type: 'negative',
+              message: response.message,
+            })
+          } else {
+            this.pointString = data['nodes']
+            this.blockIdString = data['value']
+            this.dx_value = Math.hypot(
+              parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),
+              parseFloat(this.pointString[4]) - parseFloat(this.pointString[1]),
+              parseFloat(this.pointString[5]) - parseFloat(this.pointString[2])
+            );
+            this.maxValue = data['max_value']
+            this.minValue = data['min_value']
+            this.variableOptions = data['variables']
+            this.modelParams.numberOfSteps = data['number_of_steps']
+            this.time = data['time']
+          }
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log(error)
           this.$q.notify({
             type: 'negative',
-            message: 'Results cannot be loaded',
+            message: error.response.detail,
           })
         })
-      console.log(data)
-      this.pointString = data["nodes"]
-      this.blockIdString = data["value"]
-      this.dx_value = Math.hypot(
-        parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),
-        parseFloat(this.pointString[4]) - parseFloat(this.pointString[1]),
-        parseFloat(this.pointString[5]) - parseFloat(this.pointString[2])
-      );
-      this.maxValue = data["max_value"]
-      this.minValue = data["min_value"]
-      this.variableOptions = data["variables"]
-      this.modelParams.numberOfSteps = data["number_of_steps"]
-      this.time = data["time"]
     },
     play() {
       this.playing = true

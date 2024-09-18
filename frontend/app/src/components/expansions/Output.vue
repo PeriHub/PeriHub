@@ -90,9 +90,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
+import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'OutputSettings',
@@ -120,87 +120,87 @@ export default defineComponent({
   },
   data() {
     return {
-      fileTypes: ["Exodus", "CSV"],
-      computeClass: ["Block_Data", "Nearest_Point_Data"],
-      calculationType: ["Sum", "Maximum", "Minimum"],
-      variables: ["Forces", "Displacements", "Damage", "Temperature"],
-      // variables: ["Force", "Displacement", "Damage", "Temperature"],
+      fileTypes: ['Exodus', 'CSV'],
+      computeClass: ['Block_Data', 'Nearest_Point_Data'],
+      calculationType: ['Sum', 'Maximum', 'Minimum'],
+      variables: ['Forces', 'Displacements', 'Damage', 'Temperature'],
+      // variables: ['Force', 'Displacement', 'Damage', 'Temperature'],
       computeKeys: {
-        computeClass: "Compute Class",
-        name: "Output Label",
-        variable: "Variable",
-        calculationType: "Calculation Type",
-        blockName: "Block",
-        xValue: "X",
-        yValue: "Y",
-        zValue: "Z",
+        computeClass: 'Compute Class',
+        name: 'Output Label',
+        variable: 'Variable',
+        calculationType: 'Calculation Type',
+        blockName: 'Block',
+        xValue: 'X',
+        yValue: 'Y',
+        zValue: 'Z',
       },
 
       outputKeys: [
-        "Displacements",
-        "Damage",
-        "Forces",
-        "Number of Neighbors",
-        "Number of Filtered Neighbors",
-        "Activation_Time",
-        "Temperature",
-        "Heat Flow",
-        "Active",
-        "Specific Volume",
-        "Strain",
-        "Cauchy Stress",
-        "von Mises Stress",
-        "Angles",
-        "Orientations"
+        'Displacements',
+        'Damage',
+        'Forces',
+        'Number of Neighbors',
+        'Number of Filtered Neighbors',
+        'Activation_Time',
+        'Temperature',
+        'Heat Flow',
+        'Active',
+        'Specific Volume',
+        'Strain',
+        'Cauchy Stress',
+        'von Mises Stress',
+        'Angles',
+        'Orientations'
       ],
       // outputKeys: [
-      //   "Element_Id",
-      //   "Block_Id",
-      //   "Horizon",
-      //   "Volume",
-      //   "Point_Time",
-      //   "Node_Type",
-      //   "Model_Coordinates",
-      //   "Local_Angles",
-      //   "Orientations",
-      //   "Coordinates",
-      //   "Displacement",
-      //   "Velocity",
-      //   "Acceleration",
-      //   "Temperature",
-      //   "Concentration",
-      //   "Temperature_Change",
-      //   "Flux_Divergence",
-      //   "Concentration_Flux_Divergence",
-      //   "Force_Density",
-      //   "Contact_Force_Density",
-      //   "External_Force_Density",
-      //   "Damage_Model_Data",
-      //   "Damage",
-      //   "Detached_Nodes",
-      //   "Bond_Damage_Diff",
-      //   "Specific_Volume",
-      //   "Proc_Num",
-      //   "Hourglass_Force_Density",
-      //   "Deformation_Gradient",
-      //   "Left_Stretch_Tensor",
-      //   "Rotation_Tensor",
-      //   "Shape_Tensor_Inverse",
-      //   "Unrotated_Cauchy_Stress",
-      //   "Unrotated_Rate_Of_Deformation",
-      //   "Unrotated_Plastic_Cauchy_Stress",
-      //   "Cauchy_Stress",
-      //   "Partial_Stress",
-      //   "Hourglass_Stiffness",
-      //   "Von_Mises_Stress",
-      //   "Equivalent_Plastic_Strain",
-      //   "Unrotated_Strain",
-      //   "Weighted_Volume",
-      //   "Dilatation",
-      //   "Number_Of_Neighbors",
-      //   "Force",
-      //   "Velocity_Gradient",
-      //   "PiolaStressTimesInvShapeTensor",
+      //   'Element_Id',
+      //   'Block_Id',
+      //   'Horizon',
+      //   'Volume',
+      //   'Point_Time',
+      //   'Node_Type',
+      //   'Model_Coordinates',
+      //   'Local_Angles',
+      //   'Orientations',
+      //   'Coordinates',
+      //   'Displacement',
+      //   'Velocity',
+      //   'Acceleration',
+      //   'Temperature',
+      //   'Concentration',
+      //   'Temperature_Change',
+      //   'Flux_Divergence',
+      //   'Concentration_Flux_Divergence',
+      //   'Force_Density',
+      //   'Contact_Force_Density',
+      //   'External_Force_Density',
+      //   'Damage_Model_Data',
+      //   'Damage',
+      //   'Detached_Nodes',
+      //   'Bond_Damage_Diff',
+      //   'Specific_Volume',
+      //   'Proc_Num',
+      //   'Hourglass_Force_Density',
+      //   'Deformation_Gradient',
+      //   'Left_Stretch_Tensor',
+      //   'Rotation_Tensor',
+      //   'Shape_Tensor_Inverse',
+      //   'Unrotated_Cauchy_Stress',
+      //   'Unrotated_Rate_Of_Deformation',
+      //   'Unrotated_Plastic_Cauchy_Stress',
+      //   'Cauchy_Stress',
+      //   'Partial_Stress',
+      //   'Hourglass_Stiffness',
+      //   'Von_Mises_Stress',
+      //   'Equivalent_Plastic_Strain',
+      //   'Unrotated_Strain',
+      //   'Weighted_Volume',
+      //   'Dilatation',
+      //   'Number_Of_Neighbors',
+      //   'Force',
+      //   'Velocity_Gradient',
+      //   'PiolaStressTimesInvShapeTensor',
       // ],
       filterOptions: this.outputKeys,
       filterOptionsCsv: this.outputKeys,
@@ -239,9 +239,9 @@ export default defineComponent({
     },
     addStateVarsToOutput(numStateVars) {
       for (var i = 1; i <= numStateVars; i++) {
-        var name = "State_Parameter_Field_" + i.toString()
+        var name = 'State_Parameter_Field_' + i.toString()
         if (!this.outputKeys.includes(name)) {
-          this.outputKeys.push("State_Parameter_Field_" + i.toString())
+          this.outputKeys.push('State_Parameter_Field_' + i.toString())
         }
       }
     },
@@ -249,7 +249,7 @@ export default defineComponent({
       const len = this.computes.length;
       let newItem = structuredClone(this.computes[len - 1])
       newItem.computesId = len + 1
-      newItem.name = "Compute" + (len + 1)
+      newItem.name = 'Compute' + (len + 1)
       this.computes.push(newItem);
     },
     removeCompute(index) {
@@ -259,7 +259,7 @@ export default defineComponent({
       const len = this.outputs.length;
       this.outputs.push({
         outputsId: len + 1,
-        name: "Output" + (len + 1),
+        name: 'Output' + (len + 1),
         selectedOutputs: [],
 
         Write_After_Damage: false,

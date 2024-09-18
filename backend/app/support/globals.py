@@ -26,11 +26,15 @@ trial = False
 dev = False
 if os.getenv("TRIAL") == "True":
     trial = True
+    log.info("Running in trial mode")
 if os.getenv("DEV") == "True":
     dev = True
+    log.info("Running in dev mode")
 cluster_url = os.getenv("CLUSTER_URL", default="")
 cluster_user = os.getenv("CLUSTER_USER", default="")
 cluster_password = os.getenv("CLUSTER_PASSWORD", default="")
+cluster_job_path = os.getenv("CLUSTER_JOB_PATH", default="./PeridigmJobs/apiModels/")  # "./PeridigmJobs/apiModels/"
+cluster_perilab_path = os.getenv("CLUSTER_PERILAB_PATH", default="/PeriLab/")  # "./PeridigmJobs/apiModels/"
 cluster_enabled = False
 if cluster_url != "":
     cluster_enabled = True

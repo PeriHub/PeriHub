@@ -32,7 +32,7 @@ from ..support.globals import dev, log
 router = APIRouter(prefix="/generate", tags=["Generate Methods"])
 
 
-@router.post("/model")
+@router.post("/model", operation_id="generate_model")
 def generate_model(
     model_data: ModelData,
     model_name: str = "Dogbone",
@@ -254,7 +254,7 @@ def generate_model(
     )
 
 
-@router.get("/mesh")
+@router.get("/mesh", operation_id="generate_mesh")
 def generate_mesh(
     model_name: str,
     param: str,

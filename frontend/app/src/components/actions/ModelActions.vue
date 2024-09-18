@@ -123,16 +123,17 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useDefaultStore } from 'stores/default-store';
-import { useModelStore } from 'stores/model-store';
-import { useViewStore } from 'stores/view-store';
+import { useDefaultStore } from 'src/stores/default-store';
+import { useModelStore } from 'src/stores/model-store';
+import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import { uploadFiles, translateModel, translateGcode, getModel, generateModel } from 'src/client';
+import rules from 'assets/rules.js';
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export default defineComponent({
-  name: "ModelActions",
+  name: 'ModelActions',
   setup() {
     const store = useDefaultStore();
     const modelStore = useModelStore();
@@ -188,7 +189,7 @@ export default defineComponent({
 
       this.modelStore.modelData.model.modelNameSelected = files[0].name.split('.')[0]
       this.modelStore.modelData.model.mesh_file = files[0].name
-      this.viewStore.viewId = "model";
+      this.viewStore.viewId = 'model';
       await sleep(500)
       this.bus.emit('viewPointData');
       this.viewStore.modelLoading = false;
@@ -221,11 +222,11 @@ export default defineComponent({
 
       const fr = new FileReader();
 
-      if (filetype == "application/json") {
+      if (filetype == 'application/json') {
         this.loadJsonFile(fr, file);
-      } else if (file.name.includes(".yaml")) {
+      } else if (file.name.includes('.yaml')) {
         this.loadYamlModel(fr, file);
-      } else if (file.name.includes(".gcode")) {
+      } else if (file.name.includes('.gcode')) {
         this.gcodeFile = file;
         this.dialogGcode = true;
       } else {
@@ -248,32 +249,27 @@ export default defineComponent({
     async uploadfiles(files) {
       const formData = new FormData();
       for (var i = 0; i < files.length; i++) {
-        formData.append("files", files[i]);
+        formData.append('files', files[i]);
       }
 
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName
-      }
-
-      await this.$api.post('/upload/files', formData, { params })
+      await uploadFiles({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, formData: formData })
         .then((response) => {
-          if (response.data.data) {
+          if (response.data) {
             this.$q.notify({
-              message: response.data.message
+              message: response.message
             })
           }
           else {
             this.$q.notify({
               type: 'negative',
-              message: response.data.message
+              message: response.message
             })
           }
         })
         .catch((error) => {
           this.$q.notify({
             type: 'negative',
-            message: error.response.data.detail
+            message: error.response.detail
           })
         })
     },
@@ -293,7 +289,7 @@ export default defineComponent({
       this.modelStore.modelData.model.ownModel = true;
       this.modelStore.modelData.model.translated = false;
 
-      this.modelStore.modelData.model.modelNameSelected = file.name.split(".")[0];
+      this.modelStore.modelData.model.modelNameSelected = file.name.split('.')[0];
 
       fr.onload = (e) => {
         const yaml = e.target.result;
@@ -306,7 +302,7 @@ export default defineComponent({
       this.modelStore.modelData.model.ownModel = true;
       this.modelStore.modelData.model.translated = false;
 
-      this.modelStore.modelData.model.modelNameSelected = file.name.split(".")[0];
+      this.modelStore.modelData.model.modelNameSelected = file.name.split('.')[0];
 
       fr.onload = (e) => {
         const xml = e.target.result;
@@ -330,7 +326,7 @@ export default defineComponent({
 
       // if (await this.checkFeSize(file)) {
       if (true) {
-        this.modelStore.modelData.model.modelNameSelected = this.meshioFile.name.split(".")[0];
+        this.modelStore.modelData.model.modelNameSelected = this.meshioFile.name.split('.')[0];
 
         await this.translateModel(this.meshioFile, true);
       } else {
@@ -342,27 +338,20 @@ export default defineComponent({
         await this.uploadfiles([file]);
       }
 
-      let params = {
-        file: file.name,
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
-        discretization: this.translatorDiscretization,
-      }
-      console.log(params)
-      await this.$api.post('/translate/model', '', { params })
+      await translateModel({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, discretization: this.translatorDiscretization })
         .then((response) => {
-          this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + ".txt"
-          if (response.data.data) {
+          this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + '.txt'
+          if (response.data) {
             this.$q.notify({
-              message: response.data.message
+              message: response.message
             })
-            this.viewStore.viewId = "model";
+            this.viewStore.viewId = 'model';
             this.bus.emit('viewPointData');
           }
           else {
             this.$q.notify({
               type: 'negative',
-              message: response.data.message
+              message: response.message
             })
           }
         })
@@ -388,8 +377,8 @@ export default defineComponent({
         return false;
       }
 
-      this.modelStore.modelData.model.modelNameSelected = this.gcodeFile.name.split(".")[0];
-      const filetype = this.gcodeFile.name.split(".")[1];
+      this.modelStore.modelData.model.modelNameSelected = this.gcodeFile.name.split('.')[0];
+      const filetype = this.gcodeFile.name.split('.')[1];
 
       await this.translateGcode(this.gcodeFile, true);
     },
@@ -398,21 +387,13 @@ export default defineComponent({
         await this.uploadfiles([file]);
       }
 
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
-        discretization: this.gcodeDiscretization,
-        dt: this.gcodeDt,
-        scale: this.gcodeScale
-      }
-
-      await this.$api.post('/translate/gcode', '', { params })
+      await translateGcode({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, discretization: this.gcodeDiscretization, dt: this.gcodeDt, scale: this.gcodeScale })
         .then((response) => {
-          this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + ".txt"
+          this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + '.txt'
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
-          this.viewStore.viewId = "model";
+          this.viewStore.viewId = 'model';
           this.bus.emit('viewPointData');
         })
         .catch((error) => {
@@ -427,36 +408,32 @@ export default defineComponent({
     },
     saveData() {
       var fileURL = window.URL.createObjectURL(
-        new Blob([JSON.stringify(this.modelData)], { type: "application/json" })
+        new Blob([JSON.stringify(this.modelData)], { type: 'application/json' })
       );
-      var fileLink = document.createElement("a");
+      var fileLink = document.createElement('a');
       fileLink.href = fileURL;
-      fileLink.setAttribute("download", this.modelData.model.modelNameSelected + ".json");
+      fileLink.setAttribute('download', this.modelData.model.modelNameSelected + '.json');
       document.body.appendChild(fileLink);
       fileLink.click();
     },
     saveModel() {
 
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName
-      }
-      this.$api.get('/model/getModel', { params, responseType: "blob" })
+      getModel({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName })
         .then((response) => {
           var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-          var fileLink = document.createElement("a");
+          var fileLink = document.createElement('a');
           fileLink.href = fileURL;
-          fileLink.setAttribute("download", this.modelData.model.modelNameSelected + "_" + this.modelData.model.modelFolderName + ".zip");
+          fileLink.setAttribute('download', this.modelData.model.modelNameSelected + '_' + this.modelData.model.modelFolderName + '.zip');
           document.body.appendChild(fileLink);
           fileLink.click();
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
         })
         .catch((error) => {
           this.$q.notify({
             type: 'negative',
-            message: error.response.data.detail
+            message: error.response.detail
           })
         })
     },
@@ -467,35 +444,35 @@ export default defineComponent({
       }
       this.viewStore.textLoading = true;
 
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName
-      }
+      this.viewStore.viewId = 'model';
 
-      this.viewStore.viewId = "model";
-
-      await this.$api.post('/generate/model', this.modelData, { params })
+      await generateModel({
+        modelName: this.modelData.model.modelNameSelected,
+        modelFolderName: this.modelData.model.modelFolderName,
+        requestBody: this.modelData
+      })
         .then((response) => {
+          console.log('generateModel')
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
-          this.bus.emit("viewInputFile", false)
+          this.bus.emit('viewInputFile', false)
           if (this.modelData.model.ownModel == false) {
-            console.log("generateModel")
-            // if (this.viewStore.viewId != "model") {
+            // if (this.viewStore.viewId != 'model') {
             this.bus.emit('viewPointData');
             // }
           }
-          this.bus.emit("getStatus")
+          this.bus.emit('getStatus')
         })
         .catch((error) => {
-          let message = "";
+          console.log(error)
+          let message = '';
           if (error.response != undefined && error.response.status == 422) {
-            for (let i in error.response.data.detail) {
-              message += error.response.data.detail[i].loc[1] + " ";
-              message += error.response.data.detail[i].loc[2] + ", ";
-              message += error.response.data.detail[i].loc[3] + ", ";
-              message += error.response.data.detail[i].msg + "\n";
+            for (let i in error.response.detail) {
+              message += error.response.detail[i].loc[1] + ' ';
+              message += error.response.detail[i].loc[2] + ', ';
+              message += error.response.detail[i].loc[3] + ', ';
+              message += error.response.detail[i].msg + '\n';
             }
             message = message.slice(0, -2);
           }
@@ -514,13 +491,13 @@ export default defineComponent({
       this.viewStore.textLoading = false;
     },
     showTutorial() {
-      var color = "gray";
-      if (this.$cookie.get("darkMode") == "true") {
-        color = "gray";
+      var color = 'gray';
+      if (this.$cookie.get('darkMode') == 'true') {
+        color = 'gray';
       } else {
-        color = "white";
+        color = 'white';
       }
-      console.log(this.$cookie.get("darkMode"));
+      console.log(this.$cookie.get('darkMode'));
       console.log(color);
 
       const driver = new Driver({
@@ -532,28 +509,28 @@ export default defineComponent({
       // Define the steps for introduction
       driver.defineSteps([
         {
-          element: "#model-configuration",
+          element: '#model-configuration',
           popover: {
-            className: "first-step-popover-class",
-            title: "Title on Popover",
-            description: "Body of the popover",
-            position: "right",
+            className: 'first-step-popover-class',
+            title: 'Title on Popover',
+            description: 'Body of the popover',
+            position: 'right',
           },
         },
         {
-          element: "#model-output",
+          element: '#model-output',
           popover: {
-            title: "Title on Popover",
-            description: "Body of the popover",
-            position: "left",
+            title: 'Title on Popover',
+            description: 'Body of the popover',
+            position: 'left',
           },
         },
         {
-          element: "#button-runModel",
+          element: '#button-runModel',
           popover: {
-            title: "Title on Popover",
-            description: "Body of the popover",
-            position: "bottom",
+            title: 'Title on Popover',
+            description: 'Body of the popover',
+            position: 'bottom',
           },
         },
       ]);

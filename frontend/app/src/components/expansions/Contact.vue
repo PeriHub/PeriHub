@@ -71,9 +71,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
+import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'ContactSettings',
@@ -94,12 +94,12 @@ export default defineComponent({
   },
   data() {
     return {
-      contactType: ["Short Range Force"],
+      contactType: ['Short Range Force'],
       // contactKeys: {
-      //     name: "Block Names",
-      //     material: "Material",
-      //     damageModel: "Damage Model",
-      //     horizon: "Horizon",
+      //     name: 'Block Names',
+      //     material: 'Material',
+      //     damageModel: 'Damage Model',
+      //     horizon: 'Horizon',
       // },
     };
   },
@@ -108,7 +108,7 @@ export default defineComponent({
       const len = this.contact.contactModels.length;
       let newItem = structuredClone(this.contact.contactModels[len - 1])
       newItem.contactModelsId = len + 1
-      newItem.name = "Contact Model " + (len + 1)
+      newItem.name = 'Contact Model ' + (len + 1)
       this.contact.contactModels.push(newItem);
     },
     removeContactModel(index) {

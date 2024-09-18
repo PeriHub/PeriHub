@@ -16,7 +16,7 @@ from ..support.globals import dev, log
 router = APIRouter(prefix="/upload", tags=["Upload Methods"])
 
 
-@router.post("/files")
+@router.post("/files", operation_id="upload_files")
 async def upload_files(
     model_name: str,
     model_folder_name: str = "Default",
@@ -68,7 +68,7 @@ async def upload_files(
     )
 
 
-@router.put("/inputFile")
+@router.put("/inputFile", operation_id="write_input_file")
 def write_input_file(
     model_name: str,
     input_string: str,

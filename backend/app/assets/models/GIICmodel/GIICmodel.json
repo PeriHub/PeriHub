@@ -14,10 +14,7 @@
     "horizon": 0.01,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [
-      0,
-      0
-    ]
+    "angles": [0, 0]
   },
   "discretization": {
     "distributionType": "Neighbor based"
@@ -392,6 +389,7 @@
   "job": {
     "software": "PeriLab",
     "cluster": false,
+    "sbatch": false,
     "nodes": 1,
     "tasks": 32,
     "tasksPerNode": 32,

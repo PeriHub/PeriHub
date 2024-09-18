@@ -74,9 +74,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
+import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'ThermalSettings',
@@ -95,18 +95,18 @@ export default defineComponent({
   },
   data() {
     return {
-      thermalTypes: ["Simple"],
+      thermalTypes: ['Simple'],
 
       thermalKeys: {
-        specificHeatCapacity: "Specific Heat Capacity",
-        thermalConductivity: "Thermal Conductivity",
-        heatTransferCoefficient: "Heat Transfer Coefficient",
-        applyThermalFlow: "Apply Thermal Flow",
-        applyThermalStrain: "Apply Thermal Strain",
-        applyHeatTransfer: "Apply Heat Transfer",
-        thermalBondBased: "Thermal Bond Based",
-        thermalExpansionCoefficient: "Thermal Expansion Coefficient",
-        environmentalTemperature: "Environmental Temperature",
+        specificHeatCapacity: 'Specific Heat Capacity',
+        thermalConductivity: 'Thermal Conductivity',
+        heatTransferCoefficient: 'Heat Transfer Coefficient',
+        applyThermalFlow: 'Apply Thermal Flow',
+        applyThermalStrain: 'Apply Thermal Strain',
+        applyHeatTransfer: 'Apply Heat Transfer',
+        thermalBondBased: 'Thermal Bond Based',
+        thermalExpansionCoefficient: 'Thermal Expansion Coefficient',
+        environmentalTemperature: 'Environmental Temperature',
       }
     };
   },
@@ -115,7 +115,7 @@ export default defineComponent({
       const len = this.thermal.thermalModels.length;
       let newItem = structuredClone(this.thermal.thermalModels[len - 1])
       newItem.thermalModelsId = len + 1
-      newItem.name = "Thermal Model " + (len + 1)
+      newItem.name = 'Thermal Model ' + (len + 1)
       this.thermal.thermalModels.push(newItem);
     },
     removeThermalModel(index) {

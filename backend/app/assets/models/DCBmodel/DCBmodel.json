@@ -13,10 +13,7 @@
     "horizon": 1,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [
-      0,
-      0
-    ]
+    "angles": [0, 0]
   },
   "discretization": {
     "distributionType": "Neighbor based"
@@ -318,9 +315,7 @@
       "id": 2,
       "name": "Output2",
       "selectedFileType": "Exodus",
-      "selectedOutputs": [
-        "Damage"
-      ],
+      "selectedOutputs": ["Damage"],
       "useOutputFrequency": false,
       "Frequency": 1,
       "InitStep": 0,
@@ -368,6 +363,7 @@
   "job": {
     "software": "PeriLab",
     "cluster": false,
+    "sbatch": false,
     "nodes": 1,
     "tasks": 32,
     "tasksPerNode": 32,

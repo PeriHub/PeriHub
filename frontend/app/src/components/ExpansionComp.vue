@@ -68,7 +68,7 @@ import SolverSettings from 'components/expansions/Solver.vue'
 import JobSettings from 'components/expansions/Job.vue'
 
 export default defineComponent({
-  name: "ExpansionComp",
+  name: 'ExpansionComp',
   components: {
     ModelSettings,
     DiscretizationSettings,
@@ -94,7 +94,7 @@ export default defineComponent({
   },
   created() {
     this.bus.on('openHidePanels', () => {
-      console.log("openHidePanels")
+      console.log('openHidePanels')
       this.openHidePanels()
     })
   },
@@ -105,8 +105,8 @@ export default defineComponent({
     }
   },
   mounted() {
-    if (localStorage.getItem("panel")) {
-      var object = JSON.parse(localStorage.getItem("panel"))
+    if (localStorage.getItem('panel')) {
+      var object = JSON.parse(localStorage.getItem('panel'))
       this.panel = structuredClone(object)
     }
   },
@@ -119,7 +119,7 @@ export default defineComponent({
       }
     },
     getCurrentData() {
-      this.getLocalStorage("panel");
+      this.getLocalStorage('panel');
     },
     getLocalStorage(name) {
       if (localStorage.getItem(name)) {
@@ -130,8 +130,8 @@ export default defineComponent({
   watch: {
     panel: {
       handler() {
-        console.log("panel changed!");
-        localStorage.setItem("panel", JSON.stringify(this.panel));
+        console.log('panel changed!');
+        localStorage.setItem('panel', JSON.stringify(this.panel));
       },
       deep: true,
     },

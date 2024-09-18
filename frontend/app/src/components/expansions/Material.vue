@@ -135,11 +135,12 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
-import { useViewStore } from 'stores/view-store';
+import { useModelStore } from 'src/stores/model-store';
+import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import rules from 'assets/rules.js';
 import { matrix, inv } from 'mathjs'
+import { uploadFiles } from 'src/client';
 
 export default defineComponent({
   name: 'MaterialSettings',
@@ -165,46 +166,46 @@ export default defineComponent({
     return {
       selectedMaterial: 0,
       // materialModelName: [
-      //     "Diffusion",
-      //     "Elastic",
-      //     "Elastic Bond Based",
-      //     "Elastic Bond Associated Correspondence",
-      //     "Anisotropic Elastic Bond Associated Correspondence",
-      //     "Elastic Correspondence",
-      //     "Elastic Correspondence Partial Stress",
-      //     "Elastic Hypoelastic Correspondence",
-      //     "Elastic Partial Volume",
-      //     "Elastic Plastic",
-      //     "Elastic Plastic Correspondence",
-      //     "Elastic Plastic Hardening",
-      //     "Elastic Plastic Hypoelastic Correspondence",
-      //     "Isotropic Hardening Correspondence",
-      //     "Isotropic Hardening Hypoelastic Correspondence",
-      //     "LCM",
-      //     "Linear Elastic Correspondence",
-      //     "Linear LPS Partial Volume",
-      //     "Multiphysics Elastic",
-      //     "Pals",
-      //     "Pressure Dependent Elastic Plastic",
-      //     "User Correspondence",
-      //     "Viscoelastic",
-      //     "Viscoplastic Needleman Correspondence",
-      //     "Vector Poisson",
-      //     "PD Solid Elastic",
+      //     'Diffusion',
+      //     'Elastic',
+      //     'Elastic Bond Based',
+      //     'Elastic Bond Associated Correspondence',
+      //     'Anisotropic Elastic Bond Associated Correspondence',
+      //     'Elastic Correspondence',
+      //     'Elastic Correspondence Partial Stress',
+      //     'Elastic Hypoelastic Correspondence',
+      //     'Elastic Partial Volume',
+      //     'Elastic Plastic',
+      //     'Elastic Plastic Correspondence',
+      //     'Elastic Plastic Hardening',
+      //     'Elastic Plastic Hypoelastic Correspondence',
+      //     'Isotropic Hardening Correspondence',
+      //     'Isotropic Hardening Hypoelastic Correspondence',
+      //     'LCM',
+      //     'Linear Elastic Correspondence',
+      //     'Linear LPS Partial Volume',
+      //     'Multiphysics Elastic',
+      //     'Pals',
+      //     'Pressure Dependent Elastic Plastic',
+      //     'User Correspondence',
+      //     'Viscoelastic',
+      //     'Viscoplastic Needleman Correspondence',
+      //     'Vector Poisson',
+      //     'PD Solid Elastic',
       // ],
       materialModelNames: [
-        "Bond-based Elastic",
-        "PD Solid Elastic",
-        "PD Solid Plastic",
-        "Correspondence Elastic",
-        "Correspondence Plastic"
+        'Bond-based Elastic',
+        'PD Solid Elastic',
+        'PD Solid Plastic',
+        'Correspondence Elastic',
+        'Correspondence Plastic'
       ],
-      materialSymmetry: ["Isotropic", "Anisotropic"],
+      materialSymmetry: ['Isotropic', 'Anisotropic'],
       stabilizationType: [
-        "Bond Based",
-        "State Based",
-        "Sub Horizon",
-        "Global Stiffness",
+        'Bond Based',
+        'State Based',
+        'Sub Horizon',
+        'Global Stiffness',
       ],
       micofam: {
         RVE: {
@@ -217,64 +218,64 @@ export default defineComponent({
           mesh_fib: 35,
           mesh_lgth: 35,
           mesh_dpth: 1,
-          mesh_aa: "on",
+          mesh_aa: 'on',
         },
       },
       materialKeys: {
-        name: "name",
-        matType: "Material Models",
-        materialSymmetry: "Material Symmetry",
-        bulkModulus: "Bulk Modulus",
-        shearModulus: "Shear Modulus",
+        name: 'name',
+        matType: 'Material Models',
+        materialSymmetry: 'Material Symmetry',
+        bulkModulus: 'Bulk Modulus',
+        shearModulus: 'Shear Modulus',
         youngsModulus: "Young's Modulus",
         poissonsRatio: "Poisson's Ratio",
-        planeStress: "Plane Stress",
-        planeStrain: "Plane Strain",
-        stabilizationType: "Stabilization Type",
-        thickness: "Thickness",
-        hourglassCoefficient: "Hourglass Coefficient",
-        actualHorizon: "Actual Horizon",
-        yieldStress: "Yield Stress",
+        planeStress: 'Plane Stress',
+        planeStrain: 'Plane Strain',
+        stabilizationType: 'Stabilization Type',
+        thickness: 'Thickness',
+        hourglassCoefficient: 'Hourglass Coefficient',
+        actualHorizon: 'Actual Horizon',
+        yieldStress: 'Yield Stress',
         stiffnessMatrix: {
-          calculateStiffnessMatrix: "Calculate Stiffness Matrix",
+          calculateStiffnessMatrix: 'Calculate Stiffness Matrix',
           engineeringConstants: {
-            E1: "E1",
-            E2: "E2",
-            E3: "E3",
-            G12: "G12",
-            G13: "G13",
-            G23: "G23",
-            nu12: "nu12",
-            nu13: "nu13",
-            nu23: "nu23"
+            E1: 'E1',
+            E2: 'E2',
+            E3: 'E3',
+            G12: 'G12',
+            G13: 'G13',
+            G23: 'G23',
+            nu12: 'nu12',
+            nu13: 'nu13',
+            nu23: 'nu23'
           },
           matrix: {
-            C11: "C11",
-            C12: "C12",
-            C13: "C13",
-            C14: "C14",
-            C15: "C15",
-            C16: "C16",
-            C22: "C22",
-            C23: "C23",
-            C24: "C24",
-            C25: "C25",
-            C26: "C26",
-            C33: "C33",
-            C34: "C34",
-            C35: "C35",
-            C36: "C36",
-            C44: "C44",
-            C45: "C45",
-            C46: "C46",
-            C55: "C55",
-            C56: "C56",
-            C66: "C66"
+            C11: 'C11',
+            C12: 'C12',
+            C13: 'C13',
+            C14: 'C14',
+            C15: 'C15',
+            C16: 'C16',
+            C22: 'C22',
+            C23: 'C23',
+            C24: 'C24',
+            C25: 'C25',
+            C26: 'C26',
+            C33: 'C33',
+            C34: 'C34',
+            C35: 'C35',
+            C36: 'C36',
+            C44: 'C44',
+            C45: 'C45',
+            C46: 'C46',
+            C55: 'C55',
+            C56: 'C56',
+            C66: 'C66'
           }
         },
-        computePartialStress: "Compute Partial Stress",
-        useCollocationNodes: "Use Collocation Nodes",
-        numStateVars: "Number of State Vars",
+        computePartialStress: 'Compute Partial Stress',
+        useCollocationNodes: 'Use Collocation Nodes',
+        numStateVars: 'Number of State Vars',
       },
       filterOptions: this.materialModelNames,
     };
@@ -366,31 +367,27 @@ export default defineComponent({
     async uploadfiles(files) {
       const formData = new FormData();
       for (var i = 0; i < files.length; i++) {
-        formData.append("files", files[i]);
-      }
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName
+        formData.append('files', files[i]);
       }
 
-      this.$api.post('/upload/files', formData, { params })
+      uploadFiles({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, formData: formData })
         .then((response) => {
-          if (response.data.data) {
+          if (response.data) {
             this.$q.notify({
-              message: response.data.message
+              message: response.message
             })
           }
           else {
             this.$q.notify({
               type: 'negative',
-              message: response.data.message
+              message: response.message
             })
           }
         })
         .catch((error) => {
           this.$q.notify({
             type: 'negative',
-            message: error.response.data.detail
+            message: error.response.detail
           })
         })
     },
@@ -412,7 +409,7 @@ export default defineComponent({
         console.log(filtered_string)
         let propsArray = filtered_string[0].split(/[\n,]/gi);
         console.log(propsArray)
-        propsArray = propsArray.filter(value => value.trim() !== ""); // Remove empty values
+        propsArray = propsArray.filter(value => value.trim() !== ''); // Remove empty values
         console.log(propsArray);
         propsArray = propsArray.slice(0, propsArray.length - 1);
         console.log(propsArray)
@@ -433,11 +430,11 @@ export default defineComponent({
 
             // Replace placeholders with parameter values
             let propValue = propsArray[i].trim();
-            if (propValue.startsWith("<") && propValue.endsWith(">")) {
+            if (propValue.startsWith('<') && propValue.endsWith('>')) {
               let paramName = propValue.slice(1, -1);
-              let paramValue = parameterValues.find(param => param.startsWith(paramName + "="));
+              let paramValue = parameterValues.find(param => param.startsWith(paramName + '='));
               if (paramValue) {
-                propValue = paramValue.split("=")[1];
+                propValue = paramValue.split('=')[1];
               } else {
                 console.log(`Parameter ${paramName} not found.`);
               }
@@ -446,7 +443,7 @@ export default defineComponent({
             this.materials[0].properties[i - 2].value = propValue;
           }
         } else {
-          console.log("Length of Propsarray unexpected");
+          console.log('Length of Propsarray unexpected');
         }
       };
       fr.readAsText(files.item(0));
@@ -458,7 +455,7 @@ export default defineComponent({
       const len = this.materials.length;
       let newItem = structuredClone(this.materials[len - 1])
       newItem.materialsId = len + 1
-      newItem.name = "Material" + (len + 1)
+      newItem.name = 'Material' + (len + 1)
       this.materials.push(newItem);
     },
     removeMaterial(index) {
@@ -471,7 +468,7 @@ export default defineComponent({
         newItem = structuredClone(this.materials[index].properties[len - 1])
       }
       newItem.materialsPropId = len + 1
-      newItem.name = "Prop_" + (len + 1)
+      newItem.name = 'Prop_' + (len + 1)
 
       this.materials[index].properties.push(newItem)
     },

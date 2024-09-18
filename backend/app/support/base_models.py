@@ -342,6 +342,7 @@ class Solver(BaseModel):
 
 class Job(BaseModel):
     cluster: bool
+    sbatch: bool
     nodes: Optional[int] = 1
     tasks: Optional[int] = 32
     tasksPerNode: Optional[int] = 32

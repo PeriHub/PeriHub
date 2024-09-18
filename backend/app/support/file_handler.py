@@ -14,7 +14,7 @@ import jwt
 import paramiko
 from random_username.generate import generate_username
 
-from ..support.globals import cluster_password, cluster_url, cluster_user, log, trial
+from ..support.globals import cluster_job_path, cluster_password, cluster_url, cluster_user, log, trial
 
 allowed_max_nodes = {
     "guest": {"allowedNodes": 1000000, "allowedFeSize": 15000000},
@@ -40,7 +40,7 @@ class FileHandler:
     def get_remote_path():
         """doc"""
 
-        return "./PeridigmJobs/apiModels/"
+        return cluster_job_path
 
     @staticmethod
     def get_remote_user_path(username):
@@ -214,7 +214,7 @@ class FileHandler:
 
         localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-        userpath = FileHandler._get_user_path(username)
+        userpath = FileHandler.get_remote_user_path(username)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
         try:
@@ -433,15 +433,16 @@ class FileHandler:
         if cluster:
             username = cluster_user
             server = cluster_url
-            # password = cluster_password
-            keypath = "./rsaFiles/id_rsa_cluster"
+            password = cluster_password
+            # keypath = "./rsaFiles/id_rsa_cluster"
+            log.info("ssh connection to " + server + " with user: " + username)
             try:
                 ssh.connect(
                     server,
                     username=username,
                     allow_agent=False,
-                    # password=password,
-                    key_filename=keypath,
+                    password=password,
+                    # key_filename=keypath,
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")

@@ -51,8 +51,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent, inject } from 'vue'
-import { useModelStore } from 'stores/model-store';
-import { useViewStore } from 'stores/view-store';
+import { useModelStore } from 'src/stores/model-store';
+import { useViewStore } from 'src/stores/view-store';
+import { cancelJob, getJobs } from 'src/client';
 
 export default defineComponent({
   name: 'JobsView',
@@ -70,7 +71,7 @@ export default defineComponent({
   },
   created() {
     this.bus.on('getJobs', () => {
-      this.getJobs()
+      this._getJobs()
     })
   },
   data() {
@@ -90,21 +91,20 @@ export default defineComponent({
     };
   },
   mounted() {
-    this.getJobs()
+    this._getJobs()
   },
   methods: {
     async cancelJob(row) {
       this.loading = true;
 
-      let params = {
-        model_name: row.name,
-        model_folder_name: row.sub_name,
+      await cancelJob({
+        modelName: row.name,
+        modelFolderName: row.sub_name,
         cluster: row.cluster
-      }
-      await this.$api.put('/jobs/cancel', '', { params })
+      })
         .then((response) => {
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
         })
         .catch(() => {
@@ -115,30 +115,27 @@ export default defineComponent({
             icon: 'report_problem'
           })
         })
-      this.bus.emit("getStatus")
-      this.getJobs();
+      this.bus.emit('getStatus')
+      this._getJobs();
     },
     onRowClick(row) {
       this.modelStore.modelData = row.model;
       console.log(row.model);
     },
-    async getJobs() {
+    async _getJobs() {
       this.loading = true;
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-      }
 
-      await this.$api.get('/jobs/getJobs', { params })
+      await getJobs({ modelName: this.modelData.model.modelNameSelected })
         .then((response) => {
-          this.rows = response.data.data
+          this.rows = response.data
           this.$q.notify({
-            message: response.data.message
+            message: response.message
           })
         })
         .catch((error) => {
           this.$q.notify({
             type: 'negative',
-            message: error.response.data.detail
+            message: error.response.detail
           })
           this.loading = false;
         })

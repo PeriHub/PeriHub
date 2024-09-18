@@ -13,10 +13,7 @@
     "horizon": 1.0,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [
-      0,
-      0
-    ]
+    "angles": [0, 0]
   },
   "discretization": {
     "distributionType": "Neighbor based"
@@ -25,15 +22,13 @@
     {
       "id": 1,
       "name": "Aluminium",
-      "matType": [
-        "PD Solid Elastic"
-      ],
+      "matType": ["PD Solid Elastic"],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
       "planeStrain": false,
       "bulkModulus": null,
       "shearModulus": null,
-      "youngsModulus": 7.0e+5,
+      "youngsModulus": 7.0e5,
       "poissonsRatio": 0.33,
       "stabilizationType": "Global Stiffness",
       "thickness": 1,
@@ -293,10 +288,7 @@
       "id": 2,
       "name": "Output2",
       "selectedFileType": "CSV",
-      "selectedOutputs": [
-        "External_Displacement",
-        "External_Force"
-      ],
+      "selectedOutputs": ["External_Displacement", "External_Force"],
       "Write_After_Damage": false,
       "Frequency": "100",
       "numberOfOutputSteps": 100,
@@ -334,6 +326,7 @@
   "job": {
     "software": "PeriLab",
     "cluster": false,
+    "sbatch": false,
     "nodes": 1,
     "tasks": 32,
     "tasksPerNode": 32,

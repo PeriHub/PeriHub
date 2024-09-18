@@ -70,11 +70,11 @@ import JobsView from 'components/views/JobsView.vue'
 import PlotlyView from 'components/views/PlotlyView.vue'
 import RenewableView from 'components/views/RenewableView.vue'
 import ResultsView from 'components/views/ResultsView.vue'
-import { useDefaultStore } from 'stores/default-store';
-import { useViewStore } from 'stores/view-store';
+import { useDefaultStore } from 'src/stores/default-store';
+import { useViewStore } from 'src/stores/view-store';
 
 export default defineComponent({
-  name: "ViewComp",
+  name: 'ViewComp',
   components: {
     ImageView,
     ModelView,
@@ -86,8 +86,8 @@ export default defineComponent({
   },
   data() {
     return {
-      viewHeight: "400px",
-      tab: "results",
+      viewHeight: '400px',
+      tab: 'results',
     };
   },
   setup() {

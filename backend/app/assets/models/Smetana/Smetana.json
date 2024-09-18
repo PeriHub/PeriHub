@@ -14,12 +14,7 @@
     "horizon": null,
     "twoDimensional": false,
     "rotatedAngles": true,
-    "angles": [
-      45,
-      90,
-      -45,
-      0
-    ],
+    "angles": [45, 90, -45, 0],
     "amplitudeFactor": 0.75,
     "wavelength": 3.0
   },
@@ -358,11 +353,7 @@
       "id": 2,
       "name": "Output2",
       "selectedFileType": "Exodus",
-      "selectedOutputs": [
-        "Displacement",
-        "Force",
-        "Damage"
-      ],
+      "selectedOutputs": ["Displacement", "Force", "Damage"],
       "Write_After_Damage": true,
       "Frequency": 10,
       "InitStep": 0
@@ -406,6 +397,7 @@
   "job": {
     "software": "PeriLab",
     "cluster": false,
+    "sbatch": false,
     "nodes": 1,
     "tasks": 32,
     "tasksPerNode": 32,

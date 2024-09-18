@@ -20,8 +20,8 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { defineComponent } from 'vue';
-import { useDefaultStore } from 'stores/default-store';
-import { useModelStore } from 'stores/model-store';
+import { useDefaultStore } from 'src/stores/default-store';
+import { useModelStore } from 'src/stores/model-store';
 import MainHeader from 'layouts/MainHeader.vue'
 import MainFooter from 'layouts/MainFooter.vue'
 

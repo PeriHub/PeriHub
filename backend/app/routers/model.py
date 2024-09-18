@@ -17,7 +17,14 @@ from ..support.globals import dev, log
 router = APIRouter(prefix="/model", tags=["Model Methods"])
 
 
-@router.get("/getMaxFeSize")
+@router.get("getConfig", operation_id="get_config")
+def get_config(model_name: str = "Dogbone"):
+    """doc"""
+
+    return FileResponse(os.path.join("./assets/models", model_name, model_name + ".json"))
+
+
+@router.get("/getMaxFeSize", operation_id="get_max_fe_size")
 def get_max_fe_size(request: Request = ""):
     """doc"""
 
@@ -26,7 +33,7 @@ def get_max_fe_size(request: Request = ""):
     return FileHandler.get_max_fe_size(username)
 
 
-@router.get("/getModel")
+@router.get("/getModel", operation_id="get_model")
 def get_model(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -54,7 +61,7 @@ def get_model(
         return model_name + " files can not be found"
 
 
-@router.get("/getPointData")
+@router.get("/getPointData", operation_id="get_point_data")
 def get_point_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -107,59 +114,59 @@ def get_point_data(
     else:
         first_row = True
         max_block_id = 1
-        try:
-            if own_model:
-                mesh_path = "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + mesh_file
-            else:
-                mesh_path = (
-                    "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".txt"
-                )
+        # try:
+        if own_model:
+            mesh_path = "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + mesh_file
+        else:
+            mesh_path = (
+                "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".txt"
+            )
 
-            with open(
-                mesh_path,
-                "r",
-                encoding="UTF-8",
-            ) as file:
-                reader = csv.reader(file)
-                rows = list(reader)
-                for row in rows:
-                    if not first_row:
-                        str1 = "".join(row)
-                        parts = str1.split()
-                        if two_d:
-                            block_id = int(parts[2])
-                            point_string += parts[0] + "," + parts[1] + ",0.0,"
-                        else:
-                            block_id = int(parts[3])
-                            point_string += parts[0] + "," + parts[1] + "," + parts[2] + ","
-                        if block_id > max_block_id:
-                            max_block_id = block_id
-                    first_row = False
-                first_row = True
-                for row in rows:
-                    if not first_row:
-                        str1 = "".join(row)
-                        parts = str1.split()
-                        if two_d:
-                            block_id = int(parts[2])
-                        else:
-                            block_id = int(parts[3])
-                        if max_block_id == 1:
-                            block_id_string += str(0.1) + ","
-                        else:
-                            block_id_string += str(block_id / max_block_id) + ","
-                    first_row = False
-            response = [
-                point_string.rstrip(point_string[-1]),
-                block_id_string.rstrip(block_id_string[-1]),
-            ]
-            return ResponseModel(data=response, message="Points received")
-        except IOError:
-            log.error("%s results can not be found", model_name)
-            return model_name + " results can not be found"
+        with open(
+            mesh_path,
+            "r",
+            encoding="UTF-8",
+        ) as file:
+            reader = csv.reader(file)
+            rows = list(reader)
+            for row in rows:
+                if not first_row:
+                    str1 = "".join(row)
+                    parts = str1.split()
+                    if two_d:
+                        block_id = int(parts[2])
+                        point_string += parts[0] + "," + parts[1] + ",0.0,"
+                    else:
+                        block_id = int(parts[3])
+                        point_string += parts[0] + "," + parts[1] + "," + parts[2] + ","
+                    if block_id > max_block_id:
+                        max_block_id = block_id
+                first_row = False
+            first_row = True
+            for row in rows:
+                if not first_row:
+                    str1 = "".join(row)
+                    parts = str1.split()
+                    if two_d:
+                        block_id = int(parts[2])
+                    else:
+                        block_id = int(parts[3])
+                    if max_block_id == 1:
+                        block_id_string += str(0.1) + ","
+                    else:
+                        block_id_string += str(block_id / max_block_id) + ","
+                first_row = False
+        response = [
+            point_string.rstrip(point_string[-1]),
+            block_id_string.rstrip(block_id_string[-1]),
+        ]
+        return ResponseModel(data=response, message="Points received")
+        # except IOError:
+        #     log.error("%s results can not be found", model_name)
+        #     return model_name + " results can not be found"
 
 
-@router.get("/viewInputFile")
+@router.get("/viewInputFile", operation_id="view_input_file")
 def view_input_file(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -169,6 +176,7 @@ def view_input_file(
     username = FileHandler.get_user_name(request, dev)
 
     file_path = "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".yaml"
+    log.info("Inputfile: %s", file_path)
     if not os.path.exists(file_path):
         log.error("Inputfile can't be found")
         raise HTTPException(

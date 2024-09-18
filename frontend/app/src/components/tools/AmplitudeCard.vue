@@ -60,12 +60,12 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 import { defineComponent } from 'vue'
 import { VuePlotly } from 'vue3-plotly'
-import { PrismEditor } from "vue-prism-editor";
-import "vue-prism-editor/dist/prismeditor.min.css"; // import the styles somewhere
-import { highlight, languages } from "prismjs/components/prism-core";
-import "prismjs/components/prism-clike";
-import "prismjs/components/prism-javascript";
-import "prismjs/themes/prism-tomorrow.css"; // import syntax highlighting styles
+import { PrismEditor } from 'vue-prism-editor';
+import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 export default defineComponent({
   name: 'AmplitudeCard',
   components: {
@@ -75,54 +75,54 @@ export default defineComponent({
   data() {
     return {
       verticalSplitterModel: 50,
-      tab_id: "plotly",
-      amplitudeTypes: ["Type 1", "Type 2", "Sinus"],
+      tab_id: 'plotly',
+      amplitudeTypes: ['Type 1', 'Type 2', 'Sinus'],
       amplitude: {
         max: 10,
         min: 2,
         frequency: 5,
         end: 5,
-        type: "Type 1",
+        type: 'Type 1',
         t_max: 1,
       },
-      valueOutput: "A*sin(B*(t-C))+D",
+      valueOutput: 'A*sin(B*(t-C))+D',
       plotData: [
         {
-          name: "Load",
+          name: 'Load',
           x: [1, 2, 3, 4],
           y: [10, 15, 20, 17],
-          type: "scatter",
+          type: 'scatter',
         },
       ],
       plotLayout: {
         // title: 'this.model.modelNameSelected',
         showlegend: true,
         // margin: { t: 50 },
-        hovermode: "compare",
+        hovermode: 'compare',
         bargap: 0,
         xaxis: {
           showgrid: true,
           zeroline: true,
-          color: "white",
+          color: 'white',
         },
         yaxis: {
           showgrid: true,
           zeroline: true,
-          color: "white",
+          color: 'white',
         },
-        plot_bgcolor: "#2D2D2D",
-        paper_bgcolor: "#2D2D2D",
+        plot_bgcolor: '#2D2D2D',
+        paper_bgcolor: '#2D2D2D',
         font: {
-          color: "white",
+          color: 'white',
         },
         modebar: {
-          color: "white",
-          // color: "#6E6E6E"
+          color: 'white',
+          // color: '#6E6E6E'
         },
       },
       plotOptions: {
         scrollZoom: true,
-        setBackground: "black",
+        setBackground: 'black',
       },
     }
   },
@@ -175,37 +175,37 @@ export default defineComponent({
       }
       this.plotData = structuredClone(tempData);
       this.valueOutput =
-        "double max = " +
+        'double max = ' +
         this.amplitude.max.toString() +
-        ";\n" +
-        "double min = " +
+        ';\n' +
+        'double min = ' +
         this.amplitude.min.toString() +
-        ";\n" +
-        "double frequency = " +
+        ';\n' +
+        'double frequency = ' +
         this.amplitude.frequency.toString() +
-        ";\n" +
-        "double end = " +
+        ';\n' +
+        'double end = ' +
         this.amplitude.end.toString() +
-        ";\n" +
-        "int idx = 0;\n" +
-        "while (idx < frequency) \\{\n" +
-        " if (idx == 0) \\{\n" +
-        "   if (t <= 1 / frequency *end) \\{\n" +
-        "     value = (t / ((1 / frequency) * end)) * max;\n" +
-        "   \\}\n" +
-        " \\}\n" +
-        " else if (idx % 2 != 0) \\{\n" +
-        "   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n" +
-        "     value = max - ((t - (idx / frequency) * end) / ((1 / frequency) * end)) * (max - min);\n" +
-        "   \\}\n" +
-        " \\}\n" +
-        " else if (idx % 2 == 0) \\{\n" +
-        "   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n" +
-        "     value = min + ((t - (idx / frequency) * end) / ((1 / frequency) * end)) * (max - min);\n" +
-        "   \\}\n" +
-        " \\}\n" +
-        " idx = idx + 1;\n" +
-        "\\}\n";
+        ';\n' +
+        'int idx = 0;\n' +
+        'while (idx < frequency) \\{\n' +
+        ' if (idx == 0) \\{\n' +
+        '   if (t <= 1 / frequency *end) \\{\n' +
+        '     value = (t / ((1 / frequency) * end)) * max;\n' +
+        '   \\}\n' +
+        ' \\}\n' +
+        ' else if (idx % 2 != 0) \\{\n' +
+        '   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n' +
+        '     value = max - ((t - (idx / frequency) * end) / ((1 / frequency) * end)) * (max - min);\n' +
+        '   \\}\n' +
+        ' \\}\n' +
+        ' else if (idx % 2 == 0) \\{\n' +
+        '   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n' +
+        '     value = min + ((t - (idx / frequency) * end) / ((1 / frequency) * end)) * (max - min);\n' +
+        '   \\}\n' +
+        ' \\}\n' +
+        ' idx = idx + 1;\n' +
+        '\\}\n';
     },
     plot2() {
       let tempData = structuredClone(this.plotData);
@@ -246,36 +246,36 @@ export default defineComponent({
         }
       }
       this.plotData = structuredClone(tempData);
-      // this.plotData[0].x = time.split(",");
+      // this.plotData[0].x = time.split(',');
       this.valueOutput =
-        "double max = " +
+        'double max = ' +
         this.amplitude.max.toString() +
-        ";\n" +
-        "double frequency = " +
+        ';\n' +
+        'double frequency = ' +
         this.amplitude.frequency.toString() +
-        ";\n" +
-        "double end = " +
+        ';\n' +
+        'double end = ' +
         this.amplitude.end.toString() +
-        ";\n" +
-        "int idx = 0;\n" +
-        "while (idx < frequency) \\{\n" +
-        " if (idx == 0) \\{\n" +
-        "   if (t <= 1 / frequency *end) \\{\n" +
-        "     value = (t / end) * max * 2;\n" +
-        "   \\}\n" +
-        " \\}\n" +
-        " else if (idx % 2 != 0) \\{\n" +
-        "   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n" +
-        "     value = (idx / frequency) * max * 2 - ((idx - 1) / frequency) * max;\n" +
-        "   \\}\n" +
-        " \\}\n" +
-        " else if (idx % 2 == 0) \\{\n" +
-        "   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n" +
-        "     value = ((t - ((idx / 2) * end) / frequency) / end) * max * 2;\n" +
-        "   \\}\n" +
-        " \\}\n" +
-        " idx = idx + 1;\n" +
-        "\\}\n";
+        ';\n' +
+        'int idx = 0;\n' +
+        'while (idx < frequency) \\{\n' +
+        ' if (idx == 0) \\{\n' +
+        '   if (t <= 1 / frequency *end) \\{\n' +
+        '     value = (t / end) * max * 2;\n' +
+        '   \\}\n' +
+        ' \\}\n' +
+        ' else if (idx % 2 != 0) \\{\n' +
+        '   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n' +
+        '     value = (idx / frequency) * max * 2 - ((idx - 1) / frequency) * max;\n' +
+        '   \\}\n' +
+        ' \\}\n' +
+        ' else if (idx % 2 == 0) \\{\n' +
+        '   if ((idx / frequency *end < t) && (t <= (idx + 1) / frequency *end)) \\{\n' +
+        '     value = ((t - ((idx / 2) * end) / frequency) / end) * max * 2;\n' +
+        '   \\}\n' +
+        ' \\}\n' +
+        ' idx = idx + 1;\n' +
+        '\\}\n';
     },
     sin() {
       let tempData = structuredClone(this.plotData);
@@ -295,34 +295,34 @@ export default defineComponent({
         tempData[0].y[i] = R * Math.sin(2 * Math.PI * frequency * t - Math.PI / 2) + offset; // Sinuskurve mit konstanter Amplitude
       }
       this.plotData = structuredClone(tempData);
-      this.valueOutput = R.toString() + " * sin(2 * pi * " + this.amplitude.frequency.toString() + " * t - pi / 2) + " + offset.toString();
+      this.valueOutput = R.toString() + ' * sin(2 * pi * ' + this.amplitude.frequency.toString() + ' * t - pi / 2) + ' + offset.toString();
     },
 
   },
   mounted() {
-    if (localStorage.getItem("amplitude")) {
-      this.amplitude = JSON.parse(localStorage.getItem("amplitude"));
+    if (localStorage.getItem('amplitude')) {
+      this.amplitude = JSON.parse(localStorage.getItem('amplitude'));
     }
-    if (this.amplitude.type == "Type 1") {
+    if (this.amplitude.type == 'Type 1') {
       this.plot();
-    } else if (this.amplitude.type == "Type 2") {
+    } else if (this.amplitude.type == 'Type 2') {
       this.plot2();
-    } else if (this.amplitude.type == "Sinus") {
+    } else if (this.amplitude.type == 'Sinus') {
       this.sin();
     }
   },
   watch: {
     amplitude: {
       handler() {
-        console.log("amplitude changed!");
-        if (this.amplitude.type == "Type 1") {
+        console.log('amplitude changed!');
+        if (this.amplitude.type == 'Type 1') {
           this.plot();
-        } else if (this.amplitude.type == "Type 2") {
+        } else if (this.amplitude.type == 'Type 2') {
           this.plot2();
-        } else if (this.amplitude.type == "Sinus") {
+        } else if (this.amplitude.type == 'Sinus') {
           this.sin();
         }
-        localStorage.setItem("amplitude", JSON.stringify(this.amplitude));
+        localStorage.setItem('amplitude', JSON.stringify(this.amplitude));
       },
       deep: true,
     },

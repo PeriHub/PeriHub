@@ -2,8 +2,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { boot } from "quasar/wrappers";
-import axios from "axios";
+import { boot } from 'quasar/wrappers';
+import axios, { AxiosInstance } from 'axios';
+
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
+    $axios: AxiosInstance;
+  }
+}
 
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
@@ -12,7 +18,6 @@ import axios from "axios";
 // "export default () => {}" function below (which runs individually
 // for each client)
 const api = axios.create({ baseURL: process.env.API });
-// const trameApi = axios.create({ baseURL: process.env.VUE_APP_TRAME_API });
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
@@ -24,7 +29,6 @@ export default boot(({ app }) => {
   app.config.globalProperties.$api = api;
   // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
   //       so you can easily perform requests against your app's API
-  // app.config.globalProperties.$trameApi = trameApi;
 });
+
 export { api };
-// export { api, trameApi };

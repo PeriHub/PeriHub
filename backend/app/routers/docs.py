@@ -7,7 +7,7 @@ from fastapi import APIRouter
 router = APIRouter(prefix="/docs", tags=["Documentation Methods"])
 
 
-@router.get("/getPublications")
+@router.get("/getPublications", operation_id="get_publications")
 def get_publications():
     """doc"""
 

@@ -21,7 +21,7 @@ from ..support.results.crack_analysis import CrackAnalysis
 router = APIRouter(prefix="/results", tags=["Results Methods"])
 
 
-@router.get("/getFractureAnalysis")
+@router.get("/getFractureAnalysis", operation_id="get_fracture_analysis")
 def get_fracture_analysis(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -69,7 +69,7 @@ def get_fracture_analysis(
         return model_name + " results can not be found on " + cluster
 
 
-@router.get("/getEnfAnalysis")
+@router.get("/getEnfAnalysis", operation_id="get_enf_analysis")
 def get_enf_analysis(
     model_name: str = "ENFmodel",
     model_folder_name: str = "Default",
@@ -102,7 +102,7 @@ def get_enf_analysis(
         return model_name + " results can not be found on " + cluster
 
 
-@router.get("/getPlot")
+@router.get("/getPlot", operation_id="get_plot")
 def get_plot(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -127,6 +127,9 @@ def get_plot(
 
     resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".csv")
+
+    if not os.path.exists(file):
+        return ResponseModel(data=False, message=model_name + "_" + output + ".csv can not be found")
 
     # x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
     # y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
@@ -155,7 +158,7 @@ def get_plot(
     #     return ResponseModel(data=data, message=model_name + " results can not be found on " + cluster)
 
 
-@router.get("/getResults")
+@router.get("/getResults", operation_id="get_results")
 def get_results(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -309,7 +312,7 @@ def get_point_data(variable, axis, displ_factor, use_multi_data, points, point_d
     return np_points_all_x, np_points_all_y, np_points_all_z, cell_value
 
 
-@router.get("/getPointData")
+@router.get("/getPointDataResults", operation_id="get_point_data_results")
 def get_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -334,7 +337,11 @@ def get_data(
     resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-    number_of_steps = exodusreader.get_number_of_steps(file) - 3
+    if not os.path.exists(file):
+        return ResponseModel(data=False, message="Results can not be found, maybe they are not generated yet.")
+
+    number_of_steps = exodusreader.get_number_of_steps(file)
+
     try:
         (
             points,
@@ -358,10 +365,7 @@ def get_data(
                 time,
             ) = exodusreader.read_timestep(file, number_of_steps)
         except IndexError:
-            raise HTTPException(
-                status_code=404,
-                detail=model_name + " results can not be found, maybe they are not generated yet.",
-            )
+            return ResponseModel(data=False, message="Results can not be found, maybe they are not generated yet.")
 
     use_cell_data = False
 

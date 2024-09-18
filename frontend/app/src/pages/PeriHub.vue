@@ -43,7 +43,7 @@ import ViewActions from 'src/components/actions/ViewActions.vue'
 import ViewComp from 'src/components/ViewComp.vue'
 import TextActions from 'src/components/actions/TextActions.vue'
 import TextComp from 'src/components/TextComp.vue'
-import { useDefaultStore } from 'stores/default-store';
+import { useDefaultStore } from 'src/stores/default-store';
 import Driver from "driver.js";
 import "driver.js/dist/driver.min.css";
 

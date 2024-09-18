@@ -8,14 +8,18 @@ module.exports = {
   // Remove this if you have an higher level ESLint config file (it usually happens into a monorepos)
   root: true,
 
+  // https://eslint.vuejs.org/user-guide/#how-to-use-a-custom-parser
+  // Must use parserOptions instead of "parser" to allow vue-eslint-parser to keep working
+  // `parser: 'vue-eslint-parser'` is already included with any 'plugin:vue/**' config and should be omitted
   parserOptions: {
-    parser: '@babel/eslint-parser',
-    ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
-    sourceType: 'module' // Allows for the use of imports
+    parser: require.resolve('@typescript-eslint/parser'),
+    extraFileExtensions: [ '.vue' ]
   },
 
   env: {
     browser: true,
+    es2021: true,
+    node: true,
     'vue/setup-compiler-macros': true
   },
 
@@ -23,6 +27,10 @@ module.exports = {
   extends: [
     // Base ESLint recommended rules
     // 'eslint:recommended',
+
+    // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage
+    // ESLint typescript rules
+    'plugin:@typescript-eslint/recommended',
 
     // Uncomment any of the lines below to choose desired strictness,
     // but leave only one uncommented!
@@ -37,9 +45,12 @@ module.exports = {
   ],
 
   plugins: [
+    // required to apply rules which need type information
+    '@typescript-eslint',
+
     // https://eslint.vuejs.org/user-guide/#why-doesn-t-it-work-on-vue-files
     // required to lint *.vue files
-    'vue',
+    'vue'
     
     // https://github.com/typescript-eslint/typescript-eslint/issues/389#issuecomment-509292674
     // Prettier has not been included as plugin to avoid performance impact
@@ -57,7 +68,7 @@ module.exports = {
     __QUASAR_SSR_PWA__: 'readonly',
     process: 'readonly',
     Capacitor: 'readonly',
-    chrome: 'readonly'
+    chrome: 'readonly',
   },
 
   // add your custom rules here
@@ -65,7 +76,20 @@ module.exports = {
     
     'prefer-promise-reject-errors': 'off',
 
+    quotes: ['warn', 'single', { avoidEscape: true }],
+
+    // this rule, if on, would require explicit return type on the `render` function
+    '@typescript-eslint/explicit-function-return-type': 'off',
+
+    // in plain CommonJS modules, you can't use `import foo = require('foo')` to pass this rule, so it has to be disabled
+    '@typescript-eslint/no-var-requires': 'off',
+
+    // The core 'no-unused-vars' rules (in the eslint:recommended ruleset)
+    // does not work with type definitions
+    'no-unused-vars': 'off',
+
     // allow debugger during development only
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
   }
 }
+

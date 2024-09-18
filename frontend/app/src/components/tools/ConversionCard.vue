@@ -74,8 +74,8 @@ import { copyToClipboard } from 'quasar'
 
 export default defineComponent({
   name: 'ConversionCard',
-  data(){
-    return{
+  data() {
+    return {
       constants: {
         bulkModulus: null,
         shearModulus: null,
@@ -93,17 +93,17 @@ export default defineComponent({
         lameFirst: null,
       },
       materialKeys: {
-        bulkModulus: "Bulk Modulus (K)",
-        shearModulus: "Shear Modulus (G)",
-        youngsModulus: "Young's Modulus (E)",
-        poissonsRatio: "Poisson's Ratio (v)",
-        pWaveModulus: "P-wave modulus (M)",
-        lameFirst: "Lamé's first parameter (m)",
+        bulkModulus: 'Bulk Modulus (K)',
+        shearModulus: 'Shear Modulus (G)',
+        youngsModulus: "Young's Modulus(E)",
+        poissonsRatio: "Poisson's Ratio(v)",
+        pWaveModulus: 'P-wave modulus (M)',
+        lameFirst: "Lamé's first parameter(m)",
       },
     }
   },
-  methods:{
-    
+  methods: {
+
     convert() {
       const K = this.constants.bulkModulus;
       const E = this.constants.youngsModulus;
@@ -275,7 +275,7 @@ export default defineComponent({
   watch: {
     constants: {
       handler() {
-        console.log("constants changed!");
+        console.log('constants changed!');
         let num = 0;
         var con = [];
         for (con in this.constants) {
@@ -289,7 +289,7 @@ export default defineComponent({
         if (num != 2) {
           this.resetResult();
         }
-        localStorage.setItem("constants", JSON.stringify(this.constants));
+        localStorage.setItem('constants', JSON.stringify(this.constants));
       },
       deep: true,
     },

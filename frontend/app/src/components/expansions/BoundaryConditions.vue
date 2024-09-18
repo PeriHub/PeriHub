@@ -53,9 +53,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
+import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'BoundaryConditionsSettings',
@@ -82,25 +82,25 @@ export default defineComponent({
   data() {
     return {
       boundarytype: [
-        "Dirichlet",
-        "Initial",
+        'Dirichlet',
+        'Initial',
       ],
       boundaryVariables: [
-        "Displacements",
-        "Force Densities",
-        "Forces",
-        "Temperature",
-        "Damage"
+        'Displacements',
+        'Force Densities',
+        'Forces',
+        'Temperature',
+        'Damage'
       ],
-      coordinate: ["x", "y", "z"],
+      coordinate: ['x', 'y', 'z'],
       boundaryKeys: {
-        name: "name",
-        nodeSet: "Node Set",
-        boundarytype: "Type",
-        variable: "Variable",
-        blockId: "Block Id",
-        coordinate: "Coordinate",
-        value: "Value",
+        name: 'name',
+        nodeSet: 'Node Set',
+        boundarytype: 'Type',
+        variable: 'Variable',
+        blockId: 'Block Id',
+        coordinate: 'Coordinate',
+        value: 'Value',
       },
     };
   },
@@ -109,12 +109,12 @@ export default defineComponent({
       const len = this.boundaryConditions.conditions.length;
       let newItem = structuredClone(this.boundaryConditions.conditions[len - 1])
       newItem.boundaryConditionsId = len + 1
-      newItem.name = "BC_" + (len + 1)
+      newItem.name = 'BC_' + (len + 1)
       newItem.blockId = len + 1
       this.boundaryConditions.conditions.push(newItem);
       // this.boundaryConditions.nodeSets.push({
       //   nodeSetId: len + 1,
-      //   file: "ns_bc" + len,
+      //   file: 'ns_bc' + len,
       // });
     },
     removeCondition(index) {

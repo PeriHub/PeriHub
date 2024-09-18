@@ -59,8 +59,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { inject, computed, defineComponent } from 'vue'
-import { useViewStore } from 'stores/view-store';
-import { useModelStore } from 'stores/model-store';
+import { useViewStore } from 'src/stores/view-store';
+import { useModelStore } from 'src/stores/model-store';
+import { getPointData } from 'src/client';
 
 export default defineComponent({
   name: 'ModelView',
@@ -78,10 +79,10 @@ export default defineComponent({
     }
   },
   created() {
-    console.log("createdModelView")
+    console.log('createdModelView')
   },
   unmounted() {
-    console.log("unmountedModelView")
+    console.log('unmountedModelView')
     this.bus.off('viewPointData');
     this.bus.off('filterPointData');
   },
@@ -95,7 +96,7 @@ export default defineComponent({
     };
   },
   mounted() {
-    console.log("ModelView mounted")
+    console.log('ModelView mounted')
     this.bus.once('viewPointData', async () => {
       await this.viewPointData()
     })
@@ -106,7 +107,7 @@ export default defineComponent({
   },
   methods: {
     async viewPointData() {
-      console.log("viewPointData")
+      console.log('viewPointData')
       this.viewStore.modelLoading = true;
 
       await this.getPointDataAndUpdateDx();
@@ -119,7 +120,7 @@ export default defineComponent({
       this.$refs.view.resetCamera();
     },
     filterPointData() {
-      console.log("filterPointData")
+      console.log('filterPointData')
       var idx = 0;
       let filteredBlockIdStringTemp = [];
       let filteredPointStringTemp = [];
@@ -141,7 +142,7 @@ export default defineComponent({
     },
     async updatePoints() {
       this.viewStore.modelLoading = true;
-      console.log("updatePoints")
+      console.log('updatePoints')
       // if (this.radius < 0.01) {
       //   this.multiplier = (1 - this.radius / 0.5) * 30;
       //   this.radius=0.01
@@ -155,21 +156,20 @@ export default defineComponent({
     },
     async getPointDataAndUpdateDx() {
 
-      console.log("getPointDataAndUpdateDx")
-      let params = {
-        model_name: this.modelData.model.modelNameSelected,
-        model_folder_name: this.modelData.model.modelFolderName,
-        own_model: this.modelData.model.ownModel,
-        own_mesh: this.modelData.model.ownMesh,
-        mesh_file: this.modelData.model.meshFile,
-        two_d: this.modelData.model.twoDimensional
-      }
-      await this.$api.get('/model/getPointData', { params })
+      console.log('getPointDataAndUpdateDx')
+      await getPointData({
+        modelName: this.modelData.model.modelNameSelected,
+        modelFolderName: this.modelData.model.modelFolderName,
+        ownModel: this.modelData.model.ownModel,
+        ownMesh: this.modelData.model.ownMesh,
+        meshFile: this.modelData.model.meshFile,
+        twoD: this.modelData.model.twoDimensional
+      })
         .then((response) => {
-          this.pointString = response.data.data[0].split(",")
-          this.blockIdString = response.data.data[1].split(",")
+          this.pointString = response.data[0].split(',')
+          this.blockIdString = response.data[1].split(',')
           this.$q.notify({
-            message: response.data.message,
+            message: response.message,
           })
         })
         .catch(() => {
@@ -182,7 +182,7 @@ export default defineComponent({
       // if (!this.modelData.model.ownModel) {
       //   this.viewStore.dx_value =
       //     this.modelData.model.height / (2 * parseInt(this.modelData.model.discretization / 2) + 1);
-      if (this.modelData.model.modelNameSelected == "Smetana") {
+      if (this.modelData.model.modelNameSelected == 'Smetana') {
         let numOfPlys = 8;
         this.viewStore.dx_value =
           (this.modelData.model.height * numOfPlys) /

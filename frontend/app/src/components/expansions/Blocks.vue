@@ -40,9 +40,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
+import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'BlocksSettings',
@@ -72,12 +72,12 @@ export default defineComponent({
   data() {
     return {
       blockKeys: {
-        name: "Block Names",
-        material: "Material",
-        damageModel: "Damage Model",
-        additiveModel: "Additive Model",
-        horizon: "Horizon",
-        density: "Density",
+        name: 'Block Names',
+        material: 'Material',
+        damageModel: 'Damage Model',
+        additiveModel: 'Additive Model',
+        horizon: 'Horizon',
+        density: 'Density',
       },
     };
   },
@@ -86,7 +86,7 @@ export default defineComponent({
       const len = this.blocks.length;
       let newItem = structuredClone(this.blocks[len - 1])
       newItem.blocksId = len + 1
-      newItem.name = "block_" + (len + 1)
+      newItem.name = 'block_' + (len + 1)
       this.blocks.push(newItem);
     },
     removeBlock(index) {

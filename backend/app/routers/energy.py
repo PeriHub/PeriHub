@@ -12,7 +12,7 @@ from ..support.base_models import ResponseModel
 router = APIRouter(prefix="/energy", tags=["Upload Methods"])
 
 
-@router.get("/prognosis")
+@router.get("/prognosis", operation_id="get_prognosis_energy")
 async def energy():
     """doc"""
     # Define the URL and query parameters
@@ -52,7 +52,7 @@ async def energy():
         )
 
 
-@router.get("/current")
+@router.get("/current", operation_id="get_current_energy")
 async def energy():
     """doc"""
     # Define the URL and query parameters

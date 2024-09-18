@@ -6,11 +6,12 @@
   "author": "Jan-Timo Hesse <jan-timo.hesse@dlr.de>",
   "private": true,
   "scripts": {
-    "lint": "eslint --ext .js,.vue ./",
-    "format": "prettier --write \"**/*.{js,vue,scss,html,md,json}\" --ignore-path .gitignore",
+    "lint": "eslint --ext .js,.ts,.vue ./",
+    "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0",
-    "deploy": "push-dir --dir=dist/spa --remote=gh-pages --branch=master",
-    "dev": "quasar dev"
+    "dev": "quasar dev",
+    "build": "quasar build",
+    "client": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/client --client axios --base http://localhost:8000"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
@@ -33,14 +34,16 @@
     "vue3-plotly": "^0.0.5"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.13.14",
-    "@playwright/test": "^1.42.1",
+    "@hey-api/client-fetch": "^0.2.4",
+    "@hey-api/openapi-ts": "^0.51.0",
     "@quasar/app-webpack": "^3.0.0",
-    "@types/node": "^20.11.29",
+    "@types/node": "^12.20.21",
+    "@typescript-eslint/eslint-plugin": "^5.10.0",
+    "@typescript-eslint/parser": "^5.10.0",
+    "dotenv": "^16.4.5",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",
-    "eslint-webpack-plugin": "^3.1.1",
     "prettier": "^2.5.1"
   },
   "browserslist": [

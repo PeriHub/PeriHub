@@ -18,6 +18,9 @@ services:
       - TRIAL=${TRIAL}
       - CLUSTER_URL=${CLUSTER_URL}
       - CLUSTER_USER=${CLUSTER_USER}
+      - CLUSTER_JOB_PATH=${CLUSTER_JOB_PATH}
+      - CLUSTER_PERILAB_PATH=${CLUSTER_PERILAB_PATH}
+      - CLUSTER_PASSWORD=${CLUSTER_PASSWORD}
     volumes:
       - ${VOLUME}:/app/simulations
       - ${VOLUME}/rsaFiles:/app/rsaFiles

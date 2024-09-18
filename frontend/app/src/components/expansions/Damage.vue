@@ -112,9 +112,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
+import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'DamageSettings',
@@ -138,47 +138,47 @@ export default defineComponent({
   data() {
     return {
       damageModelName: [
-        "Critical Stretch",
-        "Critical Energy",
+        'Critical Stretch',
+        'Critical Energy',
       ],
       // damageModelName: [
-      //   "Critical Stretch",
-      //   "Von Mises Stress",
-      //   "Interface Aware",
-      //   "Time Dependent Critical Stretch",
-      //   "Critical Energy",
-      //   "Initial Damage",
-      //   "Time Dependent Critical Stretch",
-      //   "Critical Energy Correspondence",
+      //   'Critical Stretch',
+      //   'Von Mises Stress',
+      //   'Interface Aware',
+      //   'Time Dependent Critical Stretch',
+      //   'Critical Energy',
+      //   'Initial Damage',
+      //   'Time Dependent Critical Stretch',
+      //   'Critical Energy Correspondence',
       // ],
       damageKeys: {
-        name: "name",
-        damageModel: "Damage Model",
-        criticalStretch: "Critical Stretch",
-        criticalEnergy: "Critical Energy",
-        criticalVonMisesStress: "Critical Von Mises Stress",
-        criticalDamage: "Critical Damage",
-        thresholdDamage: "Threshold Damage",
-        criticalDamageToNeglect: "Critical Damage To Neglect Material Point",
-        interBlockDamage: "Interblock Damage",
-        anistropicDamage: "Anistropic Damage",
-        anistropicDamageX: "Anistropic Damage X",
-        anistropicDamageY: "Anistropic Damage Y",
-        anistropicDamageZ: "Anistropic Damage Z",
-        numberOfBlocks: "Number of Blocks",
-        interBlockCriticalEnergy: "Interblock Critical Energy",
-        planeStress: "Plane Stress",
-        onlyTension: "Only Tension",
-        detachedNodesCheck: "Detached Nodes Check",
-        thickness: "Thickness",
-        hourglassCoefficient: "Hourglass Coefficient",
-        stabilizationType: "Stabilization Type",
+        name: 'name',
+        damageModel: 'Damage Model',
+        criticalStretch: 'Critical Stretch',
+        criticalEnergy: 'Critical Energy',
+        criticalVonMisesStress: 'Critical Von Mises Stress',
+        criticalDamage: 'Critical Damage',
+        thresholdDamage: 'Threshold Damage',
+        criticalDamageToNeglect: 'Critical Damage To Neglect Material Point',
+        interBlockDamage: 'Interblock Damage',
+        anistropicDamage: 'Anistropic Damage',
+        anistropicDamageX: 'Anistropic Damage X',
+        anistropicDamageY: 'Anistropic Damage Y',
+        anistropicDamageZ: 'Anistropic Damage Z',
+        numberOfBlocks: 'Number of Blocks',
+        interBlockCriticalEnergy: 'Interblock Critical Energy',
+        planeStress: 'Plane Stress',
+        onlyTension: 'Only Tension',
+        detachedNodesCheck: 'Detached Nodes Check',
+        thickness: 'Thickness',
+        hourglassCoefficient: 'Hourglass Coefficient',
+        stabilizationType: 'Stabilization Type',
       },
       stabilizationType: [
-        "Bond Based",
-        "State Based",
-        "Sub Horizon",
-        "Global Stiffness",
+        'Bond Based',
+        'State Based',
+        'Sub Horizon',
+        'Global Stiffness',
       ],
     };
   },
@@ -187,14 +187,14 @@ export default defineComponent({
       const len = this.damages.length;
       let newItem = structuredClone(this.damages[len - 1])
       newItem.damagesId = len + 1
-      newItem.name = "Damage" + (len + 1)
+      newItem.name = 'Damage' + (len + 1)
       this.damages.push(newItem);
     },
     removeDamage(index) {
       this.damages.splice(index, 1);
       if (this.damages.length == 0) {
         for (var i = 0; i < this.blocks.length; i++) {
-          this.blocks[i].damageModel = "";
+          this.blocks[i].damageModel = '';
         }
       }
     },
@@ -215,7 +215,7 @@ export default defineComponent({
         if (k1c != null) {
           let E = null;
           let pr = null;
-          let materialName = "";
+          let materialName = '';
           for (var i = 0; i < this.blocks.length; i++) {
             if (this.blocks[i].damageModel == this.damages[damageId].name) {
               materialName = this.blocks[i].material;

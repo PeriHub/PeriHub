@@ -40,9 +40,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
+import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'AdditiveSettings',
@@ -61,7 +61,7 @@ export default defineComponent({
   },
   data() {
     return {
-      additiveTypes: ["Simple"],
+      additiveTypes: ['Simple'],
     };
   },
   methods: {
@@ -69,7 +69,7 @@ export default defineComponent({
       const len = this.additive.additiveModels.length;
       let newItem = structuredClone(this.additive.additiveModels[len - 1])
       newItem.additiveModelsId = len + 1
-      newItem.name = "Additive Model " + (len + 1)
+      newItem.name = 'Additive Model ' + (len + 1)
       this.additive.additiveModels.push(newItem);
     },
     removeAdditiveModel(index) {

@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { defineComponent } from 'vue'
-import { useViewStore } from 'stores/view-store';
+import { useViewStore } from 'src/stores/view-store';
 import { VuePlotly } from 'vue3-plotly'
 export default defineComponent({
   name: 'PlotlyView',
@@ -29,7 +29,7 @@ export default defineComponent({
     return {
       plotOptions: {
         scrollZoom: true,
-        setBackground: "black",
+        setBackground: 'black',
       },
     };
   },

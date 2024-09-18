@@ -33,17 +33,17 @@ SPDX-License-Identifier: Apache-2.0
 import { defineComponent, inject } from 'vue'
 import TextView from 'components/views/TextView.vue'
 import LogView from 'components/views/LogView.vue'
-import { useViewStore } from 'stores/view-store';
+import { useViewStore } from 'src/stores/view-store';
 
 export default defineComponent({
-  name: "TextComp",
+  name: 'TextComp',
   components: {
     TextView,
     LogView
   },
   data() {
     return {
-      textHeight: "400px",
+      textHeight: '400px',
     };
   },
   setup() {

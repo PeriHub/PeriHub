@@ -50,12 +50,6 @@ jobs:
           name: playwright-report
           path: ./frontend/app/playwright-report/
           retention-days: 30
-      - name: Build Docker image
-        run: docker build -t perihub/frontend ./frontend
-      - name: Publish to Registry
-        run: docker push perihub/backend
-      - name: Publish to Registry
-        run: docker push perihub/frontend
   # ci:
   #   defaults:
   #     run:

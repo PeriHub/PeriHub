@@ -13,8 +13,8 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent, inject } from 'vue'
-import { useModelStore } from 'stores/model-store';
-import rules from "assets/rules.js";
+import { useModelStore } from 'src/stores/model-store';
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'DiscretizazionSettings',
@@ -30,8 +30,8 @@ export default defineComponent({
   data() {
     return {
       distributionTypes: [
-        "Neighbor based",
-        "Node based"
+        'Neighbor based',
+        'Node based'
       ]
     }
   }

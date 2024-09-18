@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { defineComponent } from 'vue'
-import { useDefaultStore } from 'stores/default-store';
+import { useDefaultStore } from 'src/stores/default-store';
 export default defineComponent({
   name: "MainFooter",
   computed: {

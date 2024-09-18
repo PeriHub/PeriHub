@@ -73,10 +73,10 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
-import { useModelStore } from 'stores/model-store';
-import { useViewStore } from 'stores/view-store';
+import { useModelStore } from 'src/stores/model-store';
+import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
-import rules from "assets/rules.js";
+import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'BondFilterSettings',
@@ -101,26 +101,26 @@ export default defineComponent({
   },
   data() {
     return {
-      bondFiltertype: ["Rectangular_Plane", "Disk"],
+      bondFiltertype: ['Rectangular_Plane', 'Disk'],
       bondFilterKeys: {
-        name: "name",
-        type: "Type",
-        allow_contact: "Allow Contact",
-        normalX: "Normal_X",
-        normalY: "Normal_Y",
-        normalZ: "Normal_Z",
-        lowerLeftCornerX: "Lower_Left_Corner_X",
-        lowerLeftCornerY: "Lower_Left_Corner_Y",
-        lowerLeftCornerZ: "Lower_Left_Corner_Z",
-        bottomUnitVectorX: "Bottom_Unit_Vector_X",
-        bottomUnitVectorY: "Bottom_Unit_Vector_Y",
-        bottomUnitVectorZ: "Bottom_Unit_Vector_Z",
-        bottomLength: "Bottom_Length",
-        sideLength: "Side_Length",
-        centerX: "Center_X",
-        centerY: "Center_Y",
-        centerZ: "Center_Z",
-        radius: "Radius",
+        name: 'name',
+        type: 'Type',
+        allow_contact: 'Allow Contact',
+        normalX: 'Normal_X',
+        normalY: 'Normal_Y',
+        normalZ: 'Normal_Z',
+        lowerLeftCornerX: 'Lower_Left_Corner_X',
+        lowerLeftCornerY: 'Lower_Left_Corner_Y',
+        lowerLeftCornerZ: 'Lower_Left_Corner_Z',
+        bottomUnitVectorX: 'Bottom_Unit_Vector_X',
+        bottomUnitVectorY: 'Bottom_Unit_Vector_Y',
+        bottomUnitVectorZ: 'Bottom_Unit_Vector_Z',
+        bottomLength: 'Bottom_Length',
+        sideLength: 'Side_Length',
+        centerX: 'Center_X',
+        centerY: 'Center_Y',
+        centerZ: 'Center_Z',
+        radius: 'Radius',
       },
     };
   },
@@ -149,30 +149,30 @@ export default defineComponent({
         newItem = structuredClone(this.store.modelData.bondFilters[len - 1])
       } else {
         newItem = {
-          "bondFiltersId": 1,
-          "name": "bf_1",
-          "type": "Rectangular_Plane",
-          "allow_contact": false,
-          "normalX": 0,
-          "normalY": 1,
-          "normalZ": 0,
-          "lowerLeftCornerX": -0.5,
-          "lowerLeftCornerY": 0,
-          "lowerLeftCornerZ": -1,
-          "bottomUnitVectorX": 1,
-          "bottomUnitVectorY": 0,
-          "bottomUnitVectorZ": 0,
-          "bottomLength": 5,
-          "sideLength": 2,
-          "centerX": 0,
-          "centerY": 1,
-          "centerZ": 0,
-          "radius": 1,
-          "show": true
+          'bondFiltersId': 1,
+          'name': 'bf_1',
+          'type': 'Rectangular_Plane',
+          'allow_contact': false,
+          'normalX': 0,
+          'normalY': 1,
+          'normalZ': 0,
+          'lowerLeftCornerX': -0.5,
+          'lowerLeftCornerY': 0,
+          'lowerLeftCornerZ': -1,
+          'bottomUnitVectorX': 1,
+          'bottomUnitVectorY': 0,
+          'bottomUnitVectorZ': 0,
+          'bottomLength': 5,
+          'sideLength': 2,
+          'centerX': 0,
+          'centerY': 1,
+          'centerZ': 0,
+          'radius': 1,
+          'show': true
         }
       }
       newItem.bondFilterId = len + 1
-      newItem.name = "bf_" + (len + 1)
+      newItem.name = 'bf_' + (len + 1)
       this.store.modelData.bondFilters.push(newItem);
       this.viewStore.bondFilterPoints.push({
         bondFilterPointsId: len + 1,
@@ -198,7 +198,7 @@ export default defineComponent({
       return [normx, normy, normz];
     },
     showHideBondFilters() {
-      console.log("showHideBondFilters")
+      console.log('showHideBondFilters')
       // this.bondFilterPolyString = []
       // let bondFilterPolyString = []
       this.viewStore.bondFilterPoints = [];
@@ -211,7 +211,7 @@ export default defineComponent({
           const ny = parseFloat(bondFilter.normalY);
           const nz = parseFloat(bondFilter.normalZ);
 
-          if (bondFilter.type == "Disk") {
+          if (bondFilter.type == 'Disk') {
             const cx = parseFloat(bondFilter.centerX);
             const cy = parseFloat(bondFilter.centerY);
             const cz = parseFloat(bondFilter.centerZ);
@@ -319,7 +319,7 @@ export default defineComponent({
   watch: {
     'store.modelData.bondFilters': {
       handler() {
-        console.log("bondFilters changed!");
+        console.log('bondFilters changed!');
         this.showHideBondFilters();
       },
       deep: true,

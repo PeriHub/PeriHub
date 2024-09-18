@@ -15,10 +15,7 @@
     "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [
-      "0",
-      "0"
-    ],
+    "angles": ["0", "0"],
     "notchEnabled": false
   },
   "discretization": {
@@ -28,10 +25,7 @@
     {
       "id": 1,
       "name": "Resin",
-      "matType": [
-        "Correspondence Elastic",
-        "Correspondence Plastic"
-      ],
+      "matType": ["Correspondence Elastic", "Correspondence Plastic"],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
       "planeStrain": false,
@@ -357,6 +351,7 @@
   },
   "job": {
     "cluster": false,
+    "sbatch": false,
     "nodes": 1,
     "tasks": 32,
     "tasksPerNode": 32,

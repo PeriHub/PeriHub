@@ -16,7 +16,7 @@ from ..support.globals import dev, log, trial
 router = APIRouter(prefix="/translate", tags=["Translate Methods"])
 
 
-@router.post("/model")
+@router.post("/model", operation_id="translate_model")
 def translate_model(
     file: str,
     model_name: str,
@@ -79,7 +79,7 @@ def translate_model(
     )
 
 
-@router.post("/gcode")
+@router.post("/gcode", operation_id="translate_gcode")
 async def translate_gcode(
     model_name: str,
     discretization: float,
