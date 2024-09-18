@@ -4,7 +4,7 @@
 
 [tool.poetry]
 name = "perihub"
-version = "3.0.0"
+version = "3.0.1"
 description = "PeriHub"
 license = "Apache-2.0"
 authors = ["Jan-Timo Hesse"]
