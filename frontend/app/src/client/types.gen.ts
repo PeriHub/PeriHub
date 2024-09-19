@@ -164,6 +164,7 @@ export type Interaction = {
 
 export type Job = {
     cluster: boolean;
+    sbatch: boolean;
     nodes?: number | null;
     tasks?: number | null;
     tasksPerNode?: number | null;
@@ -445,6 +446,7 @@ export type GetStatusData = {
     modelFolderName?: string;
     modelName?: string;
     ownMesh?: boolean;
+    sbatch?: boolean;
 };
 
 export type GetStatusResponse = unknown;

@@ -163,7 +163,10 @@ async def run_model(
                     )
             except Exception as e:
                 log.error(type(e))
-                return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
+                log.error("ssh connection to %s failed! Is the PeriLab Service running?", server)
+                return ResponseModel(
+                    data=False, message="ssh connection to " + server + " failed! Is the PeriLab Service running?"
+                )
             break
         command = "cd /app" + remotepath + " \n sh /app" + remotepath + "/runPerilab.sh"
         ssh.exec_command(command)
@@ -348,6 +351,7 @@ def get_status(
     model_folder_name: str = "Default",
     own_mesh: bool = False,
     cluster: bool = False,
+    sbatch: bool = False,
     request: Request = "",
 ):
     """doc"""
@@ -362,18 +366,8 @@ def get_status(
     if os.path.exists(localpath):
         status.created = True
 
-    if not cluster:
-        remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
-        # log.info(remotepath)
-        if os.path.exists(os.path.join(remotepath, "pid.txt")):
-            status.submitted = True
-        if os.path.exists(remotepath):
-            for files in os.listdir(remotepath):
-                if ".e" in files:
-                    status.results = True
-
-    else:
-        remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
+    if cluster:
+        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
         try:
@@ -388,5 +382,15 @@ def get_status(
         sftp.close()
         ssh.close()
         status.submitted = FileHandler.cluster_job_running(remotepath, model_name, model_folder_name)
+
+    else:
+        remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+        # log.info(remotepath)
+        if os.path.exists(os.path.join(remotepath, "pid.txt")):
+            status.submitted = True
+        if os.path.exists(remotepath):
+            for files in os.listdir(remotepath):
+                if ".e" in files:
+                    status.results = True
 
     return ResponseModel(data=status, message="Status received")

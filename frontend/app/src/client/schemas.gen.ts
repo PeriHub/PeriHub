@@ -1058,6 +1058,10 @@ export const $Job = {
             type: 'boolean',
             title: 'Cluster'
         },
+        sbatch: {
+            type: 'boolean',
+            title: 'Sbatch'
+        },
         nodes: {
             anyOf: [
                 {
@@ -1142,7 +1146,7 @@ export const $Job = {
         }
     },
     type: 'object',
-    required: ['cluster'],
+    required: ['cluster', 'sbatch'],
     title: 'Job'
 } as const;
 

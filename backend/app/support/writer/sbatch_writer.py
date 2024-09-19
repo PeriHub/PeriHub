@@ -82,6 +82,8 @@ class SbatchCreator:
         if docker:
             string += "/app/PeriLab/bin/PeriLab -v -s " + self.filename + ".yaml & echo $! > pid.txt \n"
         else:
+            if self.tasks > 1:
+                string += "mpiexecjl -n " + str(self.tasks) + " "
             string += (
                 'julia --project="'
                 + cluster_perilab_path

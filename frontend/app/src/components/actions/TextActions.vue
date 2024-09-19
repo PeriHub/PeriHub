@@ -114,7 +114,8 @@ export default defineComponent({
         modelName: this.modelData.model.modelNameSelected,
         modelFolderName: this.modelData.model.modelFolderName,
         ownModel: this.modelData.model.ownModel,
-        cluster: this.modelData.job.cluster
+        cluster: this.modelData.job.cluster,
+        sbatch: this.modelData.job.sbatch
       });
       console.log(response)
       this.$q.notify({

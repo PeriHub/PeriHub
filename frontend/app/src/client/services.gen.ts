@@ -326,6 +326,7 @@ export const getJobs = (data: GetJobsData = {}): CancelablePromise<GetJobsRespon
  * @param data.modelFolderName
  * @param data.ownMesh
  * @param data.cluster
+ * @param data.sbatch
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -336,7 +337,8 @@ export const getStatus = (data: GetStatusData = {}): CancelablePromise<GetStatus
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
         own_mesh: data.ownMesh,
-        cluster: data.cluster
+        cluster: data.cluster,
+        sbatch: data.sbatch
     },
     errors: {
         422: 'Validation Error'

@@ -19,7 +19,7 @@ SPDX-License-Identifier: Apache-2.0
           standout
           dense
       ></q-input> -->
-    <q-input class="my-input" v-model="job.tasks" v-show="job.sbatch" :rules="[rules.required, rules.name]"
+    <q-input class="my-input" v-model="job.tasks" v-show="job.cluster" :rules="[rules.required, rules.name]"
       label="Tasks" standout dense></q-input>
     <!-- <q-input
           class="my-input"

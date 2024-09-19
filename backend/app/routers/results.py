@@ -176,7 +176,7 @@ def get_results(
     ):
         raise HTTPException(
             status_code=404,
-            detail=model_name + " results can not be found on " + cluster,
+            detail=model_name + " results can not be found on",
         )
 
     # resultpath = './simulations/' + os.path.join(username, model_name)
@@ -198,7 +198,7 @@ def get_results(
         return response
     except IOError:
         log.error("%s results can not be found on %s", model_name, cluster)
-        return model_name + " results can not be found on " + cluster
+        return model_name + " results can not be found"
 
 
 def get_cell_data(variable, points, point_data, cell_data, block_data, displ_factor):

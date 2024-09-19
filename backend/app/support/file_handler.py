@@ -406,6 +406,7 @@ class FileHandler:
                             + str(local_time)
                         )
                         if remote_time > local_time:
+                            os.remove(os.path.join(resultpath, filename))
                             log.info("Copy " + filename)
                             sftp.get(
                                 os.path.join(remotepath, filename),
@@ -435,7 +436,7 @@ class FileHandler:
             server = cluster_url
             password = cluster_password
             # keypath = "./rsaFiles/id_rsa_cluster"
-            log.info("ssh connection to " + server + " with user: " + username)
+            # log.info("ssh connection to " + server + " with user: " + username)
             try:
                 ssh.connect(
                     server,
@@ -465,8 +466,8 @@ class FileHandler:
                         server = "localhost"
                         continue
                     else:
-                        log.error("ssh connection to " + server + " failed!")
-                        raise Exception("ssh connection to " + server + " failed!")
+                        log.error("ssh connection to %s failed! Is the PeriLab Service running?", server)
+                        raise Exception("ssh connection to " + server + " failed! Is the PeriLab Service running?")
                 except Exception as e:
                     log.error("An error occurred:", e)
                     raise Exception("An error occurred:" + e)
