@@ -174,12 +174,12 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-image" @click="dialogGetImagePython = true" :disable="!status.results">
+    <!-- <q-btn flat icon="fas fa-image" @click="dialogGetImagePython = true" :disable="!status.results">
       <q-tooltip>
         Show Image
       </q-tooltip>
-    </q-btn>
-    <q-dialog v-model="dialogGetImagePython" persistent max-width="800">
+    </q-btn> -->
+    <!-- <q-dialog v-model="dialogGetImagePython" persistent max-width="800">
       <q-card>
         <q-card-section>
           <div class="text-h6">Show Image</div>
@@ -218,7 +218,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-dialog> -->
 
     <!-- <q-btn flat icon="fas fa-image" @click="getG1c" :disable="!status.results">
             <q-tooltip>
@@ -372,7 +372,7 @@ export default defineComponent({
       dialogDeleteCookies: false,
       dialogDeleteUserData: false,
 
-      dialogGetImagePython: false,
+      //dialogGetImagePython: false,
       getImageOutput: 'Output1',
       getImageVariable: [
         'Displacement',
