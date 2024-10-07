@@ -8,12 +8,6 @@ services:
   perihub_backend:
     image: perihub/backend
     container_name: perihub_backend
-    build:
-      context: backend/.
-      args:
-        - CLUSTER_URL=${CLUSTER_URL}
-    ports:
-      - 8000:8000
     environment:
       - TRIAL=${TRIAL}
       - CLUSTER_URL=${CLUSTER_URL}
@@ -45,7 +39,6 @@ services:
     image: perihub/perilab
     container_name: perihub_perilab
     ports:
-      - 6000:80
       - 22:22
     volumes:
       - ${VOLUME}:/app/simulations

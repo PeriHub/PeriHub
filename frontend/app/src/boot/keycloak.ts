@@ -3,13 +3,6 @@ import Keycloak from 'keycloak-js';
 import { OpenAPI } from '../client';
 
 export default async ({ app }) => {
-  // if (process.env.BACKEND_URL != null) {
-  //   OpenAPI.BASE = process.env.BACKEND_URL;
-  //   console.log('Backend URL: ' + OpenAPI.BASE);
-  // } else {
-  //   OpenAPI.BASE = 'http://localhost:8000';
-  // }
-
   if (process.env.KEYCLOAK_URL == null || process.env.KEYCLOAK_URL == '') {
     let uuid = 'user';
 
@@ -34,6 +27,9 @@ export default async ({ app }) => {
     if (process.env.DEV) {
       console.log(`I'm on a development build`);
       uuid = 'dev';
+    } else {
+      OpenAPI.BASE = 'api';
+      console.log('Backend URL: ' + OpenAPI.BASE);
     }
     console.log(uuid);
     // api.defaults.headers.common['userName'] = uuid;
