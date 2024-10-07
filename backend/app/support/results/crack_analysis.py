@@ -226,7 +226,7 @@ class CrackAnalysis:
                 terms=[-1, 0, 1, 2, 3, 4, 5],
             )
         # preprocess data
-        nodemap_struc = NodemapStructure(10, 1, 2, 4, 5, 7, 8, 9, False, True)
+        nodemap_struc = NodemapStructure(10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, False, True)
         nodemap = Nodemap(
             name=nodemap_filename,
             folder=nodemap_folder,
@@ -248,7 +248,7 @@ class CrackAnalysis:
         analysis.run()
 
         # plot
-        plot_sets = PlotSettings(background="sig_vm", cmap="jet", dpi=300)
+        plot_sets = PlotSettings(background="sig_vm")
         plotter = Plotter(
             path=os.path.join(nodemap_folder, "plots"),
             fracture_analysis=analysis,

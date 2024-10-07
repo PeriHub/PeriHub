@@ -466,7 +466,7 @@ export type GetFractureAnalysisData = {
     youngModulus?: number;
 };
 
-export type GetFractureAnalysisResponse = unknown;
+export type GetFractureAnalysisResponse = (Blob | File);
 
 export type GetEnfAnalysisData = {
     cluster?: boolean;
@@ -780,9 +780,9 @@ export type $OpenApiTs = {
             req: GetFractureAnalysisData;
             res: {
                 /**
-                 * Successful Response
+                 * The image.
                  */
-                200: unknown;
+                200: (Blob | File);
                 /**
                  * Validation Error
                  */

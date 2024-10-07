@@ -313,6 +313,7 @@ import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
 import { useQuasar } from 'quasar'
+import axios, { AxiosInstance } from 'axios';
 import { getCurrentEnergy, runModel, cancelJob, getResults, getPlot, getFractureAnalysis, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
@@ -665,22 +666,27 @@ export default defineComponent({
 
       this.viewStore.modelLoading = true;
 
-      await getFractureAnalysis({
-        modelName: this.modelData.model.modelNameSelected,
-        modelFolderName: this.modelData.model.modelFolderName,
+      const api = axios.create({ baseURL: 'http://localhost:8000', headers: { 'userName': 'dev', } });
+
+      let params = {
+        model_name: this.modelData.model.modelNameSelected,
+        model_folder_name: this.modelData.model.modelFolderName,
         length: this.modelData.model.length,
         height: this.modelData.model.height,
-        crackLength: this.modelData.model.cracklength,
-        youngModulus: this.modelData.materials[0].youngsModulus,
-        poissionsRatio: this.modelData.materials[0].poissonsRatio,
-        yieldStress: this.modelData.materials[0].yieldStress,
+        crack_length: this.modelData.model.cracklength,
+        young_modulus: this.modelData.materials[0].youngsModulus,
+        poissions_ratio: this.modelData.materials[0].poissonsRatio,
+        yield_stress: this.modelData.materials[0].yieldStress,
         cluster: this.modelData.job.cluster,
         tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
         step: this.getImageStep,
-      })
+      }
+
+      await api.get('/results/getFractureAnalysis', { params, responseType: 'blob' })
         .then((response) => {
-          this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response]))
+          console.log(response)
+          this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
           this.$q.notify({
             message: 'Fracture analyzed',
           })
@@ -692,6 +698,36 @@ export default defineComponent({
           })
           this.viewStore.modelLoading = false;
         })
+
+      //https://github.com/hey-api/openapi-ts/issues/804
+      // await getFractureAnalysis({
+      //   modelName: this.modelData.model.modelNameSelected,
+      //   modelFolderName: this.modelData.model.modelFolderName,
+      //   length: this.modelData.model.length,
+      //   height: this.modelData.model.height,
+      //   crackLength: this.modelData.model.cracklength,
+      //   youngModulus: this.modelData.materials[0].youngsModulus,
+      //   poissionsRatio: this.modelData.materials[0].poissonsRatio,
+      //   yieldStress: this.modelData.materials[0].yieldStress,
+      //   cluster: this.modelData.job.cluster,
+      //   tasks: this.modelData.job.tasks,
+      //   output: this.getImageOutput,
+      //   step: this.getImageStep,
+      // })
+      //   .then((response) => {
+      //     console.log(response)
+      //     this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response]))
+      //     this.$q.notify({
+      //       message: 'Fracture analyzed',
+      //     })
+      //   })
+      //   .catch((error) => {
+      //     this.$q.notify({
+      //       type: 'negative',
+      //       message: JSON.stringify(error.message)
+      //     })
+      //     this.viewStore.modelLoading = false;
+      //   })
 
       this.viewStore.viewId = 'image';
       this.viewStore.modelLoading = false;

@@ -361,7 +361,7 @@ export const getStatus = (data: GetStatusData = {}): CancelablePromise<GetStatus
  * @param data.tasks
  * @param data.output
  * @param data.step
- * @returns unknown Successful Response
+ * @returns binary The image.
  * @throws ApiError
  */
 export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): CancelablePromise<GetFractureAnalysisResponse> => { return __request(OpenAPI, {

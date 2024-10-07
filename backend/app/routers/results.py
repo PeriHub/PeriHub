@@ -9,7 +9,7 @@ from typing import Optional
 
 import numpy as np
 from exodusreader import exodusreader
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 
 from ..support.base_models import ResponseModel
@@ -21,7 +21,14 @@ from ..support.results.crack_analysis import CrackAnalysis
 router = APIRouter(prefix="/results", tags=["Results Methods"])
 
 
-@router.get("/getFractureAnalysis", operation_id="get_fracture_analysis")
+@router.get(
+    "/getFractureAnalysis",
+    operation_id="get_fracture_analysis",
+    response_class=FileResponse,
+    responses={
+        200: {"description": "The image.", "content": {"image/png": {"schema": {"type": "string", "format": "binary"}}}}
+    },
+)
 def get_fracture_analysis(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -62,11 +69,7 @@ def get_fracture_analysis(
         filepath,
     )
 
-    try:
-        return FileResponse(filepath)
-    except IOError:
-        log.error("%s results can not be found on %s", model_name, cluster)
-        return model_name + " results can not be found on " + cluster
+    return FileResponse(filepath, media_type="image/png")
 
 
 @router.get("/getEnfAnalysis", operation_id="get_enf_analysis")
