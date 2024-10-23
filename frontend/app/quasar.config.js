@@ -14,9 +14,9 @@
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-const { configure } = require("quasar/wrappers");
+const { configure } = require('quasar/wrappers');
 
-require("dotenv").config();
+require('dotenv').config();
 
 module.exports = configure(function (ctx) {
   return {
@@ -25,7 +25,7 @@ module.exports = configure(function (ctx) {
       tsCheckerConfig: {
         eslint: {
           enabled: true,
-          files: "./src/**/*.{ts,tsx,js,jsx,vue}",
+          files: './src/**/*.{ts,tsx,js,jsx,vue}',
         },
       },
     },
@@ -37,48 +37,48 @@ module.exports = configure(function (ctx) {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
     boot: [
-      "i18n",
-      "axios",
-      "bus",
-      "chartkick",
-      "keycloak",
-      "vtk",
-      "notify-defaults",
-      "zoom",
+      'i18n',
+      'axios',
+      'bus',
+      'chartkick',
+      'keycloak',
+      'vtk',
+      'notify-defaults',
+      'zoom',
     ],
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-css
-    css: ["app.scss"],
+    css: ['app.scss'],
 
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       // 'ionicons-v4',
       // 'mdi-v5',
-      "fontawesome-v6",
+      'fontawesome-v6',
       // 'eva-icons',
       // 'themify',
       // 'line-awesome',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
       // "roboto-font", // optional, you are not bound to it
-      "material-icons", // optional, you are not bound to it
+      'material-icons', // optional, you are not bound to it
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-build
     build: {
-      vueRouterMode: "history", // available values: 'hash', 'history'
+      vueRouterMode: 'history', // available values: 'hash', 'history'
 
       // transpile: false,
       // publicPath: '/',
 
       env: {
-        API: ctx.dev ? "http://localhost:8000" : "api",
-        TRIAL: process.env.TRIAL,
+        API: ctx.dev ? 'http://localhost:8000' : 'api',
+        TRIAL: ctx.dev ? process.env.TRIAL : 'TRIAL',
         DEV: ctx.dev,
-        KEYCLOAK_URL: process.env.KEYCLOAK_URL,
-        REALM: process.env.REALM,
-        CLIENT_ID: process.env.CLIENT_ID,
-        CLUSTER_URL: process.env.CLUSTER_URL,
+        KEYCLOAK_URL: ctx.dev ? process.env.KEYCLOAK_URL : 'KEYCLOAK_URL',
+        REALM: ctx.dev ? process.env.REALM : 'REALM',
+        CLIENT_ID: ctx.dev ? process.env.CLIENT_ID : 'CLIENT_ID',
+        CLUSTER_URL: ctx.dev ? process.env.CLUSTER_URL : 'CLUSTER_URL',
       },
       vueCompiler: true,
 
@@ -104,7 +104,7 @@ module.exports = configure(function (ctx) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/quasar-config-js#Property%3A-devServer
     devServer: {
       server: {
-        type: "http",
+        type: 'http',
       },
       port: 8080,
       open: true, // opens browser window automatically
@@ -125,7 +125,7 @@ module.exports = configure(function (ctx) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ["Notify"],
+      plugins: ['Notify'],
     },
 
     // animations: 'all', // --- includes all animations
@@ -148,14 +148,14 @@ module.exports = configure(function (ctx) {
       // chainWebpackWebserver (/* chain */) {},
 
       middlewares: [
-        ctx.prod ? "compression" : "",
-        "render", // keep this as last one
+        ctx.prod ? 'compression' : '',
+        'render', // keep this as last one
       ],
     },
 
     // https://v2.quasar.dev/quasar-cli-webpack/developing-pwa/configuring-pwa
     pwa: {
-      workboxPluginMode: "GenerateSW", // 'GenerateSW' or 'InjectManifest'
+      workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
 
       // for the custom service worker ONLY (/src-pwa/custom-service-worker.[js|ts])
@@ -166,30 +166,30 @@ module.exports = configure(function (ctx) {
         name: `PeriHub`,
         short_name: `PeriHub`,
         description: `PeriHub is a platform that provides a numerical implementation of the peridynamic theory. It is an extension of the open source PeriLab software. Peridynamics is a non-local theory that overcomes discontinuity problems of the classical theory of continuum mechanics. It is an effective method to model fracture mechanics problems.`,
-        display: "standalone",
-        orientation: "portrait",
-        background_color: "#ffffff",
-        theme_color: "#027be3",
+        display: 'standalone',
+        orientation: 'portrait',
+        background_color: '#ffffff',
+        theme_color: '#027be3',
         icons: [
           {
-            src: "icons/favicon-16x16.png",
-            sizes: "16x16",
-            type: "image/png",
+            src: 'icons/favicon-16x16.png',
+            sizes: '16x16',
+            type: 'image/png',
           },
           {
-            src: "icons/favicon-32x32.png",
-            sizes: "32x32",
-            type: "image/png",
+            src: 'icons/favicon-32x32.png',
+            sizes: '32x32',
+            type: 'image/png',
           },
           {
-            src: "icons/favicon-96x96.png",
-            sizes: "96x96",
-            type: "image/png",
+            src: 'icons/favicon-96x96.png',
+            sizes: '96x96',
+            type: 'image/png',
           },
           {
-            src: "icons/favicon-128x128.png",
-            sizes: "128x128",
-            type: "image/png",
+            src: 'icons/favicon-128x128.png',
+            sizes: '128x128',
+            type: 'image/png',
           },
           // {
           //   src: "icons/icon-512x512.png",
@@ -212,7 +212,7 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-webpack/developing-electron-apps/configuring-electron
     electron: {
-      bundler: "packager", // 'packager' or 'builder'
+      bundler: 'packager', // 'packager' or 'builder'
 
       packager: {
         // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
@@ -228,7 +228,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: "cap_frontend",
+        appId: 'cap_frontend',
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain

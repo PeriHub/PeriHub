@@ -8,13 +8,8 @@ services:
   perihub_backend:
     image: perihub/backend
     container_name: perihub_backend
-    environment:
-      - TRIAL=${TRIAL}
-      - CLUSTER_URL=${CLUSTER_URL}
-      - CLUSTER_USER=${CLUSTER_USER}
-      - CLUSTER_JOB_PATH=${CLUSTER_JOB_PATH}
-      - CLUSTER_PERILAB_PATH=${CLUSTER_PERILAB_PATH}
-      - CLUSTER_PASSWORD=${CLUSTER_PASSWORD}
+    env_file:
+      - .env
     volumes:
       - ${VOLUME}:/app/simulations
       - ${VOLUME}/rsaFiles:/app/rsaFiles
@@ -22,14 +17,8 @@ services:
   perihub_frontend:
     image: perihub/frontend
     container_name: perihub_frontend
-    build:
-      context: frontend/.
-      args:
-        - TRIAL=${TRIAL}
-        - KEYCLOAK_URL=${KEYCLOAK_URL}
-        - REALM=${REALM}
-        - CLIENT_ID=${CLIENT_ID}
-        - CLUSTER_URL=${CLUSTER_URL}
+    env_file:
+      - .env
     depends_on:
       - perihub_backend
     ports:

@@ -17,7 +17,6 @@
     "@quasar/extras": "^1.0.0",
     "axios": "^1.6.8",
     "bibtex-parse-js": "^0.0.23",
-    "dotenv": "^16.0.3",
     "driver.js": "^0.9.8",
     "keycloak-js": "^24.0.1",
     "mathjs": "^11.9.1",

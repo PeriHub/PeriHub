@@ -11,15 +11,6 @@ COPY app/. .
 # build stage
 FROM develop-stage as build-stage
 
-ARG TRIAL
-ENV TRIAL $TRIAL
-ARG KEYCLOAK_URL
-ENV KEYCLOAK_URL $KEYCLOAK_URL
-ARG REALM
-ENV REALM $REALM
-ARG CLIENT_ID
-ENV CLIENT_ID $CLIENT_ID
-
 RUN npm i -g @quasar/cli
 RUN npm install
 RUN quasar build
@@ -28,6 +19,9 @@ RUN quasar build
 FROM nginx:alpine as production-stage
 COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod u+x /usr/local/bin/entrypoint.sh
 
 EXPOSE 80
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
