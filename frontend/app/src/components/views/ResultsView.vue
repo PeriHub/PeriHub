@@ -18,6 +18,11 @@ SPDX-License-Identifier: Apache-2.0
             Reset Camera
           </q-tooltip>
         </q-btn>
+        <q-btn :disabled="modelParams.step == 1" flat dense icon="fas fa-fast-backward" @click="fastBackward()">
+          <q-tooltip>
+            Fast Backward
+          </q-tooltip>
+        </q-btn>
         <q-btn flat dense icon="fas fa-backward" @click="backward()">
           <q-tooltip>
             Backward
@@ -36,6 +41,12 @@ SPDX-License-Identifier: Apache-2.0
         <q-btn flat dense icon="fas fa-forward" @click="forward()">
           <q-tooltip>
             Forward
+          </q-tooltip>
+        </q-btn>
+        <q-btn :disabled="modelParams.step == modelParams.numberOfSteps" flat dense icon="fas fa-fast-forward"
+          @click="fastForward()">
+          <q-tooltip>
+            Fast Forward
           </q-tooltip>
         </q-btn>
         <div>
@@ -301,6 +312,10 @@ export default {
         this.viewPointData()
       }
     },
+    fastBackward() {
+      this.modelParams.step = 1
+      this.viewPointData()
+    },
     forward() {
       if (this.modelParams.step < this.modelParams.numberOfSteps) {
         this.modelParams.step = this.modelParams.step + 1
@@ -308,7 +323,12 @@ export default {
       } else {
         this.pause()
       }
+    },
+    fastForward() {
+      this.modelParams.step = this.modelParams.numberOfSteps
+      this.viewPointData()
     }
+
   },
   watch: {
     maxValue(newValue) {
@@ -317,6 +337,9 @@ export default {
     minValue(newValue) {
       this.legendKey++; // Increment key to force re-rendering
     }
+  },
+  unmounted() {
+    clearInterval(this.timer)
   }
 }
 </script>

@@ -169,6 +169,23 @@ export default defineComponent({
       this.connection = new WebSocket(socket_path);
       this.connection.onmessage = (event) => {
         this.viewStore.logOutput = event.data;
+        // get last line and compare
+        const lines = this.viewStore.logOutput.split('\n');
+        const lastLine = lines[lines.length - 2];
+        if (lastLine && lastLine.includes('[Info] Run ')) {
+          this.viewStore.viewId = 'results';
+        }
+        if (lastLine && lastLine.includes('[Info] PeriLab finished')) {
+          this.connection.close();
+          this.connection = null; // Reset the connection variable
+          this._getStatus();
+          this.bus.emit('getJobs')
+          if (this.store.status.submitted) {
+            this.$q.notify({
+              message: 'PeriLab finished'
+            })
+          }
+        }
       }
       this.connection.onerror = (event) => {
         console.log(event)
