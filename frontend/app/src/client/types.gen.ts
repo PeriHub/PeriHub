@@ -309,6 +309,7 @@ export type Solver = {
     adapt?: Adapt | null;
     calculateCauchy?: boolean | null;
     calculateVonMises?: boolean | null;
+    calculateStrain?: boolean | null;
 };
 
 export type StiffnessMatrix = {

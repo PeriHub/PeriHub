@@ -338,6 +338,7 @@ class Solver(BaseModel):
     adapt: Optional[Adapt] = None
     calculateCauchy: Optional[bool] = None
     calculateVonMises: Optional[bool] = None
+    calculateStrain: Optional[bool] = None
 
 
 class Job(BaseModel):

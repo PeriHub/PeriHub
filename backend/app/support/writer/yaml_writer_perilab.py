@@ -330,6 +330,9 @@ class YAMLcreatorPeriLab:
         if self.check_if_defined(self.solver_dict.calculateVonMises):
             data["Calculate von Mises"] = self.solver_dict.calculateVonMises
 
+        if self.check_if_defined(self.solver_dict.calculateStrain):
+            data["Calculate Strain"] = self.solver_dict.calculateStrain
+
         return data
 
     def create_boundary_conditions(self):

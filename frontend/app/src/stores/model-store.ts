@@ -348,6 +348,7 @@ export const useModelStore = defineStore('model', {
         verbose: false,
         calculateCauchy: false,
         calculateVonMises: true,
+        calculateStrain: false,
         initialTime: 0.0,
         finalTime: '1e-5',
         solvertype: 'Verlet',

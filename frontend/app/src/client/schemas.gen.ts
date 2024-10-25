@@ -2442,6 +2442,17 @@ export const $Solver = {
                 }
             ],
             title: 'Calculatevonmises'
+        },
+        calculateStrain: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Calculatestrain'
         }
     },
     type: 'object',

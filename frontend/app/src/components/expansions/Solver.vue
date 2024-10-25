@@ -70,6 +70,8 @@ SPDX-License-Identifier: Apache-2.0
         dense></q-toggle>
       <q-toggle class="my-toggle" v-model="solver.calculateVonMises" :label="solverKeys.calculateVonMises" standout
         dense></q-toggle>
+      <q-toggle class="my-toggle" v-model="solver.calculateStrain" :label="solverKeys.calculateStrain" standout
+        dense></q-toggle>
     </div>
     <!-- <div class="row my-row">
             <q-toggle class="my-toggle" v-model="solver.stopAfterDamageInitation"
@@ -176,6 +178,7 @@ export default defineComponent({
         },
         calculateCauchy: 'Calculate Cauchy',
         calculateVonMises: 'Calculate von Mises',
+        calculateStrain: 'Calculate Strain',
       },
     };
   },
