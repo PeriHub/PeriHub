@@ -157,7 +157,7 @@ class CrackAnalysis:
                 buckner_williams_terms=[-1, 1, 2, 3, 4, 5],
             )
             crack_end = crack_length + 0.25 * length
-            ct = CrackTipInfo(crack_end, 0, 0, "right")
+            ct = CrackTipInfo(crack_end, 0, 0, "r")
 
             # optimization
             opt_props = OptimizationProperties(
@@ -186,7 +186,7 @@ class CrackAnalysis:
                 buckner_williams_terms=[-1, 1, 2, 3, 4, 5],
             )
             crack_end = crack_length
-            ct = CrackTipInfo(crack_end, height / 2, 0, "right")
+            ct = CrackTipInfo(crack_end, height / 2, 0, "r")
 
             # optimization
             opt_props = OptimizationProperties(
@@ -215,7 +215,7 @@ class CrackAnalysis:
                 buckner_williams_terms=[-1, 1, 2, 3, 4, 5],
             )
             crack_end = crack_length
-            ct = CrackTipInfo(crack_end, height / 2, 0, "right")
+            ct = CrackTipInfo(crack_end, height / 2, 0, "r")
 
             # optimization
             opt_props = OptimizationProperties(
