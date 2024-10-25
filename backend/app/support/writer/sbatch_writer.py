@@ -94,7 +94,7 @@ class SbatchCreator:
                 + ".yaml & echo $! > pid.txt \n"
             )
         string += "pid=`cat pid.txt` \n"
-        string += "tail --pid=$pid -f /dev/null \n"
+        string += "wait $pid \n"
         string += "rm pid.txt \n"
 
         return string

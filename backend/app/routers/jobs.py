@@ -168,7 +168,7 @@ async def run_model(
                     data=False, message="ssh connection to " + server + " failed! Is the PeriLab Service running?"
                 )
             break
-        command = "cd /app" + remotepath + " \n sh /app" + remotepath + "/runPerilab.sh"
+        command = "cd /app" + remotepath + " \n sh runPerilab.sh"
         ssh.exec_command(command)
         # stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
         # stdout=stdout.readlines()
@@ -215,7 +215,7 @@ def cancel_job(
                     return "ssh connection to " + server + " failed!"
             break
         command = (
-            "kill $(cat /app"
+            "kill -2 $(cat /app"
             + os.path.join(remotepath, "pid.txt")
             + ") \n rm /app"
             + os.path.join(remotepath, "pid.txt")
