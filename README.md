@@ -29,7 +29,7 @@ PeriHub is a powerful software solution that can significantly benefit research 
 
 ### Overview
 
-![](docs/assets/images/PeriHub.drawio.svg)
+![](docs/assets/images/PeriHub.svg)
 
 ### Generate model
 
