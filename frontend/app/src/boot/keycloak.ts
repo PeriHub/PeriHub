@@ -3,7 +3,11 @@ import Keycloak from 'keycloak-js';
 import { OpenAPI } from '../client';
 
 export default async ({ app }) => {
-  if (process.env.KEYCLOAK_URL == null || process.env.KEYCLOAK_URL == '') {
+  if (
+    process.env.KEYCLOAK_URL == null ||
+    process.env.KEYCLOAK_URL == '' ||
+    process.env.KEYCLOAK_URL == 'KEYCLOAK_URL'
+  ) {
     let uuid = 'user';
 
     if (process.env.TRIAL == 'True') {
