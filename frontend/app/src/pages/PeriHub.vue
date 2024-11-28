@@ -44,13 +44,13 @@ import ViewComp from 'src/components/ViewComp.vue'
 import TextActions from 'src/components/actions/TextActions.vue'
 import TextComp from 'src/components/TextComp.vue'
 import { useDefaultStore } from 'src/stores/default-store';
-import Driver from "driver.js";
-import "driver.js/dist/driver.min.css";
+import Driver from 'driver.js';
+import 'driver.js/dist/driver.min.css';
 
 import { inject } from 'vue'
 
 export default {
-  name: "PeriHub",
+  name: 'PeriHub',
   components: {
     ModelActions,
     ExpansionComp,
@@ -81,17 +81,17 @@ export default {
   },
   methods: {
     onResizeBefore({ width, height }) {
-      // console.log("get resize", width, height)
+      // console.log('get resize', width, height)
       this.bus.emit('resizeViewPanel', height)
     },
     onResizeAfter({ width, height }) {
-      // console.log("get resize", width, height)
+      // console.log('get resize', width, height)
       this.bus.emit('resizeTextPanel', height)
     },
     showTutorial() {
-      var color = "white";
+      var color = 'white';
       if (this.store.darkMode) {
-        color = "gray";
+        color = 'gray';
       }
 
       const driver = new Driver({
@@ -103,52 +103,52 @@ export default {
       // Define the steps for introduction
       driver.defineSteps([
         {
-          element: "#ModelActions",
+          element: '#ModelActions',
           popover: {
-            className: "first-step-popover-class",
-            title: "ModelActions",
-            description: "Here you are able to upload, save, switch and generate models",
-            position: "right",
+            className: 'first-step-popover-class',
+            title: 'ModelActions',
+            description: 'Here you are able to upload, save, switch and generate models',
+            position: 'right',
           },
         },
         {
-          element: "#ExpansionComp",
+          element: '#ExpansionComp',
           popover: {
-            title: "ExpansionComp",
-            description: "Here you can find the configuration for your simulation",
-            position: "right",
+            title: 'ExpansionComp',
+            description: 'Here you can find the configuration for your simulation',
+            position: 'right',
           },
         },
         {
-          element: "#ViewActions",
+          element: '#ViewActions',
           popover: {
-            title: "ViewActions",
-            description: "Here you are able to submit your simulation, view your results and download them",
-            position: "left",
+            title: 'ViewActions',
+            description: 'Here you are able to submit your simulation, view your results and download them',
+            position: 'left',
           },
         },
         {
-          element: "#ViewComp",
+          element: '#ViewComp',
           popover: {
-            title: "ViewComp",
-            description: "This is where your simulation results are displayed",
-            position: "left",
+            title: 'ViewComp',
+            description: 'This is where your simulation results are displayed',
+            position: 'left',
           },
         },
         {
-          element: "#TextActions",
+          element: '#TextActions',
           popover: {
-            title: "TextActions",
-            description: "If you want to edit your input-deck you can save it here",
-            position: "left",
+            title: 'TextActions',
+            description: 'If you want to edit your input-deck you can save it here',
+            position: 'left',
           },
         },
         {
-          element: "#TextComp",
+          element: '#TextComp',
           popover: {
-            title: "TextComp",
-            description: "This is where your input-deck or log-file is displayed",
-            position: "left",
+            title: 'TextComp',
+            description: 'This is where your input-deck or log-file is displayed',
+            position: 'left',
           },
         },
       ]);

@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-version: "3"
-
 services:
   perihub_backend:
     image: perihub/backend
+    build:
+      context: ./backend
     container_name: perihub_backend
     env_file:
       - .env
@@ -16,6 +16,8 @@ services:
 
   perihub_frontend:
     image: perihub/frontend
+    build:
+      context: ./frontend
     container_name: perihub_frontend
     env_file:
       - .env
