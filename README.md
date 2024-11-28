@@ -27,6 +27,10 @@ PeriHub is a powerful software solution that can significantly benefit research 
 
 - **Portability and Scalability:** PeriHub utilizes Docker containers, ensuring seamless integration and deployment across various computing environments. This approach enhances the software's portability, scalability, and ease of use, making it even more practical for research purposes.
 
+### Overview
+
+![](docs/assets/images/PeriHub.drawio.svg)
+
 ### Generate model
 
 ![](docs/assets/gif/generateModel.gif)
