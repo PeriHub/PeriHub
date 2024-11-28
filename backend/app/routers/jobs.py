@@ -270,8 +270,12 @@ def get_jobs(
     if not os.path.exists(localpath):
         return ResponseModel(data=jobs, message="No jobs")
 
+    cluster_accesible = True
     if cluster_enabled:
-        ssh, sftp = FileHandler.sftp_to_cluster(True)
+        try:
+            ssh, sftp = FileHandler.sftp_to_cluster(True)
+        except:
+            cluster_accesible = False
 
     for _, dirs, _ in os.walk(localpath):
         # log.info(dirs)
@@ -318,7 +322,7 @@ def get_jobs(
 
                 remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
 
-                if cluster_enabled:
+                if cluster_enabled and cluster_accesible:
                     if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
                         job.cluster = True
                         # try:
@@ -338,7 +342,7 @@ def get_jobs(
                         # print(job.cluster)
                         jobs.append(job)
 
-    if cluster_enabled:
+    if cluster_enabled and cluster_accesible:
         sftp.close()
         ssh.close()
 

@@ -447,7 +447,7 @@ class FileHandler:
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")
-                return "ssh connection to " + server + " failed!"
+                raise Exception("ssh connection to " + server + " failed!")
 
         elif not cluster:
             username = "root"
