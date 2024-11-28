@@ -17,6 +17,9 @@ do
   for key in $keys
   do
     value=$(eval echo \$$key)
+    if [ -z "$value" ]; then
+      continue
+    fi
     # echo "replace $key by $value"
     sed -i 's|'$key'|'$value'|g' $file
   done
