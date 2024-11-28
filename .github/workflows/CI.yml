@@ -27,9 +27,9 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build Docker image
-        run: docker build -t perihub/backend ./backend
+        run: docker build -t perihub/backend:dev ./backend
       - name: Run Docker container
-        run: docker run -d -p 8000:8000 perihub/backend
+        run: docker run -d -p 8000:8000 perihub/backend:dev
       - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: actions/setup-node@v4
@@ -50,6 +50,12 @@ jobs:
           name: playwright-report
           path: ./frontend/app/playwright-report/
           retention-days: 30
+      - name: Build Docker image
+        run: docker build -t perihub/frontend:dev ./frontend
+      - name: Publish to Registry
+        run: docker push perihub/backend:dev
+      - name: Publish to Registry
+        run: docker push perihub/frontend:dev
   # ci:
   #   defaults:
   #     run:
