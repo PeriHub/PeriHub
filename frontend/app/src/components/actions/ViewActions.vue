@@ -606,7 +606,7 @@ export default defineComponent({
               }
             }
             tempLayout.xaxis.title = firstPropety
-            tempLayout.title = this.modelData.model.modelNameSelected
+            tempLayout.title = this.$route.params.id
 
             this.viewStore.plotData = structuredClone(tempData)
             this.viewStore.plotLayout = structuredClone(tempLayout)

@@ -19,8 +19,8 @@ SPDX-License-Identifier: Apache-2.0
           <template v-slot:before>
             <q-resize-observer @resize="onResizeBefore" :debounce="0" />
             <div class="q-pa-md">
-              <!-- <ViewActions id="ViewActions" />
-              <ViewComp id="ViewComp" /> -->
+              <ViewActions id="ViewActions" />
+              <ViewComp id="ViewComp" />
             </div>
           </template>
           <template v-slot:after>
@@ -39,8 +39,8 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 import ModelActions from 'src/components/actions/ModelActions.vue'
 import ExpansionComp from 'src/components/ExpansionComp.vue'
-// import ViewActions from 'src/components/actions/ViewActions.vue'
-// import ViewComp from 'src/components/ViewComp.vue'
+import ViewActions from 'src/components/actions/ViewActions.vue'
+import ViewComp from 'src/components/ViewComp.vue'
 import TextActions from 'src/components/actions/TextActions.vue'
 import TextComp from 'src/components/TextComp.vue'
 import { useDefaultStore } from 'src/stores/default-store';
@@ -54,8 +54,8 @@ export default {
   components: {
     ModelActions,
     ExpansionComp,
-    // ViewActions,
-    // ViewComp,
+    ViewActions,
+    ViewComp,
     TextActions,
     TextComp
   },
