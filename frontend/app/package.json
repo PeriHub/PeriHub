@@ -14,7 +14,7 @@
     "client": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/client --client axios --base http://localhost:8000"
   },
   "dependencies": {
-    "@quasar/extras": "^1.0.0",
+    "@quasar/extras": "^1.16.13",
     "axios": "^1.6.8",
     "bibtex-parse-js": "^0.0.23",
     "driver.js": "^0.9.8",
@@ -22,7 +22,7 @@
     "mathjs": "^11.9.1",
     "pinia": "^2.1.7",
     "prismjs": "^1.29.0",
-    "quasar": "^2.6.0",
+    "quasar": "^2.17.4",
     "vue": "^3.0.0",
     "vue-chartkick": "^1.1.0",
     "vue-i18n": "^9.0.0",
@@ -36,7 +36,7 @@
     "@hey-api/client-fetch": "^0.2.4",
     "@hey-api/openapi-ts": "^0.51.0",
     "@playwright/test": "^1.42.1",
-    "@quasar/app-webpack": "^3.0.0",
+    "@quasar/app-webpack": "^3.15.1",
     "@types/node": "^12.20.21",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
