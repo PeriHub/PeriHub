@@ -20,8 +20,8 @@ FROM nginx:alpine as production-stage
 COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /usr/local/bin/
-RUN chmod u+x /usr/local/bin/entrypoint.sh
+# RUN chmod u+x /usr/local/bin/entrypoint.sh
 
 EXPOSE 80
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"] Currently not working
 CMD ["nginx", "-g", "daemon off;"]
