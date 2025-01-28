@@ -165,6 +165,20 @@ export const $Block = {
     title: 'Block'
 } as const;
 
+export const $Body_generate_model = {
+    properties: {
+        model_data: {
+            '$ref': '#/components/schemas/ModelData'
+        },
+        valves: {
+            '$ref': '#/components/schemas/Valves'
+        }
+    },
+    type: 'object',
+    required: ['model_data', 'valves'],
+    title: 'Body_generate_model'
+} as const;
+
 export const $Body_upload_files = {
     properties: {
         files: {
@@ -1567,10 +1581,6 @@ export const $Matrix = {
 
 export const $Model = {
     properties: {
-        modelNameSelected: {
-            type: 'string',
-            title: 'Modelnameselected'
-        },
         modelFolderName: {
             anyOf: [
                 {
@@ -1760,7 +1770,7 @@ export const $Model = {
         }
     },
     type: 'object',
-    required: ['modelNameSelected', 'ownModel', 'translated', 'length', 'discretization', 'twoDimensional', 'rotatedAngles', 'angles'],
+    required: ['ownModel', 'translated', 'length', 'discretization', 'twoDimensional', 'rotatedAngles', 'angles'],
     title: 'Model'
 } as const;
 
@@ -2513,6 +2523,67 @@ export const $ValidationError = {
     type: 'object',
     required: ['loc', 'msg', 'type'],
     title: 'ValidationError'
+} as const;
+
+export const $Valve = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        type: {
+            type: 'string',
+            title: 'Type'
+        },
+        description: {
+            type: 'string',
+            title: 'Description'
+        },
+        value: {
+            title: 'Value'
+        },
+        options: {
+            anyOf: [
+                {
+                    items: {
+                        type: 'string'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Options'
+        }
+    },
+    type: 'object',
+    required: ['name', 'type', 'description', 'value', 'options'],
+    title: 'Valve'
+} as const;
+
+export const $Valves = {
+    properties: {
+        valves: {
+            items: {
+                '$ref': '#/components/schemas/Valve'
+            },
+            type: 'array',
+            title: 'Valves'
+        },
+        data: {
+            anyOf: [
+                {},
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Data'
+        }
+    },
+    type: 'object',
+    required: ['valves', 'data'],
+    title: 'Valves'
 } as const;
 
 export const $Verlet = {

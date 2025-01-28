@@ -446,10 +446,15 @@ export default defineComponent({
 
       this.viewStore.viewId = 'model';
 
+      const body = {
+        'model_data': this.modelData,
+        'valves': this.modelStore.modelParams
+      }
+
       await generateModel({
-        modelName: this.modelData.model.modelNameSelected,
+        modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
-        requestBody: this.modelData
+        requestBody: body
       })
         .then((response) => {
           console.log('generateModel')

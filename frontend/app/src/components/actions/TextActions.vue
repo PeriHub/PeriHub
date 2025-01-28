@@ -47,6 +47,7 @@ export default defineComponent({
     return {
       store,
       viewStore,
+      modelStore,
       modelData,
       rules,
       bus,
@@ -72,7 +73,7 @@ export default defineComponent({
     async viewInputFile(loadFile) {
       console.log('viewInputFile')
 
-      viewInputFile({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, ownMesh: this.modelData.model.ownMesh })
+      viewInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, ownMesh: this.modelData.model.ownMesh })
         .then((response) => {
           this.$q.notify({
             message: response.message

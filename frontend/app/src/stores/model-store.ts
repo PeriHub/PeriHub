@@ -386,6 +386,9 @@ export const useModelStore = defineStore('model', {
         // mail: 'jan-timo.hesse@dlr.de',
       },
     },
+    availableModels: [],
+    modelParams: [],
+    selectedModel: {},
   }),
   actions: {
     initialiseStore() {

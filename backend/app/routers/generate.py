@@ -13,11 +13,6 @@ from fastapi import APIRouter, Request
 
 from ..models.CompactTension.compact_tension import CompactTension
 
-# from ..models.DCBmodel.dcb_model import DCBmodel
-from ..models.Dogbone.dogbone import Dogbone
-from ..models.ENFmodel.enf_model import ENFmodel
-from ..models.G1Cmodel.g1c_model import G1Cmodel
-
 # from ..models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
 from ..models.OwnModel.own_model import OwnModel
 
@@ -25,9 +20,15 @@ from ..models.OwnModel.own_model import OwnModel
 # from ..models.PlateWithOpening.plate_with_opening import PlateWithOpening
 # from ..models.RingOnRing.ring_on_ring import RingOnRing
 # from ..models.Smetana.smetana import Smetana
-from ..support.base_models import ModelData, ResponseModel
+from ..support.base_models import Block, ModelData, ResponseModel, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log
+
+# from ..models.DCBmodel.dcb_model import DCBmodel
+# from ..models.Dogbone.dogbone import Dogbone
+# from ..models.ENFmodel.enf_model import ENFmodel
+# from ..models.G1Cmodel.g1c_model import G1Cmodel
+
 
 router = APIRouter(prefix="/generate", tags=["Generate Methods"])
 
@@ -35,6 +36,7 @@ router = APIRouter(prefix="/generate", tags=["Generate Methods"])
 @router.post("/model", operation_id="generate_model")
 def generate_model(
     model_data: ModelData,
+    valves: Valves,
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     request: Request = "",
@@ -104,105 +106,55 @@ def generate_model(
 
     log.info("Create %s", model_name)
 
+    valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
+
     if model_data.model.ownModel is False:
-        if model_name == "CompactTension":
-            model = CompactTension(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = model.create_model()
+        try:
+            module = getattr(__import__("app.models." + model_name, fromlist=[model_name]), "main")
+        except:
+            try:
+                module = getattr(__import__("app.own_models." + model_name, fromlist=[model_name]), "main")
+            except:
+                log.error("Model Name unknown")
+                return "Model Name unknown"
 
-        elif model_name == "G1Cmodel":
-            model = G1Cmodel(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = model.create_model()
+        model = module(
+            model_data=model_data,
+            valves=valves_dict,
+            model_folder_name=model_folder_name,
+            username=username,
+            max_nodes=max_nodes,
+            ignore_mesh=ignore_mesh,
+            dx_value=dx_value,
+        )
+        writer, block_len = model.create_model()
 
-        # elif model_name == "DCBmodel":
-        #     dcb = DCBmodel(
-        #         model_data=model_data,
-        #         model_folder_name=model_folder_name,
-        #         username=username,
-        #         max_nodes=max_nodes,
-        #         ignore_mesh=ignore_mesh,
-        #         dx_value=dx_value,
-        #     )
-        #     result = dcb.create_model()
+        if not model_data.blocks:
+            block_dict = []
+            mat_block = [model_data.materials[0].name] * block_len
+            dam_block = [""] * block_len
+            dam_block[0] = model_data.damages[0].name
+            scal = 3.01
+            for idx in range(0, block_len):
+                block_def = Block(
+                    id=1,
+                    name="block_" + str(idx + 1),
+                    material=mat_block[idx],
+                    damageModel=dam_block[idx],
+                    horizon=scal * max([dx_value[0], dx_value[1]]),
+                    show=False,
+                )
+                block_dict.append(block_def)
+            block_def = block_dict
+        else:
+            for _, block in enumerate(model_data.blocks):
+                block.horizon = scal * max([dx_value[0], dx_value[1]])
+            block_def = model_data.blocks
 
-        elif model_name == "Dogbone":
-            dogbone = Dogbone(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = dogbone.create_model()
-
-        # elif model_name == "Kalthoff-Winkler":
-        #     kalthoff = KalthoffWinkler(
-        #         model_data=model_data,
-        #         model_folder_name=model_folder_name,
-        #         username=username,
-        #         max_nodes=max_nodes,
-        #         ignore_mesh=ignore_mesh,
-        #         dx_value=dx_value,
-        #     )
-        #     result = kalthoff.create_model()
-
-        # elif model_name == "PlateWithOpening":
-        #     plate_with_opening = PlateWithOpening(
-        #         model_data=model_data,
-        #         model_folder_name=model_folder_name,
-        #         username=username,
-        #         max_nodes=max_nodes,
-        #         ignore_mesh=ignore_mesh,
-        #         dx_value=dx_value,
-        #     )
-        #     result = plate_with_opening.create_model()
-
-        # elif model_name == "PlateWithHole":
-        #     plate_with_hole = PlateWithHole(
-        #         model_data=model_data,
-        #         model_folder_name=model_folder_name,
-        #         username=username,
-        #         max_nodes=max_nodes,
-        #         ignore_mesh=ignore_mesh,
-        #         dx_value=dx_value,
-        #     )
-        #     result = plate_with_hole.create_model()
-
-        # elif model_name == "RingOnRing":
-        #     ring_on_ring = RingOnRing(
-        #         model_data=model_data,
-        #         model_folder_name=model_folder_name,
-        #         username=username,
-        #         max_nodes=max_nodes,
-        #         ignore_mesh=ignore_mesh,
-        #         dx_value=dx_value,
-        #     )
-        #     result = ring_on_ring.create_model()
-
-        elif model_name == "ENFmodel":
-            enf = ENFmodel(
-                model_data=model_data,
-                model_folder_name=model_folder_name,
-                username=username,
-                max_nodes=max_nodes,
-                ignore_mesh=ignore_mesh,
-                dx_value=dx_value,
-            )
-            result = enf.create_model()
+        try:
+            writer.create_file(block_def)
+        except TypeError as exception:
+            return str(exception)
 
         # elif model_name == "Smetana":
         #     smetana = Smetana(
@@ -221,10 +173,6 @@ def generate_model(
         #         two_d=model_data.model.twoDimensional,
         #     )
         #     result = smetana.create_model()
-
-        else:
-            log.error("Model Name unknown")
-            return "Model Name unknown"
 
     else:
         if model_data.model.translated:

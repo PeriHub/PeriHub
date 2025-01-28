@@ -3,8 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import csv
+import importlib.machinery
+import importlib.util
 import os
 import shutil
+from pathlib import Path
 from re import findall
 
 from fastapi import APIRouter, HTTPException, Request, status
@@ -15,6 +18,69 @@ from ..support.file_handler import FileHandler
 from ..support.globals import dev, log
 
 router = APIRouter(prefix="/model", tags=["Model Methods"])
+
+
+@router.get("/getModels", operation_id="get_models")
+def get_models():
+    """doc"""
+
+    model_list = []
+    file_path = str(Path(__file__).parent.parent.resolve())
+    # print(file_path)
+    for model in os.listdir(file_path + "/own_models"):
+        if model.startswith("__"):
+            continue
+        doc_string = FileHandler.get_docstring(file_path + "/own_models/" + model)
+        if doc_string:
+            doc_dict = FileHandler.doc_to_dict(doc_string)
+            doc_dict["file"] = model.split(".")[0]
+            # if doc_dict["input"] != input_type and input_type != "Any":
+            #     continue
+            # if own_models and username not in doc_dict["author"].replace(" ", "").split(","):
+            #     continue
+            model_list.append(doc_dict)
+
+    return model_list
+
+
+@router.get("/getValves", operation_id="get_valves")
+def get_valves(model_name: str, source: bool = False):
+    """doc"""
+    parent_path = str(Path(__file__).parent.parent.name)
+
+    if source:
+        file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".py")
+        print(file_path)
+        return Path(file_path).read_text()
+
+    module = importlib.import_module(parent_path + ".own_models." + model_name, package=".")
+    if not hasattr(module, "Valves"):
+        return {"valves": []}
+    my_class = getattr(module, "Valves")
+    my_instance = my_class()
+
+    fields = my_instance.__fields__
+    response = {"valves": []}
+    for key in fields:
+        type = "text"
+        if fields[key].annotation.__name__ == "bool":
+            type = "checkbox"
+        elif fields[key].annotation.__name__ == "Any":
+            type = "data"
+        elif fields[key].annotation.__name__ in ["float", "int"]:
+            type = "number"
+        elif fields[key].annotation.__name__ == "str" and fields[key].examples:
+            type = "select"
+        response["valves"].append(
+            {
+                "name": key,
+                "type": type,
+                "value": fields[key].default,
+                "description": fields[key].description,
+                "options": fields[key].examples,
+            }
+        )
+    return response
 
 
 @router.get("getConfig", operation_id="get_config")

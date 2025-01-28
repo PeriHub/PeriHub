@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetConfigData, GetConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, TranslateGcodeData, TranslateGcodeResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, TranslateGcodeData, TranslateGcodeResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -46,6 +46,38 @@ export const generateMesh = (data: GenerateMeshData): CancelablePromise<Generate
         model_name: data.modelName,
         param: data.param,
         model_folder_name: data.modelFolderName
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Models
+ * doc
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getModels = (): CancelablePromise<GetModelsResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/model/getModels'
+}); };
+
+/**
+ * Get Valves
+ * doc
+ * @param data The data for the request.
+ * @param data.modelName
+ * @param data.source
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getValves = (data: GetValvesData): CancelablePromise<GetValvesResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/model/getValves',
+    query: {
+        model_name: data.modelName,
+        source: data.source
     },
     errors: {
         422: 'Validation Error'

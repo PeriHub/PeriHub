@@ -30,6 +30,11 @@ export type Block = {
     show?: boolean | null;
 };
 
+export type Body_generate_model = {
+    model_data: ModelData;
+    valves: Valves;
+};
+
 export type Body_upload_files = {
     files: Array<((Blob | File))>;
 };
@@ -222,7 +227,6 @@ export type Matrix = {
 };
 
 export type Model = {
-    modelNameSelected: string;
     modelFolderName?: string | null;
     ownModel: boolean;
     ownMesh?: boolean | null;
@@ -324,6 +328,19 @@ export type ValidationError = {
     type: string;
 };
 
+export type Valve = {
+    name: string;
+    type: string;
+    description: string;
+    value: unknown;
+    options: Array<(string)> | null;
+};
+
+export type Valves = {
+    valves: Array<Valve>;
+    data: unknown | null;
+};
+
 export type Verlet = {
     safetyFactor?: number;
     numericalDamping?: number;
@@ -339,7 +356,7 @@ export type properties = {
 export type GenerateModelData = {
     modelFolderName?: string;
     modelName?: string;
-    requestBody: ModelData;
+    requestBody: Body_generate_model;
 };
 
 export type GenerateModelResponse = unknown;
@@ -351,6 +368,15 @@ export type GenerateMeshData = {
 };
 
 export type GenerateMeshResponse = unknown;
+
+export type GetModelsResponse = unknown;
+
+export type GetValvesData = {
+    modelName: string;
+    source?: boolean;
+};
+
+export type GetValvesResponse = unknown;
 
 export type GetConfigData = {
     modelName?: string;
@@ -574,6 +600,31 @@ export type $OpenApiTs = {
     '/generate/mesh': {
         get: {
             req: GenerateMeshData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/getModels': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+            };
+        };
+    };
+    '/model/getValves': {
+        get: {
+            req: GetValvesData;
             res: {
                 /**
                  * Successful Response

@@ -4,9 +4,21 @@
 
 import json
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
+
+
+class Valve(BaseModel):
+    name: str
+    type: str
+    description: str
+    value: Any
+    options: Optional[List[str]]
+
+
+class Valves(BaseModel):
+    valves: List[Valve]
 
 
 class Status(BaseModel):
@@ -16,7 +28,6 @@ class Status(BaseModel):
 
 
 class Model(BaseModel):
-    modelNameSelected: str
     modelFolderName: Optional[str] = "Default"
     ownModel: bool
     ownMesh: Optional[bool] = None

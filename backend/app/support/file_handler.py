@@ -5,9 +5,12 @@
 """
 doc
 """
+import ast
 import filecmp
 import os
 import shutil
+import subprocess
+import sys
 import time
 
 import jwt
@@ -531,6 +534,31 @@ class FileHandler:
         sftp.close()
         ssh.close()
         return len(str(job_id)) > 5
+
+    @staticmethod
+    def get_docstring(script_path):
+        with open(script_path, "r") as file:
+            tree = ast.parse(file.read())
+            return ast.get_docstring(tree, clean=False)
+
+    @staticmethod
+    def doc_to_dict(docstring):
+        lines = docstring.split("\n")
+        doc_dict = {}
+
+        for line in lines:
+            if ":" in line:
+                param, desc = line.split(":", 1)
+                doc_dict[param.strip("| ")] = desc.strip()
+        return doc_dict
+
+    @staticmethod
+    def install_frontmatter_requirements(requirements):
+        if requirements:
+            req_list = [req.strip() for req in requirements.split(",")]
+            for req in req_list:
+                print(f"Installing requirement: {req}")
+                subprocess.check_call([sys.executable, "-m", "pip", "install", req])
 
     # @staticmethod
     # def write_get_cara_job_ids():
