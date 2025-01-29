@@ -12,6 +12,7 @@ from pydantic import BaseModel
 class Valve(BaseModel):
     name: str
     type: str
+    label: str
     description: str
     value: Any
     options: Optional[List[str]]

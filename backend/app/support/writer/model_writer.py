@@ -19,22 +19,19 @@ from ...support.writer.yaml_writer_perilab import YAMLcreatorPeriLab
 class ModelWriter:
     """doc"""
 
-    def __init__(self, model_class):
+    def __init__(self, model_data, filename, model_folder_name, username):
         """doc"""
 
-        self.filename = model_class.filename
-        self.model_folder_name = model_class.model_folder_name
-        self.ns_name = "ns_" + model_class.filename
-        self.path = "simulations/" + os.path.join(
-            model_class.username, model_class.filename, model_class.model_folder_name
-        )
-        self.mesh_file = model_class.model_data.model.mesh_file
-        self.bc_dict = model_class.model_data.boundaryConditions
-        self.solver_dict = model_class.model_data.solver
-        self.job_dict = model_class.model_data.job
-        self.model_data = model_class.model_data
-        self.disc_type = model_class.disc_type
-        self.ns_list = model_class.ns_list
+        self.filename = filename
+        self.model_folder_name = model_folder_name
+        self.ns_name = "ns_" + filename
+        self.path = "simulations/" + os.path.join(username, filename, model_folder_name)
+        self.mesh_file = model_data.model.mesh_file
+        self.bc_dict = model_data.boundaryConditions
+        self.solver_dict = model_data.solver
+        self.job_dict = model_data.job
+        self.model_data = model_data
+        self.disc_type = "txt"
         if not os.path.exists("simulations"):
             os.mkdir("simulations")
 

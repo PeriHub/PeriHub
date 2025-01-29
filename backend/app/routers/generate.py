@@ -8,13 +8,9 @@ import os
 import time
 from re import match
 
+import numpy as np
 import requests
 from fastapi import APIRouter, Request
-
-from ..models.CompactTension.compact_tension import CompactTension
-
-# from ..models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
-from ..models.OwnModel.own_model import OwnModel
 
 # from ..models.PlateWithHole.plate_with_hole import PlateWithHole
 # from ..models.PlateWithOpening.plate_with_opening import PlateWithOpening
@@ -23,6 +19,11 @@ from ..models.OwnModel.own_model import OwnModel
 from ..support.base_models import Block, ModelData, ResponseModel, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log
+from ..support.writer.model_writer import ModelWriter
+
+# from ..models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
+# from ..models.OwnModel.own_model import OwnModel
+
 
 # from ..models.DCBmodel.dcb_model import DCBmodel
 # from ..models.Dogbone.dogbone import Dogbone
@@ -69,130 +70,96 @@ def generate_model(
     with open(json_file, "w", encoding="UTF-8") as file:
         file.write(model_data.to_json())
 
-    # length = 152
-    # length = 50
-    # width = 10
-    # height = 4.95
-    # number_nodes = 12
-
-    length = model_data.model.length
-    cracklength = model_data.model.cracklength
-    width = model_data.model.width
-    height = model_data.model.height
-    if model_name in {"Dogbone", "Kalthoff-Winkler", "RingOnRing"}:
-        number_nodes = 2 * int(model_data.model.discretization / 2)
-    else:
-        number_nodes = 2 * int(model_data.model.discretization / 2) + 1
-    if model_name in {"CompactTension"}:
-        dx_value = [
-            1.25 * length / number_nodes,
-            1.25 * length / number_nodes,
-            1.25 * length / number_nodes,
-        ]
-    elif model_name in {"Smetana"}:
-        dx_value = [
-            8 * height / number_nodes,
-            8 * height / number_nodes,
-            8 * height / number_nodes,
-        ]
-    else:
-        dx_value = [
-            height / number_nodes,
-            height / number_nodes,
-            height / number_nodes,
-        ]
-
     start_time = time.time()
 
     log.info("Create %s", model_name)
 
     valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
 
-    if model_data.model.ownModel is False:
+    try:
+        module = getattr(__import__("app.models." + model_name, fromlist=[model_name]), "main")
+    except:
         try:
-            module = getattr(__import__("app.models." + model_name, fromlist=[model_name]), "main")
+            module = getattr(__import__("app.own_models." + model_name, fromlist=[model_name]), "main")
         except:
-            try:
-                module = getattr(__import__("app.own_models." + model_name, fromlist=[model_name]), "main")
-            except:
-                log.error("Model Name unknown")
-                return "Model Name unknown"
+            log.error("Model Name unknown")
+            return "Model Name unknown"
 
-        model = module(
-            model_data=model_data,
-            valves=valves_dict,
-            model_folder_name=model_folder_name,
-            username=username,
-            max_nodes=max_nodes,
-            ignore_mesh=ignore_mesh,
-            dx_value=dx_value,
+    model = module(valves_dict)
+
+    dx_value = model.get_discretization(valves_dict)
+
+    x_value, y_value, z_value = model.create_geometry(valves_dict)
+
+    k = np.ones(len(x_value))
+
+    k = model.crate_block_definition(valves_dict, x_value, y_value, z_value, k)
+
+    if len(x_value) > max_nodes:
+        return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes)
+
+    vol = np.zeros(len(x_value))
+    if model_data.model.rotatedAngles:
+        angle_x = np.zeros(len(x_value))
+        angle_y = np.zeros(len(x_value))
+        angle_z = np.zeros(len(x_value))
+
+    two_d = False
+    if len(z_value) > 1:
+        two_d = True
+
+    if two_d:
+        vol = np.full_like(
+            x_value,
+            dx_value[0] * dx_value[1],
         )
-        writer, block_len = model.create_model()
-
-        if not model_data.blocks:
-            block_dict = []
-            mat_block = [model_data.materials[0].name] * block_len
-            dam_block = [""] * block_len
-            dam_block[0] = model_data.damages[0].name
-            scal = 3.01
-            for idx in range(0, block_len):
-                block_def = Block(
-                    id=1,
-                    name="block_" + str(idx + 1),
-                    material=mat_block[idx],
-                    damageModel=dam_block[idx],
-                    horizon=scal * max([dx_value[0], dx_value[1]]),
-                    show=False,
-                )
-                block_dict.append(block_def)
-            block_def = block_dict
-        else:
-            for _, block in enumerate(model_data.blocks):
-                block.horizon = scal * max([dx_value[0], dx_value[1]])
-            block_def = model_data.blocks
-
-        try:
-            writer.create_file(block_def)
-        except TypeError as exception:
-            return str(exception)
-
-        # elif model_name == "Smetana":
-        #     smetana = Smetana(
-        #         model_folder_name=model_folder_name,
-        #         mesh_res=model_data.model.discretization,
-        #         xend=length,
-        #         plyThickness=height,
-        #         zend=width,
-        #         dx_value=dx_value,
-        #         model_data=model_data,
-        #         username=username,
-        #         ignore_mesh=ignore_mesh,
-        #         amplitude_factor=model_data.model.amplitudeFactor,
-        #         wavelength=model_data.model.wavelength,
-        #         angle=model_data.model.angles,
-        #         two_d=model_data.model.twoDimensional,
-        #     )
-        #     result = smetana.create_model()
-
     else:
-        if model_data.model.translated:
-            disc_type = "e"
-        else:
-            disc_type = "txt"
-
-        own = OwnModel(
-            model_data=model_data,
-            filename=model_name,
-            model_folder_name=model_folder_name,
-            username=username,
-            disc_type=disc_type,
-            dx_value=dx_value,
+        vol = np.full_like(
+            x_value,
+            dx_value[0] * dx_value[1] * dx_value[2],
         )
-        result = own.create_model()
 
-    if result != "Model created":
-        log.warning(result)
-        return ResponseModel(data=False, message=result)
+    writer = ModelWriter(model_data, model_name, model_folder_name, username)
+
+    if model_data.model.rotatedAngles:
+        model = np.transpose(
+            np.vstack(
+                [
+                    x_value.ravel(),
+                    y_value.ravel(),
+                    z_value.ravel(),
+                    k.ravel(),
+                    vol.ravel(),
+                    angle_x.ravel(),
+                    angle_y.ravel(),
+                    angle_z.ravel(),
+                ]
+            )
+        )
+        writer.write_mesh_with_angles(model, two_d)
+    else:
+        model = np.transpose(
+            np.vstack(
+                [
+                    x_value.ravel(),
+                    y_value.ravel(),
+                    z_value.ravel(),
+                    k.ravel(),
+                    vol.ravel(),
+                ]
+            )
+        )
+        writer.write_mesh(model, two_d)
+    writer.write_node_sets(model)
+
+    for _, block in enumerate(model_data.blocks):
+        block.horizon = 2.5 * max([dx_value[0], dx_value[1]])
+    block_def = model_data.blocks
+
+    try:
+        writer.create_file(block_def)
+    except TypeError as exception:
+        return str(exception)
 
     log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
 

@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   <div>
     <q-select class="my-select" :options="store.availableModels" option-label="title" v-model="store.selectedModel"
       v-show="!model.ownModel" label="Model Name" standout dense @update:model-value="selectMethod"></q-select>
-    <q-input class="my-input" v-model="model.modelFolderName" label="Model Subname" placeholder="Default" standout
+    <q-input class="my-select" v-model="model.modelFolderName" label="Model Subname" placeholder="Default" standout
       dense></q-input>
     <q-input class="my-input" v-model="model.modelNameSelected" v-show="model.ownModel" :rules="[rules.required]"
       label="Model Name" standout dense></q-input>
@@ -16,27 +16,27 @@ SPDX-License-Identifier: Apache-2.0
       label="Mesh File" standout dense></q-input>
 
     <div v-for="param in store.modelParams.valves" :key="param.name">
-      <q-input class="my-input" standout dense v-if="['text', 'number'].includes(param.type)" :label="param.name"
-        v-model.number="param.value" :type="param.type">
+      <q-input class="my-select" v-if="['text', 'number'].includes(param.type)" :label="param.label"
+        v-model.number="param.value" :type="param.type" standout dense>
         <q-tooltip>
           {{ param.description }}
         </q-tooltip>
       </q-input>
       <q-select class="my-select" standout dense v-if="param.type == 'select'" :options="param.options"
-        option-label="name" v-model="param.value" :label="param.name">
+        option-label="name" v-model="param.value" :label="param.label">
         <q-tooltip>
           {{ param.description }}
         </q-tooltip>
       </q-select>
       <q-toggle class="my-toggle" standout dense v-if="param.type == 'checkbox'" v-model="param.value"
-        :label="param.name">
+        :label="param.label">
         <q-tooltip>
           {{ param.description }}
         </q-tooltip>
       </q-toggle>
     </div>
 
-    <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
+    <!-- <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
       :rules="[rules.required, rules.float]" label="Length" standout dense></q-input>
     <q-input class="my-input" v-model="model.cracklength"
       v-show="['GICmodel', 'GIICmodel', 'CompactTension'].includes(model.modelNameSelected)"
@@ -91,7 +91,7 @@ SPDX-License-Identifier: Apache-2.0
       <div class="my-input">
         <q-input v-model="model.angles[3]" label="Angle 3" standout dense></q-input>
       </div>
-    </div>
+    </div> -->
     <!-- <div v-show="model.modelNameSelected=='RVE' & !model.ownModel">
                 <v-text-field
 

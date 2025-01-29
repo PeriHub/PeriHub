@@ -27,18 +27,19 @@ def get_models():
     model_list = []
     file_path = str(Path(__file__).parent.parent.resolve())
     # print(file_path)
-    for model in os.listdir(file_path + "/own_models"):
-        if model.startswith("__"):
-            continue
-        doc_string = FileHandler.get_docstring(file_path + "/own_models/" + model)
-        if doc_string:
-            doc_dict = FileHandler.doc_to_dict(doc_string)
-            doc_dict["file"] = model.split(".")[0]
-            # if doc_dict["input"] != input_type and input_type != "Any":
-            #     continue
-            # if own_models and username not in doc_dict["author"].replace(" ", "").split(","):
-            #     continue
-            model_list.append(doc_dict)
+    for path in ["models", "own_models"]:
+        for model in os.listdir(os.path.join(file_path, path)):
+            if model.startswith("__"):
+                continue
+            doc_string = FileHandler.get_docstring(os.path.join(file_path, path, model))
+            if doc_string:
+                doc_dict = FileHandler.doc_to_dict(doc_string)
+                doc_dict["file"] = model.split(".")[0]
+                # if doc_dict["input"] != input_type and input_type != "Any":
+                #     continue
+                # if own_models and username not in doc_dict["author"].replace(" ", "").split(","):
+                #     continue
+                model_list.append(doc_dict)
 
     return model_list
 
@@ -48,12 +49,15 @@ def get_valves(model_name: str, source: bool = False):
     """doc"""
     parent_path = str(Path(__file__).parent.parent.name)
 
-    if source:
-        file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".py")
-        print(file_path)
-        return Path(file_path).read_text()
+    # if source:
+    #     file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".py")
+    #     print(file_path)
+    #     return Path(file_path).read_text()
 
-    module = importlib.import_module(parent_path + ".own_models." + model_name, package=".")
+    try:
+        module = importlib.import_module(parent_path + ".models." + model_name, package=".")
+    except:
+        module = importlib.import_module(parent_path + ".own_models." + model_name, package=".")
     if not hasattr(module, "Valves"):
         return {"valves": []}
     my_class = getattr(module, "Valves")
@@ -76,6 +80,7 @@ def get_valves(model_name: str, source: bool = False):
                 "name": key,
                 "type": type,
                 "value": fields[key].default,
+                "label": fields[key].title,
                 "description": fields[key].description,
                 "options": fields[key].examples,
             }
