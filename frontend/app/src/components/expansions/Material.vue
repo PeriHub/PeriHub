@@ -370,7 +370,7 @@ export default defineComponent({
         formData.append('files', files[i]);
       }
 
-      uploadFiles({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, formData: formData })
+      uploadFiles({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, formData: formData })
         .then((response) => {
           if (response.data) {
             this.$q.notify({

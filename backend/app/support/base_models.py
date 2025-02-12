@@ -206,7 +206,7 @@ class Damage(BaseModel):
 
 
 class Block(BaseModel):
-    id: Optional[int] = None
+    blocksId: int
     name: str
     material: str
     damageModel: Optional[str] = None

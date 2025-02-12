@@ -153,6 +153,7 @@ export default {
 
     return {
       modelData,
+      modelStore
     }
   },
   data() {
@@ -257,7 +258,7 @@ export default {
       console.log('getPointDataAndUpdateDx')
       let data = null;
       await getPointDataResults({
-        modelName: this.modelData.model.modelNameSelected,
+        modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
         output: this.modelParams.output,

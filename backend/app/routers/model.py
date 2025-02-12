@@ -92,7 +92,13 @@ def get_valves(model_name: str, source: bool = False):
 def get_config(model_name: str = "Dogbone"):
     """doc"""
 
-    return FileResponse(os.path.join("./assets/models", model_name, model_name + ".json"))
+    if os.path.exists("./models/" + model_name + ".json"):
+        return FileResponse("./models/" + model_name + ".json")
+    if os.path.exists("./own_models/" + model_name + ".json"):
+        return FileResponse("./own_models/" + model_name + ".json")
+
+    log.error("%s files can not be found", model_name)
+    return model_name + " files can not be found"
 
 
 @router.get("/getMaxFeSize", operation_id="get_max_fe_size")

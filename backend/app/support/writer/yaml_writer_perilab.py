@@ -211,6 +211,7 @@ class YAMLcreatorPeriLab:
             blocks = {}
 
             # blocks["Block Names"] = block.name
+            blocks["Block ID"] = block.blocksId
             blocks["Material Model"] = block.material
             if block.damageModel != "" and block.damageModel is not None:
                 blocks["Damage Model"] = block.damageModel
@@ -328,7 +329,7 @@ class YAMLcreatorPeriLab:
             data["Calculate Cauchy"] = self.solver_dict.calculateCauchy
 
         if self.check_if_defined(self.solver_dict.calculateVonMises):
-            data["Calculate von Mises"] = self.solver_dict.calculateVonMises
+            data["Calculate von Mises stress"] = self.solver_dict.calculateVonMises
 
         if self.check_if_defined(self.solver_dict.calculateStrain):
             data["Calculate Strain"] = self.solver_dict.calculateStrain

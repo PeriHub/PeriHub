@@ -27,7 +27,7 @@ class Valves(BaseModel):
         description="Length",
     )
     HEIGHT1: float = Field(
-        default=2,
+        default=1,
         title="Inner Height",
         description="Inner Height",
     )
@@ -37,7 +37,7 @@ class Valves(BaseModel):
         description="Outer Height",
     )
     WIDTH: float = Field(
-        default=10,
+        default=0.1,
         title="Width",
         description="Width",
     )
@@ -75,7 +75,7 @@ class main:
         self.alpha = np.arccos((self.radius - self.delta_height) / self.radius) * 180 / np.pi
 
     def get_discretization(self, valves):
-        number_nodes = 2 * int(valves["DISCRETIZATION"] / 2) + 1
+        number_nodes = 2 * int(valves["DISCRETIZATION"] / 2)
         dx_value = [
             valves["HEIGHT2"] / number_nodes,
             valves["HEIGHT2"] / number_nodes,

@@ -339,6 +339,7 @@ export default defineComponent({
       status,
       saveEnergy,
       viewStore,
+      modelStore,
       modelData,
       rules,
       bus,
@@ -460,7 +461,7 @@ export default defineComponent({
       this.submitLoading = true;
       this.viewStore.textLoading = true;
 
-      await runModel({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, requestBody: this.modelData })
+      await runModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, requestBody: this.modelData })
         .then((response) => {
           if (response.data) {
             this.$q.notify({
@@ -513,7 +514,7 @@ export default defineComponent({
 
       this.submitLoading = true;
       await cancelJob({
-        modelName: this.modelData.model.modelNameSelected,
+        modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster
       })
@@ -537,7 +538,7 @@ export default defineComponent({
     async saveResults(allData) {
       this.resultsLoading = true;
       await getResults({
-        modelName: this.modelData.model.modelNameSelected,
+        modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         output: this.getPlotOutput,
         tasks: this.modelData.job.tasks,
@@ -577,7 +578,7 @@ export default defineComponent({
       let plotRawData = null;
 
       await getPlot({
-        modelName: this.modelData.model.modelNameSelected,
+        modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
         output: this.getPlotOutput,
@@ -701,7 +702,7 @@ export default defineComponent({
 
       //https://github.com/hey-api/openapi-ts/issues/804
       // await getFractureAnalysis({
-      //   modelName: this.modelData.model.modelNameSelected,
+      //   modelName: this.modelStore.selectedModel.file,
       //   modelFolderName: this.modelData.model.modelFolderName,
       //   length: this.modelData.model.length,
       //   height: this.modelData.model.height,
@@ -781,7 +782,7 @@ export default defineComponent({
       this.viewStore.modelLoading = true;
 
       await getEnfAnalysis({
-        modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName,
+        modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName,
         length: this.modelData.model.length,
         width: this.modelData.model.width,
         crack_length: this.modelData.model.cracklength,
@@ -809,7 +810,7 @@ export default defineComponent({
     async deleteModel() {
 
       await deleteModel({
-        modelName: this.modelData.model.modelNameSelected,
+        modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName
       })
         .then((response) => {
@@ -827,7 +828,7 @@ export default defineComponent({
         })
 
       await deleteModelFromCluster({
-        modelName: this.modelData.model.modelNameSelected,
+        modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster
       })

@@ -195,7 +195,7 @@ export default defineComponent({
   },
   methods: {
     async resetData() {
-      await getConfig({ modelName: this.model.modelNameSelected }).then((response) => {
+      await getConfig({ modelName: this.store.selectedModel.file }).then((response) => {
         this.store.modelData = structuredClone(response)
       })
         .catch((error) => {
