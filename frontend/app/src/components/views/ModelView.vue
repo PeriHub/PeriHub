@@ -159,7 +159,7 @@ export default defineComponent({
 
       console.log('getPointDataAndUpdateDx')
       await getPointData({
-        modelName: this.modelStore.selectedModel.file,
+        modelName: this.modelStore.selectedModel.title,
         modelFolderName: this.modelData.model.modelFolderName,
         ownModel: this.modelData.model.ownModel,
         ownMesh: this.modelData.model.ownMesh,

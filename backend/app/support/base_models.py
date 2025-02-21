@@ -333,7 +333,6 @@ class Solver(BaseModel):
     damEnabled: bool = True
     dispEnabled: bool = True
     tempEnabled: bool = True
-    verbose: bool
     initialTime: float
     finalTime: float
     fixedDt: Optional[float] = None
@@ -356,6 +355,7 @@ class Solver(BaseModel):
 class Job(BaseModel):
     cluster: bool
     sbatch: bool
+    verbose: bool
     nodes: Optional[int] = 1
     tasks: Optional[int] = 32
     tasksPerNode: Optional[int] = 32

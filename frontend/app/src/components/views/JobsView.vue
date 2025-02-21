@@ -125,7 +125,7 @@ export default defineComponent({
     async _getJobs() {
       this.loading = true;
 
-      await getJobs({ modelName: this.modelStore.selectedModel.file })
+      await getJobs({ modelName: this.modelStore.selectedModel.title })
         .then((response) => {
           this.rows = response.data
           this.$q.notify({

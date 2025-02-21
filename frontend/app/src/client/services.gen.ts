@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, TranslateGcodeData, TranslateGcodeResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelData, SaveModelResponse, DeleteModelData, DeleteModelResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, TranslateGcodeData, TranslateGcodeResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModel1Data, DeleteModel1Response, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -64,6 +64,25 @@ export const getModels = (): CancelablePromise<GetModelsResponse> => { return __
 }); };
 
 /**
+ * Get Own Models
+ * doc
+ * @param data The data for the request.
+ * @param data.verify
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getOwnModels = (data: GetOwnModelsData = {}): CancelablePromise<GetOwnModelsResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/model/getOwnModels',
+    query: {
+        verify: data.verify
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
  * Get Valves
  * doc
  * @param data The data for the request.
@@ -88,7 +107,7 @@ export const getValves = (data: GetValvesData): CancelablePromise<GetValvesRespo
  * Get Config
  * doc
  * @param data The data for the request.
- * @param data.modelName
+ * @param data.configFile
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -96,8 +115,29 @@ export const getConfig = (data: GetConfigData = {}): CancelablePromise<GetConfig
     method: 'GET',
     url: '/modelgetConfig',
     query: {
-        model_name: data.modelName
+        config_file: data.configFile
     },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Save Config
+ * @param data The data for the request.
+ * @param data.configFile
+ * @param data.requestBody
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const saveConfig = (data: SaveConfigData): CancelablePromise<SaveConfigResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/model/saveConfig',
+    query: {
+        config_file: data.configFile
+    },
+    body: data.requestBody,
+    mediaType: 'application/json',
     errors: {
         422: 'Validation Error'
     }
@@ -179,6 +219,84 @@ export const viewInputFile = (data: ViewInputFileData = {}): CancelablePromise<V
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Add Model
+ * doc
+ * @param data The data for the request.
+ * @param data.modelName
+ * @param data.description
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const addModel = (data: AddModelData): CancelablePromise<AddModelResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/model/add',
+    query: {
+        model_name: data.modelName,
+        description: data.description
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Own Model File
+ * doc
+ * @param data The data for the request.
+ * @param data.modelFile
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getOwnModelFile = (data: GetOwnModelFileData = {}): CancelablePromise<GetOwnModelFileResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/model/getOwnModelFile',
+    query: {
+        model_file: data.modelFile
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Save Model
+ * @param data The data for the request.
+ * @param data.modelFile
+ * @param data.sourceCode
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const saveModel = (data: SaveModelData): CancelablePromise<SaveModelResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/model/save',
+    query: {
+        model_file: data.modelFile,
+        source_code: data.sourceCode
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Delete Model
+ * @param data The data for the request.
+ * @param data.modelName
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const deleteModel = (data: DeleteModelData): CancelablePromise<DeleteModelResponse> => { return __request(OpenAPI, {
+    method: 'DELETE',
+    url: '/model/delete',
+    query: {
+        model_name: data.modelName
     },
     errors: {
         422: 'Validation Error'
@@ -291,6 +409,7 @@ export const translateGcode = (data: TranslateGcodeData): CancelablePromise<Tran
  * @param data.requestBody
  * @param data.modelName
  * @param data.modelFolderName
+ * @param data.verbose
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -299,7 +418,8 @@ export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse
     url: '/jobs/run',
     query: {
         model_name: data.modelName,
-        model_folder_name: data.modelFolderName
+        model_folder_name: data.modelFolderName,
+        verbose: data.verbose
     },
     body: data.requestBody,
     mediaType: 'application/json',
@@ -555,7 +675,7 @@ export const getPointDataResults = (data: GetPointDataResultsData = {}): Cancela
  * @returns unknown Successful Response
  * @throws ApiError
  */
-export const deleteModel = (data: DeleteModelData = {}): CancelablePromise<DeleteModelResponse> => { return __request(OpenAPI, {
+export const deleteModel1 = (data: DeleteModel1Data = {}): CancelablePromise<DeleteModel1Response> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/delete/model',
     query: {

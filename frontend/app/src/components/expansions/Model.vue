@@ -195,7 +195,7 @@ export default defineComponent({
   },
   methods: {
     async resetData() {
-      await getConfig({ modelName: this.store.selectedModel.file }).then((response) => {
+      await getConfig({ configFile: this.store.selectedModel.config }).then((response) => {
         this.store.modelData = structuredClone(response)
       })
         .catch((error) => {
@@ -208,7 +208,7 @@ export default defineComponent({
     async selectMethod() {
       // this.viewStore.viewLoading = true
       const response = await getValves({
-        modelName: this.store.selectedModel.file
+        modelName: this.store.selectedModel.title
       })
       this.store.modelParams = response
       // this.viewStore.viewLoading = false

@@ -11,6 +11,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', component: () => import('pages/LandingPage.vue') },
       { path: '/perihub', component: () => import('pages/PeriHub.vue') },
+      { path: '/models', component: () => import('pages/Models.vue') },
       { path: '/tools', component: () => import('pages/Tools.vue') },
       {
         path: '/publications',

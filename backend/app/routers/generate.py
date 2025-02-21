@@ -91,6 +91,11 @@ def generate_model(
 
     x_value, y_value, z_value = model.create_geometry(valves_dict)
 
+    try:
+        model.edit_model_data(model_data, valves_dict)
+    except:
+        pass
+
     k = np.ones(len(x_value))
 
     k = model.crate_block_definition(valves_dict, x_value, y_value, z_value, k)

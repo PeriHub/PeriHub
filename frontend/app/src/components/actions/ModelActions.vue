@@ -252,7 +252,7 @@ export default defineComponent({
         formData.append('files', files[i]);
       }
 
-      await uploadFiles({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, formData: formData })
+      await uploadFiles({ modelName: this.modelStore.selectedModel.title, modelFolderName: this.modelData.model.modelFolderName, formData: formData })
         .then((response) => {
           if (response.data) {
             this.$q.notify({
@@ -338,7 +338,7 @@ export default defineComponent({
         await this.uploadfiles([file]);
       }
 
-      await translateModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, discretization: this.translatorDiscretization })
+      await translateModel({ modelName: this.modelStore.selectedModel.title, modelFolderName: this.modelData.model.modelFolderName, discretization: this.translatorDiscretization })
         .then((response) => {
           this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + '.txt'
           if (response.data) {
@@ -387,7 +387,7 @@ export default defineComponent({
         await this.uploadfiles([file]);
       }
 
-      await translateGcode({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, discretization: this.gcodeDiscretization, dt: this.gcodeDt, scale: this.gcodeScale })
+      await translateGcode({ modelName: this.modelStore.selectedModel.title, modelFolderName: this.modelData.model.modelFolderName, discretization: this.gcodeDiscretization, dt: this.gcodeDt, scale: this.gcodeScale })
         .then((response) => {
           this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + '.txt'
           this.$q.notify({
@@ -418,7 +418,7 @@ export default defineComponent({
     },
     saveModel() {
 
-      getModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName })
+      getModel({ modelName: this.modelStore.selectedModel.title, modelFolderName: this.modelData.model.modelFolderName })
         .then((response) => {
           var fileURL = window.URL.createObjectURL(new Blob([response.data]));
           var fileLink = document.createElement('a');
@@ -452,7 +452,7 @@ export default defineComponent({
       }
 
       await generateModel({
-        modelName: this.modelStore.selectedModel.file,
+        modelName: this.modelStore.selectedModel.title,
         modelFolderName: this.modelData.model.modelFolderName,
         requestBody: body
       })

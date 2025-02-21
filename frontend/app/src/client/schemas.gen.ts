@@ -85,16 +85,9 @@ export const $AdditiveModel = {
 
 export const $Block = {
     properties: {
-        id: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Id'
+        blocksId: {
+            type: 'integer',
+            title: 'Blocksid'
         },
         name: {
             type: 'string',
@@ -161,7 +154,7 @@ export const $Block = {
         }
     },
     type: 'object',
-    required: ['name', 'material'],
+    required: ['blocksId', 'name', 'material'],
     title: 'Block'
 } as const;
 
@@ -1076,6 +1069,10 @@ export const $Job = {
             type: 'boolean',
             title: 'Sbatch'
         },
+        verbose: {
+            type: 'boolean',
+            title: 'Verbose'
+        },
         nodes: {
             anyOf: [
                 {
@@ -1160,7 +1157,7 @@ export const $Job = {
         }
     },
     type: 'object',
-    required: ['cluster', 'sbatch'],
+    required: ['cluster', 'sbatch', 'verbose'],
     title: 'Job'
 } as const;
 
@@ -2310,10 +2307,6 @@ export const $Solver = {
             title: 'Tempenabled',
             default: true
         },
-        verbose: {
-            type: 'boolean',
-            title: 'Verbose'
-        },
         initialTime: {
             type: 'number',
             title: 'Initialtime'
@@ -2466,7 +2459,7 @@ export const $Solver = {
         }
     },
     type: 'object',
-    required: ['verbose', 'initialTime', 'finalTime', 'solvertype', 'safetyFactor', 'numericalDamping'],
+    required: ['initialTime', 'finalTime', 'solvertype', 'safetyFactor', 'numericalDamping'],
     title: 'Solver'
 } as const;
 
@@ -2535,6 +2528,10 @@ export const $Valve = {
             type: 'string',
             title: 'Type'
         },
+        label: {
+            type: 'string',
+            title: 'Label'
+        },
         description: {
             type: 'string',
             title: 'Description'
@@ -2558,7 +2555,7 @@ export const $Valve = {
         }
     },
     type: 'object',
-    required: ['name', 'type', 'description', 'value', 'options'],
+    required: ['name', 'type', 'label', 'description', 'value', 'options'],
     title: 'Valve'
 } as const;
 
@@ -2570,19 +2567,10 @@ export const $Valves = {
             },
             type: 'array',
             title: 'Valves'
-        },
-        data: {
-            anyOf: [
-                {},
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Data'
         }
     },
     type: 'object',
-    required: ['valves', 'data'],
+    required: ['valves'],
     title: 'Valves'
 } as const;
 

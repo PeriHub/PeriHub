@@ -62,7 +62,7 @@ class ModelWriter:
             #     string = "header: global_id\n"
             #     for point in points:
             #         string += str(int(point) + 1) + "\n"
-            self.file_writer(self.ns_name + "_" + str(idx + 1 + number_of_ns) + ".txt", string)
+            # self.file_writer(self.ns_name + "_" + str(idx + 1 + number_of_ns) + ".txt", string)
 
     def file_writer(self, filename, string):
         """doc"""

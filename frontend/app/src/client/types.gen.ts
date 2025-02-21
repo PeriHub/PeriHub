@@ -20,7 +20,7 @@ export type AdditiveModel = {
 };
 
 export type Block = {
-    id?: number | null;
+    blocksId: number;
     name: string;
     material: string;
     damageModel?: string | null;
@@ -170,6 +170,7 @@ export type Interaction = {
 export type Job = {
     cluster: boolean;
     sbatch: boolean;
+    verbose: boolean;
     nodes?: number | null;
     tasks?: number | null;
     tasksPerNode?: number | null;
@@ -296,7 +297,6 @@ export type Solver = {
     damEnabled?: boolean;
     dispEnabled?: boolean;
     tempEnabled?: boolean;
-    verbose: boolean;
     initialTime: number;
     finalTime: number;
     fixedDt?: number | null;
@@ -331,6 +331,7 @@ export type ValidationError = {
 export type Valve = {
     name: string;
     type: string;
+    label: string;
     description: string;
     value: unknown;
     options: Array<(string)> | null;
@@ -338,7 +339,6 @@ export type Valve = {
 
 export type Valves = {
     valves: Array<Valve>;
-    data: unknown | null;
 };
 
 export type Verlet = {
@@ -371,6 +371,12 @@ export type GenerateMeshResponse = unknown;
 
 export type GetModelsResponse = unknown;
 
+export type GetOwnModelsData = {
+    verify?: boolean;
+};
+
+export type GetOwnModelsResponse = unknown;
+
 export type GetValvesData = {
     modelName: string;
     source?: boolean;
@@ -379,10 +385,17 @@ export type GetValvesData = {
 export type GetValvesResponse = unknown;
 
 export type GetConfigData = {
-    modelName?: string;
+    configFile?: string;
 };
 
 export type GetConfigResponse = unknown;
+
+export type SaveConfigData = {
+    configFile: string;
+    requestBody: ModelData;
+};
+
+export type SaveConfigResponse = unknown;
 
 export type GetMaxFeSizeResponse = unknown;
 
@@ -410,6 +423,32 @@ export type ViewInputFileData = {
 };
 
 export type ViewInputFileResponse = unknown;
+
+export type AddModelData = {
+    description: string;
+    modelName: string;
+};
+
+export type AddModelResponse = unknown;
+
+export type GetOwnModelFileData = {
+    modelFile?: string;
+};
+
+export type GetOwnModelFileResponse = unknown;
+
+export type SaveModelData = {
+    modelFile: string;
+    sourceCode: string;
+};
+
+export type SaveModelResponse = unknown;
+
+export type DeleteModelData = {
+    modelName: string;
+};
+
+export type DeleteModelResponse = unknown;
 
 export type UploadFilesData = {
     formData: Body_upload_files;
@@ -450,6 +489,7 @@ export type RunModelData = {
     modelFolderName?: string;
     modelName?: string;
     requestBody: ModelData;
+    verbose?: boolean;
 };
 
 export type RunModelResponse = unknown;
@@ -545,12 +585,12 @@ export type GetPointDataResultsData = {
 
 export type GetPointDataResultsResponse = unknown;
 
-export type DeleteModelData = {
+export type DeleteModel1Data = {
     modelFolderName?: string;
     modelName?: string;
 };
 
-export type DeleteModelResponse = unknown;
+export type DeleteModel1Response = unknown;
 
 export type DeleteModelFromClusterData = {
     cluster?: boolean;
@@ -622,6 +662,21 @@ export type $OpenApiTs = {
             };
         };
     };
+    '/model/getOwnModels': {
+        get: {
+            req: GetOwnModelsData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
     '/model/getValves': {
         get: {
             req: GetValvesData;
@@ -640,6 +695,21 @@ export type $OpenApiTs = {
     '/modelgetConfig': {
         get: {
             req: GetConfigData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/saveConfig': {
+        post: {
+            req: SaveConfigData;
             res: {
                 /**
                  * Successful Response
@@ -695,6 +765,66 @@ export type $OpenApiTs = {
     '/model/viewInputFile': {
         get: {
             req: ViewInputFileData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/add': {
+        post: {
+            req: AddModelData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/getOwnModelFile': {
+        get: {
+            req: GetOwnModelFileData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/save': {
+        post: {
+            req: SaveModelData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/delete': {
+        delete: {
+            req: DeleteModelData;
             res: {
                 /**
                  * Successful Response
@@ -904,7 +1034,7 @@ export type $OpenApiTs = {
     };
     '/delete/model': {
         delete: {
-            req: DeleteModelData;
+            req: DeleteModel1Data;
             res: {
                 /**
                  * Successful Response

@@ -258,7 +258,7 @@ export default {
       console.log('getPointDataAndUpdateDx')
       let data = null;
       await getPointDataResults({
-        modelName: this.modelStore.selectedModel.file,
+        modelName: this.modelStore.selectedModel.title,
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
         output: this.modelParams.output,
