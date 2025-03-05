@@ -13,6 +13,7 @@ services:
     volumes:
       - ${VOLUME}:/app/simulations
       - ${VOLUME}/rsaFiles:/app/rsaFiles
+      - ${OWN_MODELS}:/app/own_models
 
   perihub_frontend:
     image: perihub/frontend

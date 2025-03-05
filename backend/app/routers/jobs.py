@@ -22,6 +22,7 @@ async def run_model(
     model_data: ModelData,
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
+    verbose: bool = False,
     request: Request = "",
 ):
     """doc"""
@@ -95,7 +96,7 @@ async def run_model(
             usermail=usermail,
             trial=trial,
         )
-        sh_string = sbatch.create_sh(False, cluster_perilab_path)
+        sh_string = sbatch.create_sh(verbose, False, cluster_perilab_path)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         file = sftp.file(remotepath + "/" + "runPerilab.sh", "w", -1)
         file.write(sh_string)
@@ -128,7 +129,7 @@ async def run_model(
             usermail=usermail,
             trial=trial,
         )
-        sh_string = sbatch.create_sh()
+        sh_string = sbatch.create_sh(verbose)
         with open(
             os.path.join("." + remotepath, "runPerilab.sh"),
             "w",

@@ -6,15 +6,39 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-select class="my-select" :options="modelName" v-model="model.modelNameSelected" v-show="!model.ownModel"
-      label="Model Name" standout dense></q-select>
-    <q-input class="my-input" v-model="model.modelFolderName" label="Model Subname" placeholder="Default" standout
+    <q-select class="my-select" :options="store.availableModels" option-label="title" v-model="store.selectedModel"
+      v-show="!model.ownModel" label="Model Name" standout dense @update:model-value="selectMethod"></q-select>
+    <q-input class="my-select" v-model="model.modelFolderName" label="Model Subname" placeholder="Default" standout
       dense></q-input>
     <q-input class="my-input" v-model="model.modelNameSelected" v-show="model.ownModel" :rules="[rules.required]"
       label="Model Name" standout dense></q-input>
     <q-input class="my-input" v-model="model.meshFile" v-show="model.ownModel" :rules="[rules.required]"
       label="Mesh File" standout dense></q-input>
-    <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
+
+    <q-toggle class="my-toggle" standout dense v-model="model.twoDimensional" label="Two Dimensional"></q-toggle>
+
+    <div v-for="param in store.modelParams.valves" :key="param.name">
+      <q-input class="my-select" v-if="['text', 'number'].includes(param.type)" :label="param.label"
+        v-model.number="param.value" :type="param.type" standout dense>
+        <q-tooltip>
+          {{ param.description }}
+        </q-tooltip>
+      </q-input>
+      <q-select class="my-select" standout dense v-if="param.type == 'select'" :options="param.options"
+        option-label="name" v-model="param.value" :label="param.label">
+        <q-tooltip>
+          {{ param.description }}
+        </q-tooltip>
+      </q-select>
+      <q-toggle class="my-toggle" standout dense v-if="param.type == 'checkbox'" v-model="param.value"
+        :label="param.label">
+        <q-tooltip>
+          {{ param.description }}
+        </q-tooltip>
+      </q-toggle>
+    </div>
+
+    <!-- <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"
       :rules="[rules.required, rules.float]" label="Length" standout dense></q-input>
     <q-input class="my-input" v-model="model.cracklength"
       v-show="['GICmodel', 'GIICmodel', 'CompactTension'].includes(model.modelNameSelected)"
@@ -69,7 +93,7 @@ SPDX-License-Identifier: Apache-2.0
       <div class="my-input">
         <q-input v-model="model.angles[3]" label="Angle 3" standout dense></q-input>
       </div>
-    </div>
+    </div> -->
     <!-- <div v-show="model.modelNameSelected=='RVE' & !model.ownModel">
                 <v-text-field
 
@@ -150,7 +174,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 import { computed, defineComponent, inject } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { getConfig } from 'src/client'
+import { getConfig, getModels, getValves } from 'src/client'
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -159,27 +183,11 @@ export default defineComponent({
     const store = useModelStore();
     const model = computed(() => store.modelData.model)
     const bus = inject('bus')
-    let modelName = [
-      'Dogbone',
-      // 'Kalthoff-Winkler',
-      // 'PlateWithOpening',
-      // 'PlateWithHole',
-      'ENFmodel',
-      // 'DCBmodel',
-      'CompactTension',
-      'G1Cmodel',
-      // 'OwnModel',
-      // 'RingOnRing'
-    ]
-    // if (process.env.DLR) {
-    //   modelName.push("Smetana")
-    // }
     return {
       store,
       model,
       rules,
-      bus,
-      modelName
+      bus
     }
   },
   created() {
@@ -189,7 +197,7 @@ export default defineComponent({
   },
   methods: {
     async resetData() {
-      await getConfig({ modelName: this.model.modelNameSelected }).then((response) => {
+      await getConfig({ configFile: this.store.selectedModel.file }).then((response) => {
         this.store.modelData = structuredClone(response)
       })
         .catch((error) => {
@@ -199,6 +207,19 @@ export default defineComponent({
           })
         })
     },
+    async selectMethod() {
+      // this.viewStore.viewLoading = true
+      const response = await getValves({
+        modelName: this.store.selectedModel.file
+      })
+      this.store.modelParams = response
+      // this.viewStore.viewLoading = false
+    },
+
+  },
+  async beforeMount() {
+    this.store.availableModels = await getModels()
+    this.selectMethod()
   },
   watch: {
     'store.modelData.model.modelNameSelected': {
@@ -210,6 +231,11 @@ export default defineComponent({
         }
         this.bus.emit('getStatus')
       },
+    },
+    'store.selectedModel': {
+      handler() {
+        localStorage.setItem('selectedModel', JSON.stringify(this.store.selectedModel));
+      }
     },
   }
 })

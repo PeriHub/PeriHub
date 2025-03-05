@@ -85,16 +85,9 @@ export const $AdditiveModel = {
 
 export const $Block = {
     properties: {
-        id: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Id'
+        blocksId: {
+            type: 'integer',
+            title: 'Blocksid'
         },
         name: {
             type: 'string',
@@ -161,8 +154,22 @@ export const $Block = {
         }
     },
     type: 'object',
-    required: ['name', 'material'],
+    required: ['blocksId', 'name', 'material'],
     title: 'Block'
+} as const;
+
+export const $Body_generate_model = {
+    properties: {
+        model_data: {
+            '$ref': '#/components/schemas/ModelData'
+        },
+        valves: {
+            '$ref': '#/components/schemas/Valves'
+        }
+    },
+    type: 'object',
+    required: ['model_data', 'valves'],
+    title: 'Body_generate_model'
 } as const;
 
 export const $Body_upload_files = {
@@ -444,20 +451,6 @@ export const $BoundaryConditions = {
             },
             type: 'array',
             title: 'Conditions'
-        },
-        nodeSets: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/NodeSet'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Nodesets'
         }
     },
     type: 'object',
@@ -1062,6 +1055,10 @@ export const $Job = {
             type: 'boolean',
             title: 'Sbatch'
         },
+        verbose: {
+            type: 'boolean',
+            title: 'Verbose'
+        },
         nodes: {
             anyOf: [
                 {
@@ -1146,7 +1143,7 @@ export const $Job = {
         }
     },
     type: 'object',
-    required: ['cluster', 'sbatch'],
+    required: ['cluster', 'sbatch', 'verbose'],
     title: 'Job'
 } as const;
 
@@ -1567,10 +1564,6 @@ export const $Matrix = {
 
 export const $Model = {
     properties: {
-        modelNameSelected: {
-            type: 'string',
-            title: 'Modelnameselected'
-        },
         modelFolderName: {
             anyOf: [
                 {
@@ -1587,6 +1580,10 @@ export const $Model = {
             type: 'boolean',
             title: 'Ownmodel'
         },
+        translated: {
+            type: 'boolean',
+            title: 'Translated'
+        },
         ownMesh: {
             anyOf: [
                 {
@@ -1598,107 +1595,6 @@ export const $Model = {
             ],
             title: 'Ownmesh'
         },
-        translated: {
-            type: 'boolean',
-            title: 'Translated'
-        },
-        length: {
-            type: 'number',
-            title: 'Length'
-        },
-        cracklength: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Cracklength'
-        },
-        notchEnabled: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Notchenabled',
-            default: true
-        },
-        width: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Width'
-        },
-        height: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Height'
-        },
-        height2: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Height2'
-        },
-        radius: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Radius'
-        },
-        radius2: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Radius2'
-        },
-        structured: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Structured'
-        },
-        discretization: {
-            type: 'integer',
-            title: 'Discretization'
-        },
         horizon: {
             anyOf: [
                 {
@@ -1709,43 +1605,6 @@ export const $Model = {
                 }
             ],
             title: 'Horizon'
-        },
-        twoDimensional: {
-            type: 'boolean',
-            title: 'Twodimensional'
-        },
-        rotatedAngles: {
-            type: 'boolean',
-            title: 'Rotatedangles'
-        },
-        angles: {
-            items: {
-                type: 'number'
-            },
-            type: 'array',
-            title: 'Angles'
-        },
-        amplitudeFactor: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Amplitudefactor'
-        },
-        wavelength: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Wavelength'
         },
         mesh_file: {
             anyOf: [
@@ -1760,7 +1619,7 @@ export const $Model = {
         }
     },
     type: 'object',
-    required: ['modelNameSelected', 'ownModel', 'translated', 'length', 'discretization', 'twoDimensional', 'rotatedAngles', 'angles'],
+    required: ['ownModel', 'translated'],
     title: 'Model'
 } as const;
 
@@ -2093,29 +1952,6 @@ export const $ModelData = {
     }
 } as const;
 
-export const $NodeSet = {
-    properties: {
-        nodeSetId: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Nodesetid'
-        },
-        file: {
-            type: 'string',
-            title: 'File'
-        }
-    },
-    type: 'object',
-    required: ['file'],
-    title: 'NodeSet'
-} as const;
-
 export const $Output = {
     properties: {
         outputsId: {
@@ -2300,10 +2136,6 @@ export const $Solver = {
             title: 'Tempenabled',
             default: true
         },
-        verbose: {
-            type: 'boolean',
-            title: 'Verbose'
-        },
         initialTime: {
             type: 'number',
             title: 'Initialtime'
@@ -2456,7 +2288,7 @@ export const $Solver = {
         }
     },
     type: 'object',
-    required: ['verbose', 'initialTime', 'finalTime', 'solvertype', 'safetyFactor', 'numericalDamping'],
+    required: ['initialTime', 'finalTime', 'solvertype', 'safetyFactor', 'numericalDamping'],
     title: 'Solver'
 } as const;
 
@@ -2513,6 +2345,62 @@ export const $ValidationError = {
     type: 'object',
     required: ['loc', 'msg', 'type'],
     title: 'ValidationError'
+} as const;
+
+export const $Valve = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        type: {
+            type: 'string',
+            title: 'Type'
+        },
+        label: {
+            type: 'string',
+            title: 'Label'
+        },
+        description: {
+            type: 'string',
+            title: 'Description'
+        },
+        value: {
+            title: 'Value'
+        },
+        options: {
+            anyOf: [
+                {
+                    items: {
+                        type: 'string'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Options'
+        }
+    },
+    type: 'object',
+    required: ['name', 'type', 'label', 'description', 'value', 'options'],
+    title: 'Valve'
+} as const;
+
+export const $Valves = {
+    properties: {
+        valves: {
+            items: {
+                '$ref': '#/components/schemas/Valve'
+            },
+            type: 'array',
+            title: 'Valves'
+        }
+    },
+    type: 'object',
+    required: ['valves'],
+    title: 'Valves'
 } as const;
 
 export const $Verlet = {

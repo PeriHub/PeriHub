@@ -74,6 +74,7 @@ export default defineComponent({
     const bus = inject('bus')
     return {
       viewStore,
+      modelStore,
       modelData,
       bus,
     }
@@ -158,7 +159,7 @@ export default defineComponent({
 
       console.log('getPointDataAndUpdateDx')
       await getPointData({
-        modelName: this.modelData.model.modelNameSelected,
+        modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         ownModel: this.modelData.model.ownModel,
         ownMesh: this.modelData.model.ownMesh,

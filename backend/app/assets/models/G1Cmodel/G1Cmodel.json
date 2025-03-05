@@ -352,6 +352,7 @@
   "job": {
     "cluster": false,
     "sbatch": false,
+    "verbose": false,
     "nodes": 1,
     "tasks": 32,
     "tasksPerNode": 32,

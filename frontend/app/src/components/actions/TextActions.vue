@@ -47,6 +47,7 @@ export default defineComponent({
     return {
       store,
       viewStore,
+      modelStore,
       modelData,
       rules,
       bus,
@@ -72,7 +73,7 @@ export default defineComponent({
     async viewInputFile(loadFile) {
       console.log('viewInputFile')
 
-      viewInputFile({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, ownMesh: this.modelData.model.ownMesh })
+      viewInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, ownMesh: this.modelData.model.ownMesh })
         .then((response) => {
           this.$q.notify({
             message: response.message
@@ -94,7 +95,7 @@ export default defineComponent({
     },
     writeInputFile() {
 
-      writeInputFile({ modelName: this.modelData.model.modelNameSelected, modelFolderName: this.modelData.model.modelFolderName, inputString: this.viewStore.textOutput })
+      writeInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, inputString: this.viewStore.textOutput })
         .then((response) => {
           this.$q.notify({
             message: response.message
@@ -111,7 +112,7 @@ export default defineComponent({
       console.log('getStatus');
 
       const response = await getStatus({
-        modelName: this.modelData.model.modelNameSelected,
+        modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         ownModel: this.modelData.model.ownModel,
         cluster: this.modelData.job.cluster,
@@ -147,7 +148,7 @@ export default defineComponent({
         this.connection = null; // Reset the connection variable
       }
       const params = {
-        model_name: this.modelData.model.modelNameSelected,
+        model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
         token: OpenAPI.TOKEN,

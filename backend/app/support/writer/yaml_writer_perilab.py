@@ -26,7 +26,7 @@ class YAMLcreatorPeriLab:
         self.bondfilters = model_writer.model_data.bondFilters
         self.preCalculations = model_writer.model_data.preCalculations
         self.disc_type = model_writer.disc_type
-        self.two_d = model_writer.model_data.model.twoDimensional
+        # self.two_d = model_writer.model_data.model.twoDimensional
 
     @staticmethod
     def check_if_defined(obj):
@@ -39,12 +39,12 @@ class YAMLcreatorPeriLab:
         if self.disc_type == "txt":
             data["Type"] = "Text File"
 
-            if self.check_if_defined(self.boundary_condition.nodeSets):
-                for nodeSet in self.boundary_condition.nodeSets:
-                    data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
-            else:
-                for idx in range(0, len(self.node_set_ids)):
-                    data["Node Sets"]["Node Set " + str(idx + 1)] = self.ns_name + "_" + str(idx + 1) + ".txt"
+            # if self.check_if_defined(self.boundary_condition.nodeSets):
+            #     for nodeSet in self.boundary_condition.nodeSets:
+            #         data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
+            # else:
+            for idx in range(0, len(self.node_set_ids)):
+                data["Node Sets"]["Node Set " + str(idx + 1)] = self.ns_name + "_" + str(idx + 1) + ".txt"
 
             if self.check_if_defined(self.mesh_file):
                 data["Input Mesh File"] = self.mesh_file
@@ -211,6 +211,7 @@ class YAMLcreatorPeriLab:
             blocks = {}
 
             # blocks["Block Names"] = block.name
+            blocks["Block ID"] = block.blocksId
             blocks["Material Model"] = block.material
             if block.damageModel != "" and block.damageModel is not None:
                 blocks["Damage Model"] = block.damageModel
@@ -262,8 +263,8 @@ class YAMLcreatorPeriLab:
                 damage["Anisotropic Damage"] = {}
                 damage["Anisotropic Damage"]["Critical Value X"] = float(dam.anistropicDamageX)
                 damage["Anisotropic Damage"]["Critical Value Y"] = float(dam.anistropicDamageY)
-                if not self.two_d:
-                    damage["Anisotropic Damage"]["Critical Value Z"] = float(dam.anistropicDamageZ)
+                # if not self.two_d:
+                damage["Anisotropic Damage"]["Critical Value Z"] = float(dam.anistropicDamageZ)
             # damage["Plane Stress"] = self.two_d
             # damage["Only Tension"] = dam.onlyTension
             # damage["Detached Nodes Check"] = dam.detachedNodesCheck
@@ -328,7 +329,7 @@ class YAMLcreatorPeriLab:
             data["Calculate Cauchy"] = self.solver_dict.calculateCauchy
 
         if self.check_if_defined(self.solver_dict.calculateVonMises):
-            data["Calculate von Mises"] = self.solver_dict.calculateVonMises
+            data["Calculate von Mises stress"] = self.solver_dict.calculateVonMises
 
         if self.check_if_defined(self.solver_dict.calculateStrain):
             data["Calculate Strain"] = self.solver_dict.calculateStrain

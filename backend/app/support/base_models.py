@@ -4,9 +4,22 @@
 
 import json
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
+
+
+class Valve(BaseModel):
+    name: str
+    type: str
+    label: str
+    description: str
+    value: Any
+    options: Optional[List[str]]
+
+
+class Valves(BaseModel):
+    valves: List[Valve]
 
 
 class Status(BaseModel):
@@ -16,27 +29,12 @@ class Status(BaseModel):
 
 
 class Model(BaseModel):
-    modelNameSelected: str
     modelFolderName: Optional[str] = "Default"
     ownModel: bool
-    ownMesh: Optional[bool] = None
     translated: bool
-    length: float
-    cracklength: Optional[float] = None
-    notchEnabled: Optional[bool] = True
-    width: Optional[float] = None
-    height: Optional[float] = None
-    height2: Optional[float] = None
-    radius: Optional[float] = None
-    radius2: Optional[float] = None
-    structured: Optional[bool] = None
-    discretization: int
-    horizon: Optional[float] = None
     twoDimensional: bool
-    rotatedAngles: bool
-    angles: List[float]
-    amplitudeFactor: Optional[float] = None
-    wavelength: Optional[float] = None
+    ownMesh: Optional[bool] = None
+    horizon: Optional[float] = None
     mesh_file: Optional[str] = None
 
 
@@ -194,7 +192,7 @@ class Damage(BaseModel):
 
 
 class Block(BaseModel):
-    id: Optional[int] = None
+    blocksId: int
     name: str
     material: str
     damageModel: Optional[str] = None
@@ -238,14 +236,14 @@ class BoundaryCondition(BaseModel):
     value: str
 
 
-class NodeSet(BaseModel):
-    nodeSetId: Optional[int] = None
-    file: str
+# class NodeSet(BaseModel):
+#     nodeSetId: Optional[int] = None
+#     file: str
 
 
 class BoundaryConditions(BaseModel):
     conditions: List[BoundaryCondition]
-    nodeSets: Optional[List[NodeSet]] = None
+    # nodeSets: Optional[List[NodeSet]] = None
 
 
 class BondFilters(BaseModel):
@@ -321,7 +319,6 @@ class Solver(BaseModel):
     damEnabled: bool = True
     dispEnabled: bool = True
     tempEnabled: bool = True
-    verbose: bool
     initialTime: float
     finalTime: float
     fixedDt: Optional[float] = None
@@ -344,6 +341,7 @@ class Solver(BaseModel):
 class Job(BaseModel):
     cluster: bool
     sbatch: bool
+    verbose: bool
     nodes: Optional[int] = 1
     tasks: Optional[int] = 32
     tasksPerNode: Optional[int] = 32
@@ -371,7 +369,7 @@ class RunData(BaseModel):
                     {
                         "id": 1,
                         "name": "PMMA",
-                        "matType": "Linear Elastic Correspondence",
+                        "matType": ["Correspondence Elastic"],
                         "density": "1.4e5",
                         "youngsModulus": "2.997e9",
                         "poissonsRatio": 0.3,
@@ -387,7 +385,7 @@ class RunData(BaseModel):
                     {
                         "id": 2,
                         "name": "PMMAElast",
-                        "matType": "Linear Elastic Correspondence",
+                        "matType": ["Correspondence Elastic"],
                         "density": "1.4e5",
                         "youngsModulus": "2.997e9",
                         "poissonsRatio": "0.3",
@@ -439,7 +437,7 @@ default_model = {
         {
             "id": 1,
             "name": "PMMA",
-            "matType": "Linear Elastic Correspondence",
+            "matType": ["Correspondence Elastic"],
             "density": "1.4e5",
             "youngsModulus": "2.997e9",
             "poissonsRatio": 0.3,
@@ -455,7 +453,7 @@ default_model = {
         {
             "id": 2,
             "name": "PMMAElast",
-            "matType": "Linear Elastic Correspondence",
+            "matType": ["Correspondence Elastic"],
             "density": "1.4e5",
             "youngsModulus": "2.997e9",
             "poissonsRatio": "0.3",

@@ -54,7 +54,7 @@ class VerificationModels:
         for material in mat_name_list:
             self.material_dict[i] = {
                 "name": material,
-                "matType": "Linear Elastic Correspondence",
+                "matType": ["Correspondence Elastic"],
                 "youngsModulus": 2.1e11,
                 "poissonsRatio": 0.3,
                 "tensionSeparation": False,

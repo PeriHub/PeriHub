@@ -73,26 +73,21 @@ class SbatchCreator:
 
         return string
 
-    def create_sh(self, docker=True, cluster_perilab_path=""):
+    def create_sh(self, verbose, docker=True, cluster_perilab_path=""):
         """doc"""
 
         string = "#!/bin/sh" + "\n"
         if self.trial:
             string += "timeout 600s "
         if docker:
-            string += "/app/PeriLab/bin/PeriLab -v -s " + self.filename + ".yaml & echo $! > pid.txt \n"
+            string += "/app/PeriLab/bin/PeriLab"
         else:
             if self.tasks > 1:
                 string += "mpiexecjl -n " + str(self.tasks) + " "
-            string += (
-                'julia --project="'
-                + cluster_perilab_path
-                + '" '
-                + cluster_perilab_path
-                + "/src/main.jl -v -s "
-                + self.filename
-                + ".yaml & echo $! > pid.txt \n"
-            )
+            string += 'julia --project="' + cluster_perilab_path + '" ' + cluster_perilab_path + "/src/main.jl"
+        if verbose:
+            string += " -v"
+        string += " -s " + self.filename + ".yaml & echo $! > pid.txt \n"
         string += "pid=`cat pid.txt` \n"
         string += "wait $pid \n"
         string += "rm pid.txt \n"

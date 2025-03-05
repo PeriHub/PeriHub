@@ -17,7 +17,6 @@ SPDX-License-Identifier: Apache-2.0
       <q-input class="my-input" v-model="solver.fixedDt"
         v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'" :rules="[rules.required, rules.name]"
         :label="solverKeys.fixedDt" standout dense></q-input>
-      <q-toggle class="my-toggle" v-model="solver.verbose" :label="solverKeys.verbose" standout dense></q-toggle>
     </div>
     <div class="row my-row">
       <q-select class="my-input" :options="solvertype" v-model="solver.solvertype" :label="solverKeys.solvertype"

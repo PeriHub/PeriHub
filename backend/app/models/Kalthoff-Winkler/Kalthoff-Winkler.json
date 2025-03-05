@@ -1,0 +1,234 @@
+{
+  "model": {
+    "modelNameSelected": "Kalthoff-Winkler",
+    "modelFolderName": "Default",
+    "twoDimensional": true,
+    "ownModel": false,
+    "translated": false
+  },
+  "discretization": {
+    "distributionType": "Neighbor based"
+  },
+  "materials": [
+    {
+      "id": 1,
+      "name": "PMMA",
+      "density": 8.0e-6,
+      "matType": ["Bond-based Elastic"],
+      "bulkModulus": 1.27e6,
+      "poissonsRatio": 0.3,
+      "properties": [
+        {
+          "id": 1,
+          "name": "Prop_1"
+        }
+      ],
+      "tensionSeparation": false,
+      "nonLinear": false,
+      "planeStress": true,
+      "planeStrain": false,
+      "materialSymmetry": "Isotropic",
+      "stabilizationType": "Global Stiffness",
+      "thickness": 10,
+      "hourglassCoefficient": 1
+    }
+  ],
+  "thermal": {
+    "enabled": false
+  },
+  "additive": {
+    "additiveModels": [
+      {
+        "additiveType": "Simple Additive",
+        "id": null,
+        "name": "Additive Model 1",
+        "printTemp": 200,
+        "timeFactor": 1
+      }
+    ],
+    "enabled": false
+  },
+  "damages": [
+    {
+      "id": 1,
+      "name": "PMMADamage",
+      "damageModel": "Critical Stretch",
+      "criticalStretch": 0.002217,
+      "criticalEnergy": null,
+      "interblockdamageEnergy": null,
+      "planeStress": true,
+      "onlyTension": false,
+      "detachedNodesCheck": true,
+      "thickness": 10,
+      "hourglassCoefficient": 1,
+      "stabilizationType": "Global Stiffness",
+      "criticalEnergyCalc": {
+        "calculateCriticalEnergy": false,
+        "k1c": null,
+        "youngsModulus": null
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "blocksId": 1,
+      "name": "block_1",
+      "material": "PMMA",
+      "damageModel": "PMMADamage",
+      "density": 8.0e-6,
+      "show": true
+    },
+    {
+      "blocksId": 2,
+      "name": "block_2",
+      "material": "PMMA",
+      "damageModel": "",
+      "density": 8.0e-6,
+      "show": true
+    },
+    {
+      "blocksId": 3,
+      "name": "block_3",
+      "material": "PMMA",
+      "damageModel": "",
+      "density": 8.0e-6,
+      "show": true
+    }
+  ],
+  "contact": {
+    "enabled": false,
+    "searchRadius": "0.02",
+    "searchFrequency": "1",
+    "contactModels": [
+      {
+        "id": 1,
+        "name": "Contact Model",
+        "contactType": "Short Range Force",
+        "contactRadius": 0.000775,
+        "springConstant": 1000000000000
+      }
+    ],
+    "interactions": [
+      {
+        "id": 1,
+        "firstBlockId": 5,
+        "secondBlockId": 3,
+        "contactModelId": 1
+      }
+    ]
+  },
+  "boundaryConditions": {
+    "conditions": [
+      {
+        "conditionsId": 1,
+        "name": "BC_1",
+        "nodeSet": null,
+        "boundarytype": "Initial",
+        "variable": "Velocity",
+        "blockId": 3,
+        "coordinate": "x",
+        "value": "32e+6"
+      }
+    ]
+  },
+  "bondFilters": [
+    {
+      "id": 1,
+      "name": "bf_1",
+      "type": "Rectangular_Plane",
+      "normalX": 0,
+      "normalY": 1,
+      "normalZ": 0,
+      "lowerLeftCornerX": -0.5,
+      "lowerLeftCornerY": 25,
+      "lowerLeftCornerZ": -5,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": 50.5,
+      "sideLength": 10,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true
+    },
+    {
+      "id": 2,
+      "name": "bf_2",
+      "type": "Rectangular_Plane",
+      "normalX": 0,
+      "normalY": 1,
+      "normalZ": 0,
+      "lowerLeftCornerX": -0.5,
+      "lowerLeftCornerY": -25,
+      "lowerLeftCornerZ": -5,
+      "bottomUnitVectorX": 1,
+      "bottomUnitVectorY": 0,
+      "bottomUnitVectorZ": 0,
+      "bottomLength": 50.5,
+      "sideLength": 10,
+      "centerX": 0,
+      "centerY": 1,
+      "centerZ": 0,
+      "radius": 1,
+      "show": true
+    }
+  ],
+  "computes": [],
+  "outputs": [
+    {
+      "id": 1,
+      "name": "Output1",
+      "selectedFileType": "Exodus",
+      "selectedOutputs": ["Displacements", "Forces", "Damage", "Velocity"],
+      "Write_After_Damage": false,
+      "Frequency": "100",
+      "numberOfOutputSteps": 100,
+      "useOutputFrequency": false,
+      "InitStep": 0
+    }
+  ],
+  "solver": {
+    "verbose": false,
+    "initialTime": 0,
+    "finalTime": 0.003,
+    "fixedDT": null,
+    "solvertype": "Verlet",
+    "safetyFactor": 0.95,
+    "numericalDamping": 0.000005,
+    "verlet": {
+      "safetyFactor": 0.95,
+      "numericalDamping": 0.000005,
+      "outputFrequency": 7500
+    },
+    "stopAfterDamageInitation": false,
+    "stopBeforeDamageInitation": false,
+    "adaptivetimeStepping": false,
+    "adapt": {
+      "stableStepDifference": 4,
+      "maximumBondDifference": 4,
+      "stableBondDifference": 1
+    },
+    "dispEnabled": true,
+    "damEnabled": true,
+    "matEnabled": true,
+    "tempEnabled": false,
+    "calculateCauchy": false,
+    "calculateVonMises": true,
+    "calculateStrain": false
+  },
+  "job": {
+    "software": "PeriLab",
+    "cluster": false,
+    "sbatch": false,
+    "verbose": false,
+    "nodes": 1,
+    "tasks": 32,
+    "tasksPerNode": 32,
+    "cpusPerTask": 1,
+    "multithread": false,
+    "time": "00:20:00",
+    "account": 2263032
+  }
+}

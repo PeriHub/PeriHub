@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div>
     <!-- <q-select class="my-select" :options="software" v-model="job.software" label="Software" standout dense></q-select> -->
+    <q-toggle class="my-toggle" v-model="job.verbose" label="Verbose" standout dense></q-toggle>
     <q-toggle class="my-toggle" v-model="job.cluster" label="Cluster" standout dense
       @change="changeNumberOfTasks();"></q-toggle>
     <q-toggle class="my-toggle" v-model="job.sbatch" label="Sbatch" standout dense></q-toggle>

@@ -20,7 +20,7 @@ export type AdditiveModel = {
 };
 
 export type Block = {
-    id?: number | null;
+    blocksId: number;
     name: string;
     material: string;
     damageModel?: string | null;
@@ -28,6 +28,11 @@ export type Block = {
     horizon?: number | null;
     density?: number | null;
     show?: boolean | null;
+};
+
+export type Body_generate_model = {
+    model_data: ModelData;
+    valves: Valves;
 };
 
 export type Body_upload_files = {
@@ -70,7 +75,6 @@ export type BoundaryCondition = {
 
 export type BoundaryConditions = {
     conditions: Array<BoundaryCondition>;
-    nodeSets?: Array<NodeSet> | null;
 };
 
 export type Compute = {
@@ -165,6 +169,7 @@ export type Interaction = {
 export type Job = {
     cluster: boolean;
     sbatch: boolean;
+    verbose: boolean;
     nodes?: number | null;
     tasks?: number | null;
     tasksPerNode?: number | null;
@@ -222,27 +227,11 @@ export type Matrix = {
 };
 
 export type Model = {
-    modelNameSelected: string;
     modelFolderName?: string | null;
     ownModel: boolean;
-    ownMesh?: boolean | null;
     translated: boolean;
-    length: number;
-    cracklength?: number | null;
-    notchEnabled?: boolean | null;
-    width?: number | null;
-    height?: number | null;
-    height2?: number | null;
-    radius?: number | null;
-    radius2?: number | null;
-    structured?: boolean | null;
-    discretization: number;
+    ownMesh?: boolean | null;
     horizon?: number | null;
-    twoDimensional: boolean;
-    rotatedAngles: boolean;
-    angles: Array<(number)>;
-    amplitudeFactor?: number | null;
-    wavelength?: number | null;
     mesh_file?: string | null;
 };
 
@@ -260,11 +249,6 @@ export type ModelData = {
     outputs: Array<Output>;
     solver: Solver;
     job: Job;
-};
-
-export type NodeSet = {
-    nodeSetId?: number | null;
-    file: string;
 };
 
 export type Output = {
@@ -292,7 +276,6 @@ export type Solver = {
     damEnabled?: boolean;
     dispEnabled?: boolean;
     tempEnabled?: boolean;
-    verbose: boolean;
     initialTime: number;
     finalTime: number;
     fixedDt?: number | null;
@@ -324,6 +307,19 @@ export type ValidationError = {
     type: string;
 };
 
+export type Valve = {
+    name: string;
+    type: string;
+    label: string;
+    description: string;
+    value: unknown;
+    options: Array<(string)> | null;
+};
+
+export type Valves = {
+    valves: Array<Valve>;
+};
+
 export type Verlet = {
     safetyFactor?: number;
     numericalDamping?: number;
@@ -339,7 +335,7 @@ export type properties = {
 export type GenerateModelData = {
     modelFolderName?: string;
     modelName?: string;
-    requestBody: ModelData;
+    requestBody: Body_generate_model;
 };
 
 export type GenerateModelResponse = unknown;
@@ -352,11 +348,33 @@ export type GenerateMeshData = {
 
 export type GenerateMeshResponse = unknown;
 
+export type GetModelsResponse = unknown;
+
+export type GetOwnModelsData = {
+    verify?: boolean;
+};
+
+export type GetOwnModelsResponse = unknown;
+
+export type GetValvesData = {
+    modelName: string;
+    source?: boolean;
+};
+
+export type GetValvesResponse = unknown;
+
 export type GetConfigData = {
-    modelName?: string;
+    configFile?: string;
 };
 
 export type GetConfigResponse = unknown;
+
+export type SaveConfigData = {
+    configFile: string;
+    requestBody: ModelData;
+};
+
+export type SaveConfigResponse = unknown;
 
 export type GetMaxFeSizeResponse = unknown;
 
@@ -384,6 +402,32 @@ export type ViewInputFileData = {
 };
 
 export type ViewInputFileResponse = unknown;
+
+export type AddModelData = {
+    description: string;
+    modelName: string;
+};
+
+export type AddModelResponse = unknown;
+
+export type GetOwnModelFileData = {
+    modelFile?: string;
+};
+
+export type GetOwnModelFileResponse = unknown;
+
+export type SaveModelData = {
+    modelFile: string;
+    sourceCode: string;
+};
+
+export type SaveModelResponse = unknown;
+
+export type DeleteModelData = {
+    modelName: string;
+};
+
+export type DeleteModelResponse = unknown;
 
 export type UploadFilesData = {
     formData: Body_upload_files;
@@ -424,6 +468,7 @@ export type RunModelData = {
     modelFolderName?: string;
     modelName?: string;
     requestBody: ModelData;
+    verbose?: boolean;
 };
 
 export type RunModelResponse = unknown;
@@ -519,12 +564,12 @@ export type GetPointDataResultsData = {
 
 export type GetPointDataResultsResponse = unknown;
 
-export type DeleteModelData = {
+export type DeleteModel1Data = {
     modelFolderName?: string;
     modelName?: string;
 };
 
-export type DeleteModelResponse = unknown;
+export type DeleteModel1Response = unknown;
 
 export type DeleteModelFromClusterData = {
     cluster?: boolean;
@@ -586,9 +631,64 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/modelgetConfig': {
+    '/model/getModels': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+            };
+        };
+    };
+    '/model/getOwnModels': {
+        get: {
+            req: GetOwnModelsData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/getValves': {
+        get: {
+            req: GetValvesData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/getConfig': {
         get: {
             req: GetConfigData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/saveConfig': {
+        post: {
+            req: SaveConfigData;
             res: {
                 /**
                  * Successful Response
@@ -644,6 +744,66 @@ export type $OpenApiTs = {
     '/model/viewInputFile': {
         get: {
             req: ViewInputFileData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/add': {
+        post: {
+            req: AddModelData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/getOwnModelFile': {
+        get: {
+            req: GetOwnModelFileData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/save': {
+        post: {
+            req: SaveModelData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/delete': {
+        delete: {
+            req: DeleteModelData;
             res: {
                 /**
                  * Successful Response
@@ -853,7 +1013,7 @@ export type $OpenApiTs = {
     };
     '/delete/model': {
         delete: {
-            req: DeleteModelData;
+            req: DeleteModel1Data;
             res: {
                 /**
                  * Successful Response
