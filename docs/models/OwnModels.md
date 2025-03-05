@@ -9,7 +9,7 @@ nav_order: 2
 
 ### Introduction
 
-This document provides a guide on how to write a Python file that defines a model for PeriHub.
+This document provides a guide on how to write a Python file that defines your own model in PeriHub.
 
 ### Model Definition and Imports
 
