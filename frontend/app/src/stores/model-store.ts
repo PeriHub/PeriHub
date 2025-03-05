@@ -388,7 +388,10 @@ export const useModelStore = defineStore('model', {
     },
     availableModels: [],
     modelParams: [],
-    selectedModel: {},
+    selectedModel: {
+      title: 'Compact Tenison',
+      file: 'CompactTension',
+    },
   }),
   actions: {
     initialiseStore() {
@@ -396,6 +399,10 @@ export const useModelStore = defineStore('model', {
         console.log('initialiseStore');
         let object = JSON.parse(localStorage.getItem('modelData'));
         this.modelData = structuredClone(object);
+      }
+      if (localStorage.getItem('selectedModel')) {
+        let object = JSON.parse(localStorage.getItem('selectedModel'));
+        this.selectedModel = structuredClone(object);
       }
     },
   },

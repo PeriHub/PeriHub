@@ -32,10 +32,11 @@ def get_models():
     for model in os.listdir(os.path.join(file_path, "models")):
         if model.startswith("__"):
             continue
-        doc_string = FileHandler.get_docstring(os.path.join(file_path, "models", model))
+        doc_string = FileHandler.get_docstring(os.path.join(file_path, "models", model, model + ".py"))
         if doc_string:
             doc_dict = FileHandler.doc_to_dict(doc_string)
-            doc_dict["file"] = model.split(".")[0]
+            doc_dict["file"] = os.path.join(model)
+            # doc_dict["config"] = os.path.join(model, model + ".json")
             # if doc_dict["input"] != input_type and input_type != "Any":
             #     continue
             # if own_models and username not in doc_dict["author"].replace(" ", "").split(","):
@@ -57,11 +58,11 @@ def get_own_models(verify: bool = False, request: Request = ""):
     for model in os.listdir(os.path.join(file_path, "own_models")):
         if model.startswith("__"):
             continue
-        doc_string = FileHandler.get_docstring(os.path.join(file_path, "own_models", model))
+        doc_string = FileHandler.get_docstring(os.path.join(file_path, "own_models", model, model + ".py"))
         if doc_string:
             doc_dict = FileHandler.doc_to_dict(doc_string)
-            doc_dict["file"] = model
-            doc_dict["config"] = model.split(".")[0] + ".json"
+            doc_dict["file"] = os.path.join(model)
+            # doc_dict["config"] = os.path.join(model, model + ".json")
             # if doc_dict["input"] != input_type and input_type != "Any":
             #     continue
             if verify:
@@ -82,11 +83,11 @@ def get_valves(model_name: str, source: bool = False):
     #     file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".py")
     #     print(file_path)
     #     return Path(file_path).read_text()
-
+    print(parent_path + ".models." + model_name + "." + model_name)
     try:
-        module = importlib.import_module(parent_path + ".models." + model_name, package=".")
+        module = importlib.import_module(parent_path + ".models." + model_name + "." + model_name, package=".")
     except:
-        module = importlib.import_module(parent_path + ".own_models." + model_name, package=".")
+        module = importlib.import_module(parent_path + ".own_models." + model_name + "." + model_name, package=".")
     if not hasattr(module, "Valves"):
         return {"valves": []}
     my_class = getattr(module, "Valves")
@@ -117,14 +118,14 @@ def get_valves(model_name: str, source: bool = False):
     return response
 
 
-@router.get("getConfig", operation_id="get_config")
+@router.get("/getConfig", operation_id="get_config")
 def get_config(config_file: str = "Dogbone"):
     """doc"""
 
-    if os.path.exists("./models/" + config_file):
-        return FileResponse("./models/" + config_file)
-    if os.path.exists("./own_models/" + config_file):
-        return FileResponse("./own_models/" + config_file)
+    if os.path.exists(os.path.join("./models", config_file, config_file + ".json")):
+        return FileResponse(os.path.join("./models", config_file, config_file + ".json"))
+    if os.path.exists(os.path.join("./own_models", config_file, config_file + ".json")):
+        return FileResponse(os.path.join("./own_models", config_file, config_file + ".json"))
 
     log.error("%s files can not be found", config_file)
     return config_file + " files can not be found"
@@ -184,7 +185,7 @@ def get_point_data(
     own_model: bool = False,
     own_mesh: bool = False,
     mesh_file: str = "Dogbone.txt",
-    two_d: bool = False,
+    two_d: bool = True,
     request: Request = "",
 ):
     """doc"""

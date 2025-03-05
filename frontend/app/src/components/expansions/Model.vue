@@ -15,6 +15,8 @@ SPDX-License-Identifier: Apache-2.0
     <q-input class="my-input" v-model="model.meshFile" v-show="model.ownModel" :rules="[rules.required]"
       label="Mesh File" standout dense></q-input>
 
+    <q-toggle class="my-toggle" standout dense v-model="model.twoDimensional" label="Two Dimensional"></q-toggle>
+
     <div v-for="param in store.modelParams.valves" :key="param.name">
       <q-input class="my-select" v-if="['text', 'number'].includes(param.type)" :label="param.label"
         v-model.number="param.value" :type="param.type" standout dense>
@@ -195,7 +197,7 @@ export default defineComponent({
   },
   methods: {
     async resetData() {
-      await getConfig({ configFile: this.store.selectedModel.config }).then((response) => {
+      await getConfig({ configFile: this.store.selectedModel.file }).then((response) => {
         this.store.modelData = structuredClone(response)
       })
         .catch((error) => {
@@ -208,7 +210,7 @@ export default defineComponent({
     async selectMethod() {
       // this.viewStore.viewLoading = true
       const response = await getValves({
-        modelName: this.store.selectedModel.title
+        modelName: this.store.selectedModel.file
       })
       this.store.modelParams = response
       // this.viewStore.viewLoading = false
@@ -217,6 +219,7 @@ export default defineComponent({
   },
   async beforeMount() {
     this.store.availableModels = await getModels()
+    this.selectMethod()
   },
   watch: {
     'store.modelData.model.modelNameSelected': {
@@ -228,6 +231,11 @@ export default defineComponent({
         }
         this.bus.emit('getStatus')
       },
+    },
+    'store.selectedModel': {
+      handler() {
+        localStorage.setItem('selectedModel', JSON.stringify(this.store.selectedModel));
+      }
     },
   }
 })

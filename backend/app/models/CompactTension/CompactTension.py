@@ -12,7 +12,7 @@ version: 0.1.0
 import numpy as np
 from pydantic import BaseModel, Field
 
-from ..support.model.geometry import Geometry
+from ...support.model.geometry import Geometry
 
 
 class Valves(BaseModel):
@@ -31,11 +31,6 @@ class Valves(BaseModel):
         title="Width",
         description="Width",
     )
-    TWOD: bool = Field(
-        default=True,
-        title="Two Dimensional",
-        description="Two Dimensional",
-    )
     NOTCH_ENABLED: bool = Field(
         default=True,
         title="Notch enabled",
@@ -44,33 +39,33 @@ class Valves(BaseModel):
 
 
 class main:
-    def __init__(
-        self,
-        valves,
-    ):
+    def __init__(self, valves, twoDimensional):
         self.xbegin = 0.0
         self.ybegin = -0.6 * valves["LENGTH"]
         self.xend = 1.25 * valves["LENGTH"]
         self.yend = 0.6 * valves["LENGTH"]
+        self.length = valves["LENGTH"]
+        self.discretization = valves["DISCRETIZATION"]
+        self.notch_enabled = valves["NOTCH_ENABLED"]
 
-        if valves["TWOD"]:
+        if twoDimensional:
             self.zbegin = 0
             self.zend = 0
         else:
             self.zbegin = -valves["WIDTH"] / 2
             self.zend = valves["WIDTH"] / 2
 
-    def get_discretization(self, valves):
-        number_nodes = 2 * int(valves["DISCRETIZATION"] / 2) + 1
+    def get_discretization(self):
+        number_nodes = 2 * int(self.discretization / 2) + 1
         dx_value = [
-            1.25 * valves["LENGTH"] / number_nodes,
-            1.25 * valves["LENGTH"] / number_nodes,
-            1.25 * valves["LENGTH"] / number_nodes,
+            1.25 * self.length / number_nodes,
+            1.25 * self.length / number_nodes,
+            1.25 * self.length / number_nodes,
         ]
         self.dx_value = dx_value
         return dx_value
 
-    def create_geometry(self, valves):
+    def create_geometry(self):
         """doc"""
 
         geo = Geometry()
@@ -87,14 +82,14 @@ class main:
             dx_value=self.dx_value,
         )
 
-        if valves["NOTCH_ENABLED"]:
+        if self.notch_enabled:
             x_value, y_value, z_value = geo.check_val_in_notch(
                 x_value,
                 y_value,
                 z_value,
                 0.0,
                 self.xend,
-                0.45 * valves["LENGTH"],
+                0.45 * self.length,
                 1.6,
                 self.dx_value[0],
                 60,
@@ -106,13 +101,13 @@ class main:
             z_value,
         )
 
-    def crate_block_definition(self, valves, x_value, y_value, z_value, k):
+    def crate_block_definition(self, x_value, y_value, z_value, k):
         """doc"""
 
         k = np.where(
             np.logical_and(
                 np.logical_and(
-                    x_value <= 0.45 * valves["LENGTH"],
+                    x_value <= 0.45 * self.length,
                     x_value >= 0,
                 ),
                 y_value >= 0,
@@ -123,7 +118,7 @@ class main:
         k = np.where(
             np.logical_and(
                 np.logical_and(
-                    x_value <= 0.45 * valves["LENGTH"],
+                    x_value <= 0.45 * self.length,
                     x_value >= 0,
                 ),
                 y_value <= 0,
@@ -132,8 +127,8 @@ class main:
             k,
         )
         condition = np.where(
-            ((x_value - 0.25 * valves["LENGTH"]) ** 2) + ((y_value - 0.275 * valves["LENGTH"]) ** 2)
-            <= (0.125 * valves["LENGTH"]) ** 2,
+            ((x_value - 0.25 * self.length) ** 2) + ((y_value - 0.275 * self.length) ** 2)
+            <= (0.125 * self.length) ** 2,
             1.0,
             0,
         )
@@ -143,8 +138,8 @@ class main:
             k,
         )
         # Center of the circle
-        center_x = 0.25 * valves["LENGTH"]
-        center_y = 0.275 * valves["LENGTH"]
+        center_x = 0.25 * self.length
+        center_y = 0.275 * self.length
 
         # Calculate distances of all points from the center
         distances = np.sqrt((x_value - center_x) ** 2 + (y_value - center_y) ** 2)
@@ -153,8 +148,8 @@ class main:
         closest_index = np.argmin(distances)
 
         condition = np.where(
-            ((x_value - 0.25 * valves["LENGTH"]) ** 2) + ((y_value + 0.275 * valves["LENGTH"]) ** 2)
-            <= (0.125 * valves["LENGTH"]) ** 2,
+            ((x_value - 0.25 * self.length) ** 2) + ((y_value + 0.275 * self.length) ** 2)
+            <= (0.125 * self.length) ** 2,
             1.0,
             0,
         )

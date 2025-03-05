@@ -125,7 +125,7 @@ export default {
       })
       this.sourceCode = response
       const config = await getConfig({
-        configFile: this.selectedModel.config
+        configFile: this.selectedModel.file
       })
       this.config = config;
     },

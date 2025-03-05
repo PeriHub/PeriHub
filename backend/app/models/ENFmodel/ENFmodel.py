@@ -12,7 +12,7 @@ version: 0.1.0
 import numpy as np
 from pydantic import BaseModel, Field
 
-from ..support.model.geometry import Geometry
+from ...support.model.geometry import Geometry
 
 
 class Valves(BaseModel):
@@ -36,41 +36,34 @@ class Valves(BaseModel):
         title="Width",
         description="Width",
     )
-    TWOD: bool = Field(
-        default=True,
-        title="Two Dimensional",
-        description="Two Dimensional",
-    )
 
 
 class main:
-    def __init__(
-        self,
-        valves,
-    ):
+    def __init__(self, valves, twoDimensional):
         self.xbegin = 0
         self.xend = valves["LENGTH"]
         self.ybegin = 0
         self.yend = valves["HEIGHT"]
+        self.discretization = valves["DISCRETIZATION"]
 
-        if valves["TWOD"]:
+        if twoDimensional:
             self.zbegin = 0
             self.zend = 0
         else:
             self.zbegin = -valves["WIDTH"] / 2
             self.zend = valves["WIDTH"] / 2
 
-    def get_discretization(self, valves):
-        number_nodes = 2 * int(valves["DISCRETIZATION"] / 2) + 1
+    def get_discretization(self):
+        number_nodes = 2 * int(self.discretization / 2) + 1
         dx_value = [
-            valves["HEIGHT"] / number_nodes,
-            valves["HEIGHT"] / number_nodes,
-            valves["HEIGHT"] / number_nodes,
+            self.yend / number_nodes,
+            self.yend / number_nodes,
+            self.yend / number_nodes,
         ]
         self.dx_value = dx_value
         return dx_value
 
-    def create_geometry(self, valves):
+    def create_geometry(self):
         """doc"""
 
         geo = Geometry()
@@ -93,7 +86,7 @@ class main:
             z_value,
         )
 
-    def crate_block_definition(self, valves, x_value, y_value, z_value, k):
+    def crate_block_definition(self, x_value, y_value, z_value, k):
         """doc"""
         k = np.where(
             y_value <= self.yend / 2,

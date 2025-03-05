@@ -15,10 +15,7 @@
     "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [
-      "0",
-      "0"
-    ],
+    "angles": ["0", "0"],
     "notchEnabled": false
   },
   "discretization": {
@@ -28,10 +25,7 @@
     {
       "id": 1,
       "name": "Aluminium",
-      "matType": [
-        "Correspondence Elastic",
-        "Correspondence Plastic"
-      ],
+      "matType": ["Correspondence Elastic", "Correspondence Plastic"],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
       "planeStrain": false,
@@ -297,12 +291,7 @@
       "id": 1,
       "name": "Output1",
       "selectedFileType": "Exodus",
-      "selectedOutputs": [
-        "Displacements",
-        "Damage",
-        "Cauchy Stress",
-        "Strain"
-      ],
+      "selectedOutputs": ["Displacements", "Damage", "Cauchy Stress", "Strain"],
       "Frequency": "1",
       "InitStep": 0,
       "useOutputFrequency": false,
@@ -341,7 +330,9 @@
     "calculateVonMises": true
   },
   "job": {
-    "cluster": false, "sbatch": false,
+    "cluster": false,
+    "sbatch": false,
+    "verbose": false,
     "nodes": 1,
     "tasks": 32,
     "tasksPerNode": 32,

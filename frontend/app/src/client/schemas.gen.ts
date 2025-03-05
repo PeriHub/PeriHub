@@ -451,20 +451,6 @@ export const $BoundaryConditions = {
             },
             type: 'array',
             title: 'Conditions'
-        },
-        nodeSets: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/NodeSet'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Nodesets'
         }
     },
     type: 'object',
@@ -1594,6 +1580,10 @@ export const $Model = {
             type: 'boolean',
             title: 'Ownmodel'
         },
+        translated: {
+            type: 'boolean',
+            title: 'Translated'
+        },
         ownMesh: {
             anyOf: [
                 {
@@ -1605,107 +1595,6 @@ export const $Model = {
             ],
             title: 'Ownmesh'
         },
-        translated: {
-            type: 'boolean',
-            title: 'Translated'
-        },
-        length: {
-            type: 'number',
-            title: 'Length'
-        },
-        cracklength: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Cracklength'
-        },
-        notchEnabled: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Notchenabled',
-            default: true
-        },
-        width: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Width'
-        },
-        height: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Height'
-        },
-        height2: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Height2'
-        },
-        radius: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Radius'
-        },
-        radius2: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Radius2'
-        },
-        structured: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Structured'
-        },
-        discretization: {
-            type: 'integer',
-            title: 'Discretization'
-        },
         horizon: {
             anyOf: [
                 {
@@ -1716,43 +1605,6 @@ export const $Model = {
                 }
             ],
             title: 'Horizon'
-        },
-        twoDimensional: {
-            type: 'boolean',
-            title: 'Twodimensional'
-        },
-        rotatedAngles: {
-            type: 'boolean',
-            title: 'Rotatedangles'
-        },
-        angles: {
-            items: {
-                type: 'number'
-            },
-            type: 'array',
-            title: 'Angles'
-        },
-        amplitudeFactor: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Amplitudefactor'
-        },
-        wavelength: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Wavelength'
         },
         mesh_file: {
             anyOf: [
@@ -1767,7 +1619,7 @@ export const $Model = {
         }
     },
     type: 'object',
-    required: ['ownModel', 'translated', 'length', 'discretization', 'twoDimensional', 'rotatedAngles', 'angles'],
+    required: ['ownModel', 'translated'],
     title: 'Model'
 } as const;
 
@@ -2098,29 +1950,6 @@ export const $ModelData = {
             }
         }
     }
-} as const;
-
-export const $NodeSet = {
-    properties: {
-        nodeSetId: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Nodesetid'
-        },
-        file: {
-            type: 'string',
-            title: 'File'
-        }
-    },
-    type: 'object',
-    required: ['file'],
-    title: 'NodeSet'
 } as const;
 
 export const $Output = {

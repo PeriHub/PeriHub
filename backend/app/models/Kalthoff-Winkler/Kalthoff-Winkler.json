@@ -2,18 +2,9 @@
   "model": {
     "modelNameSelected": "Kalthoff-Winkler",
     "modelFolderName": "Default",
-    "ownModel": false,
-    "translated": false,
-    "length": 100,
-    "width": null,
-    "height": 200,
-    "height2": null,
-    "structured": null,
-    "discretization": 100,
-    "horizon": null,
     "twoDimensional": true,
-    "rotatedAngles": false,
-    "angles": [0, 0]
+    "ownModel": false,
+    "translated": false
   },
   "discretization": {
     "distributionType": "Neighbor based"
@@ -42,6 +33,9 @@
       "hourglassCoefficient": 1
     }
   ],
+  "thermal": {
+    "enabled": false
+  },
   "additive": {
     "additiveModels": [
       {
@@ -99,14 +93,6 @@
       "damageModel": "",
       "density": 8.0e-6,
       "show": true
-    },
-    {
-      "blocksId": 4,
-      "name": "block_4",
-      "material": "PMMA",
-      "damageModel": "",
-      "density": 8.0e-6,
-      "show": true
     }
   ],
   "contact": {
@@ -137,31 +123,11 @@
         "conditionsId": 1,
         "name": "BC_1",
         "nodeSet": null,
-        "boundarytype": "Dirichlet",
-        "variable": "Displacements",
-        "blockId": 2,
-        "coordinate": "x",
-        "value": "0*t"
-      },
-      {
-        "conditionsId": 2,
-        "name": "BC_2",
-        "nodeSet": null,
-        "boundarytype": "Dirichlet",
-        "variable": "Displacements",
+        "boundarytype": "Initial",
+        "variable": "Velocity",
         "blockId": 3,
         "coordinate": "x",
-        "value": "0*t"
-      },
-      {
-        "conditionsId": 3,
-        "name": "BC_3",
-        "nodeSet": null,
-        "boundarytype": "Dirichlet",
-        "variable": "Displacements",
-        "blockId": 4,
-        "coordinate": "x",
-        "value": "100*t"
+        "value": "32e+6"
       }
     ]
   },
@@ -215,8 +181,11 @@
       "id": 1,
       "name": "Output1",
       "selectedFileType": "Exodus",
-      "selectedOutputs": ["Displacement", "Force", "Damage", "Velocity"],
-      "Frequency": "50",
+      "selectedOutputs": ["Displacements", "Forces", "Damage", "Velocity"],
+      "Write_After_Damage": false,
+      "Frequency": "100",
+      "numberOfOutputSteps": 100,
+      "useOutputFrequency": false,
       "InitStep": 0
     }
   ],
@@ -224,22 +193,10 @@
     "verbose": false,
     "initialTime": 0,
     "finalTime": 0.003,
+    "fixedDT": null,
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
     "numericalDamping": 0.000005,
-    "peridgimPreconditioner": "None",
-    "nonlinearSolver": "Line Search Based",
-    "numberOfLoadSteps": 100,
-    "maxSolverIterations": 50,
-    "relativeTolerance": 1e-8,
-    "maxAgeOfPrec": 100,
-    "directionMethod": "Newton",
-    "newton": {
-      "jacobianOperator": "Matrix-Free",
-      "preconditioner": "None"
-    },
-    "lineSearchMethod": "Polynomial",
-    "verletSwitch": true,
     "verlet": {
       "safetyFactor": 0.95,
       "numericalDamping": 0.000005,
@@ -253,7 +210,13 @@
       "maximumBondDifference": 4,
       "stableBondDifference": 1
     },
-    "filetype": "yaml"
+    "dispEnabled": true,
+    "damEnabled": true,
+    "matEnabled": true,
+    "tempEnabled": false,
+    "calculateCauchy": false,
+    "calculateVonMises": true,
+    "calculateStrain": false
   },
   "job": {
     "software": "PeriLab",

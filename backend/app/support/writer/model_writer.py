@@ -45,18 +45,12 @@ class ModelWriter:
         """doc"""
         number_of_ns = 0
         for idx, k in enumerate(self.node_set_ids):
-            if k == 0:
-                points = np.where(model[:, 3] >= 0)
-            else:
-                points = np.where(model[:, 3] == k)
+            points = np.where(model[:, 3] == k)
             string = "header: global_id\n"
             for point in points[0]:
                 string += str(int(point) + 1) + "\n"
-            if k == 0:
-                self.file_writer(self.ns_name + "_all.txt", string)
-            else:
-                self.file_writer(self.ns_name + "_" + str(idx + 1) + ".txt", string)
-                number_of_ns += 1
+            self.file_writer(self.ns_name + "_" + str(idx + 1) + ".txt", string)
+            number_of_ns += 1
             # print(self.ns_list)
             # for idx, points in enumerate(self.ns_list):
             #     string = "header: global_id\n"

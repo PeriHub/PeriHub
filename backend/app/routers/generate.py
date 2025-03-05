@@ -77,41 +77,44 @@ def generate_model(
     valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
 
     try:
-        module = getattr(__import__("app.models." + model_name, fromlist=[model_name]), "main")
+        module = getattr(__import__("app.models." + model_name + "." + model_name, fromlist=[model_name]), "main")
     except:
         try:
-            module = getattr(__import__("app.own_models." + model_name, fromlist=[model_name]), "main")
+            module = getattr(
+                __import__("app.own_models." + model_name + "." + model_name, fromlist=[model_name]), "main"
+            )
         except:
             log.error("Model Name unknown")
             return "Model Name unknown"
 
-    model = module(valves_dict)
+    model = module(valves_dict, model_data.model.twoDimensional)
 
-    dx_value = model.get_discretization(valves_dict)
+    dx_value = model.get_discretization()
 
-    x_value, y_value, z_value = model.create_geometry(valves_dict)
+    x_value, y_value, z_value = model.create_geometry()
 
     try:
-        model.edit_model_data(model_data, valves_dict)
+        model.edit_model_data(model_data)
     except:
         pass
 
     k = np.ones(len(x_value))
 
-    k = model.crate_block_definition(valves_dict, x_value, y_value, z_value, k)
+    k = model.crate_block_definition(x_value, y_value, z_value, k)
 
     if len(x_value) > max_nodes:
         return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes)
 
     vol = np.zeros(len(x_value))
-    if model_data.model.rotatedAngles:
-        angle_x = np.zeros(len(x_value))
-        angle_y = np.zeros(len(x_value))
-        angle_z = np.zeros(len(x_value))
+    # if model_data.model.rotatedAngles:
+    #     angle_x = np.zeros(len(x_value))
+    #     angle_y = np.zeros(len(x_value))
+    #     angle_z = np.zeros(len(x_value))
 
-    two_d = False
-    if len(z_value) > 1:
-        two_d = True
+    two_d = True
+    # check if any not zero
+    if any(z_value != 0):
+        two_d = False
 
     if two_d:
         vol = np.full_like(
@@ -126,35 +129,35 @@ def generate_model(
 
     writer = ModelWriter(model_data, model_name, model_folder_name, username)
 
-    if model_data.model.rotatedAngles:
-        model = np.transpose(
-            np.vstack(
-                [
-                    x_value.ravel(),
-                    y_value.ravel(),
-                    z_value.ravel(),
-                    k.ravel(),
-                    vol.ravel(),
-                    angle_x.ravel(),
-                    angle_y.ravel(),
-                    angle_z.ravel(),
-                ]
-            )
+    # if model_data.model.rotatedAngles:
+    #     model = np.transpose(
+    #         np.vstack(
+    #             [
+    #                 x_value.ravel(),
+    #                 y_value.ravel(),
+    #                 z_value.ravel(),
+    #                 k.ravel(),
+    #                 vol.ravel(),
+    #                 angle_x.ravel(),
+    #                 angle_y.ravel(),
+    #                 angle_z.ravel(),
+    #             ]
+    #         )
+    #     )
+    #     writer.write_mesh_with_angles(model, two_d)
+    # else:
+    model = np.transpose(
+        np.vstack(
+            [
+                x_value.ravel(),
+                y_value.ravel(),
+                z_value.ravel(),
+                k.ravel(),
+                vol.ravel(),
+            ]
         )
-        writer.write_mesh_with_angles(model, two_d)
-    else:
-        model = np.transpose(
-            np.vstack(
-                [
-                    x_value.ravel(),
-                    y_value.ravel(),
-                    z_value.ravel(),
-                    k.ravel(),
-                    vol.ravel(),
-                ]
-            )
-        )
-        writer.write_mesh(model, two_d)
+    )
+    writer.write_mesh(model, two_d)
     writer.write_node_sets(model)
 
     for _, block in enumerate(model_data.blocks):

@@ -75,7 +75,6 @@ export type BoundaryCondition = {
 
 export type BoundaryConditions = {
     conditions: Array<BoundaryCondition>;
-    nodeSets?: Array<NodeSet> | null;
 };
 
 export type Compute = {
@@ -230,24 +229,9 @@ export type Matrix = {
 export type Model = {
     modelFolderName?: string | null;
     ownModel: boolean;
-    ownMesh?: boolean | null;
     translated: boolean;
-    length: number;
-    cracklength?: number | null;
-    notchEnabled?: boolean | null;
-    width?: number | null;
-    height?: number | null;
-    height2?: number | null;
-    radius?: number | null;
-    radius2?: number | null;
-    structured?: boolean | null;
-    discretization: number;
+    ownMesh?: boolean | null;
     horizon?: number | null;
-    twoDimensional: boolean;
-    rotatedAngles: boolean;
-    angles: Array<(number)>;
-    amplitudeFactor?: number | null;
-    wavelength?: number | null;
     mesh_file?: string | null;
 };
 
@@ -265,11 +249,6 @@ export type ModelData = {
     outputs: Array<Output>;
     solver: Solver;
     job: Job;
-};
-
-export type NodeSet = {
-    nodeSetId?: number | null;
-    file: string;
 };
 
 export type Output = {
@@ -692,7 +671,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/modelgetConfig': {
+    '/model/getConfig': {
         get: {
             req: GetConfigData;
             res: {

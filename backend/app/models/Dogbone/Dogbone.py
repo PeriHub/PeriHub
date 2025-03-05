@@ -12,7 +12,7 @@ version: 0.1.0
 import numpy as np
 from pydantic import BaseModel, Field
 
-from ..support.model.geometry import Geometry
+from ...support.model.geometry import Geometry
 
 
 class Valves(BaseModel):
@@ -46,26 +46,17 @@ class Valves(BaseModel):
         title="Structured",
         description="Structured",
     )
-    TWOD: bool = Field(
-        default=True,
-        title="Two Dimensional",
-        description="Two Dimensional",
-    )
 
 
 class main:
-    def __init__(
-        self,
-        valves,
-    ):
+    def __init__(self, valves, twoDimensional):
         self.xend = valves["LENGTH"]
         self.height1 = valves["HEIGHT1"]
         self.height2 = valves["HEIGHT2"]
-
-        if valves["TWOD"]:
-            self.zend = 1
-        else:
-            self.zend = valves["WIDTH"]
+        self.discretization = valves["DISCRETIZATION"]
+        self.structured = valves["STRUCTURED"]
+        self.twoDimensional = twoDimensional
+        self.zend = valves["WIDTH"]
 
         self.radius = 7.6
         self.length2 = 5.7
@@ -74,17 +65,17 @@ class main:
         self.length1 = (self.xend - 2 * self.delta_length - self.length2) / 2
         self.alpha = np.arccos((self.radius - self.delta_height) / self.radius) * 180 / np.pi
 
-    def get_discretization(self, valves):
-        number_nodes = 2 * int(valves["DISCRETIZATION"] / 2)
+    def get_discretization(self):
+        number_nodes = 2 * int(self.discretization / 2)
         dx_value = [
-            valves["HEIGHT2"] / number_nodes,
-            valves["HEIGHT2"] / number_nodes,
-            valves["HEIGHT2"] / number_nodes,
+            self.height2 / number_nodes,
+            self.height2 / number_nodes,
+            self.height2 / number_nodes,
         ]
         self.dx_value = dx_value
         return dx_value
 
-    def create_geometry(self, valves):
+    def create_geometry(self):
         """doc"""
 
         geo = Geometry()
@@ -95,9 +86,11 @@ class main:
             self.height2 / 2 + self.dx_value[1],
             self.dx_value[1],
         )
-        z_value_0 = np.arange(0, self.zend, self.dx_value[2])
+        z_value_0 = [0]
+        if not self.twoDimensional:
+            z_value_0 = np.arange(0, self.zend, self.dx_value[2])
 
-        if valves["STRUCTURED"]:
+        if self.structured:
             number_nodes = 2 * int((self.height2 / self.dx_value[1]) / 2) + 1
             num_rows = int((number_nodes - 1) / 2)
             fh2 = (2 * self.dx_value[1] * (num_rows) + self.height1 - self.height2) / (self.dx_value[1] * (num_rows))
@@ -167,7 +160,7 @@ class main:
             z_value,
         )
 
-    def crate_block_definition(self, valves, x_value, y_value, z_value, k):
+    def crate_block_definition(self, x_value, y_value, z_value, k):
         """doc"""
 
         boundary_condition = 0.2
@@ -178,12 +171,12 @@ class main:
             k,
         )
         k = np.where(
-            x_value >= valves["LENGTH"],
+            x_value >= self.length1,
             3,
             k,
         )
         k = np.where(
-            x_value >= valves["LENGTH"] + 2 * self.delta_length + self.length2,
+            x_value >= self.length1 + 2 * self.delta_length + self.length2,
             4,
             k,
         )

@@ -113,7 +113,7 @@ export const getValves = (data: GetValvesData): CancelablePromise<GetValvesRespo
  */
 export const getConfig = (data: GetConfigData = {}): CancelablePromise<GetConfigResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/modelgetConfig',
+    url: '/model/getConfig',
     query: {
         config_file: data.configFile
     },

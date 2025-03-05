@@ -537,6 +537,8 @@ class FileHandler:
 
     @staticmethod
     def get_docstring(script_path):
+        if not os.path.exists(script_path):
+            return
         with open(script_path, "r") as file:
             tree = ast.parse(file.read())
             return ast.get_docstring(tree, clean=False)
