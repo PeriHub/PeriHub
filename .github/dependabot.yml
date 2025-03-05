@@ -1,8 +1,6 @@
 version: 2
 updates:
-  - package-ecosystem: bundler
-    directory: /
+  - package-ecosystem: "github-actions"
+    directory: "/" # Location of package manifests
     schedule:
-      interval: weekly
-    allow:
-      - dependency-type: direct
+      interval: "monthly"
