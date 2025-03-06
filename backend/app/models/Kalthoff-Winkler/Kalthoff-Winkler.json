@@ -13,10 +13,12 @@
     {
       "id": 1,
       "name": "PMMA",
-      "density": 8.0e-6,
-      "matType": ["Bond-based Elastic"],
-      "bulkModulus": 1.27e6,
-      "poissonsRatio": 0.3,
+      "density": 0.000008,
+      "matType": [
+        "Bond-based Elastic"
+      ],
+      "bulkModulus": null,
+      "poissonsRatio": "0.333",
       "properties": [
         {
           "id": 1,
@@ -30,7 +32,8 @@
       "materialSymmetry": "Isotropic",
       "stabilizationType": "Global Stiffness",
       "thickness": 10,
-      "hourglassCoefficient": 1
+      "hourglassCoefficient": 1,
+      "youngsModulus": "191000"
     }
   ],
   "thermal": {
@@ -52,12 +55,12 @@
     {
       "id": 1,
       "name": "PMMADamage",
-      "damageModel": "Critical Stretch",
-      "criticalStretch": 0.002217,
-      "criticalEnergy": null,
+      "damageModel": "Critical Energy",
+      "criticalStretch": null,
+      "criticalEnergy": "25.0",
       "interblockdamageEnergy": null,
       "planeStress": true,
-      "onlyTension": false,
+      "onlyTension": true,
       "detachedNodesCheck": true,
       "thickness": 10,
       "hourglassCoefficient": 1,
@@ -66,7 +69,9 @@
         "calculateCriticalEnergy": false,
         "k1c": null,
         "youngsModulus": null
-      }
+      },
+      "interBlockDamage": false,
+      "anistropicDamage": false
     }
   ],
   "blocks": [
@@ -75,7 +80,7 @@
       "name": "block_1",
       "material": "PMMA",
       "damageModel": "PMMADamage",
-      "density": 8.0e-6,
+      "density": "8e-9",
       "show": true
     },
     {
@@ -83,7 +88,7 @@
       "name": "block_2",
       "material": "PMMA",
       "damageModel": "",
-      "density": 8.0e-6,
+      "density": "8e-9",
       "show": true
     },
     {
@@ -91,7 +96,7 @@
       "name": "block_3",
       "material": "PMMA",
       "damageModel": "",
-      "density": 8.0e-6,
+      "density": "8e-9",
       "show": true
     }
   ],
@@ -123,11 +128,11 @@
         "conditionsId": 1,
         "name": "BC_1",
         "nodeSet": null,
-        "boundarytype": "Initial",
+        "boundarytype": "Dirichlet",
         "variable": "Velocity",
-        "blockId": 3,
+        "blockId": 2,
         "coordinate": "x",
-        "value": "32e+6"
+        "value": "32e+3"
       }
     ]
   },
@@ -140,18 +145,19 @@
       "normalY": 1,
       "normalZ": 0,
       "lowerLeftCornerX": -0.5,
-      "lowerLeftCornerY": 25,
-      "lowerLeftCornerZ": -5,
+      "lowerLeftCornerY": "25.24",
+      "lowerLeftCornerZ": "-10",
       "bottomUnitVectorX": 1,
       "bottomUnitVectorY": 0,
       "bottomUnitVectorZ": 0,
-      "bottomLength": 50.5,
-      "sideLength": 10,
+      "bottomLength": "50.1",
+      "sideLength": "20",
       "centerX": 0,
       "centerY": 1,
       "centerZ": 0,
       "radius": 1,
-      "show": true
+      "show": true,
+      "allow_contact": false
     },
     {
       "id": 2,
@@ -161,18 +167,19 @@
       "normalY": 1,
       "normalZ": 0,
       "lowerLeftCornerX": -0.5,
-      "lowerLeftCornerY": -25,
-      "lowerLeftCornerZ": -5,
+      "lowerLeftCornerY": "-25.24",
+      "lowerLeftCornerZ": "-10",
       "bottomUnitVectorX": 1,
       "bottomUnitVectorY": 0,
       "bottomUnitVectorZ": 0,
-      "bottomLength": 50.5,
-      "sideLength": 10,
+      "bottomLength": "50.1",
+      "sideLength": "20",
       "centerX": 0,
       "centerY": 1,
       "centerZ": 0,
       "radius": 1,
-      "show": true
+      "show": true,
+      "allow_contact": false
     }
   ],
   "computes": [],
@@ -181,7 +188,13 @@
       "id": 1,
       "name": "Output1",
       "selectedFileType": "Exodus",
-      "selectedOutputs": ["Displacements", "Forces", "Damage", "Velocity"],
+      "selectedOutputs": [
+        "Displacements",
+        "Forces",
+        "Damage",
+        "Velocity",
+        "Number of Neighbors"
+      ],
       "Write_After_Damage": false,
       "Frequency": "100",
       "numberOfOutputSteps": 100,
@@ -192,7 +205,7 @@
   "solver": {
     "verbose": false,
     "initialTime": 0,
-    "finalTime": 0.003,
+    "finalTime": "0.0001",
     "fixedDT": null,
     "solvertype": "Verlet",
     "safetyFactor": 0.95,
@@ -215,7 +228,7 @@
     "matEnabled": true,
     "tempEnabled": false,
     "calculateCauchy": false,
-    "calculateVonMises": true,
+    "calculateVonMises": false,
     "calculateStrain": false
   },
   "job": {
