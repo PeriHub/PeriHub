@@ -10,6 +10,7 @@ import numpy as np
 from exodusreader import exodusreader
 
 from ..base_models import Material, Model
+from ..file_handler import FileHandler
 from ..globals import log
 
 
@@ -35,7 +36,12 @@ class Analysis:
             - (23.226 * math.pow(alpha, 3))
             + (20.54 * math.pow(alpha, 4))
         )
-        B = (19.118 - (5.0244 * alpha) - (69.678 * math.pow(alpha, 2)) + (82.16 * math.pow(alpha, 3))) * (1 - alpha)
+        B = (
+            19.118
+            - (5.0244 * alpha)
+            - (69.678 * math.pow(alpha, 2))
+            + (82.16 * math.pow(alpha, 3))
+        ) * (1 - alpha)
 
         phi = (A * (1 - alpha)) / (B + (2 * A))
 
@@ -88,7 +94,7 @@ class Analysis:
 
     @staticmethod
     def get_result_file(username, model_name, output):
-        resultpath = "./simulations/" + os.path.join(username, model_name)
+        resultpath = FileHandler.get_local_model_path(username, model_name)
         file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
         (
@@ -115,7 +121,9 @@ class Analysis:
                     block_ids = block_data[block_id][:, 0]
                     block_points = points[block_ids]
                     filter = damage_blocks[block_id] > 0.0
-                    current_points = block_points + point_data["Displacement"][block_ids]
+                    current_points = (
+                        block_points + point_data["Displacement"][block_ids]
+                    )
 
                     filtered_points = current_points[filter]
 

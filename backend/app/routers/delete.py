@@ -24,7 +24,9 @@ def delete_model(
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
+    localpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
     if os.path.exists(localpath):
         shutil.rmtree(localpath)
     log.info("%s has been deleted", model_name)
@@ -41,7 +43,9 @@ def delete_model_from_cluster(
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+    remotepath = FileHandler.get_remote_model_path(
+        username, model_name, model_folder_name
+    )
     if not cluster:
         if os.path.exists(remotepath):
             shutil.rmtree(remotepath)
@@ -63,7 +67,7 @@ def delete_model_from_cluster(
 def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7):
     """doc"""
     if check_date:
-        localpath = "./simulations"
+        localpath = FileHandler.get_local_simulation_path()
         if os.path.exists(localpath):
             names = FileHandler.remove_folder_if_older(localpath, days, True)
             if len(names) != 0:
@@ -74,7 +78,7 @@ def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7
 
     username = FileHandler.get_user_name(request, dev)
 
-    localpath = "./simulations/" + username
+    localpath = FileHandler.get_local_user_path()
     if os.path.exists(localpath):
         shutil.rmtree(localpath)
     log.info("Data of %s has been deleted", username)
@@ -92,29 +96,35 @@ def delete_user_data_from_cluster(
 
     if check_date:
         if not cluster:
-            localpath = "./simulations"
+            localpath = FileHandler.get_local_simulation_path()
             names = FileHandler.remove_folder_if_older(localpath, days, True)
         else:
             remotepath = FileHandler.get_remote_path(cluster)
 
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
-            names = FileHandler.remove_folder_if_older_sftp(sftp, remotepath, days, True)
+            names = FileHandler.remove_folder_if_older_sftp(
+                sftp, remotepath, days, True
+            )
 
             sftp.close()
             ssh.close()
 
         log.info("Data of %s has been deleted", names)
-        return ResponseModel(data=True, message="Data of " + names + " has been deleted")
+        return ResponseModel(
+            data=True, message="Data of " + names + " has been deleted"
+        )
 
     username = FileHandler.get_user_name(request, dev)
 
     if not cluster:
-        remotepath = "./simulations/" + username
+        remotepath = FileHandler.get_remote_user_path()
         if os.path.exists(remotepath):
             shutil.rmtree(remotepath)
         log.info("Data of %s has been deleted", username)
-        return ResponseModel(data=True, message="Data of " + username + " has been deleted")
+        return ResponseModel(
+            data=True, message="Data of " + username + " has been deleted"
+        )
 
     remotepath = FileHandler.get_remote_user_path(username)
 

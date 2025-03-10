@@ -38,13 +38,28 @@ async def upload_files(
     mime = magic.Magic(mime=True)
 
     # check the content type (MIME type)
-    allowed_types = ["application/json", ".yaml", ".cdb", ".inp", ".gcode", ".obj", "text/plain", ".g", ".so", ".inp"]
+    allowed_types = [
+        "application/json",
+        ".yaml",
+        ".cdb",
+        ".inp",
+        ".gcode",
+        ".obj",
+        "text/plain",
+        ".g",
+        ".so",
+        ".inp",
+    ]
     for file in files:
-        content_type = mime.from_buffer(file.file.read(1024))  # Check only the first 1024 bytes
+        content_type = mime.from_buffer(
+            file.file.read(1024)
+        )  # Check only the first 1024 bytes
         # move the cursor back to the beginning
         await file.seek(0)
         if content_type not in allowed_types:
-            log.warning("Invalid file type, got %s, expected %s", content_type, allowed_types)
+            log.warning(
+                "Invalid file type, got %s, expected %s", content_type, allowed_types
+            )
             return ResponseModel(
                 data=False,
                 message=f"Invalid file type, got {content_type}, expected 'application/json', '.yaml', '.cdb', '.inp', '.gcode', '.obj', 'text/plain', '.g', '.so' or '.inp'",
@@ -52,7 +67,9 @@ async def upload_files(
 
     username = FileHandler.get_user_name(request, dev)
 
-    localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
+    localpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
 
     if not os.path.exists(localpath):
         os.makedirs(localpath)
@@ -79,7 +96,10 @@ def write_input_file(
     username = FileHandler.get_user_name(request, dev)
 
     with open(
-        "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".yaml",
+        FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+        + "/"
+        + model_name
+        + ".yaml",
         "w",
         encoding="UTF-8",
     ) as file:

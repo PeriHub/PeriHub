@@ -7,11 +7,28 @@ import os
 from re import match
 
 import paramiko
-from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect, status
+from fastapi import (
+    FastAPI,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from .routers import delete, docs, energy, generate, jobs, model, results, translate, upload
+from .routers import (
+    delete,
+    docs,
+    energy,
+    generate,
+    jobs,
+    model,
+    results,
+    translate,
+    upload,
+)
 from .support.file_handler import FileHandler
 from .support.globals import dev, log, trial
 
@@ -105,10 +122,14 @@ async def websocket_endpoint_log(
     if model_folder_name == "undefined":
         model_folder_name = "Default"
     if not cluster:
-        remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_local_model_folder_path(
+            username, model_name, model_folder_name
+        )
         try:
             output_files = os.listdir(remotepath)
-            filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
+            filtered_values = list(
+                filter(lambda v: match(r"^.+\.log$", v), output_files)
+            )
             paths = [os.path.join(remotepath, basename) for basename in filtered_values]
             latest_file = max(paths, key=os.path.getctime)
         except IOError:
@@ -126,15 +147,22 @@ async def websocket_endpoint_log(
             )
 
     else:
-        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_remote_model_path(
+            username, model_name, model_folder_name
+        )
         # log.info("remotepath: %s", remotepath)
 
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
         try:
-            output_files = [x.filename for x in sorted(sftp.listdir_attr(remotepath), key=lambda f: f.st_mtime)]
+            output_files = [
+                x.filename
+                for x in sorted(sftp.listdir_attr(remotepath), key=lambda f: f.st_mtime)
+            ]
             # log.info("output_files: %s", output_files)
-            filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
+            filtered_values = list(
+                filter(lambda v: match(r"^.+\.log$", v), output_files)
+            )
             # log.info("filtered_values: %s", filtered_values)
             if len(filtered_values) == 0:
                 raise HTTPException(

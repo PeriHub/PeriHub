@@ -38,7 +38,9 @@ async def run_model(
 
     cluster = model_data.job.cluster
     sbatch = model_data.job.sbatch
-    return_string = FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster)
+    return_string = FileHandler.copy_model_to_cluster(
+        username, model_name, model_folder_name, cluster
+    )
 
     if return_string != "Success":
         return ResponseModel(
@@ -46,7 +48,9 @@ async def run_model(
             message=return_string,
         )
 
-    return_string = FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
+    return_string = FileHandler.copy_lib_to_cluster(
+        username, model_name, model_folder_name, cluster, user_mat
+    )
     if return_string != "Success":
         return ResponseModel(
             data=False,
@@ -65,7 +69,9 @@ async def run_model(
             trial=trial,
         )
         sbatch_string = sbatch.create_sbatch()
-        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_remote_model_path(
+            username, model_name, model_folder_name
+        )
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         file = sftp.file(remotepath + "/" + model_name + ".sbatch", "w", -1)
         file.write(sbatch_string)
@@ -83,7 +89,9 @@ async def run_model(
         )
 
     elif cluster:
-        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_remote_model_path(
+            username, model_name, model_folder_name
+        )
         if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
             log.warning("%s already submitted", model_name)
             return model_name + " already submitted"
@@ -115,7 +123,9 @@ async def run_model(
 
     elif not cluster:
         server = "perihub_perilab"
-        remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_local_model_folder_path(
+            username, model_name, model_folder_name
+        )
         log.info(remotepath)
         if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
             log.warning("%s already submitted", model_name)
@@ -131,12 +141,12 @@ async def run_model(
         )
         sh_string = sbatch.create_sh(verbose)
         with open(
-            os.path.join("." + remotepath, "runPerilab.sh"),
+            os.path.join(remotepath, "runPerilab.sh"),
             "w",
             encoding="UTF-8",
         ) as file:
             file.write(sh_string)
-        os.chmod(os.path.join("." + remotepath, "runPerilab.sh"), 0o0755)
+        os.chmod(os.path.join(remotepath, "runPerilab.sh"), 0o0755)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -151,25 +161,44 @@ async def run_model(
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to %s failed!", server)
-                return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
+                return ResponseModel(
+                    data=False, message="ssh connection to " + server + " failed!"
+                )
             except socket.gaierror:
                 if server != "localhost":
                     server = "localhost"
                     log.info("retrying ssh connection to %s", server)
                     continue
                 else:
-                    log.error("ssh connection to %s failed! Is the PeriLab Service running?", server)
+                    log.error(
+                        "ssh connection to %s failed! Is the PeriLab Service running?",
+                        server,
+                    )
                     return ResponseModel(
-                        data=False, message="ssh connection to " + server + " failed! Is the PeriLab Service running?"
+                        data=False,
+                        message="ssh connection to "
+                        + server
+                        + " failed! Is the PeriLab Service running?",
                     )
             except Exception as e:
                 log.error(type(e))
-                log.error("ssh connection to %s failed! Is the PeriLab Service running?", server)
+                log.error(
+                    "ssh connection to %s failed! Is the PeriLab Service running?",
+                    server,
+                )
                 return ResponseModel(
-                    data=False, message="ssh connection to " + server + " failed! Is the PeriLab Service running?"
+                    data=False,
+                    message="ssh connection to "
+                    + server
+                    + " failed! Is the PeriLab Service running?",
                 )
             break
-        command = "cd /app" + remotepath + " \n sh runPerilab.sh"
+        command = (
+            "cd /app"
+            + "/simulations/"
+            + os.path.join(username, model_name, model_folder_name)
+            + " \n sh runPerilab.sh"
+        )
         ssh.exec_command(command)
         # stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
         # stdout=stdout.readlines()
@@ -196,7 +225,9 @@ def cancel_job(
 
     if not cluster:
         server = "perihub_perilab"
-        remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = "/simulations/" + os.path.join(
+            username, model_name, model_folder_name
+        )
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         while True:
@@ -229,7 +260,9 @@ def cancel_job(
         log.info("Job has been canceled")
         return ResponseModel(data=True, message="Job has been canceled")
 
-    remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+    remotepath = FileHandler.get_remote_model_path(
+        username, model_name, model_folder_name
+    )
     ssh, sftp = FileHandler.sftp_to_cluster(cluster)
     # try:
     #     output_files = sftp.listdir(remotepath)
@@ -264,7 +297,7 @@ def get_jobs(
 
     jobs = []
 
-    localpath = os.path.join("./simulations", username, model_name)
+    localpath = FileHandler.get_local_model_path(username, model_name)
 
     # print(localpath)
 
@@ -294,7 +327,9 @@ def get_jobs(
                     results=False,
                 )
 
-                remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+                remotepath = FileHandler.get_local_model_folder_path(
+                    username, model_name, model_folder_name
+                )
                 if os.path.exists(os.path.join(remotepath)):
                     job.cluster = False
                     if os.path.exists(os.path.join(remotepath, "pid.txt")):
@@ -321,7 +356,9 @@ def get_jobs(
                         results=False,
                     )
 
-                remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
+                remotepath = "./PeridigmJobs/apiModels/" + os.path.join(
+                    username, model_name, model_folder_name
+                )
 
                 if cluster_enabled and cluster_accesible:
                     if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
@@ -338,7 +375,9 @@ def get_jobs(
                         # except IOError:
                         #     pass
 
-                        job.submitted = FileHandler.cluster_job_running(remotepath, model_name, model_folder_name)
+                        job.submitted = FileHandler.cluster_job_running(
+                            remotepath, model_name, model_folder_name
+                        )
 
                         # print(job.cluster)
                         jobs.append(job)
@@ -364,7 +403,9 @@ def get_status(
 
     status = Status()
 
-    localpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+    localpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
 
     # log.info("localpath: %s", localpath)
 
@@ -372,7 +413,9 @@ def get_status(
         status.created = True
 
     if cluster:
-        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_remote_model_path(
+            username, model_name, model_folder_name
+        )
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
         try:
@@ -386,10 +429,14 @@ def get_status(
 
         sftp.close()
         ssh.close()
-        status.submitted = FileHandler.cluster_job_running(remotepath, model_name, model_folder_name)
+        status.submitted = FileHandler.cluster_job_running(
+            remotepath, model_name, model_folder_name
+        )
 
     else:
-        remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_local_model_folder_path(
+            username, model_name, model_folder_name
+        )
         # log.info(remotepath)
         if os.path.exists(os.path.join(remotepath, "pid.txt")):
             status.submitted = True

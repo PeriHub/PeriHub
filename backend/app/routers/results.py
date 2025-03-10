@@ -26,7 +26,12 @@ router = APIRouter(prefix="/results", tags=["Results Methods"])
     operation_id="get_fracture_analysis",
     response_class=FileResponse,
     responses={
-        200: {"description": "The image.", "content": {"image/png": {"schema": {"type": "string", "format": "binary"}}}}
+        200: {
+            "description": "The image.",
+            "content": {
+                "image/png": {"schema": {"type": "string", "format": "binary"}}
+            },
+        }
     },
 )
 def get_fracture_analysis(
@@ -52,7 +57,9 @@ def get_fracture_analysis(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+    resultpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     file_name, filepath = CrackAnalysis.write_nodemap(file, step)
@@ -93,7 +100,9 @@ def get_enf_analysis(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+    resultpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step)
@@ -128,11 +137,15 @@ def get_plot(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+    resultpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
     file = os.path.join(resultpath, model_name + "_" + output + ".csv")
 
     if not os.path.exists(file):
-        return ResponseModel(data=False, message=model_name + "_" + output + ".csv can not be found")
+        return ResponseModel(
+            data=False, message=model_name + "_" + output + ".csv can not be found"
+        )
 
     # x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
     # y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
@@ -188,7 +201,9 @@ def get_results(
     zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
 
     try:
-        shutil.make_archive(zip_file, "zip", os.path.join(folder_path, model_folder_name))
+        shutil.make_archive(
+            zip_file, "zip", os.path.join(folder_path, model_folder_name)
+        )
 
         response = FileResponse(
             zip_file + ".zip",
@@ -254,7 +269,10 @@ def get_cell_data(variable, points, point_data, cell_data, block_data, displ_fac
                 ]
             )
         else:
-            if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
+            if (
+                block_id in cell_data[variable][0]
+                and max(cell_data[variable][0][block_id]) > 0
+            ):
                 cell_value = np.concatenate(
                     [
                         cell_value,
@@ -337,11 +355,16 @@ def get_data(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+    resultpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     if not os.path.exists(file):
-        return ResponseModel(data=False, message="Results can not be found, maybe they are not generated yet.")
+        return ResponseModel(
+            data=False,
+            message="Results can not be found, maybe they are not generated yet.",
+        )
 
     number_of_steps = exodusreader.get_number_of_steps(file)
 
@@ -368,13 +391,21 @@ def get_data(
                 time,
             ) = exodusreader.read_timestep(file, number_of_steps)
         except IndexError:
-            return ResponseModel(data=False, message="Results can not be found, maybe they are not generated yet.")
+            return ResponseModel(
+                data=False,
+                message="Results can not be found, maybe they are not generated yet.",
+            )
 
     use_cell_data = False
 
     variable_list = list(point_data.keys())
     variable_list = list(
-        set([entry[:-1] if entry[-1].lower() in ["x", "y", "z"] else entry for entry in variable_list])
+        set(
+            [
+                entry[:-1] if entry[-1].lower() in ["x", "y", "z"] else entry
+                for entry in variable_list
+            ]
+        )
     )
 
     np_points_all_z = None
@@ -422,7 +453,12 @@ def get_data(
         )
         if use_filter:
             _, _, _, filter_value = get_point_data(
-                filter, "Not_Magnitude", displ_factor, use_multi_data, points, point_data
+                filter,
+                "Not_Magnitude",
+                displ_factor,
+                use_multi_data,
+                points,
+                point_data,
             )
 
     if np_points_all_z is None:
@@ -439,10 +475,14 @@ def get_data(
     if max_cell_value == min_cell_value:
         normalized_cell_value = np.zeros_like(cell_value)
     else:
-        normalized_cell_value = (cell_value - min_cell_value) / (max_cell_value - min_cell_value)
+        normalized_cell_value = (cell_value - min_cell_value) / (
+            max_cell_value - min_cell_value
+        )
     print(time)
     data = {
-        "nodes": np.ravel([np_points_all_x, np_points_all_y, np_points_all_z], order="F").tolist(),
+        "nodes": np.ravel(
+            [np_points_all_x, np_points_all_y, np_points_all_z], order="F"
+        ).tolist(),
         "value": normalized_cell_value.tolist(),
         "variables": variable_list,
         "number_of_steps": number_of_steps,

@@ -29,7 +29,9 @@ def translate_model(
 
     start_time = time.time()
 
-    localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
+    localpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
 
     if not os.path.exists(localpath):
         os.makedirs(localpath)
@@ -93,7 +95,9 @@ async def translate_gcode(
 
     start_time = time.time()
 
-    localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
+    localpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
     # output_path = FileHandler.get_local_user_path(username)
 
     gcodereader.read(model_name, localpath, localpath, discretization, dt, scale)

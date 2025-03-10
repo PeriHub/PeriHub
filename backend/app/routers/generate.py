@@ -48,7 +48,9 @@ def generate_model(
 
     max_nodes = FileHandler.get_max_nodes(username)
 
-    localpath = FileHandler.get_local_model_path(username, model_name, model_folder_name)
+    localpath = FileHandler.get_local_model_folder_path(
+        username, model_name, model_folder_name
+    )
 
     if not os.path.exists(localpath):
         os.makedirs(localpath)
@@ -56,16 +58,16 @@ def generate_model(
     json_file = os.path.join(localpath, model_name + ".json")
     ignore_mesh = False
 
-    if os.path.exists(json_file):
-        with open(json_file, "r", encoding="UTF-8") as file:
-            json_data = json.load(file)
-            # print(model_data.model)
-            if (
-                model_data.model == json_data["model"]
-                and model_data.boundaryConditions == json_data["boundaryConditions"]
-            ):
-                log.info("Model not changed")
-                ignore_mesh = True
+    # if os.path.exists(json_file):
+    #     with open(json_file, "r", encoding="UTF-8") as file:
+    #         json_data = json.load(file)
+    #         # print(model_data.model)
+    #         if (
+    #             model_data.model == json_data["model"]
+    #             and model_data.boundaryConditions == json_data["boundaryConditions"]
+    #         ):
+    #             log.info("Model not changed")
+    #             ignore_mesh = True
 
     with open(json_file, "w", encoding="UTF-8") as file:
         file.write(model_data.to_json())
@@ -74,14 +76,25 @@ def generate_model(
 
     log.info("Create %s", model_name)
 
-    valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
+    valves_dict = {
+        valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]
+    }
 
     try:
-        module = getattr(__import__("app.models." + model_name + "." + model_name, fromlist=[model_name]), "main")
+        module = getattr(
+            __import__(
+                "app.models." + model_name + "." + model_name, fromlist=[model_name]
+            ),
+            "main",
+        )
     except:
         try:
             module = getattr(
-                __import__("app.own_models." + model_name + "." + model_name, fromlist=[model_name]), "main"
+                __import__(
+                    "app.own_models." + model_name + "." + model_name,
+                    fromlist=[model_name],
+                ),
+                "main",
             )
         except:
             log.error("Model Name unknown")
@@ -103,7 +116,12 @@ def generate_model(
     k = model.crate_block_definition(x_value, y_value, z_value, k)
 
     if len(x_value) > max_nodes:
-        return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes)
+        return (
+            "The number of nodes ("
+            + str(len(x_value))
+            + ") is larger than the allowed "
+            + str(max_nodes)
+        )
 
     vol = np.zeros(len(x_value))
     # if model_data.model.rotatedAngles:
@@ -169,7 +187,9 @@ def generate_model(
     except TypeError as exception:
         return str(exception)
 
-    log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
+    log.info(
+        "%s has been created in %.2f seconds", model_name, time.time() - start_time
+    )
 
     return ResponseModel(
         data=True,
@@ -196,7 +216,9 @@ def generate_mesh(
     )
     try:
         with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
-            localpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
+            localpath = FileHandler.get_local_model_folder_path(
+                username, model_name, model_folder_name
+            )
 
             if not os.path.exists(localpath):
                 os.makedirs(localpath)

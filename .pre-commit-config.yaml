@@ -11,7 +11,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/psf/black
-    rev: 23.7.0
+    rev: 25.1.0
     hooks:
       - id: black
   # -   repo: https://gitlab.com/smop/pre-commit-hooks
@@ -20,9 +20,10 @@ repos:
   #     -   id: check-poetry
   #-   id: check-gitlab-ci  # does not work on win since it should execute bash
   - repo: https://github.com/PyCQA/isort
-    rev: 5.12.0
+    rev: 6.0.1
     hooks:
       - id: isort
+        args: ["--profile", "black"]
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
