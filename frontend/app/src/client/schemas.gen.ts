@@ -1584,6 +1584,10 @@ export const $Model = {
             type: 'boolean',
             title: 'Translated'
         },
+        twoDimensional: {
+            type: 'boolean',
+            title: 'Twodimensional'
+        },
         ownMesh: {
             anyOf: [
                 {
@@ -1619,7 +1623,7 @@ export const $Model = {
         }
     },
     type: 'object',
-    required: ['ownModel', 'translated'],
+    required: ['ownModel', 'translated', 'twoDimensional'],
     title: 'Model'
 } as const;
 
@@ -1863,7 +1867,7 @@ export const $ModelData = {
                 density: '1.4e5',
                 hourglassCoefficient: 1,
                 id: 1,
-                matType: 'Linear Elastic Correspondence',
+                matType: ['Correspondence Elastic'],
                 materialSymmetry: 'Isotropic',
                 name: 'PMMA',
                 nonLinear: true,
@@ -1884,7 +1888,7 @@ export const $ModelData = {
                 density: '1.4e5',
                 hourglassCoefficient: '1',
                 id: 2,
-                matType: 'Linear Elastic Correspondence',
+                matType: ['Correspondence Elastic'],
                 materialSymmetry: 'Isotropic',
                 name: 'PMMAElast',
                 nonLinear: true,

@@ -135,7 +135,17 @@ def get_config(config_file: str = "Dogbone"):
 def save_config(config_file: str, config: ModelData, request: Request = ""):
     username = FileHandler.get_user_name(request, dev)
 
-    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", config_file)
+    if os.path.exists(os.path.join("./models", config_file, config_file + ".json")):
+        file_path = os.path.join(
+            str(Path(__file__).parent.parent.resolve()), "models", config_file, config_file + ".json"
+        )
+    elif os.path.exists(os.path.join("./own_models", config_file, config_file + ".json")):
+        file_path = os.path.join(
+            str(Path(__file__).parent.parent.resolve()), "own_models", config_file, config_file + ".json"
+        )
+    else:
+        log.error("%s files can not be found", config_file)
+        return
 
     with open(file_path, "w") as file:
         file.write(config.to_json())

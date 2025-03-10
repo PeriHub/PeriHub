@@ -62,6 +62,12 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
+    <q-btn v-if="DEV" flat icon="fas fa-save" @click="_saveConfig">
+      <q-tooltip>
+        Save Config
+      </q-tooltip>
+    </q-btn>
+
     <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-undo" @click="bus.emit('resetData')">
       <q-tooltip>
         Reset Data
@@ -127,7 +133,7 @@ import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
-import { uploadFiles, translateModel, translateGcode, getModel, generateModel } from 'src/client';
+import { uploadFiles, translateModel, translateGcode, getModel, generateModel, saveConfig } from 'src/client';
 import rules from 'assets/rules.js';
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -160,6 +166,7 @@ export default defineComponent({
       dialogTranslate: false,
       translatorDiscretization: 1,
       meshioFile: undefined,
+      DEV: false,
     };
   },
   methods: {
@@ -416,6 +423,20 @@ export default defineComponent({
       document.body.appendChild(fileLink);
       fileLink.click();
     },
+    async _saveConfig() {
+      await saveConfig({
+        configFile: this.modelStore.selectedModel.file,
+        requestBody: this.modelData,
+      }).then(() => this.$q.notify({
+        message: 'Config saved',
+      })).catch((error) => {
+        console.log(error.body.detail)
+        this.$q.notify({
+          type: 'negative',
+          message: error.body.detail
+        })
+      })
+    },
     saveModel() {
 
       getModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName })
@@ -544,6 +565,9 @@ export default defineComponent({
       driver.start();
     },
   },
+  mounted() {
+    this.DEV = process.env.DEV
+  }
 })
 </script>
 <style>

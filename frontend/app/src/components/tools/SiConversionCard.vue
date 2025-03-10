@@ -211,7 +211,7 @@ export default defineComponent({
       }
     },
     copyText(id) {
-      copyToClipboard(this.calculated[id])
+      copyToClipboard(this.conversionResults[id])
     },
   },
   watch: {

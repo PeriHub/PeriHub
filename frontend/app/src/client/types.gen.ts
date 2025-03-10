@@ -230,6 +230,7 @@ export type Model = {
     modelFolderName?: string | null;
     ownModel: boolean;
     translated: boolean;
+    twoDimensional: boolean;
     ownMesh?: boolean | null;
     horizon?: number | null;
     mesh_file?: string | null;
@@ -371,6 +372,7 @@ export type GetConfigResponse = unknown;
 
 export type SaveConfigData = {
     configFile: string;
+    ownModel: boolean;
     requestBody: ModelData;
 };
 

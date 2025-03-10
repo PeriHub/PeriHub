@@ -199,8 +199,21 @@ export default defineComponent({
       }
     },
     addInterBlock(index) {
+      if (!this.damages[index].interBlocks) {
+        this.damages[index].interBlocks = []
+      }
       const len = this.damages[index].interBlocks.length;
-      let newItem = structuredClone(this.damages[index].interBlocks[len - 1])
+      let newItem = {}
+      if (len != 0) {
+        newItem = structuredClone(this.damages[index].interBlocks[len - 1])
+      } else {
+        newItem = {
+          'damagesInterId': 1,
+          'firstBlockId': 1,
+          'secondBlockId': 2,
+          'value': 0.1
+        }
+      }
       newItem.damagesInterId = len + 1
       newItem.firtsId = 1
       newItem.secondId = len + 1

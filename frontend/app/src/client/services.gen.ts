@@ -126,6 +126,7 @@ export const getConfig = (data: GetConfigData = {}): CancelablePromise<GetConfig
  * Save Config
  * @param data The data for the request.
  * @param data.configFile
+ * @param data.ownModel
  * @param data.requestBody
  * @returns unknown Successful Response
  * @throws ApiError
@@ -134,7 +135,8 @@ export const saveConfig = (data: SaveConfigData): CancelablePromise<SaveConfigRe
     method: 'POST',
     url: '/model/saveConfig',
     query: {
-        config_file: data.configFile
+        config_file: data.configFile,
+        own_model: data.ownModel
     },
     body: data.requestBody,
     mediaType: 'application/json',

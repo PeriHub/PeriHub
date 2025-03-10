@@ -55,9 +55,9 @@
     {
       "id": 1,
       "name": "PMMADamage",
-      "damageModel": "Critical Energy",
+      "damageModel": "Critical Stretch",
       "criticalStretch": null,
-      "criticalEnergy": "25.0",
+      "criticalEnergy": "0.015",
       "interblockdamageEnergy": null,
       "planeStress": true,
       "onlyTension": true,

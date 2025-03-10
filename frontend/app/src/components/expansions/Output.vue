@@ -246,8 +246,23 @@ export default defineComponent({
       }
     },
     addCompute() {
+      if (!this.computes) {
+        this.computes = []
+      }
       const len = this.computes.length;
-      let newItem = structuredClone(this.computes[len - 1])
+      let newItem = {}
+      if (len != 0) {
+        newItem = structuredClone(this.computes[len - 1])
+      } else {
+        newItem = {
+          'id': 1,
+          'computeClass': 'Block_Data',
+          'name': 'External_Force',
+          'variable': 'Forces',
+          'calculationType': 'Sum',
+          'blockName': this.blocks[0]
+        }
+      }
       newItem.computesId = len + 1
       newItem.name = 'Compute' + (len + 1)
       this.computes.push(newItem);
