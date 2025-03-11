@@ -26,9 +26,7 @@ class ModelWriter:
         self.filename = filename
         self.model_folder_name = model_folder_name
         self.ns_name = "ns_" + filename
-        self.path = FileHandler.get_local_model_folder_path(
-            username, filename, model_folder_name
-        )
+        self.path = FileHandler.get_local_model_folder_path(username, filename, model_folder_name)
         self.mesh_file = model_data.model.mesh_file
         self.bc_dict = model_data.boundaryConditions
         self.solver_dict = model_data.solver
@@ -41,6 +39,7 @@ class ModelWriter:
             if bcs.blockId not in node_set_ids:
                 node_set_ids.append(bcs.blockId)
         self.node_set_ids = node_set_ids
+        log.info(f"Node Sets: {node_set_ids}")
 
     def write_node_sets(self, model):
         """doc"""

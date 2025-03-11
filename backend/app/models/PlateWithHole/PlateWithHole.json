@@ -1,0 +1,227 @@
+{
+    "additive": {
+        "additiveModels": [
+            {
+                "additiveType": "Simple Additive",
+                "id": null,
+                "name": "Additive Model 1",
+                "printTemp": 200.0,
+                "timeFactor": 1.0
+            }
+        ],
+        "enabled": false
+    },
+    "blocks": [
+        {
+            "additiveModel": null,
+            "blocksId": 1,
+            "damageModel": "PMMADamage",
+            "density": 8e-09,
+            "horizon": null,
+            "material": "PMMA",
+            "name": "block_1",
+            "show": true
+        },
+        {
+            "additiveModel": null,
+            "blocksId": 2,
+            "damageModel": "",
+            "density": 8e-09,
+            "horizon": null,
+            "material": "PMMA",
+            "name": "block_2",
+            "show": true
+        },
+        {
+            "additiveModel": null,
+            "blocksId": 3,
+            "damageModel": "",
+            "density": 8e-09,
+            "horizon": null,
+            "material": "PMMA",
+            "name": "block_3",
+            "show": true
+        }
+    ],
+    "bondFilters": [],
+    "boundaryConditions": {
+        "conditions": [
+            {
+                "blockId": 2,
+                "boundarytype": "Dirichlet",
+                "conditionsId": 1,
+                "coordinate": "y",
+                "name": "BC_1",
+                "nodeSet": null,
+                "value": "-1*t",
+                "variable": "Displacements"
+            },
+            {
+                "blockId": 3,
+                "boundarytype": "Dirichlet",
+                "conditionsId": 1,
+                "coordinate": "y",
+                "name": "BC_2",
+                "nodeSet": null,
+                "value": "1*t",
+                "variable": "Displacements"
+            }
+        ]
+    },
+    "computes": [],
+    "contact": {
+        "contactModels": [
+            {
+                "contactRadius": 0.000775,
+                "contactType": "Short Range Force",
+                "id": 1,
+                "name": "Contact Model",
+                "springConstant": 1000000000000.0
+            }
+        ],
+        "enabled": false,
+        "interactions": [
+            {
+                "contactModelId": 1,
+                "firstBlockId": 5,
+                "id": 1,
+                "secondBlockId": 3
+            }
+        ],
+        "searchFrequency": 1,
+        "searchRadius": 0.02
+    },
+    "damages": [
+        {
+            "anistropicDamage": false,
+            "anistropicDamageX": null,
+            "anistropicDamageY": null,
+            "anistropicDamageZ": null,
+            "criticalDamage": null,
+            "criticalDamageToNeglect": null,
+            "criticalEnergy": null,
+            "criticalEnergyCalc": {
+                "calculateCriticalEnergy": false,
+                "k1c": null
+            },
+            "criticalStretch": 0.015,
+            "criticalVonMisesStress": null,
+            "damageModel": "Critical Stretch",
+            "detachedNodesCheck": true,
+            "hourglassCoefficient": 1.0,
+            "id": 1,
+            "interBlockDamage": false,
+            "interBlocks": null,
+            "name": "PMMADamage",
+            "numberOfBlocks": null,
+            "onlyTension": true,
+            "planeStress": true,
+            "stabilizationType": "Global Stiffness",
+            "thickness": 10.0,
+            "thresholdDamage": null
+        }
+    ],
+    "job": {
+        "account": 2263032,
+        "cluster": false,
+        "cpusPerTask": 1,
+        "multithread": false,
+        "nodes": 1,
+        "sbatch": false,
+        "tasks": 32,
+        "tasksPerNode": 32,
+        "time": "00:20:00",
+        "verbose": false
+    },
+    "materials": [
+        {
+            "actualHorizon": null,
+            "bulkModulus": null,
+            "computePartialStress": null,
+            "hourglassCoefficient": 1.0,
+            "id": 1,
+            "matType": [
+                "Bond-based Elastic"
+            ],
+            "materialSymmetry": "Isotropic",
+            "name": "PMMA",
+            "numStateVars": null,
+            "planeStrain": false,
+            "planeStress": true,
+            "poissonsRatio": 0.333,
+            "properties": [
+                {
+                    "id": 1,
+                    "name": "Prop_1",
+                    "value": null
+                }
+            ],
+            "shearModulus": null,
+            "stabilizationType": "Global Stiffness",
+            "stiffnessMatrix": null,
+            "thickness": 10.0,
+            "useCollocationNodes": null,
+            "yieldStress": null,
+            "youngsModulus": 191000.0
+        }
+    ],
+    "model": {
+        "horizon": null,
+        "mesh_file": null,
+        "modelFolderName": "Default",
+        "ownMesh": null,
+        "ownModel": false,
+        "translated": false,
+        "twoDimensional": true
+    },
+    "outputs": [
+        {
+            "Frequency": 100,
+            "InitStep": 0,
+            "Write_After_Damage": false,
+            "name": "Output1",
+            "numberOfOutputSteps": 100,
+            "outputsId": null,
+            "selectedFileType": "Exodus",
+            "selectedOutputs": [
+                "Displacements",
+                "Forces",
+                "Damage",
+                "Number of Neighbors"
+            ],
+            "useOutputFrequency": false
+        }
+    ],
+    "preCalculations": null,
+    "solver": {
+        "adapt": {
+            "maximumBondDifference": 4,
+            "stableBondDifference": 1,
+            "stableStepDifference": 4
+        },
+        "adaptivetimeStepping": false,
+        "calculateCauchy": false,
+        "calculateStrain": false,
+        "calculateVonMises": false,
+        "damEnabled": true,
+        "dispEnabled": true,
+        "endStepAfterDamage": null,
+        "finalTime": 0.0001,
+        "fixedDt": null,
+        "initialTime": 0.0,
+        "matEnabled": true,
+        "maxDamageValue": null,
+        "numericalDamping": 5e-06,
+        "safetyFactor": 0.95,
+        "solvertype": "Verlet",
+        "stopAfterCertainDamage": null,
+        "stopAfterDamageInitation": false,
+        "stopBeforeDamageInitation": false,
+        "tempEnabled": false,
+        "verlet": {
+            "numericalDamping": 5e-06,
+            "outputFrequency": 7500,
+            "safetyFactor": 0.95
+        }
+    }
+}

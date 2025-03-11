@@ -48,9 +48,7 @@ def generate_model(
 
     max_nodes = FileHandler.get_max_nodes(username)
 
-    localpath = FileHandler.get_local_model_folder_path(
-        username, model_name, model_folder_name
-    )
+    localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
     if not os.path.exists(localpath):
         os.makedirs(localpath)
@@ -76,15 +74,11 @@ def generate_model(
 
     log.info("Create %s", model_name)
 
-    valves_dict = {
-        valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]
-    }
+    valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
 
     try:
         module = getattr(
-            __import__(
-                "app.models." + model_name + "." + model_name, fromlist=[model_name]
-            ),
+            __import__("app.models." + model_name + "." + model_name, fromlist=[model_name]),
             "main",
         )
     except:
@@ -116,12 +110,7 @@ def generate_model(
     k = model.crate_block_definition(x_value, y_value, z_value, k)
 
     if len(x_value) > max_nodes:
-        return (
-            "The number of nodes ("
-            + str(len(x_value))
-            + ") is larger than the allowed "
-            + str(max_nodes)
-        )
+        return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes)
 
     vol = np.zeros(len(x_value))
     # if model_data.model.rotatedAngles:
@@ -185,11 +174,10 @@ def generate_model(
     try:
         writer.create_file(block_def)
     except TypeError as exception:
+        log.error(f"Failed to create file: {exception}")
         return str(exception)
 
-    log.info(
-        "%s has been created in %.2f seconds", model_name, time.time() - start_time
-    )
+    log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
 
     return ResponseModel(
         data=True,
@@ -216,9 +204,7 @@ def generate_mesh(
     )
     try:
         with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
-            localpath = FileHandler.get_local_model_folder_path(
-                username, model_name, model_folder_name
-            )
+            localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
             if not os.path.exists(localpath):
                 os.makedirs(localpath)
