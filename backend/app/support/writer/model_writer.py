@@ -29,7 +29,7 @@ class ModelWriter:
         self.path = FileHandler.get_local_model_folder_path(username, filename, model_folder_name)
         self.mesh_file = model_data.model.mesh_file
         self.bc_dict = model_data.boundaryConditions
-        self.solver_dict = model_data.solver
+        self.solver_dict = model_data.solvers
         self.job_dict = model_data.job
         self.model_data = model_data
         self.disc_type = "txt"

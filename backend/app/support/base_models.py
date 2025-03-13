@@ -137,7 +137,7 @@ class ThermalModel(BaseModel):
 
 class Thermal(BaseModel):
     enabled: bool
-    thermalModels: Union[List[ThermalModel], None]
+    thermalModels: Optional[List[ThermalModel]] = None
 
 
 class AdditiveModel(BaseModel):
@@ -225,8 +225,13 @@ class Contact(BaseModel):
     interactions: Union[List[Interaction], None]
 
 
+class Discretization(BaseModel):
+    distributionType: str
+
+
 class BoundaryCondition(BaseModel):
     conditionsId: Optional[int] = None
+    stepId: int = 1
     name: str
     nodeSet: Optional[int] = None
     boundarytype: str
@@ -308,6 +313,18 @@ class Verlet(BaseModel):
     outputFrequency: int = 1000
 
 
+class Static(BaseModel):
+    numberOfSteps: int
+    maximumNumberOfIterations: Optional[int] = None
+    NLsolver: Optional[bool] = None
+    showSolverIteration: Optional[bool] = None
+    residualTolerance: Optional[float] = None
+    solutionTolerance: Optional[float] = None
+    linearStartValue: Optional[List[float]] = None
+    residualScaling: Optional[float] = None
+    m: Optional[int] = None
+
+
 class Adapt(BaseModel):
     stableStepDifference: int = 4
     maximumBondDifference: int = 10
@@ -315,10 +332,13 @@ class Adapt(BaseModel):
 
 
 class Solver(BaseModel):
-    matEnabled: bool = True
-    damEnabled: bool = True
-    dispEnabled: bool = True
-    tempEnabled: bool = True
+    solverId: Optional[int] = None
+    name: Optional[str] = None
+    stepId: int = 1
+    matEnabled: Optional[bool] = None
+    damEnabled: Optional[bool] = None
+    dispEnabled: Optional[bool] = None
+    tempEnabled: Optional[bool] = None
     initialTime: float
     finalTime: float
     fixedDt: Optional[float] = None
@@ -326,6 +346,7 @@ class Solver(BaseModel):
     safetyFactor: float
     numericalDamping: float
     verlet: Optional[Verlet] = None
+    static: Optional[Static] = None
     stopAfterDamageInitation: Optional[bool] = None
     endStepAfterDamage: Optional[int] = None
     stopAfterCertainDamage: Optional[bool] = None
@@ -627,19 +648,21 @@ default_model = {
 
 
 class ModelData(BaseModel):
-    model: Model
-    materials: List[Material]
     additive: Optional[Additive] = None
-    damages: Optional[List[Damage]] = None
     blocks: List[Block]
-    contact: Optional[Contact] = None
-    boundaryConditions: BoundaryConditions
     bondFilters: Optional[List[BondFilters]] = None
+    boundaryConditions: BoundaryConditions
     computes: Optional[List[Compute]] = None
-    preCalculations: Optional[PreCalculations] = None
-    outputs: List[Output]
-    solver: Solver
+    contact: Optional[Contact] = None
+    damages: Optional[List[Damage]] = None
+    discretization: Optional[Discretization] = None
     job: Job
+    materials: List[Material]
+    model: Model
+    outputs: List[Output]
+    preCalculations: Optional[PreCalculations] = None
+    solvers: List[Solver]
+    thermal: Thermal
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

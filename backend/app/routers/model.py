@@ -33,9 +33,7 @@ def get_models():
     for model in os.listdir(os.path.join(file_path, "models")):
         if model.startswith("__"):
             continue
-        doc_string = FileHandler.get_docstring(
-            os.path.join(file_path, "models", model, model + ".py")
-        )
+        doc_string = FileHandler.get_docstring(os.path.join(file_path, "models", model, model + ".py"))
         if doc_string:
             doc_dict = FileHandler.doc_to_dict(doc_string)
             doc_dict["file"] = os.path.join(model)
@@ -61,9 +59,7 @@ def get_own_models(verify: bool = False, request: Request = ""):
     for model in os.listdir(os.path.join(file_path, "own_models")):
         if model.startswith("__"):
             continue
-        doc_string = FileHandler.get_docstring(
-            os.path.join(file_path, "own_models", model, model + ".py")
-        )
+        doc_string = FileHandler.get_docstring(os.path.join(file_path, "own_models", model, model + ".py"))
         if doc_string:
             doc_dict = FileHandler.doc_to_dict(doc_string)
             doc_dict["file"] = os.path.join(model)
@@ -72,10 +68,7 @@ def get_own_models(verify: bool = False, request: Request = ""):
             #     continue
             if verify:
                 username = FileHandler.get_user_name(request, dev)
-                if (
-                    username not in doc_dict["author"].replace(" ", "").split(",")
-                    and username != "dev"
-                ):
+                if username not in doc_dict["author"].replace(" ", "").split(",") and username != "dev":
                     continue
             model_list.append(doc_dict)
 
@@ -93,13 +86,9 @@ def get_valves(model_name: str, source: bool = False):
     #     return Path(file_path).read_text()
     print(parent_path + ".models." + model_name + "." + model_name)
     try:
-        module = importlib.import_module(
-            parent_path + ".models." + model_name + "." + model_name, package="."
-        )
+        module = importlib.import_module(parent_path + ".models." + model_name + "." + model_name, package=".")
     except:
-        module = importlib.import_module(
-            parent_path + ".own_models." + model_name + "." + model_name, package="."
-        )
+        module = importlib.import_module(parent_path + ".own_models." + model_name + "." + model_name, package=".")
     if not hasattr(module, "Valves"):
         return {"valves": []}
     my_class = getattr(module, "Valves")
@@ -134,23 +123,23 @@ def get_valves(model_name: str, source: bool = False):
 def get_config(config_file: str = "Dogbone"):
     """doc"""
 
-    config_file = os.path.join(
+    config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "models",
         config_file,
         config_file + ".json",
     )
-    own_config_file = os.path.join(
+    own_config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "own_models",
         config_file,
         config_file + ".json",
     )
-    if os.path.exists(config_file):
-        with open(config_file, "r") as file:
+    if os.path.exists(config_path):
+        with open(config_path, "r") as file:
             return json.load(file)
-    if os.path.exists(own_config_file):
-        with open(own_config_file, "r") as file:
+    if os.path.exists(own_config_path):
+        with open(own_config_path, "r") as file:
             return json.load(file)
 
     log.error("%s files can not be found", config_file)
@@ -161,22 +150,22 @@ def get_config(config_file: str = "Dogbone"):
 def save_config(config_file: str, config: ModelData, request: Request = ""):
     username = FileHandler.get_user_name(request, dev)
 
-    config_file = os.path.join(
+    config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "models",
         config_file,
         config_file + ".json",
     )
-    own_config_file = os.path.join(
+    own_config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "own_models",
         config_file,
         config_file + ".json",
     )
-    if os.path.exists(config_file):
-        file_path = config_file
-    elif os.path.exists(own_config_file):
-        file_path = own_config_file
+    if os.path.exists(config_path):
+        file_path = config_path
+    elif os.path.exists(own_config_path):
+        file_path = own_config_path
     else:
         log.error("%s files can not be found", config_file)
         return
@@ -206,9 +195,7 @@ def get_model(
     folder_path = os.path.join(FileHandler.get_local_user_path(username), model_name)
     zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
     try:
-        shutil.make_archive(
-            zip_file, "zip", os.path.join(folder_path, model_folder_name)
-        )
+        shutil.make_archive(zip_file, "zip", os.path.join(folder_path, model_folder_name))
 
         response = FileResponse(
             zip_file + ".zip",
@@ -242,9 +229,7 @@ def get_point_data(
     if own_mesh:
         try:
             with open(
-                FileHandler.get_local_model_folder_path(
-                    username, model_name, model_folder_name
-                )
+                FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
                 + "/"
                 + model_name
                 + ".g.ascii",
@@ -260,15 +245,11 @@ def get_point_data(
                 for i in range(0, 3):
                     coords[i] = coords[i][8:].replace(" ", "").split(",")
                 for i in range(0, num_of_blocks):
-                    nodes[i] = (
-                        nodes[i * 2][8:].replace(" ", "").split("=")[1].split(",")
-                    )
+                    nodes[i] = nodes[i * 2][8:].replace(" ", "").split("=")[1].split(",")
                     for node in nodes[i]:
                         block_id[int(node) - 1] = i + 1
                 for i in range(0, len(coords[0])):
-                    point_string += (
-                        coords[0][i] + "," + coords[1][i] + "," + coords[2][i] + ","
-                    )
+                    point_string += coords[0][i] + "," + coords[1][i] + "," + coords[2][i] + ","
                     block_id_string += str(block_id[i] / num_of_blocks) + ","
 
             response = [
@@ -284,19 +265,10 @@ def get_point_data(
         max_block_id = 1
         # try:
         if own_model:
-            mesh_path = (
-                "./simulations/"
-                + os.path.join(username, model_name, model_folder_name)
-                + "/"
-                + mesh_file
-            )
+            mesh_path = "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + mesh_file
         else:
             mesh_path = (
-                "./simulations/"
-                + os.path.join(username, model_name, model_folder_name)
-                + "/"
-                + model_name
-                + ".txt"
+                "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".txt"
             )
 
         with open(
@@ -353,10 +325,7 @@ def view_input_file(
     username = FileHandler.get_user_name(request, dev)
 
     file_path = (
-        FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-        + "/"
-        + model_name
-        + ".yaml"
+        FileHandler.get_local_model_folder_path(username, model_name, model_folder_name) + "/" + model_name + ".yaml"
     )
     log.info("Inputfile: %s", file_path)
     if not os.path.exists(file_path):
@@ -385,9 +354,7 @@ def add_model(model_name: str, description: str, request: Request = ""):
 
     model_slug = slugify(model_name, separator="_")
 
-    file_path = os.path.join(
-        str(Path(__file__).parent.parent.resolve()), "own_models", model_slug + ".py"
-    )
+    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_slug + ".py")
     print(file_path)
 
     source_code = f'''
@@ -513,9 +480,7 @@ def get_own_model_file(model_file: str = "Dogbone"):
 def save_model(model_file: str, source_code: str, request: Request = ""):
     username = FileHandler.get_user_name(request, dev)
 
-    file_path = os.path.join(
-        str(Path(__file__).parent.parent.resolve()), "own_models", model_file
-    )
+    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_file)
 
     try:
         ast.parse(source_code)
@@ -528,14 +493,10 @@ def save_model(model_file: str, source_code: str, request: Request = ""):
 
 @router.delete("/delete", operation_id="delete_model")
 def delete_model(model_name: str):
-    file_path = os.path.join(
-        str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".py"
-    )
+    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".py")
 
     os.remove(file_path)
 
-    file_path = os.path.join(
-        str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".json"
-    )
+    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".json")
 
     os.remove(file_path)

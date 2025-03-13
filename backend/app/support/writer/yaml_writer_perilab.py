@@ -16,7 +16,7 @@ class YAMLcreatorPeriLab:
 
         self.mesh_file = model_writer.model_data.model.mesh_file
         self.boundary_condition = model_writer.model_data.boundaryConditions
-        self.solver_dict = model_writer.model_data.solver
+        self.solver_dict = model_writer.model_data.solvers
         self.damage_dict = model_writer.model_data.damages
         self.material_dict = model_writer.model_data.materials
         self.additive_dict = model_writer.model_data.additive
@@ -276,64 +276,97 @@ class YAMLcreatorPeriLab:
 
         return data
 
-    def solver(self):
+    def solver(self, id=0, multistep=False):
         data = {}
+        if multistep:
+            data["Step ID"] = self.solver_dict[id].stepId
 
-        data["Material Models"] = self.solver_dict.matEnabled
-        data["Damage Models"] = self.solver_dict.damEnabled
-        data["Thermal Models"] = self.solver_dict.tempEnabled
+        if self.check_if_defined(self.solver_dict[id].matEnabled):
+            data["Material Models"] = self.solver_dict[id].matEnabled
+        if self.check_if_defined(self.solver_dict[id].damEnabled):
+            data["Damage Models"] = self.solver_dict[id].damEnabled
+        if self.check_if_defined(self.solver_dict[id].tempEnabled):
+            data["Thermal Models"] = self.solver_dict[id].tempEnabled
 
-        # data["Verbose"] = self.solver_dict.verbose
-        data["Initial Time"] = float(self.solver_dict.initialTime)
-        data["Final Time"] = float(self.solver_dict.finalTime)
+        # data["Verbose"] = self.solver_dict[id].verbose
+        data["Initial Time"] = float(self.solver_dict[id].initialTime)
+        data["Final Time"] = float(self.solver_dict[id].finalTime)
 
-        if self.solver_dict.stopAfterDamageInitation:
+        if self.solver_dict[id].stopAfterDamageInitation:
             data["Stop after damage initiation"] = True
 
-        # if self.solver_dict.stopAfterCertainDamage and self.solver_dict.endStepAfterDamage:
-        #     data["End step after damage"] = self.solver_dict.endStepAfterDamage
+        # if self.solver_dict[id].stopAfterCertainDamage and self.solver_dict[id].endStepAfterDamage:
+        #     data["End step after damage"] = self.solver_dict[id].endStepAfterDamage
 
-        # if self.solver_dict.stopAfterCertainDamage:
+        # if self.solver_dict[id].stopAfterCertainDamage:
         #     data["Stop after certain damage value"] = True
 
-        # if self.solver_dict.stopAfterCertainDamage and self.solver_dict.maxDamageValue:
-        #     data["Max. damage value"] = self.solver_dict.maxDamageValue
+        # if self.solver_dict[id].stopAfterCertainDamage and self.solver_dict[id].maxDamageValue:
+        #     data["Max. damage value"] = self.solver_dict[id].maxDamageValue
 
-        if self.solver_dict.stopBeforeDamageInitation:
+        if self.solver_dict[id].stopBeforeDamageInitation:
             data["Stop before damage initiation"] = True
 
-        if self.check_if_defined(self.solver_dict.numericalDamping):
-            data["Numerical Damping"] = float(self.solver_dict.numericalDamping)
+        if self.check_if_defined(self.solver_dict[id].numericalDamping):
+            data["Numerical Damping"] = float(self.solver_dict[id].numericalDamping)
 
-        if self.solver_dict.solvertype == "Verlet":
+        if self.solver_dict[id].solvertype == "Verlet":
             data["Verlet"] = {}
-            if self.check_if_defined(self.solver_dict.fixedDt):
-                data["Verlet"]["Fixed dt"] = float(self.solver_dict.fixedDt)
+            if self.check_if_defined(self.solver_dict[id].fixedDt):
+                data["Verlet"]["Fixed dt"] = float(self.solver_dict[id].fixedDt)
 
-            data["Verlet"]["Safety Factor"] = float(self.solver_dict.safetyFactor)
+            data["Verlet"]["Safety Factor"] = float(self.solver_dict[id].safetyFactor)
 
-            if self.check_if_defined(self.solver_dict.adaptivetimeStepping) and self.solver_dict.adaptivetimeStepping:
+            if (
+                self.check_if_defined(self.solver_dict[id].adaptivetimeStepping)
+                and self.solver_dict[id].adaptivetimeStepping
+            ):
                 data["Verlet"]["Adapt dt"] = True
-                data["Verlet"]["Stable Step Difference"] = self.solver_dict.adapt.stableStepDifference
-                data["Verlet"]["Maximum Bond Difference"] = self.solver_dict.adapt.maximumBondDifference
-                data["Verlet"]["Stable Bond Difference"] = self.solver_dict.adapt.stableBondDifference
-
+                data["Verlet"]["Stable Step Difference"] = self.solver_dict[id].adapt.stableStepDifference
+                data["Verlet"]["Maximum Bond Difference"] = self.solver_dict[id].adapt.maximumBondDifference
+                data["Verlet"]["Stable Bond Difference"] = self.solver_dict[id].adapt.stableBondDifference
+        elif self.solver_dict[id].solvertype == "Static":
+            data["Number of Steps"] = self.solver_dict[id].static.numberOfSteps
+            data["Static"] = {}
+            if self.check_if_defined(self.solver_dict[id].static.maximumNumberOfIterations):
+                data["Static"]["Maximum number of iterations"] = int(
+                    self.solver_dict[id].static.maximumNumberOfIterations
+                )
+            if self.check_if_defined(self.solver_dict[id].static.showSolverIteration):
+                data["Static"]["Show solver iteration"] = self.solver_dict[id].static.showSolverIteration
+            if self.check_if_defined(self.solver_dict[id].static.residualTolerance):
+                data["Static"]["Residual tolerance"] = float(self.solver_dict[id].static.residualTolerance)
+            if self.check_if_defined(self.solver_dict[id].static.solutionTolerance):
+                data["Static"]["Solution tolerance"] = float(self.solver_dict[id].static.solutionTolerance)
+            if self.check_if_defined(self.solver_dict[id].static.linearStartValue):
+                data["Static"]["Linear Start Value"] = self.solver_dict[id].static.linearStartValue
+            if self.check_if_defined(self.solver_dict[id].static.residualScaling):
+                data["Static"]["Residual scaling"] = float(self.solver_dict[id].static.residualScaling)
+            if self.check_if_defined(self.solver_dict[id].static.m):
+                data["Static"]["m"] = int(self.solver_dict[id].static.m)
         else:
             data["Verlet"] = {}
 
-            data["Verlet"]["Safety Factor"] = float(self.solver_dict.safetyFactor)
+            data["Verlet"]["Safety Factor"] = float(self.solver_dict[id].safetyFactor)
 
-            data["Verlet"]["Numerical Damping"] = float(self.solver_dict.numericalDamping)
+            data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].numericalDamping)
 
-        if self.check_if_defined(self.solver_dict.calculateCauchy):
-            data["Calculate Cauchy"] = self.solver_dict.calculateCauchy
+        if self.check_if_defined(self.solver_dict[id].calculateCauchy):
+            data["Calculate Cauchy"] = self.solver_dict[id].calculateCauchy
 
-        if self.check_if_defined(self.solver_dict.calculateVonMises):
-            data["Calculate von Mises stress"] = self.solver_dict.calculateVonMises
+        if self.check_if_defined(self.solver_dict[id].calculateVonMises):
+            data["Calculate von Mises stress"] = self.solver_dict[id].calculateVonMises
 
-        if self.check_if_defined(self.solver_dict.calculateStrain):
-            data["Calculate Strain"] = self.solver_dict.calculateStrain
+        if self.check_if_defined(self.solver_dict[id].calculateStrain):
+            data["Calculate Strain"] = self.solver_dict[id].calculateStrain
 
+        return data
+
+    def multistepSolver(self):
+        data = {}
+
+        for i, _ in enumerate(self.solver_dict):
+            data[self.solver_dict[i].name] = self.solver(i, True)
         return data
 
     def create_boundary_conditions(self):
@@ -460,7 +493,10 @@ class YAMLcreatorPeriLab:
         data["PeriLab"]["Blocks"] = self.blocks()
         if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
             data["PeriLab"]["Models"]["Damage Models"] = self.damage()
-        data["PeriLab"]["Solver"] = self.solver()
+        if len(self.solver_dict) > 0:
+            data["PeriLab"]["Multistep Solver"] = self.multistepSolver()
+        else:
+            data["PeriLab"]["Solver"] = self.solver()
         if self.check_if_defined(self.boundary_condition.conditions):
             data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions()
         if self.check_if_defined(self.contact_dict):

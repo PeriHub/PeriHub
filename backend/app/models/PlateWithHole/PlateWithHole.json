@@ -121,6 +121,9 @@
             "thresholdDamage": null
         }
     ],
+    "discretization": {
+        "distributionType": "Neighbor based"
+    },
     "job": {
         "account": 2263032,
         "cluster": false,
@@ -223,5 +226,8 @@
             "outputFrequency": 7500,
             "safetyFactor": 0.95
         }
+    },
+    "thermal": {
+        "enabled": false
     }
 }

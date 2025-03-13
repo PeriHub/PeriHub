@@ -5,28 +5,44 @@ SPDX-License-Identifier: Apache-2.0
 -->
 <template>
   <div>
-    <div class="row my-row">
-      <q-toggle class="my-toggle" v-model="solver.matEnabled" :label="solverKeys.matEnabled" standout dense></q-toggle>
-      <q-toggle class="my-toggle" v-model="solver.damEnabled" :label="solverKeys.damEnabled" standout dense></q-toggle>
-      <q-toggle class="my-toggle" v-model="solver.tempEnabled" :label="solverKeys.tempEnabled" standout
-        dense></q-toggle>
-      <q-input class="my-input" v-model="solver.initialTime" :rules="[rules.required, rules.name]"
-        :label="solverKeys.initialTime" standout dense></q-input>
-      <q-input class="my-input" v-model="solver.finalTime" :rules="[rules.required, rules.name]"
-        :label="solverKeys.finalTime" standout dense></q-input>
-      <q-input class="my-input" v-model="solver.fixedDt"
-        v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'" :rules="[rules.required, rules.name]"
-        :label="solverKeys.fixedDt" standout dense></q-input>
-    </div>
-    <div class="row my-row">
-      <q-select class="my-input" :options="solvertype" v-model="solver.solvertype" :label="solverKeys.solvertype"
-        standout dense></q-select>
-      <q-input class="my-input" v-model="solver.safetyFactor" :rules="[rules.required, rules.name]"
-        :label="solverKeys.safetyFactor" standout dense></q-input>
-      <q-input class="my-input" v-model="solver.numericalDamping" :rules="[rules.required, rules.name]"
-        :label="solverKeys.numericalDamping" standout dense></q-input>
-    </div>
-    <!-- <div class="row my-row" v-show="solver.solvertype == 'NOXQuasiStatic'">
+    <q-list v-for="solver, index in solvers" :key="solver.solverId" style="padding: 0px">
+      <div
+        v-bind:style="(solver.solverId % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+        <h4 class="my-title">Solver {{ solver.solverId }}</h4>
+        <div class="row my-row">
+          <q-input class="my-input" v-model="solver.name" :rules="[rules.required, rules.name]" :label="solverKeys.name"
+            standout dense></q-input>
+          <q-space></q-space>
+          <q-btn v-if="solvers.length > 1" flat icon="fas fa-trash-alt" @click="removeSolver(index)">
+            <q-tooltip>
+              Remove Solver
+            </q-tooltip>
+          </q-btn>
+        </div>
+        <div class="row my-row">
+          <q-toggle class="my-toggle" v-model="solver.matEnabled" :label="solverKeys.matEnabled" standout
+            dense></q-toggle>
+          <q-toggle class="my-toggle" v-model="solver.damEnabled" :label="solverKeys.damEnabled" standout
+            dense></q-toggle>
+          <q-toggle class="my-toggle" v-model="solver.tempEnabled" :label="solverKeys.tempEnabled" standout
+            dense></q-toggle>
+          <q-input class="my-input" v-model="solver.initialTime" :rules="[rules.required, rules.name]"
+            :label="solverKeys.initialTime" standout dense></q-input>
+          <q-input class="my-input" v-model="solver.finalTime" :rules="[rules.required, rules.name]"
+            :label="solverKeys.finalTime" standout dense></q-input>
+          <q-input class="my-input" v-model="solver.fixedDt"
+            v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'"
+            :rules="[rules.required, rules.name]" :label="solverKeys.fixedDt" standout dense></q-input>
+        </div>
+        <div class="row my-row">
+          <q-select class="my-input" :options="solvertype" v-model="solver.solvertype" :label="solverKeys.solvertype"
+            standout dense></q-select>
+          <q-input class="my-input" v-model="solver.safetyFactor" :rules="[rules.required, rules.name]"
+            :label="solverKeys.safetyFactor" standout dense></q-input>
+          <q-input class="my-input" v-model="solver.numericalDamping" :rules="[rules.required, rules.name]"
+            :label="solverKeys.numericalDamping" standout dense></q-input>
+        </div>
+        <!-- <div class="row my-row" v-show="solver.solvertype == 'NOXQuasiStatic'">
             <q-select class="my-input" :options="peridgimPreconditioner" v-model="solver.peridgimPreconditioner"
                 :label="solverKeys.peridgimPreconditioner" standout dense></q-select>
             <q-select class="my-input" :options="nonlinearSolver" v-model="solver.nonlinearSolver"
@@ -62,17 +78,37 @@ SPDX-License-Identifier: Apache-2.0
             <q-input class="my-input" v-model="solver.verlet.outputFrequency" :rules="[rules.required, rules.int]"
                 :label="solverKeys.verlet.outputFrequency" standout dense></q-input>
         </div> -->
-    <div class="row my-row" v-show="solver.solvertype == 'Verlet'">
-      <q-toggle class="my-toggle" v-model="solver.adaptivetimeStepping" :label="solverKeys.adaptivetimeStepping"
-        standout dense></q-toggle>
-      <q-toggle class="my-toggle" v-model="solver.calculateCauchy" :label="solverKeys.calculateCauchy" standout
-        dense></q-toggle>
-      <q-toggle class="my-toggle" v-model="solver.calculateVonMises" :label="solverKeys.calculateVonMises" standout
-        dense></q-toggle>
-      <q-toggle class="my-toggle" v-model="solver.calculateStrain" :label="solverKeys.calculateStrain" standout
-        dense></q-toggle>
-    </div>
-    <!-- <div class="row my-row">
+        <div class="row my-row" v-show="solver.solvertype == 'Verlet'">
+          <q-toggle class="my-toggle" v-model="solver.adaptivetimeStepping" :label="solverKeys.adaptivetimeStepping"
+            standout dense></q-toggle>
+          <q-toggle class="my-toggle" v-model="solver.calculateCauchy" :label="solverKeys.calculateCauchy" standout
+            dense></q-toggle>
+          <q-toggle class="my-toggle" v-model="solver.calculateVonMises" :label="solverKeys.calculateVonMises" standout
+            dense></q-toggle>
+          <q-toggle class="my-toggle" v-model="solver.calculateStrain" :label="solverKeys.calculateStrain" standout
+            dense></q-toggle>
+        </div>
+        <div class="row my-row" v-if="solver.solvertype == 'Static'">
+          <q-input class="my-input" v-model="solver.static.numberOfSteps" :rules="[rules.required, rules.name]"
+            :label="solverKeys.static.numberOfSteps" standout dense></q-input>
+          <q-input class="my-input" v-model="solver.static.maximumNumberOfIterations"
+            :rules="[rules.required, rules.name]" :label="solverKeys.static.maximumNumberOfIterations" standout
+            dense></q-input>
+          <q-toggle class="my-toggle" v-model="solver.static.showSolverIteration"
+            :label="solverKeys.static.showSolverIteration" standout dense></q-toggle>
+          <q-input class="my-input" v-model="solver.static.residualTolerance" :rules="[rules.required, rules.name]"
+            :label="solverKeys.static.residualTolerance" standout dense></q-input>
+          <q-input class="my-input" v-model="solver.static.solutionTolerance" :rules="[rules.required, rules.name]"
+            :label="solverKeys.static.solutionTolerance" standout dense></q-input>
+          <!-- <q-input class="my-input" v-model="solver.static.linearStartValue" :rules="[rules.required, rules.name]"
+            :label="solverKeys.static.linearStartValue" standout dense></q-input> -->
+          <q-input class="my-input" v-model="solver.static.residualScaling" :rules="[rules.required, rules.name]"
+            :label="solverKeys.static.residualScaling" standout dense></q-input>
+          <q-input class="my-input" v-model="solver.static.m" :rules="[rules.required, rules.name]"
+            :label="solverKeys.static.m" standout dense></q-input>
+
+        </div>
+        <!-- <div class="row my-row">
             <q-toggle class="my-toggle" v-model="solver.stopAfterDamageInitation"
                 :label="solverKeys.stopAfterDamageInitation" standout dense></q-toggle>
             <q-input v-show="solver.stopAfterDamageInitation" class="my-input" v-model="solver.endStepAfterDamagey"
@@ -98,6 +134,14 @@ SPDX-License-Identifier: Apache-2.0
             <q-select class="my-input" :options="filetype" v-model="solver.filetype" v-show="job.cluster"
                 :label="solverKeys.filetype" standout dense></q-select>
         </div> -->
+      </div>
+      <q-separator></q-separator>
+    </q-list>
+    <q-btn flat icon="fas fa-plus" @click="addSolver">
+      <q-tooltip>
+        Add Solver
+      </q-tooltip>
+    </q-btn>
   </div>
 </template>
 
@@ -111,12 +155,12 @@ export default defineComponent({
   name: 'SolverSettings',
   setup() {
     const store = useModelStore();
-    const solver = computed(() => store.modelData.solver)
+    const solvers = computed(() => store.modelData.solvers)
     const job = computed(() => store.modelData.job)
     const bus = inject('bus')
     return {
       store,
-      solver,
+      solvers,
       job,
       rules,
       bus
@@ -164,6 +208,16 @@ export default defineComponent({
           numericalDamping: 'Numerical Damping',
           outputFrequency: 'Output Frequency',
         },
+        static: {
+          numberOfSteps: 'Number of Steps',
+          maximumNumberOfIterations: 'Maximum number of iterations',
+          showSolverIteration: 'Show Solver Iteration',
+          residualTolerance: 'Residual Tolerance',
+          solutionTolerance: 'Solution Tolerance',
+          linearStartValue: 'Linear Start Value',
+          residualScaling: 'Residual Scaling',
+          m: 'm'
+        },
         stopAfterDamageInitation: 'Stop after damage initation',
         endStepAfterDamage: 'End step after damage',
         stopBeforeDamageInitation: 'Stop before damage initation',
@@ -182,6 +236,16 @@ export default defineComponent({
     };
   },
   methods: {
+    addSolver() {
+      const len = this.solvers.length;
+      let newItem = structuredClone(this.solvers[len - 1])
+      newItem.solverId = len + 1
+      newItem.stepId = len + 1
+      this.solvers.push(newItem);
+    },
+    removeSolver(index) {
+      this.solvers.splice(index, 1);
+    },
   }
 })
 </script>
