@@ -49,7 +49,7 @@ class Valves(BaseModel):
 
 
 class main:
-    def __init__(self, valves, twoDimensional):
+    def __init__(self, valves, model_data):
         self.xend = valves["LENGTH"]
         self.height1 = valves["HEIGHT1"]
         self.height2 = valves["HEIGHT2"]

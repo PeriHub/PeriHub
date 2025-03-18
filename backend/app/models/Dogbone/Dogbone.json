@@ -13,7 +13,9 @@
     {
       "id": 1,
       "name": "Aluminium",
-      "matType": ["PD Solid Elastic"],
+      "matType": [
+        "PD Solid Elastic"
+      ],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
       "planeStrain": false,
@@ -269,7 +271,10 @@
       "id": 2,
       "name": "Output2",
       "selectedFileType": "CSV",
-      "selectedOutputs": ["External_Displacement", "External_Force"],
+      "selectedOutputs": [
+        "External_Displacement",
+        "External_Force"
+      ],
       "Write_After_Damage": false,
       "Frequency": "100",
       "numberOfOutputSteps": 100,
@@ -277,33 +282,35 @@
       "InitStep": 0
     }
   ],
-  "solver": {
-    "verbose": false,
-    "initialTime": 0,
-    "finalTime": "1e-5",
-    "solvertype": "Verlet",
-    "safetyFactor": "0.9",
-    "numericalDamping": "0.0005",
-    "verlet": {
-      "safetyFactor": 0.95,
-      "numericalDamping": 0.000005,
-      "outputFrequency": 7500
-    },
-    "stopAfterDamageInitation": false,
-    "stopBeforeDamageInitation": false,
-    "adaptivetimeStepping": false,
-    "adapt": {
-      "stableStepDifference": 4,
-      "maximumBondDifference": 4,
-      "stableBondDifference": 1
-    },
-    "dispEnabled": true,
-    "damEnabled": true,
-    "matEnabled": true,
-    "tempEnabled": false,
-    "calculateCauchy": false,
-    "calculateVonMises": true
-  },
+  "solvers": [
+    {
+      "verbose": false,
+      "initialTime": 0,
+      "finalTime": "1e-5",
+      "solvertype": "Verlet",
+      "safetyFactor": "0.9",
+      "numericalDamping": "0.0005",
+      "verlet": {
+        "safetyFactor": 0.95,
+        "numericalDamping": 0.000005,
+        "outputFrequency": 7500
+      },
+      "stopAfterDamageInitation": false,
+      "stopBeforeDamageInitation": false,
+      "adaptivetimeStepping": false,
+      "adapt": {
+        "stableStepDifference": 4,
+        "maximumBondDifference": 4,
+        "stableBondDifference": 1
+      },
+      "dispEnabled": true,
+      "damEnabled": true,
+      "matEnabled": true,
+      "tempEnabled": false,
+      "calculateCauchy": false,
+      "calculateVonMises": true
+    }
+  ],
   "job": {
     "software": "PeriLab",
     "cluster": false,

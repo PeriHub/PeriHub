@@ -19,6 +19,7 @@ SPDX-License-Identifier: Apache-2.0
     </q-btn>
 
     <q-space></q-space>
+    <q-toggle class="my-toggle" v-model="debug" label="Debug" standout dense></q-toggle>
   </div>
 </template>
 
@@ -67,6 +68,8 @@ export default defineComponent({
   data() {
     return {
       connection: null,
+      debug: false,
+      lastLine: '',
     };
   },
   methods: {
@@ -153,6 +156,7 @@ export default defineComponent({
         cluster: this.modelData.job.cluster,
         token: OpenAPI.TOKEN,
         user_name: OpenAPI.HEADERS['userName'],
+        debug: this.debug
       };
 
       const queryString = Object.entries(params)
@@ -173,19 +177,22 @@ export default defineComponent({
         // get last line and compare
         const lines = this.viewStore.logOutput.split('\n');
         const lastLine = lines[lines.length - 2];
-        if (lastLine && lastLine.includes('[Info] Run ')) {
-          this.viewStore.viewId = 'results';
-        }
-        if (lastLine && lastLine.includes('[Info] PeriLab finished')) {
-          this.connection.close();
-          this.connection = null; // Reset the connection variable
-          this._getStatus();
-          this.bus.emit('getJobs')
-          if (this.store.status.submitted) {
-            this.$q.notify({
-              message: 'PeriLab finished'
-            })
+        if (lastLine != this.lastLine) {
+          if (lastLine && lastLine.includes('[Info] Run ')) {
+            this.viewStore.viewId = 'results';
           }
+          if (lastLine && lastLine.includes('[Info] PeriLab finished')) {
+            this.connection.close();
+            this.connection = null; // Reset the connection variable
+            this._getStatus();
+            this.bus.emit('getJobs')
+            if (this.store.status.submitted) {
+              this.$q.notify({
+                message: 'PeriLab finished'
+              })
+            }
+          }
+          this.lastLine = lastLine
         }
       }
       this.connection.onerror = (event) => {

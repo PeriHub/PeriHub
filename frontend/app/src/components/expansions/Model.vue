@@ -18,24 +18,26 @@ SPDX-License-Identifier: Apache-2.0
     <q-toggle class="my-toggle" standout dense v-model="model.twoDimensional" label="Two Dimensional"></q-toggle>
 
     <div v-for="param in store.modelParams.valves" :key="param.name">
-      <q-input class="my-select" v-if="['text', 'number'].includes(param.type)" :label="param.label"
-        v-model.number="param.value" :type="param.type" standout dense>
-        <q-tooltip>
-          {{ param.description }}
-        </q-tooltip>
-      </q-input>
-      <q-select class="my-select" standout dense v-if="param.type == 'select'" :options="param.options"
-        option-label="name" v-model="param.value" :label="param.label">
-        <q-tooltip>
-          {{ param.description }}
-        </q-tooltip>
-      </q-select>
-      <q-toggle class="my-toggle" standout dense v-if="param.type == 'checkbox'" v-model="param.value"
-        :label="param.label">
-        <q-tooltip>
-          {{ param.description }}
-        </q-tooltip>
-      </q-toggle>
+      <div v-if="!param.depends || store.modelParams.valves.find(o => o.name === param.depends).value">
+        <q-input class="my-select" v-if="['text', 'number'].includes(param.type)" :label="param.label"
+          v-model.number="param.value" :type="param.type" standout dense>
+          <q-tooltip>
+            {{ param.description }}
+          </q-tooltip>
+        </q-input>
+        <q-select class="my-select" standout dense v-if="param.type == 'select'" :options="param.options"
+          option-label="name" v-model="param.value" :label="param.label">
+          <q-tooltip>
+            {{ param.description }}
+          </q-tooltip>
+        </q-select>
+        <q-toggle class="my-toggle" standout dense v-if="param.type == 'checkbox'" v-model="param.value"
+          :label="param.label">
+          <q-tooltip>
+            {{ param.description }}
+          </q-tooltip>
+        </q-toggle>
+      </div>
     </div>
 
     <!-- <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & model.modelNameSelected != 'RVE'"

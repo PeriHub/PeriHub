@@ -344,7 +344,6 @@ class Solver(BaseModel):
     fixedDt: Optional[float] = None
     solvertype: str
     safetyFactor: float
-    numericalDamping: float
     verlet: Optional[Verlet] = None
     static: Optional[Static] = None
     stopAfterDamageInitation: Optional[bool] = None
@@ -612,28 +611,30 @@ default_model = {
             "InitStep": 0,
         }
     ],
-    "solver": {
-        "verbose": False,
-        "initialTime": 0,
-        "finalTime": "0.0075",
-        "solvertype": "Verlet",
-        "safetyFactor": "0.9",
-        "numericalDamping": "0.0005",
-        "verlet": {
-            "safetyFactor": 0.95,
-            "numericalDamping": 0.000005,
-            "outputFrequency": 7500,
-        },
-        "stopAfterDamageInitation": False,
-        "stopBeforeDamageInitation": False,
-        "adaptivetimeStepping": False,
-        "adapt": {
-            "stableStepDifference": 4,
-            "maximumBondDifference": 4,
-            "stableBondDifference": 1,
-        },
-        "filetype": "yaml",
-    },
+    "solvers": [
+        {
+            "verbose": False,
+            "initialTime": 0,
+            "finalTime": "0.0075",
+            "solvertype": "Verlet",
+            "safetyFactor": "0.9",
+            "numericalDamping": "0.0005",
+            "verlet": {
+                "safetyFactor": 0.95,
+                "numericalDamping": 0.000005,
+                "outputFrequency": 7500,
+            },
+            "stopAfterDamageInitation": False,
+            "stopBeforeDamageInitation": False,
+            "adaptivetimeStepping": False,
+            "adapt": {
+                "stableStepDifference": 4,
+                "maximumBondDifference": 4,
+                "stableBondDifference": 1,
+            },
+            "filetype": "yaml",
+        }
+    ],
     "job": {
         "cluster": False,
         "nodes": 1,

@@ -44,7 +44,7 @@ class Valves(BaseModel):
 
 
 class main:
-    def __init__(self, valves, twoDimensional):
+    def __init__(self, valves, model_data):
         self.xbegin = -valves["LENGTH"] / 2
         self.xend = valves["LENGTH"] / 2
         self.ybegin = -valves["HEIGHT"] / 2
@@ -52,7 +52,7 @@ class main:
         self.discretization = valves["DISCRETIZATION"]
         self.radius = valves["RADIUS"]
 
-        if twoDimensional:
+        if model_data.model.twoDimensional:
             self.zbegin = 0
             self.zend = 0
         else:

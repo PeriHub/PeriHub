@@ -13,7 +13,10 @@
     "horizon": 1,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": [0, 0]
+    "angles": [
+      0,
+      0
+    ]
   },
   "discretization": {
     "distributionType": "Neighbor based"
@@ -23,7 +26,9 @@
       "id": 1,
       "name": "Aluminium",
       "density": "2.7e-9",
-      "matType": ["Correspondence Elastic"],
+      "matType": [
+        "Correspondence Elastic"
+      ],
       "bulkModulus": null,
       "shearModulus": null,
       "youngsModulus": "7.0e4",
@@ -316,7 +321,9 @@
       "id": 2,
       "name": "Output2",
       "selectedFileType": "Exodus",
-      "selectedOutputs": ["Damage"],
+      "selectedOutputs": [
+        "Damage"
+      ],
       "useOutputFrequency": false,
       "Frequency": 1,
       "InitStep": 0,
@@ -324,43 +331,45 @@
       "numberOfOutputSteps": "200"
     }
   ],
-  "solver": {
-    "verbose": false,
-    "initialTime": 0,
-    "finalTime": "0.006",
-    "solvertype": "Verlet",
-    "safetyFactor": 0.95,
-    "numericalDamping": 0.000005,
-    "peridgimPreconditioner": "None",
-    "nonlinearSolver": "Line Search Based",
-    "numberOfLoadSteps": 100,
-    "maxSolverIterations": 50,
-    "relativeTolerance": 1e-8,
-    "maxAgeOfPrec": 100,
-    "directionMethod": "Newton",
-    "newton": {
-      "jacobianOperator": "Matrix-Free",
-      "preconditioner": "None"
-    },
-    "lineSearchMethod": "Polynomial",
-    "verletSwitch": true,
-    "verlet": {
+  "solvers": [
+    {
+      "verbose": false,
+      "initialTime": 0,
+      "finalTime": "0.006",
+      "solvertype": "Verlet",
       "safetyFactor": 0.95,
       "numericalDamping": 0.000005,
-      "outputFrequency": 7500
-    },
-    "stopAfterDamageInitation": false,
-    "stopBeforeDamageInitation": false,
-    "adaptivetimeStepping": false,
-    "adapt": {
-      "stableStepDifference": 4,
-      "maximumBondDifference": 4,
-      "stableBondDifference": 1
-    },
-    "filetype": "yaml",
-    "dispEnabled": true,
-    "stopAfterCertainDamage": false
-  },
+      "peridgimPreconditioner": "None",
+      "nonlinearSolver": "Line Search Based",
+      "numberOfLoadSteps": 100,
+      "maxSolverIterations": 50,
+      "relativeTolerance": 1e-8,
+      "maxAgeOfPrec": 100,
+      "directionMethod": "Newton",
+      "newton": {
+        "jacobianOperator": "Matrix-Free",
+        "preconditioner": "None"
+      },
+      "lineSearchMethod": "Polynomial",
+      "verletSwitch": true,
+      "verlet": {
+        "safetyFactor": 0.95,
+        "numericalDamping": 0.000005,
+        "outputFrequency": 7500
+      },
+      "stopAfterDamageInitation": false,
+      "stopBeforeDamageInitation": false,
+      "adaptivetimeStepping": false,
+      "adapt": {
+        "stableStepDifference": 4,
+        "maximumBondDifference": 4,
+        "stableBondDifference": 1
+      },
+      "filetype": "yaml",
+      "dispEnabled": true,
+      "stopAfterCertainDamage": false
+    }
+  ],
   "job": {
     "software": "PeriLab",
     "cluster": false,

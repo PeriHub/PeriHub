@@ -76,29 +76,29 @@ def generate_model(
 
     valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
 
-    try:
-        module = getattr(
-            __import__("app.models." + model_name + "." + model_name, fromlist=[model_name]),
-            "main",
-        )
-    except:
-        try:
-            module = getattr(
-                __import__(
-                    "app.own_models." + model_name + "." + model_name,
-                    fromlist=[model_name],
-                ),
-                "main",
-            )
-        except:
-            log.error("Model Name unknown")
-            return "Model Name unknown"
+    # try:
+    module = getattr(
+        __import__("app.models." + model_name + "." + model_name, fromlist=[model_name]),
+        "main",
+    )
+    # except:
+    #     try:
+    #         module = getattr(
+    #             __import__(
+    #                 "app.own_models." + model_name + "." + model_name,
+    #                 fromlist=[model_name],
+    #             ),
+    #             "main",
+    #         )
+    #     except:
+    #         log.error("Model Name unknown")
+    #         return "Model Name unknown"
 
-    model = module(valves_dict, model_data.model.twoDimensional)
+    model = module(valves_dict, model_data)
 
     dx_value = model.get_discretization()
 
-    x_value, y_value, z_value = model.create_geometry()
+    x_value, y_value, z_value, vol = model.create_geometry()
 
     try:
         model.edit_model_data(model_data)
@@ -112,27 +112,22 @@ def generate_model(
     if len(x_value) > max_nodes:
         return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes)
 
-    vol = np.zeros(len(x_value))
     # if model_data.model.rotatedAngles:
     #     angle_x = np.zeros(len(x_value))
     #     angle_y = np.zeros(len(x_value))
     #     angle_z = np.zeros(len(x_value))
-
-    two_d = True
-    # check if any not zero
-    if any(z_value != 0):
-        two_d = False
-
-    if two_d:
-        vol = np.full_like(
-            x_value,
-            dx_value[0] * dx_value[1],
-        )
-    else:
-        vol = np.full_like(
-            x_value,
-            dx_value[0] * dx_value[1] * dx_value[2],
-        )
+    # check if vol is defined
+    if vol is None:
+        if model_data.model.twoDimensional:
+            vol = np.full_like(
+                x_value,
+                dx_value[0] * dx_value[1],
+            )
+        else:
+            vol = np.full_like(
+                x_value,
+                dx_value[0] * dx_value[1] * dx_value[2],
+            )
 
     writer = ModelWriter(model_data, model_name, model_folder_name, username)
 
@@ -164,15 +159,18 @@ def generate_model(
             ]
         )
     )
-    writer.write_mesh(model, two_d)
+    writer.write_mesh(model, model_data.model.twoDimensional)
     writer.write_node_sets(model)
 
-    for _, block in enumerate(model_data.blocks):
-        block.horizon = 2.5 * max([dx_value[0], dx_value[1]])
+    for i, block in enumerate(model_data.blocks):
+        if isinstance(dx_value[0], float):
+            block.horizon = 2.5 * max([dx_value[0], dx_value[1]])
+        else:
+            block.horizon = 2.5 * max([dx_value[i][0], dx_value[i][1]])
     block_def = model_data.blocks
 
     try:
-        writer.create_file(block_def)
+        writer.create_file(block_def, max(k))
     except TypeError as exception:
         log.error(f"Failed to create file: {exception}")
         return str(exception)

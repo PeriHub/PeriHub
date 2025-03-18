@@ -15,7 +15,10 @@
     "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": ["0", "0"],
+    "angles": [
+      "0",
+      "0"
+    ],
     "notchEnabled": false
   },
   "discretization": {
@@ -25,7 +28,10 @@
     {
       "id": 1,
       "name": "Resin",
-      "matType": ["Correspondence Elastic", "Correspondence Plastic"],
+      "matType": [
+        "Correspondence Elastic",
+        "Correspondence Plastic"
+      ],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
       "planeStrain": false,
@@ -319,36 +325,38 @@
       "Write_After_Damage": false
     }
   ],
-  "solver": {
-    "verbose": false,
-    "initialTime": 0,
-    "finalTime": "0.001",
-    "solvertype": "Verlet",
-    "safetyFactor": 0.95,
-    "numericalDamping": 0.000005,
-    "numberOfLoadSteps": "100",
-    "verlet": {
+  "solvers": [
+    {
+      "verbose": false,
+      "initialTime": 0,
+      "finalTime": "0.001",
+      "solvertype": "Verlet",
       "safetyFactor": 0.95,
       "numericalDamping": 0.000005,
-      "outputFrequency": "100"
-    },
-    "stopAfterDamageInitation": false,
-    "stopBeforeDamageInitation": false,
-    "adaptivetimeStepping": false,
-    "adapt": {
-      "stableStepDifference": 4,
-      "maximumBondDifference": 4,
-      "stableBondDifference": 1
-    },
-    "endStepAfterDamage": "3",
-    "dispEnabled": true,
-    "stopAfterCertainDamage": false,
-    "maxDamageValue": "0.3",
-    "damEnabled": true,
-    "matEnabled": true,
-    "tempEnabled": false,
-    "calculateVonMises": true
-  },
+      "numberOfLoadSteps": "100",
+      "verlet": {
+        "safetyFactor": 0.95,
+        "numericalDamping": 0.000005,
+        "outputFrequency": "100"
+      },
+      "stopAfterDamageInitation": false,
+      "stopBeforeDamageInitation": false,
+      "adaptivetimeStepping": false,
+      "adapt": {
+        "stableStepDifference": 4,
+        "maximumBondDifference": 4,
+        "stableBondDifference": 1
+      },
+      "endStepAfterDamage": "3",
+      "dispEnabled": true,
+      "stopAfterCertainDamage": false,
+      "maxDamageValue": "0.3",
+      "damEnabled": true,
+      "matEnabled": true,
+      "tempEnabled": false,
+      "calculateVonMises": true
+    }
+  ],
   "job": {
     "cluster": false,
     "sbatch": false,

@@ -123,111 +123,112 @@
     ],
     "discretization": {
         "distributionType": "Neighbor based"
-    },
-    "job": {
-        "account": 2263032,
-        "cluster": false,
-        "cpusPerTask": 1,
-        "multithread": false,
-        "nodes": 1,
-        "sbatch": false,
-        "tasks": 32,
-        "tasksPerNode": 32,
-        "time": "00:20:00",
-        "verbose": false
-    },
-    "materials": [
-        {
-            "actualHorizon": null,
-            "bulkModulus": null,
-            "computePartialStress": null,
-            "hourglassCoefficient": 1.0,
-            "id": 1,
-            "matType": [
-                "Bond-based Elastic"
-            ],
-            "materialSymmetry": "Isotropic",
-            "name": "PMMA",
-            "numStateVars": null,
-            "planeStrain": false,
-            "planeStress": true,
-            "poissonsRatio": 0.333,
-            "properties": [
-                {
-                    "id": 1,
-                    "name": "Prop_1",
-                    "value": null
-                }
-            ],
-            "shearModulus": null,
-            "stabilizationType": "Global Stiffness",
-            "stiffnessMatrix": null,
-            "thickness": 10.0,
-            "useCollocationNodes": null,
-            "yieldStress": null,
-            "youngsModulus": 191000.0
-        }
-    ],
-    "model": {
-        "horizon": null,
-        "mesh_file": null,
-        "modelFolderName": "Default",
-        "ownMesh": null,
-        "ownModel": false,
-        "translated": false,
-        "twoDimensional": true
-    },
-    "outputs": [
-        {
-            "Frequency": 100,
-            "InitStep": 0,
-            "Write_After_Damage": false,
-            "name": "Output1",
-            "numberOfOutputSteps": 100,
-            "outputsId": null,
-            "selectedFileType": "Exodus",
-            "selectedOutputs": [
-                "Displacements",
-                "Forces",
-                "Damage",
-                "Number of Neighbors"
-            ],
-            "useOutputFrequency": false
-        }
-    ],
-    "preCalculations": null,
-    "solver": {
-        "adapt": {
-            "maximumBondDifference": 4,
-            "stableBondDifference": 1,
-            "stableStepDifference": 4
-        },
-        "adaptivetimeStepping": false,
-        "calculateCauchy": false,
-        "calculateStrain": false,
-        "calculateVonMises": false,
-        "damEnabled": true,
-        "dispEnabled": true,
-        "endStepAfterDamage": null,
-        "finalTime": 0.0001,
-        "fixedDt": null,
-        "initialTime": 0.0,
-        "matEnabled": true,
-        "maxDamageValue": null,
-        "numericalDamping": 5e-06,
-        "safetyFactor": 0.95,
-        "solvertype": "Verlet",
-        "stopAfterCertainDamage": null,
-        "stopAfterDamageInitation": false,
-        "stopBeforeDamageInitation": false,
-        "tempEnabled": false,
-        "verlet": {
-            "numericalDamping": 5e-06,
-            "outputFrequency": 7500,
-            "safetyFactor": 0.95
-        }
-    },
-    "thermal": {
-        "enabled": false
     }
+],
+"job": {
+    "account": 2263032,
+    "cluster": false,
+    "cpusPerTask": 1,
+    "multithread": false,
+    "nodes": 1,
+    "sbatch": false,
+    "tasks": 32,
+    "tasksPerNode": 32,
+    "time": "00:20:00",
+    "verbose": false
+},
+"materials": [
+    {
+        "actualHorizon": null,
+        "bulkModulus": null,
+        "computePartialStress": null,
+        "hourglassCoefficient": 1.0,
+        "id": 1,
+        "matType": [
+            "Bond-based Elastic"
+        ],
+        "materialSymmetry": "Isotropic",
+        "name": "PMMA",
+        "numStateVars": null,
+        "planeStrain": false,
+        "planeStress": true,
+        "poissonsRatio": 0.333,
+        "properties": [
+            {
+                "id": 1,
+                "name": "Prop_1",
+                "value": null
+            }
+        ],
+        "shearModulus": null,
+        "stabilizationType": "Global Stiffness",
+        "stiffnessMatrix": null,
+        "thickness": 10.0,
+        "useCollocationNodes": null,
+        "yieldStress": null,
+        "youngsModulus": 191000.0
+    }
+],
+"model": {
+    "horizon": null,
+    "mesh_file": null,
+    "modelFolderName": "Default",
+    "ownMesh": null,
+    "ownModel": false,
+    "translated": false,
+    "twoDimensional": true
+},
+"outputs": [
+    {
+        "Frequency": 100,
+        "InitStep": 0,
+        "Write_After_Damage": false,
+        "name": "Output1",
+        "numberOfOutputSteps": 100,
+        "outputsId": null,
+        "selectedFileType": "Exodus",
+        "selectedOutputs": [
+            "Displacements",
+            "Forces",
+            "Damage",
+            "Number of Neighbors"
+        ],
+        "useOutputFrequency": false
+    }
+],
+"preCalculations": null,
+"solver": {
+    "adapt": {
+        "maximumBondDifference": 4,
+        "stableBondDifference": 1,
+        "stableStepDifference": 4
+    },
+    "adaptivetimeStepping": false,
+    "calculateCauchy": false,
+    "calculateStrain": false,
+    "calculateVonMises": false,
+    "damEnabled": true,
+    "dispEnabled": true,
+    "endStepAfterDamage": null,
+    "finalTime": 0.0001,
+    "fixedDt": null,
+    "initialTime": 0.0,
+    "matEnabled": true,
+    "maxDamageValue": null,
+    "numericalDamping": 5e-06,
+    "safetyFactor": 0.95,
+    "solvertype": "Verlet",
+    "stopAfterCertainDamage": null,
+    "stopAfterDamageInitation": false,
+    "stopBeforeDamageInitation": false,
+    "tempEnabled": false,
+    "verlet": {
+        "numericalDamping": 5e-06,
+        "outputFrequency": 7500,
+        "safetyFactor": 0.95
+    }
+},
+"thermal": {
+    "enabled": false
+}
 }

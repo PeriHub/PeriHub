@@ -112,10 +112,10 @@ class ModelWriter:
         )
         log.info("Mesh written in %.2f seconds", time.time() - start_time)
 
-    def create_file(self, block_def):
+    def create_file(self, block_def, max_block_id):
         """doc"""
         string = ""
         yaml_perilab = YAMLcreatorPeriLab(self, block_def=block_def)
-        string = yaml_perilab.create_yaml()
+        string = yaml_perilab.create_yaml(max_block_id)
 
         self.file_writer(self.filename + ".yaml", string)

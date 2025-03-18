@@ -85,10 +85,10 @@ def get_valves(model_name: str, source: bool = False):
     #     print(file_path)
     #     return Path(file_path).read_text()
     print(parent_path + ".models." + model_name + "." + model_name)
-    try:
-        module = importlib.import_module(parent_path + ".models." + model_name + "." + model_name, package=".")
-    except:
-        module = importlib.import_module(parent_path + ".own_models." + model_name + "." + model_name, package=".")
+    # try:
+    module = importlib.import_module(parent_path + ".models." + model_name + "." + model_name, package=".")
+    # except:
+    #     module = importlib.import_module(parent_path + ".own_models." + model_name + "." + model_name, package=".")
     if not hasattr(module, "Valves"):
         return {"valves": []}
     my_class = getattr(module, "Valves")
@@ -114,6 +114,7 @@ def get_valves(model_name: str, source: bool = False):
                 "label": fields[key].title,
                 "description": fields[key].description,
                 "options": fields[key].examples,
+                "depends": fields[key].alias,
             }
         )
     return response

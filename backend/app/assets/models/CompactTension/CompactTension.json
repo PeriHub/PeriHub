@@ -299,7 +299,8 @@
       "Write_After_Damage": false
     }
   ],
-  "solver": {
+  "solvers": [
+  {
     "verbose": false,
     "initialTime": 0,
     "finalTime": "0.0001",

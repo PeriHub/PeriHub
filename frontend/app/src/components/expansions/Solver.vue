@@ -39,8 +39,6 @@ SPDX-License-Identifier: Apache-2.0
             standout dense></q-select>
           <q-input class="my-input" v-model="solver.safetyFactor" :rules="[rules.required, rules.name]"
             :label="solverKeys.safetyFactor" standout dense></q-input>
-          <q-input class="my-input" v-model="solver.numericalDamping" :rules="[rules.required, rules.name]"
-            :label="solverKeys.numericalDamping" standout dense></q-input>
         </div>
         <!-- <div class="row my-row" v-show="solver.solvertype == 'NOXQuasiStatic'">
             <q-select class="my-input" :options="peridgimPreconditioner" v-model="solver.peridgimPreconditioner"
@@ -79,6 +77,8 @@ SPDX-License-Identifier: Apache-2.0
                 :label="solverKeys.verlet.outputFrequency" standout dense></q-input>
         </div> -->
         <div class="row my-row" v-show="solver.solvertype == 'Verlet'">
+          <q-input class="my-input" v-model="solver.verlet.numericalDamping" :rules="[rules.required, rules.name]"
+            :label="solverKeys.verlet.numericalDamping" standout dense></q-input>
           <q-toggle class="my-toggle" v-model="solver.adaptivetimeStepping" :label="solverKeys.adaptivetimeStepping"
             standout dense></q-toggle>
           <q-toggle class="my-toggle" v-model="solver.calculateCauchy" :label="solverKeys.calculateCauchy" standout
@@ -189,7 +189,6 @@ export default defineComponent({
         solvertype: 'Solvertype',
         fixedDt: 'Fixed dt',
         safetyFactor: 'Safety Factor',
-        numericalDamping: 'Numerical Damping',
         peridgimPreconditioner: 'Peridgim Preconditioner',
         nonlinearSolver: 'Nonlinear Solver',
         numberOfLoadSteps: 'Number of Load Steps',

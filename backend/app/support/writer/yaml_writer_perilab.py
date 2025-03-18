@@ -204,10 +204,12 @@ class YAMLcreatorPeriLab:
             data[add.name] = additive
         return data
 
-    def blocks(self):
+    def blocks(self, max_block_id):
         data = {}
 
         for block in self.block_def:
+            if block.blocksId > max_block_id:
+                continue
             blocks = {}
 
             # blocks["Block Names"] = block.name
@@ -224,7 +226,7 @@ class YAMLcreatorPeriLab:
 
         return data
 
-    def damage(self):
+    def damage(self, max_block_id):
         data = {}
 
         for dam in self.damage_dict:
@@ -251,14 +253,20 @@ class YAMLcreatorPeriLab:
                 damage["Critical Value"] = 0.0
 
             if dam.interBlockDamage:
-                damage["Interblock Damage"] = {}
+                allowed = False
                 for interBlock in dam.interBlocks:
-                    damage["Interblock Damage"][
-                        "Interblock Critical Value "
-                        + str(interBlock.firstBlockId)
-                        + "_"
-                        + str(interBlock.secondBlockId)
-                    ] = float(interBlock.value)
+                    if interBlock.firstBlockId <= max_block_id and interBlock.secondBlockId <= max_block_id:
+                        allowed = True
+                        break
+                if allowed:
+                    damage["Interblock Damage"] = {}
+                    for interBlock in dam.interBlocks:
+                        damage["Interblock Damage"][
+                            "Interblock Critical Value "
+                            + str(interBlock.firstBlockId)
+                            + "_"
+                            + str(interBlock.secondBlockId)
+                        ] = float(interBlock.value)
             if dam.anistropicDamage:
                 damage["Anisotropic Damage"] = {}
                 damage["Anisotropic Damage"]["Critical Value X"] = float(dam.anistropicDamageX)
@@ -306,9 +314,6 @@ class YAMLcreatorPeriLab:
 
         if self.solver_dict[id].stopBeforeDamageInitation:
             data["Stop before damage initiation"] = True
-
-        if self.check_if_defined(self.solver_dict[id].numericalDamping):
-            data["Numerical Damping"] = float(self.solver_dict[id].numericalDamping)
 
         if self.solver_dict[id].solvertype == "Verlet":
             data["Verlet"] = {}
@@ -477,7 +482,7 @@ class YAMLcreatorPeriLab:
             idx += 1
         return data
 
-    def create_yaml(self):
+    def create_yaml(self, max_block_id):
         data = {"PeriLab": {}}
         data["PeriLab"]["Models"] = {}
 
@@ -490,10 +495,10 @@ class YAMLcreatorPeriLab:
         if self.check_if_defined(self.additive_dict):
             if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:
                 data["PeriLab"]["Additive Models"] = self.additive()
-        data["PeriLab"]["Blocks"] = self.blocks()
+        data["PeriLab"]["Blocks"] = self.blocks(max_block_id)
         if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
-            data["PeriLab"]["Models"]["Damage Models"] = self.damage()
-        if len(self.solver_dict) > 0:
+            data["PeriLab"]["Models"]["Damage Models"] = self.damage(max_block_id)
+        if len(self.solver_dict) > 1:
             data["PeriLab"]["Multistep Solver"] = self.multistepSolver()
         else:
             data["PeriLab"]["Solver"] = self.solver()

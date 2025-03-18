@@ -202,35 +202,37 @@
       "InitStep": 0
     }
   ],
-  "solver": {
-    "verbose": false,
-    "initialTime": 0,
-    "finalTime": "0.0001",
-    "fixedDT": null,
-    "solvertype": "Verlet",
-    "safetyFactor": 0.95,
-    "numericalDamping": 0.000005,
-    "verlet": {
+  "solvers": [
+    {
+      "verbose": false,
+      "initialTime": 0,
+      "finalTime": "0.0001",
+      "fixedDT": null,
+      "solvertype": "Verlet",
       "safetyFactor": 0.95,
       "numericalDamping": 0.000005,
-      "outputFrequency": 7500
-    },
-    "stopAfterDamageInitation": false,
-    "stopBeforeDamageInitation": false,
-    "adaptivetimeStepping": false,
-    "adapt": {
-      "stableStepDifference": 4,
-      "maximumBondDifference": 4,
-      "stableBondDifference": 1
-    },
-    "dispEnabled": true,
-    "damEnabled": true,
-    "matEnabled": true,
-    "tempEnabled": false,
-    "calculateCauchy": false,
-    "calculateVonMises": false,
-    "calculateStrain": false
-  },
+      "verlet": {
+        "safetyFactor": 0.95,
+        "numericalDamping": 0.000005,
+        "outputFrequency": 7500
+      },
+      "stopAfterDamageInitation": false,
+      "stopBeforeDamageInitation": false,
+      "adaptivetimeStepping": false,
+      "adapt": {
+        "stableStepDifference": 4,
+        "maximumBondDifference": 4,
+        "stableBondDifference": 1
+      },
+      "dispEnabled": true,
+      "damEnabled": true,
+      "matEnabled": true,
+      "tempEnabled": false,
+      "calculateCauchy": false,
+      "calculateVonMises": false,
+      "calculateStrain": false
+    }
+  ],
   "job": {
     "software": "PeriLab",
     "cluster": false,
