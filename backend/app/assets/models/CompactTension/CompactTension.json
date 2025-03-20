@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "CompactTension",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": "75",
     "cracklength": "37.5",
     "width": null,
@@ -15,7 +14,10 @@
     "horizon": null,
     "twoDimensional": true,
     "rotatedAngles": false,
-    "angles": ["0", "0"],
+    "angles": [
+      "0",
+      "0"
+    ],
     "notchEnabled": false
   },
   "discretization": {
@@ -25,7 +27,10 @@
     {
       "id": 1,
       "name": "Aluminium",
-      "matType": ["Correspondence Elastic", "Correspondence Plastic"],
+      "matType": [
+        "Correspondence Elastic",
+        "Correspondence Plastic"
+      ],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
       "planeStrain": false,
@@ -291,7 +296,12 @@
       "id": 1,
       "name": "Output1",
       "selectedFileType": "Exodus",
-      "selectedOutputs": ["Displacements", "Damage", "Cauchy Stress", "Strain"],
+      "selectedOutputs": [
+        "Displacements",
+        "Damage",
+        "Cauchy Stress",
+        "Strain"
+      ],
       "Frequency": "1",
       "InitStep": 0,
       "useOutputFrequency": false,
@@ -300,46 +310,46 @@
     }
   ],
   "solvers": [
-  {
-    "verbose": false,
-    "initialTime": 0,
-    "finalTime": "0.0001",
-    "solvertype": "Verlet",
-    "safetyFactor": 0.95,
-    "numericalDamping": 0.000005,
-    "numberOfLoadSteps": "100",
-    "verlet": {
+    {
+      "verbose": false,
+      "initialTime": 0,
+      "finalTime": "0.0001",
+      "solvertype": "Verlet",
       "safetyFactor": 0.95,
       "numericalDamping": 0.000005,
-      "outputFrequency": "100"
+      "numberOfLoadSteps": "100",
+      "verlet": {
+        "safetyFactor": 0.95,
+        "numericalDamping": 0.000005,
+        "outputFrequency": "100"
+      },
+      "stopAfterDamageInitation": false,
+      "stopBeforeDamageInitation": false,
+      "adaptivetimeStepping": false,
+      "adapt": {
+        "stableStepDifference": 4,
+        "maximumBondDifference": 4,
+        "stableBondDifference": 1
+      },
+      "endStepAfterDamage": "3",
+      "dispEnabled": true,
+      "stopAfterCertainDamage": false,
+      "maxDamageValue": "0.3",
+      "damEnabled": true,
+      "matEnabled": true,
+      "tempEnabled": false,
+      "calculateVonMises": true
     },
-    "stopAfterDamageInitation": false,
-    "stopBeforeDamageInitation": false,
-    "adaptivetimeStepping": false,
-    "adapt": {
-      "stableStepDifference": 4,
-      "maximumBondDifference": 4,
-      "stableBondDifference": 1
-    },
-    "endStepAfterDamage": "3",
-    "dispEnabled": true,
-    "stopAfterCertainDamage": false,
-    "maxDamageValue": "0.3",
-    "damEnabled": true,
-    "matEnabled": true,
-    "tempEnabled": false,
-    "calculateVonMises": true
-  },
-  "job": {
-    "cluster": false,
-    "sbatch": false,
-    "verbose": false,
-    "nodes": 1,
-    "tasks": 32,
-    "tasksPerNode": 32,
-    "cpusPerTask": 1,
-    "multithread": false,
-    "time": "00:20:00",
-    "account": 2263032
+    "job": {
+      "cluster": false,
+      "sbatch": false,
+      "verbose": false,
+      "nodes": 1,
+      "tasks": 32,
+      "tasksPerNode": 32,
+      "cpusPerTask": 1,
+      "multithread": false,
+      "time": "00:20:00",
+      "account": 2263032
+    }
   }
-}

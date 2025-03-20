@@ -183,7 +183,7 @@ export default defineComponent({
       // if (!this.modelData.model.ownModel) {
       //   this.viewStore.dx_value =
       //     this.modelData.model.height / (2 * parseInt(this.modelData.model.discretization / 2) + 1);
-      if (this.modelData.model.modelNameSelected == 'Smetana') {
+      if (this.modelStore.selectedModel.file == 'Smetana') {
         let numOfPlys = 8;
         this.viewStore.dx_value =
           (this.modelData.model.height * numOfPlys) /

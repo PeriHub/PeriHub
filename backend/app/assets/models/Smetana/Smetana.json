@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "Smetana",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": 4.0,
     "width": 1.5,
     "height": 0.125,

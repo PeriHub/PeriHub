@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "RingOnRing",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": 100,
     "width": 3,
     "height": 100,

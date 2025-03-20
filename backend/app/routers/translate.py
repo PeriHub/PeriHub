@@ -7,7 +7,6 @@ import subprocess
 import time
 
 from fastapi import APIRouter, Request
-from gcodereader import gcodereader
 
 from ..support.base_models import ResponseModel
 from ..support.file_handler import FileHandler
@@ -29,9 +28,7 @@ def translate_model(
 
     start_time = time.time()
 
-    localpath = FileHandler.get_local_model_folder_path(
-        username, model_name, model_folder_name
-    )
+    localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
     if not os.path.exists(localpath):
         os.makedirs(localpath)
@@ -69,38 +66,6 @@ def translate_model(
             message=f"{model_name} took too long. Try to increase the discretization parameter",
         )
         # Add code here to handle the timeout, such as terminating the process or raising an exception
-
-    log.info(
-        "%s has been translated in %.2f seconds",
-        model_name,
-        time.time() - start_time,
-    )
-    return ResponseModel(
-        data=True,
-        message=f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds",
-    )
-
-
-@router.post("/gcode", operation_id="translate_gcode")
-async def translate_gcode(
-    model_name: str,
-    discretization: float,
-    dt: float,
-    scale: float,
-    model_folder_name: str = "Default",
-    request: Request = "",
-):
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    start_time = time.time()
-
-    localpath = FileHandler.get_local_model_folder_path(
-        username, model_name, model_folder_name
-    )
-    # output_path = FileHandler.get_local_user_path(username)
-
-    gcodereader.read(model_name, localpath, localpath, discretization, dt, scale)
 
     log.info(
         "%s has been translated in %.2f seconds",

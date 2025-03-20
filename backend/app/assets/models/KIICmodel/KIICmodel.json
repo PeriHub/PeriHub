@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "KIICmodel",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": 20,
     "cracklength": 5,
     "width": null,

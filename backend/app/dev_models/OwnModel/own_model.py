@@ -19,7 +19,7 @@ class OwnModel:
         self.model_folder_name = model_folder_name
         self.scal = 1
         self.disc_type = disc_type
-        self.mesh_file = model_data.model.mesh_file
+        self.meshFile = model_data.model.meshFile
         self.two_d = model_data.model.twoDimensional
         self.horizon = model_data.model.horizon
         if not dx_value:

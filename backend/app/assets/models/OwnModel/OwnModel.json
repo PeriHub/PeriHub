@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "OwnModel",
     "modelFolderName": "Default",
     "ownModel": true,
-    "translated": false,
+    "gcode": false,
     "length": 13.0,
     "width": 0.1,
     "height": 2.0,

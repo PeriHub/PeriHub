@@ -11,9 +11,12 @@ SPDX-License-Identifier: Apache-2.0
         <q-input class="small-input" v-model="block.name" :rules="[rules.required, rules.name]" :label="blockKeys.name"
           standout dense></q-input>
         <q-select class="my-select" :options="materials" option-label="name" option-value="name" emit-value
-          v-model="block.material" :label="blockKeys.material" standout dense></q-select>
+          v-model="block.material" :label="blockKeys.material" clearable standout dense></q-select>
         <q-select class="my-select" :options="damages" option-label="name" option-value="name" emit-value
           v-model="block.damageModel" :label="blockKeys.damageModel" clearable standout dense></q-select>
+        <q-select v-if="thermal.enabled" class="my-select" :options="thermal.thermalModels" option-label="name"
+          option-value="name" emit-value v-model="block.thermalModel" :label="blockKeys.thermalModel" clearable standout
+          dense></q-select>
         <q-select v-if="additive.enabled" class="my-select" :options="additive.additiveModels" option-label="name"
           option-value="name" emit-value v-model="block.additiveModel" :label="blockKeys.additiveModel" clearable
           standout dense></q-select>
@@ -51,6 +54,7 @@ export default defineComponent({
     const model = computed(() => store.modelData.model)
     const materials = computed(() => store.modelData.materials)
     const damages = computed(() => store.modelData.damages)
+    const thermal = computed(() => store.modelData.thermal)
     const additive = computed(() => store.modelData.additive)
     const blocks = computed(() => store.modelData.blocks)
     const job = computed(() => store.modelData.job)
@@ -60,6 +64,7 @@ export default defineComponent({
       model,
       materials,
       damages,
+      thermal,
       additive,
       blocks,
       job,
@@ -67,14 +72,13 @@ export default defineComponent({
       bus
     }
   },
-  created() {
-  },
   data() {
     return {
       blockKeys: {
         name: 'Block Names',
         material: 'Material',
         damageModel: 'Damage Model',
+        thermalModel: 'Thermal Model',
         additiveModel: 'Additive Model',
         horizon: 'Horizon',
         density: 'Density',

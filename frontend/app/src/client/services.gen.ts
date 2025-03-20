@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelData, SaveModelResponse, DeleteModelData, DeleteModelResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, TranslateGcodeData, TranslateGcodeResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModel1Data, DeleteModel1Response, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelData, SaveModelResponse, DeleteModelData, DeleteModelResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModel1Data, DeleteModel1Response, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -126,7 +126,6 @@ export const getConfig = (data: GetConfigData = {}): CancelablePromise<GetConfig
  * Save Config
  * @param data The data for the request.
  * @param data.configFile
- * @param data.ownModel
  * @param data.requestBody
  * @returns unknown Successful Response
  * @throws ApiError
@@ -135,8 +134,7 @@ export const saveConfig = (data: SaveConfigData): CancelablePromise<SaveConfigRe
     method: 'POST',
     url: '/model/saveConfig',
     query: {
-        config_file: data.configFile,
-        own_model: data.ownModel
+        config_file: data.configFile
     },
     body: data.requestBody,
     mediaType: 'application/json',
@@ -371,33 +369,6 @@ export const translateModel = (data: TranslateModelData): CancelablePromise<Tran
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
         discretization: data.discretization
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Translate Gcode
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.discretization
- * @param data.dt
- * @param data.scale
- * @param data.modelFolderName
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const translateGcode = (data: TranslateGcodeData): CancelablePromise<TranslateGcodeResponse> => { return __request(OpenAPI, {
-    method: 'POST',
-    url: '/translate/gcode',
-    query: {
-        model_name: data.modelName,
-        discretization: data.discretization,
-        dt: data.dt,
-        scale: data.scale,
-        model_folder_name: data.modelFolderName
     },
     errors: {
         422: 'Validation Error'

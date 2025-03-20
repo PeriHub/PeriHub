@@ -55,7 +55,7 @@ class main:
         self.height2 = valves["HEIGHT2"]
         self.discretization = valves["DISCRETIZATION"]
         self.structured = valves["STRUCTURED"]
-        self.twoDimensional = twoDimensional
+        self.twoDimensional = model_data.model.twoDimensional
         self.zend = valves["WIDTH"]
 
         self.radius = 7.6

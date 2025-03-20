@@ -43,7 +43,7 @@ class Dogbone:
         self.model_folder_name = model_folder_name
         self.scal = 3.01
         self.disc_type = "txt"
-        self.mesh_file = None
+        self.meshFile = None
         self.two_d = model_data.model.twoDimensional
         self.ns_list = [3, 4]
         self.dx_value = dx_value

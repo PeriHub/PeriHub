@@ -126,7 +126,7 @@ export default defineComponent({
   },
   methods: {
     updateCracklength() {
-      if (this.store.modelData.model.modelNameSelected == 'CompactTension') {
+      if (this.store.selectedModel.file == 'CompactTension') {
         const cracklength = this.store.modelData.model.cracklength
         const length = this.store.modelData.model.length
         console.log(cracklength)

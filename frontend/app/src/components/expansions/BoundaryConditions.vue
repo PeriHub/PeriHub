@@ -6,13 +6,13 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <!-- <q-list v-for="nodeSet in boundaryConditions.nodeSets" :key="nodeSet.nodeSetId" style="padding: 0px">
+    <q-list v-for="nodeSet in boundaryConditions.nodeSets" :key="nodeSet.nodeSetId" style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="nodeSet.file" :rules="[rules.required, rules.name]" label="Nodeset" standout
           dense></q-input>
       </div>
       <q-separator></q-separator>
-    </q-list> -->
+    </q-list>
     <q-list v-for="boundaryCondition, index in boundaryConditions.conditions" :key="boundaryCondition.conditionsId"
       style="padding: 0px">
       <div class="row my-row">
@@ -20,9 +20,9 @@ SPDX-License-Identifier: Apache-2.0
           :label="boundaryKeys.name" standout dense></q-input>
         <q-select class="my-select" :options="boundarytype" v-model="boundaryCondition.boundarytype"
           :label="boundaryKeys.boundarytype" standout dense></q-select>
-        <!-- <q-select class="my-select" :options="boundaryConditions.nodeSets" option-label="nodeSetId"
+        <q-select class="my-select" :options="boundaryConditions.nodeSets" option-label="nodeSetId"
           option-value="nodeSetId" emit-value v-model="boundaryCondition.nodeSet" :label="boundaryKeys.nodeSet" standout
-          dense style="width: 100px"></q-select> -->
+          dense style="width: 100px"></q-select>
         <q-select v-show="!model.ownModel" class="my-select" :options="blocks" option-label="blocksId"
           option-value="blocksId" emit-value v-model="boundaryCondition.blockId" :label="boundaryKeys.blockId" standout
           dense style="width: 100px"></q-select>

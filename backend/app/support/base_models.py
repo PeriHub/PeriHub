@@ -31,11 +31,11 @@ class Status(BaseModel):
 class Model(BaseModel):
     modelFolderName: Optional[str] = "Default"
     ownModel: bool
-    translated: bool
     twoDimensional: bool
+    discType: Optional[str] = "txt"
     ownMesh: Optional[bool] = None
     horizon: Optional[float] = None
-    mesh_file: Optional[str] = None
+    meshFile: Optional[str] = None
 
 
 class Jobs(BaseModel):
@@ -131,8 +131,10 @@ class ThermalModel(BaseModel):
     heatTransferCoefficient: Optional[float] = None
     thermalExpansionCoefficient: Optional[float] = None
     environmentalTemperature: Optional[float] = None
-    printTemp: Optional[float] = None
+    thermalConductivityPrintBed: Optional[float] = None
+    printBedTemperature: Optional[float] = None
     timeFactor: Optional[float] = None
+    requiredSpecificVolume: Optional[float] = None
 
 
 class Thermal(BaseModel):
@@ -194,8 +196,9 @@ class Damage(BaseModel):
 class Block(BaseModel):
     blocksId: int
     name: str
-    material: str
+    material: Optional[str] = None
     damageModel: Optional[str] = None
+    thermalModel: Optional[str] = None
     additiveModel: Optional[str] = None
     horizon: Optional[float] = None
     density: Optional[float] = None
@@ -225,8 +228,23 @@ class Contact(BaseModel):
     interactions: Union[List[Interaction], None]
 
 
+class BlockFunction(BaseModel):
+    id: int
+    function: str
+
+
+class Gcode(BaseModel):
+    overwriteMesh: bool
+    dx: float
+    dy: float
+    width: float
+    scale: float
+    blockFunctions: Optional[List[BlockFunction]] = None
+
+
 class Discretization(BaseModel):
     distributionType: str
+    gcode: Optional[Gcode] = None
 
 
 class BoundaryCondition(BaseModel):
@@ -438,10 +456,9 @@ class RunData(BaseModel):
 
 default_model = {
     "model": {
-        "modelNameSelected": "Dogbone",
         "modelFolderName": "Default",
         "ownModel": False,
-        "translated": False,
+        "gcode": False,
         "length": 13.0,
         "width": 0.1,
         "height": 2.0,
@@ -663,7 +680,7 @@ class ModelData(BaseModel):
     outputs: List[Output]
     preCalculations: Optional[PreCalculations] = None
     solvers: List[Solver]
-    thermal: Thermal
+    thermal: Optional[Thermal] = None
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "G1Cmodel",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": 250,
     "cracklength": 25,
     "width": null,

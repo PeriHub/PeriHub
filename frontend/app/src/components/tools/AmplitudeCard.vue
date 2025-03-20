@@ -95,7 +95,6 @@ export default defineComponent({
         },
       ],
       plotLayout: {
-        // title: 'this.model.modelNameSelected',
         showlegend: true,
         // margin: { t: 50 },
         hovermode: 'compare',

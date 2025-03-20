@@ -67,8 +67,8 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelData.model.modelNameSelected)"
-      flat icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
+    <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
+      icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
       <q-tooltip>
         Show Fracture Analysis
       </q-tooltip>
@@ -97,7 +97,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn v-if="['ENFmodel'].includes(modelData.model.modelNameSelected)" flat icon="fas fa-image"
+    <q-btn v-if="['ENFmodel'].includes(modelStore.selectedModel.file)" flat icon="fas fa-image"
       @click="dialogGetEnfAnalysis = true" :disable="!status.results">
       <q-tooltip>
         Show ENF Analysis
@@ -549,7 +549,7 @@ export default defineComponent({
           var fileURL = window.URL.createObjectURL(new Blob([response]));
           var fileLink = document.createElement('a');
           fileLink.href = fileURL;
-          fileLink.setAttribute('download', this.modelData.model.modelNameSelected + '_' + this.modelData.model.modelFolderName + '.zip');
+          fileLink.setAttribute('download', this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip');
           document.body.appendChild(fileLink);
           fileLink.click();
         })
@@ -628,7 +628,7 @@ export default defineComponent({
     //   this.viewStore.modelLoading = true;
 
     //   await getImagePython({
-    //     model_name: this.modelData.model.modelNameSelected,
+    //     model_name: this.modelStore.selectedModel.file,
     //     model_folder_name: this.modelData.model.modelFolderName,
     //     cluster: this.modelData.job.cluster,
     //     tasks: this.modelData.job.tasks,
@@ -670,7 +670,7 @@ export default defineComponent({
       const api = axios.create({ baseURL: 'http://localhost:8000', headers: { 'userName': 'dev', } });
 
       let params = {
-        model_name: this.modelData.model.modelNameSelected,
+        model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
         length: this.modelData.model.length,
         height: this.modelData.model.height,
@@ -736,7 +736,7 @@ export default defineComponent({
     async downloadModelImage() {
       var fileLink = document.createElement('a');
       fileLink.href = this.viewStore.modelImg;
-      fileLink.setAttribute('download', this.modelData.model.modelNameSelected + '.png');
+      fileLink.setAttribute('download', this.modelStore.selectedModel.file + '.png');
       document.body.appendChild(fileLink);
       fileLink.click();
     },

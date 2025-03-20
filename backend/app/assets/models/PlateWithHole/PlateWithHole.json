@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "PlateWithHole",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": 50,
     "width": null,
     "height": 100,

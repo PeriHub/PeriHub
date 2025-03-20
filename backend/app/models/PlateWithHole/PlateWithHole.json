@@ -171,11 +171,11 @@
 ],
 "model": {
     "horizon": null,
-    "mesh_file": null,
+    "meshFile": null,
     "modelFolderName": "Default",
     "ownMesh": null,
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "twoDimensional": true
 },
 "outputs": [

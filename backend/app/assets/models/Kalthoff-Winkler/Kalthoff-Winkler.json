@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "Kalthoff-Winkler",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": 100,
     "width": null,
     "height": 200,

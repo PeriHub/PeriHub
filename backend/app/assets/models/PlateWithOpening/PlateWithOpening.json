@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "PlateWithOpening",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": 100,
     "width": null,
     "height": 40,

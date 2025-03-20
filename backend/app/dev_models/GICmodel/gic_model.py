@@ -261,7 +261,7 @@ class GICmodel:
         self.model_folder_name = model_folder_name
         self.scal = 3.01
         self.disc_type = "txt"
-        self.mesh_file = None
+        self.meshFile = None
         self.two_d = two_d
         self.rot = rot
         # anriss

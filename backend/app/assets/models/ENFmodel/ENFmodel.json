@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "ENFmodel",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": "15",
     "cracklength": "6",
     "height": "1",

@@ -14,18 +14,20 @@ class YAMLcreatorPeriLab:
         self.node_set_ids = model_writer.node_set_ids
         self.block_def = block_def
 
-        self.mesh_file = model_writer.model_data.model.mesh_file
+        self.mesh_file = model_writer.model_data.model.meshFile
         self.boundary_condition = model_writer.model_data.boundaryConditions
         self.solver_dict = model_writer.model_data.solvers
         self.damage_dict = model_writer.model_data.damages
         self.material_dict = model_writer.model_data.materials
+        self.thermal_dict = model_writer.model_data.thermal
         self.additive_dict = model_writer.model_data.additive
         self.compute_dict = model_writer.model_data.computes
         self.output_dict = model_writer.model_data.outputs
         self.contact_dict = model_writer.model_data.contact
         self.bondfilters = model_writer.model_data.bondFilters
         self.preCalculations = model_writer.model_data.preCalculations
-        self.disc_type = model_writer.disc_type
+        self.disc_dict = model_writer.model_data.discretization
+        self.disc_type = model_writer.model_data.model.discType
         # self.two_d = model_writer.model_data.model.twoDimensional
 
     @staticmethod
@@ -58,6 +60,27 @@ class YAMLcreatorPeriLab:
                 data["Input Mesh File"] = self.mesh_file
             else:
                 data["Input Mesh File"] = self.filename + ".g"
+
+        elif self.disc_type == "gcode":
+            data["Type"] = "Gcode"
+
+            if self.check_if_defined(self.mesh_file):
+                data["Input Mesh File"] = self.mesh_file
+            else:
+                data["Input Mesh File"] = self.filename + ".gcode"
+            data["Gcode"] = {}
+
+            data["Gcode"]["Overwrite Mesh"] = self.disc_dict.gcode.overwriteMesh
+            data["Gcode"]["dx"] = self.disc_dict.gcode.dx
+            data["Gcode"]["dy"] = self.disc_dict.gcode.dy
+            data["Gcode"]["Width"] = self.disc_dict.gcode.width
+            data["Gcode"]["Scale"] = self.disc_dict.gcode.scale
+
+            if self.check_if_defined(self.disc_dict.gcode.blockFunctions):
+                data["Gcode"]["Blocks"] = {}
+
+                for block in self.disc_dict.gcode.blockFunctions:
+                    data["Gcode"]["Blocks"][block.id] = block.function
 
         return data
 
@@ -190,6 +213,30 @@ class YAMLcreatorPeriLab:
 
         return data
 
+    def thermal(self):
+        data = {}
+
+        for therm in self.thermal_dict.thermalModels:
+            thermal = {}
+            thermal["Thermal Model"] = therm.thermalType
+            # if self.check_if_defined(therm.thermalBondBased):
+            thermal["Type"] = "Bond based"
+            if self.check_if_defined(therm.thermalConductivity):
+                thermal["Thermal Conductivity"] = float(therm.thermalConductivity)
+            if self.check_if_defined(therm.thermalConductivityPrintBed):
+                thermal["Thermal Conductivity Print Bed"] = float(therm.thermalConductivityPrintBed)
+            if self.check_if_defined(therm.printBedTemperature):
+                thermal["Print Bed Temperature"] = float(therm.printBedTemperature)
+            if self.check_if_defined(therm.environmentalTemperature):
+                thermal["Environmental Temperature"] = float(therm.environmentalTemperature)
+            if self.check_if_defined(therm.heatTransferCoefficient):
+                thermal["Heat Transfer Coefficient"] = float(therm.heatTransferCoefficient)
+            if self.check_if_defined(therm.requiredSpecificVolume):
+                thermal["Required Specific Volume"] = float(therm.requiredSpecificVolume)
+
+            data[therm.name] = thermal
+        return data
+
     def additive(self):
         data = {}
 
@@ -214,9 +261,12 @@ class YAMLcreatorPeriLab:
 
             # blocks["Block Names"] = block.name
             blocks["Block ID"] = block.blocksId
-            blocks["Material Model"] = block.material
+            if block.material != "" and block.material is not None:
+                blocks["Material Model"] = block.material
             if block.damageModel != "" and block.damageModel is not None:
                 blocks["Damage Model"] = block.damageModel
+            if block.thermalModel != "" and block.thermalModel is not None:
+                blocks["Thermal Model"] = block.thermalModel
             if block.additiveModel != "" and block.additiveModel is not None:
                 blocks["Additive Model"] = block.additiveModel
             blocks["Horizon"] = block.horizon
@@ -489,12 +539,16 @@ class YAMLcreatorPeriLab:
         data["PeriLab"]["Discretization"] = self.load_mesh()
         if self.check_if_defined(self.bondfilters) and len(self.bondfilters) > 0:
             data["PeriLab"]["Discretization"]["Bond Filters"] = self.create_bond_filter()
-        if self.check_if_defined(self.preCalculations) and len(self.preCalculations) > 0:
+        if self.check_if_defined(self.preCalculations):
             data["PeriLab"]["Models"]["Pre Calculation"] = self.preCalculation()
-        data["PeriLab"]["Models"]["Material Models"] = self.materials()
+        if self.check_if_defined(self.material_dict):
+            data["PeriLab"]["Models"]["Material Models"] = self.materials()
+        if self.check_if_defined(self.thermal_dict):
+            if self.thermal_dict.enabled and len(self.thermal_dict.thermalModels) > 0:
+                data["PeriLab"]["Models"]["Thermal Models"] = self.thermal()
         if self.check_if_defined(self.additive_dict):
             if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:
-                data["PeriLab"]["Additive Models"] = self.additive()
+                data["PeriLab"]["Models"]["Additive Models"] = self.additive()
         data["PeriLab"]["Blocks"] = self.blocks(max_block_id)
         if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
             data["PeriLab"]["Models"]["Damage Models"] = self.damage(max_block_id)

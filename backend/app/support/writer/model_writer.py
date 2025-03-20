@@ -27,12 +27,11 @@ class ModelWriter:
         self.model_folder_name = model_folder_name
         self.ns_name = "ns_" + filename
         self.path = FileHandler.get_local_model_folder_path(username, filename, model_folder_name)
-        self.mesh_file = model_data.model.mesh_file
+        self.mesh_file = model_data.model.meshFile
         self.bc_dict = model_data.boundaryConditions
         self.solver_dict = model_data.solvers
         self.job_dict = model_data.job
         self.model_data = model_data
-        self.disc_type = "txt"
 
         node_set_ids = []
         for bcs in self.bc_dict.conditions:

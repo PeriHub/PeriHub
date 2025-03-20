@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "GIICmodel",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": 110,
     "cracklength": 40,
     "width": 25,

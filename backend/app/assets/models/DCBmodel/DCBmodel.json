@@ -1,9 +1,8 @@
 {
   "model": {
-    "modelNameSelected": "DCBmodel",
     "modelFolderName": "Default",
     "ownModel": false,
-    "translated": false,
+    "gcode": false,
     "length": 5,
     "width": 0.1,
     "height": 3,

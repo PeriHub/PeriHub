@@ -11,50 +11,6 @@ SPDX-License-Identifier: Apache-2.0
         Load Model
       </q-tooltip>
     </q-btn>
-    <input type="file" style="display: none" ref="fileInput" accept="application/json,.yaml,.cdb,.inp,.gcode,.obj"
-      @change="onFilePicked" />
-    <input type="file" style="display: none" ref="multifileInput" multiple accept="text/plain,.g"
-      @change="onMultiFilePicked" />
-    <input type="file" style="display: none" ref="meshInput" accept="text/plain,.g" @change="onMeshPicked" />
-    <input type="file" style="display: none" ref="nodesetsInput" multiple accept="text/plain,.g"
-      @change="onNodesetsPicked" />
-    <q-dialog v-model="dialogGcode" persistent max-width="800">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Gcode Translator</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          Configurations
-          <q-input v-model="gcodeDiscretization" :rules="[rules.float]" label="Discretization" clearable
-            standout></q-input>
-          <q-input v-model="gcodeDt" :rules="[rules.float]" label="dt" clearable standout></q-input>
-          <q-input v-model="gcodeScale" :rules="[rules.float]" label="Scale" clearable standout></q-input>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Ok" color="primary" v-close-popup @click="loadGcodeModel"></q-btn>
-          <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog v-model="dialogTranslate" persistent max-width="800">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Translator</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          Configurations
-          <q-input v-model="translatorDiscretization" :rules="[rules.float]" label="Discretization" clearable
-            standout></q-input>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Ok" color="primary" v-close-popup @click="loadMeshioModel"></q-btn>
-          <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
 
     <q-btn flat icon="fas fa-save" @click="saveData">
       <q-tooltip>
@@ -74,28 +30,15 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="modelData.modelmodelNameSelected == 'RVE' & !modelData.modelownModel" flat icon="fas fa-cogs"
-      @click="generateMesh">
-      <q-tooltip>
-        Generate Mesh
-      </q-tooltip>
-    </q-btn>
-
     <q-btn flat icon="fas fa-cogs" @click="generateModel">
       <q-tooltip>
         Generate Model
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-upload" @click="uploadMesh">
+    <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-upload" @click="dialogUpload = true">
       <q-tooltip>
-        Upload Mesh
-      </q-tooltip>
-    </q-btn>
-
-    <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-upload" @click="uploadNodesets">
-      <q-tooltip>
-        Upload Nodesets
+        Upload Modelfiles
       </q-tooltip>
     </q-btn>
 
@@ -124,6 +67,20 @@ SPDX-License-Identifier: Apache-2.0
         Show Tutorial
       </q-tooltip>
     </q-btn>
+    <q-dialog v-model="dialogUpload" style="max-width: 200px">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Upload Data</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-uploader
+            :url="uploadPath + '?model_name=' + this.modelStore.selectedModel.file + '&model_folder_name=' + this.modelData.model.modelFolderName"
+            field-name="files" label="Pick file" filled counter multiple style="max-width: 300px"
+            @uploaded="uploadFinished" />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
   </div>
 </template>
 
@@ -133,7 +90,7 @@ import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
-import { uploadFiles, translateModel, translateGcode, getModel, generateModel, saveConfig } from 'src/client';
+import { uploadFiles, getModel, generateModel, saveConfig } from 'src/client';
 import rules from 'assets/rules.js';
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -146,6 +103,7 @@ export default defineComponent({
     const viewStore = useViewStore();
     const modelData = computed(() => modelStore.modelData)
     const bus = inject('bus')
+    const uploadPath = process.env.API + '/upload/files'
 
     return {
       store,
@@ -153,27 +111,21 @@ export default defineComponent({
       modelStore,
       modelData,
       rules,
-      bus
+      bus,
+      uploadPath
     }
   },
   data() {
     return {
-      dialogGcode: false,
-      gcodeDiscretization: 1,
-      gcodeDt: 0.02,
-      gcodeScale: 0.001,
-      gcodeFile: undefined,
-      dialogTranslate: false,
-      translatorDiscretization: 1,
-      meshioFile: undefined,
       DEV: false,
+      dialogUpload: false,
     };
   },
   methods: {
     switchModels() {
       this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = false;
-      this.modelStore.modelData.model.translated = false;
+      this.modelStore.modelData.model.gcode = false;
     },
     readData() {
       this.$refs.fileInput.click();
@@ -184,42 +136,52 @@ export default defineComponent({
     uploadNodesets() {
       this.$refs.nodesetsInput.click();
     },
-    async onMeshPicked(event) {
-      const files = event.target.files;
-      const filetype = files[0].type;
-      if (files.length <= 0) {
-        return false;
-      }
-
-      this.viewStore.modelLoading = true;
-      await this.uploadfiles(files);
-
-      this.modelStore.modelData.model.modelNameSelected = files[0].name.split('.')[0]
-      this.modelStore.modelData.model.mesh_file = files[0].name
-      this.viewStore.viewId = 'model';
-      await sleep(500)
-      this.bus.emit('viewPointData');
-      this.viewStore.modelLoading = false;
-    },
-    onNodesetsPicked(event) {
-      const files = event.target.files;
-      const filetype = files[0].type;
-      if (files.length <= 0) {
-        return false;
-      }
-
-      this.viewStore.modelLoading = true;
-      this.uploadfiles(files);
-
-      for (var i = 0; i < files.length; i++) {
-        if (this.modelStore.modelData.boundaryConditions.conditions.length < i + 1) {
-          this.bus.emit('addCondition')
+    async uploadFinished(res) {
+      this.$q.notify({
+        message: 'Files uploaded'
+      })
+      this.dialogUpload = false
+      const type = res.files[0].name.split('.')[1]
+      console.log(type)
+      if (type == 'gcode') {
+        this.modelStore.modelData.model.meshFile = res.files[0].name
+        this.modelStore.modelData.model.discType = 'gcode'
+        if (!this.modelStore.modelData.discretization.gcode) {
+          this.modelStore.modelData.discretization.gcode = {
+            overwriteMesh: true,
+            dx: 1,
+            dy: 1,
+            width: 0.4,
+            scale: 1,
+          }
         }
-        this.modelStore.modelData.boundaryConditions.nodeSets[i].file = files[i].name
+      } else if (type == 'g') {
+        this.viewStore.modelLoading = true;
+        this.viewStore.viewId = 'model';
+        await sleep(500)
+        this.bus.emit('viewPointData');
       }
-
       this.viewStore.modelLoading = false;
     },
+    // onNodesetsPicked(event) {
+    //   const files = event.target.files;
+    //   const filetype = files[0].type;
+    //   if (files.length <= 0) {
+    //     return false;
+    //   }
+
+    //   this.viewStore.modelLoading = true;
+    //   this._uploadfiles(files);
+
+    //   for (var i = 0; i < files.length; i++) {
+    //     if (this.modelStore.modelData.boundaryConditions.conditions.length < i + 1) {
+    //       this.bus.emit('addCondition')
+    //     }
+    //     this.modelStore.modelData.boundaryConditions.nodeSets[i].file = files[i].name
+    //   }
+
+    //   this.viewStore.modelLoading = false;
+    // },
     onFilePicked(event) {
       const file = event.target.files[0];
       const filetype = file.type;
@@ -233,12 +195,6 @@ export default defineComponent({
         this.loadJsonFile(fr, file);
       } else if (file.name.includes('.yaml')) {
         this.loadYamlModel(fr, file);
-      } else if (file.name.includes('.gcode')) {
-        this.gcodeFile = file;
-        this.dialogGcode = true;
-      } else {
-        this.meshioFile = file;
-        this.dialogTranslate = true;
       }
     },
     onMultiFilePicked(event) {
@@ -249,41 +205,14 @@ export default defineComponent({
       }
 
       this.viewStore.modelLoading = true;
-      this.uploadfiles(files);
+      this._uploadfiles(files);
 
       this.viewStore.modelLoading = false;
-    },
-    async uploadfiles(files) {
-      const formData = new FormData();
-      for (var i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
-      }
-
-      await uploadFiles({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, formData: formData })
-        .then((response) => {
-          if (response.data) {
-            this.$q.notify({
-              message: response.message
-            })
-          }
-          else {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message
-            })
-          }
-        })
-        .catch((error) => {
-          this.$q.notify({
-            type: 'negative',
-            message: error.response.detail
-          })
-        })
     },
     loadJsonFile(fr, file) {
       this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = false;
-      this.modelStore.modelData.model.translated = false;
+      this.modelStore.modelData.model.gcode = false;
 
       fr.onload = (e) => {
         const result = JSON.parse(e.target.result);
@@ -294,9 +223,9 @@ export default defineComponent({
     loadYamlModel(fr, file) {
       this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = true;
-      this.modelStore.modelData.model.translated = false;
+      this.modelStore.modelData.model.gcode = false;
 
-      this.modelStore.modelData.model.modelNameSelected = file.name.split('.')[0];
+      this.modelStore.selectedModel.file = file.name.split('.')[0];
 
       fr.onload = (e) => {
         const yaml = e.target.result;
@@ -307,9 +236,9 @@ export default defineComponent({
     loadXmlModel(fr, file) {
       this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = true;
-      this.modelStore.modelData.model.translated = false;
+      this.modelStore.modelData.model.gcode = false;
 
-      this.modelStore.modelData.model.modelNameSelected = file.name.split('.')[0];
+      this.modelStore.selectedModel.file = file.name.split('.')[0];
 
       fr.onload = (e) => {
         const xml = e.target.result;
@@ -318,108 +247,13 @@ export default defineComponent({
       };
       fr.readAsText(file);
     },
-    async loadMeshioModel() {
-      this.dialogTranslate = false;
-      this.modelStore.modelData.model.ownMesh = false;
-      this.modelStore.modelData.model.ownModel = true;
-      this.modelStore.modelData.model.translated = false;
-      this.modelStore.modelData.model.twoDimensional = false;
-
-      this.viewStore.modelLoading = true;
-
-      if (this.meshioFile == undefined) {
-        return false;
-      }
-
-      // if (await this.checkFeSize(file)) {
-      if (true) {
-        this.modelStore.selectedModel.file = this.meshioFile.name.split('.')[0];
-
-        await this.translateModel(this.meshioFile, true);
-      } else {
-        this.viewStore.modelLoading = false;
-      }
-    },
-    async translateModel(file, upload) {
-      if (upload) {
-        await this.uploadfiles([file]);
-      }
-
-      await translateModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, discretization: this.translatorDiscretization })
-        .then((response) => {
-          this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + '.txt'
-          if (response.data) {
-            this.$q.notify({
-              message: response.message
-            })
-            this.viewStore.viewId = 'model';
-            this.bus.emit('viewPointData');
-          }
-          else {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message
-            })
-          }
-        })
-        .catch((error) => {
-          this.$q.notify({
-            type: 'negative',
-            message: error.message
-          })
-          this.viewStore.modelLoading = false;
-        })
-
-      this.viewStore.modelLoading = false;
-    },
-    async loadGcodeModel() {
-      this.dialogGcode = false;
-      this.modelStore.modelData.model.ownMesh = false;
-      this.modelStore.modelData.model.ownModel = true;
-      // this.modelStore.modelData.model.translated = true;
-
-      this.viewStore.modelLoading = true;
-
-      if (this.gcodeFile == undefined) {
-        return false;
-      }
-
-      this.modelStore.modelData.model.modelNameSelected = this.gcodeFile.name.split('.')[0];
-      const filetype = this.gcodeFile.name.split('.')[1];
-
-      await this.translateGcode(this.gcodeFile, true);
-    },
-    async translateGcode(file, upload) {
-      if (upload) {
-        await this.uploadfiles([file]);
-      }
-
-      await translateGcode({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, discretization: this.gcodeDiscretization, dt: this.gcodeDt, scale: this.gcodeScale })
-        .then((response) => {
-          this.modelStore.modelData.model.meshFile = this.modelData.model.modelNameSelected + '.txt'
-          this.$q.notify({
-            message: response.message
-          })
-          this.viewStore.viewId = 'model';
-          this.bus.emit('viewPointData');
-        })
-        .catch((error) => {
-          this.$q.notify({
-            type: 'negative',
-            message: error.message
-          })
-          this.viewStore.modelLoading = false;
-        })
-
-      this.viewStore.modelLoading = false;
-    },
     saveData() {
       var fileURL = window.URL.createObjectURL(
         new Blob([JSON.stringify(this.modelData)], { type: 'application/json' })
       );
       var fileLink = document.createElement('a');
       fileLink.href = fileURL;
-      fileLink.setAttribute('download', this.modelData.model.modelNameSelected + '.json');
+      fileLink.setAttribute('download', this.modelStore.selectedModel.file + '.json');
       document.body.appendChild(fileLink);
       fileLink.click();
     },
@@ -444,7 +278,7 @@ export default defineComponent({
           var fileURL = window.URL.createObjectURL(new Blob([response.data]));
           var fileLink = document.createElement('a');
           fileLink.href = fileURL;
-          fileLink.setAttribute('download', this.modelData.model.modelNameSelected + '_' + this.modelData.model.modelFolderName + '.zip');
+          fileLink.setAttribute('download', this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip');
           document.body.appendChild(fileLink);
           fileLink.click();
           this.$q.notify({

@@ -1,10 +1,9 @@
 {
   "model": {
-    "modelNameSelected": "Kalthoff-Winkler",
     "modelFolderName": "Default",
     "twoDimensional": true,
     "ownModel": false,
-    "translated": false
+    "gcode": false
   },
   "discretization": {
     "distributionType": "Neighbor based"

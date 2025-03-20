@@ -74,60 +74,62 @@ def generate_model(
 
     log.info("Create %s", model_name)
 
-    valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
+    if not model_data.model.ownModel:
 
-    # try:
-    module = getattr(
-        __import__("app.models." + model_name + "." + model_name, fromlist=[model_name]),
-        "main",
-    )
-    # except:
-    #     try:
-    #         module = getattr(
-    #             __import__(
-    #                 "app.own_models." + model_name + "." + model_name,
-    #                 fromlist=[model_name],
-    #             ),
-    #             "main",
-    #         )
-    #     except:
-    #         log.error("Model Name unknown")
-    #         return "Model Name unknown"
+        valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
 
-    model = module(valves_dict, model_data)
-
-    dx_value = model.get_discretization()
-
-    x_value, y_value, z_value, vol = model.create_geometry()
-
-    try:
-        model.edit_model_data(model_data)
-    except:
-        pass
-
-    k = np.ones(len(x_value))
-
-    k = model.crate_block_definition(x_value, y_value, z_value, k)
-
-    if len(x_value) > max_nodes:
-        return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes)
-
-    # if model_data.model.rotatedAngles:
-    #     angle_x = np.zeros(len(x_value))
-    #     angle_y = np.zeros(len(x_value))
-    #     angle_z = np.zeros(len(x_value))
-    # check if vol is defined
-    if vol is None:
-        if model_data.model.twoDimensional:
-            vol = np.full_like(
-                x_value,
-                dx_value[0] * dx_value[1],
+        try:
+            module = getattr(
+                __import__("app.models." + model_name + "." + model_name, fromlist=[model_name]),
+                "main",
             )
-        else:
-            vol = np.full_like(
-                x_value,
-                dx_value[0] * dx_value[1] * dx_value[2],
-            )
+        except:
+            try:
+                module = getattr(
+                    __import__(
+                        "app.own_models." + model_name + "." + model_name,
+                        fromlist=[model_name],
+                    ),
+                    "main",
+                )
+            except:
+                log.error("Model Name unknown")
+                return "Model Name unknown"
+
+        model = module(valves_dict, model_data)
+
+        dx_value = model.get_discretization()
+
+        x_value, y_value, z_value, vol = model.create_geometry()
+
+        try:
+            model.edit_model_data(model_data)
+        except:
+            pass
+
+        k = np.ones(len(x_value))
+
+        k = model.crate_block_definition(x_value, y_value, z_value, k)
+
+        if len(x_value) > max_nodes:
+            return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes)
+
+        # if model_data.model.rotatedAngles:
+        #     angle_x = np.zeros(len(x_value))
+        #     angle_y = np.zeros(len(x_value))
+        #     angle_z = np.zeros(len(x_value))
+        # check if vol is defined
+        if vol is None:
+            if model_data.model.twoDimensional:
+                vol = np.full_like(
+                    x_value,
+                    dx_value[0] * dx_value[1],
+                )
+            else:
+                vol = np.full_like(
+                    x_value,
+                    dx_value[0] * dx_value[1] * dx_value[2],
+                )
 
     writer = ModelWriter(model_data, model_name, model_folder_name, username)
 
@@ -148,25 +150,28 @@ def generate_model(
     #     )
     #     writer.write_mesh_with_angles(model, two_d)
     # else:
-    model = np.transpose(
-        np.vstack(
-            [
-                x_value.ravel(),
-                y_value.ravel(),
-                z_value.ravel(),
-                k.ravel(),
-                vol.ravel(),
-            ]
+    if not model_data.model.ownModel:
+        model = np.transpose(
+            np.vstack(
+                [
+                    x_value.ravel(),
+                    y_value.ravel(),
+                    z_value.ravel(),
+                    k.ravel(),
+                    vol.ravel(),
+                ]
+            )
         )
-    )
-    writer.write_mesh(model, model_data.model.twoDimensional)
-    writer.write_node_sets(model)
+        writer.write_mesh(model, model_data.model.twoDimensional)
+        writer.write_node_sets(model)
 
-    for i, block in enumerate(model_data.blocks):
-        if isinstance(dx_value[0], float):
-            block.horizon = 2.5 * max([dx_value[0], dx_value[1]])
-        else:
-            block.horizon = 2.5 * max([dx_value[i][0], dx_value[i][1]])
+        for i, block in enumerate(model_data.blocks):
+            if isinstance(dx_value[0], float):
+                block.horizon = 2.5 * max([dx_value[0], dx_value[1]])
+            else:
+                block.horizon = 2.5 * max([dx_value[i][0], dx_value[i][1]])
+    else:
+        k = [1e10]
     block_def = model_data.blocks
 
     try:
