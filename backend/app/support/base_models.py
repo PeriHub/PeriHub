@@ -123,18 +123,18 @@ class Material(BaseModel):
 class ThermalModel(BaseModel):
     thermalModelsId: Optional[int] = None
     name: str
-    applyThermalFlow: bool
-    applyThermalExpansion: bool
-    applyHeatTransfer: bool
+    thermalModel: List[str]
     thermalType: str
-    thermalConductivity: Optional[float] = None
     heatTransferCoefficient: Optional[float] = None
-    thermalExpansionCoefficient: Optional[float] = None
     environmentalTemperature: Optional[float] = None
+    requiredSpecificVolume: Optional[float] = None
+    thermalConductivity: Optional[float] = None
+    thermalExpansionCoefficient: Optional[float] = None
     thermalConductivityPrintBed: Optional[float] = None
     printBedTemperature: Optional[float] = None
-    timeFactor: Optional[float] = None
-    requiredSpecificVolume: Optional[float] = None
+    file: Optional[str] = None
+    numStateVars: Optional[int] = None
+    predefinedFieldNames: Optional[List[str]] = None
 
 
 class Thermal(BaseModel):
@@ -202,6 +202,7 @@ class Block(BaseModel):
     additiveModel: Optional[str] = None
     horizon: Optional[float] = None
     density: Optional[float] = None
+    specificHeatCapacity: Optional[float] = None
     show: Optional[bool] = None
 
 
@@ -242,9 +243,15 @@ class Gcode(BaseModel):
     blockFunctions: Optional[List[BlockFunction]] = None
 
 
+class NodeSet(BaseModel):
+    nodeSetId: Optional[int] = None
+    file: str
+
+
 class Discretization(BaseModel):
     distributionType: str
     gcode: Optional[Gcode] = None
+    nodeSets: Optional[List[NodeSet]] = None
 
 
 class BoundaryCondition(BaseModel):
@@ -259,14 +266,8 @@ class BoundaryCondition(BaseModel):
     value: str
 
 
-# class NodeSet(BaseModel):
-#     nodeSetId: Optional[int] = None
-#     file: str
-
-
 class BoundaryConditions(BaseModel):
     conditions: List[BoundaryCondition]
-    # nodeSets: Optional[List[NodeSet]] = None
 
 
 class BondFilters(BaseModel):
@@ -353,10 +354,11 @@ class Solver(BaseModel):
     solverId: Optional[int] = None
     name: Optional[str] = None
     stepId: int = 1
-    matEnabled: Optional[bool] = None
+    matEnabled: bool = True
     damEnabled: Optional[bool] = None
     dispEnabled: Optional[bool] = None
     tempEnabled: Optional[bool] = None
+    addEnabled: Optional[bool] = None
     initialTime: float
     finalTime: float
     fixedDt: Optional[float] = None

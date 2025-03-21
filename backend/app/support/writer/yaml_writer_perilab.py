@@ -36,7 +36,6 @@ class YAMLcreatorPeriLab:
 
     def load_mesh(self):
         data = {}
-        data["Node Sets"] = {}
 
         if self.disc_type == "txt":
             data["Type"] = "Text File"
@@ -45,6 +44,8 @@ class YAMLcreatorPeriLab:
             #     for nodeSet in self.boundary_condition.nodeSets:
             #         data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
             # else:
+            if len(self.node_set_ids) > 0:
+                data["Node Sets"] = {}
             for idx in range(0, len(self.node_set_ids)):
                 data["Node Sets"]["Node Set " + str(idx + 1)] = self.ns_name + "_" + str(idx + 1) + ".txt"
 
@@ -63,6 +64,11 @@ class YAMLcreatorPeriLab:
 
         elif self.disc_type == "gcode":
             data["Type"] = "Gcode"
+
+            if self.check_if_defined(self.disc_dict.nodeSets) and len(self.disc_dict.nodeSets) > 0:
+                data["Node Sets"] = {}
+                for nodeSet in self.disc_dict.nodeSets:
+                    data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
 
             if self.check_if_defined(self.mesh_file):
                 data["Input Mesh File"] = self.mesh_file
@@ -218,9 +224,9 @@ class YAMLcreatorPeriLab:
 
         for therm in self.thermal_dict.thermalModels:
             thermal = {}
-            thermal["Thermal Model"] = therm.thermalType
+            thermal["Thermal Model"] = " + ".join([str(x) for x in therm.thermalModel])
             # if self.check_if_defined(therm.thermalBondBased):
-            thermal["Type"] = "Bond based"
+            thermal["Type"] = therm.thermalType
             if self.check_if_defined(therm.thermalConductivity):
                 thermal["Thermal Conductivity"] = float(therm.thermalConductivity)
             if self.check_if_defined(therm.thermalConductivityPrintBed):
@@ -271,6 +277,8 @@ class YAMLcreatorPeriLab:
                 blocks["Additive Model"] = block.additiveModel
             blocks["Horizon"] = block.horizon
             blocks["Density"] = block.density
+            if self.check_if_defined(block.specificHeatCapacity):
+                blocks["Specific Heat Capacity"] = block.specificHeatCapacity
 
             data[block.name] = blocks
 
@@ -336,15 +344,17 @@ class YAMLcreatorPeriLab:
 
     def solver(self, id=0, multistep=False):
         data = {}
+        print(self.solver_dict[id])
         if multistep:
             data["Step ID"] = self.solver_dict[id].stepId
 
-        if self.check_if_defined(self.solver_dict[id].matEnabled):
-            data["Material Models"] = self.solver_dict[id].matEnabled
+        data["Material Models"] = self.solver_dict[id].matEnabled
         if self.check_if_defined(self.solver_dict[id].damEnabled):
             data["Damage Models"] = self.solver_dict[id].damEnabled
         if self.check_if_defined(self.solver_dict[id].tempEnabled):
             data["Thermal Models"] = self.solver_dict[id].tempEnabled
+        if self.check_if_defined(self.solver_dict[id].addEnabled):
+            data["Additive Models"] = self.solver_dict[id].addEnabled
 
         # data["Verbose"] = self.solver_dict[id].verbose
         data["Initial Time"] = float(self.solver_dict[id].initialTime)
@@ -541,7 +551,7 @@ class YAMLcreatorPeriLab:
             data["PeriLab"]["Discretization"]["Bond Filters"] = self.create_bond_filter()
         if self.check_if_defined(self.preCalculations):
             data["PeriLab"]["Models"]["Pre Calculation"] = self.preCalculation()
-        if self.check_if_defined(self.material_dict):
+        if self.check_if_defined(self.material_dict) and len(self.material_dict) > 0:
             data["PeriLab"]["Models"]["Material Models"] = self.materials()
         if self.check_if_defined(self.thermal_dict):
             if self.thermal_dict.enabled and len(self.thermal_dict.thermalModels) > 0:
@@ -556,7 +566,7 @@ class YAMLcreatorPeriLab:
             data["PeriLab"]["Multistep Solver"] = self.multistepSolver()
         else:
             data["PeriLab"]["Solver"] = self.solver()
-        if self.check_if_defined(self.boundary_condition.conditions):
+        if self.check_if_defined(self.boundary_condition.conditions) and len(self.boundary_condition.conditions) > 0:
             data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions()
         if self.check_if_defined(self.contact_dict):
             if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:

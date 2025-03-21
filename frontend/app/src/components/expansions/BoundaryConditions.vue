@@ -6,13 +6,6 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-list v-for="nodeSet in boundaryConditions.nodeSets" :key="nodeSet.nodeSetId" style="padding: 0px">
-      <div class="row my-row">
-        <q-input class="my-input" v-model="nodeSet.file" :rules="[rules.required, rules.name]" label="Nodeset" standout
-          dense></q-input>
-      </div>
-      <q-separator></q-separator>
-    </q-list>
     <q-list v-for="boundaryCondition, index in boundaryConditions.conditions" :key="boundaryCondition.conditionsId"
       style="padding: 0px">
       <div class="row my-row">
@@ -113,10 +106,6 @@ export default defineComponent({
       newItem.name = 'BC_' + (len + 1)
       newItem.blockId = len + 1
       this.boundaryConditions.conditions.push(newItem);
-      // this.boundaryConditions.nodeSets.push({
-      //   nodeSetId: len + 1,
-      //   file: 'ns_bc' + len,
-      // });
     },
     removeCondition(index) {
       this.boundaryConditions.conditions.splice(index, 1);

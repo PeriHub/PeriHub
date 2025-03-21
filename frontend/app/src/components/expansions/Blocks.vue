@@ -22,8 +22,12 @@ SPDX-License-Identifier: Apache-2.0
           standout dense></q-select>
         <q-input class="small-input" v-model="block.density" :rules="[rules.required, rules.posFloat]"
           :label="blockKeys.density" standout dense></q-input>
-        <q-toggle class="my-toggle" v-model="block.show" @update:model-value="bus.emit('filterPointData')" label="Show"
-          standout dense></q-toggle>
+        <q-input class="small-input" v-model="block.specificHeatCapacity" :rules="[rules.required, rules.posFloat]"
+          :label="blockKeys.specificHeatCapacity" standout dense></q-input>
+        <q-input class="small-input" v-if="model.ownModel" v-model="block.horizon"
+          :rules="[rules.required, rules.posFloat]" :label="blockKeys.horizon" standout dense></q-input>
+        <q-toggle class="my-toggle" v-model="block.show" @update:model-value="bus.emit('filterPointData')"
+          :label="blockKeys.show" standout dense></q-toggle>
         <q-btn v-if="model.ownModel" flat icon="fas fa-trash-alt" @click="removeBlock(block.blocksId - 1)">
           <q-tooltip>
             Remove Block
@@ -82,6 +86,8 @@ export default defineComponent({
         additiveModel: 'Additive Model',
         horizon: 'Horizon',
         density: 'Density',
+        specificHeatCapacity: 'Specific Heat Capacity',
+        show: 'Show',
       },
     };
   },

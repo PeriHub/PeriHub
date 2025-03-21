@@ -26,6 +26,8 @@ SPDX-License-Identifier: Apache-2.0
             dense></q-toggle>
           <q-toggle class="my-toggle" v-model="solver.tempEnabled" :label="solverKeys.tempEnabled" standout
             dense></q-toggle>
+          <q-toggle class="my-toggle" v-model="solver.addEnabled" :label="solverKeys.addEnabled" standout
+            dense></q-toggle>
           <q-input class="my-input" v-model="solver.initialTime" :rules="[rules.required, rules.name]"
             :label="solverKeys.initialTime" standout dense></q-input>
           <q-input class="my-input" v-model="solver.finalTime" :rules="[rules.required, rules.name]"
@@ -183,6 +185,7 @@ export default defineComponent({
         matEnabled: 'Material Models',
         damEnabled: 'Damage Models',
         tempEnabled: 'Thermal Models',
+        addEnabled: 'Additive Models',
         verbose: 'Verbose',
         initialTime: 'Initial Time',
         finalTime: 'Final Time',
