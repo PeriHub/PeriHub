@@ -223,6 +223,11 @@ export default defineComponent({
     },
     copyText(id) {
       copyToClipboard(this.calculated[id])
+        .then(() => {
+          this.$q.notify({
+            message: 'Copied to clipboard',
+          })
+        })
     },
   },
   mounted() {

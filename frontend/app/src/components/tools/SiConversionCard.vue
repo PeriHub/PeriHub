@@ -212,6 +212,11 @@ export default defineComponent({
     },
     copyText(id) {
       copyToClipboard(this.conversionResults[id])
+        .then(() => {
+          this.$q.notify({
+            message: 'Copied to clipboard',
+          })
+        })
     },
   },
   watch: {
