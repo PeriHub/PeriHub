@@ -154,11 +154,7 @@ class main:
                             y_value.append(yval)
                             z_value.append(zval)
 
-        return (
-            x_value,
-            y_value,
-            z_value,
-        )
+        return (x_value, y_value, z_value, None)
 
     def crate_block_definition(self, x_value, y_value, z_value, k):
         """doc"""

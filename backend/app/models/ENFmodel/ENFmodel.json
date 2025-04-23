@@ -26,7 +26,7 @@
       "stabilizationType": "Global Stiffness",
       "thickness": "1",
       "hourglassCoefficient": 1,
-      "yieldStress": "99.3",
+      "yieldStress": null,
       "properties": [
         {
           "id": 1,
@@ -37,34 +37,9 @@
     }
   ],
   "thermal": {
-    "enabled": false,
-    "thermalModels": [
-      {
-        "thermalModelsId": 1,
-        "name": "Thermal Model 1",
-        "applyThermalFlow": false,
-        "applyThermalExpansion": false,
-        "applyHeatTransfer": false,
-        "thermalType": "Bond based",
-        "thermalConductivity": null,
-        "heatTransferCoefficient": null,
-        "thermalExpansionCoefficient": null,
-        "environmentalTemperature": null,
-        "printTemp": 200.0,
-        "timeFactor": 1.0
-      }
-    ]
+    "enabled": false
   },
   "additive": {
-    "additiveModels": [
-      {
-        "additiveType": "Simple Additive",
-        "id": null,
-        "name": "Additive Model 1",
-        "printTemp": 200,
-        "timeFactor": 1
-      }
-    ],
     "enabled": false
   },
   "damages": [
@@ -165,26 +140,7 @@
     }
   ],
   "contact": {
-    "enabled": false,
-    "searchRadius": "0.02",
-    "searchFrequency": "1",
-    "contactModels": [
-      {
-        "id": 1,
-        "name": "Contact Model",
-        "contactType": "Short Range Force",
-        "contactRadius": 0.000775,
-        "springConstant": 1000000000000
-      }
-    ],
-    "interactions": [
-      {
-        "id": 1,
-        "firstBlockId": 5,
-        "secondBlockId": 3,
-        "contactModelId": 1
-      }
-    ]
+    "enabled": false
   },
   "boundaryConditions": {
     "conditions": [

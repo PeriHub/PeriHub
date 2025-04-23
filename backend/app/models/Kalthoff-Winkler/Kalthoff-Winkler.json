@@ -39,15 +39,6 @@
     "enabled": false
   },
   "additive": {
-    "additiveModels": [
-      {
-        "additiveType": "Simple Additive",
-        "id": null,
-        "name": "Additive Model 1",
-        "printTemp": 200,
-        "timeFactor": 1
-      }
-    ],
     "enabled": false
   },
   "damages": [
@@ -100,26 +91,7 @@
     }
   ],
   "contact": {
-    "enabled": false,
-    "searchRadius": "0.02",
-    "searchFrequency": "1",
-    "contactModels": [
-      {
-        "id": 1,
-        "name": "Contact Model",
-        "contactType": "Short Range Force",
-        "contactRadius": 0.000775,
-        "springConstant": 1000000000000
-      }
-    ],
-    "interactions": [
-      {
-        "id": 1,
-        "firstBlockId": 5,
-        "secondBlockId": 3,
-        "contactModelId": 1
-      }
-    ]
+    "enabled": false
   },
   "boundaryConditions": {
     "conditions": [

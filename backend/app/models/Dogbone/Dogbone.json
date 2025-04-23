@@ -26,7 +26,7 @@
       "thickness": 1,
       "hourglassCoefficient": 1,
       "actualHorizon": null,
-      "yieldStress": 20,
+      "yieldStress": null,
       "stiffnessMatrix": {
         "calculateStiffnessMatrix": false,
         "engineeringConstants": {
@@ -79,9 +79,9 @@
       {
         "thermalModelsId": 1,
         "name": "Thermal Model 1",
-        "applyThermalFlow": false,
-        "applyThermalExpansion": false,
-        "applyHeatTransfer": false,
+        "thermalModel": [
+          "Thermal Flow"
+        ],
         "thermalType": "Bond based",
         "thermalConductivity": null,
         "heatTransferCoefficient": null,

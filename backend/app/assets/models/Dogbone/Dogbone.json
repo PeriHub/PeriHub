@@ -91,6 +91,9 @@
       {
         "thermalModelsId": 1,
         "name": "Thermal Model 1",
+        "thermalModel": [
+          "Thermal Flow"
+        ],
         "applyThermalFlow": false,
         "applyThermalExpansion": false,
         "applyHeatTransfer": false,

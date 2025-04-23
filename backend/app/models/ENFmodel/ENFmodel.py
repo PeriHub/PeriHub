@@ -80,11 +80,7 @@ class main:
             dx_value=self.dx_value,
         )
 
-        return (
-            x_value,
-            y_value,
-            z_value,
-        )
+        return (x_value, y_value, z_value, None)
 
     def crate_block_definition(self, x_value, y_value, z_value, k):
         """doc"""

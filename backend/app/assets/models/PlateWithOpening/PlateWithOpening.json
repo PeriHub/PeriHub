@@ -41,7 +41,7 @@
       "thickness": "1",
       "hourglassCoefficient": 1,
       "actualHorizon": null,
-      "yieldStress": "99.3",
+      "yieldStress": null,
       "stiffnessMatrix": {
         "calculateStiffnessMatrix": false,
         "engineeringConstants": {

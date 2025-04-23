@@ -1,14 +1,5 @@
 {
     "additive": {
-        "additiveModels": [
-            {
-                "additiveType": "Simple Additive",
-                "id": null,
-                "name": "Additive Model 1",
-                "printTemp": 200.0,
-                "timeFactor": 1.0
-            }
-        ],
         "enabled": false
     },
     "blocks": [
@@ -116,7 +107,6 @@
                 "coordinate": "y",
                 "name": "BC_1",
                 "nodeSet": null,
-                "stepId": 1,
                 "value": "30000*t",
                 "variable": "Force Densities"
             },
@@ -127,7 +117,6 @@
                 "coordinate": "y",
                 "name": "BC_2",
                 "nodeSet": null,
-                "stepId": 1,
                 "value": "-30000*t",
                 "variable": "Force Densities"
             }
@@ -158,32 +147,7 @@
         }
     ],
     "contact": {
-        "contactModels": [
-            {
-                "contactRadius": 0.000775,
-                "contactType": "Short Range Force",
-                "id": 1,
-                "name": "Contact Model",
-                "springConstant": 1000000000000.0
-            }
-        ],
-        "enabled": false,
-        "interactions": [
-            {
-                "contactModelId": 1,
-                "firstBlockId": 4,
-                "id": 1,
-                "secondBlockId": 2
-            },
-            {
-                "contactModelId": 1,
-                "firstBlockId": 5,
-                "id": 2,
-                "secondBlockId": 3
-            }
-        ],
-        "searchFrequency": 100,
-        "searchRadius": 0.01
+        "enabled": false
     },
     "damages": [
         {
@@ -262,46 +226,10 @@
             ],
             "shearModulus": null,
             "stabilizationType": "Global Stiffness",
-            "stiffnessMatrix": {
-                "calculateStiffnessMatrix": false,
-                "engineeringConstants": {
-                    "E1": null,
-                    "E2": null,
-                    "E3": null,
-                    "G12": null,
-                    "G13": null,
-                    "G23": null,
-                    "nu12": null,
-                    "nu13": null,
-                    "nu23": null
-                },
-                "matrix": {
-                    "C11": null,
-                    "C12": null,
-                    "C13": null,
-                    "C14": null,
-                    "C15": null,
-                    "C16": null,
-                    "C22": null,
-                    "C23": null,
-                    "C24": null,
-                    "C25": null,
-                    "C26": null,
-                    "C33": null,
-                    "C34": null,
-                    "C35": null,
-                    "C36": null,
-                    "C44": null,
-                    "C45": null,
-                    "C46": null,
-                    "C55": null,
-                    "C56": null,
-                    "C66": null
-                }
-            },
+            "stiffnessMatrix": null,
             "thickness": 1.0,
             "useCollocationNodes": null,
-            "yieldStress": 74.0,
+            "yieldStress": null,
             "youngsModulus": 200000.0
         },
         {
@@ -328,46 +256,10 @@
             ],
             "shearModulus": null,
             "stabilizationType": "Global Stiffness",
-            "stiffnessMatrix": {
-                "calculateStiffnessMatrix": false,
-                "engineeringConstants": {
-                    "E1": null,
-                    "E2": null,
-                    "E3": null,
-                    "G12": null,
-                    "G13": null,
-                    "G23": null,
-                    "nu12": null,
-                    "nu13": null,
-                    "nu23": null
-                },
-                "matrix": {
-                    "C11": null,
-                    "C12": null,
-                    "C13": null,
-                    "C14": null,
-                    "C15": null,
-                    "C16": null,
-                    "C22": null,
-                    "C23": null,
-                    "C24": null,
-                    "C25": null,
-                    "C26": null,
-                    "C33": null,
-                    "C34": null,
-                    "C35": null,
-                    "C36": null,
-                    "C44": null,
-                    "C45": null,
-                    "C46": null,
-                    "C55": null,
-                    "C56": null,
-                    "C66": null
-                }
-            },
+            "stiffnessMatrix": null,
             "thickness": 1.0,
             "useCollocationNodes": null,
-            "yieldStress": 74.0,
+            "yieldStress": null,
             "youngsModulus": 3176.0
         },
         {
@@ -394,46 +286,10 @@
             ],
             "shearModulus": null,
             "stabilizationType": "Global Stiffness",
-            "stiffnessMatrix": {
-                "calculateStiffnessMatrix": false,
-                "engineeringConstants": {
-                    "E1": null,
-                    "E2": null,
-                    "E3": null,
-                    "G12": null,
-                    "G13": null,
-                    "G23": null,
-                    "nu12": null,
-                    "nu13": null,
-                    "nu23": null
-                },
-                "matrix": {
-                    "C11": null,
-                    "C12": null,
-                    "C13": null,
-                    "C14": null,
-                    "C15": null,
-                    "C16": null,
-                    "C22": null,
-                    "C23": null,
-                    "C24": null,
-                    "C25": null,
-                    "C26": null,
-                    "C33": null,
-                    "C34": null,
-                    "C35": null,
-                    "C36": null,
-                    "C44": null,
-                    "C45": null,
-                    "C46": null,
-                    "C55": null,
-                    "C56": null,
-                    "C66": null
-                }
-            },
+            "stiffnessMatrix": null,
             "thickness": 1.0,
             "useCollocationNodes": null,
-            "yieldStress": 74.0,
+            "yieldStress": null,
             "youngsModulus": 230000.0
         }
     ],
@@ -502,22 +358,6 @@
         }
     ],
     "thermal": {
-        "enabled": false,
-        "thermalModels": [
-            {
-                "applyHeatTransfer": false,
-                "applyThermalExpansion": false,
-                "applyThermalFlow": false,
-                "environmentalTemperature": null,
-                "heatTransferCoefficient": null,
-                "name": "Thermal Model 1",
-                "printTemp": 200.0,
-                "thermalConductivity": null,
-                "thermalExpansionCoefficient": null,
-                "thermalModelsId": 1,
-                "thermalType": "Bond based",
-                "timeFactor": 1.0
-            }
-        ]
+        "enabled": false
     }
 }

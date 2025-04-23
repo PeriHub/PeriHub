@@ -100,11 +100,7 @@ class main:
             False,
         )
 
-        return (
-            x_values,
-            y_values,
-            z_values,
-        )
+        return (x_values, y_values, z_values, None)
 
     def crate_block_definition(self, x_values, y_values, z_values, k):
         """doc"""
