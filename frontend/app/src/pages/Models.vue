@@ -25,7 +25,7 @@ SPDX-License-Identifier: Apache-2.0
         <q-scroll-area style="height:100%;">
           <div v-if="config">
             <JsonEditorVue v-model="config" mode="tree" :mainMenuBar=false :navigationBar=false :statusBar=false
-              :readOnly=true v-bind="{/* local props & attrs */ }" />
+              :readOnly=false v-bind="{/* local props & attrs */ }" />
             <q-btn class="q-mt-sm" color="primary" label="Save" @click="_saveConfig" />
           </div>
         </q-scroll-area>
@@ -145,16 +145,18 @@ export default {
     },
     async _saveConfig() {
       await saveConfig({
-        configFile: this.selectedModel.config,
+        configFile: this.selectedModel.file,
         requestBody: this.config
       }).then(() => this.$q.notify({
         message: 'Config saved',
       })).catch((error) => {
         console.log(error.body.detail)
-        this.$q.notify({
-          type: 'negative',
-          message: error.body.detail
-        })
+        for (let i = 0; i < error.body.detail.length; i++) {
+          this.$q.notify({
+            type: 'negative',
+            message: error.body.detail[i].msg + '\n' + error.body.detail[i].loc
+          })
+        }
       })
     },
     async _deleteModel() {

@@ -85,10 +85,13 @@ def get_valves(model_name: str, source: bool = False):
     #     print(file_path)
     #     return Path(file_path).read_text()
     print(parent_path + ".models." + model_name + "." + model_name)
-    # try:
-    module = importlib.import_module(parent_path + ".models." + model_name + "." + model_name, package=".")
-    # except:
-    #     module = importlib.import_module(parent_path + ".own_models." + model_name + "." + model_name, package=".")
+    try:
+        module = importlib.import_module(parent_path + ".models." + model_name + "." + model_name, package=".")
+    except:
+        try:
+            module = importlib.import_module(parent_path + ".own_models." + model_name + "." + model_name, package=".")
+        except:
+            return {"valves": []}
     if not hasattr(module, "Valves"):
         return {"valves": []}
     my_class = getattr(module, "Valves")
@@ -144,7 +147,10 @@ def get_config(config_file: str = "Dogbone"):
             return json.load(file)
 
     log.error("%s files can not be found", config_file)
-    return config_file + " files can not be found"
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=config_file + " files can not be found",
+    )
 
 
 @router.post("/saveConfig", operation_id="save_config")
@@ -355,7 +361,7 @@ def add_model(model_name: str, description: str, request: Request = ""):
 
     model_slug = slugify(model_name, separator="_")
 
-    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_slug + ".py")
+    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_slug, model_slug + ".py")
     print(file_path)
 
     source_code = f'''
@@ -446,6 +452,7 @@ class main:
             x_value,
             y_value,
             z_value,
+            None
         )
 
     def edit_model_data(self, model_data, valves):
@@ -472,7 +479,7 @@ def get_own_model_file(model_file: str = "Dogbone"):
 
     folder_path = str(Path(__file__).parent.parent.resolve())
 
-    file_path = os.path.join(folder_path, "own_models", model_file)
+    file_path = os.path.join(folder_path, "own_models", model_file, model_file + ".py")
 
     return Path(file_path).read_text()
 
@@ -481,7 +488,7 @@ def get_own_model_file(model_file: str = "Dogbone"):
 def save_model(model_file: str, source_code: str, request: Request = ""):
     username = FileHandler.get_user_name(request, dev)
 
-    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_file)
+    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_file, model_file + ".py")
 
     try:
         ast.parse(source_code)
@@ -494,10 +501,12 @@ def save_model(model_file: str, source_code: str, request: Request = ""):
 
 @router.delete("/delete", operation_id="delete_model")
 def delete_model(model_name: str):
-    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".py")
+    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name, model_name + ".py")
 
     os.remove(file_path)
 
-    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".json")
+    file_path = os.path.join(
+        str(Path(__file__).parent.parent.resolve()), "own_models", model_name, model_name + ".json"
+    )
 
     os.remove(file_path)
