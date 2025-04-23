@@ -28,10 +28,12 @@ SPDX-License-Identifier: Apache-2.0
             dense></q-toggle>
           <q-toggle class="my-toggle" v-model="solver.addEnabled" :label="solverKeys.addEnabled" standout
             dense></q-toggle>
-          <q-input class="my-input" v-model="solver.initialTime" :rules="[rules.required, rules.name]"
+          <q-input class="my-input" v-model="solver.initialTime" clearable :rules="[rules.float]"
             :label="solverKeys.initialTime" standout dense></q-input>
-          <q-input class="my-input" v-model="solver.finalTime" :rules="[rules.required, rules.name]"
+          <q-input class="my-input" v-model="solver.finalTime" clearable :rules="[rules.float]"
             :label="solverKeys.finalTime" standout dense></q-input>
+          <q-input class="my-input" v-if="solver.stepId != 1" v-model="solver.additionalTime" clearable
+            :rules="[rules.float]" :label="solverKeys.additionalTime" standout dense></q-input>
           <q-input class="my-input" v-model="solver.fixedDt"
             v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'"
             :rules="[rules.required, rules.name]" :label="solverKeys.fixedDt" standout dense></q-input>
@@ -189,6 +191,7 @@ export default defineComponent({
         verbose: 'Verbose',
         initialTime: 'Initial Time',
         finalTime: 'Final Time',
+        additionalTime: 'Additional Time',
         solvertype: 'Solvertype',
         fixedDt: 'Fixed dt',
         safetyFactor: 'Safety Factor',
