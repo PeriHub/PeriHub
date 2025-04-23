@@ -76,8 +76,8 @@ SPDX-License-Identifier: Apache-2.0
         <q-card-section class="q-pt-none">
           <q-uploader
             :url="uploadPath + '?model_name=' + this.modelStore.selectedModel.file + '&model_folder_name=' + this.modelData.model.modelFolderName"
-            field-name="files" label="Pick file" filled counter multiple style="max-width: 300px"
-            @uploaded="uploadFinished" />
+            :headers="[{ name: 'username', value: userName }]" field-name="files" label="Pick file" filled counter
+            multiple style="max-width: 300px" @uploaded="uploadFinished" />
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -120,6 +120,7 @@ export default defineComponent({
     return {
       DEV: false,
       dialogUpload: false,
+      userName: 'user',
     };
   },
   methods: {
@@ -406,6 +407,7 @@ export default defineComponent({
   },
   mounted() {
     this.DEV = process.env.DEV
+    this.userName = localStorage.getItem('userName')
   }
 })
 </script>
