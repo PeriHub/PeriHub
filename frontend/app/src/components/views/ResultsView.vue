@@ -131,7 +131,7 @@ SPDX-License-Identifier: Apache-2.0
       <q-input class="variable" v-model.number="modelParams.displFactor" type="number" label="Displ. Magnitude" outlined
         dense debounce:500 @update:model-value="viewPointData"></q-input>
       <q-select class="variable" :options="filterOptions" v-model="modelParams.filter" label="Filter" outlined dense
-        @update:model-value="viewPointData"></q-select>
+        clearable @update:model-value="viewPointData"></q-select>
     </div>
     <vertical-colored-legend class="legend" :min="minValue" :max="maxValue" :key="legendKey" />
   </div>
@@ -180,6 +180,8 @@ export default {
         'Magnitude'
       ],
       filterOptions: [
+        'Active',
+        'Temperature',
         'Displacements',
         'Damage',
       ],
