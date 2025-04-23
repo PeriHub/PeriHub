@@ -13,12 +13,16 @@ SPDX-License-Identifier: Apache-2.0
           :label="boundaryKeys.name" standout dense></q-input>
         <q-select class="my-select" :options="boundarytype" v-model="boundaryCondition.boundarytype"
           :label="boundaryKeys.boundarytype" standout dense></q-select>
-        <q-select class="my-select" :options="boundaryConditions.nodeSets" option-label="nodeSetId"
-          option-value="nodeSetId" emit-value v-model="boundaryCondition.nodeSet" :label="boundaryKeys.nodeSet" standout
-          dense style="width: 100px"></q-select>
+        <q-select v-if="discretization.nodeSets && discretization.nodeSets.length > 0" class="my-select"
+          :options="discretization.nodeSets" option-label="nodeSetId" option-value="nodeSetId" emit-value
+          v-model="boundaryCondition.nodeSet" :label="boundaryKeys.nodeSet" standout dense
+          style="width: 100px"></q-select>
         <q-select v-show="!model.ownModel" class="my-select" :options="blocks" option-label="blocksId"
           option-value="blocksId" emit-value v-model="boundaryCondition.blockId" :label="boundaryKeys.blockId" standout
           dense style="width: 100px"></q-select>
+        <q-select v-if="solvers.length > 1" class="my-select" :options="solvers" use-chips multiple
+          option-label="stepId" option-value="stepId" emit-value v-model="boundaryCondition.stepId"
+          :label="boundaryKeys.stepId" standout dense style="width: 100px"></q-select>
       </div>
       <div class="row my-row">
         <q-select class="my-select" :options="boundaryVariables" v-model="boundaryCondition.variable"
@@ -56,13 +60,17 @@ export default defineComponent({
     const store = useModelStore();
     const model = computed(() => store.modelData.model)
     const blocks = computed(() => store.modelData.blocks)
+    const solvers = computed(() => store.modelData.solvers)
     const boundaryConditions = computed(() => store.modelData.boundaryConditions)
+    const discretization = computed(() => store.modelData.discretization)
     const bus = inject('bus')
     return {
       store,
       model,
       blocks,
+      solvers,
       boundaryConditions,
+      discretization,
       rules,
       bus
     }
@@ -93,6 +101,7 @@ export default defineComponent({
         boundarytype: 'Type',
         variable: 'Variable',
         blockId: 'Block Id',
+        stepId: 'Step Id',
         coordinate: 'Coordinate',
         value: 'Value',
       },
