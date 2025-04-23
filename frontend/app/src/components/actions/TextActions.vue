@@ -65,6 +65,11 @@ export default defineComponent({
       this._getStatus()
     })
   },
+  beforeDestroy() {
+    this.bus.off('enableWebsocket')
+    this.bus.off('viewInputFile')
+    this.bus.off('getStatus')
+  },
   data() {
     return {
       connection: null,
