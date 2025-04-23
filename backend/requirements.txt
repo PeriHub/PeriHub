@@ -19,3 +19,4 @@ gcodereader
 random-username
 # pygalmesh
 python-magic
+python-slugify

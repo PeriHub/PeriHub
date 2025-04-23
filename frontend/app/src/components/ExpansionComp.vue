@@ -43,7 +43,7 @@ SPDX-License-Identifier: Apache-2.0
       <q-expansion-item v-model="panel[10]" expand-separator icon="fas fa-calculator" label="Solver">
         <SolverSettings></SolverSettings>
       </q-expansion-item>
-      <q-expansion-item v-if="this.CLUSTER_URL != ''" v-model="panel[11]" expand-separator icon="fas fa-flask"
+      <q-expansion-item v-if="this.clusterUrl != ''" v-model="panel[11]" expand-separator icon="fas fa-flask"
         label="Job">
         <JobSettings></JobSettings>
       </q-expansion-item>
@@ -100,7 +100,7 @@ export default defineComponent({
   },
   data() {
     return {
-      CLUSTER_URL: process.env.CLUSTER_URL,
+      clusterUrl: process.env.CLUSTER_URL,
       panel: [false, false, false, false, false, false, false, false, false, false],
     }
   },

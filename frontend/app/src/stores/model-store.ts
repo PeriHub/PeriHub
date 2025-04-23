@@ -409,11 +409,11 @@ export const useModelStore = defineStore('model', {
     initialiseStore() {
       if (localStorage.getItem('modelData')) {
         console.log('initialiseStore');
-        let object = JSON.parse(localStorage.getItem('modelData'));
+        const object = JSON.parse(localStorage.getItem('modelData'));
         this.modelData = structuredClone(object);
       }
       if (localStorage.getItem('selectedModel')) {
-        let object = JSON.parse(localStorage.getItem('selectedModel'));
+        const object = JSON.parse(localStorage.getItem('selectedModel'));
         this.selectedModel = structuredClone(object);
       }
     },
