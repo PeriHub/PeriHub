@@ -6,13 +6,14 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-toggle class="my-toggle" standout dense v-model="model.ownModel" label="Own Model"></q-toggle>
+    <q-toggle class="my-toggle" standout dense v-model="model.ownModel" label="Own Model"
+      @update:model-value="switchOwnModels"></q-toggle>
     <q-select class="my-select" :options="store.availableModels" option-label="title" v-model="store.selectedModel"
       v-show="!model.ownModel" label="Model Name" standout dense @update:model-value="selectMethod"></q-select>
-    <q-input class="my-select" v-model="model.modelFolderName" label="Model Subname" placeholder="Default" standout
-      dense></q-input>
     <q-input class="my-input" v-model="store.selectedModel.file" v-show="model.ownModel" :rules="[rules.required]"
       label="Model Name" standout dense></q-input>
+    <q-input class="my-select" v-model="model.modelFolderName" label="Model Subname" placeholder="Default" standout
+      dense></q-input>
     <q-input class="my-input" v-model="model.meshFile" v-show="model.ownModel" :rules="[rules.required]"
       label="Mesh File" standout dense></q-input>
 
@@ -206,7 +207,7 @@ export default defineComponent({
         .catch((error) => {
           this.$q.notify({
             type: 'negative',
-            message: error.response.detail
+            message: error.body.detail
           })
         })
     },
@@ -217,6 +218,15 @@ export default defineComponent({
       })
       this.store.modelParams = response
       // this.viewStore.viewLoading = false
+    },
+    async switchOwnModels() {
+      if (!this.model.ownModel) {
+        this.store.selectedModel = {
+          title: 'Compact Tenison',
+          file: 'CompactTension',
+        }
+      }
+      this.selectMethod()
     },
 
   },
@@ -233,7 +243,8 @@ export default defineComponent({
           // this.resetData()
         }
         this.bus.emit('getStatus')
-      }
+      },
+      deep: true,
     },
   }
 })
