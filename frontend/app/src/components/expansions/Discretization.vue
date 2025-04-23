@@ -25,7 +25,7 @@ SPDX-License-Identifier: Apache-2.0
         Add Nodeset
       </q-tooltip>
     </q-btn>
-    <div v-if="store.modelData.model.gcode && discretization.gcode != null">
+    <div v-if="store.modelData.discretization.discType == 'gcode' && discretization.gcode != null">
       <q-toggle class="my-toggle" v-model="discretization.gcode.overwriteMesh" :label=discKeys.gcode.overwriteMesh
         standout dense></q-toggle>
       <q-input class="my-input" v-model="discretization.gcode.dx" :rules="[rules.required, rules.float]"
@@ -52,7 +52,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-list>
       <q-btn flat icon="fas fa-plus" @click="addBlockFunction">
         <q-tooltip>
-          Add Nodeset
+          Add Block Function
         </q-tooltip>
       </q-btn>
     </div>

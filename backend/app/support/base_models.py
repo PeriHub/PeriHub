@@ -32,7 +32,6 @@ class Model(BaseModel):
     modelFolderName: Optional[str] = "Default"
     ownModel: bool
     twoDimensional: bool
-    discType: Optional[str] = "txt"
     ownMesh: Optional[bool] = None
     horizon: Optional[float] = None
     meshFile: Optional[str] = None
@@ -152,7 +151,7 @@ class AdditiveModel(BaseModel):
 
 class Additive(BaseModel):
     enabled: bool
-    additiveModels: Union[List[AdditiveModel], None]
+    additiveModels: Optional[List[AdditiveModel]] = None
 
 
 class InterBlock(BaseModel):
@@ -223,10 +222,10 @@ class Interaction(BaseModel):
 
 class Contact(BaseModel):
     enabled: bool
-    searchRadius: float
-    searchFrequency: int
-    contactModels: Union[List[ContactModel], None]
-    interactions: Union[List[Interaction], None]
+    searchRadius: Optional[float] = None
+    searchFrequency: Optional[int] = None
+    contactModels: Optional[List[ContactModel]] = None
+    interactions: Optional[List[Interaction]] = None
 
 
 class BlockFunction(BaseModel):
@@ -250,13 +249,14 @@ class NodeSet(BaseModel):
 
 class Discretization(BaseModel):
     distributionType: str
+    discType: Optional[str] = "txt"
     gcode: Optional[Gcode] = None
     nodeSets: Optional[List[NodeSet]] = None
 
 
 class BoundaryCondition(BaseModel):
     conditionsId: Optional[int] = None
-    stepId: int = 1
+    stepId: Optional[List[int]] = [1]
     name: str
     nodeSet: Optional[int] = None
     boundarytype: str
@@ -359,8 +359,9 @@ class Solver(BaseModel):
     dispEnabled: Optional[bool] = None
     tempEnabled: Optional[bool] = None
     addEnabled: Optional[bool] = None
-    initialTime: float
-    finalTime: float
+    initialTime: Optional[float] = None
+    finalTime: Optional[float] = None
+    additionalTime: Optional[float] = None
     fixedDt: Optional[float] = None
     solvertype: str
     safetyFactor: float

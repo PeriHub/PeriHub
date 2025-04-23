@@ -27,7 +27,7 @@ class YAMLcreatorPeriLab:
         self.bondfilters = model_writer.model_data.bondFilters
         self.preCalculations = model_writer.model_data.preCalculations
         self.disc_dict = model_writer.model_data.discretization
-        self.disc_type = model_writer.model_data.model.discType
+        self.disc_type = model_writer.model_data.discretization.discType
         # self.two_d = model_writer.model_data.model.twoDimensional
 
     @staticmethod
@@ -82,7 +82,10 @@ class YAMLcreatorPeriLab:
             data["Gcode"]["Width"] = self.disc_dict.gcode.width
             data["Gcode"]["Scale"] = self.disc_dict.gcode.scale
 
-            if self.check_if_defined(self.disc_dict.gcode.blockFunctions):
+            if (
+                self.check_if_defined(self.disc_dict.gcode.blockFunctions)
+                and len(self.disc_dict.gcode.blockFunctions) > 0
+            ):
                 data["Gcode"]["Blocks"] = {}
 
                 for block in self.disc_dict.gcode.blockFunctions:
@@ -357,8 +360,12 @@ class YAMLcreatorPeriLab:
             data["Additive Models"] = self.solver_dict[id].addEnabled
 
         # data["Verbose"] = self.solver_dict[id].verbose
-        data["Initial Time"] = float(self.solver_dict[id].initialTime)
-        data["Final Time"] = float(self.solver_dict[id].finalTime)
+
+        if self.check_if_defined(self.solver_dict[id].additionalTime):
+            data["Additional Time"] = float(self.solver_dict[id].additionalTime)
+        else:
+            data["Initial Time"] = float(self.solver_dict[id].initialTime)
+            data["Final Time"] = float(self.solver_dict[id].finalTime)
 
         if self.solver_dict[id].stopAfterDamageInitation:
             data["Stop after damage initiation"] = True
@@ -434,7 +441,7 @@ class YAMLcreatorPeriLab:
             data[self.solver_dict[i].name] = self.solver(i, True)
         return data
 
-    def create_boundary_conditions(self):
+    def create_boundary_conditions(self, multistep):
         data = {}
 
         for condition in self.boundary_condition.conditions:
@@ -447,6 +454,12 @@ class YAMLcreatorPeriLab:
                 cond["Node Set"] = "Node Set " + str(condition.nodeSet)
             else:
                 cond["Node Set"] = "Node Set " + str(node_set_id + 1)
+
+            if self.check_if_defined(condition.stepId) and multistep:
+                steps = ""
+                for step in condition.stepId:
+                    steps += str(step) + ", "
+                cond["Step ID"] = steps[:-2]
 
             if "Temperature" not in condition.variable:
                 cond["Coordinate"] = condition.coordinate
@@ -543,6 +556,9 @@ class YAMLcreatorPeriLab:
         return data
 
     def create_yaml(self, max_block_id):
+
+        multistep = len(self.solver_dict) > 1
+
         data = {"PeriLab": {}}
         data["PeriLab"]["Models"] = {}
 
@@ -562,12 +578,12 @@ class YAMLcreatorPeriLab:
         data["PeriLab"]["Blocks"] = self.blocks(max_block_id)
         if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
             data["PeriLab"]["Models"]["Damage Models"] = self.damage(max_block_id)
-        if len(self.solver_dict) > 1:
+        if multistep:
             data["PeriLab"]["Multistep Solver"] = self.multistepSolver()
         else:
             data["PeriLab"]["Solver"] = self.solver()
         if self.check_if_defined(self.boundary_condition.conditions) and len(self.boundary_condition.conditions) > 0:
-            data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions()
+            data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions(multistep)
         if self.check_if_defined(self.contact_dict):
             if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
                 data["PeriLab"]["Contact"] = self.contact()

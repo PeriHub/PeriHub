@@ -11,7 +11,6 @@ export const useModelStore = defineStore('model', {
         modelFolderName: 'Default',
         ownModel: false,
         ownMesh: false,
-        discType: 'txt',
         length: 0.115,
         cracklength: 0.115,
         notchEnabled: false,
@@ -31,6 +30,7 @@ export const useModelStore = defineStore('model', {
         meshFile: 'Dogbone.txt',
       },
       discretization: {
+        discType: 'txt',
         distributionType: 'Neighbor based',
         gcode: {
           overwriteMesh: true,
@@ -56,7 +56,7 @@ export const useModelStore = defineStore('model', {
           thickness: 1.0,
           hourglassCoefficient: 1.0,
           actualHorizon: null,
-          yieldStress: 20,
+          yieldStress: null,
           stiffnessMatrix: {
             calculateStiffnessMatrix: false,
             engineeringConstants: {
@@ -238,6 +238,7 @@ export const useModelStore = defineStore('model', {
             boundarytype: 'Dirichlet',
             variable: 'Displacements',
             blockId: 1,
+            stepId: [1],
             coordinate: 'x',
             value: '0*t',
           },
@@ -248,6 +249,7 @@ export const useModelStore = defineStore('model', {
             boundarytype: 'Dirichlet',
             variable: 'Displacements',
             blockId: 5,
+            stepId: [1],
             coordinate: 'x',
             value: '0.5*t',
           },

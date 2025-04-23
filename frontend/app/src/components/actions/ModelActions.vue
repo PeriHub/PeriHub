@@ -11,6 +11,7 @@ SPDX-License-Identifier: Apache-2.0
         Load Model
       </q-tooltip>
     </q-btn>
+    <input type="file" style="display: none" ref="fileInput" accept="application/json" @change="onFilePicked" />
 
     <q-btn flat icon="fas fa-save" @click="saveData">
       <q-tooltip>
@@ -145,7 +146,7 @@ export default defineComponent({
       console.log(type)
       if (type == 'gcode') {
         this.modelStore.modelData.model.meshFile = res.files[0].name
-        this.modelStore.modelData.model.discType = 'gcode'
+        this.modelStore.modelData.discretization.discType = 'gcode'
         if (!this.modelStore.modelData.discretization.gcode) {
           this.modelStore.modelData.discretization.gcode = {
             overwriteMesh: true,
@@ -217,6 +218,10 @@ export default defineComponent({
       fr.onload = (e) => {
         const result = JSON.parse(e.target.result);
         this.modelStore.modelData = structuredClone(result)
+        const filename = file.name.split('.')[0]
+        if (this.modelStore.modelData.model.ownModel) {
+          this.modelStore.selectedModel.file = filename;
+        }
       };
       fr.readAsText(file);
     },
