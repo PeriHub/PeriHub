@@ -55,11 +55,14 @@ def get_own_models(verify: bool = False, request: Request = ""):
 
     model_list = []
     file_path = str(Path(__file__).parent.parent.resolve())
+    file_path = os.path.join(file_path, "own_models")
+    if not os.path.exists(file_path):
+        return model_list
     # print(file_path)
-    for model in os.listdir(os.path.join(file_path, "own_models")):
+    for model in os.listdir(file_path):
         if model.startswith("__"):
             continue
-        doc_string = FileHandler.get_docstring(os.path.join(file_path, "own_models", model, model + ".py"))
+        doc_string = FileHandler.get_docstring(os.path.join(file_path, model, model + ".py"))
         if doc_string:
             doc_dict = FileHandler.doc_to_dict(doc_string)
             doc_dict["file"] = os.path.join(model)
