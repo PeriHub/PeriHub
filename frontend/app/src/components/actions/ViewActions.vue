@@ -435,7 +435,7 @@ export default defineComponent({
             this.$q.notify({
               message: response.message
             })
-            this.energyPercent = response.da.data;
+            this.energyPercent = response.data;
           })
           .catch((error) => {
             this.$q.notify({
