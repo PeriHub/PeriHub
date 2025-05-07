@@ -16,7 +16,7 @@ client = TestClient(app)
     "model_name",
     [
         "Dogbone",
-        # "CompactTension",
+        "CompactTension",
         # "DCBmodel",
         # "ENFmodel",
         # "Kalthoff-Winkler",
@@ -26,7 +26,7 @@ client = TestClient(app)
     ],
 )
 def test_generate_model(model_name):
-    assets_path = "./assets/models"
+    assets_path = "./models"
 
     with open(
         os.path.join(assets_path, model_name, model_name + ".json"),

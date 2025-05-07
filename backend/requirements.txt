@@ -15,7 +15,6 @@ python-dotenv
 asyncio
 rich
 exodusreader
-gcodereader
 random-username
 # pygalmesh
 python-magic

@@ -134,7 +134,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
     <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()"
-      :disable="!status.results || modelData.computes.length == 0">
+      :disable="!status.results || modelData.computes.length == 0 || !csvDefined()">
       <q-tooltip>
         Show Plot
       </q-tooltip>
@@ -347,6 +347,8 @@ export default defineComponent({
   },
   data() {
     return {
+      userName: 'user',
+
       resultsLoading: false,
       submitLoading: false,
       dialogEnergySavings: false,
@@ -667,7 +669,7 @@ export default defineComponent({
 
       this.viewStore.modelLoading = true;
 
-      const api = axios.create({ baseURL: 'http://localhost:8000', headers: { 'userName': 'dev', } });
+      const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.userName } });
 
       let params = {
         model_name: this.modelStore.selectedModel.file,
@@ -882,11 +884,22 @@ export default defineComponent({
 
       this.bus.emit('getStatus');
     },
+    csvDefined() {
+      for (var i = 0; i < this.modelData.outputs.length; i++) {
+        if (this.modelData.outputs[i].selectedFileType == 'CSV') {
+          return true
+        }
+      }
+      return false
+    },
     deleteCookies() {
       localStorage.removeItem('darkMode');
       localStorage.removeItem('modelData');
       localStorage.removeItem('panel');
     },
   },
+  mounted() {
+    this.userName = localStorage.getItem('userName')
+  }
 })
 </script>

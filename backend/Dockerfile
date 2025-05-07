@@ -11,7 +11,8 @@ ARG CLUSTER_URL
 ENV CLUSTER_URL $CLUSTER_URL
 
 RUN apt-get update --allow-insecure-repositories &&\
-    apt-get install libglu1-mesa libglib2.0-0 git build-essential libcgal-dev libeigen3-dev libmagic1 -y
+    apt-get install git libmagic1 -y
+#libeigen3-dev libglu1-mesa libcgal-dev libglib2.0-0 build-essential
 
 COPY requirements.txt requirements.txt
 

@@ -28,9 +28,7 @@ router = APIRouter(prefix="/results", tags=["Results Methods"])
     responses={
         200: {
             "description": "The image.",
-            "content": {
-                "image/png": {"schema": {"type": "string", "format": "binary"}}
-            },
+            "content": {"image/png": {"schema": {"type": "string", "format": "binary"}}},
         }
     },
 )
@@ -57,9 +55,7 @@ def get_fracture_analysis(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = FileHandler.get_local_model_folder_path(
-        username, model_name, model_folder_name
-    )
+    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     file_name, filepath = CrackAnalysis.write_nodemap(file, step)
@@ -100,9 +96,7 @@ def get_enf_analysis(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = FileHandler.get_local_model_folder_path(
-        username, model_name, model_folder_name
-    )
+    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step)
@@ -137,15 +131,11 @@ def get_plot(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = FileHandler.get_local_model_folder_path(
-        username, model_name, model_folder_name
-    )
+    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".csv")
 
     if not os.path.exists(file):
-        return ResponseModel(
-            data=False, message=model_name + "_" + output + ".csv can not be found"
-        )
+        return ResponseModel(data=False, message=model_name + "_" + output + ".csv can not be found")
 
     # x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
     # y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
@@ -201,9 +191,7 @@ def get_results(
     zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
 
     try:
-        shutil.make_archive(
-            zip_file, "zip", os.path.join(folder_path, model_folder_name)
-        )
+        shutil.make_archive(zip_file, "zip", os.path.join(folder_path, model_folder_name))
 
         response = FileResponse(
             zip_file + ".zip",
@@ -269,10 +257,7 @@ def get_cell_data(variable, points, point_data, cell_data, block_data, displ_fac
                 ]
             )
         else:
-            if (
-                block_id in cell_data[variable][0]
-                and max(cell_data[variable][0][block_id]) > 0
-            ):
+            if block_id in cell_data[variable][0] and max(cell_data[variable][0][block_id]) > 0:
                 cell_value = np.concatenate(
                     [
                         cell_value,
@@ -355,9 +340,7 @@ def get_data(
     ):
         raise IOError  # NotFoundException(name=model_name)
 
-    resultpath = FileHandler.get_local_model_folder_path(
-        username, model_name, model_folder_name
-    )
+    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     if not os.path.exists(file):
@@ -400,12 +383,7 @@ def get_data(
 
     variable_list = list(point_data.keys())
     variable_list = list(
-        set(
-            [
-                entry[:-1] if entry[-1].lower() in ["x", "y", "z"] else entry
-                for entry in variable_list
-            ]
-        )
+        set([entry[:-1] if entry[-1].lower() in ["x", "y", "z"] else entry for entry in variable_list])
     )
 
     np_points_all_z = None
@@ -470,19 +448,18 @@ def get_data(
         np_points_all_y = np_points_all_y[filter_value != 0]
         np_points_all_z = np_points_all_z[filter_value != 0]
 
+    if len(cell_value) == 0:
+        return ResponseModel(data=False, message="All nodes are filtered out. Remove filter or change time value.")
+
     min_cell_value = np.min(cell_value)
     max_cell_value = np.max(cell_value)
     if max_cell_value == min_cell_value:
         normalized_cell_value = np.zeros_like(cell_value)
     else:
-        normalized_cell_value = (cell_value - min_cell_value) / (
-            max_cell_value - min_cell_value
-        )
+        normalized_cell_value = (cell_value - min_cell_value) / (max_cell_value - min_cell_value)
     print(time)
     data = {
-        "nodes": np.ravel(
-            [np_points_all_x, np_points_all_y, np_points_all_z], order="F"
-        ).tolist(),
+        "nodes": np.ravel([np_points_all_x, np_points_all_y, np_points_all_z], order="F").tolist(),
         "value": normalized_cell_value.tolist(),
         "variables": variable_list,
         "number_of_steps": number_of_steps,
