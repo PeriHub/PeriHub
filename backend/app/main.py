@@ -82,6 +82,11 @@ if trial:
     log.info("--- Running in trial mode ---")
 
 
+@app.get("/health")
+async def healthcheck():
+    return {"status": True}
+
+
 async def log_reader(cluster, log_file, debug):
     log_lines = []
 
