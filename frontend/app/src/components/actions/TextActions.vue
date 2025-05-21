@@ -197,6 +197,18 @@ export default defineComponent({
               })
             }
           }
+          if (lastLine && lastLine.includes('[Error]') ) {
+            this.connection.close();
+            this.connection = null; // Reset the connection variable
+            this._getStatus();
+            this.bus.emit('getJobs')
+            if (this.store.status.submitted) {
+              this.$q.notify({
+                color: 'negative',
+                message: lastLine
+              })
+            }
+          }
           this.lastLine = lastLine
         }
       }
