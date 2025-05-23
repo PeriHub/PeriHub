@@ -95,6 +95,28 @@ class Geometry:
         return grid_x_value, grid_y_value, grid_z_value
 
     @staticmethod
+    def create_sphere(coor, dx_value, radius):
+
+        # Create the 3D grid
+        gridx, gridy, gridz = np.meshgrid(
+            np.arange(coor[0] - radius / 2, coor[0] + radius / 2, dx_value[0]),
+            np.arange(coor[1] - radius / 2, coor[1] + radius / 2, dx_value[1]),
+            np.arange(coor[2] - radius / 2, coor[2] + radius / 2, dx_value[2]),
+        )
+
+        # Compute distance from the center
+        distance = np.sqrt((gridx - coor[0]) ** 2 + (gridy - coor[1]) ** 2 + (gridz - coor[2]) ** 2)
+
+        # Filter points inside the sphere
+        mask = distance <= radius
+
+        # Extract the coordinates of points inside the sphere
+        grid_x_value = gridx[mask]
+        grid_y_value = gridy[mask]
+        grid_z_value = gridz[mask]
+        return grid_x_value, grid_y_value, grid_z_value
+
+    @staticmethod
     def check_val_in_rectangle(array_x, array_y, array_z, origin_x, origin_y, height, length, in_rectangle):
         """doc"""
         if in_rectangle:
