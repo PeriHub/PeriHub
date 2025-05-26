@@ -471,26 +471,20 @@ class YAMLcreatorPeriLab:
 
     def contact(self):
         data = {}
-        data["Search Radius"] = self.contact_dict.searchRadius
-        data["Search Frequency"] = self.contact_dict.searchFrequency
 
-        for models in self.contact_dict.contactModels:
+        for con in self.contact_dict.contactGroups:
+            contact = {}
+            contact["Master Block ID"] = con.masterBlockId
+            contact["Slave Block ID"] = con.slaveBlockId
+            contact["Search Radius"] = con.searchRadius
             model = {}
-            model["Contact Model"] = models.contactType
-            model["Contact Radius"] = models.contactRadius
-            model["Spring Constant"] = models.springConstant
 
-            data[models.name] = model
-        interactions = {}
-        for interaction in self.contact_dict.interactions:
-            inter = {}
-            inter["First Block"] = self.block_def[interaction.firstBlockId - 1].name
-            inter["Second Block"] = self.block_def[interaction.secondBlockId - 1].name
-            inter["Contact Model"] = self.contact_dict.contactModels[interaction.contactModelId - 1].name
+            model["Type"] = con.contactModel.contactType
+            model["Contact Radius"] = con.contactModel.contactRadius
+            model["Contact Stiffness"] = con.contactModel.contactStiffness
 
-            interactions["Interaction " + str(interaction.firstBlockId) + "_" + str(interaction.secondBlockId)] = inter
-        data["Interactions"] = interactions
-
+            contact["Contact Model"] = model
+            data[con.name] = contact
         return data
 
     def compute(self):
@@ -585,7 +579,7 @@ class YAMLcreatorPeriLab:
         if self.check_if_defined(self.boundary_condition.conditions) and len(self.boundary_condition.conditions) > 0:
             data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions(multistep)
         if self.check_if_defined(self.contact_dict):
-            if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
+            if self.contact_dict.enabled and len(self.contact_dict.contactGroups) > 0:
                 data["PeriLab"]["Contact"] = self.contact()
         if self.check_if_defined(self.compute_dict):
             if len(self.compute_dict) > 0:

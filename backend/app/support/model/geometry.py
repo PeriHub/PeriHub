@@ -99,9 +99,9 @@ class Geometry:
 
         # Create the 3D grid
         gridx, gridy, gridz = np.meshgrid(
-            np.arange(coor[0] - radius / 2, coor[0] + radius / 2, dx_value[0]),
-            np.arange(coor[1] - radius / 2, coor[1] + radius / 2, dx_value[1]),
-            np.arange(coor[2] - radius / 2, coor[2] + radius / 2, dx_value[2]),
+            np.arange(coor[0] - radius, coor[0] + radius + dx_value[0], dx_value[0]),
+            np.arange(coor[1] - radius, coor[1] + radius + dx_value[1], dx_value[1]),
+            np.arange(coor[2] - radius, coor[2] + radius + dx_value[2], dx_value[2]),
         )
 
         # Compute distance from the center

@@ -28,22 +28,22 @@ SPDX-License-Identifier: Apache-2.0
       <q-expansion-item v-model="panel[6]" expand-separator icon="fas fa-th" label="Blocks">
         <BlocksSettings></BlocksSettings>
       </q-expansion-item>
-      <!-- <q-expansion-item v-model="panel[5]" expand-separator icon="fas fa-boxes-stacked" label="Contact">
-                <ContactSettings></ContactSettings>
-            </q-expansion-item> -->
-      <q-expansion-item v-model="panel[7]" expand-separator icon="fas fa-project-diagram" label="Boundary Conditions">
+      <q-expansion-item v-model="panel[7]" expand-separator icon="fas fa-boxes-stacked" label="Contact">
+        <ContactSettings></ContactSettings>
+      </q-expansion-item>
+      <q-expansion-item v-model="panel[8]" expand-separator icon="fas fa-project-diagram" label="Boundary Conditions">
         <BoundaryConditionsSettings></BoundaryConditionsSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[8]" expand-separator icon="fas fa-filter" label="Bond Filters">
+      <q-expansion-item v-model="panel[9]" expand-separator icon="fas fa-filter" label="Bond Filters">
         <BondFilterSettings></BondFilterSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[9]" expand-separator icon="fas fa-sign-out-alt" label="Output">
+      <q-expansion-item v-model="panel[10]" expand-separator icon="fas fa-sign-out-alt" label="Output">
         <OutputSettings></OutputSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[10]" expand-separator icon="fas fa-calculator" label="Solver">
+      <q-expansion-item v-model="panel[11]" expand-separator icon="fas fa-calculator" label="Solver">
         <SolverSettings></SolverSettings>
       </q-expansion-item>
-      <q-expansion-item v-if="this.clusterUrl != ''" v-model="panel[11]" expand-separator icon="fas fa-flask"
+      <q-expansion-item v-if="this.clusterUrl != ''" v-model="panel[12]" expand-separator icon="fas fa-flask"
         label="Job">
         <JobSettings></JobSettings>
       </q-expansion-item>
@@ -60,7 +60,7 @@ import ThermalSettings from 'components/expansions/Thermal.vue'
 import AdditiveSettings from 'components/expansions/Additive.vue'
 import DamageSettings from 'components/expansions/Damage.vue'
 import BlocksSettings from 'components/expansions/Blocks.vue'
-// import ContactSettings from 'components/expansions/Contact.vue'
+import ContactSettings from 'components/expansions/Contact.vue'
 import BoundaryConditionsSettings from 'components/expansions/BoundaryConditions.vue'
 import BondFilterSettings from 'components/expansions/BondFilters.vue'
 import OutputSettings from 'components/expansions/Output.vue'
@@ -77,7 +77,7 @@ export default defineComponent({
     AdditiveSettings,
     DamageSettings,
     BlocksSettings,
-    // ContactSettings,
+    ContactSettings,
     BoundaryConditionsSettings,
     BondFilterSettings,
     OutputSettings,
@@ -113,9 +113,9 @@ export default defineComponent({
   methods: {
     openHidePanels() {
       if (this.panel.includes(true)) {
-        this.panel = [false, false, false, false, false, false, false, false, false, false];
+        this.panel = [false, false, false, false, false, false, false, false, false, false, false, false];
       } else {
-        this.panel = [true, true, true, true, true, true, true, true, true, true];
+        this.panel = [true, true, true, true, true, true, true, true, true, true, true, true];
       }
     },
     getCurrentData() {

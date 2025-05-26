@@ -8,39 +8,45 @@ SPDX-License-Identifier: Apache-2.0
   <div>
     <q-toggle class="my-toggle" v-model="contact.enabled" label="Enabled" standout dense></q-toggle>
     <div v-if="contact.enabled">
-      <div class="row my-row">
+      <!-- <div class="row my-row">
         <q-input class="my-input" v-model="contact.searchRadius" :rules="[rules.required, rules.float]"
           label="Search Radius" standout dense></q-input>
         <q-input class="my-input" v-model="contact.searchFrequency" :rules="[rules.required, rules.int]"
           label="Search Frequency" standout dense></q-input>
       </div>
-      <q-separator></q-separator>
-      <q-list v-for="contactModel, index in contact.contactModels" :key="contactModel.contactModelId"
+      <q-separator></q-separator> -->
+      <q-list v-for="contactGroup, index in contact.contactGroups" :key="contactGroup.contactGroupId"
         style="padding: 0px">
         <div class="row my-row">
-          <q-input class="my-input" v-model="contactModel.name" :rules="[rules.required, rules.name]" label="Name"
+          <q-input class="my-input" v-model="contactGroup.name" :rules="[rules.required, rules.name]" label="Name"
             standout dense></q-input>
-          <q-select class="my-input" :options="contactType" v-model="contactModel.contactType" label="Type" standout
-            dense></q-select>
-          <q-input class="my-input" v-model="contactModel.contactRadius" :rules="[rules.required, rules.float]"
-            label="Contact Radius" standout dense></q-input>
-          <q-input class="my-input" v-model="contactModel.springConstant" :rules="[rules.required, rules.float]"
-            label="Spring Constant" standout dense></q-input>
-          <q-btn flat icon="fas fa-trash-alt" @click="removeContactModel(index)">
+          <q-select class="my-input" :options="blocks" option-label="blocksId" option-value="blocksId" emit-value
+            v-model="contactGroup.masterBlockId" label="Master Block Id" standout dense></q-select>
+          <q-select class="my-input" :options="blocks" option-label="blocksId" option-value="blocksId" emit-value
+            v-model="contactGroup.slaveBlockId" label="Slave Block Id" standout dense></q-select>
+          <q-input class="my-input" v-model="contactGroup.searchRadius" :rules="[rules.required, rules.float]"
+            label="Search Radius" standout dense></q-input>
+          <q-select class="my-input" :options="contactType" v-model="contactGroup.contactModel.contactType" label="Type"
+            standout dense></q-select>
+          <q-input class="my-input" v-model="contactGroup.contactModel.contactRadius"
+            :rules="[rules.required, rules.float]" label="Contact Radius" standout dense></q-input>
+          <q-input class="my-input" v-model="contactGroup.contactModel.contactStiffness"
+            :rules="[rules.required, rules.float]" label="Contact Stiffness" standout dense></q-input>
+          <q-btn flat icon="fas fa-trash-alt" @click="removeContactGroup(index)">
             <q-tooltip>
-              Remove Contact Model
+              Remove Contact Group
             </q-tooltip>
           </q-btn>
         </div>
         <q-separator></q-separator>
       </q-list>
 
-      <q-btn flat icon="fas fa-plus" @click="addContactModel">
+      <q-btn flat icon="fas fa-plus" @click="addContactGroup">
         <q-tooltip>
-          Add Contact Model
+          Add Contact Group
         </q-tooltip>
       </q-btn>
-      <q-separator></q-separator>
+      <!-- <q-separator></q-separator>
       <q-list v-for="interaction, index in contact.interactions" :key="interaction.contactInteractionsId"
         style="padding: 0px">
         <div class="row my-row">
@@ -64,7 +70,7 @@ SPDX-License-Identifier: Apache-2.0
         <q-tooltip>
           Add Interaction
         </q-tooltip>
-      </q-btn>
+      </q-btn> -->
     </div>
   </div>
 </template>
@@ -90,11 +96,9 @@ export default defineComponent({
       bus
     }
   },
-  created() {
-  },
   data() {
     return {
-      contactType: ['Short Range Force'],
+      contactType: ['Penalty Contact'],
       // contactKeys: {
       //     name: 'Block Names',
       //     material: 'Material',
@@ -104,25 +108,31 @@ export default defineComponent({
     };
   },
   methods: {
-    addContactModel() {
-      const len = this.contact.contactModels.length;
-      let newItem = structuredClone(this.contact.contactModels[len - 1])
-      newItem.contactModelsId = len + 1
-      newItem.name = 'Contact Model ' + (len + 1)
-      this.contact.contactModels.push(newItem);
+    addContactGroup() {
+      if (!this.contact.contactGroups) {
+        this.contact.contactGroups = []
+      }
+      const len = this.contact.contactGroups.length;
+      let newItem = {}
+      if (len != 0) {
+        newItem = structuredClone(this.contact.contactGroups[len - 1])
+      }
+      newItem.contactGroupId = len + 1
+      newItem.name = 'Contact Group ' + (len + 1)
+      this.contact.contactGroups.push(newItem);
     },
-    removeContactModel(index) {
-      this.contact.contactModels.splice(index, 1);
+    removeContactGroup(index) {
+      this.contact.contactGroups.splice(index, 1);
     },
-    addInteraction() {
-      const len = this.contact.interactions.length;
-      let newItem = structuredClone(this.contact.interactions[len - 1])
-      newItem.contactInteractionsId = len + 1
-      this.contact.interactions.push(newItem);
-    },
-    removeInteraction(index) {
-      this.contact.interactions.splice(index, 1);
-    },
+    // addInteraction() {
+    //   const len = this.contact.interactions.length;
+    //   let newItem = structuredClone(this.contact.interactions[len - 1])
+    //   newItem.contactInteractionsId = len + 1
+    //   this.contact.interactions.push(newItem);
+    // },
+    // removeInteraction(index) {
+    //   this.contact.interactions.splice(index, 1);
+    // },
   }
 })
 </script>

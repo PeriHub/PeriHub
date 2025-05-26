@@ -119,6 +119,26 @@ class Material(BaseModel):
     useCollocationNodes: Optional[bool] = None
 
 
+class contactModel(BaseModel):
+    contactType: str
+    contactRadius: float
+    contactStiffness: float
+
+
+class contactGroup(BaseModel):
+    contactGroupId: Optional[int] = None
+    name: str
+    masterBlockId: int
+    slaveBlockId: int
+    searchRadius: float
+    contactModel: contactModel
+
+
+class Contact(BaseModel):
+    enabled: bool
+    contactGroups: Optional[List[contactGroup]] = None
+
+
 class ThermalModel(BaseModel):
     thermalModelsId: Optional[int] = None
     name: str
@@ -203,29 +223,6 @@ class Block(BaseModel):
     density: Optional[float] = None
     specificHeatCapacity: Optional[float] = None
     show: Optional[bool] = None
-
-
-class ContactModel(BaseModel):
-    id: Optional[int] = None
-    name: str
-    contactType: str
-    contactRadius: float
-    springConstant: float
-
-
-class Interaction(BaseModel):
-    id: Optional[int] = None
-    firstBlockId: int
-    secondBlockId: int
-    contactModelId: int
-
-
-class Contact(BaseModel):
-    enabled: bool
-    searchRadius: Optional[float] = None
-    searchFrequency: Optional[int] = None
-    contactModels: Optional[List[ContactModel]] = None
-    interactions: Optional[List[Interaction]] = None
 
 
 class BlockFunction(BaseModel):

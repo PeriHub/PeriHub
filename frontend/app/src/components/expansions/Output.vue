@@ -151,7 +151,8 @@ export default defineComponent({
         'Cauchy Stress',
         'von Mises Stress',
         'Angles',
-        'Orientations'
+        'Orientations',
+        'Contact Nodes'
       ],
       // outputKeys: [
       //   'Element_Id',

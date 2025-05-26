@@ -268,23 +268,18 @@ export const useModelStore = defineStore('model', {
       bondFilters: [],
       contact: {
         enabled: false,
-        searchRadius: 0.01,
-        searchFrequency: 100,
-        contactModels: [
+        contactGroups: [
           {
-            contactModelsId: 1,
-            name: 'Contact Model',
-            contactType: 'Short Range Force',
-            contactRadius: 0.000775,
-            springConstant: 1000000000000.0,
-          },
-        ],
-        interactions: [
-          {
-            contactInteractionsId: 1,
-            firstBlockId: 1,
-            secondBlockId: 2,
-            contactModelId: 1,
+            contactGroupId: 1,
+            name: 'Contact Group',
+            masterBlockId: 1,
+            slaveBlockId: 2,
+            searchRadius: 0.01,
+            contactModel: {
+              contactType: 'Penalty Contact',
+              contactRadius: 0.000775,
+              contactStiffness: 1000000000000.0,
+            },
           },
         ],
       },
