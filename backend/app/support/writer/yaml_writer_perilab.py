@@ -472,18 +472,20 @@ class YAMLcreatorPeriLab:
     def contact(self):
         data = {}
 
-        for con in self.contact_dict.contactGroups:
+        for con in self.contact_dict.contactModels:
             contact = {}
-            contact["Master Block ID"] = con.masterBlockId
-            contact["Slave Block ID"] = con.slaveBlockId
-            contact["Search Radius"] = con.searchRadius
-            model = {}
+            contact["Type"] = con.contactType
+            contact["Contact Radius"] = con.contactRadius
+            contact["Contact Stiffness"] = con.contactStiffness
+            groups = {}
+            for group in con.contactGroups:
+                group_dict = {}
+                group_dict["Master Block ID"] = group.masterBlockId
+                group_dict["Slave Block ID"] = group.slaveBlockId
+                group_dict["Search Radius"] = group.searchRadius
+                groups[group.name] = group_dict
 
-            model["Type"] = con.contactModel.contactType
-            model["Contact Radius"] = con.contactModel.contactRadius
-            model["Contact Stiffness"] = con.contactModel.contactStiffness
-
-            contact["Contact Model"] = model
+            contact["Contact Groups"] = groups
             data[con.name] = contact
         return data
 
@@ -579,7 +581,7 @@ class YAMLcreatorPeriLab:
         if self.check_if_defined(self.boundary_condition.conditions) and len(self.boundary_condition.conditions) > 0:
             data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions(multistep)
         if self.check_if_defined(self.contact_dict):
-            if self.contact_dict.enabled and len(self.contact_dict.contactGroups) > 0:
+            if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
                 data["PeriLab"]["Contact"] = self.contact()
         if self.check_if_defined(self.compute_dict):
             if len(self.compute_dict) > 0:
