@@ -163,6 +163,7 @@ export default defineComponent({
         await sleep(500)
         this.bus.emit('viewPointData');
       }
+      this.bus.emit('getStatus')
       this.viewStore.modelLoading = false;
     },
     // onNodesetsPicked(event) {

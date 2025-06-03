@@ -65,7 +65,7 @@ export default defineComponent({
       this._getStatus()
     })
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.bus.off('enableWebsocket')
     this.bus.off('viewInputFile')
     this.bus.off('getStatus')
@@ -122,6 +122,7 @@ export default defineComponent({
       const response = await getStatus({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
+        meshfile: this.modelData.model.meshFile,
         ownModel: this.modelData.model.ownModel,
         cluster: this.modelData.job.cluster,
         sbatch: this.modelData.job.sbatch
@@ -197,7 +198,7 @@ export default defineComponent({
               })
             }
           }
-          if (lastLine && lastLine.includes('[Error]') ) {
+          if (lastLine && lastLine.includes('[Error]')) {
             this.connection.close();
             this.connection = null; // Reset the connection variable
             this._getStatus();

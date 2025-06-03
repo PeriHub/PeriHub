@@ -26,6 +26,7 @@ class Status(BaseModel):
     created: Optional[bool] = False
     submitted: Optional[bool] = False
     results: Optional[bool] = False
+    meshfileExist: Optional[bool] = False
 
 
 class Model(BaseModel):

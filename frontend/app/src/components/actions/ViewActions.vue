@@ -7,9 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div class="row">
     <q-btn flat icon="fas fa-play" @click="checkEnergy" :loading="submitLoading"
-      :disable="submitLoading || !status.created" v-if="!status.submitted">
+      :disable="submitLoading || !status.created || !status.meshfileExist" v-if="!status.submitted">
       <q-tooltip>
-        Submit Model
+        <div v-if="!status.created"> Model not created yet</div>
+        <div v-if="!status.meshfileExist"> Meshfile not created or uploaded yet</div>
+        <div v-if="status.submitted">Model is submitted</div>
+        <div v-if="!submitLoading && status.created && status.meshfileExist">Submit Model</div>
       </q-tooltip>
     </q-btn>
     <q-dialog v-model="dialogEnergySavings" persistent max-width="800">

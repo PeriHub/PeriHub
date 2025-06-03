@@ -13,6 +13,7 @@ export const useDefaultStore = defineStore('default', {
       created: false,
       submitted: false,
       results: false,
+      meshfileExist: false,
     },
   }),
   actions: {
