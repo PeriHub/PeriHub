@@ -54,11 +54,11 @@ SPDX-License-Identifier: Apache-2.0
 
         <q-card-section class="q-pt-none">
           Do you want to retrieve all modelfiles, including the
-          inputfiles and logdata or only the exodus results?
+          inputfiles and logdata or only the exodus result?
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="All data" color="primary" v-close-popup @click="saveResults(true)"></q-btn>
-          <q-btn flat label="Only the results" color="primary" v-close-popup @click="saveResults(false)"></q-btn>
+          <q-btn flat label="Only the result" color="primary" v-close-popup @click="saveResults(false)"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -316,7 +316,8 @@ import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
 import { useQuasar } from 'quasar'
-import axios, { AxiosInstance } from 'axios';
+import { exportFile } from 'quasar'
+import { api } from 'boot/axios';
 import { getCurrentEnergy, runModel, cancelJob, getResults, getPlot, getFractureAnalysis, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
@@ -542,21 +543,39 @@ export default defineComponent({
     },
     async saveResults(allData) {
       this.resultsLoading = true;
-      await getResults({
-        modelName: this.modelStore.selectedModel.file,
-        modelFolderName: this.modelData.model.modelFolderName,
+
+      let params = {
+        model_name: this.modelStore.selectedModel.file,
+        model_folder_name: this.modelData.model.modelFolderName,
         output: this.getPlotOutput,
         tasks: this.modelData.job.tasks,
         cluster: this.modelData.job.cluster,
-        allData: allData
-      })
+        all_data: allData
+      }
+      // await getResults(
+      //   {
+      //     modelName: this.modelStore.selectedModel.file,
+      //     modelFolderName: this.modelData.model.modelFolderName,
+      //     output: this.getPlotOutput,
+      //     tasks: this.modelData.job.tasks,
+      //     cluster: this.modelData.job.cluster,
+      //     allData: allData
+      //   }
+      // )
+      await api.get('/results/getResults', { params, responseType: 'blob' })
         .then((response) => {
-          var fileURL = window.URL.createObjectURL(new Blob([response]));
-          var fileLink = document.createElement('a');
-          fileLink.href = fileURL;
-          fileLink.setAttribute('download', this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip');
-          document.body.appendChild(fileLink);
-          fileLink.click();
+          let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '_' + this.modelData.outputs[0].name + '.e'
+          if (allData) {
+            filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
+          }
+          const status = exportFile(filename, response.data)
+          if (status) {
+            // browser allowed it
+            console.log('ok')
+          } else {
+            // browser denied it
+            console.log('Error: ' + status)
+          }
         })
         .catch(() => {
           this.$q.notify({
@@ -672,14 +691,13 @@ export default defineComponent({
 
       this.viewStore.modelLoading = true;
 
-      const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.userName } });
+      // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.userName } });
 
       let params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
-        length: this.modelData.model.length,
         height: this.modelData.model.height,
-        crack_length: this.modelData.model.cracklength,
+        crack_length: this.modelData.bondFilters[0].lowerLeftCornerX + this.modelData.bondFilters[0].bottomLength,
         young_modulus: this.modelData.materials[0].youngsModulus,
         poissions_ratio: this.modelData.materials[0].poissonsRatio,
         yield_stress: this.modelData.materials[0].yieldStress,

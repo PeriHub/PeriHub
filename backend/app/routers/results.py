@@ -35,7 +35,6 @@ router = APIRouter(prefix="/results", tags=["Results Methods"])
 def get_fracture_analysis(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
-    length: float = 35,
     height: float = 10,
     crack_length: float = 17.5,
     young_modulus: float = 5000,
@@ -62,7 +61,6 @@ def get_fracture_analysis(
 
     filepath = CrackAnalysis.fracture_analysis(
         model_name,
-        length,
         height,
         crack_length,
         young_modulus,
@@ -190,7 +188,14 @@ def get_results(
     folder_path = os.path.join(userpath, model_name)
     zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
 
+    # check if folder contains only one .e file
+    if not all_data:
+        for file in os.listdir(os.path.join(folder_path, model_folder_name)):
+            if file.endswith(".e"):
+                return FileResponse(os.path.join(folder_path, model_folder_name, file))
+
     try:
+        print(zip_file)
         shutil.make_archive(zip_file, "zip", os.path.join(folder_path, model_folder_name))
 
         response = FileResponse(
