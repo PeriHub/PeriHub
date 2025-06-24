@@ -263,7 +263,7 @@ export default {
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
-        output: this.modelParams.output,
+        output: this.modelData.outputs[0].name,
         tasks: this.modelData.job.tasks,
         axis: this.modelParams.axis,
         step: this.modelParams.step,
