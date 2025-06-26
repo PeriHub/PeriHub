@@ -121,7 +121,6 @@ class CrackAnalysis:
     @staticmethod
     def fracture_analysis(
         model_name,
-        length,
         height,
         crack_length,
         young_modulus,
@@ -142,29 +141,29 @@ class CrackAnalysis:
         if model_name in ["CompactTension"]:
             int_props = IntegralProperties(
                 number_of_paths=10,
-                number_of_nodes=200,
+                number_of_nodes=100,
                 bottom_offset=-0,  # should not be zero for dic results
                 top_offset=0,  # should not be zero for dic results
-                integral_size_left=-8,
-                integral_size_right=8,
-                integral_size_top=8,
-                integral_size_bottom=-8,
-                paths_distance_top=0.2,
-                paths_distance_left=0.2,
-                paths_distance_right=0.2,
-                paths_distance_bottom=0.2,
+                integral_size_left=-5,
+                integral_size_right=5,
+                integral_size_top=5,
+                integral_size_bottom=-5,
+                paths_distance_top=0.5,
+                paths_distance_left=0.5,
+                paths_distance_right=0.5,
+                paths_distance_bottom=0.5,
                 mask_tolerance=2,
                 buckner_williams_terms=[-1, 1, 2, 3, 4, 5],
             )
-            crack_end = crack_length + 0.25 * length
+            crack_end = crack_length
             ct = CrackTipInfo(crack_end, 0, 0, "r")
 
             # optimization
             opt_props = OptimizationProperties(
-                angle_gap=0,
+                angle_gap=20,
                 min_radius=5,
                 max_radius=10,
-                tick_size=0.04,
+                tick_size=0.01,
                 terms=[-1, 0, 1, 2, 3, 4, 5],
             )
 
@@ -264,7 +263,7 @@ class CrackAnalysis:
         writer.write_header()
         writer.write_results()
 
-        return os.path.join(nodemap_folder, "plots", "nodemap_right.png")
+        return os.path.join(nodemap_folder, "plots", "nodemap_r.png")
 
     @staticmethod
     def get_g2c(file: str, model: Model, length: float, width: float, crack_length: float, step: int = -1):
