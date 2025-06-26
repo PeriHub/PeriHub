@@ -35,7 +35,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-model="conversion.energy" label="Energy [J]" clearable standout dense></q-input>
           <q-input class="my-input" v-model="conversion.energyReleaseRate" label="Energy release rate [N/m]" clearable
             standout dense></q-input>
-          <q-input class="my-input" v-model="conversion.fractureToughness" label="FractureToughness [MPa · m^1/2]"
+          <q-input class="my-input" v-model="conversion.fractureToughness" label="FractureToughness [Pa · m^1/2]"
             clearable standout dense></q-input>
         </div>
         <div class="col">
@@ -207,7 +207,7 @@ export default defineComponent({
         this.conversionResults.energyReleaseRate = energyReleaseRate / 1000;
       }
       if (fractureToughness != null) {
-        this.conversionResults.fractureToughness = Math.sqrt(fractureToughness ** 2 * 1000);
+        this.conversionResults.fractureToughness = Math.sqrt(fractureToughness ** 2 / 1e9);
       }
     },
     copyText(id) {
