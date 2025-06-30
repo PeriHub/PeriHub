@@ -8,13 +8,13 @@ SPDX-License-Identifier: Apache-2.0
   <div>
     <q-toggle class="my-toggle" v-model="contact.enabled" label="Enabled" standout dense></q-toggle>
     <div v-if="contact.enabled">
-      <!-- <div class="row my-row">
-        <q-input class="my-input" v-model="contact.searchRadius" :rules="[rules.required, rules.float]"
-          label="Search Radius" standout dense></q-input>
+      <div class="row my-row">
         <q-input class="my-input" v-model="contact.searchFrequency" :rules="[rules.required, rules.int]"
           label="Search Frequency" standout dense></q-input>
+        <q-toggle class="my-toggle" v-model="contact.onlySurfaceContactNodes" label="Only Surface Contact Nodes"
+          standout dense></q-toggle>
       </div>
-      <q-separator></q-separator> -->
+      <q-separator></q-separator>
       <q-list v-for="contactModel, index in contact.contactModels" :key="contactModel.contactModelId"
         style="padding: 0px">
         <div class="row my-row">

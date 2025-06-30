@@ -471,7 +471,9 @@ class YAMLcreatorPeriLab:
 
     def contact(self):
         data = {}
-
+        data["Globals"] = {}
+        data["Globals"]["Only Surface Contact Nodes"] = self.contact_dict.onlySurfaceContactNodes
+        data["Globals"]["Global Search Frequency"] = self.contact_dict.searchFrequency
         for con in self.contact_dict.contactModels:
             contact = {}
             contact["Type"] = con.contactType

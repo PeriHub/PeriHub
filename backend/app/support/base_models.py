@@ -120,7 +120,7 @@ class Material(BaseModel):
     useCollocationNodes: Optional[bool] = None
 
 
-class contactGroup(BaseModel):
+class ContactGroup(BaseModel):
     contactGroupId: Optional[int] = None
     name: str
     masterBlockId: int
@@ -128,18 +128,20 @@ class contactGroup(BaseModel):
     searchRadius: float
 
 
-class contactModel(BaseModel):
+class ContactModel(BaseModel):
     contactModelId: Optional[int] = None
     name: str
     contactType: str
     contactRadius: float
     contactStiffness: float
-    contactGroups: List[contactGroup]
+    contactGroups: List[ContactGroup]
 
 
 class Contact(BaseModel):
     enabled: bool
-    contactModels: Optional[List[contactModel]] = None
+    contactModels: Optional[List[ContactModel]] = None
+    searchFrequency: Optional[int] = None
+    onlySurfaceContactNodes: Optional[bool] = None
 
 
 class ThermalModel(BaseModel):
