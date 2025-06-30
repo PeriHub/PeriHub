@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
           <div class="row my-row">
             <q-input class="my-input" v-model="thermalModel.name" :rules="[rules.required, rules.name]"
               :label="thermalKeys.name" standout dense></q-input>
-            <q-btn flat icon="fas fa-trash-alt" @click="removethermalModel(index)">
+            <q-btn flat icon="fas fa-trash-alt" @click="removeThermalModel(index)">
               <q-tooltip>
                 Remove Thermal Model
               </q-tooltip>
@@ -139,8 +139,14 @@ export default defineComponent({
       })
     },
     addThermalModel() {
+      if (!this.thermal.thermalModels) {
+        this.thermal.thermalModels = []
+      }
       const len = this.thermal.thermalModels.length;
-      let newItem = structuredClone(this.thermal.thermalModels[len - 1])
+      let newItem = {}
+      if (len != 0) {
+        newItem = structuredClone(this.thermal.thermalModels[len - 1])
+      }
       newItem.thermalModelsId = len + 1
       newItem.name = 'Thermal Model ' + (len + 1)
       this.thermal.thermalModels.push(newItem);

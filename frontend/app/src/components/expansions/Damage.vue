@@ -184,8 +184,20 @@ export default defineComponent({
   },
   methods: {
     addDamage() {
+      if (!this.damages) {
+        this.damages = []
+      }
       const len = this.damages.length;
-      let newItem = structuredClone(this.damages[len - 1])
+      let newItem = {}
+      if (len != 0) {
+        newItem = structuredClone(this.damages[len - 1])
+      } else {
+        newItem = {
+          'damagesId': 1,
+          'name': 'Damage 1',
+          'criticalEnergyCalc': {},
+        }
+      }
       newItem.damagesId = len + 1
       newItem.name = 'Damage' + (len + 1)
       this.damages.push(newItem);

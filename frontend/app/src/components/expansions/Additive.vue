@@ -66,8 +66,14 @@ export default defineComponent({
   },
   methods: {
     addAdditiveModel() {
+      if (!this.additive.additiveModel) {
+        this.additive.additiveModel = []
+      }
       const len = this.additive.additiveModels.length;
-      let newItem = structuredClone(this.additive.additiveModels[len - 1])
+      let newItem = {}
+      if (len != 0) {
+        newItem = structuredClone(this.additive.additiveModels[len - 1])
+      }
       newItem.additiveModelsId = len + 1
       newItem.name = 'Additive Model ' + (len + 1)
       this.additive.additiveModels.push(newItem);

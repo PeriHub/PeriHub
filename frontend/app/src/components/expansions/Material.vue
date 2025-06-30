@@ -452,8 +452,20 @@ export default defineComponent({
       // let filtered_string = input_string.search(/\*User([\D\S]*?)\*/i);
     },
     addMaterial() {
+      if (!this.materials) {
+        this.materials = []
+      }
       const len = this.materials.length;
-      let newItem = structuredClone(this.materials[len - 1])
+      let newItem = {}
+      if (len != 0) {
+        newItem = structuredClone(this.materials[len - 1])
+      } else {
+        newItem = {
+          'materialsId': 1,
+          'name': 'Material 1',
+          'matType': ['PD Solid Elastic'],
+        }
+      }
       newItem.materialsId = len + 1
       newItem.name = 'Material' + (len + 1)
       this.materials.push(newItem);

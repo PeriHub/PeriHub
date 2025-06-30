@@ -109,8 +109,14 @@ export default defineComponent({
   },
   methods: {
     addCondition() {
+      if (!this.boundaryConditions.conditions) {
+        this.boundaryConditions.conditions = []
+      }
       const len = this.boundaryConditions.conditions.length;
-      let newItem = structuredClone(this.boundaryConditions.conditions[len - 1])
+      let newItem = {}
+      if (len != 0) {
+        newItem = structuredClone(this.boundaryConditions.conditions[len - 1])
+      }
       newItem.boundaryConditionsId = len + 1
       newItem.name = 'BC_' + (len + 1)
       newItem.blockId = len + 1
