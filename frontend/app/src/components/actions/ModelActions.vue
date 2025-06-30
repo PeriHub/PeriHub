@@ -332,26 +332,37 @@ export default defineComponent({
           this.bus.emit('getStatus')
         })
         .catch((error) => {
+          error = JSON.parse(JSON.stringify(error))
           console.log(error)
-          let message = '';
-          if (error.response != undefined && error.response.status == 422) {
-            for (let i in error.response.detail) {
-              message += error.response.detail[i].loc[1] + ' ';
-              message += error.response.detail[i].loc[2] + ', ';
-              message += error.response.detail[i].loc[3] + ', ';
-              message += error.response.detail[i].msg + '\n';
+          // console.log(error.response)
+          // console.log(error.response.status)
+          if (error != undefined && error.status == 422) {
+            for (let i in error.body.detail) {
+              let message = '';
+              message += error.body.detail[i].msg + ' ';
+              for (let j in error.body.detail[i].loc) {
+                message += error.body.detail[i].loc[j] + ', ';
+              }
+              this.$q.notify({
+                color: 'negative',
+                position: 'bottom-right',
+                message: message,
+                icon: 'report_problem',
+                timeout: 0,
+                actions: [{ icon: 'close', color: 'white' }]
+              })
             }
-            message = message.slice(0, -2);
           }
           else {
-            message = error.message
+            this.$q.notify({
+              color: 'negative',
+              position: 'bottom-right',
+              message: error.message,
+              icon: 'report_problem',
+              timeout: 0,
+              actions: [{ icon: 'close', color: 'white' }]
+            })
           }
-          this.$q.notify({
-            color: 'negative',
-            position: 'bottom-right',
-            message: message,
-            icon: 'report_problem'
-          })
         })
 
       this.viewStore.modelLoading = false;
