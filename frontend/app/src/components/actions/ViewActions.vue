@@ -552,6 +552,9 @@ export default defineComponent({
         cluster: this.modelData.job.cluster,
         all_data: allData
       }
+      const headers = {
+        'userName': this.userName
+      }
       // await getResults(
       //   {
       //     modelName: this.modelStore.selectedModel.file,
@@ -562,7 +565,7 @@ export default defineComponent({
       //     allData: allData
       //   }
       // )
-      await api.get('/results/getResults', { params, responseType: 'blob' })
+      await api.get('/results/getResults', { params, responseType: 'blob', headers },)
         .then((response) => {
           let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '_' + this.modelData.outputs[0].name + '.e'
           if (allData) {

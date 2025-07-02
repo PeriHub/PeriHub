@@ -184,19 +184,18 @@ def get_results(
         )
 
     # resultpath = './simulations/' + os.path.join(username, model_name)
-    userpath = "./simulations/" + username
-    folder_path = os.path.join(userpath, model_name)
-    zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
+    resultpath = FileHandler.get_local_model_path(username, model_name)
+    zip_file = os.path.join(resultpath, model_name + "_" + model_folder_name)
 
     # check if folder contains only one .e file
     if not all_data:
-        for file in os.listdir(os.path.join(folder_path, model_folder_name)):
+        for file in os.listdir(os.path.join(resultpath, model_folder_name)):
             if file.endswith(".e"):
-                return FileResponse(os.path.join(folder_path, model_folder_name, file))
+                return FileResponse(os.path.join(resultpath, model_folder_name, file))
 
     try:
         print(zip_file)
-        shutil.make_archive(zip_file, "zip", os.path.join(folder_path, model_folder_name))
+        shutil.make_archive(zip_file, "zip", os.path.join(resultpath, model_folder_name))
 
         response = FileResponse(
             zip_file + ".zip",
