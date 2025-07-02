@@ -565,7 +565,7 @@ export default defineComponent({
       //     allData: allData
       //   }
       // )
-      await api.get('/results/getResults', { params, responseType: 'blob', headers },)
+      await api.get('/results/getResults', { params, responseType: 'blob', headers })
         .then((response) => {
           let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '_' + this.modelData.outputs[0].name + '.e'
           if (allData) {
