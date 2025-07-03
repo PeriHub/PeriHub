@@ -43,7 +43,8 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn flat icon="fas fa-download" @click="saveModel" :disable="!store.status.created">
+    <q-btn flat icon="fas fa-download" @click="saveModel" :loading="modelLoading"
+      :disable="modelLoading || !store.status.created">
       <q-tooltip>
         Download Modelfiles
       </q-tooltip>
@@ -91,6 +92,8 @@ import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
+import { exportFile } from 'quasar'
+import { api } from 'boot/axios';
 import { uploadFiles, getModel, generateModel, saveConfig } from 'src/client';
 import rules from 'assets/rules.js';
 
@@ -121,6 +124,7 @@ export default defineComponent({
       DEV: false,
       dialogUpload: false,
       userName: 'user',
+      modelLoading: false,
     };
   },
   methods: {
@@ -255,14 +259,7 @@ export default defineComponent({
       fr.readAsText(file);
     },
     saveData() {
-      var fileURL = window.URL.createObjectURL(
-        new Blob([JSON.stringify(this.modelData)], { type: 'application/json' })
-      );
-      var fileLink = document.createElement('a');
-      fileLink.href = fileURL;
-      fileLink.setAttribute('download', this.modelStore.selectedModel.file + '.json');
-      document.body.appendChild(fileLink);
-      fileLink.click();
+      exportFile(this.modelStore.selectedModel.file + '.json', JSON.stringify(this.modelData))
     },
     async _saveConfig() {
       await saveConfig({
@@ -278,26 +275,39 @@ export default defineComponent({
         })
       })
     },
-    saveModel() {
-
-      getModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName })
+    async saveModel() {
+      this.modelLoading = true;
+      let params = {
+        model_name: this.modelStore.selectedModel.file,
+        model_folder_name: this.modelData.model.modelFolderName
+      }
+      const headers = {
+        'userName': this.userName
+      }
+      // getModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName })
+      await api.get('/model/getModel', { params, responseType: 'blob', headers })
         .then((response) => {
-          var fileURL = window.URL.createObjectURL(new Blob([response.data]));
-          var fileLink = document.createElement('a');
-          fileLink.href = fileURL;
-          fileLink.setAttribute('download', this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip');
-          document.body.appendChild(fileLink);
-          fileLink.click();
-          this.$q.notify({
-            message: response.message
-          })
+          let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
+          const status = exportFile(filename, response.data)
+          if (status) {
+            // browser allowed it
+            console.log('ok')
+          } else {
+            // browser denied it
+            console.log('Error: ' + status)
+            this.$q.notify({
+              message: 'Error: ' + status
+            })
+          }
         })
         .catch((error) => {
+          console.log(error)
           this.$q.notify({
             type: 'negative',
-            message: error.response.detail
+            message: error
           })
         })
+      this.modelLoading = false;
     },
     async generateModel() {
 
