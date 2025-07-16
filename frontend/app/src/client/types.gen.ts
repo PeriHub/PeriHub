@@ -99,7 +99,26 @@ export type Compute = {
 
 export type Contact = {
     enabled: boolean;
-    contactGroups?: Array<contactGroup> | null;
+    contactModels?: Array<ContactModel> | null;
+    searchFrequency?: number | null;
+    onlySurfaceContactNodes?: boolean | null;
+};
+
+export type ContactGroup = {
+    contactGroupId?: number | null;
+    name: string;
+    masterBlockId: number;
+    slaveBlockId: number;
+    searchRadius: number;
+};
+
+export type ContactModel = {
+    contactModelId?: number | null;
+    name: string;
+    contactType: string;
+    contactRadius: number;
+    contactStiffness: number;
+    contactGroups: Array<ContactGroup>;
 };
 
 export type CriticalEnergyCalc = {
@@ -154,8 +173,7 @@ export type EngineeringConstants = {
 
 export type Gcode = {
     overwriteMesh: boolean;
-    dx: number;
-    dy: number;
+    sampling: number;
     width: number;
     scale: number;
     blockFunctions?: Array<BlockFunction> | null;
@@ -378,21 +396,6 @@ export type Verlet = {
     outputFrequency?: number;
 };
 
-export type contactGroup = {
-    contactGroupId?: number | null;
-    name: string;
-    masterBlockId: number;
-    slaveBlockId: number;
-    searchRadius: number;
-    contactModel: contactModel;
-};
-
-export type contactModel = {
-    contactType: string;
-    contactRadius: number;
-    contactStiffness: number;
-};
-
 export type properties = {
     id?: number | null;
     name: string;
@@ -546,6 +549,7 @@ export type GetJobsResponse = unknown;
 
 export type GetStatusData = {
     cluster?: boolean;
+    meshfile?: string;
     modelFolderName?: string;
     modelName?: string;
     ownMesh?: boolean;
@@ -558,7 +562,6 @@ export type GetFractureAnalysisData = {
     cluster?: boolean;
     crackLength?: number;
     height?: number;
-    length?: number;
     modelFolderName?: string;
     modelName?: string;
     output?: string;

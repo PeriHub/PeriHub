@@ -237,8 +237,7 @@ class BlockFunction(BaseModel):
 
 class Gcode(BaseModel):
     overwriteMesh: bool
-    dx: float
-    dy: float
+    sampling: float
     width: float
     scale: float
     blockFunctions: Optional[List[BlockFunction]] = None

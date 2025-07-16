@@ -449,6 +449,7 @@ export const getJobs = (data: GetJobsData = {}): CancelablePromise<GetJobsRespon
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
+ * @param data.meshfile
  * @param data.ownMesh
  * @param data.cluster
  * @param data.sbatch
@@ -461,6 +462,7 @@ export const getStatus = (data: GetStatusData = {}): CancelablePromise<GetStatus
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
+        meshfile: data.meshfile,
         own_mesh: data.ownMesh,
         cluster: data.cluster,
         sbatch: data.sbatch
@@ -476,7 +478,6 @@ export const getStatus = (data: GetStatusData = {}): CancelablePromise<GetStatus
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
- * @param data.length
  * @param data.height
  * @param data.crackLength
  * @param data.youngModulus
@@ -495,7 +496,6 @@ export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): Cancela
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
-        length: data.length,
         height: data.height,
         crack_length: data.crackLength,
         young_modulus: data.youngModulus,

@@ -155,8 +155,7 @@ export default defineComponent({
         if (!this.modelStore.modelData.discretization.gcode) {
           this.modelStore.modelData.discretization.gcode = {
             overwriteMesh: true,
-            dx: 1,
-            dy: 1,
+            sampling: 1,
             width: 0.4,
             scale: 1,
           }

@@ -28,10 +28,8 @@ SPDX-License-Identifier: Apache-2.0
     <div v-if="store.modelData.discretization.discType == 'gcode' && discretization.gcode != null">
       <q-toggle class="my-toggle" v-model="discretization.gcode.overwriteMesh" :label=discKeys.gcode.overwriteMesh
         standout dense></q-toggle>
-      <q-input class="my-input" v-model="discretization.gcode.dx" :rules="[rules.required, rules.float]"
-        :label="discKeys.gcode.dx" standout dense></q-input>
-      <q-input class="my-input" v-model="discretization.gcode.dy" :rules="[rules.required, rules.float]"
-        :label="discKeys.gcode.dy" standout dense></q-input>
+      <q-input class="my-input" v-model="discretization.gcode.sampling" :rules="[rules.required, rules.float]"
+        :label="discKeys.gcode.sampling" standout dense></q-input>
       <q-input class="my-input" v-model="discretization.gcode.width" :rules="[rules.required, rules.float]"
         :label="discKeys.gcode.width" standout dense></q-input>
       <q-input class="my-input" v-model="discretization.gcode.scale" :rules="[rules.required, rules.float]"
@@ -84,8 +82,7 @@ export default defineComponent({
       discKeys: {
         gcode: {
           overwriteMesh: 'overwriteMesh',
-          dx: 'dx',
-          dy: 'dy',
+          sampling: 'Sampling',
           width: 'Width',
           scale: 'Scale'
         }

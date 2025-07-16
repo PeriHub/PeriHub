@@ -610,11 +610,11 @@ export const $Contact = {
             type: 'boolean',
             title: 'Enabled'
         },
-        contactGroups: {
+        contactModels: {
             anyOf: [
                 {
                     items: {
-                        '$ref': '#/components/schemas/contactGroup'
+                        '$ref': '#/components/schemas/ContactModel'
                     },
                     type: 'array'
                 },
@@ -622,12 +622,111 @@ export const $Contact = {
                     type: 'null'
                 }
             ],
-            title: 'Contactgroups'
+            title: 'Contactmodels'
+        },
+        searchFrequency: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Searchfrequency'
+        },
+        onlySurfaceContactNodes: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Onlysurfacecontactnodes'
         }
     },
     type: 'object',
     required: ['enabled'],
     title: 'Contact'
+} as const;
+
+export const $ContactGroup = {
+    properties: {
+        contactGroupId: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contactgroupid'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        masterBlockId: {
+            type: 'integer',
+            title: 'Masterblockid'
+        },
+        slaveBlockId: {
+            type: 'integer',
+            title: 'Slaveblockid'
+        },
+        searchRadius: {
+            type: 'number',
+            title: 'Searchradius'
+        }
+    },
+    type: 'object',
+    required: ['name', 'masterBlockId', 'slaveBlockId', 'searchRadius'],
+    title: 'ContactGroup'
+} as const;
+
+export const $ContactModel = {
+    properties: {
+        contactModelId: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contactmodelid'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        contactType: {
+            type: 'string',
+            title: 'Contacttype'
+        },
+        contactRadius: {
+            type: 'number',
+            title: 'Contactradius'
+        },
+        contactStiffness: {
+            type: 'number',
+            title: 'Contactstiffness'
+        },
+        contactGroups: {
+            items: {
+                '$ref': '#/components/schemas/ContactGroup'
+            },
+            type: 'array',
+            title: 'Contactgroups'
+        }
+    },
+    type: 'object',
+    required: ['name', 'contactType', 'contactRadius', 'contactStiffness', 'contactGroups'],
+    title: 'ContactModel'
 } as const;
 
 export const $CriticalEnergyCalc = {
@@ -1026,13 +1125,9 @@ export const $Gcode = {
             type: 'boolean',
             title: 'Overwritemesh'
         },
-        dx: {
+        sampling: {
             type: 'number',
-            title: 'Dx'
-        },
-        dy: {
-            type: 'number',
-            title: 'Dy'
+            title: 'Sampling'
         },
         width: {
             type: 'number',
@@ -1058,7 +1153,7 @@ export const $Gcode = {
         }
     },
     type: 'object',
-    required: ['overwriteMesh', 'dx', 'dy', 'width', 'scale'],
+    required: ['overwriteMesh', 'sampling', 'width', 'scale'],
     title: 'Gcode'
 } as const;
 
@@ -2896,64 +2991,6 @@ export const $Verlet = {
     },
     type: 'object',
     title: 'Verlet'
-} as const;
-
-export const $contactGroup = {
-    properties: {
-        contactGroupId: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Contactgroupid'
-        },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        masterBlockId: {
-            type: 'integer',
-            title: 'Masterblockid'
-        },
-        slaveBlockId: {
-            type: 'integer',
-            title: 'Slaveblockid'
-        },
-        searchRadius: {
-            type: 'number',
-            title: 'Searchradius'
-        },
-        contactModel: {
-            '$ref': '#/components/schemas/contactModel'
-        }
-    },
-    type: 'object',
-    required: ['name', 'masterBlockId', 'slaveBlockId', 'searchRadius', 'contactModel'],
-    title: 'contactGroup'
-} as const;
-
-export const $contactModel = {
-    properties: {
-        contactType: {
-            type: 'string',
-            title: 'Contacttype'
-        },
-        contactRadius: {
-            type: 'number',
-            title: 'Contactradius'
-        },
-        contactStiffness: {
-            type: 'number',
-            title: 'Contactstiffness'
-        }
-    },
-    type: 'object',
-    required: ['contactType', 'contactRadius', 'contactStiffness'],
-    title: 'contactModel'
 } as const;
 
 export const $properties = {
