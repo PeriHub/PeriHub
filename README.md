@@ -75,7 +75,7 @@ git clone https://github.com/PeriHub/PeriHub.git
 cd PeriHub
 ```
 
-- Copy the .env file and edit its contents.
+- Copy the .env file and edit its contents (Optional).
 
 ```
 cp .env.example .env
@@ -88,6 +88,56 @@ docker-compose up
 ```
 
 - If docker finished starting PeriHub, go to http://localhost:8080
+
+# Contributing
+
+If you like to start PeriHub in a development mode, you will need to install following requiremnts
+
+## Requirements
+
+- Install the [node version manager](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) and node itself
+
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+nvm install node
+```
+
+- Now you can get the [quasar cli](https://quasar.dev/start/quick-start) and install the node packages
+
+```
+npm i -g @quasar/cli
+cd frontend/app
+npm install
+```
+
+- For the python backend we need to make sure that fastapi and further dependencies are installed
+
+```
+cd backend
+pip install "fastapi[standard]"
+pip install -r requirements.txt
+pip install git+https://github.com/JTHesse/crackpy.git
+```
+
+Now you are able to start the services
+
+## Starting the services
+
+```
+cd frontend/app
+quasar dev
+```
+
+```
+cd backend/app
+fastapi dev main.py
+```
+
+> If you also want to submit any simulations, make sure to start the perilab container:
+
+```
+docker compose up perilab -d
+```
 
 ## Contact
 
