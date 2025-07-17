@@ -91,7 +91,7 @@ docker-compose up
 
 # Contributing
 
-If you like to start PeriHub in a development mode, you will need to install following requiremnts
+If you like to start PeriHub in a development mode, you will need to install following requirements
 
 ## Requirements
 
@@ -99,18 +99,19 @@ If you like to start PeriHub in a development mode, you will need to install fol
 
 ```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+source ~/.bashrc
 nvm install node
 ```
 
 - Now you can get the [quasar cli](https://quasar.dev/start/quick-start) and install the node packages
 
 ```
-npm i -g @quasar/cli
 cd frontend/app
+npm i -g @quasar/cli
 npm install
 ```
 
-- For the python backend we need to make sure that fastapi and further dependencies are installed
+- For the python backend we need to make sure that [pip](https://pip.pypa.io/en/stable/installation/), [fastapi](https://fastapi.tiangolo.com/) and further dependencies are installed
 
 ```
 cd backend
