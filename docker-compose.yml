@@ -11,9 +11,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ${VOLUME-./simulations}:/app/simulations
-      - ${RSA_VOLUME-./rsaFiles}:/app/rsaFiles
-      - ${OWN_MODELS-./own_models}:/app/own_models
+      - ${VOLUME-./backend/app/simulations}:/app/simulations
+      - ${RSA_VOLUME-./backend/app/rsaFiles}:/app/rsaFiles
+      - ${OWN_MODELS-./backend/app/own_models}:/app/own_models
 
   perihub_frontend:
     image: perihub/frontend
@@ -33,4 +33,4 @@ services:
     ports:
       - 22:22
     volumes:
-      - ${VOLUME-./simulations}:/app/simulations
+      - ${VOLUME-./backend/app/simulations}:/app/simulations
