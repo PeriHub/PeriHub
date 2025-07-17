@@ -612,6 +612,8 @@ export type GetResultsResponse = unknown;
 export type GetPointDataResultsData = {
     axis?: string;
     cluster?: boolean;
+    colorBarMax?: number;
+    colorBarMin?: number;
     displFactor?: number;
     filter?: string;
     modelFolderName?: string;

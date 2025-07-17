@@ -616,6 +616,8 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
  * @param data.displFactor
  * @param data.variable
  * @param data.filter
+ * @param data.colorBarMin
+ * @param data.colorBarMax
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -632,7 +634,9 @@ export const getPointDataResults = (data: GetPointDataResultsData = {}): Cancela
         step: data.step,
         displ_factor: data.displFactor,
         variable: data.variable,
-        filter: data.filter
+        filter: data.filter,
+        color_bar_min: data.colorBarMin,
+        color_bar_max: data.colorBarMax
     },
     errors: {
         422: 'Validation Error'

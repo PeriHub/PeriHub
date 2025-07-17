@@ -130,8 +130,14 @@ SPDX-License-Identifier: Apache-2.0
         @update:model-value="viewPointData"></q-select>
       <q-input class="variable" v-model.number="modelParams.displFactor" type="number" label="Displ. Magnitude" outlined
         dense debounce:500 @update:model-value="viewPointData"></q-input>
-      <q-select class="variable" :options="filterOptions" v-model="modelParams.filter" label="Filter" outlined dense
-        clearable @update:model-value="viewPointData"></q-select>
+      <q-expansion-item v-model="expansion" expand-separator dense dense-toggle icon="fas fa-cogs" label="Options">
+        <q-select class="variable" :options="filterOptions" v-model="modelParams.filter" label="Filter" outlined dense
+          clearable @update:model-value="viewPointData"></q-select>
+        <q-input class="variable" v-model.number="modelParams.colorBarMin" type="number" label="Min." outlined dense
+          clearable debounce:500 @update:model-value="viewPointData"></q-input>
+        <q-input class="variable" v-model.number="modelParams.colorBarMax" type="number" label="Max." outlined dense
+          clearable debounce:500 @update:model-value="viewPointData"></q-input>
+      </q-expansion-item>
     </div>
     <vertical-colored-legend class="legend" :min="minValue" :max="maxValue" :key="legendKey" />
   </div>
@@ -165,7 +171,9 @@ export default {
         step: 1,
         numberOfSteps: 100,
         filter: '',
-        output: 'Output1'
+        output: 'Output1',
+        colorBarMin: null,
+        colorBarMax: null
       },
       variableOptions: [
         'Displacements',
@@ -200,7 +208,8 @@ export default {
       legendKey: 0,
       time: 0,
       playing: false,
-      timer: null
+      timer: null,
+      expansion: false
     };
   },
 
@@ -269,7 +278,9 @@ export default {
         step: this.modelParams.step,
         displFactor: this.modelParams.displFactor,
         variable: this.modelParams.variable,
-        filter: this.modelParams.filter
+        filter: this.modelParams.filter,
+        colorBarMin: this.modelParams.colorBarMin,
+        colorBarMax: this.modelParams.colorBarMax
       })
         .then((response) => {
           data = response

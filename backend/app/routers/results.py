@@ -334,6 +334,8 @@ def get_data(
     displ_factor: float = 100,
     variable: str = "Displacements",
     filter: str = "",
+    color_bar_min: float = None,
+    color_bar_max: float = None,
     request: Request = "",
 ):
     """doc"""
@@ -455,8 +457,8 @@ def get_data(
     if len(cell_value) == 0:
         return ResponseModel(data=False, message="All nodes are filtered out. Remove filter or change time value.")
 
-    min_cell_value = np.min(cell_value)
-    max_cell_value = np.max(cell_value)
+    min_cell_value = np.min(cell_value) if color_bar_min == None else color_bar_min
+    max_cell_value = np.max(cell_value) if color_bar_max == None else color_bar_max
     if max_cell_value == min_cell_value:
         normalized_cell_value = np.zeros_like(cell_value)
     else:
