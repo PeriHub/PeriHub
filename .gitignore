@@ -2,6 +2,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+simulations/
+own_models/*
+
 # Editors
 .vscode/*
 #!.vscode/settings.json
