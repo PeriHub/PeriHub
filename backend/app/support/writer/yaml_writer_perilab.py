@@ -239,8 +239,6 @@ class YAMLcreatorPeriLab:
                 thermal["Environmental Temperature"] = float(therm.environmentalTemperature)
             if self.check_if_defined(therm.heatTransferCoefficient):
                 thermal["Heat Transfer Coefficient"] = float(therm.heatTransferCoefficient)
-            if self.check_if_defined(therm.requiredSpecificVolume):
-                thermal["Required Specific Volume"] = float(therm.requiredSpecificVolume)
 
             data[therm.name] = thermal
         return data
@@ -253,8 +251,8 @@ class YAMLcreatorPeriLab:
             additive["Additive Model"] = add.additiveType
             additive["Print Temperature"] = float(add.printTemp)
 
-            if self.check_if_defined(add.timeFactor):
-                additive["Time Factor"] = float(add.timeFactor)
+            # if self.check_if_defined(add.timeFactor):
+            #     additive["Time Factor"] = float(add.timeFactor)
 
             data[add.name] = additive
         return data
@@ -494,15 +492,19 @@ class YAMLcreatorPeriLab:
         data = {}
         for out in self.compute_dict:
             compute = {}
-            if out.computeClass == "Nearest_Point_Data":
-                compute["Compute Class"] = "Nearest_Point_Data"
-                compute["X"] = out.x_value
-                compute["Y"] = out.y_value
-                compute["Z"] = out.z_value
+            if out.computeClass == "Node_Set_Data":
+                compute["Compute Class"] = "Node_Set_Data"
+                compute["Calculation Type"] = out.calculationType
+                compute["Node Set"] = "Node Set " + str(out.nodeSetId)
             else:
                 compute["Compute Class"] = "Block_Data"
                 compute["Calculation Type"] = out.calculationType
                 compute["Block"] = out.blockName
+            # elif out.computeClass == "Nearest_Point_Data":
+            #     compute["Compute Class"] = "Nearest_Point_Data"
+            #     compute["X"] = out.x_value
+            #     compute["Y"] = out.y_value
+            #     compute["Z"] = out.z_value
             compute["Variable"] = out.variable
             # compute["Output Label"] = out.name
 

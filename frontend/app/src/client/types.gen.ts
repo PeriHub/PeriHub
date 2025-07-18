@@ -16,7 +16,6 @@ export type AdditiveModel = {
     name: string;
     additiveType: string;
     printTemp: number;
-    timeFactor: number;
 };
 
 export type Block = {
@@ -92,6 +91,7 @@ export type Compute = {
     variable: string;
     calculationType?: string | null;
     blockName?: string | null;
+    nodeSetId?: number | null;
     xValue?: number | null;
     yValue?: number | null;
     zValue?: number | null;

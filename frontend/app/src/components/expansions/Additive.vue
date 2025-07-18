@@ -18,8 +18,8 @@ SPDX-License-Identifier: Apache-2.0
             dense></q-select>
           <q-input class="my-input" v-model="additiveModel.printTemp" :rules="[rules.required, rules.float]"
             label="Print Temperature" standout dense></q-input>
-          <q-input class="my-input" v-model="additiveModel.timeFactor" :rules="[rules.required, rules.float]"
-            label="Time Factor" standout dense></q-input>
+          <!-- <q-input class="my-input" v-model="additiveModel.timeFactor" :rules="[rules.required, rules.float]"
+            label="Time Factor" standout dense></q-input> -->
           <q-btn flat icon="fas fa-trash-alt" @click="removeAdditiveModel(index)">
             <q-tooltip>
               Remove Additive Model

@@ -22,6 +22,12 @@ SPDX-License-Identifier: Apache-2.0
         <q-select class="my-select" :options="blocks" option-label="name" option-value="name" emit-value
           v-model="compute.blockName" :label="computeKeys.blockName" standout dense></q-select>
       </div>
+      <div class="row my-row" v-show="compute.computeClass == 'Node_Set_Data'">
+        <q-select class="my-select" :options="calculationType" v-model="compute.calculationType"
+          :label="computeKeys.calculationType" standout dense></q-select>
+        <q-select class="my-select" :options="nodeSets" option-label="nodeSetId" option-value="nodeSetId" emit-value
+          v-model="compute.nodeSetId" :label="computeKeys.nodeSetId" standout dense></q-select>
+      </div>
       <div class="row my-row" v-show="compute.computeClass == 'Nearest_Point_Data'">
         <q-input class="my-input" v-model="compute.x" :rules="[rules.required, rules.name]" :label="computeKeys.x"
           clearable standout dense></q-input>
@@ -100,6 +106,7 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const blocks = computed(() => store.modelData.blocks)
+    const nodeSets = computed(() => store.modelData.discretization.nodeSets)
     const computes = computed(() => store.modelData.computes)
     const outputs = computed(() => store.modelData.outputs)
     const job = computed(() => store.modelData.job)
@@ -107,6 +114,7 @@ export default defineComponent({
     return {
       store,
       blocks,
+      nodeSets,
       computes,
       outputs,
       job,
@@ -122,7 +130,7 @@ export default defineComponent({
   data() {
     return {
       fileTypes: ['Exodus', 'CSV'],
-      computeClass: ['Block_Data', 'Nearest_Point_Data'],
+      computeClass: ['Block_Data', 'Node_Set_Data'],
       calculationType: ['Sum', 'Maximum', 'Minimum'],
       variables: ['Forces', 'Displacements', 'Damage', 'Temperature'],
       // variables: ['Force', 'Displacement', 'Damage', 'Temperature'],
@@ -262,7 +270,8 @@ export default defineComponent({
           'name': 'External_Force',
           'variable': 'Forces',
           'calculationType': 'Sum',
-          'blockName': this.blocks[0]
+          'blockName': this.blocks[0].name,
+          'nodeSetId': 1
         }
       }
       newItem.computesId = len + 1

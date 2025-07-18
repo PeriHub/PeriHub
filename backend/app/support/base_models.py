@@ -171,7 +171,7 @@ class AdditiveModel(BaseModel):
     name: str
     additiveType: str
     printTemp: float
-    timeFactor: float
+    # timeFactor: float
 
 
 class Additive(BaseModel):
@@ -301,6 +301,7 @@ class Compute(BaseModel):
     variable: str
     calculationType: Optional[str] = None
     blockName: Optional[str] = None
+    nodeSetId: Optional[int] = None
     xValue: Optional[float] = None
     yValue: Optional[float] = None
     zValue: Optional[float] = None

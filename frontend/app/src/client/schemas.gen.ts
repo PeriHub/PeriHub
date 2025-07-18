@@ -72,14 +72,10 @@ export const $AdditiveModel = {
         printTemp: {
             type: 'number',
             title: 'Printtemp'
-        },
-        timeFactor: {
-            type: 'number',
-            title: 'Timefactor'
         }
     },
     type: 'object',
-    required: ['name', 'additiveType', 'printTemp', 'timeFactor'],
+    required: ['name', 'additiveType', 'printTemp'],
     title: 'AdditiveModel'
 } as const;
 
@@ -564,6 +560,17 @@ export const $Compute = {
                 }
             ],
             title: 'Blockname'
+        },
+        nodeSetId: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Nodesetid'
         },
         xValue: {
             anyOf: [

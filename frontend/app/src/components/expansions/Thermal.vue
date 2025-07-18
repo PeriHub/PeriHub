@@ -112,7 +112,6 @@ export default defineComponent({
         thermalType: 'Type',
         heatTransferCoefficient: 'Heat Transfer Coefficient',
         environmentalTemperature: 'Environmental Temperature',
-        requiredSpecificVolume: 'Required Specific Volume',
         thermalConductivity: 'Thermal Conductivity',
         thermalExpansionCoefficient: 'Thermal Expansion Coefficient',
         thermalConductivityPrintBed: 'Thermal Conductivity Print Bed',
