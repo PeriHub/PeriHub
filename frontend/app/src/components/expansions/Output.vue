@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <h6 class="my-title">Compute Parameters</h6>
+    <h6 class="my-title">Compute Parameters (Global Variables)</h6>
     <q-list v-for="compute, index in computes" :key="compute.computesId" style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="compute.name" :rules="[rules.required, rules.name]" :label="computeKeys.name"
@@ -65,7 +65,8 @@ SPDX-License-Identifier: Apache-2.0
             use-chips multiple input-debounce="0" :options="filterOptionsCsv" @filter="filterFnCsv"
             style="width: 250px; margin-bottom:20px;" standout dense></q-select>
           <q-select class="my-input" v-model="output.selectedFileType" :options="fileTypes" input-debounce="0"
-            style="width: 250px; margin-bottom:20px;" standout dense></q-select>
+            @update:model-value="output.selectedOutputs = []" style="width: 250px; margin-bottom:20px;" standout
+            dense></q-select>
           <q-toggle class="my-toggle" v-model="output.useOutputFrequency" label="Use Output Frequency" standout
             dense></q-toggle>
           <q-input v-if="output.useOutputFrequency" class="my-input" v-model="output.Frequency" :rules="[rules.int]"
