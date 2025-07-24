@@ -8,6 +8,7 @@ doc
 import ast
 import os
 import shutil
+import socket
 import subprocess
 import sys
 import time
@@ -15,6 +16,7 @@ from pathlib import Path
 
 import jwt
 import paramiko
+from fastapi import HTTPException
 from random_username.generate import generate_username
 
 from ..support.globals import (
@@ -60,9 +62,7 @@ class FileHandler:
     def get_local_model_folder_path(username, model_name, model_folder_name):
         """doc"""
 
-        return os.path.join(
-            FileHandler.get_local_model_path(username, model_name), model_folder_name
-        )
+        return os.path.join(FileHandler.get_local_model_path(username, model_name), model_folder_name)
 
     @staticmethod
     def get_remote_path():
@@ -80,9 +80,7 @@ class FileHandler:
     def get_remote_model_path(username, model_name, model_folder_name):
         """doc"""
 
-        return os.path.join(
-            FileHandler.get_remote_user_path(username), model_name, model_folder_name
-        )
+        return os.path.join(FileHandler.get_remote_user_path(username), model_name, model_folder_name)
 
     @staticmethod
     def _get_remote_umat_path(cluster):
@@ -110,9 +108,7 @@ class FileHandler:
         if encoded_token is None or encoded_token == "" or encoded_token == "undefined":
             return "guest"
 
-        decoded_token = jwt.decode(
-            encoded_token.split(" ")[1], options={"verify_signature": False}
-        )
+        decoded_token = jwt.decode(encoded_token.split(" ")[1], options={"verify_signature": False})
 
         return decoded_token["preferred_username"]
 
@@ -183,10 +179,7 @@ class FileHandler:
                 shutil.rmtree(folder_path)
             elif recursive:
                 for subfoldername in os.listdir(folder_path):
-                    if (
-                        os.path.getmtime(os.path.join(folder_path, subfoldername))
-                        < now - days * 86400
-                    ):
+                    if os.path.getmtime(os.path.join(folder_path, subfoldername)) < now - days * 86400:
                         names.append(os.path.join(foldername, subfoldername))
                         shutil.rmtree(os.path.join(folder_path, subfoldername))
         return names
@@ -205,10 +198,7 @@ class FileHandler:
                 names.append(foldername)
             elif recursive:
                 for subfoldername in sftp.listdir(folder_path):
-                    if (
-                        os.path.getmtime(os.path.join(folder_path, subfoldername))
-                        < now - days * 86400
-                    ):
+                    if os.path.getmtime(os.path.join(folder_path, subfoldername)) < now - days * 86400:
                         names.append(os.path.join(folder_path, subfoldername))
                         FileHandler.remove_all_folder_sftp(
                             sftp,
@@ -223,13 +213,9 @@ class FileHandler:
 
         for filename in sftp.listdir(remotepath):
             for sub_filename in sftp.listdir(os.path.join(remotepath, filename)):
-                for sub_sub_file_name in sftp.listdir(
-                    os.path.join(remotepath, sub_filename)
-                ):
+                for sub_sub_file_name in sftp.listdir(os.path.join(remotepath, sub_filename)):
                     if recursive:
-                        for sub_sub_sub_file_name in sftp.listdir(
-                            os.path.join(remotepath, sub_sub_file_name)
-                        ):
+                        for sub_sub_sub_file_name in sftp.listdir(os.path.join(remotepath, sub_sub_file_name)):
                             sftp.remove(os.path.join(remotepath, sub_sub_sub_file_name))
                     sftp.remove(os.path.join(remotepath, sub_sub_file_name))
                 sftp.remove(os.path.join(remotepath, sub_filename))
@@ -254,12 +240,8 @@ class FileHandler:
         if not cluster:
             return "Success"
 
-        localpath = FileHandler.get_local_model_folder_path(
-            username, model_name, model_folder_name
-        )
-        remotepath = FileHandler.get_remote_model_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         userpath = FileHandler.get_remote_user_path(username)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
@@ -319,9 +301,7 @@ class FileHandler:
         if not cluster:
             return "Success"
 
-        localpath = FileHandler.get_local_model_folder_path(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
         remotepath = FileHandler._get_remote_umat_path(cluster)
         try:
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -373,17 +353,11 @@ class FileHandler:
         return "Shared libray can not been found"
 
     @staticmethod
-    def copy_file_to_from_peridigm_container(
-        username, model_name, model_folder_name, file_name, to_or_from
-    ):
+    def copy_file_to_from_peridigm_container(username, model_name, model_folder_name, file_name, to_or_from):
         """doc"""
 
-        localpath = FileHandler.get_local_model_folder_path(
-            username, model_name, model_folder_name
-        )
-        remotepath = "./simulations/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+        remotepath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
         if not os.path.exists(remotepath):
             os.makedirs(remotepath)
             # os.chown(remotepath, 'test')
@@ -420,9 +394,7 @@ class FileHandler:
         filetype=".e",
     ):
         """doc"""
-        resultpath = "./simulations/" + os.path.join(
-            username, model_name, model_folder_name
-        )
+        resultpath = "./simulations/" + os.path.join(username, model_name, model_folder_name)
         if not os.path.exists(resultpath):
             os.makedirs(resultpath)
 
@@ -431,9 +403,7 @@ class FileHandler:
 
         log.info("Start copying")
 
-        remotepath = FileHandler.get_remote_model_path(
-            username, model_name, model_folder_name
-        )
+        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         # if tasks != 1:
         #     try:
@@ -460,9 +430,7 @@ class FileHandler:
                         remote_info = sftp.stat(os.path.join(remotepath, filename))
                         remote_time = remote_info.st_mtime
                         # remote_size = remote_info.st_size
-                        local_time = os.path.getmtime(
-                            os.path.join(resultpath, filename)
-                        )
+                        local_time = os.path.getmtime(os.path.join(resultpath, filename))
                         # local_size = os.path.getsize(os.path.join(resultpath, filename))
                         print(
                             "compare "
@@ -514,7 +482,10 @@ class FileHandler:
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to " + server + " failed!")
-                raise Exception("ssh connection to " + server + " failed!")
+                raise HTTPException(status_code=400, detail="ssh connection to " + server + " failed!")
+            except socket.gaierror as e:
+                log.error(f"ssh connection to {server} failed: {e}")
+                raise HTTPException(status_code=400, detail=f"ssh connection to {server} failed: {e}")
 
         elif not cluster:
             username = "root"
@@ -537,11 +508,7 @@ class FileHandler:
                             "ssh connection to %s failed! Is the PeriLab Service running?",
                             server,
                         )
-                        raise Exception(
-                            "ssh connection to "
-                            + server
-                            + " failed! Is the PeriLab Service running?"
-                        )
+                        raise Exception("ssh connection to " + server + " failed! Is the PeriLab Service running?")
                 except Exception as e:
                     log.error("An error occurred:", e)
                     raise Exception("An error occurred:" + e)

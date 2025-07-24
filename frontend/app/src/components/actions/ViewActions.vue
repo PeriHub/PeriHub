@@ -496,7 +496,7 @@ export default defineComponent({
               message = error.response.detail;
             }
           } else {
-            message = 'Internal Error';
+            message = error.body.detail;
           }
           this.$q.notify({
             color: 'negative',
@@ -505,7 +505,7 @@ export default defineComponent({
             icon: 'report_problem'
           })
           this.submitLoading = false;
-          throw new Error(message);
+          // throw new Error(message);
         })
 
       this.viewStore.textId = 'log';

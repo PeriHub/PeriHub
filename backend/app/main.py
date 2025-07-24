@@ -168,8 +168,11 @@ async def websocket_endpoint_log(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="LogFile can't be found in " + remotepath,
                 )
-            paths = [os.path.join(remotepath, basename) for basename in filtered_values]
-            latest_file = paths[-1]
+            idx = 1
+            while model_name not in filtered_values[-idx]:
+                idx += 1
+                log_file = filtered_values[-idx]
+            latest_file = os.path.join(remotepath, log_file)
         except paramiko.SFTPError:
             log.error("LogFile can not be found in %s", remotepath)
             raise HTTPException(

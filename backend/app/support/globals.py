@@ -38,3 +38,4 @@ cluster_perilab_path = os.getenv("CLUSTER_PERILAB_PATH", default="/PeriLab/")  #
 cluster_enabled = False
 if cluster_url != "":
     cluster_enabled = True
+    log.info(f"Cluster with url {cluster_url} is enabled")

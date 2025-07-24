@@ -29,12 +29,12 @@ SPDX-License-Identifier: Apache-2.0
           v-model="compute.nodeSetId" :label="computeKeys.nodeSetId" standout dense></q-select>
       </div>
       <div class="row my-row" v-show="compute.computeClass == 'Nearest_Point_Data'">
-        <q-input class="my-input" v-model="compute.x" :rules="[rules.required, rules.name]" :label="computeKeys.x"
-          clearable standout dense></q-input>
-        <q-input class="my-input" v-model="compute.y" :rules="[rules.required, rules.name]" :label="computeKeys.y"
-          clearable standout dense></q-input>
-        <q-input class="my-input" v-model="compute.z" :rules="[rules.required, rules.name]" :label="computeKeys.z"
-          clearable standout dense></q-input>
+        <q-input class="my-input" v-model="compute.xValue" :rules="[rules.required, rules.name]"
+          :label="computeKeys.xValue" clearable standout dense></q-input>
+        <q-input class="my-input" v-model="compute.yValue" :rules="[rules.required, rules.name]"
+          :label="computeKeys.yValue" clearable standout dense></q-input>
+        <q-input class="my-input" v-model="compute.zValue" :rules="[rules.required, rules.name]"
+          :label="computeKeys.zValue" clearable standout dense></q-input>
       </div>
       <q-btn flat icon="fas fa-trash-alt" @click="removeCompute(index)">
         <q-tooltip>
@@ -130,7 +130,7 @@ export default defineComponent({
   data() {
     return {
       fileTypes: ['Exodus', 'CSV'],
-      computeClass: ['Block_Data', 'Node_Set_Data'],
+      computeClass: ['Block_Data', 'Node_Set_Data', 'Nearest_Point_Data'],
       calculationType: ['Sum', 'Maximum', 'Minimum'],
       variables: ['Forces', 'Displacements', 'Damage', 'Temperature'],
       // variables: ['Force', 'Displacement', 'Damage', 'Temperature'],
