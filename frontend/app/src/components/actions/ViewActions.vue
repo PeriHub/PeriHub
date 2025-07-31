@@ -70,10 +70,16 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="['CompactTension', 'KICmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
+    <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
       icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
       <q-tooltip>
         Show Fracture Analysis
+      </q-tooltip>
+    </q-btn>
+    <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
+      icon="fas fa-image" @click="dialogGetEnergyReleasePlot = true, updatePlotVariables()" :disable="!status.results">
+      <q-tooltip>
+        Show Energy Release Plot
       </q-tooltip>
     </q-btn>
     <q-dialog v-model="dialogGetFractureAnalysis" persistent max-width="800">
@@ -95,6 +101,40 @@ SPDX-License-Identifier: Apache-2.0
         </q-card-section>
         <q-card-actions align="right">
           <q-btn flat label="Show" color="primary" v-close-popup @click="getFractureAnalysis"></q-btn>
+          <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="dialogGetEnergyReleasePlot" persistent max-width="800">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Show Energy Release Plot</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Which output do you want to analyse?
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
+            standout dense></q-input>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
+            v-model="getPlotOutput" label="Output Name" standout dense></q-select>
+          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
+            v-model="getPlotOutputCsv" label="Output Name" standout dense></q-select>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableX" label="Variable" standout
+            dense></q-select>
+          <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableY" label="Variable" standout
+            dense></q-select>
+          <q-select class="my-select" :options="getImageAxis" v-model="getImageAxisSelected" label="Axis" standout
+            dense></q-select>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Show" color="primary" v-close-popup @click="getEnergyReleasePlot()"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -318,7 +358,7 @@ import { inject } from 'vue'
 import { useQuasar } from 'quasar'
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
-import { getCurrentEnergy, runModel, cancelJob, getResults, getPlot, getFractureAnalysis, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
+import { getCurrentEnergy, runModel, cancelJob, getResults, getPlot, getFractureAnalysis, getEnergyReleasePlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
@@ -363,11 +403,13 @@ export default defineComponent({
       showResultsOutputName: 'Output1',
 
       dialogGetFractureAnalysis: false,
+      dialogGetEnergyReleasePlot: false,
       dialogGetEnfAnalysis: false,
 
       dialogGetPlot: false,
       getPlotVariables: [],
       getPlotOutput: 'Output1',
+      getPlotOutputCsv: 'Output2',
       getPlotVariableX: 'Time',
       getPlotAxisX: 'X',
       getPlotAbsoluteX: true,
@@ -408,6 +450,7 @@ export default defineComponent({
       port: null,
 
       plotRawData: null,
+      timer: null,
 
       color: [
         '#00658b',
@@ -473,12 +516,17 @@ export default defineComponent({
             this.$q.notify({
               message: response.message
             })
+            this.viewStore.textId = 'log';
+            this.viewStore.viewId = 'jobs';
+            this.timer = setInterval(this.checkStatus, 5000)
           }
           else {
             this.$q.notify({
               type: 'negative',
               message: response.message
             })
+            this.submitLoading = false;
+            this.viewStore.textLoading = false;
           }
         })
         .catch((error) => {
@@ -505,16 +553,23 @@ export default defineComponent({
             icon: 'report_problem'
           })
           this.submitLoading = false;
+          this.viewStore.textLoading = false;
           // throw new Error(message);
         })
 
-      this.viewStore.textId = 'log';
-      this.viewStore.viewId = 'jobs';
-      await sleep(1000);
+    },
+    async checkStatus() {
       this.bus.emit('getStatus');
-      this.submitLoading = false;
-      await sleep(10000);
-      this.bus.emit('enableWebsocket');
+      if (this.status.submitted) {
+        this.submitLoading = false;
+        if (this.modelData.job.cluster) {
+          await sleep(10000);
+        } else {
+          await sleep(20000);
+        }
+        this.bus.emit('enableWebsocket');
+        clearInterval(this.timer)
+      }
     },
     async cancelJob() {
 
@@ -522,7 +577,8 @@ export default defineComponent({
       await cancelJob({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
-        cluster: this.modelData.job.cluster
+        cluster: this.modelData.job.cluster,
+        sbatch: this.modelData.job.sbatch
       })
         .then((response) => {
           this.$q.notify({
@@ -696,14 +752,26 @@ export default defineComponent({
 
       // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.userName } });
 
+      let materialName = '';
+      for (var i = 0; i < this.modelData.blocks.length; i++) {
+        if (this.modelData.blocks[i].damageModel != '') {
+          materialName = this.modelData.blocks[i].material;
+        }
+      }
+      let materialId = 1
+      for (var i = 0; i < this.modelData.materials.length; i++) {
+        if (this.modelData.materials[i].name == materialName) {
+          materialId = i
+        }
+      }
       let params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
         height: this.modelData.model.height,
         crack_length: this.modelData.bondFilters[0].lowerLeftCornerX + this.modelData.bondFilters[0].bottomLength,
-        young_modulus: this.modelData.materials[0].youngsModulus,
-        poissions_ratio: this.modelData.materials[0].poissonsRatio,
-        yield_stress: this.modelData.materials[0].yieldStress,
+        young_modulus: this.modelData.materials[materialId].youngsModulus,
+        poissions_ratio: this.modelData.materials[materialId].poissonsRatio,
+        yield_stress: this.modelData.materials[materialId].yieldStress,
         cluster: this.modelData.job.cluster,
         tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
@@ -755,6 +823,49 @@ export default defineComponent({
       //     })
       //     this.viewStore.modelLoading = false;
       //   })
+
+      this.viewStore.viewId = 'image';
+      this.viewStore.modelLoading = false;
+    },
+    async getEnergyReleasePlot() {
+
+      this.viewStore.modelLoading = true;
+
+      // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.userName } });
+      let thickness = null
+      if (this.modelData.model.twoDimensional) {
+        thickness = this.modelData.damages[0].thickness;
+      }
+
+      let params = {
+        model_name: this.modelStore.selectedModel.file,
+        model_folder_name: this.modelData.model.modelFolderName,
+        cluster: this.modelData.job.cluster,
+        output_exodus: this.getPlotOutput,
+        output_csv: this.getPlotOutputCsv,
+        tasks: this.modelData.job.tasks,
+        force_output_name: this.getPlotVariableY + this.getImageAxisSelected.toLowerCase(),
+        displacement_output_name: this.getPlotVariableX + this.getImageAxisSelected.toLowerCase(),
+        step: this.getImageStep,
+        thickness: thickness,
+        // crack_start: this.modelData.bondFilters[0].lowerLeftCornerX + this.modelData.bondFilters[0].bottomLength,
+      }
+
+      await api.get('/results/getEnergyReleasePlot', { params, responseType: 'blob' })
+        .then((response) => {
+          console.log(response)
+          this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
+          this.$q.notify({
+            message: 'Fracture analyzed',
+          })
+        })
+        .catch((error) => {
+          this.$q.notify({
+            type: 'negative',
+            message: JSON.stringify(error.message)
+          })
+          this.viewStore.modelLoading = false;
+        })
 
       this.viewStore.viewId = 'image';
       this.viewStore.modelLoading = false;
@@ -924,6 +1035,9 @@ export default defineComponent({
   },
   mounted() {
     this.userName = localStorage.getItem('userName')
+  },
+  unmounted() {
+    clearInterval(this.timer)
   }
 })
 </script>

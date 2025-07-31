@@ -17,6 +17,7 @@ from crackpy.fracture_analysis.write import OutputWriter
 from crackpy.structure_elements.data_files import Nodemap, NodemapStructure
 from crackpy.structure_elements.material import Material
 from exodusreader import exodusreader
+from matplotlib import pyplot as plt
 
 from ..base_models import Model
 from ..globals import log
@@ -25,6 +26,7 @@ from ..globals import log
 class CrackAnalysis:
     @staticmethod
     def write_nodemap(file, step):
+        log.info("Read Exodus")
         (
             points,
             point_data,
@@ -91,6 +93,7 @@ class CrackAnalysis:
         np_eps_eqv = np.sqrt(np_eps_x**2 + np_eps_y**2 - np_eps_x * np_eps_y + 3 * np_eps_xy**2)
 
         nodemap_path = os.path.join(os.path.dirname(file), "nodemap.txt")
+        log.info("Write Nodemap")
         np.savetxt(
             nodemap_path,
             np.c_[
@@ -122,20 +125,22 @@ class CrackAnalysis:
     def fracture_analysis(
         model_name,
         height,
-        crack_length,
+        crack_end,
         young_modulus,
         poissions_ratio,
         yield_stress,
         nodemap_filename,
         nodemap_folder,
     ):
+        log.info("Fracture Analysis")
         # material properties
-        material = Material(E=72000, nu_xy=0.33, sig_yield=350)
-        material = Material(E=5000, nu_xy=0.34, sig_yield=276)
+        # material = Material(E=72000, nu_xy=0.33, sig_yield=350)
+        # material = Material(E=5000, nu_xy=0.34, sig_yield=276)
         material = Material(
             E=young_modulus,
             nu_xy=poissions_ratio,
             sig_yield=yield_stress,
+            plane_strain=False,
         )
 
         if model_name in ["CompactTension"]:
@@ -155,19 +160,18 @@ class CrackAnalysis:
                 mask_tolerance=2,
                 buckner_williams_terms=[-1, 1, 2, 3, 4, 5],
             )
-            crack_end = crack_length
             ct = CrackTipInfo(crack_end, 0, 0, "r")
 
             # optimization
             opt_props = OptimizationProperties(
-                angle_gap=20,
-                min_radius=5,
-                max_radius=10,
-                tick_size=0.01,
-                terms=[-1, 0, 1, 2, 3, 4, 5],
+                # angle_gap=20,
+                # min_radius=5,
+                # max_radius=10,
+                # tick_size=0.01,
+                # terms=[-1, 0, 1, 2, 3, 4, 5],
             )
 
-        elif model_name in ["KICmodel", "KIICmodel"]:
+        elif model_name in ["KICmodel", "KIICmodel", "DCBmodel"]:
             int_props = IntegralProperties(
                 number_of_paths=10,
                 number_of_nodes=100,
@@ -184,16 +188,15 @@ class CrackAnalysis:
                 mask_tolerance=2,
                 buckner_williams_terms=[-1, 1, 2, 3, 4, 5],
             )
-            crack_end = crack_length
-            ct = CrackTipInfo(crack_end, height / 2, 0, "r")
+            ct = CrackTipInfo(crack_end, 0, 0, "r")
 
             # optimization
             opt_props = OptimizationProperties(
-                angle_gap=0,
-                min_radius=1,
-                max_radius=2,
-                tick_size=0.04,
-                terms=[-1, 0, 1, 2, 3, 4, 5],
+                # angle_gap=0,
+                # min_radius=1,
+                # max_radius=2,
+                # tick_size=0.04,
+                # terms=[-1, 0, 1, 2, 3, 4, 5],
             )
 
         elif model_name in ["ENFmodel"]:
@@ -224,8 +227,12 @@ class CrackAnalysis:
                 tick_size=0.04,
                 terms=[-1, 0, 1, 2, 3, 4, 5],
             )
+        else:
+            log.warning("Model not supported")
+            return
         # preprocess data
         nodemap_struc = NodemapStructure(10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, False, True)
+        # nodemap_struc = NodemapStructure(10, 1, 2, 4, 5, 7, 8, 9, False, True)
         nodemap = Nodemap(
             name=nodemap_filename,
             folder=nodemap_folder,
@@ -245,6 +252,9 @@ class CrackAnalysis:
             optimization_properties=opt_props,
         )
         analysis.run()
+
+        plt.rcParams["image.cmap"] = "coolwarm"
+        plt.rcParams["figure.dpi"] = 100
 
         # plot
         plot_sets = PlotSettings(background="sig_vm")
@@ -289,3 +299,58 @@ class CrackAnalysis:
         log.info(GIIC)
 
         return GIIC
+
+    @staticmethod
+    def get_crack_end(file: str, step: int = -1):
+
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = exodusreader.read_timestep(file, step)
+
+        points_y = np.array(points[:, 0])
+        damage = point_data["Damage"]
+
+        damaged_points_y = points_y[damage != 0]
+
+        if len(damaged_points_y) == 0:
+            log.warning("No damaged points found")
+            return 1
+
+        crack_coordinate = np.max(damaged_points_y)
+
+        return crack_coordinate
+
+    @staticmethod
+    def get_crack_length(file: str, step: int = -1):
+
+        (
+            points,
+            point_data,
+            global_data,
+            cell_data,
+            ns,
+            block_data,
+            time,
+        ) = exodusreader.read_timestep(file, step)
+
+        points_x = np.array(points[:, 0])
+        points_z = np.array(points[:, 2])
+        damage = point_data["Damage"]
+
+        damaged_points_x = points_x[damage != 0]
+        damaged_points_z = points_z[damage != 0]
+
+        if len(damaged_points_x) == 0:
+            log.warning("No damaged points found")
+            return 1, time
+
+        crack_length = np.max(damaged_points_x) - np.min(damaged_points_x)
+        crack_width = np.max(damaged_points_z) - np.min(damaged_points_z)
+
+        return crack_length, crack_width, time
