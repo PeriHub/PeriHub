@@ -85,20 +85,20 @@ SPDX-License-Identifier: Apache-2.0
             :rules="[rules.required, rules.float]" :label="damageKeys.anistropicDamageZ" standout dense></q-input>
         </div>
         <q-toggle class="my-toggle" v-model="damage.onlyTension" :label="damageKeys.onlyTension" dense></q-toggle>
-        <div class="row my-row">
+        <!-- <div class="row my-row">
           <q-select class="my-input" :options="stabilizationType" v-model="damage.stabilizationType"
             :label="damageKeys.stabilizationType" standout dense></q-select>
-        </div>
-        <q-toggle class="my-toggle" v-model="damage.detachedNodesCheck" :label="damageKeys.detachedNodesCheck"
-          dense></q-toggle>
+        </div> -->
+        <!-- <q-toggle class="my-toggle" v-model="damage.detachedNodesCheck" :label="damageKeys.detachedNodesCheck"
+          dense></q-toggle> -->
         <div class="row my-row">
           <q-input class="my-input" v-model="damage.thickness" :rules="[rules.required, rules.float]"
             :label="damageKeys.thickness" standout dense></q-input>
         </div>
-        <div class="row my-row">
+        <!-- <div class="row my-row">
           <q-input class="my-input" v-model="damage.hourglassCoefficient" :rules="[rules.required, rules.float]"
             :label="damageKeys.hourglassCoefficient" standout dense></q-input>
-        </div>
+        </div> -->
       </div>
       <q-separator></q-separator>
     </q-list>
@@ -254,6 +254,7 @@ export default defineComponent({
               pr = this.materials[i].poissonsRatio;
             }
           }
+          console.log(E)
           if (planeStress) {
             this.damages[damageId].criticalEnergy = k1c ** 2 / +E;
           } else {

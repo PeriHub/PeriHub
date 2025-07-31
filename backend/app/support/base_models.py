@@ -109,7 +109,6 @@ class Material(BaseModel):
     planeStrain: bool
     materialSymmetry: str
     stabilizationType: str
-    thickness: float
     hourglassCoefficient: float
     actualHorizon: Optional[float] = None
     yieldStress: Optional[float] = None
@@ -209,24 +208,23 @@ class Damage(BaseModel):
     anistropicDamageX: Optional[float] = None
     anistropicDamageY: Optional[float] = None
     anistropicDamageZ: Optional[float] = None
-    planeStress: bool
-    onlyTension: bool
-    detachedNodesCheck: bool
-    thickness: float
-    hourglassCoefficient: float
-    stabilizationType: str
+    onlyTension: Optional[bool] = None
+    # detachedNodesCheck: Optional[bool] = None
+    thickness: Optional[float] = None
+    # hourglassCoefficient: float
+    # stabilizationType: str
 
 
 class Block(BaseModel):
     blocksId: int
     name: str
-    material: Optional[str] = None
+    material: str = None
     damageModel: Optional[str] = None
     thermalModel: Optional[str] = None
     additiveModel: Optional[str] = None
     horizon: Optional[float] = None
     density: Optional[float] = None
-    specificHeatCapacity: Optional[float] = None
+    specificHeatCapacity: Union[Optional[float], Optional[str]] = None
     show: Optional[bool] = None
 
 

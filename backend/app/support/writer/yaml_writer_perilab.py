@@ -332,9 +332,11 @@ class YAMLcreatorPeriLab:
                 # if not self.two_d:
                 damage["Anisotropic Damage"]["Critical Value Z"] = float(dam.anistropicDamageZ)
             # damage["Plane Stress"] = self.two_d
-            damage["Only Tension"] = dam.onlyTension
+            if self.check_if_defined(dam.onlyTension):
+                damage["Only Tension"] = dam.onlyTension
             # damage["Detached Nodes Check"] = dam.detachedNodesCheck
-            # damage["Thickness"] = float(dam.thickness)
+            if self.check_if_defined(dam.thickness):
+                damage["Thickness"] = float(dam.thickness)
             # damage["Hourglass Coefficient"] = float(dam.hourglassCoefficient)
             # damage["Stabilization Type"] = dam.stabilizationType
 
