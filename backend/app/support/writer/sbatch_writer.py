@@ -65,11 +65,7 @@ class SbatchCreator:
         string += "module load GCC/12.2.0" + "\n"
         string += "module load OpenMPI/4.1.5" + "\n"
 
-        string += (
-            "srun julia --project=/home/f_peridi/perilab/ /home/f_peridi/perilab/src/main.jl "
-            + self.filename
-            + ".yaml -s \n"
-        )
+        string += "srun julia -e '" + 'using PeriLab; PeriLab.main("' + self.filename + '.yaml"' + ";silent=true) \n"
 
         return string
 
@@ -80,14 +76,18 @@ class SbatchCreator:
         if self.trial:
             string += "timeout 600s "
         if docker:
-            string += "/app/PeriLab/bin/PeriLab"
+            string += "/app/PeriLab/bin/PeriLab -s "
+            if verbose:
+                string += "-v "
+            string += self.filename + ".yaml"
         else:
             if self.tasks > 1:
                 string += "mpiexecjl -n " + str(self.tasks) + " "
-            string += 'julia --project="' + cluster_perilab_path + '" ' + cluster_perilab_path + "/src/main.jl"
-        if verbose:
-            string += " -v"
-        string += " -s " + self.filename + ".yaml & echo $! > pid.txt \n"
+            string += "julia -e '" + 'using PeriLab; PeriLab.main("' + self.filename + '.yaml"' + ";silent=true"
+            if verbose:
+                string += ";verbose=true"
+            string += ")'"
+        string += " & echo $! > pid.txt \n"
         string += "pid=`cat pid.txt` \n"
         string += "wait $pid \n"
         string += "rm pid.txt \n"
