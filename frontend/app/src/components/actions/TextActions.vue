@@ -132,6 +132,10 @@ export default defineComponent({
         message: response.message
       })
       this.store.status = response.data
+      // if (this.store.status.submitted)
+      // {
+      //   this.enableWebsocket()
+      // }
       // this.$api.get('/jobs/getStatus', { params })
       //   .then((response) => {
       //     this.$q.notify({

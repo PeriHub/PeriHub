@@ -21,13 +21,13 @@ export type AdditiveModel = {
 export type Block = {
     blocksId: number;
     name: string;
-    material?: string | null;
+    material?: string;
     damageModel?: string | null;
     thermalModel?: string | null;
     additiveModel?: string | null;
     horizon?: number | null;
     density?: number | null;
-    specificHeatCapacity?: number | null;
+    specificHeatCapacity?: number | string | null;
     show?: boolean | null;
 };
 
@@ -144,12 +144,8 @@ export type Damage = {
     anistropicDamageX?: number | null;
     anistropicDamageY?: number | null;
     anistropicDamageZ?: number | null;
-    planeStress: boolean;
-    onlyTension: boolean;
-    detachedNodesCheck: boolean;
-    thickness: number;
-    hourglassCoefficient: number;
-    stabilizationType: string;
+    onlyTension?: boolean | null;
+    thickness?: number | null;
 };
 
 export type Discretization = {
@@ -215,7 +211,6 @@ export type Material = {
     planeStrain: boolean;
     materialSymmetry: string;
     stabilizationType: string;
-    thickness: number;
     hourglassCoefficient: number;
     actualHorizon?: number | null;
     yieldStress?: number | null;
@@ -537,12 +532,20 @@ export type CancelJobData = {
     cluster?: boolean;
     modelFolderName?: string;
     modelName?: string;
+    sbatch?: boolean;
 };
 
 export type CancelJobResponse = unknown;
 
+export type GetJobFoldersData = {
+    modelName?: string;
+};
+
+export type GetJobFoldersResponse = unknown;
+
 export type GetJobsData = {
     modelName?: string;
+    sbatch?: boolean;
 };
 
 export type GetJobsResponse = unknown;
@@ -573,6 +576,21 @@ export type GetFractureAnalysisData = {
 };
 
 export type GetFractureAnalysisResponse = (Blob | File);
+
+export type GetEnergyReleasePlotData = {
+    cluster?: boolean;
+    displacementOutputName?: string;
+    forceOutputName?: string;
+    modelFolderName?: string;
+    modelName?: string;
+    outputCsv?: string;
+    outputExodus?: string;
+    step?: number;
+    tasks?: number;
+    thickness?: number;
+};
+
+export type GetEnergyReleasePlotResponse = unknown;
 
 export type GetEnfAnalysisData = {
     cluster?: boolean;
@@ -955,6 +973,21 @@ export type $OpenApiTs = {
             };
         };
     };
+    '/jobs/getJobFolders': {
+        get: {
+            req: GetJobFoldersData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
     '/jobs/getJobs': {
         get: {
             req: GetJobsData;
@@ -993,6 +1026,21 @@ export type $OpenApiTs = {
                  * The image.
                  */
                 200: (Blob | File);
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/results/getEnergyReleasePlot': {
+        get: {
+            req: GetEnergyReleasePlotData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
                 /**
                  * Validation Error
                  */

@@ -90,14 +90,7 @@ export const $Block = {
             title: 'Name'
         },
         material: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
+            type: 'string',
             title: 'Material'
         },
         damageModel: {
@@ -159,6 +152,9 @@ export const $Block = {
             anyOf: [
                 {
                     type: 'number'
+                },
+                {
+                    type: 'string'
                 },
                 {
                     type: 'null'
@@ -942,33 +938,31 @@ export const $Damage = {
             ],
             title: 'Anistropicdamagez'
         },
-        planeStress: {
-            type: 'boolean',
-            title: 'Planestress'
-        },
         onlyTension: {
-            type: 'boolean',
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Onlytension'
         },
-        detachedNodesCheck: {
-            type: 'boolean',
-            title: 'Detachednodescheck'
-        },
         thickness: {
-            type: 'number',
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Thickness'
-        },
-        hourglassCoefficient: {
-            type: 'number',
-            title: 'Hourglasscoefficient'
-        },
-        stabilizationType: {
-            type: 'string',
-            title: 'Stabilizationtype'
         }
     },
     type: 'object',
-    required: ['name', 'damageModel', 'planeStress', 'onlyTension', 'detachedNodesCheck', 'thickness', 'hourglassCoefficient', 'stabilizationType'],
+    required: ['name', 'damageModel'],
     title: 'Damage'
 } as const;
 
@@ -1395,10 +1389,6 @@ export const $Material = {
             type: 'string',
             title: 'Stabilizationtype'
         },
-        thickness: {
-            type: 'number',
-            title: 'Thickness'
-        },
         hourglassCoefficient: {
             type: 'number',
             title: 'Hourglasscoefficient'
@@ -1484,7 +1474,7 @@ export const $Material = {
         }
     },
     type: 'object',
-    required: ['name', 'matType', 'planeStress', 'planeStrain', 'materialSymmetry', 'stabilizationType', 'thickness', 'hourglassCoefficient', 'properties'],
+    required: ['name', 'matType', 'planeStress', 'planeStrain', 'materialSymmetry', 'stabilizationType', 'hourglassCoefficient', 'properties'],
     title: 'Material'
 } as const;
 

@@ -169,7 +169,8 @@ async def websocket_endpoint_log(
                     detail="LogFile can't be found in " + remotepath,
                 )
             idx = 1
-            while model_name not in filtered_values[-idx]:
+            log_file = filtered_values[-1]
+            while model_name not in log_file:
                 idx += 1
                 log_file = filtered_values[-idx]
             latest_file = os.path.join(remotepath, log_file)
