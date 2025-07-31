@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   <div style="height: 100%; width: 100%; overflow: hidden">
     <div style="height:100%;">
       <div class="row" :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
-        <q-btn flat dense icon="fas fa-sync-alt" @click="viewPointData">
+        <q-btn flat dense icon="fas fa-sync-alt" @click="viewPointData(true)">
           <q-tooltip>
             Reload Model
           </q-tooltip>
@@ -57,7 +57,7 @@ SPDX-License-Identifier: Apache-2.0
             <q-item-section v-if="modelParams.numberOfSteps > 0">
               <q-slider style="width: 100px" v-model="modelParams.step" :min="0" :max="modelParams.numberOfSteps"
                 :step="1" label :label-value="'Time Step: ' + modelParams.step" switch-label-side color="secondary"
-                @change="viewPointData"></q-slider>
+                @change="viewPointData(true)"></q-slider>
             </q-item-section>
             <q-item-section side>
               {{ time }}
@@ -125,21 +125,24 @@ SPDX-License-Identifier: Apache-2.0
     </div>
     <div class="variables" :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
       <q-select class="variable" :options="variableOptions" v-model="modelParams.variable" label="Variable" outlined
-        dense @update:model-value="viewPointData"></q-select>
+        dense @update:model-value="viewPointData(true)"></q-select>
       <q-select class="variable" :options="axisOptions" v-model="modelParams.axis" label="Axis" outlined dense
-        @update:model-value="viewPointData"></q-select>
+        @update:model-value="viewPointData(true)"></q-select>
       <q-input class="variable" v-model.number="modelParams.displFactor" type="number" label="Displ. Magnitude" outlined
-        dense debounce:500 @update:model-value="viewPointData"></q-input>
+        dense debounce:500 @update:model-value="viewPointData(true)"></q-input>
       <q-expansion-item v-model="expansion" expand-separator dense dense-toggle icon="fas fa-cogs" label="Options">
         <q-select class="variable" :options="filterOptions" v-model="modelParams.filter" label="Filter" outlined dense
-          clearable @update:model-value="viewPointData"></q-select>
+          clearable @update:model-value="viewPointData(true)"></q-select>
         <q-input class="variable" v-model.number="modelParams.colorBarMin" type="number" label="Min." outlined dense
-          clearable debounce:500 @update:model-value="viewPointData"></q-input>
+          clearable debounce:500 @update:model-value="viewPointData(true)"></q-input>
         <q-input class="variable" v-model.number="modelParams.colorBarMax" type="number" label="Max." outlined dense
-          clearable debounce:500 @update:model-value="viewPointData"></q-input>
+          clearable debounce:500 @update:model-value="viewPointData(true)"></q-input>
       </q-expansion-item>
     </div>
     <vertical-colored-legend class="legend" :min="minValue" :max="maxValue" :key="legendKey" />
+    <q-inner-loading :showing="modelLoading">
+      <q-spinner-gears size="50px" color="primary"></q-spinner-gears>
+    </q-inner-loading>
   </div>
 </template>
 
@@ -215,13 +218,13 @@ export default {
 
   mounted() {
     console.log('ModelView mounted')
-    this.viewPointData();
+    this.viewPointData(true);
     this.$refs.view.resetCamera();
   },
   methods: {
-    async viewPointData() {
+    async viewPointData(loading = true) {
       console.log('viewPointData')
-      this.modelLoading = true;
+      this.modelLoading = loading;
 
       await this.getPointDataAndUpdateDx();
       this.radius = parseFloat(this.dx_value.toFixed(3));
@@ -323,24 +326,24 @@ export default {
     backward() {
       if (this.modelParams.step > 1) {
         this.modelParams.step = this.modelParams.step - 1
-        this.viewPointData()
+        this.viewPointData(false)
       }
     },
     fastBackward() {
       this.modelParams.step = 1
-      this.viewPointData()
+      this.viewPointData(false)
     },
     forward() {
       if (this.modelParams.step < this.modelParams.numberOfSteps) {
         this.modelParams.step = this.modelParams.step + 1
-        this.viewPointData()
+        this.viewPointData(false)
       } else {
         this.pause()
       }
     },
     fastForward() {
       this.modelParams.step = this.modelParams.numberOfSteps
-      this.viewPointData()
+      this.viewPointData(false)
     }
 
   },
