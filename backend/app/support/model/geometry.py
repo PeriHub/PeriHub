@@ -19,10 +19,21 @@ class Geometry:
     def create_rectangle(coor, dx_value):
         """doc"""
         start_time = time.time()
+
+        y_start = coor[2]
+        y_end = coor[3] + dx_value[1]
+        symmetric = False
+        print(coor[2])
+        print(coor[3])
+        if coor[2] == -coor[3]:
+            y_start = dx_value[1] / 2
+            y_end = coor[3]
+            symmetric = True
+
         if coor[4] == coor[5]:
             gridx, gridy = np.meshgrid(
                 np.arange(coor[0], coor[1] + dx_value[0], dx_value[0]),
-                np.arange(coor[2], coor[3] + dx_value[1], dx_value[1]),
+                np.arange(y_start, y_end, dx_value[1]),
             )
             grid_x_value = gridx.ravel()
             grid_y_value = gridy.ravel()
@@ -30,12 +41,18 @@ class Geometry:
         else:
             gridx, gridy, gridz = np.meshgrid(
                 np.arange(coor[0], coor[1] + dx_value[0], dx_value[0]),
-                np.arange(coor[2], coor[3] + dx_value[1], dx_value[1]),
+                np.arange(y_start, y_end, dx_value[1]),
                 np.arange(coor[4], coor[5] + dx_value[2], dx_value[2]),
             )
             grid_x_value = gridx.ravel()
             grid_y_value = gridy.ravel()
             grid_z_value = gridz.ravel()
+
+        if symmetric:
+            grid_x_value = np.concatenate((grid_x_value, grid_x_value))
+            grid_y_value = np.concatenate((grid_y_value, -grid_y_value))
+            grid_z_value = np.concatenate((grid_z_value, grid_z_value))
+
         log.info(f"Points created  in {(time.time() - start_time):.2f} seconds")
         return grid_x_value, grid_y_value, grid_z_value
 
