@@ -339,6 +339,7 @@ export default defineComponent({
             // }
           }
           this.bus.emit('getStatus')
+          this.bus.emit('getJobFolders')
         })
         .catch((error) => {
           error = JSON.parse(JSON.stringify(error))

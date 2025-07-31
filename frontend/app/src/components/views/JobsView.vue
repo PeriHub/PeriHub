@@ -6,7 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-table flat :rows="rows" :columns="columns" row-key="id" :loading="loading" clickable @row-click="onRowClick">
+    <q-table flat :rows="rows" :columns="columns" row-key="id" :loading="loading" clickable @row-click="onRowClick"
+      :rows-per-page-options="[0]">
       <template v-slot:loading>
         <q-inner-loading showing color="primary"></q-inner-loading>
       </template>
@@ -100,7 +101,8 @@ export default defineComponent({
       await cancelJob({
         modelName: row.name,
         modelFolderName: row.sub_name,
-        cluster: row.cluster
+        cluster: row.cluster,
+        sbatch: true,
       })
         .then((response) => {
           this.$q.notify({
@@ -125,7 +127,7 @@ export default defineComponent({
     async _getJobs() {
       this.loading = true;
 
-      await getJobs({ modelName: this.modelStore.selectedModel.file })
+      await getJobs({ modelName: this.modelStore.selectedModel.file, sbatch: this.modelData.job.sbatch })
         .then((response) => {
           this.rows = response.data
           this.$q.notify({

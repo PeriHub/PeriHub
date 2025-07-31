@@ -103,7 +103,7 @@ async def run_model(
         file.flush()
         sftp.close()
 
-        command = "cd " + remotepath + " \n sh runPerilab.sh"
+        command = 'bash --login -c "cd ' + remotepath + ' \n sh runPerilab.sh"'
         ssh.exec_command(command)
         ssh.close()
 
@@ -199,6 +199,7 @@ def cancel_job(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     cluster: bool = False,
+    sbatch: bool = False,
     request: Request = "",
 ):
     """doc"""
@@ -252,8 +253,18 @@ def cancel_job(
     #     log.warning("LogFile can't be found")
 
     # job_id = filtered_values[-1].split("-")[-1][:-4]
-    command = "scancel -n " + model_name + "_" + model_folder_name
-    ssh.exec_command(command)
+    if sbatch:
+        command = "scancel -n " + model_name + "_" + model_folder_name
+        ssh.exec_command(command)
+    else:
+        command = (
+            "kill -2 $(cat " + os.path.join(remotepath, "pid.txt") + ") \n rm " + os.path.join(remotepath, "pid.txt")
+        )
+        _, stdout, stderr = ssh.exec_command(command)
+        stdout = stdout.readlines()
+        stderr = stderr.readlines()
+        # print(stdout)
+        # print(stderr)
     ssh.close()
 
     log.info("Job: %s has been canceled", model_name + "_" + model_folder_name)
@@ -264,9 +275,30 @@ def cancel_job(
     )
 
 
+@router.get("/getJobFolders", operation_id="get_job_folders")
+def get_job_folders(
+    model_name: str = "Dogbone",
+    request: Request = "",
+):
+    """doc"""
+    username = FileHandler.get_user_name(request, dev)
+
+    localpath = FileHandler.get_local_model_path(username, model_name)
+
+    # print(localpath)
+
+    if not os.path.exists(localpath):
+        return ResponseModel(data=job_folders, message="No jobs")
+
+    job_folders = next(os.walk(localpath))[1]
+
+    return ResponseModel(data=job_folders, message="Jobs found")
+
+
 @router.get("/getJobs", operation_id="get_jobs")
 def get_jobs(
     model_name: str = "Dogbone",
+    sbatch: bool = False,
     request: Request = "",
 ):
     """doc"""
@@ -331,9 +363,8 @@ def get_jobs(
                         results=False,
                     )
 
-                remotepath = "./PeridigmJobs/apiModels/" + os.path.join(username, model_name, model_folder_name)
-
                 if cluster_enabled and cluster_accesible:
+                    remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
                     if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
                         job.cluster = True
                         # try:
@@ -348,7 +379,13 @@ def get_jobs(
                         # except IOError:
                         #     pass
 
-                        job.submitted = FileHandler.cluster_job_running(remotepath, model_name, model_folder_name)
+                        if sbatch:
+                            job.submitted = FileHandler.cluster_job_running(
+                                ssh, sftp, remotepath, model_name, model_folder_name
+                            )
+                        else:
+                            if "pid.txt" in sftp.listdir(remotepath):
+                                job.submitted = True
 
                         # print(job.cluster)
                         jobs.append(job)
@@ -398,9 +435,13 @@ def get_status(
             ssh.close()
             return ResponseModel(data=status, message="Status received")
 
+        if sbatch:
+            status.submitted = FileHandler.cluster_job_running(ssh, sftp, remotepath, model_name, model_folder_name)
+        else:
+            if "pid.txt" in sftp.listdir(remotepath):
+                status.submitted = True
         sftp.close()
         ssh.close()
-        status.submitted = FileHandler.cluster_job_running(remotepath, model_name, model_folder_name)
 
     else:
         remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
