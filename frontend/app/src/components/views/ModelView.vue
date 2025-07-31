@@ -98,7 +98,7 @@ export default defineComponent({
   },
   mounted() {
     console.log('ModelView mounted')
-    this.bus.once('viewPointData', async () => {
+    this.bus.on('viewPointData', async () => {
       await this.viewPointData()
     })
     this.bus.on('filterPointData', () => {
