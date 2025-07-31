@@ -105,14 +105,14 @@ SPDX-License-Identifier: Apache-2.0
           <q-select class="my-input" :options="stabilizationType" v-model="material.stabilizationType"
             :label="materialKeys.stabilizationType" standout dense></q-select>
         </div>
-        <div class="row my-row">
+        <!-- <div class="row my-row">
           <q-input class="my-input" v-model="material.thickness" :rules="[rules.required, rules.float]"
             :label="materialKeys.thickness" standout dense></q-input>
-        </div>
-        <div class="row my-row">
+        </div> -->
+        <!-- <div class="row my-row">
           <q-input class="my-input" v-model="material.hourglassCoefficient" :rules="[rules.required, rules.float]"
             :label="materialKeys.hourglassCoefficient" standout dense></q-input>
-        </div>
+        </div> -->
         <div class="row my-row" v-show="material.matType == 'Elastic Plastic Hypoelastic Correspondence'">
           <q-input class="my-input" v-model="material.actualHorizon" :rules="[rules.required, rules.float]"
             :label="materialKeys.actualHorizon" standout dense></q-input>
