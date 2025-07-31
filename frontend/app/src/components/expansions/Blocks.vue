@@ -22,7 +22,7 @@ SPDX-License-Identifier: Apache-2.0
           standout dense></q-select>
         <q-input class="small-input" v-model="block.density" :rules="[rules.required, rules.posFloat]"
           :label="blockKeys.density" standout dense></q-input>
-        <q-input class="small-input" v-model="block.specificHeatCapacity" :rules="[rules.required, rules.posFloat]"
+        <q-input class="small-input" v-model="block.specificHeatCapacity" :rules="[rules.posFloat]"
           :label="blockKeys.specificHeatCapacity" standout dense></q-input>
         <q-input class="small-input" v-if="model.ownModel" v-model="block.horizon"
           :rules="[rules.required, rules.posFloat]" :label="blockKeys.horizon" standout dense></q-input>
@@ -49,7 +49,7 @@ SPDX-License-Identifier: Apache-2.0
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
-import rules from 'assets/rules.js';
+import rules from 'assets/rules';
 
 export default defineComponent({
   name: 'BlocksSettings',

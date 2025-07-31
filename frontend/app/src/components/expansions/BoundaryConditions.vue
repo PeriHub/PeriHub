@@ -29,7 +29,7 @@ SPDX-License-Identifier: Apache-2.0
           :label="boundaryKeys.variable" standout dense></q-select>
         <q-select class="my-select" :options="coordinate" v-model="boundaryCondition.coordinate"
           :label="boundaryKeys.coordinate" standout dense style="width: 120px"></q-select>
-        <q-input class=" my-input" v-model="boundaryCondition.value" :rules="[rules.required, rules.name]"
+        <q-input class=" my-input" v-model="boundaryCondition.value" :rules="[rules.required]"
           :label="boundaryKeys.value" standout dense></q-input>
         <q-btn flat icon="fas fa-trash-alt" @click="removeCondition(index)">
           <q-tooltip>
