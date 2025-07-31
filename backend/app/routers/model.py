@@ -364,7 +364,9 @@ def add_model(model_name: str, description: str, request: Request = ""):
 
     model_slug = slugify(model_name, separator="_")
 
-    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_slug, model_slug + ".py")
+    folder_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_slug)
+    file_path = os.path.join(folder_path, model_slug + ".py")
+    config_file_path = os.path.join(folder_path, model_slug + ".json")
     print(file_path)
 
     source_code = f'''
@@ -401,11 +403,6 @@ class Valves(BaseModel):
         title="Width",
         description="Width",
     )
-    TWOD: bool = Field(
-        default=True,
-        title="Two Dimensional",
-        description="Two Dimensional",
-    )
 
 class main:
     def __init__(
@@ -416,25 +413,27 @@ class main:
         self.xend = valves["LENGTH"]
         self.ybegin = 0
         self.yend = valves["HEIGHT"]
+        self.discretization = valves["DISCRETIZATION"]
+        self.two_d = model_data.model.twoDimensional
 
-        if valves["TWOD"]:
+        if self.two_d:
             self.zbegin = 0
             self.zend = 0
         else:
             self.zbegin = -valves["WIDTH"] / 2
             self.zend = valves["WIDTH"] / 2
 
-    def get_discretization(self, valves):
-        number_nodes = 2 * int(valves["DISCRETIZATION"] / 2) + 1
+    def get_discretization(self):
+        number_nodes = 2 * int(self.discretization / 2) + 1
         dx_value = [
-            valves["HEIGHT"] / number_nodes,
-            valves["HEIGHT"] / number_nodes,
-            valves["HEIGHT"] / number_nodes,
+            self.yend / number_nodes,
+            self.yend / number_nodes,
+            self.yend / number_nodes,
         ]
         self.dx_value = dx_value
         return dx_value
 
-    def create_geometry(self, valves):
+    def create_geometry(self):
         """doc"""
 
         geo = Geometry()
@@ -458,10 +457,10 @@ class main:
             None
         )
 
-    def edit_model_data(self, model_data, valves):
+    def edit_model_data(self, model_data):
         return model_data
 
-    def crate_block_definition(self, valves, x_value, y_value, z_value, k):
+    def crate_block_definition(self, x_value, y_value, z_value, k):
         """doc"""
         k = np.where(
             y_value <= self.yend / 2,
@@ -469,9 +468,14 @@ class main:
             k,
         )
         return k'''
-
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
     with open(file_path, "w") as file:
         file.write(source_code)
+
+    shutil.copy(
+        os.path.join(str(Path(__file__).parent.parent.resolve()), "assets", "config_template.json"), config_file_path
+    )
 
     return model_slug
 
@@ -504,12 +508,5 @@ def save_model(model_file: str, source_code: str, request: Request = ""):
 
 @router.delete("/delete", operation_id="delete_model")
 def delete_model(model_name: str):
-    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name, model_name + ".py")
-
-    os.remove(file_path)
-
-    file_path = os.path.join(
-        str(Path(__file__).parent.parent.resolve()), "own_models", model_name, model_name + ".json"
-    )
-
-    os.remove(file_path)
+    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name)
+    shutil.rmtree(file_path, ignore_errors=True)

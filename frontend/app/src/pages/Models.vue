@@ -40,7 +40,7 @@ SPDX-License-Identifier: Apache-2.0
 
         <q-card-section class="q-pt-none">
           <q-input dense v-model="newModelName" label="Model Name" />
-          <q-input dense v-model="model.description" label="Description" />
+          <q-input dense v-model="description" label="Description" />
         </q-card-section>
 
         <q-card-actions align="right">
@@ -93,6 +93,7 @@ export default {
       dialogAddModel: false,
       dialogDeleteModel: false,
       newModelName: '',
+      description: '',
 
       sourceCode: '',
       config: null,
@@ -106,7 +107,7 @@ export default {
     async _addModel() {
       const response = await addModel({
         modelName: this.newModelName,
-        requestBody: this.model
+        description: this.description
       })
       this.selectedModel.title = this.newMethodName
       this.selectedModel.file = response
@@ -161,7 +162,7 @@ export default {
     },
     async _deleteModel() {
       await deleteModel({
-        modelName: this.selectedModel.title,
+        modelName: this.selectedModel.file,
       }).then(() => {
         this.$q.notify({
           message: 'Model deleted',
