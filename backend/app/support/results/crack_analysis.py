@@ -348,7 +348,7 @@ class CrackAnalysis:
 
         if len(damaged_points_x) == 0:
             log.warning("No damaged points found")
-            return 1, time
+            return 1, 1, time
 
         crack_length = np.max(damaged_points_x) - np.min(damaged_points_x)
         crack_width = np.max(damaged_points_z) - np.min(damaged_points_z)
