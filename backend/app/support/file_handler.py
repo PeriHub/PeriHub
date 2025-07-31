@@ -266,26 +266,23 @@ class FileHandler:
         if not os.path.exists(localpath):
             log.warning(model_name + " has not been created yet")
             return model_name + " has not been created yet"
+
+        input_exist = False
+        mesh_exist = False
+        for file in os.listdir(localpath):
+            if file.split(".")[-1] == "yaml":
+                input_exist = True
+            if file.split(".")[-1] == "txt" or file.split(".")[-1] == "e":
+                mesh_exist = True
+        if not input_exist:
+            log.warning("Inputfile of " + model_name + " has not been created yet")
+            return "Inputfile of " + model_name + " has not been created yet"
+
+        if not mesh_exist:
+            log.warning("Meshfile of " + model_name + " has not been created yet")
+            return "Meshfile of " + model_name + " has not been created yet"
+
         for root, _, files in os.walk(localpath):
-            if len(files) == 0:
-                log.warning(model_name + " has not been created yet")
-                return model_name + " has not been created yet"
-            input_exist = False
-            mesh_exist = False
-            for name in files:
-                if name.split(".")[-1] == "yaml":
-                    input_exist = True
-                if name.split(".")[-1] == "txt" or name.split(".")[-1] == "e":
-                    mesh_exist = True
-
-            if not input_exist:
-                log.warning("Inputfile of " + model_name + " has not been created yet")
-                return "Inputfile of " + model_name + " has not been created yet"
-
-            if not mesh_exist:
-                log.warning("Meshfile of " + model_name + " has not been created yet")
-                return "Meshfile of " + model_name + " has not been created yet"
-
             for name in files:
                 sftp.put(os.path.join(root, name), name)
 
@@ -425,7 +422,7 @@ class FileHandler:
         #         pass
         try:
             for filename in sftp.listdir(remotepath):
-                if all_data or filename.endswith(".e"):
+                if all_data or filename.endswith(".e") or filename.endswith(".csv"):
                     if os.path.exists(os.path.join(resultpath, filename)):
                         remote_info = sftp.stat(os.path.join(remotepath, filename))
                         remote_time = remote_info.st_mtime
@@ -551,9 +548,8 @@ class FileHandler:
         return ssh
 
     @staticmethod
-    def cluster_job_running(remotepath, model_name, model_folder_name):
+    def cluster_job_running(ssh, sftp, remotepath, model_name, model_folder_name):
         """doc"""
-        ssh, sftp = FileHandler.sftp_to_cluster(True)
         command = (
             "cd "
             + remotepath
@@ -569,8 +565,6 @@ class FileHandler:
         if FileHandler.sftp_exists(sftp=sftp, path=job_id_path):
             job_id_file = sftp.file(job_id_path, "r")
             job_id = job_id_file.read()
-        sftp.close()
-        ssh.close()
         return len(str(job_id)) > 5
 
     @staticmethod
