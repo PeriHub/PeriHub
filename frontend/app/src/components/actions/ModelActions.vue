@@ -165,6 +165,14 @@ export default defineComponent({
         this.viewStore.viewId = 'model';
         await sleep(500)
         this.bus.emit('viewPointData');
+      } else if (type == 'txt') {
+        if (JSON.parse(res.xhr.response).message != '') {
+          this.modelStore.modelData.model.meshFile = res.files[0].name
+        }
+        this.viewStore.modelLoading = true;
+        this.viewStore.viewId = 'model';
+        await sleep(500)
+        this.bus.emit('viewPointData');
       }
       this.bus.emit('getStatus')
       this.viewStore.modelLoading = false;

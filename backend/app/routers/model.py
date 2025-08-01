@@ -271,7 +271,6 @@ def get_point_data(
             log.error("%s results can not be found", model_name)
             return model_name + " results can not be found"
     else:
-        first_row = True
         max_block_id = 1
         # try:
         if own_model:
@@ -289,32 +288,37 @@ def get_point_data(
             reader = csv.reader(file)
             rows = list(reader)
             for row in rows:
-                if not first_row:
-                    str1 = "".join(row)
-                    parts = str1.split()
-                    if two_d:
-                        block_id = int(parts[2])
-                        point_string += parts[0] + "," + parts[1] + ",0.0,"
-                    else:
-                        block_id = int(parts[3])
-                        point_string += parts[0] + "," + parts[1] + "," + parts[2] + ","
-                    if block_id > max_block_id:
-                        max_block_id = block_id
-                first_row = False
-            first_row = True
+                str1 = "".join(row)
+                if str1.startswith("#") or str1.startswith("header") or len(str1) == 0:
+                    continue
+                parts = str1.split()
+                if two_d:
+                    block_id = int(parts[2])
+                    point_string += parts[0] + "," + parts[1] + ",0.0,"
+                else:
+                    if len(parts) < 3:
+                        log.error("Model don't support 3D model, switch to two dimensional model")
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Model don't support 3D model, switch to two dimensional model",
+                        )
+                    block_id = int(parts[3])
+                    point_string += parts[0] + "," + parts[1] + "," + parts[2] + ","
+                if block_id > max_block_id:
+                    max_block_id = block_id
             for row in rows:
-                if not first_row:
-                    str1 = "".join(row)
-                    parts = str1.split()
-                    if two_d:
-                        block_id = int(parts[2])
-                    else:
-                        block_id = int(parts[3])
-                    if max_block_id == 1:
-                        block_id_string += str(0.1) + ","
-                    else:
-                        block_id_string += str(block_id / max_block_id) + ","
-                first_row = False
+                str1 = "".join(row)
+                if str1.startswith("#") or str1.startswith("header") or len(str1) == 0:
+                    continue
+                parts = str1.split()
+                if two_d:
+                    block_id = int(parts[2])
+                else:
+                    block_id = int(parts[3])
+                if max_block_id == 1:
+                    block_id_string += str(0.1) + ","
+                else:
+                    block_id_string += str(block_id / max_block_id) + ","
         response = [
             point_string.rstrip(point_string[-1]),
             block_id_string.rstrip(block_id_string[-1]),

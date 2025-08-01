@@ -173,10 +173,11 @@ export default defineComponent({
             message: response.message,
           })
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log(error.body.detail)
           this.$q.notify({
             type: 'negative',
-            message: 'Loading failed',
+            message: error.body.detail,
           })
         })
 

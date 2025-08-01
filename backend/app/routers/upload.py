@@ -51,15 +51,11 @@ async def upload_files(
         ".inp",
     ]
     for file in files:
-        content_type = mime.from_buffer(
-            file.file.read(1024)
-        )  # Check only the first 1024 bytes
+        content_type = mime.from_buffer(file.file.read(1024))  # Check only the first 1024 bytes
         # move the cursor back to the beginning
         await file.seek(0)
         if content_type not in allowed_types:
-            log.warning(
-                "Invalid file type, got %s, expected %s", content_type, allowed_types
-            )
+            log.warning("Invalid file type, got %s, expected %s", content_type, allowed_types)
             return ResponseModel(
                 data=False,
                 message=f"Invalid file type, got {content_type}, expected 'application/json', '.yaml', '.cdb', '.inp', '.gcode', '.obj', 'text/plain', '.g', '.so' or '.inp'",
@@ -67,21 +63,31 @@ async def upload_files(
 
     username = FileHandler.get_user_name(request, dev)
 
-    localpath = FileHandler.get_local_model_folder_path(
-        username, model_name, model_folder_name
-    )
+    localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
     if not os.path.exists(localpath):
         os.makedirs(localpath)
 
+    meshfile_name = ""
     for file in files:
         file_location = localpath + f"/{file.filename}"
         with open(file_location, "wb+") as file_object:
             shutil.copyfileobj(file.file, file_object)
+        if file.filename.endswith(".txt"):
+            line_id = 0
+            # check if file contains header
+            with open(file_location) as f:
+                for line in f:
+                    line_id += 1
+                    if line_id == 10:
+                        break
+                    if line.startswith("header: x y "):
+                        meshfile_name = file.filename
+                        break
 
     return ResponseModel(
         data=True,
-        message=f"file '{files[0].filename}' saved at '{file_location}'",
+        message=meshfile_name,
     )
 
 
@@ -96,10 +102,7 @@ def write_input_file(
     username = FileHandler.get_user_name(request, dev)
 
     with open(
-        FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-        + "/"
-        + model_name
-        + ".yaml",
+        FileHandler.get_local_model_folder_path(username, model_name, model_folder_name) + "/" + model_name + ".yaml",
         "w",
         encoding="UTF-8",
     ) as file:
