@@ -168,6 +168,7 @@ export default defineComponent({
       } else if (type == 'txt') {
         if (JSON.parse(res.xhr.response).message != '') {
           this.modelStore.modelData.model.meshFile = res.files[0].name
+          this.modelStore.modelData.discretization.discType = 'txt'
         }
         this.viewStore.modelLoading = true;
         this.viewStore.viewId = 'model';
