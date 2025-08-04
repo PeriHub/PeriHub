@@ -7,18 +7,20 @@ import csv
 import importlib.machinery
 import importlib.util
 import json
+import math
 import os
 import shutil
 from pathlib import Path
 from re import findall
 
+import numpy as np
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse
 from slugify import slugify
 
 from ..support.base_models import ModelData, ResponseModel
 from ..support.file_handler import FileHandler
-from ..support.globals import dev, log
+from ..support.globals import dev, log, max_nodes
 
 router = APIRouter(prefix="/model", tags=["Model Methods"])
 
@@ -287,7 +289,17 @@ def get_point_data(
         ) as file:
             reader = csv.reader(file)
             rows = list(reader)
+            reduce_factor = 0
+            counter = 0
+            if len(rows) > max_nodes:
+                reduce_factor = int(len(rows) / max_nodes)
+                log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
             for row in rows:
+                counter += 1
+                if counter == reduce_factor:
+                    counter = 0
+                else:
+                    continue
                 str1 = "".join(row)
                 if str1.startswith("#") or str1.startswith("header") or len(str1) == 0:
                     continue
@@ -313,6 +325,10 @@ def get_point_data(
                     point_string += parts[0] + "," + parts[1] + "," + parts[2] + ","
                 if block_id > max_block_id:
                     max_block_id = block_id
+            dx = []
+            x_previous = None
+            y_previous = None
+            z_previous = None
             for row in rows:
                 str1 = "".join(row)
                 if str1.startswith("#") or str1.startswith("header") or len(str1) == 0:
@@ -320,16 +336,32 @@ def get_point_data(
                 parts = str1.split()
                 if two_d:
                     block_id = int(parts[2])
+                    x = float(parts[0])
+                    y = float(parts[1])
+                    if x_previous != None:
+                        dx.append(math.hypot(x - x_previous, y - y_previous))
+                    x_previous = x
+                    y_previous = y
                 else:
                     block_id = int(parts[3])
+                    x = float(parts[0])
+                    y = float(parts[1])
+                    z = float(parts[2])
+                    if x_previous != None:
+                        dx.append(math.hypot(x - x_previous, y - y_previous, z - z_previous))
+                    x_previous = x
+                    y_previous = y
+                    z_previous = z
                 if max_block_id == 1:
                     block_id_string += str(0.1) + ","
                 else:
                     block_id_string += str(block_id / max_block_id) + ","
-        response = [
-            point_string.rstrip(point_string[-1]),
-            block_id_string.rstrip(block_id_string[-1]),
-        ]
+        dx_value = np.average(dx)
+        response = {
+            "points": point_string.rstrip(point_string[-1]),
+            "block_ids": block_id_string.rstrip(block_id_string[-1]),
+            "dx_value": dx_value,
+        }
         return ResponseModel(data=response, message="Points received")
         # except IOError:
         #     log.error("%s results can not be found", model_name)

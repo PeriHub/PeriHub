@@ -167,8 +167,9 @@ export default defineComponent({
         twoD: this.modelData.model.twoDimensional
       })
         .then((response) => {
-          this.pointString = response.data[0].split(',')
-          this.blockIdString = response.data[1].split(',')
+          this.pointString = response.data.points.split(',')
+          this.blockIdString = response.data.block_ids.split(',')
+          this.viewStore.dx_value = response.data.dx_value
           this.$q.notify({
             message: response.message,
           })
@@ -189,13 +190,14 @@ export default defineComponent({
         this.viewStore.dx_value =
           (this.modelData.model.height * numOfPlys) /
           (2 * parseInt(this.modelData.model.discretization / 2) + 1);
-      } else {
-        this.viewStore.dx_value = Math.hypot(
-          parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),
-          parseFloat(this.pointString[4]) - parseFloat(this.pointString[1]),
-          parseFloat(this.pointString[5]) - parseFloat(this.pointString[2])
-        );
       }
+      // else {
+      //   this.viewStore.dx_value = Math.hypot(
+      //     parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),
+      //     parseFloat(this.pointString[4]) - parseFloat(this.pointString[1]),
+      //     parseFloat(this.pointString[5]) - parseFloat(this.pointString[2])
+      //   );
+      // }
 
       // if (this.modelData.model.modelNameSelected == "Smetana") {
       //   var blockIdInt = this.blockIdString.map(Number);

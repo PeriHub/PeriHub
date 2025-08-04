@@ -30,6 +30,7 @@ if os.getenv("TRIAL") == "True":
 if os.getenv("DEV") == "True":
     dev = True
     log.info("Running in dev mode")
+max_nodes = int(os.getenv("MAX_NODES", default="10000"))
 cluster_url = os.getenv("CLUSTER_URL", default="")
 cluster_user = os.getenv("CLUSTER_USER", default="")
 cluster_password = os.getenv("CLUSTER_PASSWORD", default="")

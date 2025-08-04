@@ -16,7 +16,7 @@ from fastapi.responses import FileResponse, JSONResponse
 
 from ..support.base_models import ResponseModel
 from ..support.file_handler import FileHandler
-from ..support.globals import dev, log
+from ..support.globals import dev, log, max_nodes
 from ..support.results.analysis import Analysis
 from ..support.results.crack_analysis import CrackAnalysis
 
@@ -546,9 +546,17 @@ def get_data(
     else:
         normalized_cell_value = (cell_value - min_cell_value) / (max_cell_value - min_cell_value)
     print(time)
+
+    if len(np_points_all_x) > max_nodes:
+        reduce_factor = int(len(np_points_all_x) / max_nodes)
+        log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
+
     data = {
-        "nodes": np.ravel([np_points_all_x, np_points_all_y, np_points_all_z], order="F").tolist(),
-        "value": normalized_cell_value.tolist(),
+        "nodes": np.ravel(
+            [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
+            order="F",
+        ).tolist(),
+        "value": normalized_cell_value.tolist()[::reduce_factor],
         "variables": variable_list,
         "number_of_steps": number_of_steps,
         "min_value": min_cell_value,
