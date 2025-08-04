@@ -7,11 +7,11 @@ import shutil
 from typing import List
 
 import magic
-from fastapi import APIRouter, File, Request, UploadFile
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
 
 from ..support.base_models import ResponseModel
 from ..support.file_handler import FileHandler
-from ..support.globals import dev, log
+from ..support.globals import dev, log, trial
 
 router = APIRouter(prefix="/upload", tags=["Upload Methods"])
 
@@ -26,13 +26,15 @@ async def upload_files(
     """doc"""
 
     # Check file size
-    for file in files:
-        if file.size > 2 * 1024 * 1024:  # 2 MB
-            # more than 2 MB
-            return ResponseModel(
-                data=False,
-                message=f"File too large, max file size is 2 MB, got {file.size} bytes",
-            )
+    if trial:
+        for file in files:
+            if file.size > 2 * 1024 * 1024:  # 2 MB
+                # more than 2 MB
+                log.info(f"File too large, max file size is 2 MB, got {file.size} bytes")
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"File too large, max file size is 2 MB, got {file.size} bytes",
+                )
 
     # Initialize magic library
     mime = magic.Magic(mime=True)
@@ -56,8 +58,8 @@ async def upload_files(
         await file.seek(0)
         if content_type not in allowed_types:
             log.warning("Invalid file type, got %s, expected %s", content_type, allowed_types)
-            return ResponseModel(
-                data=False,
+            raise HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                 message=f"Invalid file type, got {content_type}, expected 'application/json', '.yaml', '.cdb', '.inp', '.gcode', '.obj', 'text/plain', '.g', '.so' or '.inp'",
             )
 

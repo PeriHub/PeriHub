@@ -44,10 +44,15 @@ class YAMLcreatorPeriLab:
             #     for nodeSet in self.boundary_condition.nodeSets:
             #         data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
             # else:
-            if len(self.node_set_ids) > 0:
+            if self.check_if_defined(self.disc_dict.nodeSets) and len(self.disc_dict.nodeSets) > 0:
                 data["Node Sets"] = {}
-            for idx in range(0, len(self.node_set_ids)):
-                data["Node Sets"]["Node Set " + str(idx + 1)] = self.ns_name + "_" + str(idx + 1) + ".txt"
+                for nodeSet in self.disc_dict.nodeSets:
+                    data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
+            else:
+                if len(self.node_set_ids) > 0:
+                    data["Node Sets"] = {}
+                for idx in range(0, len(self.node_set_ids)):
+                    data["Node Sets"]["Node Set " + str(idx + 1)] = self.ns_name + "_" + str(idx + 1) + ".txt"
 
             if self.check_if_defined(self.mesh_file):
                 data["Input Mesh File"] = self.mesh_file

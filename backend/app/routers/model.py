@@ -293,7 +293,14 @@ def get_point_data(
                     continue
                 parts = str1.split()
                 if two_d:
-                    block_id = int(parts[2])
+                    try:
+                        block_id = int(parts[2])
+                    except ValueError:
+                        log.error("Model don't support 2D model, switch two dimensional model off")
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Model don't support 2D model, switch two dimensional model off",
+                        )
                     point_string += parts[0] + "," + parts[1] + ",0.0,"
                 else:
                     if len(parts) < 3:

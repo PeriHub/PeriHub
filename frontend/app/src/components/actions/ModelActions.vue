@@ -78,7 +78,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-uploader
             :url="uploadPath + '?model_name=' + this.modelStore.selectedModel.file + '&model_folder_name=' + this.modelData.model.modelFolderName"
             :headers="[{ name: 'username', value: userName }]" field-name="files" label="Pick file" filled counter
-            multiple style="max-width: 300px" @uploaded="uploadFinished" />
+            multiple style="max-width: 300px" @uploaded="uploadFinished" /> <!--max-file-size="2097152"  -->
         </q-card-section>
       </q-card>
     </q-dialog>
