@@ -236,8 +236,8 @@ def get_point_data(
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    point_string = ""
-    block_id_string = ""
+    points = []
+    block_ids = []
     if own_mesh:
         try:
             with open(
@@ -261,12 +261,16 @@ def get_point_data(
                     for node in nodes[i]:
                         block_id[int(node) - 1] = i + 1
                 for i in range(0, len(coords[0])):
-                    point_string += coords[0][i] + "," + coords[1][i] + "," + coords[2][i] + ","
-                    block_id_string += str(block_id[i] / num_of_blocks) + ","
+                    # points += coords[0][i] + "," + coords[1][i] + "," + coords[2][i] + ","
+                    points.append(str(coords[0][i]))
+                    points.append(str(coords[1][i]))
+                    points.append(str(coords[2][i]))
+                    # block_id_string += str(block_id[i] / num_of_blocks) + ","
+                    block_ids.append(str(block_id[i] / num_of_blocks))
 
             response = [
-                point_string.rstrip(point_string[-1]),
-                block_id_string.rstrip(block_id_string[-1]),
+                points,
+                block_ids,
             ]
             return response
         except IOError:
@@ -289,19 +293,19 @@ def get_point_data(
         ) as file:
             reader = csv.reader(file)
             rows = list(reader)
-            reduce_factor = 0
+            reduce_factor = 1
             counter = 0
             if len(rows) > max_nodes:
                 reduce_factor = int(len(rows) / max_nodes)
                 log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
             for row in rows:
+                str1 = "".join(row)
+                if str1.startswith("#") or str1.startswith("header") or len(str1) == 0:
+                    continue
                 counter += 1
                 if counter == reduce_factor:
                     counter = 0
                 else:
-                    continue
-                str1 = "".join(row)
-                if str1.startswith("#") or str1.startswith("header") or len(str1) == 0:
                     continue
                 parts = str1.split()
                 if two_d:
@@ -313,7 +317,10 @@ def get_point_data(
                             status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Model don't support 2D model, switch two dimensional model off",
                         )
-                    point_string += parts[0] + "," + parts[1] + ",0.0,"
+                    # points += parts[0] + "," + parts[1] + ",0.0,"
+                    points.append(str(parts[0]))
+                    points.append(str(parts[1]))
+                    points.append("0.0")
                 else:
                     if len(parts) < 3:
                         log.error("Model don't support 3D model, switch to two dimensional model")
@@ -321,14 +328,25 @@ def get_point_data(
                             status_code=status.HTTP_400_BAD_REQUEST,
                             detail="Model don't support 3D model, switch to two dimensional model",
                         )
-                    block_id = int(parts[3])
-                    point_string += parts[0] + "," + parts[1] + "," + parts[2] + ","
+                    try:
+                        block_id = int(parts[3])
+                    except ValueError:
+                        log.error("Model don't support 3D model, switch to two dimensional model")
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Model don't support 3D model, switch to two dimensional model",
+                        )
+                    # points += parts[0] + "," + parts[1] + "," + parts[2] + ","
+                    points.append(str(parts[0]))
+                    points.append(str(parts[1]))
+                    points.append(str(parts[2]))
                 if block_id > max_block_id:
                     max_block_id = block_id
             dx = []
             x_previous = None
             y_previous = None
             z_previous = None
+            counter = 0
             for row in rows:
                 str1 = "".join(row)
                 if str1.startswith("#") or str1.startswith("header") or len(str1) == 0:
@@ -352,14 +370,21 @@ def get_point_data(
                     x_previous = x
                     y_previous = y
                     z_previous = z
-                if max_block_id == 1:
-                    block_id_string += str(0.1) + ","
+                counter += 1
+                if counter == reduce_factor:
+                    counter = 0
                 else:
-                    block_id_string += str(block_id / max_block_id) + ","
+                    continue
+                if max_block_id == 1:
+                    # block_id_string += str(0.1) + ","
+                    block_ids.append(str(0.1))
+                else:
+                    # block_id_string += str(block_id / max_block_id) + ","
+                    block_ids.append(str(block_id / max_block_id))
         dx_value = np.average(dx)
         response = {
-            "points": point_string.rstrip(point_string[-1]),
-            "block_ids": block_id_string.rstrip(block_id_string[-1]),
+            "points": points,
+            "block_ids": block_ids,
             "dx_value": dx_value,
         }
         return ResponseModel(data=response, message="Points received")

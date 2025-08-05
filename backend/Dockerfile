@@ -8,7 +8,7 @@ FROM python:3.11-slim
 LABEL maintainer="Jan-Timo Hesse <jan-timo.hesse@dlr.de>"
 
 ARG CLUSTER_URL
-ENV CLUSTER_URL $CLUSTER_URL
+ENV CLUSTER_URL=$CLUSTER_URL
 
 RUN apt-get update --allow-insecure-repositories &&\
     apt-get install git libmagic1 -y

@@ -167,8 +167,8 @@ export default defineComponent({
         twoD: this.modelData.model.twoDimensional
       })
         .then((response) => {
-          this.pointString = response.data.points.split(',')
-          this.blockIdString = response.data.block_ids.split(',')
+          this.pointString = response.data.points
+          this.blockIdString = response.data.block_ids
           this.viewStore.dx_value = response.data.dx_value
           this.$q.notify({
             message: response.message,

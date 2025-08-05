@@ -288,7 +288,7 @@ def get_job_folders(
     # print(localpath)
 
     if not os.path.exists(localpath):
-        return ResponseModel(data=job_folders, message="No jobs")
+        return ResponseModel(data=[], message="No jobs")
 
     job_folders = next(os.walk(localpath))[1]
 
