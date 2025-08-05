@@ -244,6 +244,7 @@ export default defineComponent({
       })
       this.modelStore.modelParams = response
       // this.viewStore.viewLoading = false
+      this._getJobFolders()
     },
     async switchOwnModels() {
       if (!this.model.ownModel) {
@@ -281,7 +282,6 @@ export default defineComponent({
   async beforeMount() {
     this.modelStore.availableModels = await getModels()
     this.selectMethod()
-    this._getJobFolders()
   },
   watch: {
     'modelStore.selectedModel': {

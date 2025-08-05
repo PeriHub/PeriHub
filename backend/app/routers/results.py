@@ -547,6 +547,7 @@ def get_data(
         normalized_cell_value = (cell_value - min_cell_value) / (max_cell_value - min_cell_value)
     print(time)
 
+    reduce_factor = 1
     if len(np_points_all_x) > max_nodes:
         reduce_factor = int(len(np_points_all_x) / max_nodes)
         log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
