@@ -509,9 +509,9 @@ class YAMLcreatorPeriLab:
                 compute["Block"] = out.blockName
             elif out.computeClass == "Nearest_Point_Data":
                 compute["Compute Class"] = "Nearest_Point_Data"
-                compute["X"] = out.x_value
-                compute["Y"] = out.y_value
-                compute["Z"] = out.z_value
+                compute["X"] = out.xValue
+                compute["Y"] = out.yValue
+                compute["Z"] = out.zValue
             compute["Variable"] = out.variable
             # compute["Output Label"] = out.name
 

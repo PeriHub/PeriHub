@@ -29,11 +29,11 @@ SPDX-License-Identifier: Apache-2.0
           v-model="compute.nodeSetId" :label="computeKeys.nodeSetId" standout dense></q-select>
       </div>
       <div class="row my-row" v-show="compute.computeClass == 'Nearest_Point_Data'">
-        <q-input class="my-input" v-model="compute.xValue" :rules="[rules.required, rules.name]"
+        <q-input class="my-input" v-model="compute.xValue" :rules="[rules.required, rules.float]"
           :label="computeKeys.xValue" clearable standout dense></q-input>
-        <q-input class="my-input" v-model="compute.yValue" :rules="[rules.required, rules.name]"
+        <q-input class="my-input" v-model="compute.yValue" :rules="[rules.required, rules.float]"
           :label="computeKeys.yValue" clearable standout dense></q-input>
-        <q-input class="my-input" v-model="compute.zValue" :rules="[rules.required, rules.name]"
+        <q-input class="my-input" v-model="compute.zValue" :rules="[rules.required, rules.float]"
           :label="computeKeys.zValue" clearable standout dense></q-input>
       </div>
       <q-btn flat icon="fas fa-trash-alt" @click="removeCompute(index)">
