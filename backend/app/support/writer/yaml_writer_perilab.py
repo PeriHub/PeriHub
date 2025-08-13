@@ -240,6 +240,8 @@ class YAMLcreatorPeriLab:
                 thermal["Thermal Conductivity Print Bed"] = float(therm.thermalConductivityPrintBed)
             if self.check_if_defined(therm.printBedTemperature):
                 thermal["Print Bed Temperature"] = float(therm.printBedTemperature)
+            if self.check_if_defined(therm.printBedZCoord):
+                thermal["Print Bed Z Coordinate"] = float(therm.printBedZCoord)
             if self.check_if_defined(therm.environmentalTemperature):
                 thermal["Environmental Temperature"] = float(therm.environmentalTemperature)
             if self.check_if_defined(therm.heatTransferCoefficient):

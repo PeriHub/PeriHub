@@ -56,9 +56,8 @@ SPDX-License-Identifier: Apache-2.0
               <q-input class="my-input" v-model="thermalModel.thermalConductivityPrintBed"
                 :rules="[rules.required, rules.float]" :label="thermalKeys.thermalConductivityPrintBed" clearable
                 standout dense></q-input>
-              <q-input class="my-input" v-model="thermalModel.requiredSpecificVolume"
-                :rules="[rules.required, rules.float]" :label="thermalKeys.requiredSpecificVolume" clearable standout
-                dense></q-input>
+              <q-input class="my-input" v-model="thermalModel.printBedZCoord" :rules="[rules.required, rules.float]"
+                :label="thermalKeys.printBedZCoord" clearable standout dense></q-input>
             </div>
             <q-separator></q-separator>
             <h6 class="my-title">HETVAL</h6>
@@ -116,6 +115,7 @@ export default defineComponent({
         thermalExpansionCoefficient: 'Thermal Expansion Coefficient',
         thermalConductivityPrintBed: 'Thermal Conductivity Print Bed',
         printBedTemperature: 'Print Bed Temperature',
+        printBedZCoord: 'Print Bed Z Coordinate',
         file: 'File',
         numStateVars: 'Number of State Variables',
         predefinedFieldNames: 'Predefined Field Names',

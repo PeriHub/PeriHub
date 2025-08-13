@@ -2840,6 +2840,17 @@ export const $ThermalModel = {
             ],
             title: 'Printbedtemperature'
         },
+        printBedZCoord: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Printbedzcoord'
+        },
         file: {
             anyOf: [
                 {

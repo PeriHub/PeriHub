@@ -155,6 +155,7 @@ class ThermalModel(BaseModel):
     thermalExpansionCoefficient: Optional[float] = None
     thermalConductivityPrintBed: Optional[float] = None
     printBedTemperature: Optional[float] = None
+    printBedZCoord: Optional[float] = None
     file: Optional[str] = None
     numStateVars: Optional[int] = None
     predefinedFieldNames: Optional[List[str]] = None

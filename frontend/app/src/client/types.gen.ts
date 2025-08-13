@@ -361,6 +361,7 @@ export type ThermalModel = {
     thermalExpansionCoefficient?: number | null;
     thermalConductivityPrintBed?: number | null;
     printBedTemperature?: number | null;
+    printBedZCoord?: number | null;
     file?: string | null;
     numStateVars?: number | null;
     predefinedFieldNames?: Array<(string)> | null;
