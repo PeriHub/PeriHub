@@ -451,6 +451,7 @@ export default defineComponent({
 
       plotRawData: null,
       timer: null,
+      intervalCount: 0,
 
       color: [
         '#00658b',
@@ -518,6 +519,7 @@ export default defineComponent({
             })
             this.viewStore.textId = 'log';
             this.viewStore.viewId = 'jobs';
+            this.intervalCount = 0;
             this.timer = setInterval(this.checkStatus, 5000)
           }
           else {
@@ -560,6 +562,18 @@ export default defineComponent({
     },
     async checkStatus() {
       this.bus.emit('getStatus');
+      this.intervalCount += 1;
+
+      if (this.intervalCount > 10) {
+        this.submitLoading = false;
+        this.$q.notify({
+          color: 'negative',
+          position: 'bottom-right',
+          message: 'Failed to submit model',
+          icon: 'report_problem'
+        })
+        clearInterval(this.timer)
+      }
       if (this.status.submitted) {
         this.submitLoading = false;
         if (this.modelData.job.cluster) {
