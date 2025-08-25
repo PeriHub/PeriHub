@@ -121,15 +121,15 @@ SPDX-License-Identifier: Apache-2.0
         </q-card-section>
         <q-card-section class="q-pt-none">
           <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
-            v-model="getPlotOutput" label="Output Name" standout dense></q-select>
+            v-model="getPlotOutput" label="Exodus Output File" standout dense></q-select>
           <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
-            v-model="getPlotOutputCsv" label="Output Name" standout dense></q-select>
+            v-model="getPlotOutputCsv" label="CSV Output File" standout dense></q-select>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableX" label="Variable" standout
-            dense></q-select>
-          <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableY" label="Variable" standout
-            dense></q-select>
+          <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableX"
+            label="Displacement Variable" standout dense></q-select>
+          <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableY" label="Force Variable"
+            standout dense></q-select>
           <q-select class="my-select" :options="getImageAxis" v-model="getImageAxisSelected" label="Axis" standout
             dense></q-select>
         </q-card-section>
