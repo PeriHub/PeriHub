@@ -791,8 +791,10 @@ export default defineComponent({
         output: this.getImageOutput,
         step: this.getImageStep,
       }
-
-      await api.get('/results/getFractureAnalysis', { params, responseType: 'blob' })
+      const headers = {
+        'userName': this.userName
+      }
+      await api.get('/results/getFractureAnalysis', { params, responseType: 'blob', headers })
         .then((response) => {
           console.log(response)
           this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
@@ -864,8 +866,10 @@ export default defineComponent({
         thickness: thickness,
         // crack_start: this.modelData.bondFilters[0].lowerLeftCornerX + this.modelData.bondFilters[0].bottomLength,
       }
-
-      await api.get('/results/getEnergyReleasePlot', { params, responseType: 'blob' })
+      const headers = {
+        'userName': this.userName
+      }
+      await api.get('/results/getEnergyReleasePlot', { params, responseType: 'blob', headers })
         .then((response) => {
           console.log(response)
           this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
