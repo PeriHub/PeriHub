@@ -126,10 +126,10 @@ SPDX-License-Identifier: Apache-2.0
             v-model="getPlotOutputCsv" label="CSV Output File" standout dense></q-select>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableX"
+          <q-select class="my-select" :options="getPlotVariables" v-model="getEnergyPlotVariableX"
             label="Displacement Variable" standout dense></q-select>
-          <q-select class="my-select" :options="getPlotVariables" v-model="getPlotVariableY" label="Force Variable"
-            standout dense></q-select>
+          <q-select class="my-select" :options="getPlotVariables" v-model="getEnergyPlotVariableY"
+            label="Force Variable" standout dense></q-select>
           <q-select class="my-select" :options="getImageAxis" v-model="getImageAxisSelected" label="Axis" standout
             dense></q-select>
         </q-card-section>
@@ -411,9 +411,11 @@ export default defineComponent({
       getPlotOutput: 'Output1',
       getPlotOutputCsv: 'Output2',
       getPlotVariableX: 'Time',
+      getEnergyPlotVariableX: 'External_Displacement',
       getPlotAxisX: 'X',
       getPlotAbsoluteX: true,
       getPlotVariableY: 'External_Displacement',
+      getEnergyPlotVariableY: 'External_Force',
       getPlotAxisY: 'X',
       getPlotAbsoluteY: true,
 
@@ -860,8 +862,8 @@ export default defineComponent({
         output_exodus: this.getPlotOutput,
         output_csv: this.getPlotOutputCsv,
         tasks: this.modelData.job.tasks,
-        force_output_name: this.getPlotVariableY + this.getImageAxisSelected.toLowerCase(),
-        displacement_output_name: this.getPlotVariableX + this.getImageAxisSelected.toLowerCase(),
+        force_output_name: this.getEnergyPlotVariableY + this.getImageAxisSelected.toLowerCase(),
+        displacement_output_name: this.getEnergyPlotVariableX + this.getImageAxisSelected.toLowerCase(),
         step: this.getImageStep,
         thickness: thickness,
         // crack_start: this.modelData.bondFilters[0].lowerLeftCornerX + this.modelData.bondFilters[0].bottomLength,
