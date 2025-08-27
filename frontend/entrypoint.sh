@@ -17,11 +17,12 @@ do
   for key in $keys
   do
     value=$(eval echo \$$key)
+    echo "$value"
     if [ -z "$value" ]; then
       continue
     fi
-    # echo "replace $key by $value"
-    sed -i 's|'$key'|'$value'|g' $file
+    echo "replace $key by $value"
+    sed -i 's|'$key'_VALUE|'$value'|g' $file
   done
 done
 

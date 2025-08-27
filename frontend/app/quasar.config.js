@@ -73,12 +73,12 @@ module.exports = configure(function (ctx) {
 
       env: {
         API: ctx.dev ? 'http://localhost:8000' : 'api',
-        TRIAL: ctx.dev ? process.env.TRIAL : 'TRIAL',
+        TRIAL: ctx.dev ? process.env.TRIAL : 'TRIAL_VALUE',
         DEV: ctx.dev,
-        KEYCLOAK_URL: ctx.dev ? process.env.KEYCLOAK_URL : 'KEYCLOAK_URL',
-        REALM: ctx.dev ? process.env.REALM : 'REALM',
-        CLIENT_ID: ctx.dev ? process.env.CLIENT_ID : 'CLIENT_ID',
-        CLUSTER_URL: ctx.dev ? process.env.CLUSTER_URL : 'CLUSTER_URL',
+        KEYCLOAK_URL: ctx.dev ? process.env.KEYCLOAK_URL : 'KEYCLOAK_URL_VALUE',
+        REALM: ctx.dev ? process.env.REALM : 'REALM_VALUE',
+        CLIENT_ID: ctx.dev ? process.env.CLIENT_ID : 'CLIENT_ID_VALUE',
+        CLUSTER_URL: ctx.dev ? process.env.CLUSTER_URL : 'CLUSTER_URL_VALUE',
       },
       vueCompiler: true,
 

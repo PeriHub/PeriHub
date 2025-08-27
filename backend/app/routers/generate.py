@@ -2,9 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import importlib
 import io
 import json
 import os
+import sys
 import time
 from re import match
 
@@ -32,6 +34,24 @@ from ..support.writer.model_writer import ModelWriter
 
 
 router = APIRouter(prefix="/generate", tags=["Generate Methods"])
+
+
+def load_or_reload_main(model_name: str):
+    """
+    Dynamically import/reload `app.own_models.<model_name>.<model_name>`
+    and return the `main` attribute from that module.
+    """
+    # Build the fully‑qualified module path
+    module_name = f"app.own_models.{model_name}.{model_name}"
+
+    # If the module is already loaded, reload it; otherwise, import it.
+    if module_name in sys.modules:
+        mod = importlib.reload(sys.modules[module_name])
+    else:
+        mod = importlib.import_module(module_name)
+
+    # Pull the attribute you care about.
+    return getattr(mod, "main")
 
 
 @router.post("/model", operation_id="generate_model")
@@ -85,13 +105,7 @@ def generate_model(
             )
         except:
             try:
-                module = getattr(
-                    __import__(
-                        "app.own_models." + model_name + "." + model_name,
-                        fromlist=[model_name],
-                    ),
-                    "main",
-                )
+                module = load_or_reload_main(model_name)
             except:
                 log.error("Model Name unknown")
                 return "Model Name unknown"
