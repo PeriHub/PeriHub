@@ -6,7 +6,7 @@ export default async ({ app }) => {
   if (
     process.env.KEYCLOAK_URL == null ||
     process.env.KEYCLOAK_URL == '' ||
-    process.env.KEYCLOAK_URL == 'KEYCLOAK_URL'
+    process.env.KEYCLOAK_URL == 'KEYCLOAK_URL_VALUE'
   ) {
     let uuid = 'user';
 
