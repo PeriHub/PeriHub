@@ -280,6 +280,9 @@ export default defineComponent({
     },
     removeCompute(index) {
       this.computes.splice(index, 1);
+      this.computes.forEach((model, i) => {
+        model.computesId = i + 1
+      })
     },
     addOutput() {
       const len = this.outputs.length;
@@ -294,6 +297,9 @@ export default defineComponent({
     },
     removeOutput(index) {
       this.outputs.splice(index, 1);
+      this.outputs.forEach((model, i) => {
+        model.outputsId = i + 1
+      })
     },
   }
 })

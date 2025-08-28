@@ -80,6 +80,9 @@ export default defineComponent({
     },
     removeAdditiveModel(index) {
       this.additive.additiveModels.splice(index, 1);
+      this.additive.additiveModels.forEach((model, i) => {
+        model.additiveModelsId = i + 1
+      })
     },
   }
 })

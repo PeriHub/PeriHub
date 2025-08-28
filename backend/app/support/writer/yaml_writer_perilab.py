@@ -84,6 +84,7 @@ class YAMLcreatorPeriLab:
             data["Gcode"]["Overwrite Mesh"] = self.disc_dict.gcode.overwriteMesh
             data["Gcode"]["Sampling"] = self.disc_dict.gcode.sampling
             data["Gcode"]["Width"] = self.disc_dict.gcode.width
+            data["Gcode"]["Height"] = self.disc_dict.gcode.height
             data["Gcode"]["Scale"] = self.disc_dict.gcode.scale
 
             if (

@@ -472,6 +472,9 @@ export default defineComponent({
     },
     removeMaterial(index) {
       this.materials.splice(index, 1);
+      this.materials.forEach((model, i) => {
+        model.materialsId = i + 1
+      })
     },
     addProp(index) {
       const len = this.materials[index].properties.length;

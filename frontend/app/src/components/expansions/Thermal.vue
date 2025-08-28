@@ -152,6 +152,9 @@ export default defineComponent({
     },
     removeThermalModel(index) {
       this.thermal.thermalModels.splice(index, 1);
+      this.thermal.thermalModels.forEach((model, i) => {
+        model.thermalModelsId = i + 1
+      })
     },
   }
 })

@@ -32,6 +32,8 @@ SPDX-License-Identifier: Apache-2.0
         :label="discKeys.gcode.sampling" standout dense></q-input>
       <q-input class="my-input" v-model="discretization.gcode.width" :rules="[rules.required, rules.float]"
         :label="discKeys.gcode.width" standout dense></q-input>
+      <q-input class="my-input" v-model="discretization.gcode.height" :rules="[rules.required, rules.float]"
+        :label="discKeys.gcode.height" standout dense></q-input>
       <q-input class="my-input" v-model="discretization.gcode.scale" :rules="[rules.required, rules.float]"
         :label="discKeys.gcode.scale" standout dense></q-input>
       <q-list v-for="block in discretization.gcode.blockFunctions" :key="block.id" style="padding: 0px">
@@ -84,6 +86,7 @@ export default defineComponent({
           overwriteMesh: 'overwriteMesh',
           sampling: 'Sampling',
           width: 'Width',
+          height: 'Height',
           scale: 'Scale'
         }
       }
@@ -104,6 +107,9 @@ export default defineComponent({
     },
     removeNodeSet(index) {
       this.discretization.nodeSets.splice(index, 1);
+      this.discretization.nodeSets.forEach((model, i) => {
+        model.nodeSetId = i + 1
+      })
     },
 
     addBlockFunction() {
@@ -120,6 +126,9 @@ export default defineComponent({
     },
     removeBlockFunction(index) {
       this.discretization.gcode.blockFunctions.splice(index, 1);
+      this.discretization.gcode.blockFunctions.forEach((model, i) => {
+        model.id = i + 1
+      })
     },
   }
 })

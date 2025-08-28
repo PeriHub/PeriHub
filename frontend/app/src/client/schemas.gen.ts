@@ -1134,6 +1134,10 @@ export const $Gcode = {
             type: 'number',
             title: 'Width'
         },
+        height: {
+            type: 'number',
+            title: 'Height'
+        },
         scale: {
             type: 'number',
             title: 'Scale'
@@ -1154,7 +1158,7 @@ export const $Gcode = {
         }
     },
     type: 'object',
-    required: ['overwriteMesh', 'sampling', 'width', 'scale'],
+    required: ['overwriteMesh', 'sampling', 'width', 'height', 'scale'],
     title: 'Gcode'
 } as const;
 

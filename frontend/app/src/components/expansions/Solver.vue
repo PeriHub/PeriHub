@@ -250,6 +250,9 @@ export default defineComponent({
     },
     removeSolver(index) {
       this.solvers.splice(index, 1);
+      this.solvers.forEach((solver, i) => {
+        solver.solverId = i + 1
+      })
     },
   }
 })

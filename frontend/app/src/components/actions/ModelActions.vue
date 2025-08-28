@@ -157,6 +157,7 @@ export default defineComponent({
             overwriteMesh: true,
             sampling: 1,
             width: 0.4,
+            height: 0.2,
             scale: 1,
           }
         }

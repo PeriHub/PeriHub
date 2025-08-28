@@ -125,6 +125,9 @@ export default defineComponent({
     removeCondition(index) {
       this.boundaryConditions.conditions.splice(index, 1);
       // this.boundaryConditions.nodeSets.splice(index, 1);
+      this.boundaryConditions.conditions.forEach((condition, i) => {
+        condition.boundaryConditionsId = i + 1
+      })
     },
   }
 })

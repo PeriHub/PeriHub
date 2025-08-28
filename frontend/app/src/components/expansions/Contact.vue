@@ -137,6 +137,9 @@ export default defineComponent({
     },
     removeContactModel(index) {
       this.contact.contactModels.splice(index, 1);
+      this.contact.contactModels.forEach((model, i) => {
+        model.contactGroupId = i + 1
+      })
     },
   }
 })

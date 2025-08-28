@@ -171,6 +171,7 @@ export type Gcode = {
     overwriteMesh: boolean;
     sampling: number;
     width: number;
+    height: number;
     scale: number;
     blockFunctions?: Array<BlockFunction> | null;
 };

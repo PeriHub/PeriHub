@@ -102,6 +102,9 @@ export default defineComponent({
     removeBlock(index) {
       console.log(index)
       this.blocks.splice(index, 1);
+      this.blocks.forEach((block, i) => {
+        block.blocksId = i + 1
+      })
     },
   }
 })

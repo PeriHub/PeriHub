@@ -204,6 +204,9 @@ export default defineComponent({
     },
     removeDamage(index) {
       this.damages.splice(index, 1);
+      this.damages.forEach((model, i) => {
+        model.damagesId = i + 1
+      })
       if (this.damages.length == 0) {
         for (var i = 0; i < this.blocks.length; i++) {
           this.blocks[i].damageModel = '';
