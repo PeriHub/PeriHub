@@ -535,6 +535,17 @@ export const $Compute = {
             type: 'string',
             title: 'Variable'
         },
+        equation: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Equation'
+        },
         calculationType: {
             anyOf: [
                 {

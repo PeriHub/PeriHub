@@ -299,6 +299,7 @@ class Compute(BaseModel):
     computeClass: str
     name: str
     variable: str
+    equation: Optional[str] = None
     calculationType: Optional[str] = None
     blockName: Optional[str] = None
     nodeSetId: Optional[int] = None

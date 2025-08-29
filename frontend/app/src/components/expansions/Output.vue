@@ -15,6 +15,8 @@ SPDX-License-Identifier: Apache-2.0
           :label="computeKeys.computeClass" standout dense></q-select>
         <q-select class="my-select" :options="variables" v-model="compute.variable" :label="computeKeys.variable"
           standout dense></q-select>
+        <q-input class="my-input" v-model="compute.equation" :rules="[rules.name]" :label="computeKeys.equation"
+          standout dense></q-input>
       </div>
       <div class="row my-row" v-show="compute.computeClass == 'Block_Data'">
         <q-select class="my-select" :options="calculationType" v-model="compute.calculationType"
@@ -138,6 +140,7 @@ export default defineComponent({
         computeClass: 'Compute Class',
         name: 'Output Label',
         variable: 'Variable',
+        equation: 'Equation',
         calculationType: 'Calculation Type',
         blockName: 'Block',
         xValue: 'X',

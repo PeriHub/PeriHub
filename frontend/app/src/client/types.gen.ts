@@ -89,6 +89,7 @@ export type Compute = {
     computeClass: string;
     name: string;
     variable: string;
+    equation?: string | null;
     calculationType?: string | null;
     blockName?: string | null;
     nodeSetId?: number | null;

@@ -516,6 +516,8 @@ class YAMLcreatorPeriLab:
                 compute["Y"] = out.yValue
                 compute["Z"] = out.zValue
             compute["Variable"] = out.variable
+            if self.check_if_defined(out.equation):
+                compute["Equation"] = out.equation
             # compute["Output Label"] = out.name
 
             data[out.name] = compute
