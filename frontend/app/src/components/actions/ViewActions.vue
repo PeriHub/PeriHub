@@ -96,7 +96,7 @@ SPDX-License-Identifier: Apache-2.0
             v-model="getImageOutput" label="Output Name" standout dense></q-select>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
+          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.int]" label="Time Step"
             standout dense></q-input>
         </q-card-section>
         <q-card-actions align="right">
@@ -116,7 +116,7 @@ SPDX-License-Identifier: Apache-2.0
           Which output do you want to analyse?
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
+          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.int]" label="Time Step"
             standout dense></q-input>
         </q-card-section>
         <q-card-section class="q-pt-none">
@@ -160,7 +160,7 @@ SPDX-License-Identifier: Apache-2.0
             v-model="getImageOutput" label="Output Name" standout dense></q-select>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
+          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.int]" label="Time Step"
             standout dense></q-input>
         </q-card-section>
         <q-card-actions align="right">
@@ -391,8 +391,6 @@ export default defineComponent({
   },
   data() {
     return {
-      userName: 'user',
-
       resultsLoading: false,
       submitLoading: false,
       dialogEnergySavings: false,
@@ -624,9 +622,6 @@ export default defineComponent({
         cluster: this.modelData.job.cluster,
         all_data: allData
       }
-      const headers = {
-        'userName': this.userName
-      }
       // await getResults(
       //   {
       //     modelName: this.modelStore.selectedModel.file,
@@ -637,7 +632,7 @@ export default defineComponent({
       //     allData: allData
       //   }
       // )
-      await api.get('/results/getResults', { params, responseType: 'blob', headers })
+      await api.get('/results/getResults', { params, responseType: 'blob' })
         .then((response) => {
           let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '_' + this.modelData.outputs[0].name + '.e'
           if (allData) {
@@ -766,7 +761,7 @@ export default defineComponent({
 
       this.viewStore.modelLoading = true;
 
-      // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.userName } });
+      // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.store.username } });
 
       let materialName = '';
       for (var i = 0; i < this.modelData.blocks.length; i++) {
@@ -793,10 +788,7 @@ export default defineComponent({
         output: this.getImageOutput,
         step: this.getImageStep,
       }
-      const headers = {
-        'userName': this.userName
-      }
-      await api.get('/results/getFractureAnalysis', { params, responseType: 'blob', headers })
+      await api.get('/results/getFractureAnalysis', { params, responseType: 'blob' })
         .then((response) => {
           console.log(response)
           this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
@@ -849,7 +841,7 @@ export default defineComponent({
 
       this.viewStore.modelLoading = true;
 
-      // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.userName } });
+      // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.store.username } });
       let thickness = null
       if (this.modelData.model.twoDimensional) {
         thickness = this.modelData.damages[0].thickness;
@@ -868,10 +860,7 @@ export default defineComponent({
         thickness: thickness,
         // crack_start: this.modelData.bondFilters[0].lowerLeftCornerX + this.modelData.bondFilters[0].bottomLength,
       }
-      const headers = {
-        'userName': this.userName
-      }
-      await api.get('/results/getEnergyReleasePlot', { params, responseType: 'blob', headers })
+      await api.get('/results/getEnergyReleasePlot', { params, responseType: 'blob' })
         .then((response) => {
           console.log(response)
           this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
@@ -1052,9 +1041,6 @@ export default defineComponent({
       localStorage.removeItem('modelData');
       localStorage.removeItem('panel');
     },
-  },
-  mounted() {
-    this.userName = localStorage.getItem('userName')
   },
   unmounted() {
     clearInterval(this.timer)

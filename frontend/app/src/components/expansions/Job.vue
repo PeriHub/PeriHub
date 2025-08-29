@@ -20,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0
           standout
           dense
       ></q-input> -->
-    <q-input class="my-input" v-model="job.tasks" v-show="job.cluster" :rules="[rules.required, rules.name]"
+    <q-input class="my-input" v-model="job.tasks" v-show="job.cluster" :rules="[rules.required, rules.int]"
       label="Tasks" standout dense></q-input>
     <!-- <q-input
           class="my-input"
@@ -31,13 +31,13 @@ SPDX-License-Identifier: Apache-2.0
           standout
           dense
       ></q-input> -->
-    <q-input class="my-input" v-model="job.cpusPerTask" v-show="job.sbatch" :rules="[rules.required, rules.name]"
+    <q-input class="my-input" v-model="job.cpusPerTask" v-show="job.sbatch" :rules="[rules.required, rules.int]"
       label="CPUs per Task" standout dense></q-input>
     <q-toggle class="my-toggle" v-model="job.multithread" v-show="job.sbatch" label="Multithreading" standout
       dense></q-toggle>
     <q-input class="my-input" v-model="job.time" v-show="job.sbatch" :rules="[rules.required, rules.name]" label="Time"
       standout dense></q-input>
-    <q-input class="my-input" v-model="job.account" v-show="job.sbatch" :rules="[rules.required, rules.name]"
+    <q-input class="my-input" v-model="job.account" v-show="job.sbatch" :rules="[rules.required, rules.int]"
       label="Account" standout dense></q-input>
   </div>
 </template>

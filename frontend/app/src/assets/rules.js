@@ -4,6 +4,10 @@
 
 export default {
   required: [(val) => !!val || 'Field is required'],
+  equation: (value) => {
+    const pattern = /^([-+/*][\dxyztd]+(\.\d+)?)*/;
+    return pattern.test(value) || 'Invalid equation';
+  },
   name: (value) => {
     const pattern = /^[A-Za-z0-9_]{1,15}/;
     return pattern.test(value) || 'Invalid name';

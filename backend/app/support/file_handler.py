@@ -115,23 +115,21 @@ class FileHandler:
     @staticmethod
     def get_user_name(request, dev):
         """doc"""
-        if dev:
-            return "dev"
+        return request.headers.get("userName")
+        # if user_name is not None and user_name != "" and user_name != "undefined":
+        #     return user_name
+        # return "guest"
 
-        user_name = request.headers.get("userName")
-        if user_name is not None and user_name != "" and user_name != "undefined":
-            return user_name
+        # encoded_token = request.headers.get("Authorization")
+        # if encoded_token is None or encoded_token == "":
+        #     return "guest"
 
-        encoded_token = request.headers.get("Authorization")
-        if encoded_token is None or encoded_token == "":
-            return "guest"
+        # decoded_token = jwt.decode(
+        #     encoded_token.split(" ")[1],
+        #     options={"verify_signature": False},
+        # )
 
-        decoded_token = jwt.decode(
-            encoded_token.split(" ")[1],
-            options={"verify_signature": False},
-        )
-
-        return decoded_token["preferred_username"]
+        # return decoded_token["preferred_username"]
 
     @staticmethod
     def get_max_nodes(username):

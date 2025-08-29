@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
           :label="computeKeys.computeClass" standout dense></q-select>
         <q-select class="my-select" :options="variables" v-model="compute.variable" :label="computeKeys.variable"
           standout dense></q-select>
-        <q-input class="my-input" v-model="compute.equation" :rules="[rules.name]" :label="computeKeys.equation"
+        <q-input class="my-input" v-model="compute.equation" :rules="[rules.equation]" :label="computeKeys.equation"
           standout dense></q-input>
       </div>
       <div class="row my-row" v-show="compute.computeClass == 'Block_Data'">
@@ -81,7 +81,7 @@ SPDX-License-Identifier: Apache-2.0
             label="Output Frequency" standout dense></q-input>
           <q-input v-if="!output.useOutputFrequency" class="my-input" v-model="output.numberOfOutputSteps"
             :rules="[rules.int]" label="Number of Outputs" standout dense></q-input>
-          <q-input class="my-input" v-model="output.InitStep" :rules="[rules.required, rules.name]"
+          <q-input class="my-input" v-model="output.InitStep" :rules="[rules.required, rules.int]"
             label="Initial Output Step" standout dense></q-input>
           <q-toggle class="my-toggle" v-model="output.Write_After_Damage" label="Write After Damage" standout
             dense></q-toggle>

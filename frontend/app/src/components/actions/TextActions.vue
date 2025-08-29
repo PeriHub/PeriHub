@@ -165,7 +165,7 @@ export default defineComponent({
         model_folder_name: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
         token: OpenAPI.TOKEN,
-        user_name: OpenAPI.HEADERS['userName'],
+        user_name: this.store.username,
         debug: this.debug
       };
 

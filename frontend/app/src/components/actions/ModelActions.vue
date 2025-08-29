@@ -77,7 +77,7 @@ SPDX-License-Identifier: Apache-2.0
         <q-card-section class="q-pt-none">
           <q-uploader
             :url="uploadPath + '?model_name=' + this.modelStore.selectedModel.file + '&model_folder_name=' + this.modelData.model.modelFolderName"
-            :headers="[{ name: 'username', value: userName }]" field-name="files" label="Pick file" filled counter
+            :headers="[{ name: 'username', value: store.username }]" field-name="files" label="Pick file" filled counter
             multiple style="max-width: 300px" @uploaded="uploadFinished" /> <!--max-file-size="2097152"  -->
         </q-card-section>
       </q-card>
@@ -123,7 +123,6 @@ export default defineComponent({
     return {
       DEV: false,
       dialogUpload: false,
-      userName: 'user',
       modelLoading: false,
     };
   },
@@ -290,11 +289,8 @@ export default defineComponent({
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName
       }
-      const headers = {
-        'userName': this.userName
-      }
       // getModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName })
-      await api.get('/model/getModel', { params, responseType: 'blob', headers })
+      await api.get('/model/getModel', { params, responseType: 'blob' })
         .then((response) => {
           let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
           const status = exportFile(filename, response.data)
@@ -439,7 +435,6 @@ export default defineComponent({
   },
   mounted() {
     this.DEV = process.env.DEV
-    this.userName = localStorage.getItem('userName')
   }
 })
 </script>

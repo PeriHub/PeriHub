@@ -22,6 +22,13 @@ SPDX-License-Identifier: Apache-2.0
 
       <q-space></q-space>
 
+      <q-btn round color="white" @click="dialogUserSettings = true">
+        <q-avatar v-if="!store.useGravatar" size="24px" color="orange">{{ store.gravatarUrl }}</q-avatar>
+        <q-avatar v-if="store.useGravatar">
+          <img :src="store.gravatarUrl">
+        </q-avatar>
+      </q-btn>
+
       <q-toggle v-model="store.saveEnergy" checked-icon="eco" color="green" unchecked-icon="bolt"></q-toggle>
 
       <q-toggle v-model="store.darkMode" @click="toggleDarkMode" checked-icon="dark_mode" color="red"
@@ -53,14 +60,20 @@ SPDX-License-Identifier: Apache-2.0
 
     </q-toolbar>
 
+    <q-dialog v-model="dialogUserSettings">
+      <UserSettingsComponent />
+    </q-dialog>
+
   </q-header>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
+import UserSettingsComponent from 'components/dialogs/UserSettingsComponent.vue';
+
 export default defineComponent({
-  name: "MainHeader",
+  name: 'MainHeader',
   setup() {
     const store = useDefaultStore();
     return {
@@ -69,24 +82,28 @@ export default defineComponent({
   },
   data() {
     return {
+      dialogUserSettings: false,
     };
   },
+  components: {
+    UserSettingsComponent
+  },
   mounted() {
-    if (localStorage.getItem("saveEnergy")) {
-      this.store.saveEnergy = localStorage.getItem("saveEnergy") == "true";
+    if (localStorage.getItem('saveEnergy')) {
+      this.store.saveEnergy = localStorage.getItem('saveEnergy') == 'true';
     }
   },
   methods: {
     toggleDarkMode() {
-      localStorage.setItem("darkMode", this.store.darkMode);
+      localStorage.setItem('darkMode', this.store.darkMode);
       this.$q.dark.toggle();
     },
   },
   watch: {
     'store.saveEnergy': {
       handler() {
-        console.log("saveEnergy changed!");
-        localStorage.setItem("saveEnergy", JSON.stringify(this.store.saveEnergy));
+        console.log('saveEnergy changed!');
+        localStorage.setItem('saveEnergy', JSON.stringify(this.store.saveEnergy));
       },
       deep: true,
     },

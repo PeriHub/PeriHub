@@ -125,14 +125,15 @@ async def websocket_endpoint_log(
 ):
     await websocket.accept()
 
-    username = user_name
-    if user_name == None or user_name == "" or user_name == "undefined":
-        username = FileHandler.get_user_name_from_token(token, dev)
+    # username = user_name
+    # if user_name == None or user_name == "" or user_name == "undefined":
+    #     username = "guest"
+    # username = FileHandler.get_user_name_from_token(token, dev)
 
     if model_folder_name == "undefined":
         model_folder_name = "Default"
     if not cluster:
-        remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_local_model_folder_path(user_name, model_name, model_folder_name)
         try:
             output_files = os.listdir(remotepath)
             filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
@@ -153,7 +154,7 @@ async def websocket_endpoint_log(
             )
 
     else:
-        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+        remotepath = FileHandler.get_remote_model_path(user_name, model_name, model_folder_name)
         # log.info("remotepath: %s", remotepath)
 
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)

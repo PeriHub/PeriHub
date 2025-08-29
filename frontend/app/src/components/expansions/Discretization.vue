@@ -40,7 +40,7 @@ SPDX-License-Identifier: Apache-2.0
         <div class="row my-row">
           <q-input class="my-input" v-model="block.id" :rules="[rules.required, rules.float]" label="id" standout
             dense></q-input>
-          <q-input class="my-input" v-model="block.function" :rules="[rules.required, rules.name]" label="Function"
+          <q-input class="my-input" v-model="block.function" :rules="[rules.required, rules.equation]" label="Function"
             standout dense></q-input>
           <q-btn flat icon="fas fa-trash-alt" @click="removeBlockFunction(index)">
             <q-tooltip>

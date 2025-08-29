@@ -14,11 +14,11 @@ SPDX-License-Identifier: Apache-2.0
         <q-select class="my-select" :options="bondFiltertype" v-model="bondFilter.type" :label="bondFilterKeys.type"
           standout dense></q-select>
         <q-input v-if="bondFilter.type == 'Rectangular_Plane'" class="my-input" v-model="bondFilter.bottomLength"
-          :rules="[rules.required, rules.name]" :label="bondFilterKeys.bottomLength" standout dense></q-input>
+          :rules="[rules.required, rules.float]" :label="bondFilterKeys.bottomLength" standout dense></q-input>
         <q-input v-if="bondFilter.type == 'Rectangular_Plane'" class="my-input" v-model="bondFilter.sideLength"
-          :rules="[rules.required, rules.name]" :label="bondFilterKeys.sideLength" standout dense></q-input>
+          :rules="[rules.required, rules.float]" :label="bondFilterKeys.sideLength" standout dense></q-input>
         <q-input v-if="bondFilter.type == 'Disk'" class="my-input" v-model="bondFilter.radius"
-          :rules="[rules.required, rules.name]" :label="bondFilterKeys.radius" standout dense></q-input>
+          :rules="[rules.required, rules.float]" :label="bondFilterKeys.radius" standout dense></q-input>
         <q-toggle class="my-toggle" v-model="bondFilter.allow_contact" :label="bondFilterKeys.allow_contact" standout
           dense></q-toggle>
         <q-btn flat icon="fas fa-trash-alt" @click="removeBondFilter(index)">
