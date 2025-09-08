@@ -170,7 +170,7 @@ test('Tools Page', async ({ page }) => {
 
 test('Model page', async ({ page }) => {
   await page.goto('/models');
-  await page.getByRole('button').click();
+  await page.getByRole('main').getByRole('button').click();
   await page.getByRole('textbox', { name: 'Model Name' }).click();
   await page.getByRole('textbox', { name: 'Model Name' }).fill('Test');
   await page.getByRole('textbox', { name: 'Description' }).click();
