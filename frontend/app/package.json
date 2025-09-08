@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
-    "test": "echo \"No test specified\" && exit 0",
+    "test": "npx playwright test --ui",
     "dev": "quasar dev",
     "build": "quasar build",
     "client": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/client --client axios --base http://localhost:8000"
