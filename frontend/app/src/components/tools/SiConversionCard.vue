@@ -37,6 +37,10 @@ SPDX-License-Identifier: Apache-2.0
             standout dense></q-input>
           <q-input class="my-input" v-model="conversion.fractureToughness" label="FractureToughness [Pa · m^1/2]"
             clearable standout dense></q-input>
+          <q-input class="my-input" v-model="conversion.heatCapacity" label="Specific Heat Capacity [J/kg*K]" clearable
+            standout dense></q-input>
+          <q-input class="my-input" v-model="conversion.thermalConductivity" label="Thermal Conductivity [W/m*K]"
+            clearable standout dense></q-input>
         </div>
         <div class="col">
           <q-input class="my-input" v-model="conversionResults.mass" label="Mass [t]" standout dense>
@@ -107,6 +111,18 @@ SPDX-License-Identifier: Apache-2.0
               <q-icon name='fas fa-copy' @click="copyText('fractureToughness')"></q-icon>
             </template>
           </q-input>
+          <q-input class="my-input" v-model="conversionResults.heatCapacity" label="Specific Heat Capacity [kJ/t*K]"
+            standout dense>
+            <template v-slot:append>
+              <q-icon name='fas fa-copy' @click="copyText('heatCapacity')"></q-icon>
+            </template>
+          </q-input>
+          <q-input class="my-input" v-model="conversionResults.thermalConductivity"
+            label="Thermal Conductivity [kW/mm*K]" standout dense>
+            <template v-slot:append>
+              <q-icon name='fas fa-copy' @click="copyText('thermalConductivity')"></q-icon>
+            </template>
+          </q-input>
         </div>
       </div>
     </q-card-section>
@@ -135,6 +151,8 @@ export default defineComponent({
         energy: null,
         energyReleaseRate: null,
         fractureToughness: null,
+        heatCapacity: null,
+        thermalConductivity: null,
       },
       conversionResults: {
         mass: null,
@@ -150,6 +168,8 @@ export default defineComponent({
         energy: null,
         energyReleaseRate: null,
         fractureToughnessm: null,
+        heatCapacity: null,
+        thermalConductivity: null,
       },
     }
   },
@@ -169,6 +189,8 @@ export default defineComponent({
       const energy = this.conversion.energy;
       const energyReleaseRate = this.conversion.energyReleaseRate;
       const fractureToughness = this.conversion.fractureToughness;
+      const heatCapacity = this.conversion.heatCapacity;
+      const thermalConductivity = this.conversion.thermalConductivity;
 
       if (mass != null) {
         this.conversionResults.mass = mass / 1000;
@@ -208,6 +230,12 @@ export default defineComponent({
       }
       if (fractureToughness != null) {
         this.conversionResults.fractureToughness = Math.sqrt(fractureToughness ** 2 / 1e9);
+      }
+      if (heatCapacity != null) {
+        this.conversionResults.heatCapacity = heatCapacity * 1e9;
+      }
+      if (thermalConductivity != null) {
+        this.conversionResults.thermalConductivity = thermalConductivity;
       }
     },
     copyText(id) {
