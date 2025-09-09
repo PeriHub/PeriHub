@@ -6,6 +6,8 @@ import { useDefaultStore } from 'src/stores/default-store';
 
 export default async ({ app }) => {
   let uuid = 'user';
+  let gravatarUrl = 'US';
+  const store = useDefaultStore();
 
   if (
     process.env.KEYCLOAK_URL == null ||
@@ -39,16 +41,15 @@ export default async ({ app }) => {
       const sha256 = require('js-sha256');
       uuid = decoded.preferred_username;
       const emailHash = sha256(decoded.email);
-      const gravatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=404`;
+      gravatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=404`;
       fetch(gravatarUrl)
         .then((response) => {
           if (response.ok) {
-            store.gravatarUrl = gravatarUrl;
             store.useGravatar = true;
             console.log('Gravatar image found for', decoded.email);
           } else {
             const emailParts = decoded.email.split('.');
-            store.gravatarUrl =
+            gravatarUrl =
               emailParts[0].charAt(0).toUpperCase() +
               emailParts[1].charAt(0).toUpperCase();
             store.useGravatar = false;
@@ -56,7 +57,7 @@ export default async ({ app }) => {
           }
         })
         .catch((error) => {
-          store.gravatarUrl = decoded.email.charAt(0).toUpperCase();
+          gravatarUrl = decoded.email.charAt(0).toUpperCase();
           store.useGravatar = false;
           console.error(error); // Something went wrong while fetching the image
         });
@@ -68,6 +69,7 @@ export default async ({ app }) => {
   if (process.env.DEV) {
     console.log(`I'm on a development build`);
     uuid = 'dev';
+    gravatarUrl = 'DEV';
   } else {
     OpenAPI.BASE = 'api';
     console.log('Backend URL: ' + OpenAPI.BASE);
@@ -75,8 +77,8 @@ export default async ({ app }) => {
 
   console.log('Logged in as ' + uuid);
   api.defaults.headers.common['userName'] = uuid;
-  const store = useDefaultStore();
   store.username = uuid;
+  store.gravatarUrl = gravatarUrl;
   store.cluster = process.env.CLUSTER_URL;
   OpenAPI.HEADERS = {
     userName: uuid,

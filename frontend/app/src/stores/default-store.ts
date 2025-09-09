@@ -8,7 +8,7 @@ export const useDefaultStore = defineStore('default', {
   state: () => ({
     username: '',
     cluster: '',
-    gravatarUrl: '',
+    gravatarUrl: 'US',
     useGravatar: false,
     darkMode: false,
     saveEnergy: true,
