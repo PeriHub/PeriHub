@@ -29,6 +29,10 @@ export default async ({ app }) => {
       realm: process.env.REALM,
       clientId: process.env.CLIENT_ID,
     });
+    console.log('Using Keycloak');
+    console.log(process.env.KEYCLOAK_URL);
+    console.log(process.env.REALM);
+    console.log(process.env.CLIENT_ID);
 
     try {
       await keycloak.init({
@@ -68,8 +72,9 @@ export default async ({ app }) => {
 
   if (process.env.DEV) {
     console.log(`I'm on a development build`);
-    uuid = 'dev';
-    gravatarUrl = 'DEV';
+    // uuid = 'dev';
+    // gravatarUrl = 'DEV';
+    // store.useGravatar = false;
   } else {
     OpenAPI.BASE = 'api';
     console.log('Backend URL: ' + OpenAPI.BASE);
