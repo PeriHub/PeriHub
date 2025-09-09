@@ -8,62 +8,61 @@ SPDX-License-Identifier: Apache-2.0
   <div style="height: 100%; width: 100%; overflow: hidden">
     <div style="height:100%;">
       <div class="row" :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
-        <q-btn flat dense icon="fas fa-sync-alt" @click="viewPointData(true)">
+        <q-btn padding="none" flat dense icon="fas fa-sync-alt" @click="viewPointData(true)">
           <q-tooltip>
             Reload Model
           </q-tooltip>
         </q-btn>
-        <q-btn flat dense icon="fas fa-expand" @click="$refs.view.resetCamera()">
+        <q-btn padding="none" flat dense icon="fas fa-expand" @click="$refs.view.resetCamera()">
           <q-tooltip>
             Reset Camera
           </q-tooltip>
         </q-btn>
-        <q-btn :disabled="modelParams.step == 1" flat dense icon="fas fa-fast-backward" @click="fastBackward()">
+        <q-btn :disabled="modelParams.step == 1" padding="none" flat dense icon="fas fa-fast-backward"
+          @click="fastBackward()">
           <q-tooltip>
             Fast Backward
           </q-tooltip>
         </q-btn>
-        <q-btn flat dense icon="fas fa-backward" @click="backward()">
+        <q-btn padding="none" flat dense icon="fas fa-backward" @click="backward()">
           <q-tooltip>
             Backward
           </q-tooltip>
         </q-btn>
-        <q-btn :disabled="!playing" flat dense icon="fas fa-pause" @click="pause()">
+        <q-btn :disabled="!playing" padding="none" flat dense icon="fas fa-pause" @click="pause()">
           <q-tooltip>
             Pause
           </q-tooltip>
         </q-btn>
-        <q-btn :disabled="playing" flat dense icon="fas fa-play" @click="play()">
+        <q-btn :disabled="playing" padding="none" flat dense icon="fas fa-play" @click="play()">
           <q-tooltip>
             Play
           </q-tooltip>
         </q-btn>
-        <q-btn flat dense icon="fas fa-forward" @click="forward()">
+        <q-btn padding="none" flat dense icon="fas fa-forward" @click="forward()">
           <q-tooltip>
             Forward
           </q-tooltip>
         </q-btn>
-        <q-btn :disabled="modelParams.step == modelParams.numberOfSteps" flat dense icon="fas fa-fast-forward"
-          @click="fastForward()">
+        <q-btn :disabled="modelParams.step == modelParams.numberOfSteps" padding="none" flat dense
+          icon="fas fa-fast-forward" @click="fastForward()">
           <q-tooltip>
             Fast Forward
           </q-tooltip>
         </q-btn>
-        <div>
-          <q-item>
-            <q-item-section style="width: 10px; margin-right:20px" side>
-              <q-icon color=" #cfcfcf" name="fas fa-clock" />
-            </q-item-section>
-            <q-item-section v-if="modelParams.numberOfSteps > 0">
-              <q-slider style="width: 100px" v-model="modelParams.step" :min="0" :max="modelParams.numberOfSteps"
-                :step="1" label :label-value="'Time Step: ' + modelParams.step" switch-label-side color="secondary"
-                @change="viewPointData(true)"></q-slider>
-            </q-item-section>
-            <q-item-section side>
-              {{ time }}
-            </q-item-section>
-          </q-item>
-        </div>
+        <q-item style="padding-right: 5px">
+          <q-item-section style="width: 10px; margin-right:15px" side>
+            <q-icon color=" #cfcfcf" name="fas fa-clock" />
+          </q-item-section>
+          <q-item-section v-if="modelParams.numberOfSteps > 0">
+            <q-slider style="width: 100px" v-model="modelParams.step" :min="0" :max="modelParams.numberOfSteps"
+              :step="1" label :label-value="'Time Step: ' + modelParams.step" switch-label-side color="secondary"
+              @change="viewPointData(true)"></q-slider>
+          </q-item-section>
+          <q-item-section side>
+            {{ time }}
+          </q-item-section>
+        </q-item>
         <!-- <div class="settings-column">
           <q-select class="textfield-col" :options="variableOptions" v-model="modelParams.variable" label="Variable"
             outlined dense @update:model-value="viewPointData"></q-select>
@@ -76,29 +75,25 @@ SPDX-License-Identifier: Apache-2.0
           <q-input v-model.number="modelParams.displFactor" type="number" label="Displ. Magnitude" outlined dense
             debounce:500 @update:model-value="viewPointData"></q-input>
         </div> -->
-        <div>
-          <q-item>
-            <q-item-section style="width: 10px; margin-right:20px" side>
-              <q-icon color="#cfcfcf" name="fas fa-up-right-and-down-left-from-center" />
-            </q-item-section>
-            <q-item-section>
-              <q-slider style="width: 100px" v-model="multiplier" :min="1" :max="200" :step="1" label
-                :label-value="'Node Size: ' + multiplier + ' %'" switch-label-side @change="updatePoints"
-                color="secondary"></q-slider>
-            </q-item-section>
-          </q-item>
-        </div>
-        <div>
-          <q-item>
-            <q-item-section style="width: 10px; margin-right:20px" side>
-              <q-icon color="#cfcfcf" name="fas fa-eye" />
-            </q-item-section>
-            <q-item-section>
-              <q-slider style="width: 100px" v-model="resolution" :min="3" :max="20" :step="1" label
-                :label-value="'Resolution: ' + resolution" switch-label-side color="secondary"></q-slider>
-            </q-item-section>
-          </q-item>
-        </div>
+        <q-item style="padding-right: 5px">
+          <q-item-section style="width: 10px; margin-right:15px" side>
+            <q-icon color="#cfcfcf" name="fas fa-up-right-and-down-left-from-center" />
+          </q-item-section>
+          <q-item-section>
+            <q-slider style="width: 80px" v-model="multiplier" :min="1" :max="200" :step="1" label
+              :label-value="'Node Size: ' + multiplier + ' %'" switch-label-side @change="updatePoints"
+              color="secondary"></q-slider>
+          </q-item-section>
+        </q-item>
+        <q-item style="padding-right: 5px">
+          <q-item-section style="width: 10px; margin-right:15px" side>
+            <q-icon color="#cfcfcf" name="fas fa-eye" />
+          </q-item-section>
+          <q-item-section>
+            <q-slider style="width: 80px" v-model="resolution" :min="3" :max="20" :step="1" label
+              :label-value="'Resolution: ' + resolution" switch-label-side color="secondary"></q-slider>
+          </q-item-section>
+        </q-item>
         <!-- <div class="settings-column">
       <q-toggle v-model="sphere" :label="sphere" false-value="Cube" true-value="Sphere"
         @update:model-value="$refs.view.resetCamera();" />
@@ -382,8 +377,8 @@ export default {
 
 .variables {
   position: absolute;
-  top: 60px;
-  left: 16px;
+  top: 58px;
+  left: 10px;
   width: 150px;
 }
 

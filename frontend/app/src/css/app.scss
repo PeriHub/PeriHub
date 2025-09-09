@@ -14,3 +14,6 @@
 .my-font {
   font-family: 'montserrat';
 }
+.q-item__section--avatar {
+  min-width: 0px !important; // fix for avatar not showing up
+}
