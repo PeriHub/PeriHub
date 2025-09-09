@@ -9,6 +9,9 @@ export default async ({ app }) => {
   let gravatarUrl = 'US';
   const store = useDefaultStore();
 
+  console.log(process.env.KEYCLOAK_URL);
+  console.log(process.env.REALM);
+  console.log(process.env.CLIENT_ID);
   if (
     process.env.KEYCLOAK_URL == null ||
     process.env.KEYCLOAK_URL == '' ||
@@ -30,9 +33,6 @@ export default async ({ app }) => {
       clientId: process.env.CLIENT_ID,
     });
     console.log('Using Keycloak');
-    console.log(process.env.KEYCLOAK_URL);
-    console.log(process.env.REALM);
-    console.log(process.env.CLIENT_ID);
 
     try {
       await keycloak.init({
