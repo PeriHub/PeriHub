@@ -10,8 +10,8 @@ export default async ({ app }) => {
   const store = useDefaultStore();
   if (
     process.env.KEYCLOAK_URL == null ||
-    process.env.KEYCLOAK_URL == '' ||
-    process.env.KEYCLOAK_URL == 'KEYCLOAK_URL' + '_VALUE'
+    process.env.KEYCLOAK_URL == ''
+    // process.env.KEYCLOAK_URL == 'KEYCLOAK_URL' + '_VALUE'
   ) {
     if (process.env.TRIAL == 'True') {
       console.log(`I'm on a trial build`);
