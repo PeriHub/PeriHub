@@ -8,14 +8,10 @@ export default async ({ app }) => {
   let uuid = 'user';
   let gravatarUrl = 'US';
   const store = useDefaultStore();
-
-  console.log(process.env.KEYCLOAK_URL);
-  console.log(process.env.REALM);
-  console.log(process.env.CLIENT_ID);
   if (
     process.env.KEYCLOAK_URL == null ||
     process.env.KEYCLOAK_URL == '' ||
-    process.env.KEYCLOAK_URL == 'KEYCLOAK_URL_VALUE'
+    process.env.KEYCLOAK_URL == 'KEYCLOAK_URL' + '_VALUE'
   ) {
     if (process.env.TRIAL == 'True') {
       console.log(`I'm on a trial build`);

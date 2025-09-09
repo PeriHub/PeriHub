@@ -13,15 +13,15 @@ CLIENT_ID"
 
 for file in $ROOT_DIR/js/*.js* ;
 do
-  echo "Processing $file ...";
+  # echo "Processing $file ...";
   for key in $keys
   do
     value=$(eval echo \$$key)
-    echo "$value"
+    # echo "$value"
     if [ -z "$value" ]; then
       continue
     fi
-    echo "replace $key by $value"
+    # echo "replace $key by $value"
     sed -i 's|'$key'_VALUE|'$value'|g' $file
   done
 done
