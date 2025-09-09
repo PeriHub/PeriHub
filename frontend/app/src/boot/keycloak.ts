@@ -77,6 +77,7 @@ export default async ({ app }) => {
   api.defaults.headers.common['userName'] = uuid;
   const store = useDefaultStore();
   store.username = uuid;
+  store.cluster = process.env.CLUSTER_URL;
   OpenAPI.HEADERS = {
     userName: uuid,
   };

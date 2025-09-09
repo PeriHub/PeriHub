@@ -9,7 +9,8 @@
     <!-- API Key Input -->
 
 
-    <q-item-label header>Logged in as {{ store.username }}</q-item-label>
+    <q-item-label header>Logged in as: {{ store.username }}</q-item-label>
+    <q-item-label header v-if="store.cluster != ''">Configured Cluster: {{ store.cluster }}</q-item-label>
     <!-- <q-item dense>
       <q-item-section avatar>
         <q-icon name="link" />

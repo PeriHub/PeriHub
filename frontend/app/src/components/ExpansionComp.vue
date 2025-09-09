@@ -43,8 +43,7 @@ SPDX-License-Identifier: Apache-2.0
       <q-expansion-item v-model="panel[11]" expand-separator icon="fas fa-calculator" label="Solver">
         <SolverSettings></SolverSettings>
       </q-expansion-item>
-      <q-expansion-item v-if="this.clusterUrl != ''" v-model="panel[12]" expand-separator icon="fas fa-flask"
-        label="Job">
+      <q-expansion-item v-if="store.cluster != ''" v-model="panel[12]" expand-separator icon="fas fa-flask" label="Job">
         <JobSettings></JobSettings>
       </q-expansion-item>
     </q-list>
@@ -53,6 +52,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { defineComponent, inject } from 'vue'
+import { useDefaultStore } from 'stores/default-store';
 import ModelSettings from 'components/expansions/Model.vue'
 import DiscretizationSettings from 'components/expansions/Discretization.vue'
 import MaterialSettings from 'components/expansions/Material.vue'
@@ -86,10 +86,10 @@ export default defineComponent({
   },
   setup() {
     const bus = inject('bus')
-    // const DLR = process.env.DLR
+    const store = useDefaultStore();
     return {
       bus,
-      // DLR
+      store,
     }
   },
   created() {
@@ -100,7 +100,6 @@ export default defineComponent({
   },
   data() {
     return {
-      clusterUrl: process.env.CLUSTER_URL,
       panel: [false, false, false, false, false, false, false, false, false, false],
     }
   },
