@@ -35,8 +35,8 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-if="solver.stepId != 1" v-model="solver.additionalTime" clearable
             :rules="[rules.float]" :label="solverKeys.additionalTime" standout dense></q-input>
           <q-input class="my-input" v-model="solver.fixedDt"
-            v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'"
-            :rules="[rules.required, rules.posFloat]" :label="solverKeys.fixedDt" standout dense></q-input>
+            v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'" :rules="[rules.posFloat]"
+            :label="solverKeys.fixedDt" standout dense clearable></q-input>
         </div>
         <div class="row my-row">
           <q-select class="my-input" :options="solvertype" v-model="solver.solvertype" :label="solverKeys.solvertype"
