@@ -208,8 +208,6 @@ class YAMLcreatorPeriLab:
             #     material["Apply Heat Transfer"] = mat.applyHeatTransfer
             # if self.check_if_defined(mat.thermalBondBased):
             #     material["Thermal Bond Based"] = mat.thermalBondBased
-            # if self.check_if_defined(mat.thermalExpansionCoefficient):
-            #     material["Thermal Expansion Coefficient"] = float(mat.thermalExpansionCoefficient)
             # if self.check_if_defined(mat.environmentalTemperature):
             #     material["Environmental Temperature"] = float(mat.environmentalTemperature)
             # if self.check_if_defined(mat.printBedTemperature):
@@ -247,6 +245,8 @@ class YAMLcreatorPeriLab:
                 thermal["Environmental Temperature"] = float(therm.environmentalTemperature)
             if self.check_if_defined(therm.heatTransferCoefficient):
                 thermal["Heat Transfer Coefficient"] = float(therm.heatTransferCoefficient)
+            if self.check_if_defined(therm.thermalExpansionCoefficient):
+                thermal["Thermal Expansion Coefficient"] = float(therm.thermalExpansionCoefficient)
 
             data[therm.name] = thermal
         return data
@@ -286,7 +286,7 @@ class YAMLcreatorPeriLab:
             blocks["Horizon"] = block.horizon
             blocks["Density"] = block.density
             if self.check_if_defined(block.specificHeatCapacity):
-                blocks["Specific Heat Capacity"] = block.specificHeatCapacity
+                blocks["Specific Heat Capacity"] = float(block.specificHeatCapacity)
 
             data[block.name] = blocks
 
