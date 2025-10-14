@@ -43,7 +43,7 @@ def get_fracture_analysis(
     poissions_ratio: float = 0.33,
     yield_stress: float = 74,
     cluster: bool = False,
-    tasks: int = 32,
+    tasks: int = 1,
     output: str = "Output1",
     step: int = -1,
     request: Request = "",
@@ -84,7 +84,7 @@ def get_energy_release_plot(
     cluster: bool = False,
     output_exodus: str = "Output1",
     output_csv: str = "Output2",
-    tasks: int = 32,
+    tasks: int = 1,
     force_output_name: str = "External_Forcey",
     displacement_output_name: str = "External_Displacementy",
     step: int = -1,
@@ -163,9 +163,11 @@ def get_enf_analysis(
     width: float = 1.0,
     crack_length: float = 6.0,
     cluster: bool = False,
-    tasks: int = 32,
+    tasks: int = 1,
     output: str = "Output1",
     step: int = -1,
+    load_variable: str = "External_Forces",
+    displ_variable: str = "External_Displacements",
     request: Request = "",
 ):
     """doc"""
@@ -179,7 +181,7 @@ def get_enf_analysis(
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
-    g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step)
+    g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step, load_variable, displ_variable)
 
     try:
         return g2c
@@ -194,7 +196,7 @@ def get_plot(
     model_folder_name: str = "Default",
     cluster: bool = False,
     output: str = "Output1",
-    tasks: int = 32,
+    tasks: int = 1,
     # x_variable: str = "Time",
     # x_axis: str = "X",
     # x_absolute: bool = True,
@@ -249,7 +251,7 @@ def get_results(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     output: str = "Output1",
-    tasks: int = 32,
+    tasks: int = 1,
     cluster: bool = False,
     all_data: bool = False,
     request: Request = "",
@@ -409,7 +411,7 @@ def get_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     output: str = "Output1",
-    tasks: int = 32,
+    tasks: int = 1,
     cluster: bool = False,
     axis: str = "Magnitude",
     step: int = 78,

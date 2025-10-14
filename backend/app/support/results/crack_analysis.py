@@ -276,10 +276,19 @@ class CrackAnalysis:
         return os.path.join(nodemap_folder, "plots", "nodemap_r.png")
 
     @staticmethod
-    def get_g2c(file: str, model: Model, length: float, width: float, crack_length: float, step: int = -1):
+    def get_g2c(
+        file: str,
+        length: float,
+        width: float,
+        crack_length: float,
+        step: int = -1,
+        load_variable: str = "External_Forces",
+        displ_variable: str = "External_Displacements",
+    ):
+
         w = width
-        a = crack_length - length / 22
-        L = length / 2.2
+        a = crack_length
+        L = length
 
         (
             points,
@@ -291,8 +300,8 @@ class CrackAnalysis:
             time,
         ) = exodusreader.read_timestep(file, step)
 
-        P = global_data["External_Force"][0][1]
-        d = -global_data["External_Displacement"][0][1]
+        P = global_data[load_variable + "y"]
+        d = global_data[displ_variable + "y"]
 
         GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3)))
 

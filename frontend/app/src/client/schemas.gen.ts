@@ -1254,7 +1254,7 @@ export const $Job = {
                 }
             ],
             title: 'Tasks',
-            default: 32
+            default: 1
         },
         tasksPerNode: {
             anyOf: [
@@ -1266,7 +1266,7 @@ export const $Job = {
                 }
             ],
             title: 'Taskspernode',
-            default: 32
+            default: 1
         },
         cpusPerTask: {
             anyOf: [
@@ -2047,8 +2047,8 @@ export const $ModelData = {
             cpusPerTask: 1,
             multithread: false,
             nodes: 1,
-            tasks: 32,
-            tasksPerNode: 32,
+            tasks: 1,
+            tasksPerNode: 1,
             time: '00:20:00'
         },
         materials: [

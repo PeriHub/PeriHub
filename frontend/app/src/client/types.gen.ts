@@ -598,7 +598,9 @@ export type GetEnergyReleasePlotResponse = unknown;
 export type GetEnfAnalysisData = {
     cluster?: boolean;
     crackLength?: number;
+    displVariable?: string;
     length?: number;
+    loadVariable?: string;
     modelFolderName?: string;
     modelName?: string;
     output?: string;

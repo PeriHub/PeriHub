@@ -584,6 +584,8 @@ export const getEnergyReleasePlot = (data: GetEnergyReleasePlotData = {}): Cance
  * @param data.tasks
  * @param data.output
  * @param data.step
+ * @param data.loadVariable
+ * @param data.displVariable
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -599,7 +601,9 @@ export const getEnfAnalysis = (data: GetEnfAnalysisData = {}): CancelablePromise
         cluster: data.cluster,
         tasks: data.tasks,
         output: data.output,
-        step: data.step
+        step: data.step,
+        load_variable: data.loadVariable,
+        displ_variable: data.displVariable
     },
     errors: {
         422: 'Validation Error'

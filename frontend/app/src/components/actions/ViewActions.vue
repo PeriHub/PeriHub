@@ -140,8 +140,8 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn v-if="['ENFmodel'].includes(modelStore.selectedModel.file)" flat icon="fas fa-image"
-      @click="dialogGetEnfAnalysis = true" :disable="!status.results">
+    <q-btn v-if="['DIN6034'].includes(modelStore.selectedModel.file)" flat icon="fas fa-image"
+      @click="openGetEnfAnalysisDialog()" :disable="!status.results">
       <q-tooltip>
         Show ENF Analysis
       </q-tooltip>
@@ -163,8 +163,16 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.int]" label="Time Step"
             standout dense></q-input>
         </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-select class="my-select" :options="computeKeys" emit-value v-model="getAnalysisVariables[0]"
+            label="Load Variable" standout dense></q-select>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <q-select class="my-select" :options="computeKeys" emit-value v-model="getAnalysisVariables[1]"
+            label="Displacement Variable" standout dense></q-select>
+        </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="getEnfAnalysis"></q-btn>
+          <q-btn flat label="Show" color="primary" v-close-popup @click="_getEnfAnalysis"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -358,7 +366,7 @@ import { inject } from 'vue'
 import { useQuasar } from 'quasar'
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
-import { getCurrentEnergy, runModel, cancelJob, getResults, getPlot, getFractureAnalysis, getEnergyReleasePlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
+import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, getFractureAnalysis, getEnergyReleasePlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
@@ -377,6 +385,7 @@ export default defineComponent({
     const viewStore = useViewStore();
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData)
+    const computes = computed(() => modelStore.modelData.computes)
     const bus = inject('bus')
 
     return {
@@ -385,6 +394,7 @@ export default defineComponent({
       viewStore,
       modelStore,
       modelData,
+      computes,
       rules,
       bus,
     }
@@ -446,6 +456,9 @@ export default defineComponent({
       getImageElevation: 30,
       getImageAzimuth: 30,
       getImageRoll: 0,
+
+      computeKeys: [],
+      getAnalysisVariables: ['External_Forces', 'External_Displacements'],
 
       port: null,
 
@@ -577,7 +590,7 @@ export default defineComponent({
       if (this.status.submitted) {
         this.submitLoading = false;
         if (this.modelData.job.cluster) {
-          await sleep(10000);
+          await sleep(20000);
         } else {
           await sleep(20000);
         }
@@ -924,18 +937,47 @@ export default defineComponent({
     //   this.viewStore.viewId = 0;
     //   this.viewStore.modelLoading = false;
     // },
-    async getEnfAnalysis() {
+    openGetEnfAnalysisDialog() {
+      let outputKeys = []
+      for (var i = 0; i < this.computes.length; i++) {
+        outputKeys.push(this.computes[i].name)
+      }
+      this.computeKeys = outputKeys
+      this.dialogGetEnfAnalysis = true;
+    },
+    async _getEnfAnalysis() {
       this.viewStore.modelLoading = true;
 
+      let length = 0
+      let width = 0
+      let cracklength = 0
+
+      for (let i = 0; i < this.modelStore.modelParams.valves.length; i++) {
+        let param = this.modelStore.modelParams.valves[i]
+        if (param.name == 'LENGTH') {
+          length = param.value
+        }
+        if (param.name == 'WIDTH') {
+          width = param.value
+        }
+        if (param.name == 'CRACK_LENGTH') {
+          cracklength = param.value
+        }
+      }
+      console.log(length)
+
       await getEnfAnalysis({
-        modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName,
-        length: this.modelData.model.length,
-        width: this.modelData.model.width,
-        crack_length: this.modelData.model.cracklength,
+        modelName: this.modelStore.selectedModel.file,
+        modelFolderName: this.modelData.model.modelFolderName,
+        length: length,
+        width: width,
+        crackLength: cracklength,
         cluster: this.modelData.job.cluster,
         tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
         step: this.getImageStep,
+        loadVariable: this.getAnalysisVariables[0],
+        displVariable: this.getAnalysisVariables[1]
       })
         .then((response) => {
           console.log(response)

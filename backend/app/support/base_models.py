@@ -387,8 +387,8 @@ class Job(BaseModel):
     sbatch: bool
     verbose: bool
     nodes: Optional[int] = 1
-    tasks: Optional[int] = 32
-    tasksPerNode: Optional[int] = 32
+    tasks: Optional[int] = 1
+    tasksPerNode: Optional[int] = 1
     cpusPerTask: Optional[int] = 1
     multithread: Optional[bool] = False
     time: Optional[str] = None
@@ -661,8 +661,8 @@ default_model = {
     "job": {
         "cluster": False,
         "nodes": 1,
-        "tasks": 32,
-        "tasksPerNode": 32,
+        "tasks": 1,
+        "tasksPerNode": 1,
         "cpusPerTask": 1,
         "multithread": False,
         "time": "00:20:00",

@@ -4,6 +4,7 @@
 
 import json
 import os
+import shutil
 import socket
 
 import paramiko
@@ -38,6 +39,12 @@ async def run_model(
 
     cluster = model_data.job.cluster
     sbatch = model_data.job.sbatch
+
+    remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+
+    if os.path.exists(os.path.join(remotepath, "runPerilab.sh")):
+        os.remove(os.path.join(remotepath, "runPerilab.sh"))
+
     return_string = FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster)
 
     if return_string != "Success":
@@ -115,7 +122,6 @@ async def run_model(
 
     elif not cluster:
         server = "perihub_perilab"
-        remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
         log.info(remotepath)
         if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
             log.warning("%s already submitted", model_name)

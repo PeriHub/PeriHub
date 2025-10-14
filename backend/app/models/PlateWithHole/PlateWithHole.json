@@ -103,8 +103,8 @@
         "multithread": false,
         "nodes": 1,
         "sbatch": false,
-        "tasks": 32,
-        "tasksPerNode": 32,
+        "tasks": 1,
+        "tasksPerNode": 1,
         "time": "00:20:00",
         "verbose": false
     },

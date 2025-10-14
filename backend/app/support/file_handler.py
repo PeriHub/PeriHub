@@ -270,7 +270,7 @@ class FileHandler:
         for file in os.listdir(localpath):
             if file.split(".")[-1] == "yaml":
                 input_exist = True
-            if file.split(".")[-1] == "txt" or file.split(".")[-1] == "e":
+            if file.split(".")[-1] in ["txt", "e", "gcode"]:
                 mesh_exist = True
         if not input_exist:
             log.warning("Inputfile of " + model_name + " has not been created yet")

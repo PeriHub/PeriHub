@@ -179,7 +179,7 @@
         "nodes": 1,
         "sbatch": false,
         "tasks": 1,
-        "tasksPerNode": 32,
+        "tasksPerNode": 1,
         "time": "00:20:00",
         "verbose": false
     },
