@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelData, SaveModelResponse, DeleteModelData, DeleteModelResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnergyReleasePlotData, GetEnergyReleasePlotResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModel1Data, DeleteModel1Response, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelData, SaveModelResponse, DeleteModelData, DeleteModelResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnergyReleasePlotData, GetEnergyReleasePlotResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModel1Data, DeleteModel1Response, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -836,4 +836,14 @@ export const getCurrentEnergy = (): CancelablePromise<GetCurrentEnergyResponse> 
 export const healthcheckHealthGet = (): CancelablePromise<HealthcheckHealthGetResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/health'
+}); };
+
+/**
+ * Get App Latest Release Version
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getVersion = (): CancelablePromise<GetVersionResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/updates'
 }); };

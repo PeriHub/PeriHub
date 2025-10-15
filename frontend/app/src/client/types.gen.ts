@@ -687,6 +687,8 @@ export type GetCurrentEnergyResponse = unknown;
 
 export type HealthcheckHealthGetResponse = unknown;
 
+export type GetVersionResponse = unknown;
+
 export type $OpenApiTs = {
     '/generate/model': {
         post: {
@@ -1204,6 +1206,16 @@ export type $OpenApiTs = {
         };
     };
     '/health': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+            };
+        };
+    };
+    '/updates': {
         get: {
             res: {
                 /**

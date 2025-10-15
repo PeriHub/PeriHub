@@ -4,9 +4,12 @@
 
 import asyncio
 import os
+from pathlib import Path
 from re import match
 
+import aiohttp
 import paramiko
+import toml
 from fastapi import (
     FastAPI,
     HTTPException,
@@ -202,3 +205,34 @@ async def websocket_endpoint_log(
             await websocket.close()
         except RuntimeError as e:
             pass
+
+
+@app.get("/updates", operation_id="get_version")
+async def get_app_latest_release_version():
+    version = "unknown"
+    # adopt path to your pyproject.toml
+    pyproject_toml_file = Path(__file__).parent / "pyproject.toml"
+    if pyproject_toml_file.exists() and pyproject_toml_file.is_file():
+        data = toml.load(pyproject_toml_file)
+        # check project.version
+        if "project" in data and "version" in data["project"]:
+            version = data["project"]["version"]
+        # check tool.poetry.version
+        elif "tool" in data and "poetry" in data["tool"] and "version" in data["tool"]["poetry"]:
+            version = data["tool"]["poetry"]["version"]
+    print(version)
+    try:
+        timeout = aiohttp.ClientTimeout(total=1)
+        async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
+            async with session.get(
+                "https://api.github.com/repos/PeriHub/PeriHub/releases/latest",
+                ssl=True,
+            ) as response:
+                response.raise_for_status()
+                data = await response.json()
+                latest_version = data["tag_name"]
+
+                return {"current": version, "latest": latest_version[1:]}
+    except Exception as e:
+        log.debug(e)
+        return {"current": version, "latest": version}

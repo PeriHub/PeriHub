@@ -12,6 +12,7 @@
     <q-item-label header>Logged in as: {{ store.username }}</q-item-label>
     <q-item-label header v-if="store.TRIAL">Trial mode enabled, different features are disabled! </q-item-label>
     <q-item-label header v-if="store.cluster != ''">Configured Cluster: {{ store.cluster }}</q-item-label>
+    <q-item-label header> PeriHub Version: {{ version.current }} / {{ version.latest }}</q-item-label>
     <!-- <q-item dense>
       <q-item-section avatar>
         <q-icon name="link" />
@@ -37,6 +38,7 @@
 import { defineComponent } from 'vue';
 import rules from 'assets/rules.js';
 import { useDefaultStore } from 'stores/default-store';
+import { getVersion } from 'src/client';
 // import { client } from '../../client/client.gen';
 
 export default defineComponent({
@@ -49,7 +51,17 @@ export default defineComponent({
       store,
     }
   },
+  data() {
+    return {
+      version: { 'current': '', 'latest': '' },
+      bib_entries: [],
+    };
+  },
   methods: {
+  },
+  beforeMount() {
+
+    getVersion().then((response) => this.version = response)
   }
 });
 </script>
