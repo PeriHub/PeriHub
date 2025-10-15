@@ -6,9 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div class="row">
-    <q-btn flat icon="fas fa-upload" @click="readData">
+    <q-btn flat icon="fas fa-upload" @click="readData" :disable="store.TRIAL">
       <q-tooltip>
-        Load Model
+        <div v-if="!store.TRIAL">Load Model</div>
+        <div v-if="store.TRIAL">Disabled in trial version</div>
       </q-tooltip>
     </q-btn>
     <input type="file" style="display: none" ref="fileInput" accept="application/json" @change="onFilePicked" />
@@ -19,7 +20,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="DEV" flat icon="fas fa-save" @click="_saveConfig">
+    <q-btn v-if="store.DEV" flat icon="fas fa-save" @click="_saveConfig">
       <q-tooltip>
         Save Config
       </q-tooltip>
@@ -37,9 +38,11 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-upload" @click="dialogUpload = true">
+    <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-upload" @click="dialogUpload = true"
+      :disable="store.TRIAL">
       <q-tooltip>
-        Upload Modelfiles
+        <div v-if="!store.TRIAL">Upload Modelfiles</div>
+        <div v-if="store.TRIAL">Disabled in trial version</div>
       </q-tooltip>
     </q-btn>
 
@@ -121,7 +124,6 @@ export default defineComponent({
   },
   data() {
     return {
-      DEV: false,
       dialogUpload: false,
       modelLoading: false,
     };
@@ -372,11 +374,8 @@ export default defineComponent({
           else {
             this.$q.notify({
               color: 'negative',
-              position: 'bottom-right',
-              message: error.message,
-              icon: 'report_problem',
-              timeout: 0,
-              actions: [{ icon: 'close', color: 'white' }]
+              message: error.body.detail,
+              icon: 'report_problem'
             })
           }
         })
@@ -432,9 +431,6 @@ export default defineComponent({
       // Start the introduction
       driver.start();
     },
-  },
-  mounted() {
-    this.DEV = process.env.DEV
   }
 })
 </script>

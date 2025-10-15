@@ -73,7 +73,9 @@ module.exports = configure(function (ctx) {
 
       env: {
         API: ctx.dev ? 'http://localhost:8000' : 'api',
-        TRIAL: ctx.dev ? process.env.TRIAL : 'TRIAL_VALUE',
+        TRIAL: ctx.dev
+          ? process.env.TRIAL?.toLowerCase?.() === 'true'
+          : 'TRIAL_VALUE'?.toLowerCase?.() === 'true',
         DEV: ctx.dev,
         KEYCLOAK_URL: ctx.dev ? process.env.KEYCLOAK_URL : 'KEYCLOAK_URL_VALUE',
         REALM: ctx.dev ? process.env.REALM : 'REALM_VALUE',

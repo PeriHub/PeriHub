@@ -6,7 +6,12 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <q-page class="flex-center" style="height:100vh;">
-    <q-btn flat icon="fas fa-add" @click="dialogAddModel = true" />
+    <q-btn flat icon="fas fa-add" @click="dialogAddModel = true" :disable="store.TRIAL">
+      <q-tooltip>
+        <div v-if="!store.TRIAL">Add Model</div>
+        <div v-if="store.TRIAL">Disabled in trial version</div>
+      </q-tooltip>
+    </q-btn>
     <q-select class="q-pa-sm" :options="modelList" option-label="title" v-model="selectedModel" label="Model" standout
       dense @update:model-value="selectModel"></q-select>
 
@@ -66,6 +71,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 
+import { useDefaultStore } from 'src/stores/default-store';
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
 import { highlight, languages } from 'prismjs/components/prism-core';
@@ -81,6 +87,12 @@ export default {
   components: {
     PrismEditor,
     JsonEditorVue
+  },
+  setup() {
+    const store = useDefaultStore();
+    return {
+      store
+    }
   },
   data() {
     return {

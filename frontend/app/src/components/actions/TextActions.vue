@@ -12,9 +12,10 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn> -->
     <q-btn flat icon="fas fa-save" @click="writeInputFile"
-      :disable="!store.status.created || viewStore.textId != 'input'">
+      :disable="!store.status.created || viewStore.textId != 'input' || store.TRIAL">
       <q-tooltip>
-        Save Inputfile
+        <div v-if="!store.TRIAL">Save Inputfile</div>
+        <div v-if="store.TRIAL">Disabled in trial version</div>
       </q-tooltip>
     </q-btn>
 

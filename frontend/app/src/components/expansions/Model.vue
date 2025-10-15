@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div>
     <q-toggle class="my-toggle" standout dense v-model="model.ownModel" label="Own Model"
-      @update:model-value="switchOwnModels"></q-toggle>
+      @update:model-value="switchOwnModels" :disable="store.TRIAL"></q-toggle>
     <q-select class="my-select" :options="modelStore.availableModels" option-label="title"
       v-model="modelStore.selectedModel" v-show="!model.ownModel" label="Model Name" standout dense
       @update:model-value="selectMethod"></q-select>
@@ -183,17 +183,21 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent, inject } from 'vue'
+import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { getConfig, getModels, getValves, getJobFolders } from 'src/client'
 import rules from 'assets/rules.js';
+import { store } from 'quasar/wrappers';
 
 export default defineComponent({
   name: 'ModelSettings',
   setup() {
+    const store = useDefaultStore();
     const modelStore = useModelStore();
     const model = computed(() => modelStore.modelData.model)
     const bus = inject('bus')
     return {
+      store,
       modelStore,
       model,
       rules,

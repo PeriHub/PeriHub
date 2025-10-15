@@ -29,6 +29,7 @@ from ..support.globals import (
 )
 
 allowed_max_nodes = {
+    "trial": {"allowedNodes": 10000, "allowedFeSize": 150000},
     "guest": {"allowedNodes": 1000000, "allowedFeSize": 15000000},
     "dev": {"allowedNodes": 10000000, "allowedFeSize": 150000000},
 }
@@ -134,6 +135,8 @@ class FileHandler:
     @staticmethod
     def get_max_nodes(username):
         """doc"""
+        if trial:
+            return allowed_max_nodes["trial"]["allowedNodes"]
 
         if username in allowed_max_nodes:
             return allowed_max_nodes[username]["allowedNodes"]
@@ -143,6 +146,8 @@ class FileHandler:
     @staticmethod
     def get_max_fe_size(username):
         """doc"""
+        if trial:
+            return allowed_max_nodes["trial"]["allowedFeSize"]
 
         if username in allowed_max_nodes:
             return allowed_max_nodes[username]["allowedFeSize"]

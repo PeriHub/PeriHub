@@ -12,7 +12,7 @@ from re import match
 
 import numpy as np
 import requests
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request, status
 
 # from ..models.PlateWithHole.plate_with_hole import PlateWithHole
 # from ..models.PlateWithOpening.plate_with_opening import PlateWithOpening
@@ -124,9 +124,12 @@ def generate_model(
         k = np.ones(len(x_value))
 
         k = model.crate_block_definition(x_value, y_value, z_value, k)
-
         if len(x_value) > max_nodes:
-            return "The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes)
+            log.error("The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes))
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes),
+            )
 
         # if model_data.model.rotatedAngles:
         #     angle_x = np.zeros(len(x_value))

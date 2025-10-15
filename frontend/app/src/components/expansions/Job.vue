@@ -8,9 +8,9 @@ SPDX-License-Identifier: Apache-2.0
   <div>
     <!-- <q-select class="my-select" :options="software" v-model="job.software" label="Software" standout dense></q-select> -->
     <q-toggle class="my-toggle" v-model="job.verbose" label="Verbose" standout dense></q-toggle>
-    <q-toggle class="my-toggle" v-model="job.cluster" label="Cluster" standout dense
-      @change="changeNumberOfTasks();"></q-toggle>
-    <q-toggle class="my-toggle" v-model="job.sbatch" label="Sbatch" standout dense></q-toggle>
+    <q-toggle class="my-toggle" v-model="job.cluster" label="Cluster" standout dense @change="changeNumberOfTasks();"
+      :disable="store.TRIAL"></q-toggle>
+    <q-toggle class="my-toggle" v-model="job.sbatch" label="Sbatch" standout dense :disable="store.TRIAL"></q-toggle>
     <!-- <q-input
           class="my-input"
           v-model="job.nodes"
@@ -44,6 +44,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script>
 import { computed, defineComponent } from 'vue'
+import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
 import rules from 'assets/rules.js';
@@ -51,9 +52,10 @@ import rules from 'assets/rules.js';
 export default defineComponent({
   name: 'JobSettings',
   setup() {
-    const store = useModelStore();
-    const solver = computed(() => store.modelData.solver)
-    const job = computed(() => store.modelData.job)
+    const store = useDefaultStore();
+    const modelStore = useModelStore();
+    const solver = computed(() => modelStore.modelData.solver)
+    const job = computed(() => modelStore.modelData.job)
     const bus = inject('bus')
     let cluster = false;
     // if (process.env.DLR) {
@@ -67,8 +69,6 @@ export default defineComponent({
       bus,
       cluster,
     }
-  },
-  created() {
   },
   methods: {
     changeNumberOfTasks() {

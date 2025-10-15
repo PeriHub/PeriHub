@@ -12,6 +12,8 @@ export const useDefaultStore = defineStore('default', {
     useGravatar: false,
     darkMode: false,
     saveEnergy: true,
+    DEV: false,
+    TRIAL: false,
 
     status: {
       created: false,
@@ -21,6 +23,10 @@ export const useDefaultStore = defineStore('default', {
     },
   }),
   actions: {
+    initialiseStore() {
+      this.DEV = process.env.DEV;
+      this.TRIAL = process.env.TRIAL;
+    },
     toggleDarkMode() {
       this.darkMode = !this.darkMode;
     },
