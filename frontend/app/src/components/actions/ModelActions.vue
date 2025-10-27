@@ -81,7 +81,8 @@ SPDX-License-Identifier: Apache-2.0
           <q-uploader
             :url="uploadPath + '?model_name=' + this.modelStore.selectedModel.file + '&model_folder_name=' + this.modelData.model.modelFolderName"
             :headers="[{ name: 'username', value: store.username }]" field-name="files" label="Pick file" filled counter
-            multiple style="max-width: 300px" @uploaded="uploadFinished" /> <!--max-file-size="2097152"  -->
+            multiple style="max-width: 300px" @uploaded="uploadFinished" @failed="uploadFailed" />
+          <!--max-file-size="2097152"  -->
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -179,6 +180,13 @@ export default defineComponent({
       }
       this.bus.emit('getStatus')
       this.viewStore.modelLoading = false;
+    },
+    async uploadFailed(res) {
+      console.log(res)
+      this.$q.notify({
+        message: 'Upload failed, file type not supported!',
+        type: 'negative'
+      })
     },
     // onNodesetsPicked(event) {
     //   const files = event.target.files;
