@@ -32,7 +32,7 @@ jobs:
         run: docker run -d -p 8000:8000 -v ./test:/app/simulations perihub/backend:dev
       - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
       - name: Install dependencies
