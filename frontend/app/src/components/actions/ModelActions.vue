@@ -241,11 +241,23 @@ export default defineComponent({
 
       fr.onload = (e) => {
         const result = JSON.parse(e.target.result);
-        this.modelStore.modelData = structuredClone(result)
-        const filename = file.name.split('.')[0]
-        if (this.modelStore.modelData.model.ownModel) {
-          this.modelStore.selectedModel.file = filename;
+        console.log(result)
+        if (result.modelData) {
+          this.modelStore.modelData = structuredClone(result.modelData)
+        } else {
+          this.modelStore.modelData = structuredClone(result)
+          console.log('Deprecated Json Format!')
         }
+        if (result.modelParams) {
+          this.modelStore.modelParams = structuredClone(result.modelParams)
+        }
+        if (result.selectedModel) {
+          this.modelStore.selectedModel = structuredClone(result.selectedModel)
+        }
+        // const filename = file.name.split('.')[0]
+        // if (this.modelStore.modelData.model.ownModel) {
+        //   this.modelStore.selectedModel.file = filename;
+        // }
       };
       fr.readAsText(file);
     },
@@ -277,7 +289,7 @@ export default defineComponent({
       fr.readAsText(file);
     },
     saveData() {
-      exportFile(this.modelStore.selectedModel.file + '.json', JSON.stringify(this.modelData))
+      exportFile(this.modelStore.selectedModel.file + '.json', '{"modelData":' + JSON.stringify(this.modelStore.modelData) + ',"modelParams":' + JSON.stringify(this.modelStore.modelParams) + ',"selectedModel":' + JSON.stringify(this.modelStore.selectedModel) + '}');
     },
     async _saveConfig() {
       await saveConfig({

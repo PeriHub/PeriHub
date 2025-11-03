@@ -229,6 +229,9 @@ export default defineComponent({
             message: error.body.detail
           })
         })
+      await getValves({ modelName: this.modelStore.selectedModel.file }).then((response) => {
+        this.modelStore.modelParams = structuredClone(response)
+      })
     },
     async _getJobFolders() {
       await getJobFolders({ modelName: this.modelStore.selectedModel.file }).then((response) => {
