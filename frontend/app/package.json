@@ -8,6 +8,7 @@
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
+    "codegen": "npx playwright codegen",
     "test": "npx playwright test --ui",
     "dev": "quasar dev",
     "build": "quasar build",
