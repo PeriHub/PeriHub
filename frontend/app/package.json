@@ -18,6 +18,7 @@
     "@quasar/extras": "^1.0.0",
     "axios": "^1.6.8",
     "bibtex-parse-js": "^0.0.23",
+    "chart.js": "^4.5.1",
     "driver.js": "^0.9.8",
     "json-editor-vue": "^0.17.3",
     "jwt-decode": "^4.0.0",
