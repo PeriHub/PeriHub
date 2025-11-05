@@ -136,7 +136,7 @@ export const useModelStore = defineStore('model', {
           name: 'Damage',
           damageModel: 'Critical Energy',
           criticalStretch: null,
-          criticalEnergy: '1e-8',
+          criticalEnergy: 1e-8,
           criticalVonMisesStress: null,
           criticalDamage: null,
           thresholdDamage: null,
@@ -325,12 +325,7 @@ export const useModelStore = defineStore('model', {
           outputsId: 1,
           name: 'Output1',
           selectedFileType: 'Exodus',
-          selectedOutputs: [
-            'Displacements',
-            'Forces',
-            'Damage',
-            'von Mises Stress',
-          ],
+          selectedOutputs: ['Displacements', 'Forces', 'Damage', 'von Mises Stress'],
           Write_After_Damage: false,
           Frequency: 100,
           numberOfOutputSteps: 100,
@@ -410,11 +405,11 @@ export const useModelStore = defineStore('model', {
     initialiseStore() {
       if (localStorage.getItem('modelData')) {
         console.log('initialiseStore');
-        const object = JSON.parse(localStorage.getItem('modelData'));
+        const object = JSON.parse(localStorage.getItem('modelData')!);
         this.modelData = structuredClone(object);
       }
       if (localStorage.getItem('selectedModel')) {
-        const object = JSON.parse(localStorage.getItem('selectedModel'));
+        const object = JSON.parse(localStorage.getItem('selectedModel')!);
         this.selectedModel = structuredClone(object);
       }
     },

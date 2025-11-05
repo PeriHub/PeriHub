@@ -52,7 +52,7 @@ def get_models():
 
 
 @router.get("/getOwnModels", operation_id="get_own_models")
-def get_own_models(verify: bool = False, request: Request = ""):
+def get_own_models(verify: bool = False, request: Request = "") -> list[str]:
     """doc"""
 
     model_list = []

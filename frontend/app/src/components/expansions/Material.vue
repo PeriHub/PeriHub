@@ -133,7 +133,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
@@ -295,17 +295,17 @@ export default defineComponent({
       })
     },
     calculateStiffnessMatrix(materialId) {
-      if (this.materials[materialId].stiffnessMatrix.calculateStiffnessMatrix) {
+      if (this.materials[materialId]?.stiffnessMatrix.calculateStiffnessMatrix) {
 
-        const E1 = this.materials[materialId].stiffnessMatrix.engineeringConstants.E1;   // Elastic modulus along the fiber direction (Pa)
-        const E2 = this.materials[materialId].stiffnessMatrix.engineeringConstants.E2;    // Elastic modulus transverse to the fiber direction (Pa)
-        const E3 = this.materials[materialId].stiffnessMatrix.engineeringConstants.E3;    // Elastic modulus transverse to the fiber direction (Pa)
-        const G12 = this.materials[materialId].stiffnessMatrix.engineeringConstants.G12;    // Shear modulus in the 1-2 plane (Pa)
-        const G13 = this.materials[materialId].stiffnessMatrix.engineeringConstants.G13;    // Shear modulus in the 1-3 plane (Pa)
-        const G23 = this.materials[materialId].stiffnessMatrix.engineeringConstants.G23;    // Shear modulus in the 2-3 plane (Pa)
-        const nu12 = this.materials[materialId].stiffnessMatrix.engineeringConstants.nu12;   // Poisson's ratio in the 1-2 plane
-        const nu13 = this.materials[materialId].stiffnessMatrix.engineeringConstants.nu13;   // Poisson's ratio in the 1-3 plane
-        const nu23 = this.materials[materialId].stiffnessMatrix.engineeringConstants.nu23;   // Poisson's ratio in the 2-3 plane
+        const E1: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.E1;   // Elastic modulus along the fiber direction (Pa)
+        const E2: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.E2;    // Elastic modulus transverse to the fiber direction (Pa)
+        const E3: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.E3;    // Elastic modulus transverse to the fiber direction (Pa)
+        const G12: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.G12;    // Shear modulus in the 1-2 plane (Pa)
+        const G13: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.G13;    // Shear modulus in the 1-3 plane (Pa)
+        const G23: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.G23;    // Shear modulus in the 2-3 plane (Pa)
+        const nu12: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.nu12;   // Poisson's ratio in the 1-2 plane
+        const nu13: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.nu13;   // Poisson's ratio in the 1-3 plane
+        const nu23: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.nu23;   // Poisson's ratio in the 2-3 plane
 
         if (E1 != null && E2 != null && G12 != null && nu12 != null) {
 
@@ -315,7 +315,7 @@ export default defineComponent({
           if (nu13 === undefined) nu13 = nu12;
           if (nu23 === undefined) nu23 = nu12;
 
-          let compliance = matrix([
+          const compliance = matrix([
             [1 / E1, -nu12 / E1, -nu13 / E1, 0, 0, 0],
             [-nu12 / E1, 1 / E2, -nu23 / E2, 0, 0, 0],
             [-nu13 / E1, -nu23 / E2, 1 / E3, 0, 0, 0],
@@ -352,21 +352,21 @@ export default defineComponent({
         }
       }
     },
-    onMultiFilePicked(event) {
+    async onMultiFilePicked(event) {
       const files = event.target.files;
-      const filetype = files[0].type;
+      // const filetype = files[0].type;
       if (files.length <= 0) {
         return false;
       }
 
       this.viewStore.modelLoading = true;
-      this.uploadfiles(files);
+      await this.uploadfiles(files);
 
       this.viewStore.modelLoading = false;
     },
-    async uploadfiles(files) {
+    uploadfiles(files) {
       const formData = new FormData();
-      for (var i = 0; i < files.length; i++) {
+      for (let i = 0; i < files.length; i++) {
         formData.append('files', files[i]);
       }
 
@@ -405,7 +405,7 @@ export default defineComponent({
       fr.onload = (e) => {
         const input_string = e.target.result;
 
-        let filtered_string = input_string.match(/\*User([\D\S]*?)\*/gi);
+        const filtered_string = input_string.match(/\*User([\D\S]*?)\*/gi);
         console.log(filtered_string)
         let propsArray = filtered_string[0].split(/[\n,]/gi);
         console.log(propsArray)
@@ -421,18 +421,18 @@ export default defineComponent({
           this.materials[0].properties = [];
 
           // Extract parameter values
-          let parameterString = input_string.match(/\*PARAMETER([\D\S]*?)\*HEADING/gi);
-          let parameterValues = parameterString[0].match(/\w+=([\d.]+)/gi);
+          const parameterString = input_string.match(/\*PARAMETER([\D\S]*?)\*HEADING/gi);
+          const parameterValues = parameterString[0].match(/\w+=([\d.]+)/gi);
           console.log(parameterValues);
 
-          for (var i = 2; i < propsArray.length; i++) {
+          for (let i = 2; i < propsArray.length; i++) {
             this.addProp(0);
 
             // Replace placeholders with parameter values
             let propValue = propsArray[i].trim();
             if (propValue.startsWith('<') && propValue.endsWith('>')) {
-              let paramName = propValue.slice(1, -1);
-              let paramValue = parameterValues.find(param => param.startsWith(paramName + '='));
+              const paramName = propValue.slice(1, -1);
+              const paramValue = parameterValues.find(param => param.startsWith(paramName + '='));
               if (paramValue) {
                 propValue = paramValue.split('=')[1];
               } else {

@@ -25,26 +25,28 @@ SPDX-License-Identifier: Apache-2.0
 
     <q-toggle class="my-toggle" standout dense v-model="model.twoDimensional" label="Two Dimensional"></q-toggle>
 
-    <div v-for="param in modelStore.modelParams.valves" :key="param.name" v-if="!model.ownModel">
-      <div v-if="!param.depends || modelStore.modelParams.valves.find(o => o.name === param.depends).value">
-        <q-input class="my-select" v-if="['text', 'number'].includes(param.type)" :label="param.label"
-          v-model.number="param.value" :type="param.type" standout dense>
-          <q-tooltip>
-            {{ param.description }}
-          </q-tooltip>
-        </q-input>
-        <q-select class="my-select" standout dense v-if="param.type == 'select'" :options="param.options"
-          option-label="name" v-model="param.value" :label="param.label">
-          <q-tooltip>
-            {{ param.description }}
-          </q-tooltip>
-        </q-select>
-        <q-toggle class="my-toggle" standout dense v-if="param.type == 'checkbox'" v-model="param.value"
-          :label="param.label">
-          <q-tooltip>
-            {{ param.description }}
-          </q-tooltip>
-        </q-toggle>
+    <div v-if="!model.ownModel">
+      <div v-for="param in modelStore.modelParams.valves" :key="param.name">
+        <div v-if="!param.depends || modelStore.modelParams.valves.find(o => o.name === param.depends).value">
+          <q-input class="my-select" v-if="['text', 'number'].includes(param.type)" :label="param.label"
+            v-model.number="param.value" :type="param.type" standout dense>
+            <q-tooltip>
+              {{ param.description }}
+            </q-tooltip>
+          </q-input>
+          <q-select class="my-select" standout dense v-if="param.type == 'select'" :options="param.options"
+            option-label="name" v-model="param.value" :label="param.label">
+            <q-tooltip>
+              {{ param.description }}
+            </q-tooltip>
+          </q-select>
+          <q-toggle class="my-toggle" standout dense v-if="param.type == 'checkbox'" v-model="param.value"
+            :label="param.label">
+            <q-tooltip>
+              {{ param.description }}
+            </q-tooltip>
+          </q-toggle>
+        </div>
       </div>
     </div>
 
@@ -181,13 +183,12 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent, inject } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { getConfig, getModels, getValves, getJobFolders } from 'src/client'
 import rules from 'assets/rules.js';
-import { store } from 'quasar/wrappers';
 
 export default defineComponent({
   name: 'ModelSettings',
@@ -219,8 +220,8 @@ export default defineComponent({
     };
   },
   methods: {
-    async resetData() {
-      await getConfig({ configFile: this.modelStore.selectedModel.file }).then((response) => {
+    resetData() {
+      getConfig({ configFile: this.modelStore.selectedModel.file }).then((response) => {
         this.modelStore.modelData = structuredClone(response)
       })
         .catch((error) => {
@@ -229,12 +230,12 @@ export default defineComponent({
             message: error.body.detail
           })
         })
-      await getValves({ modelName: this.modelStore.selectedModel.file }).then((response) => {
+      getValves({ modelName: this.modelStore.selectedModel.file }).then((response) => {
         this.modelStore.modelParams = structuredClone(response)
       })
     },
-    async _getJobFolders() {
-      await getJobFolders({ modelName: this.modelStore.selectedModel.file }).then((response) => {
+    _getJobFolders() {
+      getJobFolders({ modelName: this.modelStore.selectedModel.file }).then((response) => {
         this.modelFolderNameList = response.data
       })
         .catch((error) => {
@@ -251,7 +252,7 @@ export default defineComponent({
       })
       this.modelStore.modelParams = response
       // this.viewStore.viewLoading = false
-      this._getJobFolders()
+      await this._getJobFolders()
     },
     async switchOwnModels() {
       if (!this.model.ownModel) {
@@ -260,7 +261,7 @@ export default defineComponent({
           file: 'CompactTension',
         }
       }
-      this.selectMethod()
+      await this.selectMethod()
     },
     createValue(val, done) {
 
@@ -288,7 +289,7 @@ export default defineComponent({
   },
   async beforeMount() {
     this.modelStore.availableModels = await getModels()
-    this.selectMethod()
+    await this.selectMethod()
   },
   watch: {
     'modelStore.selectedModel': {

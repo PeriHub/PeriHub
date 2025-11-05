@@ -110,7 +110,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
@@ -208,19 +208,19 @@ export default defineComponent({
         model.damagesId = i + 1
       })
       if (this.damages.length == 0) {
-        for (var i = 0; i < this.blocks.length; i++) {
+        for (let i = 0; i < this.blocks.length; i++) {
           this.blocks[i].damageModel = '';
         }
       }
     },
     addInterBlock(index) {
-      if (!this.damages[index].interBlocks) {
+      if (!this.damages[index]?.interBlocks) {
         this.damages[index].interBlocks = []
       }
-      const len = this.damages[index].interBlocks.length;
+      const len = this.damages[index]?.interBlocks.length;
       let newItem = {}
       if (len != 0) {
-        newItem = structuredClone(this.damages[index].interBlocks[len - 1])
+        newItem = structuredClone(this.damages[index]?.interBlocks[len - 1])
       } else {
         newItem = {
           'damagesInterId': 1,
@@ -238,23 +238,23 @@ export default defineComponent({
       this.damages[index].interBlocks.splice(subindex, 1);
     },
     calculateCriticalEnergy(damageId) {
-      if (this.damages[damageId].criticalEnergyCalc.calculateCriticalEnergy) {
-        const k1c = this.damages[damageId].criticalEnergyCalc.k1c;
+      if (this.damages[damageId]?.criticalEnergyCalc.calculateCriticalEnergy) {
+        const k1c = this.damages[damageId]?.criticalEnergyCalc.k1c;
         if (k1c != null) {
-          let E = null;
-          let pr = null;
+          let E = 0;
+          let pr = 0;
           let materialName = '';
-          for (var i = 0; i < this.blocks.length; i++) {
-            if (this.blocks[i].damageModel == this.damages[damageId].name) {
-              materialName = this.blocks[i].material;
+          for (let i = 0; i < this.blocks.length; i++) {
+            if (this.blocks[i]?.damageModel == this.damages[damageId]?.name) {
+              materialName = this.blocks[i]?.material;
             }
           }
           let planeStress = true;
-          for (var i = 0; i < this.materials.length; i++) {
-            if (this.materials[i].name == materialName) {
-              planeStress = this.materials[i].planeStress;
-              E = this.materials[i].youngsModulus;
-              pr = this.materials[i].poissonsRatio;
+          for (let i = 0; i < this.materials.length; i++) {
+            if (this.materials[i]?.name == materialName) {
+              planeStress = this.materials[i]?.planeStress;
+              E = this.materials[i]?.youngsModulus;
+              pr = this.materials[i]?.poissonsRatio;
             }
           }
           console.log(E)

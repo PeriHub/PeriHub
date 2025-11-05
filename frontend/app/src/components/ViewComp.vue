@@ -61,7 +61,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { inject, defineComponent } from 'vue'
 import ImageView from 'components/views/ImageView.vue'
 import ModelView from 'components/views/ModelView.vue'

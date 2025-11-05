@@ -57,7 +57,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { inject, computed, defineComponent } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
 import { useModelStore } from 'src/stores/model-store';
@@ -113,7 +113,7 @@ export default defineComponent({
 
       await this.getPointDataAndUpdateDx();
       this.radius = parseFloat(this.viewStore.dx_value.toFixed(3));
-      await this.updatePoints();
+      this.updatePoints();
       this.bus.emit('showHideBondFilters');
 
       this.viewStore.modelLoading = false;
@@ -122,16 +122,16 @@ export default defineComponent({
     },
     filterPointData() {
       console.log('filterPointData')
-      var idx = 0;
-      let filteredBlockIdStringTemp = [];
-      let filteredPointStringTemp = [];
+      let idx = 0;
+      const filteredBlockIdStringTemp = [];
+      const filteredPointStringTemp = [];
       const blocks = this.modelData.blocks
-      for (var i = 0; i < this.blockIdString.length; i++) {
+      for (let i = 0; i < this.blockIdString.length; i++) {
         if (
           blocks[parseInt(this.blockIdString[i] * this.modelData.blocks.length - 1)].show
         ) {
           filteredBlockIdStringTemp[idx] = this.blockIdString[i];
-          for (var j = 0; j < 3; j++) {
+          for (let j = 0; j < 3; j++) {
             filteredPointStringTemp[idx * 3 + j] = this.pointString[i * 3 + j];
             // this.pointString[i * 3 + j] * this.multiplier;
           }
@@ -141,7 +141,7 @@ export default defineComponent({
       this.viewStore.filteredBlockIdString = filteredBlockIdStringTemp;
       this.viewStore.filteredPointString = filteredPointStringTemp;
     },
-    async updatePoints() {
+    updatePoints() {
       this.viewStore.modelLoading = true;
       console.log('updatePoints')
       // if (this.radius < 0.01) {
@@ -186,7 +186,7 @@ export default defineComponent({
       //   this.viewStore.dx_value =
       //     this.modelData.model.height / (2 * parseInt(this.modelData.model.discretization / 2) + 1);
       if (this.modelStore.selectedModel.file == 'Smetana') {
-        let numOfPlys = 8;
+        const numOfPlys = 8;
         this.viewStore.dx_value =
           (this.modelData.model.height * numOfPlys) /
           (2 * parseInt(this.modelData.model.discretization / 2) + 1);

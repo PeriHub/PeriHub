@@ -29,7 +29,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, inject } from 'vue'
 import TextView from 'components/views/TextView.vue'
 import LogView from 'components/views/LogView.vue'

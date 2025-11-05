@@ -218,7 +218,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-toggle class="my-toggle" v-model="getPlotAbsoluteY" label="Absolute" dense></q-toggle>
         </q-card-section> -->
         <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="_getPlot(false)"></q-btn>
+          <q-btn flat label="Show" color="primary" v-close-popup @click="_getPlot()"></q-btn>
           <!-- <q-btn flat label="Append" color="primary" v-close-popup @click="_getPlot(true)"></q-btn> -->
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
@@ -357,16 +357,15 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
-import { useQuasar } from 'quasar'
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
-import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, getFractureAnalysis, getEnergyReleasePlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
+import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
@@ -378,7 +377,6 @@ export default defineComponent({
     RenewableView
   },
   setup() {
-    const $q = useQuasar()
     const store = useDefaultStore();
     const status = computed(() => store.status)
     const saveEnergy = computed(() => store.saveEnergy)
@@ -500,7 +498,7 @@ export default defineComponent({
             })
             this.energyPercent = response.data;
           })
-          .catch((error) => {
+          .catch(() => {
             this.$q.notify({
               color: 'negative',
               position: 'bottom-right',
@@ -516,7 +514,7 @@ export default defineComponent({
         // }
         this.dialogEnergySavings = true
       } else {
-        this.runModel();
+        await this.runModel();
       }
     },
     async runModel() {
@@ -548,7 +546,7 @@ export default defineComponent({
           let message = '';
           if (error.response != undefined) {
             if (error.response.status == 422) {
-              for (let i in error.response.detail) {
+              for (const i in error.response.detail) {
                 message += error.response.detail[i].loc[1] + ' ';
                 message += error.response.detail[i].loc[2] + ', ';
                 message += error.response.detail[i].loc[3] + ', ';
@@ -627,7 +625,7 @@ export default defineComponent({
     async saveResults(allData) {
       this.resultsLoading = true;
 
-      let params = {
+      const params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
         output: this.getPlotOutput,
@@ -651,7 +649,7 @@ export default defineComponent({
           if (allData) {
             filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
           }
-          const status = exportFile(filename, response.data)
+          const status: Boolean | Error = exportFile(filename, response.data)
           if (status) {
             // browser allowed it
             console.log('ok')
@@ -672,15 +670,15 @@ export default defineComponent({
       this.resultsLoading = false;
     },
     updatePlotVariables() {
-      let items = [];
+      const items = [];
 
-      for (var i = 0; i < this.modelData.computes.length; i++) {
+      for (let i = 0; i < this.modelData.computes.length; i++) {
         items.push(this.modelData.computes[i].name);
       }
       items.push('Time');
       this.getPlotVariables = items;
     },
-    async _getPlot(append) {
+    async _getPlot() {
       this.viewStore.modelLoading = true;
       let plotRawData = null;
 
@@ -703,8 +701,8 @@ export default defineComponent({
               message: response.message,
             })
 
-            let tempData = []
-            let tempLayout = structuredClone(this.viewStore.plotLayout)
+            const tempData = []
+            const tempLayout = structuredClone(this.viewStore.plotLayout)
             const firstPropety = Object.keys(plotRawData)[0]
             let id = 0
             for (const propertyName in plotRawData) {
@@ -777,18 +775,18 @@ export default defineComponent({
       // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.store.username } });
 
       let materialName = '';
-      for (var i = 0; i < this.modelData.blocks.length; i++) {
+      for (let i = 0; i < this.modelData.blocks.length; i++) {
         if (this.modelData.blocks[i].damageModel != '') {
           materialName = this.modelData.blocks[i].material;
         }
       }
       let materialId = 1
-      for (var i = 0; i < this.modelData.materials.length; i++) {
+      for (let i = 0; i < this.modelData.materials.length; i++) {
         if (this.modelData.materials[i].name == materialName) {
           materialId = i
         }
       }
-      let params = {
+      const params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
         height: this.modelData.model.height,
@@ -860,7 +858,7 @@ export default defineComponent({
         thickness = this.modelData.damages[0].thickness;
       }
 
-      let params = {
+      const params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
@@ -892,8 +890,8 @@ export default defineComponent({
       this.viewStore.viewId = 'image';
       this.viewStore.modelLoading = false;
     },
-    async downloadModelImage() {
-      var fileLink = document.createElement('a');
+    downloadModelImage() {
+      let fileLink = document.createElement('a');
       fileLink.href = this.viewStore.modelImg;
       fileLink.setAttribute('download', this.modelStore.selectedModel.file + '.png');
       document.body.appendChild(fileLink);
@@ -938,8 +936,8 @@ export default defineComponent({
     //   this.viewStore.modelLoading = false;
     // },
     openGetEnfAnalysisDialog() {
-      let outputKeys = []
-      for (var i = 0; i < this.computes.length; i++) {
+      const outputKeys = []
+      for (let i = 0; i < this.computes.length; i++) {
         outputKeys.push(this.computes[i].name)
       }
       this.computeKeys = outputKeys
@@ -953,7 +951,7 @@ export default defineComponent({
       let cracklength = 0
 
       for (let i = 0; i < this.modelStore.modelParams.valves.length; i++) {
-        let param = this.modelStore.modelParams.valves[i]
+        const param = this.modelStore.modelParams.valves[i]
         if (param.name == 'LENGTH') {
           length = param.value
         }
@@ -1071,7 +1069,7 @@ export default defineComponent({
       this.bus.emit('getStatus');
     },
     csvDefined() {
-      for (var i = 0; i < this.modelData.outputs.length; i++) {
+      for (let i = 0; i < this.modelData.outputs.length; i++) {
         if (this.modelData.outputs[i].selectedFileType == 'CSV') {
           return true
         }

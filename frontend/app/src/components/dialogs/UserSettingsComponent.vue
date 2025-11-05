@@ -59,9 +59,9 @@ export default defineComponent({
   },
   methods: {
   },
-  beforeMount() {
+  async beforeMount() {
 
-    getVersion().then((response) => this.version = response)
+    await getVersion().then((response) => this.version = response)
   }
 });
 </script>

@@ -42,7 +42,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
@@ -57,7 +57,7 @@ export default defineComponent({
     const solver = computed(() => modelStore.modelData.solver)
     const job = computed(() => modelStore.modelData.job)
     const bus = inject('bus')
-    let cluster = false;
+    const cluster = false;
     // if (process.env.DLR) {
     //   cluster.push('Cara')
     // }

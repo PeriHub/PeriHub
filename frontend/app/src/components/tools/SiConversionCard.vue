@@ -129,7 +129,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-card>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import { copyToClipboard } from 'quasar'
 
@@ -252,7 +252,7 @@ export default defineComponent({
       handler() {
         console.log('conversion changed!');
         let num = 0;
-        var con = [];
+        const con = [];
         for (con in this.conversion) {
           if (this.conversion[con] != null) {
             num++;

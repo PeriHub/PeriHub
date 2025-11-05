@@ -64,7 +64,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-page-container>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 
 export default defineComponent({

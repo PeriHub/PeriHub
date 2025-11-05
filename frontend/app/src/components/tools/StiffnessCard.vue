@@ -75,7 +75,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-card>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import { copyToClipboard } from 'quasar'
 
@@ -232,7 +232,7 @@ export default defineComponent({
   },
   mounted() {
     if (localStorage.getItem('constants')) {
-      var object = JSON.parse(localStorage.getItem('constants'))
+      const object = JSON.parse(localStorage.getItem('constants'))
       this.constants = structuredClone(object)
     }
   },
@@ -241,7 +241,7 @@ export default defineComponent({
       handler() {
         console.log('constants changed!');
         let num = 0;
-        var con = [];
+        const con = [];
         for (con in this.constants) {
           if (this.constants[con] != null) {
             num++;

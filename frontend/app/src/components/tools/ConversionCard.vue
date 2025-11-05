@@ -68,7 +68,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-card>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import { copyToClipboard } from 'quasar'
 
@@ -105,12 +105,12 @@ export default defineComponent({
   methods: {
 
     convert() {
-      const K = this.constants.bulkModulus;
-      const E = this.constants.youngsModulus;
-      const L = this.constants.lameFirst;
-      const G = this.constants.shearModulus;
-      const v = this.constants.poissonsRatio;
-      const M = this.constants.pWaveModulus;
+      const K: number = this.constants.bulkModulus;
+      const E: number = this.constants.youngsModulus;
+      const L: number = this.constants.lameFirst;
+      const G: number = this.constants.shearModulus;
+      const v: number = this.constants.poissonsRatio;
+      const M: number = this.constants.pWaveModulus;
       if (K != null) {
         this.calculated.bulkModulus = +K;
         if (E != null) {
@@ -282,7 +282,7 @@ export default defineComponent({
       handler() {
         console.log('constants changed!');
         let num = 0;
-        var con = [];
+        const con = [];
         for (con in this.constants) {
           if (this.constants[con] != null) {
             num++;

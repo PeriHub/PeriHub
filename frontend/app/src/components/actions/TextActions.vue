@@ -24,13 +24,12 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
-import { useQuasar } from 'quasar'
 import { getStatus, viewInputFile, writeInputFile, OpenAPI } from 'src/client';
 import rules from 'assets/rules.js';
 
@@ -39,7 +38,6 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 export default defineComponent({
   name: 'TextActions',
   setup() {
-    const $q = useQuasar()
     const store = useDefaultStore();
     const modelStore = useModelStore();
     const viewStore = useViewStore();
@@ -79,7 +77,7 @@ export default defineComponent({
     };
   },
   methods: {
-    async viewInputFile(loadFile) {
+    viewInputFile(loadFile) {
       console.log('viewInputFile')
 
       viewInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, ownMesh: this.modelData.model.ownMesh })
@@ -117,10 +115,10 @@ export default defineComponent({
           })
         })
     },
-    async _getStatus() {
+    _getStatus() {
       console.log('getStatus');
 
-      const response = await getStatus({
+      const response = getStatus({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         meshfile: this.modelData.model.meshFile,
@@ -152,13 +150,13 @@ export default defineComponent({
       //     })
       //   })
     },
-    async enableWebsocket() {
+    enableWebsocket() {
       console.log('enableWebsocket')
       // Check if there is an existing connection
       if (this.connection) {
         // Close the existing connection
         console.log('close existing connection')
-        await this.connection.close();
+        this.connection.close();
         this.connection = null; // Reset the connection variable
       }
       const params = {

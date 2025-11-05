@@ -59,8 +59,8 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent, inject } from 'vue'
+<script lang="ts">
+import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import rules from 'assets/rules.js';
 

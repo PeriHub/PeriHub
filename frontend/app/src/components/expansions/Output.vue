@@ -97,7 +97,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
@@ -235,8 +235,8 @@ export default defineComponent({
     },
     filterFnCsv(val, update) {
       update(() => {
-        let outputKeys = []
-        for (var i = 0; i < this.computes.length; i++) {
+        const outputKeys = []
+        for (let i = 0; i < this.computes.length; i++) {
           outputKeys.push(this.computes[i].name)
         }
         if (val === '') {
@@ -251,8 +251,8 @@ export default defineComponent({
       })
     },
     addStateVarsToOutput(numStateVars) {
-      for (var i = 1; i <= numStateVars; i++) {
-        var name = 'State_Parameter_Field_' + i.toString()
+      for (let i = 1; i <= numStateVars; i++) {
+        const name = 'State_Parameter_Field_' + i.toString()
         if (!this.outputKeys.includes(name)) {
           this.outputKeys.push('State_Parameter_Field_' + i.toString())
         }

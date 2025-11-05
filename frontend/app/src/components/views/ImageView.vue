@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
     alt="ModelImag" />
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, inject } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';

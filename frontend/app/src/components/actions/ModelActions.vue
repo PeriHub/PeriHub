@@ -90,7 +90,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
@@ -224,7 +224,7 @@ export default defineComponent({
     },
     onMultiFilePicked(event) {
       const files = event.target.files;
-      const filetype = files[0].type;
+      // const filetype = files[0].type;
       if (files.length <= 0) {
         return false;
       }
@@ -283,7 +283,7 @@ export default defineComponent({
 
       fr.onload = (e) => {
         const xml = e.target.result;
-        var yaml = this.translateXMLtoYAML(xml);
+        const yaml = this.translateXMLtoYAML(xml);
         this.loadYamlString(yaml);
       };
       fr.readAsText(file);
@@ -307,14 +307,14 @@ export default defineComponent({
     },
     async saveModel() {
       this.modelLoading = true;
-      let params = {
+      const params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName
       }
       // getModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName })
       await api.get('/model/getModel', { params, responseType: 'blob' })
         .then((response) => {
-          let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
+          const filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
           const status = exportFile(filename, response.data)
           if (status) {
             // browser allowed it
@@ -375,10 +375,10 @@ export default defineComponent({
           // console.log(error.response)
           // console.log(error.response.status)
           if (error != undefined && error.status == 422) {
-            for (let i in error.body.detail) {
+            for (const i in error.body.detail) {
               let message = '';
               message += error.body.detail[i].msg + ' ';
-              for (let j in error.body.detail[i].loc) {
+              for (const j in error.body.detail[i].loc) {
                 message += error.body.detail[i].loc[j] + ', ';
               }
               this.$q.notify({
@@ -404,7 +404,7 @@ export default defineComponent({
       this.viewStore.textLoading = false;
     },
     showTutorial() {
-      var color = 'gray';
+      let color = 'gray';
       if (this.$cookie.get('darkMode') == 'true') {
         color = 'gray';
       } else {

@@ -45,7 +45,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
@@ -94,7 +94,7 @@ export default defineComponent({
   methods: {
     addBlock() {
       const len = this.blocks.length;
-      let newItem = structuredClone(this.blocks[len - 1])
+      const newItem = structuredClone(this.blocks[len - 1])
       newItem.blocksId = len + 1
       newItem.name = 'block_' + (len + 1)
       this.blocks.push(newItem);

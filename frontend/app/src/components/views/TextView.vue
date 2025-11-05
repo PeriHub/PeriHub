@@ -10,8 +10,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-scroll-area>
 </template>
 
-<script>
-import { defineComponent } from 'vue'
+<script lang="ts">
 import { useViewStore } from 'src/stores/view-store';
 
 import { PrismEditor } from 'vue-prism-editor';
@@ -19,7 +18,7 @@ import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhe
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-yaml';
 import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
-export default defineComponent({
+export default {
   name: 'TextView',
   components: {
     PrismEditor
@@ -37,11 +36,11 @@ export default defineComponent({
     };
   },
   methods: {
-    highlighter(code) {
+    highlighter(code: string) {
       return highlight(code, languages.yaml); // languages.<insert language> to return html with markup
     },
   },
-})
+}
 </script>
 <style>
 /* required class */

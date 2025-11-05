@@ -36,7 +36,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import ModelActions from 'src/components/actions/ModelActions.vue'
 import ExpansionComp from 'src/components/ExpansionComp.vue'
 import ViewActions from 'src/components/actions/ViewActions.vue'
@@ -61,7 +61,7 @@ export default {
   },
   setup() {
     const store = useDefaultStore();
-    const bus = inject('bus')
+    const bus: EventBus = inject('bus')
 
     return {
       store,
@@ -80,16 +80,16 @@ export default {
     };
   },
   methods: {
-    onResizeBefore({ width, height }) {
+    onResizeBefore(size: object) {
       // console.log('get resize', width, height)
-      this.bus.emit('resizeViewPanel', height)
+      this.bus.emit('resizeViewPanel', size.height)
     },
-    onResizeAfter({ width, height }) {
+    onResizeAfter(size: object) {
       // console.log('get resize', width, height)
-      this.bus.emit('resizeTextPanel', height)
+      this.bus.emit('resizeTextPanel', size.height)
     },
     showTutorial() {
-      var color = 'white';
+      let color = 'white';
       if (this.store.darkMode) {
         color = 'gray';
       }

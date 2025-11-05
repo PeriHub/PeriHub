@@ -422,7 +422,7 @@ export type GetOwnModelsData = {
     verify?: boolean;
 };
 
-export type GetOwnModelsResponse = unknown;
+export type GetOwnModelsResponse = Array<(string)>;
 
 export type GetValvesData = {
     modelName: string;
@@ -737,7 +737,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: Array<(string)>;
                 /**
                  * Validation Error
                  */

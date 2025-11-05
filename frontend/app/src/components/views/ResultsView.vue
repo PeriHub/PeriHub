@@ -141,8 +141,8 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent } from 'vue'
+<script lang="ts">
+import { computed } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import VerticalColoredLegend from 'src/components/tools/VerticalColoredLegend.vue';
 import { getPointDataResults } from 'src/client';
@@ -206,7 +206,7 @@ export default {
       legendKey: 0,
       time: 0,
       playing: false,
-      timer: null,
+      timer: Timeout | null,
       expansion: false
     };
   },
@@ -223,7 +223,7 @@ export default {
 
       await this.getPointDataAndUpdateDx();
       this.radius = parseFloat(this.dx_value.toFixed(3));
-      await this.updatePoints();
+      this.updatePoints();
 
       this.modelLoading = false;
     },
@@ -248,7 +248,7 @@ export default {
     //   this.viewStore.filteredBlockIdString = filteredBlockIdStringTemp;
     //   this.viewStore.filteredPointString = filteredPointStringTemp;
     // },
-    async updatePoints() {
+    updatePoints() {
       this.modelLoading = true;
       console.log('updatePoints')
       // if (this.radius < 0.01) {
@@ -281,7 +281,7 @@ export default {
         colorBarMax: this.modelParams.colorBarMax
       })
         .then((response) => {
-          data = response
+          const data = response
           if (response.data == false) {
             this.$q.notify({
               type: 'negative',
@@ -291,9 +291,9 @@ export default {
             this.pointString = data['nodes']
             this.blockIdString = data['value']
             this.dx_value = Math.hypot(
-              parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),
-              parseFloat(this.pointString[4]) - parseFloat(this.pointString[1]),
-              parseFloat(this.pointString[5]) - parseFloat(this.pointString[2])
+              this.pointString[3] - this.pointString[0],
+              this.pointString[4] - this.pointString[1],
+              this.pointString[5] - this.pointString[2]
             );
             this.maxValue = data['max_value']
             this.minValue = data['min_value']
@@ -318,35 +318,35 @@ export default {
       this.playing = false
       clearInterval(this.timer)
     },
-    backward() {
+    async backward() {
       if (this.modelParams.step > 1) {
         this.modelParams.step = this.modelParams.step - 1
-        this.viewPointData(false)
+        await this.viewPointData(false)
       }
     },
-    fastBackward() {
+    async fastBackward() {
       this.modelParams.step = 1
-      this.viewPointData(false)
+      await this.viewPointData(false)
     },
-    forward() {
+    async forward() {
       if (this.modelParams.step < this.modelParams.numberOfSteps) {
         this.modelParams.step = this.modelParams.step + 1
-        this.viewPointData(false)
+        await this.viewPointData(false)
       } else {
         this.pause()
       }
     },
-    fastForward() {
+    async fastForward() {
       this.modelParams.step = this.modelParams.numberOfSteps
-      this.viewPointData(false)
+      await this.viewPointData(false)
     }
 
   },
   watch: {
-    maxValue(newValue) {
+    maxValue() {
       this.legendKey++; // Increment key to force re-rendering
     },
-    minValue(newValue) {
+    minValue() {
       this.legendKey++; // Increment key to force re-rendering
     }
   },

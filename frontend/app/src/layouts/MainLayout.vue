@@ -18,7 +18,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
@@ -48,9 +48,9 @@ export default defineComponent({
       this.$q.dark.set(localStorage.getItem("darkMode") == "true");
     },
   },
-  async beforeMount() {
-    await this.store.initialiseStore();
-    await this.modelStore.initialiseStore();
+  beforeMount() {
+    this.store.initialiseStore();
+    this.modelStore.initialiseStore();
     if (localStorage.getItem("darkMode") == "true") {
       this.store.darkMode = true;
       this.$q.dark.toggle();

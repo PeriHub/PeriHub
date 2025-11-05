@@ -8,12 +8,11 @@ SPDX-License-Identifier: Apache-2.0
   <area-chart :data=plot_data label="Percent of renewable energy share"></area-chart>
 </template>
 
-<script>
-import { defineComponent } from 'vue'
+<script lang="ts">
 import { inject } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
 import { getPrognosisEnergy } from 'src/client';
-export default defineComponent({
+export default {
   name: 'RenewableView',
   setup() {
     const viewStore = useViewStore();
@@ -39,7 +38,7 @@ export default defineComponent({
         })
         this.plot_data = response.data;
       })
-      .catch((error) => {
+      .catch(() => {
         this.$q.notify({
           color: 'negative',
           position: 'bottom-right',
@@ -49,7 +48,7 @@ export default defineComponent({
       })
 
   }
-})
+}
 </script>
 
 <style></style>

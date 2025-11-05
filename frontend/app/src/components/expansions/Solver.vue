@@ -149,7 +149,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { inject } from 'vue'
@@ -243,7 +243,7 @@ export default defineComponent({
   methods: {
     addSolver() {
       const len = this.solvers.length;
-      let newItem = structuredClone(this.solvers[len - 1])
+      const newItem = structuredClone(this.solvers[len - 1])
       newItem.solverId = len + 1
       newItem.stepId = len + 1
       this.solvers.push(newItem);

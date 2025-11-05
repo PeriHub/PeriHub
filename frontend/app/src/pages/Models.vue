@@ -69,7 +69,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 
 import { useDefaultStore } from 'src/stores/default-store';
 import { PrismEditor } from 'vue-prism-editor';
@@ -113,7 +113,7 @@ export default {
     };
   },
   methods: {
-    highlighter(code) {
+    highlighter(code: string) {
       return highlight(code, languages.py); // languages.<insert language> to return html with markup
     },
     async _addModel() {
@@ -121,13 +121,13 @@ export default {
         modelName: this.newModelName,
         description: this.description
       })
-      this.selectedModel.title = this.newMethodName
+      this.selectedModel.title = this.newModelName
       this.selectedModel.file = response
       this._getModels()
-      this.selectModel()
+      await this.selectModel()
     },
-    async _getModels() {
-      const response = await getOwnModels({
+    _getModels() {
+      const response = getOwnModels({
         verify: true
       })
       this.modelList = response;

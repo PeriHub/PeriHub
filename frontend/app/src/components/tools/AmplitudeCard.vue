@@ -57,7 +57,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-card>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import { VuePlotly } from 'vue3-plotly'
 import { PrismEditor } from 'vue-prism-editor';
@@ -130,18 +130,18 @@ export default defineComponent({
       return highlight(code, languages.js); // languages.<insert language> to return html with markup
     },
     plot() {
-      let tempData = structuredClone(this.plotData);
+      const tempData = structuredClone(this.plotData);
       tempData[0].x = [];
       tempData[0].y = [];
-      var n = 10 * this.amplitude.frequency;
-      var max = parseFloat(this.amplitude.max);
-      var min = parseFloat(this.amplitude.min);
-      var frequency = parseFloat(this.amplitude.frequency);
-      var end = parseFloat(this.amplitude.end);
-      for (var i = 0; i < n; i++) {
-        var t = (i / (n - 1)) * end;
+      const n = 10 * this.amplitude.frequency;
+      const max = parseFloat(this.amplitude.max);
+      const min = parseFloat(this.amplitude.min);
+      const frequency = parseFloat(this.amplitude.frequency);
+      const end = parseFloat(this.amplitude.end);
+      for (let i = 0; i < n; i++) {
+        const t = (i / (n - 1)) * end;
         tempData[0].x[i] = t;
-        for (var j = 0; j < frequency; j++) {
+        for (let j = 0; j < frequency; j++) {
           if (j == 0) {
             if (t <= (1 / frequency) * end) {
               tempData[0].y[i] = (t / ((1 / frequency) * end)) * max;
@@ -207,17 +207,17 @@ export default defineComponent({
         '\\}\n';
     },
     plot2() {
-      let tempData = structuredClone(this.plotData);
+      const tempData = structuredClone(this.plotData);
       tempData[0].x = [];
       tempData[0].y = [];
-      var n = 1000;
-      var max = parseFloat(this.amplitude.max);
-      var frequency = parseFloat(this.amplitude.frequency);
-      var end = parseFloat(this.amplitude.end);
-      for (var i = 0; i < n; i++) {
-        var t = (i / (n - 1)) * end;
+      const n = 1000;
+      const max = parseFloat(this.amplitude.max);
+      const frequency = parseFloat(this.amplitude.frequency);
+      const end = parseFloat(this.amplitude.end);
+      for (let i = 0; i < n; i++) {
+        const t = (i / (n - 1)) * end;
         tempData[0].x[i] = t;
-        for (var j = 0; j < frequency; j++) {
+        for (let j = 0; j < frequency; j++) {
           if (j == 0) {
             if (t <= (1 / frequency) * end) {
               tempData[0].y[i] = (t / end) * max * 2;
@@ -277,19 +277,19 @@ export default defineComponent({
         '\\}\n';
     },
     sin() {
-      let tempData = structuredClone(this.plotData);
+      const tempData = structuredClone(this.plotData);
       tempData[0].x = [];
       tempData[0].y = [];
-      var n = 100 * this.amplitude.frequency;
-      var max = parseFloat(this.amplitude.max);
-      var min = parseFloat(this.amplitude.min);
-      // var t_max = parseFloat(this.amplitude.t_max);
-      var offset = (max + min) / 2;
-      var frequency = parseFloat(this.amplitude.frequency);
-      var end = parseFloat(this.amplitude.end);
-      var R = (max - min) / 2; // Konstante Amplitude
-      for (var i = 0; i < n; i++) {
-        var t = (i / (n - 1)) * end;
+      const n = 100 * this.amplitude.frequency;
+      const max = parseFloat(this.amplitude.max);
+      const min = parseFloat(this.amplitude.min);
+      // const t_max = parseFloat(this.amplitude.t_max);
+      const offset = (max + min) / 2;
+      const frequency = parseFloat(this.amplitude.frequency);
+      const end = parseFloat(this.amplitude.end);
+      const R = (max - min) / 2; // Konstante Amplitude
+      for (let i = 0; i < n; i++) {
+        const t = (i / (n - 1)) * end;
         tempData[0].x[i] = t;
         tempData[0].y[i] = R * Math.sin(2 * Math.PI * frequency * t - Math.PI / 2) + offset; // Sinuskurve mit konstanter Amplitude
       }

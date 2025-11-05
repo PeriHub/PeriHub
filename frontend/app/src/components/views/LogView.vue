@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-scroll-area>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
 

@@ -71,8 +71,8 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent } from 'vue'
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { inject } from 'vue'
@@ -203,8 +203,8 @@ export default defineComponent({
       // let bondFilterPolyString = []
       this.viewStore.bondFilterPoints = [];
 
-      for (var i = 0; i < this.store.modelData.bondFilters.length; i++) {
-        let bondFilterPointString = [];
+      for (let i = 0; i < this.store.modelData.bondFilters.length; i++) {
+        const bondFilterPointString = [];
         const bondFilter = this.store.modelData.bondFilters[i];
         if (bondFilter.show) {
           const nx = parseFloat(bondFilter.normalX);
@@ -217,27 +217,27 @@ export default defineComponent({
             const cz = parseFloat(bondFilter.centerZ);
             const radius = parseFloat(bondFilter.radius);
 
-            let crossVector1 = this.cross(nx, ny, nz, 1.0, 0.0, 0.0);
-            let crossVector2 = this.cross(nx, ny, nz, 0.0, 1.0, 0.0);
-            let crossVector3 = this.cross(nx, ny, nz, -1.0, 0.0, 0.0);
-            let crossVector4 = this.cross(nx, ny, nz, 0.0, -1.0, 0.0);
+            const crossVector1 = this.cross(nx, ny, nz, 1.0, 0.0, 0.0);
+            const crossVector2 = this.cross(nx, ny, nz, 0.0, 1.0, 0.0);
+            const crossVector3 = this.cross(nx, ny, nz, -1.0, 0.0, 0.0);
+            const crossVector4 = this.cross(nx, ny, nz, 0.0, -1.0, 0.0);
 
-            let normVector1 = this.getVectorNorm(
+            const normVector1 = this.getVectorNorm(
               crossVector1[0],
               crossVector1[1],
               crossVector1[2]
             );
-            let normVector2 = this.getVectorNorm(
+            const normVector2 = this.getVectorNorm(
               crossVector2[0],
               crossVector2[1],
               crossVector2[2]
             );
-            let normVector3 = this.getVectorNorm(
+            const normVector3 = this.getVectorNorm(
               crossVector3[0],
               crossVector3[1],
               crossVector3[2]
             );
-            let normVector4 = this.getVectorNorm(
+            const normVector4 = this.getVectorNorm(
               crossVector4[0],
               crossVector4[1],
               crossVector4[2]
@@ -274,15 +274,15 @@ export default defineComponent({
             const point1y = ly;
             const point1z = lz;
 
-            let [normx, normy, normz] = this.getVectorNorm(bx, by, bz);
+            const [normx, normy, normz] = this.getVectorNorm(bx, by, bz);
 
             const point2x = lx + normx * bl;
             const point2y = ly + normy * bl;
             const point2z = lz + normz * bl;
 
-            let crossVector = this.cross(nx, ny, nz, bx, by, bz);
+            const crossVector = this.cross(nx, ny, nz, bx, by, bz);
 
-            let normVector = this.getVectorNorm(
+            const normVector = this.getVectorNorm(
               crossVector[0],
               crossVector[1],
               crossVector[2]

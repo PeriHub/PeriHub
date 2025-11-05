@@ -67,7 +67,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-header>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import UserSettingsComponent from 'components/dialogs/UserSettingsComponent.vue';
@@ -95,7 +95,7 @@ export default defineComponent({
   },
   methods: {
     toggleDarkMode() {
-      localStorage.setItem('darkMode', this.store.darkMode);
+      localStorage.setItem('darkMode', this.store.darkMode as string);
       this.$q.dark.toggle();
     },
   },

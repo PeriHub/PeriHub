@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export default {
-  required: [(val) => !!val || 'Field is required'],
+  required: (value) => {
+    !!value || 'Field is required';
+  },
   equation: (value) => {
     const pattern = /^([-+/*][\dxyztd]+(\.\d+)?)*/;
     return pattern.test(value) || 'Invalid equation';

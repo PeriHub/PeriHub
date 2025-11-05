@@ -50,7 +50,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent, inject } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
@@ -124,10 +124,10 @@ export default defineComponent({
       this.modelStore.modelData = row.model;
       console.log(row.model);
     },
-    async _getJobs() {
+    _getJobs() {
       this.loading = true;
 
-      await getJobs({ modelName: this.modelStore.selectedModel.file, sbatch: this.modelData.job.sbatch })
+      getJobs({ modelName: this.modelStore.selectedModel.file, sbatch: this.modelData.job.sbatch })
         .then((response) => {
           this.rows = response.data
           this.$q.notify({

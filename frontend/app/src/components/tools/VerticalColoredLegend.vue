@@ -6,12 +6,12 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div class="legend" ref="legend">
-    <span v-for="(value, index) in  values " :key="index"
+    <span v-for="(value, index) in values" :key="index"
       :style="{ bottom: (((index - 0.5) / (values.length - 1)) * 100) + '%', left: '15px' }">&#8213; {{ value }}</span>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'VerticalColoredLegend',
   props: {

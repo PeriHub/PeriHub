@@ -50,7 +50,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-scroll-area>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, inject } from 'vue'
 import { useDefaultStore } from 'stores/default-store';
 import ModelSettings from 'components/expansions/Model.vue'
