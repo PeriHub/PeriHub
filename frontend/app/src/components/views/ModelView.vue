@@ -30,7 +30,16 @@ SPDX-License-Identifier: Apache-2.0
           switch-label-side color="gray"></q-slider>
       </div>
     </div>
-    <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]">
+    <vtk-view>
+      <vtk-geometry-representation>
+        <vtk-polydata :points="[0, 0, 0, 0, 1, 0, 1, 0, 0]" :polys="[3, 0, 1, 2]">
+          <vtk-point-data>
+            <vtk-data-array registration="setScalars" name="temperature" :values="[0, 0.5, 1]" />
+          </vtk-point-data>
+        </vtk-polydata>
+      </vtk-geometry-representation>
+    </vtk-view>
+    <!-- <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]">
       <div v-if="viewStore.bondFilterPoints.length != 0">
         <q-list v-for="bondFilterPoint in viewStore.bondFilterPoints" :key="bondFilterPoint.id">
           <vtk-geometry-representation>
@@ -53,12 +62,12 @@ SPDX-License-Identifier: Apache-2.0
           :state="{ phiResolution: resolution, thetaResolution: resolution, radius: radius * multiplier / 100 }"
           :port="1" />
       </vtk-glyph-representation>
-    </vtk-view>
+    </vtk-view> -->
   </div>
 </template>
 
 <script lang="ts">
-import { inject, computed, defineComponent } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
 import { useModelStore } from 'src/stores/model-store';
 import { getPointData } from 'src/client';
@@ -70,13 +79,13 @@ export default defineComponent({
   setup() {
     const viewStore = useViewStore();
     const modelStore = useModelStore();
-    const modelData = computed(() => modelStore.modelData)
-    const bus = inject('bus')
+    const modelData = computed(() => modelStore.modelData);
+    const view = ref(null);
     return {
       viewStore,
       modelStore,
       modelData,
-      bus,
+      view
     }
   },
   created() {
@@ -84,8 +93,8 @@ export default defineComponent({
   },
   unmounted() {
     console.log('unmountedModelView')
-    this.bus.off('viewPointData');
-    this.bus.off('filterPointData');
+    this.$bus.off('viewPointData');
+    this.$bus.off('filterPointData');
   },
   data() {
     return {
@@ -98,10 +107,10 @@ export default defineComponent({
   },
   mounted() {
     console.log('ModelView mounted')
-    this.bus.on('viewPointData', async () => {
+    this.$bus.on('viewPointData', async () => {
       await this.viewPointData()
     })
-    this.bus.on('filterPointData', () => {
+    this.$bus.on('filterPointData', () => {
       this.filterPointData()
     })
     // this.viewPointData()
@@ -114,11 +123,11 @@ export default defineComponent({
       await this.getPointDataAndUpdateDx();
       this.radius = parseFloat(this.viewStore.dx_value.toFixed(3));
       this.updatePoints();
-      this.bus.emit('showHideBondFilters');
+      this.$bus.emit('showHideBondFilters');
 
       this.viewStore.modelLoading = false;
       // console.log(this.$refs)
-      this.$refs.view.resetCamera();
+      // this.view.resetCamera();
     },
     filterPointData() {
       console.log('filterPointData')
@@ -189,7 +198,7 @@ export default defineComponent({
         const numOfPlys = 8;
         this.viewStore.dx_value =
           (this.modelData.model.height * numOfPlys) /
-          (2 * parseInt(this.modelData.model.discretization / 2) + 1);
+          (2 * this.modelData.model.discretization / 2 + 1);
       }
       // else {
       //   this.viewStore.dx_value = Math.hypot(

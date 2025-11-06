@@ -76,7 +76,6 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -85,13 +84,11 @@ export default defineComponent({
     const store = useModelStore();
     const blocks = computed(() => store.modelData.blocks)
     const contact = computed(() => store.modelData.contact)
-    const bus = inject('bus')
     return {
       store,
       blocks,
       contact,
-      rules,
-      bus
+      rules
     }
   },
   data() {
@@ -107,20 +104,20 @@ export default defineComponent({
   },
   methods: {
     addContactGroup(index) {
-      if (!this.contact.contactModels[index].contactGroups) {
-        this.contact.contactModels[index].contactGroups = []
+      if (!this.contact.contactModels[index]!.contactGroups) {
+        this.contact.contactModels[index]!.contactGroups = []
       }
-      const len = this.contact.contactModels[index].contactGroups.length;
+      const len = this.contact.contactModels[index]!.contactGroups.length;
       let newItem = {}
       if (len != 0) {
-        newItem = structuredClone(this.contact.contactModels[index].contactGroups[len - 1])
+        newItem = structuredClone(this.contact.contactModels[index]!.contactGroups[len - 1])
       }
       newItem.contactGroupId = len + 1
       newItem.name = 'Contact Group ' + (len + 1)
-      this.contact.contactModels[index].contactGroups.push(newItem);
+      this.contact.contactModels[index]!.contactGroups.push(newItem);
     },
     removeContactGroup(index, subindex) {
-      this.contact.contactModels[index].contactGroups.splice(subindex, 1);
+      this.contact.contactModels[index]!.contactGroups.splice(subindex, 1);
     },
     addContactModel() {
       if (!this.contact.contactModels) {

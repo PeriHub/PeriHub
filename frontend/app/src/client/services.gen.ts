@@ -798,7 +798,7 @@ export const deleteUserDataFromCluster = (data: DeleteUserDataFromClusterData): 
 /**
  * Get Publications
  * doc
- * @returns unknown Successful Response
+ * @returns string Successful Response
  * @throws ApiError
  */
 export const getPublications = (): CancelablePromise<GetPublicationsResponse> => { return __request(OpenAPI, {

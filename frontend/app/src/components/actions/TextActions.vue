@@ -12,7 +12,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn> -->
     <q-btn flat icon="fas fa-save" @click="writeInputFile"
-      :disable="!store.status.created || viewStore.textId != 'input' || store.TRIAL">
+      :disable="!status.created || viewStore.textId != 'input' || store.TRIAL">
       <q-tooltip>
         <div v-if="!store.TRIAL">Save Inputfile</div>
         <div v-if="store.TRIAL">Disabled in trial version</div>
@@ -29,45 +29,42 @@ import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
-import { inject } from 'vue'
 import { getStatus, viewInputFile, writeInputFile, OpenAPI } from 'src/client';
 import rules from 'assets/rules.js';
-
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export default defineComponent({
   name: 'TextActions',
   setup() {
     const store = useDefaultStore();
+    const status = store.status
     const modelStore = useModelStore();
     const viewStore = useViewStore();
     const modelData = computed(() => modelStore.modelData)
-    const bus = inject('bus')
 
     return {
       store,
+      status,
       viewStore,
       modelStore,
       modelData,
-      rules,
-      bus,
+      rules
     }
   },
   created() {
-    this.bus.on('enableWebsocket', (loadFile) => {
-      this.enableWebsocket(loadFile)
+    this.$bus.on('enableWebsocket', () => {
+      this.enableWebsocket()
     })
-    this.bus.on('viewInputFile', (loadFile) => {
+    this.$bus.on('viewInputFile', (loadFile) => {
       this.viewInputFile(loadFile)
     })
-    this.bus.on('getStatus', () => {
+    this.$bus.on('getStatus', () => {
       this._getStatus()
     })
   },
   beforeUnmount() {
-    this.bus.off('enableWebsocket')
-    this.bus.off('viewInputFile')
-    this.bus.off('getStatus')
+    this.$bus.off('enableWebsocket')
+    this.$bus.off('viewInputFile')
+    this.$bus.off('getStatus')
   },
   data() {
     return {
@@ -77,7 +74,7 @@ export default defineComponent({
     };
   },
   methods: {
-    viewInputFile(loadFile) {
+    viewInputFile(loadFile: boolean) {
       console.log('viewInputFile')
 
       viewInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, ownMesh: this.modelData.model.ownMesh })
@@ -194,7 +191,7 @@ export default defineComponent({
             this.connection.close();
             this.connection = null; // Reset the connection variable
             this._getStatus();
-            this.bus.emit('getJobs')
+            this.$bus.emit('getJobs')
             if (this.store.status.submitted) {
               this.$q.notify({
                 message: 'PeriLab finished'
@@ -205,7 +202,7 @@ export default defineComponent({
             this.connection.close();
             this.connection = null; // Reset the connection variable
             this._getStatus();
-            this.bus.emit('getJobs')
+            this.$bus.emit('getJobs')
             if (this.store.status.submitted) {
               this.$q.notify({
                 color: 'negative',

@@ -41,7 +41,6 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -49,12 +48,10 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const additive = computed(() => store.modelData.additive)
-    const bus = inject('bus')
     return {
       store,
       additive,
-      rules,
-      bus
+      rules
     }
   },
   created() {
@@ -66,8 +63,8 @@ export default defineComponent({
   },
   methods: {
     addAdditiveModel() {
-      if (!this.additive.additiveModel) {
-        this.additive.additiveModel = []
+      if (!this.additive.additiveModels) {
+        this.additive.additiveModels = []
       }
       const len = this.additive.additiveModels.length;
       let newItem = {}
@@ -78,7 +75,7 @@ export default defineComponent({
       newItem.name = 'Additive Model ' + (len + 1)
       this.additive.additiveModels.push(newItem);
     },
-    removeAdditiveModel(index) {
+    removeAdditiveModel(index: number) {
       this.additive.additiveModels.splice(index, 1);
       this.additive.additiveModels.forEach((model, i) => {
         model.additiveModelsId = i + 1

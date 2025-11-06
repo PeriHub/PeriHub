@@ -77,20 +77,20 @@ export default defineComponent({
   data() {
     return {
       constants: {
-        bulkModulus: null,
-        shearModulus: null,
-        youngsModulus: null,
-        poissonsRatio: null,
-        pWaveModulus: null,
-        lameFirst: null,
+        bulkModulus: null as number | null,
+        shearModulus: null as number | null,
+        youngsModulus: null as number | null,
+        poissonsRatio: null as number | null,
+        pWaveModulus: null as number | null,
+        lameFirst: null as number | null,
       },
       calculated: {
-        bulkModulus: null,
-        shearModulus: null,
-        youngsModulus: null,
-        poissonsRatio: null,
-        pWaveModulus: null,
-        lameFirst: null,
+        bulkModulus: null as number | string | null,
+        shearModulus: null as number | string | null,
+        youngsModulus: null as number | string | null,
+        poissonsRatio: null as number | string | null,
+        pWaveModulus: null as number | string | null,
+        lameFirst: null as number | string | null,
       },
       materialKeys: {
         bulkModulus: 'Bulk Modulus (K)',
@@ -274,7 +274,9 @@ export default defineComponent({
           this.$q.notify({
             message: 'Copied to clipboard',
           })
-        })
+        }).catch(() => {
+          console.log("Error copying to clipboard");
+        });
     },
   },
   watch: {
@@ -282,8 +284,7 @@ export default defineComponent({
       handler() {
         console.log('constants changed!');
         let num = 0;
-        const con = [];
-        for (con in this.constants) {
+        for (const con in this.constants) {
           if (this.constants[con] != null) {
             num++;
           }

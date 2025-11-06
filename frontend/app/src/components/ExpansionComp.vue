@@ -51,7 +51,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { defineComponent, inject } from 'vue'
+import { defineComponent } from 'vue'
 import { useDefaultStore } from 'stores/default-store';
 import ModelSettings from 'components/expansions/Model.vue'
 import DiscretizationSettings from 'components/expansions/Discretization.vue'
@@ -85,15 +85,13 @@ export default defineComponent({
     JobSettings
   },
   setup() {
-    const bus = inject('bus')
     const store = useDefaultStore();
     return {
-      bus,
       store,
     }
   },
   created() {
-    this.bus.on('openHidePanels', () => {
+    this.$bus.on('openHidePanels', () => {
       console.log('openHidePanels')
       this.openHidePanels()
     })

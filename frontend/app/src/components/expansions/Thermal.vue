@@ -86,7 +86,6 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -94,12 +93,10 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const thermal = computed(() => store.modelData.thermal)
-    const bus = inject('bus')
     return {
       store,
       thermal,
-      rules,
-      bus
+      rules
     }
   },
   data() {

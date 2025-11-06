@@ -60,6 +60,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { defineComponent } from 'vue'
 import bibtexParse from "bibtex-parse-js";
+import { getPublications } from 'src/client';
 
 export default defineComponent({
   name: "PublicationPage",
@@ -73,14 +74,15 @@ export default defineComponent({
     };
   },
   methods: {
-    getPublications() {
+    _getPublications() {
 
-      this.$api.get('/docs/getPublications')
-        .then((response: any) => {
-          this.bib_data = this.latexToUtf(response.data)
+      getPublications()
+        .then((response: string) => {
+          console.log(response)
+          this.bib_data = this.latexToUtf(response)
           this.bib_entries = bibtexParse.toJSON(this.bib_data);
         })
-        .catch((error: any) => {
+        .catch((error: undefined) => {
           console.log(error)
           this.$q.notify({
             type: 'negative',
@@ -89,11 +91,11 @@ export default defineComponent({
         })
     },
     latexToUtf(string: string) {
-      return string.replace(/{\\\"a}/gi, "ä");
+      return string.replace(/{\\"a}/gi, "ä");
     },
   },
   beforeMount() {
-    this.getPublications();
+    this._getPublications();
   },
 });
 </script>

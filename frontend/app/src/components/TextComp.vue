@@ -30,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { defineComponent, inject } from 'vue'
+import { defineComponent } from 'vue'
 import TextView from 'components/views/TextView.vue'
 import LogView from 'components/views/LogView.vue'
 import { useViewStore } from 'src/stores/view-store';
@@ -48,24 +48,22 @@ export default defineComponent({
   },
   setup() {
     const store = useViewStore();
-    const bus = inject('bus');
     return {
-      store,
-      bus
+      store
     }
   },
   created() {
-    this.bus.on('resizeTextPanel', (height) => {
+    this.$bus.on('resizeTextPanel', (height) => {
       this.textHeight = height - 113 + 'px'
     })
   },
   methods: {
     updateTextView() {
       if (this.store.textId === 'input') {
-        this.bus.emit('viewInputFile')
+        this.$bus.emit('viewInputFile')
       }
       else if (this.store.textId === 'log') {
-        this.bus.emit('enableWebsocket')
+        this.$bus.emit('enableWebsocket')
       }
     }
   }

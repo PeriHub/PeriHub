@@ -3,8 +3,12 @@ import { api } from 'boot/axios';
 import { OpenAPI } from '../client';
 import { jwtDecode } from 'jwt-decode';
 import { useDefaultStore } from 'src/stores/default-store';
+import * as sha256 from 'js-sha256';
 
 export default async ({ app }) => {
+  // for Options API
+  app.config.globalProperties.$keycloak = Keycloak;
+
   let uuid = 'user';
   let gravatarUrl = 'US';
   const store = useDefaultStore();
@@ -15,7 +19,7 @@ export default async ({ app }) => {
   ) {
     if (process.env.TRIAL == 'True') {
       console.log(`I'm on a trial build`);
-      let reqOptions = {
+      const reqOptions = {
         url: 'https://randomuser.me/api',
       };
       axios.request(reqOptions).then((response) => {
@@ -38,7 +42,7 @@ export default async ({ app }) => {
       // api.defaults.headers.common['Authorization'] = 'Bearer ' + keycloak.token;
       // OpenAPI.TOKEN = keycloak.token;
       const decoded = jwtDecode(keycloak.token);
-      const sha256 = require('js-sha256');
+      // const sha256 = require('js-sha256');
       uuid = decoded.preferred_username;
       const emailHash = sha256(decoded.email);
       gravatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=404`;
@@ -50,8 +54,7 @@ export default async ({ app }) => {
           } else {
             const emailParts = decoded.email.split('.');
             gravatarUrl =
-              emailParts[0].charAt(0).toUpperCase() +
-              emailParts[1].charAt(0).toUpperCase();
+              emailParts[0].charAt(0).toUpperCase() + emailParts[1].charAt(0).toUpperCase();
             store.useGravatar = false;
             console.log('No Gravatar image found for', decoded.email);
           }

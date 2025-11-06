@@ -206,7 +206,7 @@ export default {
       legendKey: 0,
       time: 0,
       playing: false,
-      timer: Timeout | null,
+      timer: null,
       expansion: false
     };
   },
@@ -265,12 +265,11 @@ export default {
     async getPointDataAndUpdateDx() {
 
       console.log('getPointDataAndUpdateDx')
-      let data = null;
       await getPointDataResults({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
-        output: this.modelData.outputs[0].name,
+        output: this.modelData.outputs[0]!.name,
         tasks: this.modelData.job.tasks,
         axis: this.modelParams.axis,
         step: this.modelParams.step,
@@ -280,7 +279,7 @@ export default {
         colorBarMin: this.modelParams.colorBarMin,
         colorBarMax: this.modelParams.colorBarMax
       })
-        .then((response) => {
+        .then((response: json) => {
           const data = response
           if (response.data == false) {
             this.$q.notify({
@@ -291,9 +290,9 @@ export default {
             this.pointString = data['nodes']
             this.blockIdString = data['value']
             this.dx_value = Math.hypot(
-              this.pointString[3] - this.pointString[0],
-              this.pointString[4] - this.pointString[1],
-              this.pointString[5] - this.pointString[2]
+              this.pointString[3]! - this.pointString[0]!,
+              this.pointString[4]! - this.pointString[1]!,
+              this.pointString[5]! - this.pointString[2]!
             );
             this.maxValue = data['max_value']
             this.minValue = data['min_value']

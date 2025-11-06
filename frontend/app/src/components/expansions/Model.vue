@@ -184,7 +184,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { getConfig, getModels, getValves, getJobFolders } from 'src/client'
@@ -196,20 +196,18 @@ export default defineComponent({
     const store = useDefaultStore();
     const modelStore = useModelStore();
     const model = computed(() => modelStore.modelData.model)
-    const bus = inject('bus')
     return {
       store,
       modelStore,
       model,
-      rules,
-      bus
+      rules
     }
   },
   created() {
-    this.bus.on('resetData', () => {
+    this.$bus.on('resetData', () => {
       this.resetData()
     })
-    this.bus.on('getJobFolders', () => {
+    this.$bus.on('getJobFolders', () => {
       this._getJobFolders()
     })
   },
@@ -232,6 +230,11 @@ export default defineComponent({
         })
       getValves({ modelName: this.modelStore.selectedModel.file }).then((response) => {
         this.modelStore.modelParams = structuredClone(response)
+      }).catch((error) => {
+        this.$q.notify({
+          type: 'negative',
+          message: error.body.detail
+        })
       })
     },
     _getJobFolders() {
@@ -247,12 +250,12 @@ export default defineComponent({
     },
     async selectMethod() {
       // this.viewStore.viewLoading = true
-      const response = await getValves({
+      const response = getValves({
         modelName: this.modelStore.selectedModel.file
       })
       this.modelStore.modelParams = response
       // this.viewStore.viewLoading = false
-      await this._getJobFolders()
+      this._getJobFolders()
     },
     async switchOwnModels() {
       if (!this.model.ownModel) {
@@ -296,10 +299,10 @@ export default defineComponent({
       handler() {
         localStorage.setItem('selectedModel', JSON.stringify(this.modelStore.selectedModel));
         if (!this.modelStore.modelData.model.ownModel) {
-          this.bus.emit('showModelImg', this.modelStore.selectedModel.file)
+          this.$bus.emit('showModelImg', this.modelStore.selectedModel.file)
           // this.resetData()
         }
-        this.bus.emit('getStatus')
+        this.$bus.emit('getStatus')
       },
       deep: true,
     },

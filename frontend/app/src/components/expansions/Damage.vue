@@ -113,7 +113,6 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -123,14 +122,12 @@ export default defineComponent({
     const damages = computed(() => store.modelData.damages)
     const blocks = computed(() => store.modelData.blocks)
     const materials = computed(() => store.modelData.materials)
-    const bus = inject('bus')
     return {
       store,
       damages,
       blocks,
       materials,
-      rules,
-      bus
+      rules
     }
   },
   created() {
@@ -209,13 +206,13 @@ export default defineComponent({
       })
       if (this.damages.length == 0) {
         for (let i = 0; i < this.blocks.length; i++) {
-          this.blocks[i].damageModel = '';
+          this.blocks[i]!.damageModel = '';
         }
       }
     },
     addInterBlock(index) {
       if (!this.damages[index]?.interBlocks) {
-        this.damages[index].interBlocks = []
+        this.damages[index]!.interBlocks = []
       }
       const len = this.damages[index]?.interBlocks.length;
       let newItem = {}
@@ -232,36 +229,36 @@ export default defineComponent({
       newItem.damagesInterId = len + 1
       newItem.firtsId = 1
       newItem.secondId = len + 1
-      this.damages[index].interBlocks.push(newItem);
+      this.damages[index]!.interBlocks.push(newItem);
     },
-    removeInterBlock(index, subindex) {
-      this.damages[index].interBlocks.splice(subindex, 1);
+    removeInterBlock(index: number, subindex: number) {
+      this.damages[index]!.interBlocks.splice(subindex, 1);
     },
-    calculateCriticalEnergy(damageId) {
-      if (this.damages[damageId]?.criticalEnergyCalc.calculateCriticalEnergy) {
-        const k1c = this.damages[damageId]?.criticalEnergyCalc.k1c;
+    calculateCriticalEnergy(damageId: number) {
+      if (this.damages[damageId]!.criticalEnergyCalc.calculateCriticalEnergy) {
+        const k1c = this.damages[damageId]!.criticalEnergyCalc.k1c;
         if (k1c != null) {
           let E = 0;
           let pr = 0;
           let materialName = '';
           for (let i = 0; i < this.blocks.length; i++) {
-            if (this.blocks[i]?.damageModel == this.damages[damageId]?.name) {
-              materialName = this.blocks[i]?.material;
+            if (this.blocks[i]!.damageModel == this.damages[damageId]!.name) {
+              materialName = this.blocks[i]!.material;
             }
           }
           let planeStress = true;
           for (let i = 0; i < this.materials.length; i++) {
             if (this.materials[i]?.name == materialName) {
-              planeStress = this.materials[i]?.planeStress;
-              E = this.materials[i]?.youngsModulus;
-              pr = this.materials[i]?.poissonsRatio;
+              planeStress = this.materials[i]!.planeStress;
+              E = this.materials[i]!.youngsModulus;
+              pr = this.materials[i]!.poissonsRatio;
             }
           }
           console.log(E)
           if (planeStress) {
-            this.damages[damageId].criticalEnergy = k1c ** 2 / +E;
+            this.damages[damageId]!.criticalEnergy = k1c ** 2 / +E;
           } else {
-            this.damages[damageId].criticalEnergy =
+            this.damages[damageId]!.criticalEnergy =
               k1c ** 2 / (+E / (1 - pr ** 2));
           }
         }

@@ -51,7 +51,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { cancelJob, getJobs } from 'src/client';
@@ -62,16 +62,14 @@ export default defineComponent({
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData)
     const viewStore = useViewStore();
-    const bus = inject('bus')
     return {
       modelStore,
       modelData,
-      viewStore,
-      bus
+      viewStore
     }
   },
   created() {
-    this.bus.on('getJobs', () => {
+    this.$bus.on('getJobs', () => {
       this._getJobs()
     })
   },
@@ -117,7 +115,7 @@ export default defineComponent({
             icon: 'report_problem'
           })
         })
-      this.bus.emit('getStatus')
+      this.$bus.emit('getStatus')
       this._getJobs();
     },
     onRowClick(row) {

@@ -9,18 +9,15 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { inject } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
 import { getPrognosisEnergy } from 'src/client';
 export default {
   name: 'RenewableView',
   setup() {
     const viewStore = useViewStore();
-    const bus = inject('bus')
 
     return {
-      viewStore,
-      bus
+      viewStore
     }
   },
   data() {
@@ -32,7 +29,7 @@ export default {
   async mounted() {
 
     await getPrognosisEnergy()
-      .then((response) => {
+      .then((response: json) => {
         this.$q.notify({
           message: response.message
         })

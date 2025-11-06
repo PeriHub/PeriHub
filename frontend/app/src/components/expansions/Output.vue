@@ -100,7 +100,6 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -112,7 +111,6 @@ export default defineComponent({
     const computes = computed(() => store.modelData.computes)
     const outputs = computed(() => store.modelData.outputs)
     const job = computed(() => store.modelData.job)
-    const bus = inject('bus')
     return {
       store,
       blocks,
@@ -120,12 +118,11 @@ export default defineComponent({
       computes,
       outputs,
       job,
-      rules,
-      bus
+      rules
     }
   },
   created() {
-    this.bus.on('addStateVarsToOutput', (numStateVars) => {
+    this.$bus.on('addStateVarsToOutput', (numStateVars) => {
       this.addStateVarsToOutput(numStateVars)
     })
   },
@@ -273,7 +270,7 @@ export default defineComponent({
           'name': 'External_Force',
           'variable': 'Forces',
           'calculationType': 'Sum',
-          'blockName': this.blocks[0].name,
+          'blockName': this.blocks[0]!.name,
           'nodeSetId': 1
         }
       }
@@ -281,7 +278,7 @@ export default defineComponent({
       newItem.name = 'Compute' + (len + 1)
       this.computes.push(newItem);
     },
-    removeCompute(index) {
+    removeCompute(index: number) {
       this.computes.splice(index, 1);
       this.computes.forEach((model, i) => {
         model.computesId = i + 1

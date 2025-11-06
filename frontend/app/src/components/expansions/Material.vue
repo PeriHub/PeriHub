@@ -137,7 +137,6 @@ SPDX-License-Identifier: Apache-2.0
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
-import { inject } from 'vue'
 import rules from 'assets/rules.js';
 import { matrix, inv } from 'mathjs'
 import { uploadFiles } from 'src/client';
@@ -150,14 +149,12 @@ export default defineComponent({
     const materials = computed(() => store.modelData.materials)
     const job = computed(() => store.modelData.job)
     const modelData = computed(() => store.modelData)
-    const bus = inject('bus')
     return {
       viewStore,
       materials,
       job,
       modelData,
-      rules,
-      bus
+      rules
     }
   },
   created() {
@@ -294,18 +291,18 @@ export default defineComponent({
         }
       })
     },
-    calculateStiffnessMatrix(materialId) {
-      if (this.materials[materialId]?.stiffnessMatrix.calculateStiffnessMatrix) {
+    calculateStiffnessMatrix(materialId: number) {
+      if (this.materials[materialId]!.stiffnessMatrix.calculateStiffnessMatrix) {
 
-        const E1: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.E1;   // Elastic modulus along the fiber direction (Pa)
-        const E2: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.E2;    // Elastic modulus transverse to the fiber direction (Pa)
-        const E3: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.E3;    // Elastic modulus transverse to the fiber direction (Pa)
-        const G12: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.G12;    // Shear modulus in the 1-2 plane (Pa)
-        const G13: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.G13;    // Shear modulus in the 1-3 plane (Pa)
-        const G23: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.G23;    // Shear modulus in the 2-3 plane (Pa)
-        const nu12: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.nu12;   // Poisson's ratio in the 1-2 plane
-        const nu13: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.nu13;   // Poisson's ratio in the 1-3 plane
-        const nu23: number = this.materials[materialId]?.stiffnessMatrix.engineeringConstants.nu23;   // Poisson's ratio in the 2-3 plane
+        const E1: number = this.materials[materialId]!.stiffnessMatrix.engineeringConstants.E1;   // Elastic modulus along the fiber direction (Pa)
+        const E2: number = this.materials[materialId]!.stiffnessMatrix.engineeringConstants.E2;    // Elastic modulus transverse to the fiber direction (Pa)
+        let E3: number = this.materials[materialId]!.stiffnessMatrix.engineeringConstants.E3;    // Elastic modulus transverse to the fiber direction (Pa)
+        const G12: number = this.materials[materialId]!.stiffnessMatrix.engineeringConstants.G12;    // Shear modulus in the 1-2 plane (Pa)
+        let G13: number = this.materials[materialId]!.stiffnessMatrix.engineeringConstants.G13;    // Shear modulus in the 1-3 plane (Pa)
+        let G23: number = this.materials[materialId]!.stiffnessMatrix.engineeringConstants.G23;    // Shear modulus in the 2-3 plane (Pa)
+        const nu12: number = this.materials[materialId]!.stiffnessMatrix.engineeringConstants.nu12;   // Poisson's ratio in the 1-2 plane
+        let nu13: number = this.materials[materialId]!.stiffnessMatrix.engineeringConstants.nu13;   // Poisson's ratio in the 1-3 plane
+        let nu23: number = this.materials[materialId]!.stiffnessMatrix.engineeringConstants.nu23;   // Poisson's ratio in the 2-3 plane
 
         if (E1 != null && E2 != null && G12 != null && nu12 != null) {
 
@@ -323,36 +320,36 @@ export default defineComponent({
             [0, 0, 0, 0, 1 / G13, 0],
             [0, 0, 0, 0, 0, 1 / G12]
           ]);
-          let stiffness = inv(compliance);
-          stiffness = stiffness.toArray();
+          const stiffness = inv(compliance);
+          const stiffnessArray = stiffness.toArray();
 
           this.materials[materialId].stiffnessMatrix.matrix = {
-            C11: stiffness[0][0],
-            C12: stiffness[0][1],
-            C13: stiffness[0][2],
-            C14: stiffness[0][3],
-            C15: stiffness[0][4],
-            C16: stiffness[0][5],
-            C22: stiffness[1][1],
-            C23: stiffness[1][2],
-            C24: stiffness[1][3],
-            C25: stiffness[1][4],
-            C26: stiffness[1][5],
-            C33: stiffness[2][2],
-            C34: stiffness[2][3],
-            C35: stiffness[2][4],
-            C36: stiffness[2][5],
-            C44: stiffness[3][3],
-            C45: stiffness[3][4],
-            C46: stiffness[3][5],
-            C55: stiffness[4][4],
-            C56: stiffness[4][5],
-            C66: stiffness[5][5],
+            C11: stiffnessArray[0]![0],
+            C12: stiffnessArray[0][1],
+            C13: stiffnessArray[0][2],
+            C14: stiffnessArray[0][3],
+            C15: stiffnessArray[0][4],
+            C16: stiffnessArray[0][5],
+            C22: stiffnessArray[1][1],
+            C23: stiffnessArray[1][2],
+            C24: stiffnessArray[1][3],
+            C25: stiffnessArray[1][4],
+            C26: stiffnessArray[1][5],
+            C33: stiffnessArray[2][2],
+            C34: stiffnessArray[2][3],
+            C35: stiffnessArray[2][4],
+            C36: stiffnessArray[2][5],
+            C44: stiffnessArray[3][3],
+            C45: stiffnessArray[3][4],
+            C46: stiffnessArray[3][5],
+            C55: stiffnessArray[4][4],
+            C56: stiffnessArray[4][5],
+            C66: stiffnessArray[5][5],
           };
         }
       }
     },
-    async onMultiFilePicked(event) {
+    onMultiFilePicked(event) {
       const files = event.target.files;
       // const filetype = files[0].type;
       if (files.length <= 0) {
@@ -360,7 +357,7 @@ export default defineComponent({
       }
 
       this.viewStore.modelLoading = true;
-      await this.uploadfiles(files);
+      this.uploadfiles(files);
 
       this.viewStore.modelLoading = false;
     },
@@ -440,7 +437,7 @@ export default defineComponent({
               }
             }
 
-            this.materials[0].properties[i - 2].value = propValue;
+            this.materials[0]!.properties[i - 2]!.value = propValue;
           }
         } else {
           console.log('Length of Propsarray unexpected');
@@ -470,25 +467,25 @@ export default defineComponent({
       newItem.name = 'Material' + (len + 1)
       this.materials.push(newItem);
     },
-    removeMaterial(index) {
+    removeMaterial(index: number) {
       this.materials.splice(index, 1);
       this.materials.forEach((model, i) => {
         model.materialsId = i + 1
       })
     },
-    addProp(index) {
-      const len = this.materials[index].properties.length;
+    addProp(index: number) {
+      const len = this.materials[index]!.properties.length;
       let newItem = {}
       if (len != 0) {
-        newItem = structuredClone(this.materials[index].properties[len - 1])
+        newItem = structuredClone(this.materials[index]!.properties[len - 1])
       }
       newItem.materialsPropId = len + 1
       newItem.name = 'Prop_' + (len + 1)
 
-      this.materials[index].properties.push(newItem)
+      this.materials[index]!.properties.push(newItem)
     },
-    removeProp(index, subindex) {
-      this.materials[index].properties.splice(subindex, 1);
+    removeProp(index: number, subindex: number) {
+      this.materials[index]!.properties.splice(subindex, 1);
     },
   }
 })

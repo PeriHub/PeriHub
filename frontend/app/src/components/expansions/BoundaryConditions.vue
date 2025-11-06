@@ -51,7 +51,6 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -63,7 +62,6 @@ export default defineComponent({
     const solvers = computed(() => store.modelData.solvers)
     const boundaryConditions = computed(() => store.modelData.boundaryConditions)
     const discretization = computed(() => store.modelData.discretization)
-    const bus = inject('bus')
     return {
       store,
       model,
@@ -71,12 +69,11 @@ export default defineComponent({
       solvers,
       boundaryConditions,
       discretization,
-      rules,
-      bus
+      rules
     }
   },
   created() {
-    this.bus.on('addCondition', () => {
+    this.$bus.on('addCondition', () => {
       this.addCondition()
     })
   },
@@ -113,13 +110,14 @@ export default defineComponent({
         this.boundaryConditions.conditions = []
       }
       const len = this.boundaryConditions.conditions.length;
-      let newItem = {}
+      let newItem = {
+        boundaryConditionsId: len + 1,
+        name: 'BC_' + (len + 1),
+        blockId: len + 1
+      }
       if (len != 0) {
         newItem = structuredClone(this.boundaryConditions.conditions[len - 1])
       }
-      newItem.boundaryConditionsId = len + 1
-      newItem.name = 'BC_' + (len + 1)
-      newItem.blockId = len + 1
       this.boundaryConditions.conditions.push(newItem);
     },
     removeCondition(index) {

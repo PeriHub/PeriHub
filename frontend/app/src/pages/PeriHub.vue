@@ -47,8 +47,6 @@ import { useDefaultStore } from 'src/stores/default-store';
 import Driver from 'driver.js';
 import 'driver.js/dist/driver.min.css';
 
-import { inject } from 'vue'
-
 export default {
   name: 'PeriHub',
   components: {
@@ -61,15 +59,13 @@ export default {
   },
   setup() {
     const store = useDefaultStore();
-    const bus: EventBus = inject('bus')
 
     return {
-      store,
-      bus
+      store
     }
   },
   created() {
-    this.bus.on('showTutorial', () => {
+    this.$bus.on('showTutorial', () => {
       this.showTutorial()
     })
   },
@@ -80,13 +76,13 @@ export default {
     };
   },
   methods: {
-    onResizeBefore(size: object) {
+    onResizeBefore(size) {
       // console.log('get resize', width, height)
-      this.bus.emit('resizeViewPanel', size.height)
+      this.$bus.emit('resizeViewPanel', size.height)
     },
-    onResizeAfter(size: object) {
+    onResizeAfter(size) {
       // console.log('get resize', width, height)
-      this.bus.emit('resizeTextPanel', size.height)
+      this.$bus.emit('resizeTextPanel', size.height)
     },
     showTutorial() {
       let color = 'white';

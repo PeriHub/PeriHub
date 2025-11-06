@@ -252,7 +252,7 @@ export default defineComponent({
       handler() {
         console.log('conversion changed!');
         let num = 0;
-        const con = [];
+        let con = [];
         for (con in this.conversion) {
           if (this.conversion[con] != null) {
             num++;

@@ -62,7 +62,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { inject, defineComponent } from 'vue'
+import { defineComponent } from 'vue'
 import ImageView from 'components/views/ImageView.vue'
 import ModelView from 'components/views/ModelView.vue'
 import CadView from 'components/views/CadView.vue'
@@ -93,15 +93,13 @@ export default defineComponent({
   setup() {
     const store = useDefaultStore();
     const viewStore = useViewStore();
-    const bus = inject('bus');
     return {
       store,
-      viewStore,
-      bus
+      viewStore
     }
   },
   created() {
-    this.bus.on('resizeViewPanel', (height) => {
+    this.$bus.on('resizeViewPanel', (height) => {
       this.viewHeight = height - 89 + 'px'
     })
   },

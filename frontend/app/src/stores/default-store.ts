@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { defineStore } from 'pinia';
+import { defineStore, acceptHMRUpdate } from 'pinia';
 
 export const useDefaultStore = defineStore('default', {
   state: () => ({
@@ -24,11 +24,15 @@ export const useDefaultStore = defineStore('default', {
   }),
   actions: {
     initialiseStore() {
-      this.DEV = process.env.DEV;
-      this.TRIAL = process.env.TRIAL;
+      this.DEV = process.env.DEV?.toLowerCase?.() === 'true';
+      this.TRIAL = process.env.TRIAL?.toLowerCase?.() === 'true';
     },
     toggleDarkMode() {
       this.darkMode = !this.darkMode;
     },
   },
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useDefaultStore, import.meta.hot));
+}

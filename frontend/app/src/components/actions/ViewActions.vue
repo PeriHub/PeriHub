@@ -362,7 +362,6 @@ import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
-import { inject } from 'vue'
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
 import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
@@ -378,13 +377,12 @@ export default defineComponent({
   },
   setup() {
     const store = useDefaultStore();
-    const status = computed(() => store.status)
+    const status = store.status
     const saveEnergy = computed(() => store.saveEnergy)
     const viewStore = useViewStore();
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData)
     const computes = computed(() => modelStore.modelData.computes)
-    const bus = inject('bus')
 
     return {
       status,
@@ -393,8 +391,7 @@ export default defineComponent({
       modelStore,
       modelData,
       computes,
-      rules,
-      bus,
+      rules
     }
   },
   data() {
@@ -572,7 +569,7 @@ export default defineComponent({
 
     },
     async checkStatus() {
-      this.bus.emit('getStatus');
+      this.$bus.emit('getStatus');
       this.intervalCount += 1;
 
       if (this.intervalCount > 10) {
@@ -592,7 +589,7 @@ export default defineComponent({
         } else {
           await sleep(20000);
         }
-        this.bus.emit('enableWebsocket');
+        this.$bus.emit('enableWebsocket');
         clearInterval(this.timer)
       }
     },
@@ -619,7 +616,7 @@ export default defineComponent({
           })
         })
 
-      this.bus.emit('getStatus');
+      this.$bus.emit('getStatus');
       this.submitLoading = false;
     },
     async saveResults(allData) {
@@ -1066,7 +1063,7 @@ export default defineComponent({
           })
         })
 
-      this.bus.emit('getStatus');
+      this.$bus.emit('getStatus');
     },
     csvDefined() {
       for (let i = 0; i < this.modelData.outputs.length; i++) {

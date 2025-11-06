@@ -48,7 +48,6 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
 import rules from 'assets/rules';
 
 export default defineComponent({
@@ -62,7 +61,6 @@ export default defineComponent({
     const additive = computed(() => store.modelData.additive)
     const blocks = computed(() => store.modelData.blocks)
     const job = computed(() => store.modelData.job)
-    const bus = inject('bus')
     return {
       store,
       model,
@@ -72,8 +70,7 @@ export default defineComponent({
       additive,
       blocks,
       job,
-      rules,
-      bus
+      rules
     }
   },
   data() {
@@ -95,8 +92,8 @@ export default defineComponent({
     addBlock() {
       const len = this.blocks.length;
       const newItem = structuredClone(this.blocks[len - 1])
-      newItem.blocksId = len + 1
-      newItem.name = 'block_' + (len + 1)
+      newItem!.blocksId = len + 1
+      newItem!.name = 'block_' + (len + 1)
       this.blocks.push(newItem);
     },
     removeBlock(index) {

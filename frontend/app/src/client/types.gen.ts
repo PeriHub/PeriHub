@@ -679,7 +679,7 @@ export type DeleteUserDataFromClusterData = {
 
 export type DeleteUserDataFromClusterResponse = unknown;
 
-export type GetPublicationsResponse = unknown;
+export type GetPublicationsResponse = string;
 
 export type GetPrognosisEnergyResponse = unknown;
 
@@ -1181,7 +1181,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: string;
             };
         };
     };

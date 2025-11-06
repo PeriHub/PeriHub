@@ -4,7 +4,7 @@
 
 export default {
   required: (value) => {
-    !!value || 'Field is required';
+    return !!value || 'Field is required';
   },
   equation: (value) => {
     const pattern = /^([-+/*][\dxyztd]+(\.\d+)?)*/;
