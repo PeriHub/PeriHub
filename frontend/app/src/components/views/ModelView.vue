@@ -81,6 +81,7 @@ export default defineComponent({
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData);
     const view = ref(null);
+
     return {
       viewStore,
       modelStore,
@@ -137,7 +138,7 @@ export default defineComponent({
       const blocks = this.modelData.blocks
       for (let i = 0; i < this.blockIdString.length; i++) {
         if (
-          blocks[parseInt(this.blockIdString[i] * this.modelData.blocks.length - 1)].show
+          blocks[parseInt(this.blockIdString[i]! * this.modelData.blocks.length - 1)].show
         ) {
           filteredBlockIdStringTemp[idx] = this.blockIdString[i];
           for (let j = 0; j < 3; j++) {
@@ -194,12 +195,12 @@ export default defineComponent({
       // if (!this.modelData.model.ownModel) {
       //   this.viewStore.dx_value =
       //     this.modelData.model.height / (2 * parseInt(this.modelData.model.discretization / 2) + 1);
-      if (this.modelStore.selectedModel.file == 'Smetana') {
-        const numOfPlys = 8;
-        this.viewStore.dx_value =
-          (this.modelData.model.height * numOfPlys) /
-          (2 * this.modelData.model.discretization / 2 + 1);
-      }
+      // if (this.modelStore.selectedModel.file == 'Smetana') {
+      //   const numOfPlys = 8;
+      //   this.viewStore.dx_value =
+      //     (this.modelData.model.height * numOfPlys) /
+      //     (2 * this.modelData.discretization / 2 + 1);
+      // }
       // else {
       //   this.viewStore.dx_value = Math.hypot(
       //     parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),

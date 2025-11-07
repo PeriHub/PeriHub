@@ -55,7 +55,7 @@ export const generateMesh = (data: GenerateMeshData): CancelablePromise<Generate
 /**
  * Get Models
  * doc
- * @returns unknown Successful Response
+ * @returns string Successful Response
  * @throws ApiError
  */
 export const getModels = (): CancelablePromise<GetModelsResponse> => { return __request(OpenAPI, {
@@ -88,7 +88,7 @@ export const getOwnModels = (data: GetOwnModelsData = {}): CancelablePromise<Get
  * @param data The data for the request.
  * @param data.modelName
  * @param data.source
- * @returns unknown Successful Response
+ * @returns Valves Successful Response
  * @throws ApiError
  */
 export const getValves = (data: GetValvesData): CancelablePromise<GetValvesResponse> => { return __request(OpenAPI, {
@@ -108,7 +108,7 @@ export const getValves = (data: GetValvesData): CancelablePromise<GetValvesRespo
  * doc
  * @param data The data for the request.
  * @param data.configFile
- * @returns unknown Successful Response
+ * @returns ModelData_Output Successful Response
  * @throws ApiError
  */
 export const getConfig = (data: GetConfigData = {}): CancelablePromise<GetConfigResponse> => { return __request(OpenAPI, {
@@ -146,7 +146,7 @@ export const saveConfig = (data: SaveConfigData): CancelablePromise<SaveConfigRe
 /**
  * Get Max Fe Size
  * doc
- * @returns unknown Successful Response
+ * @returns number Successful Response
  * @throws ApiError
  */
 export const getMaxFeSize = (): CancelablePromise<GetMaxFeSizeResponse> => { return __request(OpenAPI, {
@@ -185,7 +185,7 @@ export const getModel = (data: GetModelData = {}): CancelablePromise<GetModelRes
  * @param data.ownMesh
  * @param data.meshFile
  * @param data.twoD
- * @returns unknown Successful Response
+ * @returns ResponseModel Successful Response
  * @throws ApiError
  */
 export const getPointData = (data: GetPointDataData = {}): CancelablePromise<GetPointDataResponse> => { return __request(OpenAPI, {
@@ -210,7 +210,7 @@ export const getPointData = (data: GetPointDataData = {}): CancelablePromise<Get
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
- * @returns unknown Successful Response
+ * @returns ResponseModel Successful Response
  * @throws ApiError
  */
 export const viewInputFile = (data: ViewInputFileData = {}): CancelablePromise<ViewInputFileResponse> => { return __request(OpenAPI, {
@@ -231,7 +231,7 @@ export const viewInputFile = (data: ViewInputFileData = {}): CancelablePromise<V
  * @param data The data for the request.
  * @param data.modelName
  * @param data.description
- * @returns unknown Successful Response
+ * @returns string Successful Response
  * @throws ApiError
  */
 export const addModel = (data: AddModelData): CancelablePromise<AddModelResponse> => { return __request(OpenAPI, {
@@ -251,7 +251,7 @@ export const addModel = (data: AddModelData): CancelablePromise<AddModelResponse
  * doc
  * @param data The data for the request.
  * @param data.modelFile
- * @returns unknown Successful Response
+ * @returns string Successful Response
  * @throws ApiError
  */
 export const getOwnModelFile = (data: GetOwnModelFileData = {}): CancelablePromise<GetOwnModelFileResponse> => { return __request(OpenAPI, {
@@ -409,7 +409,7 @@ export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse
  * @param data.modelFolderName
  * @param data.cluster
  * @param data.sbatch
- * @returns unknown Successful Response
+ * @returns ResponseModel Successful Response
  * @throws ApiError
  */
 export const cancelJob = (data: CancelJobData = {}): CancelablePromise<CancelJobResponse> => { return __request(OpenAPI, {
@@ -451,7 +451,7 @@ export const getJobFolders = (data: GetJobFoldersData = {}): CancelablePromise<G
  * @param data The data for the request.
  * @param data.modelName
  * @param data.sbatch
- * @returns unknown Successful Response
+ * @returns ResponseModel Successful Response
  * @throws ApiError
  */
 export const getJobs = (data: GetJobsData = {}): CancelablePromise<GetJobsResponse> => { return __request(OpenAPI, {
@@ -809,7 +809,7 @@ export const getPublications = (): CancelablePromise<GetPublicationsResponse> =>
 /**
  * Energy
  * doc
- * @returns unknown Successful Response
+ * @returns ResponseModel Successful Response
  * @throws ApiError
  */
 export const getPrognosisEnergy = (): CancelablePromise<GetPrognosisEnergyResponse> => { return __request(OpenAPI, {

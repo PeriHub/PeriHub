@@ -134,12 +134,13 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import rules from 'assets/rules.js';
 import { matrix, inv } from 'mathjs'
 import { uploadFiles } from 'src/client';
+import type { Material, properties } from 'src/client';
 
 export default defineComponent({
   name: 'MaterialSettings',
@@ -321,30 +322,30 @@ export default defineComponent({
             [0, 0, 0, 0, 0, 1 / G12]
           ]);
           const stiffness = inv(compliance);
-          const stiffnessArray = stiffness.toArray();
+          const stiffnessArray = stiffness.toArray() as number[][];
 
-          this.materials[materialId].stiffnessMatrix.matrix = {
-            C11: stiffnessArray[0]![0],
-            C12: stiffnessArray[0][1],
-            C13: stiffnessArray[0][2],
-            C14: stiffnessArray[0][3],
-            C15: stiffnessArray[0][4],
-            C16: stiffnessArray[0][5],
-            C22: stiffnessArray[1][1],
-            C23: stiffnessArray[1][2],
-            C24: stiffnessArray[1][3],
-            C25: stiffnessArray[1][4],
-            C26: stiffnessArray[1][5],
-            C33: stiffnessArray[2][2],
-            C34: stiffnessArray[2][3],
-            C35: stiffnessArray[2][4],
-            C36: stiffnessArray[2][5],
-            C44: stiffnessArray[3][3],
-            C45: stiffnessArray[3][4],
-            C46: stiffnessArray[3][5],
-            C55: stiffnessArray[4][4],
-            C56: stiffnessArray[4][5],
-            C66: stiffnessArray[5][5],
+          this.materials[materialId]!.stiffnessMatrix.matrix = {
+            C11: Number(stiffnessArray[0]![0]),
+            C12: Number(stiffnessArray[0]![1]),
+            C13: Number(stiffnessArray[0]![2]),
+            C14: Number(stiffnessArray[0]![3]),
+            C15: Number(stiffnessArray[0]![4]),
+            C16: Number(stiffnessArray[0]![5]),
+            C22: Number(stiffnessArray[1]![1]),
+            C23: Number(stiffnessArray[1]![2]),
+            C24: Number(stiffnessArray[1]![3]),
+            C25: Number(stiffnessArray[1]![4]),
+            C26: Number(stiffnessArray[1]![5]),
+            C33: Number(stiffnessArray[2]![2]),
+            C34: Number(stiffnessArray[2]![3]),
+            C35: Number(stiffnessArray[2]![4]),
+            C36: Number(stiffnessArray[2]![5]),
+            C44: Number(stiffnessArray[3]![3]),
+            C45: Number(stiffnessArray[3]![4]),
+            C46: Number(stiffnessArray[3]![5]),
+            C55: Number(stiffnessArray[4]![4]),
+            C56: Number(stiffnessArray[4]![5]),
+            C66: Number(stiffnessArray[5]![5]),
           };
         }
       }
@@ -453,18 +454,9 @@ export default defineComponent({
         this.materials = []
       }
       const len = this.materials.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.materials[len - 1])
-      } else {
-        newItem = {
-          'materialsId': 1,
-          'name': 'Material 1',
-          'matType': ['PD Solid Elastic'],
-        }
-      }
-      newItem.materialsId = len + 1
-      newItem.name = 'Material' + (len + 1)
+      const newItem = len > 0 ? structuredClone(toRaw(this.materials[len - 1])) : {} as Material;
+      newItem.materialsId = 1
+      newItem.name = 'Material 1'
       this.materials.push(newItem);
     },
     removeMaterial(index: number) {
@@ -475,10 +467,7 @@ export default defineComponent({
     },
     addProp(index: number) {
       const len = this.materials[index]!.properties.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.materials[index]!.properties[len - 1])
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.materials[len - 1])) : {} as properties;
       newItem.materialsPropId = len + 1
       newItem.name = 'Prop_' + (len + 1)
 

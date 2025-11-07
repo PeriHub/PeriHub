@@ -421,7 +421,7 @@ def get_data(
     color_bar_min: float = None,
     color_bar_max: float = None,
     request: Request = "",
-):
+) -> JSONResponse:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 

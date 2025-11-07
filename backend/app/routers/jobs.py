@@ -207,7 +207,7 @@ def cancel_job(
     cluster: bool = False,
     sbatch: bool = False,
     request: Request = "",
-):
+) -> ResponseModel:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -306,7 +306,7 @@ def get_jobs(
     model_name: str = "Dogbone",
     sbatch: bool = False,
     request: Request = "",
-):
+) -> ResponseModel:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 

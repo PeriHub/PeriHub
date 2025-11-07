@@ -13,10 +13,10 @@ router = APIRouter(prefix="/energy", tags=["Upload Methods"])
 
 
 @router.get("/prognosis", operation_id="get_prognosis_energy")
-async def energy():
+async def energy() -> ResponseModel:
     """doc"""
     # Define the URL and query parameters
-    url = "https://api.energy-charts.info/traffic_signal"
+    url = "https://api.energy-charts.info/signal"
     params = {"country": "de"}
 
     # Send a GET request to the URL with the query parameters
@@ -28,9 +28,9 @@ async def energy():
         data = {}
 
         # Loop through the xAxisValues and data arrays
-        for index, value in enumerate(raw_data[0]["data"]):
+        for index, value in enumerate(raw_data["share"]):
             # Convert the timestamp to a date string
-            timestamp = raw_data[0]["xAxisValues"][index]
+            timestamp = raw_data["unix_seconds"][index]
             date = datetime.utcfromtimestamp(timestamp / 1000) + timedelta(
                 hours=2
             )  # Assuming the timestamp is in milliseconds and utc

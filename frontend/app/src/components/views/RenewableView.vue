@@ -29,17 +29,17 @@ export default {
   async mounted() {
 
     await getPrognosisEnergy()
-      .then((response: json) => {
+      .then((response) => {
         this.$q.notify({
           message: response.message
         })
         this.plot_data = response.data;
       })
-      .catch(() => {
+      .catch((error) => {
         this.$q.notify({
           color: 'negative',
           position: 'bottom-right',
-          message: response.message,
+          message: error,
           icon: 'report_problem'
         })
       })

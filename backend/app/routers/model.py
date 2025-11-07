@@ -12,13 +12,14 @@ import os
 import shutil
 from pathlib import Path
 from re import findall
+from typing import Optional
 
 import numpy as np
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse
 from slugify import slugify
 
-from ..support.base_models import ModelData, ResponseModel
+from ..support.base_models import ModelData, ResponseModel, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
 
@@ -26,7 +27,7 @@ router = APIRouter(prefix="/model", tags=["Model Methods"])
 
 
 @router.get("/getModels", operation_id="get_models")
-def get_models():
+def get_models() -> list[str]:
     """doc"""
 
     model_list = []
@@ -81,7 +82,7 @@ def get_own_models(verify: bool = False, request: Request = "") -> list[str]:
 
 
 @router.get("/getValves", operation_id="get_valves")
-def get_valves(model_name: str, source: bool = False):
+def get_valves(model_name: str, source: bool = False) -> Valves:
     """doc"""
     parent_path = str(Path(__file__).parent.parent.name)
 
@@ -129,7 +130,7 @@ def get_valves(model_name: str, source: bool = False):
 
 
 @router.get("/getConfig", operation_id="get_config")
-def get_config(config_file: str = "Dogbone"):
+def get_config(config_file: str = "Dogbone") -> ModelData:
     """doc"""
 
     config_path = os.path.join(
@@ -187,7 +188,7 @@ def save_config(config_file: str, config: ModelData, request: Request = ""):
 
 
 @router.get("/getMaxFeSize", operation_id="get_max_fe_size")
-def get_max_fe_size(request: Request = ""):
+def get_max_fe_size(request: Request = "") -> int:
     """doc"""
 
     username = FileHandler.get_user_name(request, dev)
@@ -226,13 +227,13 @@ def get_model(
 @router.get("/getPointData", operation_id="get_point_data")
 def get_point_data(
     model_name: str = "Dogbone",
-    model_folder_name: str = "Default",
+    model_folder_name: Optional[str] = "Default",
     own_model: bool = False,
-    own_mesh: bool = False,
-    mesh_file: str = "Dogbone.txt",
-    two_d: bool = True,
+    own_mesh: Optional[bool] = False,
+    mesh_file: Optional[str] = "Dogbone.txt",
+    two_d: Optional[bool] = True,
     request: Request = "",
-):
+) -> ResponseModel:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -398,7 +399,7 @@ def view_input_file(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     request: Request = "",
-):
+) -> ResponseModel:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -425,7 +426,7 @@ def view_input_file(
 
 
 @router.post("/add", operation_id="add_model")
-def add_model(model_name: str, description: str, request: Request = ""):
+def add_model(model_name: str, description: str, request: Request = "") -> str:
     """doc"""
 
     username = FileHandler.get_user_name(request, dev)
@@ -549,7 +550,7 @@ class main:
 
 
 @router.get("/getOwnModelFile", operation_id="get_own_model_file")
-def get_own_model_file(model_file: str = "Dogbone"):
+def get_own_model_file(model_file: str = "Dogbone") -> str:
     """doc"""
 
     folder_path = str(Path(__file__).parent.parent.resolve())

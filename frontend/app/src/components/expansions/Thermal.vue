@@ -84,8 +84,9 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
+import type { ThermalModel } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -139,15 +140,13 @@ export default defineComponent({
         this.thermal.thermalModels = []
       }
       const len = this.thermal.thermalModels.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.thermal.thermalModels[len - 1])
-      }
+      // const newItem = len > 0 ? structuredClone(toRaw(this.thermal.thermalModels[len - 1])) : {} as ThermalModel;
+      const newItem = {} as ThermalModel;
       newItem.thermalModelsId = len + 1
       newItem.name = 'Thermal Model ' + (len + 1)
       this.thermal.thermalModels.push(newItem);
     },
-    removeThermalModel(index) {
+    removeThermalModel(index: number) {
       this.thermal.thermalModels.splice(index, 1);
       this.thermal.thermalModels.forEach((model, i) => {
         model.thermalModelsId = i + 1

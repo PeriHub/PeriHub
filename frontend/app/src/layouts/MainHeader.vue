@@ -95,7 +95,7 @@ export default defineComponent({
   },
   methods: {
     toggleDarkMode() {
-      localStorage.setItem('darkMode', this.store.darkMode as string);
+      localStorage.setItem('darkMode', String(this.store.darkMode));
       this.$q.dark.toggle();
     },
   },

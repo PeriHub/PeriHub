@@ -155,21 +155,21 @@ export default defineComponent({
         thermalConductivity: null,
       },
       conversionResults: {
-        mass: null,
-        length: null,
-        velocity: null,
-        force: null,
-        acceleration: null,
-        moment: null,
-        pressure: null,
-        density: null,
-        densityLb: null,
-        densityGramm: null,
-        energy: null,
-        energyReleaseRate: null,
-        fractureToughnessm: null,
-        heatCapacity: null,
-        thermalConductivity: null,
+        mass: null as number | string | null,
+        length: null as number | string | null,
+        velocity: null as number | string | null,
+        force: null as number | string | null,
+        acceleration: null as number | string | null,
+        moment: null as number | string | null,
+        pressure: null as number | string | null,
+        density: null as number | string | null,
+        densityLb: null as number | string | null,
+        densityGramm: null as number | string | null,
+        energy: null as number | string | null,
+        energyReleaseRate: null as number | string | null,
+        fractureToughness: null as number | string | null,
+        heatCapacity: null as number | string | null,
+        thermalConductivity: null as number | string | null,
       },
     }
   },
@@ -244,7 +244,7 @@ export default defineComponent({
           this.$q.notify({
             message: 'Copied to clipboard',
           })
-        })
+        }).catch()
     },
   },
   watch: {
@@ -252,8 +252,7 @@ export default defineComponent({
       handler() {
         console.log('conversion changed!');
         let num = 0;
-        let con = [];
-        for (con in this.conversion) {
+        for (const con in this.conversion) {
           if (this.conversion[con] != null) {
             num++;
           }

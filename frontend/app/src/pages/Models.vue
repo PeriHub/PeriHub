@@ -80,6 +80,7 @@ import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 import JsonEditorVue from 'json-editor-vue'
 
 import { getOwnModels, getOwnModelFile, getConfig, saveConfig, saveModel, addModel, deleteModel } from '../client';
+import type { GetOwnModelsResponse } from 'src/client';
 
 export default {
   name: 'CuratorPage',
@@ -96,7 +97,7 @@ export default {
   },
   data() {
     return {
-      modelList: [],
+      modelList: [] as GetOwnModelsResponse,
       selectedModel: {
         title: '',
         file: '',
@@ -108,7 +109,7 @@ export default {
       description: '',
 
       sourceCode: '',
-      config: null,
+      config: {} as GetOwnModelsResponse,
       verticalSplitterModel: 50,
     };
   },

@@ -111,8 +111,9 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
+import type { Damage, InterBlock } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -185,18 +186,10 @@ export default defineComponent({
         this.damages = []
       }
       const len = this.damages.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.damages[len - 1])
-      } else {
-        newItem = {
-          'damagesId': 1,
-          'name': 'Damage 1',
-          'criticalEnergyCalc': {},
-        }
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.damages[len - 1])) : {} as Damage;
       newItem.damagesId = len + 1
       newItem.name = 'Damage' + (len + 1)
+      newItem.criticalEnergyCalc = {}
       this.damages.push(newItem);
     },
     removeDamage(index) {
@@ -215,20 +208,10 @@ export default defineComponent({
         this.damages[index]!.interBlocks = []
       }
       const len = this.damages[index]?.interBlocks.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.damages[index]?.interBlocks[len - 1])
-      } else {
-        newItem = {
-          'damagesInterId': 1,
-          'firstBlockId': 1,
-          'secondBlockId': 2,
-          'value': 0.1
-        }
-      }
-      newItem.damagesInterId = len + 1
-      newItem.firtsId = 1
-      newItem.secondId = len + 1
+      const newItem = len > 0 ? structuredClone(toRaw(this.damages[index]?.interBlocks[len - 1])) : {} as InterBlock;
+      newItem.id = len + 1
+      newItem.firstBlockId = 1
+      newItem.secondBlockId = len + 1
       this.damages[index]!.interBlocks.push(newItem);
     },
     removeInterBlock(index: number, subindex: number) {

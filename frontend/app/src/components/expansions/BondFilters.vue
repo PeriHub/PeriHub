@@ -72,9 +72,10 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
+import type { BondFilters } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -89,6 +90,7 @@ export default defineComponent({
     }
   },
   created() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.$bus.on('showHideBondFilters', () => {
       this.showHideBondFilters()
     }),
@@ -141,33 +143,7 @@ export default defineComponent({
     },
     addBondFilter() {
       const len = this.store.modelData.bondFilters.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.store.modelData.bondFilters[len - 1])
-      } else {
-        newItem = {
-          'bondFiltersId': 1,
-          'name': 'bf_1',
-          'type': 'Rectangular_Plane',
-          'allow_contact': false,
-          'normalX': 0,
-          'normalY': 1,
-          'normalZ': 0,
-          'lowerLeftCornerX': -0.5,
-          'lowerLeftCornerY': 0,
-          'lowerLeftCornerZ': -1,
-          'bottomUnitVectorX': 1,
-          'bottomUnitVectorY': 0,
-          'bottomUnitVectorZ': 0,
-          'bottomLength': 5,
-          'sideLength': 2,
-          'centerX': 0,
-          'centerY': 1,
-          'centerZ': 0,
-          'radius': 1,
-          'show': true
-        }
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.store.modelData.bondFilters[len - 1])) : {} as BondFilters;
       newItem.bondFilterId = len + 1
       newItem.name = 'bf_' + (len + 1)
       this.store.modelData.bondFilters.push(newItem);

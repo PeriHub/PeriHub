@@ -186,7 +186,7 @@ export default defineComponent({
       this.calculated.stiffnessString = ''
       for (let i = 0; i < names.length; i++) {
         for (let j = 0; j < names[i]!.length; j++) {
-          this.calculated.stiffnessString += names[i]![j] + ': ' + stiffnessMatrix[i]![j].toFixed(4) + '\n';
+          this.calculated.stiffnessString += names[i]![j] + ': ' + stiffnessMatrix[i]![j]!.toFixed(4) + '\n';
         }
       }
       // this.calculated.bulkModulus = Number(
@@ -228,8 +228,9 @@ export default defineComponent({
       this.calculated.C56 = null;
       this.calculated.C66 = null;
     },
-    copyText(id) {
-      copyToClipboard(this.calculated[id]!)
+    copyText(id: string) {
+      if (!this.calculated[id]) { return }
+      copyToClipboard(String(this.calculated[id]))
         .then(() => {
           this.$q.notify({
             message: 'Copied to clipboard',
@@ -252,8 +253,7 @@ export default defineComponent({
       handler() {
         console.log('constants changed!');
         let num = 0;
-        let con = [];
-        for (con in this.constants) {
+        for (const con in this.constants) {
           if (this.constants[con] != null) {
             num++;
           }

@@ -12,10 +12,11 @@ from pydantic import BaseModel
 class Valve(BaseModel):
     name: str
     type: str
+    value: Any
     label: str
     description: str
-    value: Any
     options: Optional[List[str]]
+    depends: Optional[List[str]]
 
 
 class Valves(BaseModel):

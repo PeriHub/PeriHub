@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { boot } from "quasar/wrappers";
-import VueChartkick from "vue-chartkick";
-import "chartkick/chart.js";
+import { defineBoot } from '#q-app/wrappers';
+import VueChartkick from 'vue-chartkick';
+import 'chartkick/chart.js';
 
-export default boot(({ app }) => {
+export default defineBoot(({ app }) => {
   // Set i18n instance on app
   app.use(VueChartkick);
 });

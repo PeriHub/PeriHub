@@ -37,7 +37,7 @@ export default defineComponent({
     };
   },
   methods: {
-    highlighter(code) {
+    highlighter(code: string) {
       return highlight(code, languages.js); // languages.<insert language> to return html with markup
     },
   },

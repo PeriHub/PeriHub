@@ -76,13 +76,17 @@ export default {
     };
   },
   methods: {
-    onResizeBefore(size) {
+    onResizeBefore(size: object) {
       // console.log('get resize', width, height)
-      this.$bus.emit('resizeViewPanel', size.height)
+      if ('height' in size) {
+        this.$bus.emit('resizeViewPanel', size.height)
+      }
     },
-    onResizeAfter(size) {
+    onResizeAfter(size: object) {
       // console.log('get resize', width, height)
-      this.$bus.emit('resizeTextPanel', size.height)
+      if ('height' in size) {
+        this.$bus.emit('resizeTextPanel', size.height)
+      }
     },
     showTutorial() {
       let color = 'white';

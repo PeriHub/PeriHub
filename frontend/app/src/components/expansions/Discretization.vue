@@ -60,8 +60,9 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
+import type { Discretization, BlockFunction } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -98,10 +99,7 @@ export default defineComponent({
         this.discretization.nodeSets = []
       }
       const len = this.discretization.nodeSets.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.discretization.nodeSets[len - 1])
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.discretization.nodeSets[len - 1])) : {} as Discretization;
       newItem.nodeSetId = len + 1
       this.discretization.nodeSets.push(newItem);
     },
@@ -117,10 +115,7 @@ export default defineComponent({
         this.discretization.gcode.blockFunctions = []
       }
       const len = this.discretization.gcode.blockFunctions.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.discretization.gcode.blockFunctions[len - 1])
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.discretization.gcode.blockFunctions[len - 1])) : {} as BlockFunction;
       newItem.id = len + 1
       this.discretization.gcode.blockFunctions.push(newItem);
     },

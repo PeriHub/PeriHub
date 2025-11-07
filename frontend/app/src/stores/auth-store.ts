@@ -14,7 +14,7 @@ export const useAuthStore = defineStore('auth', {
       const keycloak: Keycloak = inject('keycloak') as Keycloak;
       try {
         const authenticated = await keycloak.login();
-        this.authenticated = authenticated;
+        this.authenticated = Boolean(authenticated);
       } catch (error) {
         console.error('Login error:', error);
       }

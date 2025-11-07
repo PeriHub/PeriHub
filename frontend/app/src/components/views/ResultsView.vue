@@ -206,7 +206,7 @@ export default {
       legendKey: 0,
       time: 0,
       playing: false,
-      timer: null,
+      timer: NodeJS.Timeout,
       expansion: false
     };
   },
@@ -276,10 +276,10 @@ export default {
         displFactor: this.modelParams.displFactor,
         variable: this.modelParams.variable,
         filter: this.modelParams.filter,
-        colorBarMin: this.modelParams.colorBarMin,
-        colorBarMax: this.modelParams.colorBarMax
+        colorBarMin: Number(this.modelParams.colorBarMin),
+        colorBarMax: Number(this.modelParams.colorBarMax)
       })
-        .then((response: json) => {
+        .then((response) => {
           const data = response
           if (response.data == false) {
             this.$q.notify({
@@ -311,6 +311,8 @@ export default {
     },
     play() {
       this.playing = true
+      // eslint-disable @typescript-eslint/no-misused-promises
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       this.timer = setInterval(this.forward, 1000)
     },
     pause() {

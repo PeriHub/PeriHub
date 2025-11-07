@@ -1,11 +1,12 @@
 import Keycloak from 'keycloak-js';
 import { api } from 'boot/axios';
+import { defineBoot } from '#q-app/wrappers';
 import { OpenAPI } from '../client';
 import { jwtDecode } from 'jwt-decode';
 import { useDefaultStore } from 'src/stores/default-store';
 import * as sha256 from 'js-sha256';
 
-export default async ({ app }) => {
+export default defineBoot(({ app }) => {
   // for Options API
   app.config.globalProperties.$keycloak = Keycloak;
 
@@ -14,6 +15,8 @@ export default async ({ app }) => {
   const store = useDefaultStore();
   if (
     process.env.KEYCLOAK_URL == null ||
+    process.env.REALM == null ||
+    process.env.CLIENT_ID == null ||
     process.env.KEYCLOAK_URL == ''
     // process.env.KEYCLOAK_URL == 'KEYCLOAK_URL' + '_VALUE'
   ) {
@@ -22,9 +25,14 @@ export default async ({ app }) => {
       const reqOptions = {
         url: 'https://randomuser.me/api',
       };
-      axios.request(reqOptions).then((response) => {
-        uuid = response.data.results[0].login.uuid;
-      });
+      api
+        .request(reqOptions)
+        .then((response) => {
+          uuid = response.data.results[0].login.uuid;
+        })
+        .catch((e) => {
+          console.error(e);
+        });
     }
   } else {
     const keycloak = new Keycloak({
@@ -35,13 +43,17 @@ export default async ({ app }) => {
     console.log('Using Keycloak');
 
     try {
-      await keycloak.init({
-        onLoad: 'login-required',
-      });
+      keycloak
+        .init({
+          onLoad: 'login-required',
+        })
+        .catch(() => {
+          console.log('Keycloak init failed');
+        });
       app.config.globalProperties.$keycloak = keycloak;
       // api.defaults.headers.common['Authorization'] = 'Bearer ' + keycloak.token;
       // OpenAPI.TOKEN = keycloak.token;
-      const decoded = jwtDecode(keycloak.token);
+      const decoded = jwtDecode(String(keycloak.token));
       // const sha256 = require('js-sha256');
       uuid = decoded.preferred_username;
       const emailHash = sha256(decoded.email);
@@ -87,4 +99,4 @@ export default async ({ app }) => {
   OpenAPI.HEADERS = {
     userName: uuid,
   };
-};
+});

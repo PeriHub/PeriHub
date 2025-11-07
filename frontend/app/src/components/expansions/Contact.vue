@@ -74,8 +74,9 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
+import type { ContactGroup, ContactModel } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -108,10 +109,7 @@ export default defineComponent({
         this.contact.contactModels[index]!.contactGroups = []
       }
       const len = this.contact.contactModels[index]!.contactGroups.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.contact.contactModels[index]!.contactGroups[len - 1])
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.contact.contactModels[index]!.contactGroups[len - 1])) : {} as ContactGroup;
       newItem.contactGroupId = len + 1
       newItem.name = 'Contact Group ' + (len + 1)
       this.contact.contactModels[index]!.contactGroups.push(newItem);
@@ -124,10 +122,7 @@ export default defineComponent({
         this.contact.contactModels = []
       }
       const len = this.contact.contactModels.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.contact.contactModels[len - 1])
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.contact.contactModels[len - 1])) : {} as ContactModel;
       newItem.contactGroupId = len + 1
       newItem.name = 'Contact Model ' + (len + 1)
       this.contact.contactModels.push(newItem);

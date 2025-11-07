@@ -98,8 +98,9 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
+import type { Compute } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -260,20 +261,7 @@ export default defineComponent({
         this.computes = []
       }
       const len = this.computes.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.computes[len - 1])
-      } else {
-        newItem = {
-          'id': 1,
-          'computeClass': 'Block_Data',
-          'name': 'External_Force',
-          'variable': 'Forces',
-          'calculationType': 'Sum',
-          'blockName': this.blocks[0]!.name,
-          'nodeSetId': 1
-        }
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.computes[len - 1])) : {} as Compute;
       newItem.computesId = len + 1
       newItem.name = 'Compute' + (len + 1)
       this.computes.push(newItem);

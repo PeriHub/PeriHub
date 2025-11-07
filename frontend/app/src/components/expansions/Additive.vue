@@ -39,8 +39,9 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
+import type { AdditiveModel } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -67,10 +68,7 @@ export default defineComponent({
         this.additive.additiveModels = []
       }
       const len = this.additive.additiveModels.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.additive.additiveModels[len - 1])
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.thermal.additiveModels[len - 1])) : {} as AdditiveModel;
       newItem.additiveModelsId = len + 1
       newItem.name = 'Additive Model ' + (len + 1)
       this.additive.additiveModels.push(newItem);

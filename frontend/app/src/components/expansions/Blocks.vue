@@ -46,8 +46,9 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
+import type { Block } from 'src/client';
 import rules from 'assets/rules';
 
 export default defineComponent({
@@ -91,9 +92,9 @@ export default defineComponent({
   methods: {
     addBlock() {
       const len = this.blocks.length;
-      const newItem = structuredClone(this.blocks[len - 1])
-      newItem!.blocksId = len + 1
-      newItem!.name = 'block_' + (len + 1)
+      const newItem = len > 0 ? structuredClone(toRaw(this.blocks[len - 1])) : {} as Block;
+      newItem.blocksId = len + 1
+      newItem.name = 'block_' + (len + 1)
       this.blocks.push(newItem);
     },
     removeBlock(index) {

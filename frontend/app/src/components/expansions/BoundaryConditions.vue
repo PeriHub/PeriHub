@@ -49,8 +49,9 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
+import type { BoundaryCondition } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -110,21 +111,17 @@ export default defineComponent({
         this.boundaryConditions.conditions = []
       }
       const len = this.boundaryConditions.conditions.length;
-      let newItem = {
-        boundaryConditionsId: len + 1,
-        name: 'BC_' + (len + 1),
-        blockId: len + 1
-      }
-      if (len != 0) {
-        newItem = structuredClone(this.boundaryConditions.conditions[len - 1])
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.boundaryConditions.conditions[len - 1])) : {} as BoundaryCondition;
+      newItem.conditionsId = len + 1
+      newItem.name = 'BC_' + (len + 1)
+      newItem.blockId = len + 1
       this.boundaryConditions.conditions.push(newItem);
     },
     removeCondition(index) {
       this.boundaryConditions.conditions.splice(index, 1);
       // this.boundaryConditions.nodeSets.splice(index, 1);
       this.boundaryConditions.conditions.forEach((condition, i) => {
-        condition.boundaryConditionsId = i + 1
+        condition.conditionsId = i + 1
       })
     },
   }
