@@ -281,38 +281,29 @@ export default {
       })
         .then((response) => {
           const data = response
-          if (response.data == false) {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message,
-            })
-          } else {
-            this.pointString = data['nodes']
-            this.blockIdString = data['value']
-            this.dx_value = Math.hypot(
-              this.pointString[3]! - this.pointString[0]!,
-              this.pointString[4]! - this.pointString[1]!,
-              this.pointString[5]! - this.pointString[2]!
-            );
-            this.maxValue = data['max_value']
-            this.minValue = data['min_value']
-            this.variableOptions = data['variables']
-            this.modelParams.numberOfSteps = data['number_of_steps']
-            this.time = data['time']
-          }
+          this.pointString = data.nodes
+          this.blockIdString = data.value
+          this.dx_value = Math.hypot(
+            this.pointString[3]! - this.pointString[0]!,
+            this.pointString[4]! - this.pointString[1]!,
+            this.pointString[5]! - this.pointString[2]!
+          );
+          this.maxValue = data.max_value
+          this.minValue = data.min_value
+          this.variableOptions = data.variables
+          this.modelParams.numberOfSteps = data.number_of_steps
+          this.time = data.time
         })
         .catch((error) => {
-          console.log(error)
           this.$q.notify({
             type: 'negative',
-            message: error.response.detail,
+            message: error.body.detail
           })
         })
     },
     play() {
       this.playing = true
-      // eslint-disable @typescript-eslint/no-misused-promises
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+      // eslint-disable-next-line
       this.timer = setInterval(this.forward, 1000)
     },
     pause() {

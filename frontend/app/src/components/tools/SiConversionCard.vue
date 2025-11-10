@@ -244,7 +244,9 @@ export default defineComponent({
           this.$q.notify({
             message: 'Copied to clipboard',
           })
-        }).catch()
+        }).catch(() => {
+          console.log("Error copying to clipboard");
+        })
     },
   },
   watch: {

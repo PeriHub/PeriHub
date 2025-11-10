@@ -29,7 +29,7 @@ SPDX-License-Identifier: Apache-2.0
       <template v-slot:after>
         <q-scroll-area style="height:100%;">
           <div v-if="config">
-            <JsonEditorVue v-model="config" mode="tree" :mainMenuBar=false :navigationBar=false :statusBar=false
+            <JsonEditorVue v-model="config" :mainMenuBar=false :navigationBar=false :statusBar=false
               :readOnly=false v-bind="{/* local props & attrs */ }" />
             <q-btn class="q-mt-sm" color="primary" label="Save" @click="_saveConfig" />
           </div>
@@ -74,13 +74,14 @@ SPDX-License-Identifier: Apache-2.0
 import { useDefaultStore } from 'src/stores/default-store';
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+//@ts-expect-error Bla
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 import JsonEditorVue from 'json-editor-vue'
 
 import { getOwnModels, getOwnModelFile, getConfig, saveConfig, saveModel, addModel, deleteModel } from '../client';
-import type { GetOwnModelsResponse } from 'src/client';
+import type { GetOwnModelsResponse, ModelData_Output } from 'src/client';
 
 export default {
   name: 'CuratorPage',
@@ -109,7 +110,7 @@ export default {
       description: '',
 
       sourceCode: '',
-      config: {} as GetOwnModelsResponse,
+      config: {} as ModelData_Output,
       verticalSplitterModel: 50,
     };
   },
@@ -124,11 +125,11 @@ export default {
       })
       this.selectedModel.title = this.newModelName
       this.selectedModel.file = response
-      this._getModels()
+      await this._getModels()
       await this.selectModel()
     },
-    _getModels() {
-      const response = getOwnModels({
+    async _getModels() {
+       const response = await getOwnModels({
         verify: true
       })
       this.modelList = response;
@@ -181,12 +182,12 @@ export default {
           message: 'Model deleted',
         })
         this.sourceCode = ''
-        this._getModels()
+        await this._getModels()
       })
     }
   },
   mounted() {
-    this._getModels()
+    await this._getModels()
   },
   watch: {
   }

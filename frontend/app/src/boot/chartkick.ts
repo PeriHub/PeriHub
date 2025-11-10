@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineBoot } from '#q-app/wrappers';
+// @ts-expect-error Bla
 import VueChartkick from 'vue-chartkick';
 import 'chartkick/chart.js';
 

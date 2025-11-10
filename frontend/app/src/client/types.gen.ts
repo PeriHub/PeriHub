@@ -207,7 +207,7 @@ export type Job = {
     sbatch: boolean;
     verbose: boolean;
     nodes?: number | null;
-    tasks?: number | null;
+    tasks: number;
     tasksPerNode?: number | null;
     cpusPerTask?: number | null;
     multithread?: boolean | null;
@@ -297,7 +297,7 @@ export type Matrix = {
 };
 
 export type Model = {
-    modelFolderName?: string | null;
+    modelFolderName?: string;
     ownModel: boolean;
     twoDimensional: boolean;
     ownMesh?: boolean | null;
@@ -356,6 +356,16 @@ export type Output = {
     numberOfOutputSteps?: number | null;
     useOutputFrequency?: boolean | null;
     InitStep: number;
+};
+
+export type PointData = {
+    nodes: Array<(number)>;
+    value: Array<(number)>;
+    variables: Array<(string)>;
+    number_of_steps: number;
+    min_value: number;
+    max_value: number;
+    time: number;
 };
 
 export type PreCalculations = {
@@ -538,7 +548,7 @@ export type GetModelResponse = unknown;
 
 export type GetPointDataData = {
     meshFile?: string | null;
-    modelFolderName?: string | null;
+    modelFolderName?: string;
     modelName?: string;
     ownMesh?: boolean | null;
     ownModel?: boolean;
@@ -730,7 +740,7 @@ export type GetPointDataResultsData = {
     variable?: string;
 };
 
-export type GetPointDataResultsResponse = unknown;
+export type GetPointDataResultsResponse = PointData;
 
 export type DeleteModel1Data = {
     modelFolderName?: string;
@@ -1190,7 +1200,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: PointData;
                 /**
                  * Validation Error
                  */

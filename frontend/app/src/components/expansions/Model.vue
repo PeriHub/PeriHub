@@ -187,7 +187,7 @@ SPDX-License-Identifier: Apache-2.0
 import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
-import { getConfig, getModels, getValves, getJobFolders } from 'src/client'
+import { getModels, getValves, getJobFolders } from 'src/client'
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -204,9 +204,6 @@ export default defineComponent({
     }
   },
   created() {
-    this.$bus.on('resetData', () => {
-      this.resetData()
-    })
     this.$bus.on('getJobFolders', () => {
       this._getJobFolders()
     })
@@ -218,25 +215,6 @@ export default defineComponent({
     };
   },
   methods: {
-    resetData() {
-      getConfig({ configFile: this.modelStore.selectedModel.file }).then((response) => {
-        this.modelStore.modelData = structuredClone(response)
-      })
-        .catch((error) => {
-          this.$q.notify({
-            type: 'negative',
-            message: error.body.detail
-          })
-        })
-      getValves({ modelName: this.modelStore.selectedModel.file }).then((response) => {
-        this.modelStore.modelParams = structuredClone(response)
-      }).catch((error) => {
-        this.$q.notify({
-          type: 'negative',
-          message: error.body.detail
-        })
-      })
-    },
     _getJobFolders() {
       getJobFolders({ modelName: this.modelStore.selectedModel.file }).then((response) => {
         this.modelFolderNameList = response.data
@@ -248,7 +226,7 @@ export default defineComponent({
           })
         })
     },
-    async selectMethod() {
+    selectMethod() {
       // this.viewStore.viewLoading = true
       const response = getValves({
         modelName: this.modelStore.selectedModel.file
@@ -257,14 +235,14 @@ export default defineComponent({
       // this.viewStore.viewLoading = false
       this._getJobFolders()
     },
-    async switchOwnModels() {
+    switchOwnModels() {
       if (!this.model.ownModel) {
         this.modelStore.selectedModel = {
           title: 'Compact Tenison',
           file: 'CompactTension',
         }
       }
-      await this.selectMethod()
+      this.selectMethod()
     },
     createValue(val, done) {
 
@@ -292,7 +270,7 @@ export default defineComponent({
   },
   async beforeMount() {
     this.modelStore.availableModels = await getModels()
-    await this.selectMethod()
+    this.selectMethod()
   },
   watch: {
     'modelStore.selectedModel': {

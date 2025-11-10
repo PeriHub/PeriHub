@@ -528,6 +528,7 @@ export default defineComponent({
             this.viewStore.textId = 'log';
             this.viewStore.viewId = 'jobs';
             this.intervalCount = 0;
+            // eslint-disable-next-line
             this.timer = setInterval(this.checkStatus, 5000)
           }
           else {
@@ -646,13 +647,13 @@ export default defineComponent({
           if (allData) {
             filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
           }
-          const status: Boolean | Error = exportFile(filename, response.data)
+          const status: boolean | Error = exportFile(filename, response.data)
           if (status) {
             // browser allowed it
             console.log('ok')
           } else {
             // browser denied it
-            console.log('Error: ' + status)
+            console.log(status)
           }
         })
         .catch(() => {
@@ -888,7 +889,7 @@ export default defineComponent({
       this.viewStore.modelLoading = false;
     },
     downloadModelImage() {
-      let fileLink = document.createElement('a');
+      const fileLink = document.createElement('a');
       fileLink.href = this.viewStore.modelImg;
       fileLink.setAttribute('download', this.modelStore.selectedModel.file + '.png');
       document.body.appendChild(fileLink);

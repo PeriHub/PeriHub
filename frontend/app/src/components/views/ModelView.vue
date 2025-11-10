@@ -108,6 +108,7 @@ export default defineComponent({
   },
   mounted() {
     console.log('ModelView mounted')
+    // eslint-disable-next-line
     this.$bus.on('viewPointData', async () => {
       await this.viewPointData()
     })

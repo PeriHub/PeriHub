@@ -59,6 +59,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+//@ts-expect-error Bla
 import bibtexParse from "bibtex-parse-js";
 import { getPublications } from 'src/client';
 

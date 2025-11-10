@@ -236,7 +236,7 @@ export default defineComponent({
           } else {
             const lx = bondFilter.lowerLeftCornerX;
             const ly = bondFilter.lowerLeftCornerY;
-            const lz = -bondFilter.lowerLeftCornerZ;
+            const lz = -bondFilter.lowerLeftCornerZ!;
             const bx = bondFilter.bottomUnitVectorX;
             const by = bondFilter.bottomUnitVectorY;
             const bz = bondFilter.bottomUnitVectorZ;

@@ -281,9 +281,9 @@ export default defineComponent({
             console.log('ok')
           } else {
             // browser denied it
-            console.log('Error: ' + status)
+            console.log(status)
             this.$q.notify({
-              message: 'Error: ' + status
+              message: status
             })
           }
         })

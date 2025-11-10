@@ -1341,16 +1341,8 @@ export const $Job = {
             default: 1
         },
         tasks: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Tasks',
-            default: 1
+            type: 'integer',
+            title: 'Tasks'
         },
         tasksPerNode: {
             anyOf: [
@@ -1412,7 +1404,7 @@ export const $Job = {
         }
     },
     type: 'object',
-    required: ['cluster', 'sbatch', 'verbose'],
+    required: ['cluster', 'sbatch', 'verbose', 'tasks'],
     title: 'Job'
 } as const;
 
@@ -1449,6 +1441,7 @@ export const $Jobs = {
         model: {
             anyOf: [
                 {
+                    additionalProperties: true,
                     type: 'object'
                 },
                 {
@@ -2050,14 +2043,7 @@ export const $Matrix = {
 export const $Model = {
     properties: {
         modelFolderName: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
+            type: 'string',
             title: 'Modelfoldername',
             default: 'Default'
         },
@@ -2939,6 +2925,51 @@ export const $Output = {
     title: 'Output'
 } as const;
 
+export const $PointData = {
+    properties: {
+        nodes: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Nodes'
+        },
+        value: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Value'
+        },
+        variables: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Variables'
+        },
+        number_of_steps: {
+            type: 'integer',
+            title: 'Number Of Steps'
+        },
+        min_value: {
+            type: 'number',
+            title: 'Min Value'
+        },
+        max_value: {
+            type: 'number',
+            title: 'Max Value'
+        },
+        time: {
+            type: 'number',
+            title: 'Time'
+        }
+    },
+    type: 'object',
+    required: ['nodes', 'value', 'variables', 'number_of_steps', 'min_value', 'max_value', 'time'],
+    title: 'PointData'
+} as const;
+
 export const $PreCalculations = {
     properties: {
         deformedBondGeometry: {
@@ -3012,6 +3043,7 @@ export const $ResponseModel = {
                     type: 'boolean'
                 },
                 {
+                    additionalProperties: true,
                     type: 'object'
                 },
                 {

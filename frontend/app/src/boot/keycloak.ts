@@ -3,8 +3,14 @@ import { api } from 'boot/axios';
 import { defineBoot } from '#q-app/wrappers';
 import { OpenAPI } from '../client';
 import { jwtDecode } from 'jwt-decode';
+import type { JwtPayload } from 'jwt-decode';
 import { useDefaultStore } from 'src/stores/default-store';
-import * as sha256 from 'js-sha256';
+import {sha256} from 'js-sha256'
+
+interface CustomJwtPayload extends JwtPayload {
+  preferred_username: string;
+  email: string;
+}
 
 export default defineBoot(({ app }) => {
   // for Options API
@@ -53,26 +59,27 @@ export default defineBoot(({ app }) => {
       app.config.globalProperties.$keycloak = keycloak;
       // api.defaults.headers.common['Authorization'] = 'Bearer ' + keycloak.token;
       // OpenAPI.TOKEN = keycloak.token;
-      const decoded = jwtDecode(String(keycloak.token));
+      const decoded: CustomJwtPayload = jwtDecode(String(keycloak.token));
       // const sha256 = require('js-sha256');
       uuid = decoded.preferred_username;
-      const emailHash = sha256(decoded.email);
+      const email = decoded.email;
+      const emailHash = sha256(email);
       gravatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=404`;
       fetch(gravatarUrl)
         .then((response) => {
           if (response.ok) {
             store.useGravatar = true;
-            console.log('Gravatar image found for', decoded.email);
+            console.log('Gravatar image found for', email);
           } else {
-            const emailParts = decoded.email.split('.');
+            const emailParts = email.split('.');
             gravatarUrl =
-              emailParts[0].charAt(0).toUpperCase() + emailParts[1].charAt(0).toUpperCase();
+              emailParts[0]!.charAt(0).toUpperCase() + emailParts[1]!.charAt(0).toUpperCase();
             store.useGravatar = false;
-            console.log('No Gravatar image found for', decoded.email);
+            console.log('No Gravatar image found for', email);
           }
         })
         .catch((error) => {
-          gravatarUrl = decoded.email.charAt(0).toUpperCase();
+          gravatarUrl = email.charAt(0).toUpperCase();
           store.useGravatar = false;
           console.error(error); // Something went wrong while fetching the image
         });
@@ -95,7 +102,7 @@ export default defineBoot(({ app }) => {
   api.defaults.headers.common['userName'] = uuid;
   store.username = uuid;
   store.gravatarUrl = gravatarUrl;
-  store.cluster = process.env.CLUSTER_URL;
+  store.cluster = process.env.CLUSTER_URL!;
   OpenAPI.HEADERS = {
     userName: uuid,
   };

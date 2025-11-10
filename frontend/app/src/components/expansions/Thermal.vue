@@ -84,7 +84,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, toRaw } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import type { ThermalModel } from 'src/client';
 import rules from 'assets/rules.js';

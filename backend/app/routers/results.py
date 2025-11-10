@@ -14,7 +14,7 @@ from exodusreader import exodusreader
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 
-from ..support.base_models import ResponseModel
+from ..support.base_models import ResponseModel, PointData
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
 from ..support.results.analysis import Analysis
@@ -421,7 +421,7 @@ def get_data(
     color_bar_min: float = None,
     color_bar_max: float = None,
     request: Request = "",
-) -> JSONResponse:
+) -> PointData:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -434,11 +434,10 @@ def get_data(
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     if not os.path.exists(file):
-        return ResponseModel(
-            data=False,
-            message="Results can not be found, maybe they are not generated yet.",
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Results can not be found, maybe they are not generated yet.",
         )
-
     number_of_steps = exodusreader.get_number_of_steps(file)
 
     try:
@@ -464,9 +463,9 @@ def get_data(
                 time,
             ) = exodusreader.read_timestep(file, number_of_steps)
         except IndexError:
-            return ResponseModel(
-                data=False,
-                message="Results can not be found, maybe they are not generated yet.",
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Results can not be found, maybe they are not generated yet.",
             )
 
     use_cell_data = False
@@ -539,7 +538,10 @@ def get_data(
         np_points_all_z = np_points_all_z[filter_value != 0]
 
     if len(cell_value) == 0:
-        return ResponseModel(data=False, message="All nodes are filtered out. Remove filter or change time value.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="All nodes are filtered out. Remove filter or change time value.",
+        )
 
     min_cell_value = np.min(cell_value) if color_bar_min == None else color_bar_min
     max_cell_value = np.max(cell_value) if color_bar_max == None else color_bar_max
@@ -554,17 +556,22 @@ def get_data(
         reduce_factor = int(len(np_points_all_x) / max_nodes)
         log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
 
-    data = {
-        "nodes": np.ravel(
+    data = PointData(np.ravel(
             [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
             order="F",
         ).tolist(),
-        "value": normalized_cell_value.tolist()[::reduce_factor],
-        "variables": variable_list,
-        "number_of_steps": number_of_steps,
-        "min_value": min_cell_value,
-        "max_value": max_cell_value,
-        "time": np.format_float_scientific(time, 2),
-    }
+        normalized_cell_value.tolist()[::reduce_factor], variable_list, number_of_steps, min_cell_value, max_cell_value,  np.format_float_scientific(time, 2))
+    # data = {
+    #     "nodes": np.ravel(
+    #         [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
+    #         order="F",
+    #     ).tolist(),
+    #     "value": normalized_cell_value.tolist()[::reduce_factor],
+    #     "variables": variable_list,
+    #     "number_of_steps": number_of_steps,
+    #     "min_value": min_cell_value,
+    #     "max_value": max_cell_value,
+    #     "time": np.format_float_scientific(time, 2),
+    # }
 
-    return JSONResponse(content=data)
+    return data

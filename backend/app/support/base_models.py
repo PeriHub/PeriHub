@@ -8,6 +8,14 @@ from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
 
+class PointData(BaseModel):
+    nodes: List[float]
+    value: List[float]
+    variables: List[str]
+    number_of_steps: int
+    min_value: float
+    max_value: float
+    time: float
 
 class Valve(BaseModel):
     name: str
@@ -31,7 +39,7 @@ class Status(BaseModel):
 
 
 class Model(BaseModel):
-    modelFolderName: Optional[str] = "Default"
+    modelFolderName: str = "Default"
     ownModel: bool
     twoDimensional: bool
     ownMesh: Optional[bool] = None
@@ -388,7 +396,7 @@ class Job(BaseModel):
     sbatch: bool
     verbose: bool
     nodes: Optional[int] = 1
-    tasks: Optional[int] = 1
+    tasks: int
     tasksPerNode: Optional[int] = 1
     cpusPerTask: Optional[int] = 1
     multithread: Optional[bool] = False

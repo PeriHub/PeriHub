@@ -27,7 +27,7 @@ router = APIRouter(prefix="/model", tags=["Model Methods"])
 
 
 @router.get("/getModels", operation_id="get_models")
-def get_models() -> list[str]:
+def get_models() -> list[dict]:
     """doc"""
 
     model_list = []
@@ -227,7 +227,7 @@ def get_model(
 @router.get("/getPointData", operation_id="get_point_data")
 def get_point_data(
     model_name: str = "Dogbone",
-    model_folder_name: Optional[str] = "Default",
+    model_folder_name: str = "Default",
     own_model: bool = False,
     own_mesh: Optional[bool] = False,
     mesh_file: Optional[str] = "Dogbone.txt",

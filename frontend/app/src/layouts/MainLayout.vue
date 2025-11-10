@@ -24,6 +24,7 @@ import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import MainHeader from 'layouts/MainHeader.vue'
 import MainFooter from 'layouts/MainFooter.vue'
+import { getValves, getConfig } from 'src/client'
 
 export default defineComponent({
   name: 'MainLayout',
@@ -43,9 +44,33 @@ export default defineComponent({
       modelStore
     }
   },
+  created() {
+    this.$bus.on('resetData', () => {
+      this.resetData()
+    })
+  },
   methods: {
     initializeDarkMode() {
       this.$q.dark.set(localStorage.getItem("darkMode") == "true");
+    },
+    resetData() {
+      getConfig({ configFile: this.modelStore.selectedModel.file }).then((response) => {
+        this.modelStore.modelData = structuredClone(response)
+      })
+        .catch((error) => {
+          this.$q.notify({
+            type: 'negative',
+            message: error.body.detail
+          })
+        })
+      getValves({ modelName: this.modelStore.selectedModel.file }).then((response) => {
+        this.modelStore.modelParams = structuredClone(response)
+      }).catch((error) => {
+        this.$q.notify({
+          type: 'negative',
+          message: error.body.detail
+        })
+      })
     },
   },
   beforeMount() {
@@ -54,6 +79,10 @@ export default defineComponent({
     if (localStorage.getItem("darkMode") == "true") {
       this.store.darkMode = true;
       this.$q.dark.toggle();
+    }
+    if (!localStorage.getItem('modelData')) {
+      console.log('beforeMount');
+      this.resetData()
     }
   },
   watch: {

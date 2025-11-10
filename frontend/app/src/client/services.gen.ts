@@ -682,7 +682,7 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
  * @param data.filter
  * @param data.colorBarMin
  * @param data.colorBarMax
- * @returns unknown Successful Response
+ * @returns PointData Successful Response
  * @throws ApiError
  */
 export const getPointDataResults = (data: GetPointDataResultsData = {}): CancelablePromise<GetPointDataResultsResponse> => { return __request(OpenAPI, {

@@ -103,7 +103,7 @@ export default defineComponent({
   },
   mounted() {
     if (localStorage.getItem('panel')) {
-      var object = JSON.parse(localStorage.getItem('panel'))
+      const object = JSON.parse(localStorage.getItem('panel'))
       this.panel = structuredClone(object)
     }
   },
