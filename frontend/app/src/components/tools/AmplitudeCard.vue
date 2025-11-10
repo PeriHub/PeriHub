@@ -59,9 +59,11 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
 import { defineComponent, toRaw } from 'vue'
+// @ts-expect-error Bla
 import { VuePlotly } from 'vue3-plotly'
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+// @ts-expect-error Bla
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';

@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
   <div>
     <q-list v-for="solver, index in solvers" :key="solver.solverId" style="padding: 0px">
       <div
-        v-bind:style="(solver.solverId % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+        v-bind:style="(solver.solverId! % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
         <h4 class="my-title">Solver {{ solver.solverId }}</h4>
         <div class="row my-row">
           <q-input class="my-input" v-model="solver.name" :rules="[rules.required, rules.name]" :label="solverKeys.name"
@@ -152,6 +152,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
+import type { Solver } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -240,7 +241,7 @@ export default defineComponent({
   methods: {
     addSolver() {
       const len = this.solvers.length;
-      const newItem = structuredClone(this.solvers[len - 1])
+      const newItem = structuredClone(this.solvers[len - 1]) as Solver
       newItem.solverId = len + 1
       newItem.stepId = len + 1
       this.solvers.push(newItem);

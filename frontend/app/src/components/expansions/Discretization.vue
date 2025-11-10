@@ -69,7 +69,7 @@ export default defineComponent({
   name: 'DiscretizazionSettings',
   setup() {
     const store = useModelStore();
-    const discretization = computed(() => store.modelData.discretization)
+    const discretization = computed(() => store.modelData.discretization) as unknown as Discretization
     return {
       store,
       discretization,

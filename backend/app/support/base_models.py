@@ -47,7 +47,7 @@ class Status(BaseModel):
 
 
 class Model(BaseModel):
-    modelFolderName: str = "Default"
+    modelFolderName: str
     ownModel: bool
     twoDimensional: bool
     ownMesh: Optional[bool] = None
@@ -175,7 +175,7 @@ class ThermalModel(BaseModel):
     printBedZCoord: Optional[float] = None
     file: Optional[str] = None
     numStateVars: Optional[int] = None
-    predefinedFieldNames: Optional[List[str]] = None
+    predefinedFieldNames: Optional[str] = None
 
 
 class Thermal(BaseModel):
@@ -184,7 +184,7 @@ class Thermal(BaseModel):
 
 
 class AdditiveModel(BaseModel):
-    id: Optional[int] = None
+    additiveModelsId: Optional[int] = None
     name: str
     additiveType: str
     printTemp: float
@@ -197,7 +197,7 @@ class Additive(BaseModel):
 
 
 class InterBlock(BaseModel):
-    id: Optional[int] = None
+    interBlockid: Optional[int] = None
     firstBlockId: int
     secondBlockId: int
     value: float
@@ -209,7 +209,7 @@ class CriticalEnergyCalc(BaseModel):
 
 
 class Damage(BaseModel):
-    id: Optional[int] = None
+    damagesId: Optional[int] = None
     name: str
     damageModel: str
     criticalStretch: Optional[float] = None
@@ -312,7 +312,7 @@ class BondFilters(BaseModel):
 
 
 class Compute(BaseModel):
-    id: Optional[int] = None
+    computesId: Optional[int] = None
     computeClass: str
     name: str
     variable: str

@@ -92,7 +92,7 @@ export default defineComponent({
   methods: {
     addBlock() {
       const len = this.blocks.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.blocks[len - 1])) : {} as Block;
+      const newItem = len > 0 ? structuredClone(toRaw(this.blocks[len - 1])) as Block : {} as Block;
       newItem.blocksId = len + 1
       newItem.name = 'block_' + (len + 1)
       this.blocks.push(newItem);

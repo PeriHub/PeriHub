@@ -51,7 +51,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
         <q-toggle class="my-toggle" v-model="damage.interBlockDamage" label="Inter Block Damage" dense></q-toggle>
         <div v-if="damage.interBlockDamage">
-          <q-list v-for="prop, subindex in damage.interBlocks" :key="prop.damagesInterId" style="padding: 0px">
+          <q-list v-for="prop, subindex in damage.interBlocks" :key="prop.interBlockid" style="padding: 0px">
             <div class="row my-row">
               <q-select class="my-input" :options="blocks" option-label="blocksId" option-value="blocksId" emit-value
                 v-model="prop.firstBlockId" label="First Block Id" standout dense></q-select>
@@ -120,7 +120,7 @@ export default defineComponent({
   name: 'DamageSettings',
   setup() {
     const store = useModelStore();
-    const damages = computed(() => store.modelData.damages)
+    const damages = computed(() => store.modelData.damages) as unknown as Damage[]
     const blocks = computed(() => store.modelData.blocks)
     const materials = computed(() => store.modelData.materials)
     return {
@@ -186,7 +186,7 @@ export default defineComponent({
         this.damages = []
       }
       const len = this.damages.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.damages[len - 1])) : {} as Damage;
+      const newItem = len > 0 ? structuredClone(toRaw(this.damages[len - 1])) as Damage : {} as Damage;
       newItem.damagesId = len + 1
       newItem.name = 'Damage' + (len + 1)
       newItem.criticalEnergyCalc = {}
@@ -208,8 +208,8 @@ export default defineComponent({
         this.damages[index]!.interBlocks = []
       }
       const len = this.damages[index]?.interBlocks.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.damages[index]?.interBlocks[len - 1])) : {} as InterBlock;
-      newItem.id = len + 1
+      const newItem = len > 0 ? structuredClone(toRaw(this.damages[index]?.interBlocks[len - 1])) as InterBlock : {} as InterBlock;
+      newItem.interBlockid = len + 1
       newItem.firstBlockId = 1
       newItem.secondBlockId = len + 1
       this.damages[index]!.interBlocks.push(newItem);

@@ -50,7 +50,7 @@ export const $Additive = {
 
 export const $AdditiveModel = {
     properties: {
-        id: {
+        additiveModelsId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -59,7 +59,7 @@ export const $AdditiveModel = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Additivemodelsid'
         },
         name: {
             type: 'string',
@@ -512,7 +512,7 @@ export const $BoundaryConditions = {
 
 export const $Compute = {
     properties: {
-        id: {
+        computesId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -521,7 +521,7 @@ export const $Compute = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Computesid'
         },
         computeClass: {
             type: 'string',
@@ -822,7 +822,7 @@ export const $CriticalEnergyCalc = {
 
 export const $Damage = {
     properties: {
-        id: {
+        damagesId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -831,7 +831,7 @@ export const $Damage = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Damagesid'
         },
         name: {
             type: 'string',
@@ -1285,7 +1285,7 @@ export const $HTTPValidationError = {
 
 export const $InterBlock = {
     properties: {
-        id: {
+        interBlockid: {
             anyOf: [
                 {
                     type: 'integer'
@@ -1294,7 +1294,7 @@ export const $InterBlock = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Interblockid'
         },
         firstBlockId: {
             type: 'integer',
@@ -2043,8 +2043,7 @@ export const $Model = {
     properties: {
         modelFolderName: {
             type: 'string',
-            title: 'Modelfoldername',
-            default: 'Default'
+            title: 'Modelfoldername'
         },
         ownModel: {
             type: 'boolean',
@@ -2089,7 +2088,7 @@ export const $Model = {
         }
     },
     type: 'object',
-    required: ['ownModel', 'twoDimensional'],
+    required: ['modelFolderName', 'ownModel', 'twoDimensional'],
     title: 'Model'
 } as const;
 
@@ -3739,10 +3738,7 @@ export const $ThermalModel = {
         predefinedFieldNames: {
             anyOf: [
                 {
-                    items: {
-                        type: 'string'
-                    },
-                    type: 'array'
+                    type: 'string'
                 },
                 {
                     type: 'null'

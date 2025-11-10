@@ -12,7 +12,7 @@ export type Additive = {
 };
 
 export type AdditiveModel = {
-    id?: number | null;
+    additiveModelsId?: number | null;
     name: string;
     additiveType: string;
     printTemp: number;
@@ -85,7 +85,7 @@ export type BoundaryConditions = {
 };
 
 export type Compute = {
-    id?: number | null;
+    computesId?: number | null;
     computeClass: string;
     name: string;
     variable: string;
@@ -135,7 +135,7 @@ export type CriticalEnergyCalc = {
 };
 
 export type Damage = {
-    id?: number | null;
+    damagesId?: number | null;
     name: string;
     damageModel: string;
     criticalStretch?: number | null;
@@ -196,7 +196,7 @@ export type HTTPValidationError = {
 };
 
 export type InterBlock = {
-    id?: number | null;
+    interBlockid?: number | null;
     firstBlockId: number;
     secondBlockId: number;
     value: number;
@@ -297,7 +297,7 @@ export type Matrix = {
 };
 
 export type Model = {
-    modelFolderName?: string;
+    modelFolderName: string;
     ownModel: boolean;
     twoDimensional: boolean;
     ownMesh?: boolean | null;
@@ -464,7 +464,7 @@ export type ThermalModel = {
     printBedZCoord?: number | null;
     file?: string | null;
     numStateVars?: number | null;
-    predefinedFieldNames?: Array<(string)> | null;
+    predefinedFieldNames?: string | null;
 };
 
 export type ValidationError = {
@@ -652,7 +652,7 @@ export type GetJobsData = {
     sbatch?: boolean;
 };
 
-export type GetJobsResponse = ResponseModel;
+export type GetJobsResponse = Array<Jobs>;
 
 export type GetStatusData = {
     cluster?: boolean;
@@ -1105,7 +1105,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: ResponseModel;
+                200: Array<Jobs>;
                 /**
                  * Validation Error
                  */

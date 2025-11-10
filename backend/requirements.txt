@@ -21,3 +21,4 @@ python-magic
 python-slugify
 pandas
 aiohttp
+toml

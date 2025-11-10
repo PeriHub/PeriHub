@@ -41,14 +41,14 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import type { AdditiveModel } from 'src/client';
+import type { Additive, AdditiveModel } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'AdditiveSettings',
   setup() {
     const store = useModelStore();
-    const additive = computed(() => store.modelData.additive)
+    const additive = computed(() => store.modelData.additive) as unknown as Additive
     return {
       store,
       additive,
@@ -68,7 +68,7 @@ export default defineComponent({
         this.additive.additiveModels = []
       }
       const len = this.additive.additiveModels.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.thermal.additiveModels[len - 1])) : {} as AdditiveModel;
+      const newItem = len > 0 ? structuredClone(toRaw(this.additive.additiveModels[len - 1])) as AdditiveModel : {} as AdditiveModel;
       newItem.additiveModelsId = len + 1
       newItem.name = 'Additive Model ' + (len + 1)
       this.additive.additiveModels.push(newItem);

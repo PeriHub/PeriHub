@@ -76,7 +76,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import type { ContactGroup, ContactModel } from 'src/client';
+import type { Contact, ContactGroup, ContactModel } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -84,7 +84,7 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const blocks = computed(() => store.modelData.blocks)
-    const contact = computed(() => store.modelData.contact)
+    const contact = computed(() => store.modelData.contact) as unknown as Contact
     return {
       store,
       blocks,

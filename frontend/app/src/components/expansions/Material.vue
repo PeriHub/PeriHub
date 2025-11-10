@@ -147,7 +147,7 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const viewStore = useViewStore();
-    const materials = computed(() => store.modelData.materials)
+    const materials = computed(() => store.modelData.materials) as unknown as Material[]
     const job = computed(() => store.modelData.job)
     const modelData = computed(() => store.modelData)
     return {
@@ -390,9 +390,11 @@ export default defineComponent({
         })
     },
     uploadSo() {
+      // @ts-expect-error Bla
       this.$refs.multiSoInput.click();
     },
     uploadProps(id) {
+      // @ts-expect-error Bla
       this.$refs.propsInput.click();
       this.selectedMaterial = id;
     },

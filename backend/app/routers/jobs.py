@@ -6,10 +6,10 @@ import json
 import os
 import shutil
 import socket
-from typing import Optional
+from typing import List, Optional
 
 import paramiko
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, status
 
 from ..support.base_models import Jobs, ModelData, ResponseModel, Status
 from ..support.file_handler import FileHandler
@@ -307,7 +307,7 @@ def get_jobs(
     model_name: str = "Dogbone",
     sbatch: bool = False,
     request: Request = "",
-) -> ResponseModel:
+) -> List[Jobs]:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -318,7 +318,10 @@ def get_jobs(
     # print(localpath)
 
     if not os.path.exists(localpath):
-        return ResponseModel(data=jobs, message="No jobs")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="LogFile can't be found in " + remotepath,
+        )
 
     cluster_accesible = True
     if cluster_enabled:
@@ -401,7 +404,7 @@ def get_jobs(
         sftp.close()
         ssh.close()
 
-    return ResponseModel(data=jobs, message="Jobs found")
+    return jobs
 
 
 @router.get("/getStatus", operation_id="get_status")

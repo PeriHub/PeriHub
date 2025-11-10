@@ -109,7 +109,7 @@ export default defineComponent({
     const store = useModelStore();
     const blocks = computed(() => store.modelData.blocks)
     const nodeSets = computed(() => store.modelData.discretization.nodeSets)
-    const computes = computed(() => store.modelData.computes)
+    const computes = computed(() => store.modelData.computes) as unknown as Compute[]
     const outputs = computed(() => store.modelData.outputs)
     const job = computed(() => store.modelData.job)
     return {
@@ -261,7 +261,7 @@ export default defineComponent({
         this.computes = []
       }
       const len = this.computes.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.computes[len - 1])) : {} as Compute;
+      const newItem = len > 0 ? structuredClone(toRaw(this.computes[len - 1])) as Compute : {} as Compute;
       newItem.computesId = len + 1
       newItem.name = 'Compute' + (len + 1)
       this.computes.push(newItem);

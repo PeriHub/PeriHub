@@ -98,9 +98,10 @@ import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
 import { generateModel, saveConfig } from 'src/client';
+import type { Discretization_Input } from 'src/client';
 import rules from 'assets/rules.js';
 
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export default defineComponent({
   name: 'ModelActions',
@@ -132,15 +133,17 @@ export default defineComponent({
     switchModels() {
       this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = false;
-      this.modelStore.modelData.model.gcode = false;
     },
     readData() {
+      // @ts-expect-error Bla
       this.$refs.fileInput.click();
     },
     uploadMesh() {
+      // @ts-expect-error Bla
       this.$refs.meshInput.click();
     },
     uploadNodesets() {
+      // @ts-expect-error Bla
       this.$refs.nodesetsInput.click();
     },
     async uploadFinished(res) {
@@ -152,6 +155,9 @@ export default defineComponent({
       console.log(type)
       if (type == 'gcode') {
         this.modelStore.modelData.model.meshFile = res.files[0].name
+        if (!this.modelStore.modelData.discretization) {
+          this.modelStore.modelData.discretization = {} as Discretization_Input
+        }
         this.modelStore.modelData.discretization.discType = 'gcode'
         if (!this.modelStore.modelData.discretization.gcode) {
           this.modelStore.modelData.discretization.gcode = {
@@ -170,6 +176,9 @@ export default defineComponent({
       } else if (type == 'txt') {
         if (JSON.parse(res.xhr.response).message != '') {
           this.modelStore.modelData.model.meshFile = res.files[0].name
+          if (!this.modelStore.modelData.discretization) {
+            this.modelStore.modelData.discretization = {} as Discretization_Input
+          }
           this.modelStore.modelData.discretization.discType = 'txt'
         }
         this.viewStore.modelLoading = true;
@@ -206,7 +215,8 @@ export default defineComponent({
 
     //   this.viewStore.modelLoading = false;
     // },
-    onFilePicked(event: undefined) {
+    onFilePicked(event: Event) {
+      // @ts-expect-error Bla
       const file = event.target.files[0];
       const filetype = file.type;
       if (file.length <= 0) {
@@ -217,16 +227,14 @@ export default defineComponent({
 
       if (filetype == 'application/json') {
         this.loadJsonFile(fr, file);
-      } else if (file.name.includes('.yaml')) {
-        this.loadYamlModel(fr, file);
       }
     },
-    loadJsonFile(fr, file) {
+    loadJsonFile(fr: FileReader, file: string) {
       this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = false;
-      this.modelStore.modelData.model.gcode = false;
 
       fr.onload = (e) => {
+        // @ts-expect-error Bla
         const result = JSON.parse(e.target.result);
         console.log(result)
         if (result.modelData) {

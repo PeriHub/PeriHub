@@ -55,6 +55,7 @@ import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { cancelJob, getJobs } from 'src/client';
+import type { Jobs, ModelData_Output } from 'src/client';
 
 export default defineComponent({
   name: 'JobsView',
@@ -85,8 +86,7 @@ export default defineComponent({
         // { name: 'created', hidden: true},
         { name: 'id', required: true, hidden: true },
       ],
-      rows: [
-      ]
+      rows: [] as Jobs[]
     };
   },
   mounted() {
@@ -118,8 +118,8 @@ export default defineComponent({
       this.$bus.emit('getStatus')
       this._getJobs();
     },
-    onRowClick(row) {
-      this.modelStore.modelData = row.model;
+    onRowClick(row: Jobs) {
+      this.modelStore.modelData = row.model as ModelData_Output;
       console.log(row.model);
     },
     _getJobs() {
@@ -127,9 +127,9 @@ export default defineComponent({
 
       getJobs({ modelName: this.modelStore.selectedModel.file, sbatch: this.modelData.job.sbatch })
         .then((response) => {
-          this.rows = response.data
+          this.rows = response
           this.$q.notify({
-            message: response.message
+            message: "Jobs found"
           })
         })
         .catch((error) => {

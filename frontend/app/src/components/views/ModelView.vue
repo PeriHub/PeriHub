@@ -173,7 +173,7 @@ export default defineComponent({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName!,
         ownModel: this.modelData.model.ownModel,
-        ownMesh: this.modelData.model.ownMesh,
+        ownMesh: this.modelData.model.ownMesh!,
         meshFile: this.modelData.model.meshFile!,
         twoD: this.modelData.model.twoDimensional
       })

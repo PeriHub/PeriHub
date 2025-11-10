@@ -451,7 +451,7 @@ export const getJobFolders = (data: GetJobFoldersData = {}): CancelablePromise<G
  * @param data The data for the request.
  * @param data.modelName
  * @param data.sbatch
- * @returns ResponseModel Successful Response
+ * @returns Jobs Successful Response
  * @throws ApiError
  */
 export const getJobs = (data: GetJobsData = {}): CancelablePromise<GetJobsResponse> => { return __request(OpenAPI, {

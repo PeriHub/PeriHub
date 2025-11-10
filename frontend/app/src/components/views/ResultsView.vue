@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
             Reload Model
           </q-tooltip>
         </q-btn>
+        <!-- @ts-expect-error Bla -->
         <q-btn padding="none" flat dense icon="fas fa-expand" @click="$refs.view.resetCamera()">
           <q-tooltip>
             Reset Camera
@@ -206,7 +207,7 @@ export default {
       legendKey: 0,
       time: 0,
       playing: false,
-      timer: NodeJS.Timeout,
+      timer: null,
       expansion: false
     };
   },
@@ -214,6 +215,7 @@ export default {
   mounted() {
     console.log('ModelView mounted')
     this.viewPointData(true);
+    // @ts-expect-error Bla
     this.$refs.view.resetCamera();
   },
   methods: {

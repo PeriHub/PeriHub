@@ -185,7 +185,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
     <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()"
-      :disable="!status.results || modelData.computes.length == 0 || !csvDefined()">
+      :disable="!status.results || computes.length == 0 || !csvDefined()">
       <q-tooltip>
         Show Plot
       </q-tooltip>
@@ -365,6 +365,7 @@ import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
 import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
+import type { BondFilters, Computes } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
@@ -382,7 +383,8 @@ export default defineComponent({
     const viewStore = useViewStore();
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData)
-    const computes = computed(() => modelStore.modelData.computes)
+    const bondFilters = computed(() => modelStore.modelData.bondFilters) as unknown as BondFilters[]
+    const computes = computed(() => modelStore.modelData.computes) as unknown as Computes
 
     return {
       status,
@@ -390,6 +392,7 @@ export default defineComponent({
       viewStore,
       modelStore,
       modelData,
+      bondFilters,
       computes,
       rules
     }
@@ -670,8 +673,8 @@ export default defineComponent({
     updatePlotVariables() {
       const items = [];
 
-      for (let i = 0; i < this.modelData.computes.length; i++) {
-        items.push(this.modelData.computes[i].name);
+      for (let i = 0; i < this.computes.length; i++) {
+        items.push(this.computes[i].name);
       }
       items.push('Time');
       this.getPlotVariables = items;
@@ -788,7 +791,7 @@ export default defineComponent({
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
         height: this.modelData.model.height,
-        crack_length: this.modelData.bondFilters[0].lowerLeftCornerX + this.modelData.bondFilters[0].bottomLength,
+        crack_length: this.bondFilters[0].lowerLeftCornerX + this.bondFilters[0].bottomLength,
         young_modulus: this.modelData.materials[materialId].youngsModulus,
         poissions_ratio: this.modelData.materials[materialId].poissonsRatio,
         yield_stress: this.modelData.materials[materialId].yieldStress,

@@ -72,7 +72,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { defineComponent, toRaw } from 'vue'
+import { defineComponent, computed, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import type { BondFilters } from 'src/client';
@@ -83,9 +83,11 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const viewStore = useViewStore();
+    const bondFilters = computed(() => store.modelData.bondFilters) as unknown as BondFilters[]
     return {
       store,
       viewStore,
+      bondFilters,
       rules
     }
   },
@@ -131,29 +133,29 @@ export default defineComponent({
         console.log(cracklength)
         console.log(length)
         const width = this.store.modelData.model.width
-        this.store.modelData.bondFilters[0]!.bottomLength = +cracklength + 0.5 + 0.25 * +length
+        this.bondFilters[0]!.bottomLength = +cracklength + 0.5 + 0.25 * +length
         if (this.store.modelData.model.twoDimensional) {
-          this.store.modelData.bondFilters[0]!.sideLength = 2.0
-          this.store.modelData.bondFilters[0]!.lowerLeftCornerZ = -1
+          this.bondFilters[0]!.sideLength = 2.0
+          this.bondFilters[0]!.lowerLeftCornerZ = -1
         } else {
-          this.store.modelData.bondFilters[0]!.sideLength = width + 2.0
-          this.store.modelData.bondFilters[0]!.lowerLeftCornerZ = (-width / 2) - 1
+          this.bondFilters[0]!.sideLength = width + 2.0
+          this.bondFilters[0]!.lowerLeftCornerZ = (-width / 2) - 1
         }
       }
     },
     addBondFilter() {
-      const len = this.store.modelData.bondFilters.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.store.modelData.bondFilters[len - 1])) : {} as BondFilters;
+      const len = this.bondFilters.length;
+      const newItem = len > 0 ? structuredClone(toRaw(this.bondFilters[len - 1])) : {} as BondFilters;
       newItem.bondFilterId = len + 1
       newItem.name = 'bf_' + (len + 1)
-      this.store.modelData.bondFilters.push(newItem);
+      this.bondFilters.push(newItem);
       this.viewStore.bondFilterPoints.push({
         bondFilterPointsId: len + 1,
         bondFilterPointString: [],
       });
     },
     removeBondFilter(index) {
-      this.store.modelData.bondFilters.splice(index, 1);
+      this.bondFilters.splice(index, 1);
       this.viewStore.bondFilterPoints.splice(index, 1);
     },
 
@@ -176,9 +178,9 @@ export default defineComponent({
       // let bondFilterPolyString = []
       this.viewStore.bondFilterPoints = [];
 
-      for (let i = 0; i < this.store.modelData.bondFilters.length; i++) {
+      for (let i = 0; i < this.bondFilters.length; i++) {
         const bondFilterPointString = [];
-        const bondFilter = this.store.modelData.bondFilters[i]!;
+        const bondFilter = this.bondFilters[i]!;
         if (bondFilter.show) {
           const nx = bondFilter.normalX;
           const ny = bondFilter.normalY;
