@@ -19,7 +19,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse
 from slugify import slugify
 
-from ..support.base_models import ModelData, ResponseModel, Valves
+from ..support.base_models import ModelData, PointData, ResponseModel, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
 
@@ -233,7 +233,7 @@ def get_point_data(
     mesh_file: Optional[str] = "Dogbone.txt",
     two_d: Optional[bool] = True,
     request: Request = "",
-) -> ResponseModel:
+) -> PointData:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -268,11 +268,7 @@ def get_point_data(
                     points.append(str(coords[2][i]))
                     # block_id_string += str(block_id[i] / num_of_blocks) + ","
                     block_ids.append(str(block_id[i] / num_of_blocks))
-
-            response = [
-                points,
-                block_ids,
-            ]
+            response = PointData(points, block_ids)
             return response
         except IOError:
             log.error("%s results can not be found", model_name)
@@ -383,12 +379,8 @@ def get_point_data(
                     # block_id_string += str(block_id / max_block_id) + ","
                     block_ids.append(str(block_id / max_block_id))
         dx_value = np.average(dx)
-        response = {
-            "points": points,
-            "block_ids": block_ids,
-            "dx_value": dx_value,
-        }
-        return ResponseModel(data=response, message="Points received")
+        response = PointData(points, block_ids, dx_value)
+        return response
         # except IOError:
         #     log.error("%s results can not be found", model_name)
         #     return model_name + " results can not be found"

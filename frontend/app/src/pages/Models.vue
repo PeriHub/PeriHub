@@ -29,8 +29,8 @@ SPDX-License-Identifier: Apache-2.0
       <template v-slot:after>
         <q-scroll-area style="height:100%;">
           <div v-if="config">
-            <JsonEditorVue v-model="config" :mainMenuBar=false :navigationBar=false :statusBar=false
-              :readOnly=false v-bind="{/* local props & attrs */ }" />
+            <JsonEditorVue v-model="config" :mainMenuBar=false :navigationBar=false :statusBar=false :readOnly=false
+              v-bind="{/* local props & attrs */ }" />
             <q-btn class="q-mt-sm" color="primary" label="Save" @click="_saveConfig" />
           </div>
         </q-scroll-area>
@@ -129,7 +129,7 @@ export default {
       await this.selectModel()
     },
     async _getModels() {
-       const response = await getOwnModels({
+      const response = await getOwnModels({
         verify: true
       })
       this.modelList = response;
@@ -182,11 +182,11 @@ export default {
           message: 'Model deleted',
         })
         this.sourceCode = ''
-        await this._getModels()
       })
+      await this._getModels()
     }
   },
-  mounted() {
+  async mounted() {
     await this._getModels()
   },
   watch: {

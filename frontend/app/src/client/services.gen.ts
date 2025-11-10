@@ -55,7 +55,7 @@ export const generateMesh = (data: GenerateMeshData): CancelablePromise<Generate
 /**
  * Get Models
  * doc
- * @returns string Successful Response
+ * @returns unknown Successful Response
  * @throws ApiError
  */
 export const getModels = (): CancelablePromise<GetModelsResponse> => { return __request(OpenAPI, {
@@ -185,7 +185,7 @@ export const getModel = (data: GetModelData = {}): CancelablePromise<GetModelRes
  * @param data.ownMesh
  * @param data.meshFile
  * @param data.twoD
- * @returns ResponseModel Successful Response
+ * @returns PointData Successful Response
  * @throws ApiError
  */
 export const getPointData = (data: GetPointDataData = {}): CancelablePromise<GetPointDataResponse> => { return __request(OpenAPI, {
@@ -472,10 +472,10 @@ export const getJobs = (data: GetJobsData = {}): CancelablePromise<GetJobsRespon
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
- * @param data.meshfile
- * @param data.ownMesh
  * @param data.cluster
  * @param data.sbatch
+ * @param data.meshfile
+ * @param data.ownMesh
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -485,10 +485,10 @@ export const getStatus = (data: GetStatusData = {}): CancelablePromise<GetStatus
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
-        meshfile: data.meshfile,
-        own_mesh: data.ownMesh,
         cluster: data.cluster,
-        sbatch: data.sbatch
+        sbatch: data.sbatch,
+        meshfile: data.meshfile,
+        own_mesh: data.ownMesh
     },
     errors: {
         422: 'Validation Error'
@@ -682,7 +682,7 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
  * @param data.filter
  * @param data.colorBarMin
  * @param data.colorBarMax
- * @returns PointData Successful Response
+ * @returns PointDataResults Successful Response
  * @throws ApiError
  */
 export const getPointDataResults = (data: GetPointDataResultsData = {}): CancelablePromise<GetPointDataResultsResponse> => { return __request(OpenAPI, {

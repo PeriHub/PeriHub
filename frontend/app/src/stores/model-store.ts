@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineStore } from 'pinia';
-import type { ModelData_Input } from 'src/client';
+import type { ModelData_Input, Valves } from 'src/client';
 
 export const useModelStore = defineStore('model', {
   state: () => ({
@@ -424,7 +424,7 @@ export const useModelStore = defineStore('model', {
     //   },
     // },
     availableModels: [],
-    modelParams: [],
+    modelParams: {} as Valves,
     selectedModel: {
       title: 'Compact Tenison',
       file: 'CompactTension',

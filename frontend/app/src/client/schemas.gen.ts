@@ -1441,7 +1441,6 @@ export const $Jobs = {
         model: {
             anyOf: [
                 {
-                    additionalProperties: true,
                     type: 'object'
                 },
                 {
@@ -2927,6 +2926,32 @@ export const $Output = {
 
 export const $PointData = {
     properties: {
+        points: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Points'
+        },
+        block_ids: {
+            items: {
+                type: 'integer'
+            },
+            type: 'array',
+            title: 'Block Ids'
+        },
+        dx_value: {
+            type: 'number',
+            title: 'Dx Value'
+        }
+    },
+    type: 'object',
+    required: ['points', 'block_ids', 'dx_value'],
+    title: 'PointData'
+} as const;
+
+export const $PointDataResults = {
+    properties: {
         nodes: {
             items: {
                 type: 'number'
@@ -2967,7 +2992,7 @@ export const $PointData = {
     },
     type: 'object',
     required: ['nodes', 'value', 'variables', 'number_of_steps', 'min_value', 'max_value', 'time'],
-    title: 'PointData'
+    title: 'PointDataResults'
 } as const;
 
 export const $PreCalculations = {
@@ -3043,7 +3068,6 @@ export const $ResponseModel = {
                     type: 'boolean'
                 },
                 {
-                    additionalProperties: true,
                     type: 'object'
                 },
                 {

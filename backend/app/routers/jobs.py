@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import socket
+from typing import Optional
 
 import paramiko
 from fastapi import APIRouter, HTTPException, Request
@@ -407,10 +408,10 @@ def get_jobs(
 def get_status(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
-    meshfile: str = None,
-    own_mesh: bool = False,
     cluster: bool = False,
     sbatch: bool = False,
+    meshfile: Optional[str] = None,
+    own_mesh: Optional[bool] = False,
     request: Request = "",
 ):
     """doc"""

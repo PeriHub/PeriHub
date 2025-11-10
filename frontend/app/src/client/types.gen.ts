@@ -359,6 +359,12 @@ export type Output = {
 };
 
 export type PointData = {
+    points: Array<(number)>;
+    block_ids: Array<(number)>;
+    dx_value: number;
+};
+
+export type PointDataResults = {
     nodes: Array<(number)>;
     value: Array<(number)>;
     variables: Array<(string)>;
@@ -509,7 +515,9 @@ export type GenerateMeshData = {
 
 export type GenerateMeshResponse = unknown;
 
-export type GetModelsResponse = Array<(string)>;
+export type GetModelsResponse = Array<{
+    [key: string]: unknown;
+}>;
 
 export type GetOwnModelsData = {
     verify?: boolean;
@@ -555,7 +563,7 @@ export type GetPointDataData = {
     twoD?: boolean | null;
 };
 
-export type GetPointDataResponse = ResponseModel;
+export type GetPointDataResponse = PointData;
 
 export type ViewInputFileData = {
     modelFolderName?: string;
@@ -648,10 +656,10 @@ export type GetJobsResponse = ResponseModel;
 
 export type GetStatusData = {
     cluster?: boolean;
-    meshfile?: string;
+    meshfile?: string | null;
     modelFolderName?: string;
     modelName?: string;
-    ownMesh?: boolean;
+    ownMesh?: boolean | null;
     sbatch?: boolean;
 };
 
@@ -740,7 +748,7 @@ export type GetPointDataResultsData = {
     variable?: string;
 };
 
-export type GetPointDataResultsResponse = PointData;
+export type GetPointDataResultsResponse = PointDataResults;
 
 export type DeleteModel1Data = {
     modelFolderName?: string;
@@ -819,7 +827,9 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: Array<(string)>;
+                200: Array<{
+                    [key: string]: unknown;
+                }>;
             };
         };
     };
@@ -915,7 +925,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: ResponseModel;
+                200: PointData;
                 /**
                  * Validation Error
                  */
@@ -1200,7 +1210,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: PointData;
+                200: PointDataResults;
                 /**
                  * Validation Error
                  */

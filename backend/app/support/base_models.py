@@ -8,7 +8,8 @@ from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
 
-class PointData(BaseModel):
+
+class PointDataResults(BaseModel):
     nodes: List[float]
     value: List[float]
     variables: List[str]
@@ -16,6 +17,13 @@ class PointData(BaseModel):
     min_value: float
     max_value: float
     time: float
+
+
+class PointData(BaseModel):
+    points: List[float]
+    block_ids: List[int]
+    dx_value: float
+
 
 class Valve(BaseModel):
     name: str

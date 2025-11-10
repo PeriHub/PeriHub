@@ -8,12 +8,12 @@ SPDX-License-Identifier: Apache-2.0
   <div style="height:calc(100% - 60px);">
     <div class="row">
       <div style="width: 100px;">
-        <q-btn v-if="!modelData.modelownModel" flat icon="fas fa-sync-alt" @click="viewPointData">
+        <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-sync-alt" @click="viewPointData">
           <q-tooltip>
             Reload Model
           </q-tooltip>
         </q-btn>
-        <q-btn v-if="!modelData.modelownModel" flat icon="fas fa-expand" @click="$refs.view.resetCamera()">
+        <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-expand" @click="$refs.view.resetCamera()">
           <q-tooltip>
             Reset Camera
           </q-tooltip>
@@ -134,16 +134,16 @@ export default defineComponent({
     filterPointData() {
       console.log('filterPointData')
       let idx = 0;
-      const filteredBlockIdStringTemp = [];
-      const filteredPointStringTemp = [];
+      const filteredBlockIdStringTemp = [0];
+      const filteredPointStringTemp = [0];
       const blocks = this.modelData.blocks
       for (let i = 0; i < this.blockIdString.length; i++) {
         if (
-          blocks[parseInt(this.blockIdString[i]! * this.modelData.blocks.length - 1)].show
+          blocks[this.blockIdString[i]! * this.modelData.blocks.length - 1]!.show
         ) {
-          filteredBlockIdStringTemp[idx] = this.blockIdString[i];
+          filteredBlockIdStringTemp[idx] = this.blockIdString[i]!;
           for (let j = 0; j < 3; j++) {
-            filteredPointStringTemp[idx * 3 + j] = this.pointString[i * 3 + j];
+            filteredPointStringTemp[idx * 3 + j] = this.pointString[i * 3 + j]!;
             // this.pointString[i * 3 + j] * this.multiplier;
           }
           idx += 1;
@@ -171,19 +171,16 @@ export default defineComponent({
       console.log('getPointDataAndUpdateDx')
       await getPointData({
         modelName: this.modelStore.selectedModel.file,
-        modelFolderName: this.modelData.model.modelFolderName,
+        modelFolderName: this.modelData.model.modelFolderName!,
         ownModel: this.modelData.model.ownModel,
         ownMesh: this.modelData.model.ownMesh,
-        meshFile: this.modelData.model.meshFile,
+        meshFile: this.modelData.model.meshFile!,
         twoD: this.modelData.model.twoDimensional
       })
         .then((response) => {
-          this.pointString = response.data.points
-          this.blockIdString = response.data.block_ids
-          this.viewStore.dx_value = response.data.dx_value
-          this.$q.notify({
-            message: response.message,
-          })
+          this.pointString = response.points
+          this.blockIdString = response.block_ids
+          this.viewStore.dx_value = response.dx_value
         })
         .catch((error) => {
           console.log(error.body.detail)

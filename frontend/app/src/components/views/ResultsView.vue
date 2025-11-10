@@ -267,7 +267,7 @@ export default {
       console.log('getPointDataAndUpdateDx')
       await getPointDataResults({
         modelName: this.modelStore.selectedModel.file,
-        modelFolderName: this.modelData.model.modelFolderName,
+        modelFolderName: this.modelData.model.modelFolderName!,
         cluster: this.modelData.job.cluster,
         output: this.modelData.outputs[0]!.name,
         tasks: this.modelData.job.tasks,

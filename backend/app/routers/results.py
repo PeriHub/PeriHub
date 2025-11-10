@@ -14,7 +14,7 @@ from exodusreader import exodusreader
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 
-from ..support.base_models import ResponseModel, PointData
+from ..support.base_models import PointDataResults, ResponseModel
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
 from ..support.results.analysis import Analysis
@@ -421,7 +421,7 @@ def get_data(
     color_bar_min: float = None,
     color_bar_max: float = None,
     request: Request = "",
-) -> PointData:
+) -> PointDataResults:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -556,11 +556,18 @@ def get_data(
         reduce_factor = int(len(np_points_all_x) / max_nodes)
         log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
 
-    data = PointData(np.ravel(
+    data = PointDataResults(
+        np.ravel(
             [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
             order="F",
         ).tolist(),
-        normalized_cell_value.tolist()[::reduce_factor], variable_list, number_of_steps, min_cell_value, max_cell_value,  np.format_float_scientific(time, 2))
+        normalized_cell_value.tolist()[::reduce_factor],
+        variable_list,
+        number_of_steps,
+        min_cell_value,
+        max_cell_value,
+        np.format_float_scientific(time, 2),
+    )
     # data = {
     #     "nodes": np.ravel(
     #         [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
