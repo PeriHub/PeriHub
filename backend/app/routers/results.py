@@ -179,7 +179,7 @@ def get_enf_analysis(
         raise IOError  # NotFoundException(name=model_name)
 
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-    file = os.path.join(resultpath, model_name + "_" + output + ".e")
+    file = os.path.join(resultpath, model_name + "_" + output)
 
     g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step, load_variable, displ_variable)
 

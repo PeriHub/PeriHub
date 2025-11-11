@@ -6,6 +6,7 @@ import math
 import os
 
 import numpy as np
+import pandas as pd
 from crackpy.fracture_analysis.analysis import FractureAnalysis
 from crackpy.fracture_analysis.data_processing import CrackTipInfo, InputData
 from crackpy.fracture_analysis.line_integration import IntegralProperties
@@ -290,22 +291,34 @@ class CrackAnalysis:
         a = crack_length
         L = length
 
-        (
-            points,
-            point_data,
-            global_data,
-            cell_data,
-            ns,
-            block_data,
-            time,
-        ) = exodusreader.read_timestep(file, step)
+        if os.path.exists(file + ".e"):
+            (
+                points,
+                point_data,
+                global_data,
+                cell_data,
+                ns,
+                block_data,
+                time,
+            ) = exodusreader.read_timestep(file + ".e", step)
 
-        P = global_data[load_variable + "y"]
-        d = global_data[displ_variable + "y"]
+            P = global_data[load_variable + "y"]
+            d = global_data[displ_variable + "y"]
+
+        elif os.path.exists(file + ".csv"):
+            df = pd.read_csv(file + ".csv")
+
+            P = df[load_variable + "y"][step]
+            d = df[displ_variable + "y"][step]
+
+        else:
+            return 0
 
         GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3)))
 
-        log.info(GIIC)
+        log.info(P)
+        log.info(d)
+        log.info(f"GIIC: {GIIC} J/m^2")
 
         return GIIC
 
