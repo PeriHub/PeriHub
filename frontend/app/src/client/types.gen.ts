@@ -37,7 +37,7 @@ export type BlockFunction = {
 };
 
 export type Body_generate_model = {
-    model_data: ModelData_Input;
+    data: ModelData_Input;
     valves: Valves;
 };
 
@@ -382,14 +382,6 @@ export type PreCalculations = {
     bondAssociateDeformationGradient?: boolean | null;
 };
 
-export type ResponseModel = {
-    data: string | boolean | {
-    [key: string]: unknown;
-} | number | Array<(string)> | Array<(number)> | Array<Array<(number)>> | Status | Array<Jobs>;
-    code?: number;
-    message: string;
-};
-
 export type Solver = {
     solverId?: number | null;
     name?: string | null;
@@ -570,7 +562,7 @@ export type ViewInputFileData = {
     modelName?: string;
 };
 
-export type ViewInputFileResponse = ResponseModel;
+export type ViewInputFileResponse = string;
 
 export type AddModelData = {
     description: string;
@@ -604,7 +596,7 @@ export type UploadFilesData = {
     modelName: string;
 };
 
-export type UploadFilesResponse = unknown;
+export type UploadFilesResponse = string;
 
 export type WriteInputFileData = {
     inputString: string;
@@ -639,7 +631,7 @@ export type CancelJobData = {
     sbatch?: boolean;
 };
 
-export type CancelJobResponse = ResponseModel;
+export type CancelJobResponse = unknown;
 
 export type GetJobFoldersData = {
     modelName?: string;
@@ -663,7 +655,7 @@ export type GetStatusData = {
     sbatch?: boolean;
 };
 
-export type GetStatusResponse = unknown;
+export type GetStatusResponse = Status;
 
 export type GetFractureAnalysisData = {
     cluster?: boolean;
@@ -782,7 +774,9 @@ export type DeleteUserDataFromClusterResponse = unknown;
 
 export type GetPublicationsResponse = string;
 
-export type GetPrognosisEnergyResponse = ResponseModel;
+export type GetPrognosisEnergyResponse = {
+    [key: string]: unknown;
+};
 
 export type GetCurrentEnergyResponse = unknown;
 
@@ -940,7 +934,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: ResponseModel;
+                200: string;
                 /**
                  * Validation Error
                  */
@@ -1015,7 +1009,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: string;
                 /**
                  * Validation Error
                  */
@@ -1075,7 +1069,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: ResponseModel;
+                200: unknown;
                 /**
                  * Validation Error
                  */
@@ -1120,7 +1114,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: Status;
                 /**
                  * Validation Error
                  */
@@ -1294,7 +1288,9 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: ResponseModel;
+                200: {
+                    [key: string]: unknown;
+                };
             };
         };
     };

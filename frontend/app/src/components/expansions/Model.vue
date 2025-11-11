@@ -217,7 +217,7 @@ export default defineComponent({
   methods: {
     _getJobFolders() {
       getJobFolders({ modelName: this.modelStore.selectedModel.file }).then((response) => {
-        this.modelFolderNameList = response.data
+        this.modelFolderNameList = response
       })
         .catch((error) => {
           this.$q.notify({

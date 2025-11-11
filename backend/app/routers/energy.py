@@ -5,15 +5,15 @@
 from datetime import datetime, timedelta
 
 import requests
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 
-from ..support.base_models import ResponseModel
+# from ..support.base_models import
 
 router = APIRouter(prefix="/energy", tags=["Upload Methods"])
 
 
 @router.get("/prognosis", operation_id="get_prognosis_energy")
-async def energy() -> ResponseModel:
+async def energy() -> dict:
     """doc"""
     # Define the URL and query parameters
     url = "https://api.energy-charts.info/signal"
@@ -40,15 +40,12 @@ async def energy() -> ResponseModel:
             data[date_string] = value
 
         # Now, 'data' contains the processed data
-        return ResponseModel(
-            data=data,
-            message="Current Energy Data retrieved successfully",
-        )
+        return data
 
     else:
-        return ResponseModel(
-            data=False,
-            message=f"Request failed with status code {response.status_code}",
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Request failed with status code {response.status_code}",
         )
 
 
@@ -78,13 +75,10 @@ async def energy():
         nearest_value = raw_data[0]["data"][nearest_index]
 
         # Now, 'data' contains the processed data
-        return ResponseModel(
-            data=nearest_value,
-            message="Current Energy Data retrieved successfully",
-        )
+        return nearest_value
 
     else:
-        return ResponseModel(
-            data=False,
-            message=f"Request failed with status code {response.status_code}",
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Request failed with status code {response.status_code}",
         )

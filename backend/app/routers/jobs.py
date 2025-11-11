@@ -11,7 +11,7 @@ from typing import List, Optional
 import paramiko
 from fastapi import APIRouter, HTTPException, Request, status
 
-from ..support.base_models import Jobs, ModelData, ResponseModel, Status
+from ..support.base_models import Jobs, ModelData, Status
 from ..support.file_handler import FileHandler
 from ..support.globals import cluster_enabled, cluster_perilab_path, dev, log, trial
 from ..support.writer.sbatch_writer import SbatchCreator
@@ -46,20 +46,9 @@ async def run_model(
     if os.path.exists(os.path.join(remotepath, "runPerilab.sh")):
         os.remove(os.path.join(remotepath, "runPerilab.sh"))
 
-    return_string = FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster)
+    FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster)
 
-    if return_string != "Success":
-        return ResponseModel(
-            data=False,
-            message=return_string,
-        )
-
-    return_string = FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
-    if return_string != "Success":
-        return ResponseModel(
-            data=False,
-            message=return_string,
-        )
+    FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
 
     if cluster and sbatch:
         # initial_jobs = FileHandler.write_get_cara_job_id()
@@ -85,16 +74,13 @@ async def run_model(
         ssh.close()
 
         log.info("%s has been submitted", model_name)
-        return ResponseModel(
-            data=True,
-            message=model_name + " has been submitted",
-        )
+        return
 
     elif cluster:
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
             log.warning("%s already submitted", model_name)
-            return model_name + " already submitted"
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=model_name + " already submitted")
         sbatch = SbatchCreator(
             filename=model_name,
             model_folder_name=model_folder_name,
@@ -116,17 +102,14 @@ async def run_model(
         ssh.close()
 
         log.info("%s has been submitted", model_name)
-        return ResponseModel(
-            data=True,
-            message=model_name + " has been submitted",
-        )
+        return
 
     elif not cluster:
         server = "perihub_perilab"
         log.info(remotepath)
         if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
             log.warning("%s already submitted", model_name)
-            return model_name + " already submitted"
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=model_name + " already submitted")
         sbatch = SbatchCreator(
             filename=model_name,
             model_folder_name=model_folder_name,
@@ -158,7 +141,9 @@ async def run_model(
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to %s failed!", server)
-                return ResponseModel(data=False, message="ssh connection to " + server + " failed!")
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to " + server + " failed!"
+                )
             except socket.gaierror:
                 if server != "localhost":
                     server = "localhost"
@@ -169,9 +154,9 @@ async def run_model(
                         "ssh connection to %s failed! Is the PeriLab Service running?",
                         server,
                     )
-                    return ResponseModel(
-                        data=False,
-                        message="ssh connection to " + server + " failed! Is the PeriLab Service running?",
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="ssh connection to " + server + " failed! Is the PeriLab Service running?",
                     )
             except Exception as e:
                 log.error(type(e))
@@ -179,9 +164,9 @@ async def run_model(
                     "ssh connection to %s failed! Is the PeriLab Service running?",
                     server,
                 )
-                return ResponseModel(
-                    data=False,
-                    message="ssh connection to " + server + " failed! Is the PeriLab Service running?",
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="ssh connection to " + server + " failed! Is the PeriLab Service running?",
                 )
             break
         command = (
@@ -195,10 +180,10 @@ async def run_model(
 
         # return stdout + stderr
         log.info("%s has been submitted", model_name)
-        return ResponseModel(data=True, message=model_name + " has been submitted")
+        return
 
     log.error("%s unknown", cluster)
-    return cluster + " unknown"
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=cluster + " unknown")
 
 
 @router.put("/cancel", operation_id="cancel_job")
@@ -208,7 +193,7 @@ def cancel_job(
     cluster: bool = False,
     sbatch: bool = False,
     request: Request = "",
-) -> ResponseModel:
+):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -231,7 +216,9 @@ def cancel_job(
                     continue
                 else:
                     log.error("ssh connection to %s failed!", server)
-                    return "ssh connection to " + server + " failed!"
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to " + server + " failed!"
+                    )
             break
         command = (
             "kill -2 $(cat /app"
@@ -245,7 +232,7 @@ def cancel_job(
         ssh.close()
 
         log.info("Job has been canceled")
-        return ResponseModel(data=True, message="Job has been canceled")
+        return
 
     remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
     ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -276,17 +263,12 @@ def cancel_job(
 
     log.info("Job: %s has been canceled", model_name + "_" + model_folder_name)
 
-    return ResponseModel(
-        data=True,
-        message="Job: " + model_name + "_" + model_folder_name + " has been canceled",
-    )
-
 
 @router.get("/getJobFolders", operation_id="get_job_folders")
 def get_job_folders(
     model_name: str = "Dogbone",
     request: Request = "",
-):
+) -> List[str]:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -295,11 +277,9 @@ def get_job_folders(
     # print(localpath)
 
     if not os.path.exists(localpath):
-        return ResponseModel(data=[], message="No jobs")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No jobs")
 
     job_folders = next(os.walk(localpath))[1]
-
-    return ResponseModel(data=job_folders, message="Jobs found")
 
 
 @router.get("/getJobs", operation_id="get_jobs")
@@ -416,7 +396,7 @@ def get_status(
     meshfile: Optional[str] = None,
     own_mesh: Optional[bool] = False,
     request: Request = "",
-):
+) -> Status:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -443,7 +423,7 @@ def get_status(
         except IOError:
             sftp.close()
             ssh.close()
-            return ResponseModel(data=status, message="Status received")
+            return status
 
         if sbatch:
             status.submitted = FileHandler.cluster_job_running(ssh, sftp, remotepath, model_name, model_folder_name)
@@ -462,5 +442,4 @@ def get_status(
             for files in os.listdir(remotepath):
                 if ".e" in files:
                     status.results = True
-
-    return ResponseModel(data=status, message="Status received")
+    return status

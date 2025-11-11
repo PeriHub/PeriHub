@@ -197,7 +197,7 @@ export const $BlockFunction = {
 
 export const $Body_generate_model = {
     properties: {
-        model_data: {
+        data: {
             '$ref': '#/components/schemas/ModelData-Input'
         },
         valves: {
@@ -205,7 +205,7 @@ export const $Body_generate_model = {
         }
     },
     type: 'object',
-    required: ['model_data', 'valves'],
+    required: ['data', 'valves'],
     title: 'Body_generate_model'
 } as const;
 
@@ -3054,73 +3054,6 @@ export const $PreCalculations = {
     },
     type: 'object',
     title: 'PreCalculations'
-} as const;
-
-export const $ResponseModel = {
-    properties: {
-        data: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'object'
-                },
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'number'
-                },
-                {
-                    items: {
-                        type: 'string'
-                    },
-                    type: 'array'
-                },
-                {
-                    items: {
-                        type: 'number'
-                    },
-                    type: 'array'
-                },
-                {
-                    items: {
-                        items: {
-                            type: 'number'
-                        },
-                        type: 'array'
-                    },
-                    type: 'array'
-                },
-                {
-                    '$ref': '#/components/schemas/Status'
-                },
-                {
-                    items: {
-                        '$ref': '#/components/schemas/Jobs'
-                    },
-                    type: 'array'
-                }
-            ],
-            title: 'Data'
-        },
-        code: {
-            type: 'integer',
-            title: 'Code',
-            default: 200
-        },
-        message: {
-            type: 'string',
-            title: 'Message'
-        }
-    },
-    type: 'object',
-    required: ['data', 'message'],
-    title: 'ResponseModel'
 } as const;
 
 export const $Solver = {

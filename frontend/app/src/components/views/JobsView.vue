@@ -93,7 +93,7 @@ export default defineComponent({
     this._getJobs()
   },
   methods: {
-    async cancelJob(row) {
+    async cancelJob(row: Jobs) {
       this.loading = true;
 
       await cancelJob({
@@ -102,9 +102,9 @@ export default defineComponent({
         cluster: row.cluster,
         sbatch: true,
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: 'Job canceled'
           })
         })
         .catch(() => {

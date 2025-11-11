@@ -62,14 +62,14 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import type { Discretization, BlockFunction } from 'src/client';
+import type { Discretization_Input, BlockFunction } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'DiscretizazionSettings',
   setup() {
     const store = useModelStore();
-    const discretization = computed(() => store.modelData.discretization) as unknown as Discretization
+    const discretization = computed(() => store.modelData.discretization) as unknown as Discretization_Input
     return {
       store,
       discretization,
@@ -99,7 +99,7 @@ export default defineComponent({
         this.discretization.nodeSets = []
       }
       const len = this.discretization.nodeSets.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.discretization.nodeSets[len - 1])) : {} as Discretization;
+      const newItem = len > 0 ? structuredClone(toRaw(this.discretization.nodeSets[len - 1])) : {} as Discretization_Input;
       newItem.nodeSetId = len + 1
       this.discretization.nodeSets.push(newItem);
     },

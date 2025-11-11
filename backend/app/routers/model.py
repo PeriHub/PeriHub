@@ -19,7 +19,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse
 from slugify import slugify
 
-from ..support.base_models import ModelData, PointData, ResponseModel, Valves
+from ..support.base_models import ModelData, PointData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
 
@@ -391,7 +391,7 @@ def view_input_file(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     request: Request = "",
-) -> ResponseModel:
+) -> str:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -408,7 +408,7 @@ def view_input_file(
     try:
         with open(file_path, "r") as f:
             string = f.read()
-        return ResponseModel(data=string, message="Input File received")
+        return string
     except IOError:
         log.error("Inputfile can't be found")
         raise HTTPException(

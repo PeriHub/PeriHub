@@ -8,7 +8,7 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request, status
 
-from ..support.base_models import ResponseModel
+# from ..support.base_models import
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log
 
@@ -24,13 +24,10 @@ def delete_model(
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    localpath = FileHandler.get_local_model_folder_path(
-        username, model_name, model_folder_name
-    )
+    localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     if os.path.exists(localpath):
         shutil.rmtree(localpath)
     log.info("%s has been deleted", model_name)
-    return ResponseModel(data=True, message=model_name + " has been deleted")
 
 
 @router.delete("/modelFromCluster", operation_id="delete_model_from_cluster")
@@ -43,15 +40,12 @@ def delete_model_from_cluster(
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    remotepath = FileHandler.get_remote_model_path(
-        username, model_name, model_folder_name
-    )
+    remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
     if not cluster:
         if os.path.exists(remotepath):
             shutil.rmtree(remotepath)
         log.info("%s has been deleted", model_name)
-        return ResponseModel(data=True, message=model_name + " has been deleted")
-
+        return
     ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
     for filename in sftp.listdir(remotepath):
@@ -59,8 +53,6 @@ def delete_model_from_cluster(
     sftp.rmdir(remotepath)
     sftp.close()
     ssh.close()
-    log.info("%s has been deleted", model_name)
-    return ResponseModel(data=True, message=model_name + " has been deleted")
 
 
 @router.delete("/userData", operation_id="delete_user_data")
@@ -74,7 +66,7 @@ def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7
                 log.info("Data of %s has been deleted", ", ".join(names))
                 return "Data of " + ", ".join(names) + " has been deleted"
         log.info("Nothing has been deleted")
-        return ResponseModel(data=True, message="Nothing has been deleted")
+        return
 
     username = FileHandler.get_user_name(request, dev)
 
@@ -82,7 +74,6 @@ def delete_user_data(check_date: bool, request: Request, days: Optional[int] = 7
     if os.path.exists(localpath):
         shutil.rmtree(localpath)
     log.info("Data of %s has been deleted", username)
-    return ResponseModel(data=True, message="Data of " + username + " has been deleted")
 
 
 @router.delete("/userDataFromCluster", operation_id="delete_user_data_from_cluster")
@@ -103,17 +94,13 @@ def delete_user_data_from_cluster(
 
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
 
-            names = FileHandler.remove_folder_if_older_sftp(
-                sftp, remotepath, days, True
-            )
+            names = FileHandler.remove_folder_if_older_sftp(sftp, remotepath, days, True)
 
             sftp.close()
             ssh.close()
 
         log.info("Data of %s has been deleted", names)
-        return ResponseModel(
-            data=True, message="Data of " + names + " has been deleted"
-        )
+        return
 
     username = FileHandler.get_user_name(request, dev)
 
@@ -122,9 +109,7 @@ def delete_user_data_from_cluster(
         if os.path.exists(remotepath):
             shutil.rmtree(remotepath)
         log.info("Data of %s has been deleted", username)
-        return ResponseModel(
-            data=True, message="Data of " + username + " has been deleted"
-        )
+        return
 
     remotepath = FileHandler.get_remote_user_path(username)
 
@@ -136,4 +121,3 @@ def delete_user_data_from_cluster(
     ssh.close()
 
     log.info("Data of %s has been deleted", username)
-    return ResponseModel(data=True, message="Data of " + username + " has been deleted")

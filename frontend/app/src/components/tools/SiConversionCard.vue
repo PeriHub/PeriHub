@@ -238,7 +238,7 @@ export default defineComponent({
         this.conversionResults.thermalConductivity = thermalConductivity;
       }
     },
-    copyText(id) {
+    copyText(id: string) {
       copyToClipboard(this.conversionResults[id])
         .then(() => {
           this.$q.notify({
@@ -254,8 +254,8 @@ export default defineComponent({
       handler() {
         console.log('conversion changed!');
         let num = 0;
-        for (const con in this.conversion) {
-          if (this.conversion[con] != null) {
+        for (const [, value] of Object.entries(this.conversion)) {
+          if (value != null) {
             num++;
           }
         }

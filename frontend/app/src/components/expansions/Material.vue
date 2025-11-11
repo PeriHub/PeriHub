@@ -369,18 +369,10 @@ export default defineComponent({
       }
 
       uploadFiles({ modelName: this.modelStore.selectedModel.title, modelFolderName: this.modelData.model.modelFolderName, formData: formData })
-        .then((response) => {
-          if (response.data) {
-            this.$q.notify({
-              message: response.message
-            })
-          }
-          else {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message
-            })
-          }
+        .then(() => {
+          this.$q.notify({
+            message: 'File uploaded'
+          })
         })
         .catch((error) => {
           this.$q.notify({
@@ -393,7 +385,7 @@ export default defineComponent({
       // @ts-expect-error Bla
       this.$refs.multiSoInput.click();
     },
-    uploadProps(id) {
+    uploadProps(id: number) {
       // @ts-expect-error Bla
       this.$refs.propsInput.click();
       this.selectedMaterial = id;

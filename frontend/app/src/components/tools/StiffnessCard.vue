@@ -230,7 +230,7 @@ export default defineComponent({
     },
     copyText(id: string) {
       if (!this.calculated[id]) { return }
-      copyToClipboard(String(this.calculated[id]))
+      copyToClipboard(this.calculated[id])
         .then(() => {
           this.$q.notify({
             message: 'Copied to clipboard',
@@ -253,8 +253,8 @@ export default defineComponent({
       handler() {
         console.log('constants changed!');
         let num = 0;
-        for (const con in this.constants) {
-          if (this.constants[con] != null) {
+        for (const [, value] of Object.entries(this.constants)) {
+          if (value != null) {
             num++;
           }
         }

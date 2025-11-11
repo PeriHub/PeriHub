@@ -108,7 +108,7 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const blocks = computed(() => store.modelData.blocks)
-    const nodeSets = computed(() => store.modelData.discretization.nodeSets)
+    const nodeSets = computed(() => store.modelData.discretization.nodeSets) as unknown as NodeSet[]
     const computes = computed(() => store.modelData.computes) as unknown as Compute[]
     const outputs = computed(() => store.modelData.outputs)
     const job = computed(() => store.modelData.job)
@@ -144,6 +144,7 @@ export default defineComponent({
         xValue: 'X',
         yValue: 'Y',
         zValue: 'Z',
+        nodeSetId: 'Node Set Id',
       },
 
       outputKeys: [
@@ -248,7 +249,7 @@ export default defineComponent({
         }
       })
     },
-    addStateVarsToOutput(numStateVars) {
+    addStateVarsToOutput(numStateVars: number) {
       for (let i = 1; i <= numStateVars; i++) {
         const name = 'State_Parameter_Field_' + i.toString()
         if (!this.outputKeys.includes(name)) {
@@ -283,7 +284,7 @@ export default defineComponent({
         InitStep: 0,
       });
     },
-    removeOutput(index) {
+    removeOutput(index: number) {
       this.outputs.splice(index, 1);
       this.outputs.forEach((model, i) => {
         model.outputsId = i + 1

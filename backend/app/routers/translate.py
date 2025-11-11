@@ -6,9 +6,9 @@ import os
 import subprocess
 import time
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request, status
 
-from ..support.base_models import ResponseModel
+# from ..support.base_models import
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, trial
 
@@ -61,9 +61,9 @@ def translate_model(
             model_name,
             time.time() - start_time,
         )
-        return ResponseModel(
-            data=False,
-            message=f"{model_name} took too long. Try to increase the discretization parameter",
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"{model_name} took too long. Try to increase the discretization parameter",
         )
         # Add code here to handle the timeout, such as terminating the process or raising an exception
 
@@ -71,8 +71,4 @@ def translate_model(
         "%s has been translated in %.2f seconds",
         model_name,
         time.time() - start_time,
-    )
-    return ResponseModel(
-        data=True,
-        message=f"{model_name} has been translated in {(time.time() - start_time):.2f} seconds",
     )

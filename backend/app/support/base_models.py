@@ -721,9 +721,3 @@ class SmetanaData(BaseModel):
     compute: Optional[List[Compute]]
     output: List[Output]
     solver: Solver
-
-
-class ResponseModel(BaseModel):
-    data: Union[str, bool, dict, int, float, List[str], List[float], List[List[float]], Status, List[Jobs]]
-    code: int = 200
-    message: str

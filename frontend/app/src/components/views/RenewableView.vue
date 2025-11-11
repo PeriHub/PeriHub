@@ -30,10 +30,7 @@ export default {
 
     await getPrognosisEnergy()
       .then((response) => {
-        this.$q.notify({
-          message: response.message
-        })
-        this.plot_data = response.data;
+        this.plot_data = response;
       })
       .catch((error) => {
         this.$q.notify({

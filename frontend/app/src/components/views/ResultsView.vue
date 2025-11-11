@@ -13,7 +13,7 @@ SPDX-License-Identifier: Apache-2.0
             Reload Model
           </q-tooltip>
         </q-btn>
-        <!-- @ts-expect-error Bla -->
+        <!-- @vue-ignore -->
         <q-btn padding="none" flat dense icon="fas fa-expand" @click="$refs.view.resetCamera()">
           <q-tooltip>
             Reset Camera
@@ -143,7 +143,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import VerticalColoredLegend from 'src/components/tools/VerticalColoredLegend.vue';
 import { getPointDataResults } from 'src/client';
@@ -207,7 +207,7 @@ export default {
       legendKey: 0,
       time: 0,
       playing: false,
-      timer: null,
+      timer: ref(),
       expansion: false
     };
   },

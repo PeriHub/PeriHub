@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
             Reload Model
           </q-tooltip>
         </q-btn>
+        <!-- @vue-ignore -->
         <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-expand" @click="$refs.view.resetCamera()">
           <q-tooltip>
             Reset Camera
@@ -171,7 +172,7 @@ export default defineComponent({
       console.log('getPointDataAndUpdateDx')
       await getPointData({
         modelName: this.modelStore.selectedModel.file,
-        modelFolderName: this.modelData.model.modelFolderName!,
+        modelFolderName: this.modelData.model.modelFolderName,
         ownModel: this.modelData.model.ownModel,
         ownMesh: this.modelData.model.ownMesh!,
         meshFile: this.modelData.model.meshFile!,

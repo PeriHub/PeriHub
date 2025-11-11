@@ -16,7 +16,7 @@ from pathlib import Path
 
 import jwt
 import paramiko
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from random_username.generate import generate_username
 
 from ..support.globals import (
@@ -241,7 +241,7 @@ class FileHandler:
         """doc"""
 
         if not cluster:
-            return "Success"
+            return
 
         localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
@@ -268,7 +268,10 @@ class FileHandler:
 
         if not os.path.exists(localpath):
             log.warning(model_name + " has not been created yet")
-            return model_name + " has not been created yet"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=model_name + " has not been created yet",
+            )
 
         input_exist = False
         mesh_exist = False
@@ -279,11 +282,15 @@ class FileHandler:
                 mesh_exist = True
         if not input_exist:
             log.warning("Inputfile of " + model_name + " has not been created yet")
-            return "Inputfile of " + model_name + " has not been created yet"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Inputfile of " + model_name + " has not been created yet"
+            )
 
         if not mesh_exist:
             log.warning("Meshfile of " + model_name + " has not been created yet")
-            return "Meshfile of " + model_name + " has not been created yet"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Meshfile of " + model_name + " has not been created yet"
+            )
 
         for root, _, files in os.walk(localpath):
             for name in files:
@@ -292,14 +299,14 @@ class FileHandler:
         sftp.close()
         ssh.close()
 
-        return "Success"
+        return
 
     @staticmethod
     def copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat):
         """doc"""
 
         if not cluster:
-            return "Success"
+            return
 
         localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
         remotepath = FileHandler._get_remote_umat_path(cluster)
@@ -307,13 +314,13 @@ class FileHandler:
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         except paramiko.SFTPError:
             log.error("ssh connection to cluster failed!")
-            return "ssh connection to cluster failed!"
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to cluster failed!")
         except Exception as e:
-            return str(e)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
         if not os.path.exists(localpath):
             log.error("Shared libray can not been found")
-            return "Shared libray can not been found"
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shared libray can not been found")
         for root, _, files in os.walk(localpath):
             if len(files) == 0:
                 log.error("Shared libray can not been found")
@@ -333,7 +340,7 @@ class FileHandler:
                             os.path.join(root, name),
                             lib_file_path,
                         )
-                        return "Success"
+                        return
                 else:
                     try:
                         print(sftp.stat(lib_base_file_path))
@@ -342,15 +349,15 @@ class FileHandler:
                             lib_base_file_path,
                             lib_file_path,
                         )
-                        return "Success"
+                        return
                     except IOError:
-                        return "Success"
+                        return
 
         sftp.close()
         ssh.close()
 
         log.error("Shared libray can not been found")
-        return "Shared libray can not been found"
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shared libray can not been found")
 
     @staticmethod
     def copy_file_to_from_peridigm_container(username, model_name, model_folder_name, file_name, to_or_from):

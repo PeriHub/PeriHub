@@ -80,7 +80,7 @@ SPDX-License-Identifier: Apache-2.0
             <q-input class="my-input" v-model="solver.verlet.outputFrequency" :rules="[rules.required, rules.int]"
                 :label="solverKeys.verlet.outputFrequency" standout dense></q-input>
         </div> -->
-        <div class="row my-row" v-show="solver.solvertype == 'Verlet'">
+        <div class="row my-row" v-show="solver.solvertype == 'Verlet' && solver.verlet != null">
           <q-input class="my-input" v-model="solver.verlet.numericalDamping" :rules="[rules.required, rules.posFloat]"
             :label="solverKeys.verlet.numericalDamping" standout dense></q-input>
           <q-toggle class="my-toggle" v-model="solver.adaptivetimeStepping" :label="solverKeys.adaptivetimeStepping"
@@ -92,7 +92,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-toggle class="my-toggle" v-model="solver.calculateStrain" :label="solverKeys.calculateStrain" standout
             dense></q-toggle>
         </div>
-        <div class="row my-row" v-if="solver.solvertype == 'Static'">
+        <div class="row my-row" v-if="solver.solvertype == 'Static' && solver.static != null">
           <q-input class="my-input" v-model="solver.static.numberOfSteps" :rules="[rules.required, rules.int]"
             :label="solverKeys.static.numberOfSteps" standout dense></q-input>
           <q-input class="my-input" v-model="solver.static.maximumNumberOfIterations"
@@ -181,6 +181,7 @@ export default defineComponent({
       preconditioner: ['User Defined', 'None'],
       lineSearchMethod: ['Polynomial'],
       solverKeys: {
+        name: 'Solver Name',
         // dispEnabled: 'Solve For Displacement',
         matEnabled: 'Material Models',
         damEnabled: 'Damage Models',

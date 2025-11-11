@@ -14,7 +14,7 @@ from exodusreader import exodusreader
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 
-from ..support.base_models import PointDataResults, ResponseModel
+from ..support.base_models import PointDataResults
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
 from ..support.results.analysis import Analysis
@@ -109,7 +109,9 @@ def get_energy_release_plot(
     result_file = os.path.join(resultpath, model_name + "_" + output_csv + ".png")
 
     if not os.path.exists(file):
-        return ResponseModel(data=False, message=model_name + "_" + output_csv + ".csv can not be found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=model_name + "_" + output_csv + ".csv can not be found"
+        )
 
     df = pd.read_csv(file)
 
@@ -217,7 +219,9 @@ def get_plot(
     file = os.path.join(resultpath, model_name + "_" + output + ".csv")
 
     if not os.path.exists(file):
-        return ResponseModel(data=False, message=model_name + "_" + output + ".csv can not be found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=model_name + "_" + output + ".csv can not be found"
+        )
 
     # x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
     # y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
@@ -240,10 +244,7 @@ def get_plot(
                 for i, value in enumerate(row):
                     data[column_names[i]].append(value)
 
-    return ResponseModel(data=data, message="Plot received")
-    # except IOError:
-    #     log.error("%s results can not be found on %s", model_name, cluster)
-    #     return ResponseModel(data=data, message=model_name + " results can not be found on " + cluster)
+    return data
 
 
 @router.get("/getResults", operation_id="get_results")
