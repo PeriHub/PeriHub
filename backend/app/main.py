@@ -32,6 +32,7 @@ from .routers import (
     translate,
     upload,
 )
+from .support.base_models import VersionData
 from .support.file_handler import FileHandler
 from .support.globals import dev, log, trial
 
@@ -208,7 +209,7 @@ async def websocket_endpoint_log(
 
 
 @app.get("/updates", operation_id="get_version")
-async def get_app_latest_release_version():
+async def get_app_latest_release_version() -> VersionData:
     version = "unknown"
     # adopt path to your pyproject.toml
     pyproject_toml_file = Path(__file__).parent / "pyproject.toml"
@@ -232,7 +233,7 @@ async def get_app_latest_release_version():
                 data = await response.json()
                 latest_version = data["tag_name"]
 
-                return {"current": version, "latest": latest_version[1:]}
+                return VersionData(version, latest_version[1:])
     except Exception as e:
         log.debug(e)
-        return {"current": version, "latest": version}
+        return  VersionData(version, version)

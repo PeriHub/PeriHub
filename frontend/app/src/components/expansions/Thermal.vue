@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
     <q-toggle class="my-toggle" v-model="thermal.enabled" label="Enabled" standout dense></q-toggle>
     <div v-if="thermal.enabled">
       <q-separator></q-separator>
-      <q-list v-for="thermalModel, index in thermal.thermalModels" :key="thermalModel.thermalModelsId"
+      <q-list v-for="thermalModel, index in thermal.thermalModels" :key="thermalModel.thermalModelsId as PropertyKey"
         style="padding: 0px">
         <div
           v-bind:style="(thermalModel.thermalModelsId! % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
@@ -118,11 +118,11 @@ export default defineComponent({
         numStateVars: 'Number of State Variables',
         predefinedFieldNames: 'Predefined Field Names',
       },
-      filterOptions: this.thermalModelNames,
+      filterOptions: [] as string[],
     };
   },
   methods: {
-    filterFn(val, update) {
+    filterFn(val: string, update: (callbackFn: () => void) => void) {
       update(() => {
         if (val === '') {
           this.filterOptions = this.thermalModelNames

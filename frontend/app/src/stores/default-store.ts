@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineStore, acceptHMRUpdate } from 'pinia';
+import type { Status } from 'src/client';
 
 export const useDefaultStore = defineStore('default', {
   state: () => ({
@@ -15,12 +16,7 @@ export const useDefaultStore = defineStore('default', {
     DEV: false,
     TRIAL: false,
 
-    status: {
-      created: false,
-      submitted: false,
-      results: false,
-      meshfileExist: false,
-    },
+    status: {} as Status
   }),
   actions: {
     initialiseStore() {

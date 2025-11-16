@@ -16,7 +16,7 @@ SPDX-License-Identifier: Apache-2.0
 
     <q-select standout dense class="q-pa-sm" v-model="model.modelFolderName" use-input hide-selected fill-input
       input-debounce="0" @new-value="createValue" :options="filteredModelFolderNameList" @filter="filterFn"
-      label="Model Subname" @update:model-value="bus.emit('getStatus')"></q-select>
+      label="Model Subname" @update:model-value="selectModelFolderName"></q-select>
 
     <!-- <q-input class="my-select" v-model="model.modelFolderName" label="Model Subname" placeholder="Default" standout
       dense></q-input> -->
@@ -27,14 +27,16 @@ SPDX-License-Identifier: Apache-2.0
 
     <div v-if="!model.ownModel">
       <div v-for="param in modelStore.modelParams.valves" :key="param.name">
+        <!-- @vue-expect-error Bla-->
         <div v-if="!param.depends || modelStore.modelParams.valves.find(o => o.name === param.depends).value">
-          <q-input class="my-select" v-if="['text', 'number'].includes(param.type)" :label="param.label"
-            v-model.number="param.value" :type="param.type" standout dense>
+          <!-- @vue-expect-error Bla-->
+          <q-input class="my-select" v-if="typeof(param.value) != 'boolean' && ['text', 'number'].includes(param.type)" :label="param.label"
+            v-model="param.value" :type="param.type" standout dense>
             <q-tooltip>
               {{ param.description }}
             </q-tooltip>
           </q-input>
-          <q-select class="my-select" standout dense v-if="param.type == 'select'" :options="param.options"
+          <q-select class="my-select" standout dense v-if="param.type == 'select' && param.options" :options="param.options"
             option-label="name" v-model="param.value" :label="param.label">
             <q-tooltip>
               {{ param.description }}
@@ -49,7 +51,6 @@ SPDX-License-Identifier: Apache-2.0
         </div>
       </div>
     </div>
-
     <!-- <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & modelStore.selectedModel.file != 'RVE'"
       :rules="[rules.required, rules.float]" label="Length" standout dense></q-input>
     <q-input class="my-input" v-model="model.cracklength"
@@ -211,7 +212,7 @@ export default defineComponent({
   data() {
     return {
       modelFolderNameList: ['Default'],
-      filteredModelFolderNameList: [],
+      filteredModelFolderNameList: [] as string[],
     };
   },
   methods: {
@@ -226,25 +227,28 @@ export default defineComponent({
           })
         })
     },
-    selectMethod() {
+    async selectMethod() {
       // this.viewStore.viewLoading = true
-      const response = getValves({
+      const response = await getValves({
         modelName: this.modelStore.selectedModel.file
       })
       this.modelStore.modelParams = response
       // this.viewStore.viewLoading = false
       this._getJobFolders()
     },
-    switchOwnModels() {
+    selectModelFolderName() {
+      this.$bus.emit('getStatus')
+    },
+    async switchOwnModels() {
       if (!this.model.ownModel) {
         this.modelStore.selectedModel = {
           title: 'Compact Tenison',
           file: 'CompactTension',
         }
       }
-      this.selectMethod()
+      await this.selectMethod()
     },
-    createValue(val, done) {
+    createValue(val: string, done: (item: string, mode:  "add" | "add-unique" | "toggle" | undefined) => void) {
 
       if (val.length > 0) {
         if (!this.modelFolderNameList.includes(val)) {
@@ -253,8 +257,7 @@ export default defineComponent({
         done(val, 'toggle')
       }
     },
-
-    filterFn(val, update) {
+    filterFn(val: string, update: (callbackFn: () => void) => void) {
       update(() => {
         if (val === '') {
           this.filteredModelFolderNameList = this.modelFolderNameList
@@ -270,7 +273,7 @@ export default defineComponent({
   },
   async beforeMount() {
     this.modelStore.availableModels = await getModels()
-    this.selectMethod()
+    await this.selectMethod()
   },
   watch: {
     'modelStore.selectedModel': {

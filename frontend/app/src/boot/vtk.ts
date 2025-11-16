@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { boot } from 'quasar/wrappers';
+import { defineBoot } from '#q-app/wrappers';
 // @ts-expect-error Bla
 import * as VTK from 'vue-vtk-js';
 
-export default boot(({ app }) => {
+export default defineBoot(({ app }) => {
   app.use(VTK);
 });

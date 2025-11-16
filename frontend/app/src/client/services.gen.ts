@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelData, SaveModelResponse, DeleteModelData, DeleteModelResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnergyReleasePlotData, GetEnergyReleasePlotResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModel1Data, DeleteModel1Response, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnergyReleasePlotData, GetEnergyReleasePlotResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -273,7 +273,7 @@ export const getOwnModelFile = (data: GetOwnModelFileData = {}): CancelablePromi
  * @returns unknown Successful Response
  * @throws ApiError
  */
-export const saveModel = (data: SaveModelData): CancelablePromise<SaveModelResponse> => { return __request(OpenAPI, {
+export const saveModelFile = (data: SaveModelFileData): CancelablePromise<SaveModelFileResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/model/save',
     query: {
@@ -292,7 +292,7 @@ export const saveModel = (data: SaveModelData): CancelablePromise<SaveModelRespo
  * @returns unknown Successful Response
  * @throws ApiError
  */
-export const deleteModel = (data: DeleteModelData): CancelablePromise<DeleteModelResponse> => { return __request(OpenAPI, {
+export const deleteModelFile = (data: DeleteModelFileData): CancelablePromise<DeleteModelFileResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/model/delete',
     query: {
@@ -431,7 +431,7 @@ export const cancelJob = (data: CancelJobData = {}): CancelablePromise<CancelJob
  * doc
  * @param data The data for the request.
  * @param data.modelName
- * @returns unknown Successful Response
+ * @returns string Successful Response
  * @throws ApiError
  */
 export const getJobFolders = (data: GetJobFoldersData = {}): CancelablePromise<GetJobFoldersResponse> => { return __request(OpenAPI, {
@@ -716,7 +716,7 @@ export const getPointDataResults = (data: GetPointDataResultsData = {}): Cancela
  * @returns unknown Successful Response
  * @throws ApiError
  */
-export const deleteModel1 = (data: DeleteModel1Data = {}): CancelablePromise<DeleteModel1Response> => { return __request(OpenAPI, {
+export const deleteModel = (data: DeleteModelData = {}): CancelablePromise<DeleteModelResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
     url: '/delete/model',
     query: {
@@ -820,7 +820,7 @@ export const getPrognosisEnergy = (): CancelablePromise<GetPrognosisEnergyRespon
 /**
  * Energy
  * doc
- * @returns unknown Successful Response
+ * @returns number Successful Response
  * @throws ApiError
  */
 export const getCurrentEnergy = (): CancelablePromise<GetCurrentEnergyResponse> => { return __request(OpenAPI, {
@@ -840,7 +840,7 @@ export const healthcheckHealthGet = (): CancelablePromise<HealthcheckHealthGetRe
 
 /**
  * Get App Latest Release Version
- * @returns unknown Successful Response
+ * @returns VersionData Successful Response
  * @throws ApiError
  */
 export const getVersion = (): CancelablePromise<GetVersionResponse> => { return __request(OpenAPI, {

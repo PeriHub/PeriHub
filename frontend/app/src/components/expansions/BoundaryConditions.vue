@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-list v-for="boundaryCondition, index in boundaryConditions.conditions" :key="boundaryCondition.conditionsId"
+    <q-list v-for="boundaryCondition, index in boundaryConditions.conditions" :key="boundaryCondition.conditionsId as PropertyKey"
       style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="boundaryCondition.name" :rules="[rules.required, rules.name]"
@@ -51,7 +51,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import type { BoundaryCondition } from 'src/client';
+import type { BoundaryCondition, Discretization_Input } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -62,7 +62,7 @@ export default defineComponent({
     const blocks = computed(() => store.modelData.blocks)
     const solvers = computed(() => store.modelData.solvers)
     const boundaryConditions = computed(() => store.modelData.boundaryConditions)
-    const discretization = computed(() => store.modelData.discretization)
+    const discretization = computed(() => store.modelData.discretization) as unknown as Discretization_Input
     return {
       store,
       model,
@@ -111,13 +111,13 @@ export default defineComponent({
         this.boundaryConditions.conditions = []
       }
       const len = this.boundaryConditions.conditions.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.boundaryConditions.conditions[len - 1])) : {} as BoundaryCondition;
+      const newItem = len > 0 ? structuredClone(toRaw(this.boundaryConditions.conditions[len - 1])) as BoundaryCondition : {} as BoundaryCondition;
       newItem.conditionsId = len + 1
       newItem.name = 'BC_' + (len + 1)
       newItem.blockId = len + 1
       this.boundaryConditions.conditions.push(newItem);
     },
-    removeCondition(index) {
+    removeCondition(index: number) {
       this.boundaryConditions.conditions.splice(index, 1);
       // this.boundaryConditions.nodeSets.splice(index, 1);
       this.boundaryConditions.conditions.forEach((condition, i) => {

@@ -229,8 +229,8 @@ export default defineComponent({
       this.calculated.C66 = null;
     },
     copyText(id: string) {
-      if (!this.calculated[id]) { return }
-      copyToClipboard(this.calculated[id])
+      if (!this.calculated[id as keyof typeof this.calculated]) { return }
+      copyToClipboard(this.calculated[id as keyof typeof this.calculated] as string)
         .then(() => {
           this.$q.notify({
             message: 'Copied to clipboard',

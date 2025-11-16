@@ -50,7 +50,7 @@ async def energy() -> dict:
 
 
 @router.get("/current", operation_id="get_current_energy")
-async def energy():
+async def energy() -> float:
     """doc"""
     # Define the URL and query parameters
     url = "https://api.energy-charts.info/traffic_signal"

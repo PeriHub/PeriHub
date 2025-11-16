@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-table flat :rows="rows" :columns="columns" row-key="id" :loading="loading" clickable @row-click="onRowClick"
+    <q-table flat :rows="rows" :columns="columns" row-key="id" :loading="loading" clickable
       :rows-per-page-options="[0]">
       <template v-slot:loading>
         <q-inner-loading showing color="primary"></q-inner-loading>
@@ -79,12 +79,12 @@ export default defineComponent({
       loading: false,
       selected: [],
       columns: [
-        { name: 'name', label: 'ModelName', field: 'name', sortable: true, align: 'left' },
+        { name: 'name', label: 'ModelName', field: 'name', sortable: true, align: 'left' as 'left' | 'right' | 'center' },
         { name: 'cluster', label: 'Cluster', field: 'cluster', sortable: true },
         { name: 'submitted', label: 'Submitted', field: 'submitted', sortable: true },
         { name: 'results', label: 'Results', field: 'results', sortable: true },
         // { name: 'created', hidden: true},
-        { name: 'id', required: true, hidden: true },
+        { name: 'id', label: 'id', field: 'id', required: true, hidden: true },
       ],
       rows: [] as Jobs[]
     };

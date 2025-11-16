@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-list v-for="bondFilter, index in store.modelData.bondFilters" :key="bondFilter.bondFiltersId"
+    <q-list v-for="bondFilter, index in store.modelData.bondFilters" :key="bondFilter.bondFiltersId as PropertyKey"
       style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="bondFilter.name" :rules="[rules.required, rules.name]"
@@ -92,13 +92,12 @@ export default defineComponent({
     }
   },
   created() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     this.$bus.on('showHideBondFilters', () => {
       this.showHideBondFilters()
-    }),
-      this.$bus.on('updateCracklength', () => {
-        this.updateCracklength()
-      })
+    })
+      // this.$bus.on('updateCracklength', () => {
+      //   this.updateCracklength()
+      // })
   },
   data() {
     return {
@@ -126,27 +125,27 @@ export default defineComponent({
     };
   },
   methods: {
-    updateCracklength() {
-      if (this.store.selectedModel.file == 'CompactTension') {
-        const cracklength = this.store.modelData.model.cracklength
-        const length = this.store.modelData.model.length
-        console.log(cracklength)
-        console.log(length)
-        const width = this.store.modelData.model.width
-        this.bondFilters[0]!.bottomLength = +cracklength + 0.5 + 0.25 * +length
-        if (this.store.modelData.model.twoDimensional) {
-          this.bondFilters[0]!.sideLength = 2.0
-          this.bondFilters[0]!.lowerLeftCornerZ = -1
-        } else {
-          this.bondFilters[0]!.sideLength = width + 2.0
-          this.bondFilters[0]!.lowerLeftCornerZ = (-width / 2) - 1
-        }
-      }
-    },
+    // updateCracklength() {
+    //   if (this.store.selectedModel.file == 'CompactTension') {
+    //     const cracklength = this.store.modelData.model.cracklength
+    //     const length = this.store.modelData.model.length
+    //     console.log(cracklength)
+    //     console.log(length)
+    //     const width = this.store.modelData.model.width
+    //     this.bondFilters[0]!.bottomLength = +cracklength + 0.5 + 0.25 * +length
+    //     if (this.store.modelData.model.twoDimensional) {
+    //       this.bondFilters[0]!.sideLength = 2.0
+    //       this.bondFilters[0]!.lowerLeftCornerZ = -1
+    //     } else {
+    //       this.bondFilters[0]!.sideLength = width + 2.0
+    //       this.bondFilters[0]!.lowerLeftCornerZ = (-width / 2) - 1
+    //     }
+    //   }
+    // },
     addBondFilter() {
       const len = this.bondFilters.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.bondFilters[len - 1])) : {} as BondFilters;
-      newItem.bondFilterId = len + 1
+      const newItem = len > 0 ? structuredClone(toRaw(this.bondFilters[len - 1])) as BondFilters : {} as BondFilters;
+      newItem.bondFiltersId = len + 1
       newItem.name = 'bf_' + (len + 1)
       this.bondFilters.push(newItem);
       this.viewStore.bondFilterPoints.push({
@@ -154,7 +153,7 @@ export default defineComponent({
         bondFilterPointString: [],
       });
     },
-    removeBondFilter(index) {
+    removeBondFilter(index: number) {
       this.bondFilters.splice(index, 1);
       this.viewStore.bondFilterPoints.splice(index, 1);
     },
@@ -191,6 +190,10 @@ export default defineComponent({
             const cy = bondFilter.centerY;
             const cz = bondFilter.centerZ;
             const radius = bondFilter.radius;
+            if (!cx || !cy || !cz || !radius) {
+              console.log('Disk: cx, cy, cz, radius not defined');
+              continue;
+            }
 
             const crossVector1 = this.cross(nx, ny, nz, 1.0, 0.0, 0.0);
             const crossVector2 = this.cross(nx, ny, nz, 0.0, 1.0, 0.0);
@@ -198,24 +201,24 @@ export default defineComponent({
             const crossVector4 = this.cross(nx, ny, nz, 0.0, -1.0, 0.0);
 
             const normVector1 = this.getVectorNorm(
-              crossVector1[0],
-              crossVector1[1],
-              crossVector1[2]
+              crossVector1[0]!,
+              crossVector1[1]!,
+              crossVector1[2]!
             );
             const normVector2 = this.getVectorNorm(
-              crossVector2[0],
-              crossVector2[1],
-              crossVector2[2]
+              crossVector2[0]!,
+              crossVector2[1]!,
+              crossVector2[2]!
             );
             const normVector3 = this.getVectorNorm(
-              crossVector3[0],
-              crossVector3[1],
-              crossVector3[2]
+              crossVector3[0]!,
+              crossVector3[1]!,
+              crossVector3[2]!
             );
             const normVector4 = this.getVectorNorm(
-              crossVector4[0],
-              crossVector4[1],
-              crossVector4[2]
+              crossVector4[0]!,
+              crossVector4[1]!,
+              crossVector4[2]!
             );
 
             const point1x = cx + normVector1[0]! * radius;
@@ -245,6 +248,20 @@ export default defineComponent({
             const bl = bondFilter.bottomLength;
             const sl = bondFilter.sideLength;
 
+            if (
+              !lx ||
+              !ly ||
+              !lz ||
+              !bx ||
+              !by ||
+              !bz ||
+              !bl ||
+              !sl
+            ) {
+              console.log('Rectangular_Plane: lx, ly, lz, bx, by, bz, bl, sl not defined');
+              continue;
+            }
+
             const point1x = lx;
             const point1y = ly;
             const point1z = lz;
@@ -258,9 +275,9 @@ export default defineComponent({
             const crossVector = this.cross(nx, ny, nz, bx, by, bz);
 
             const normVector = this.getVectorNorm(
-              crossVector[0],
-              crossVector[1],
-              crossVector[2]
+              crossVector[0]!,
+              crossVector[1]!,
+              crossVector[2]!
             );
 
             const point4x = lx + normVector[0]! * sl;

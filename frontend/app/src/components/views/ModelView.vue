@@ -31,7 +31,7 @@ SPDX-License-Identifier: Apache-2.0
           switch-label-side color="gray"></q-slider>
       </div>
     </div>
-    <vtk-view>
+    <vtk-view ref="view">
       <vtk-geometry-representation>
         <vtk-polydata :points="[0, 0, 0, 0, 1, 0, 1, 0, 0]" :polys="[3, 0, 1, 2]">
           <vtk-point-data>

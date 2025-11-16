@@ -54,8 +54,8 @@ export default defineComponent({
     this.$bus.on('enableWebsocket', () => {
       this.enableWebsocket()
     })
-    this.$bus.on('viewInputFile', (loadFile) => {
-      this.viewInputFile(loadFile)
+    this.$bus.on('viewInputFile', () => {
+      this.viewInputFile()
     })
     this.$bus.on('getStatus', () => {
       this._getStatus()
@@ -68,25 +68,25 @@ export default defineComponent({
   },
   data() {
     return {
-      connection: null,
+      connection: null as WebSocket | null,
       debug: false,
       lastLine: '',
     };
   },
   methods: {
-    viewInputFile(loadFile: boolean) {
+    viewInputFile() {
       console.log('viewInputFile')
 
-      viewInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, ownMesh: this.modelData.model.ownMesh })
+      viewInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName })
         .then((response) => {
           this.$q.notify({
-            message: response.message
+            message: 'Inputfile loaded'
           })
-          this.viewStore.textOutput = response.data;
+          this.viewStore.textOutput = response;
           this.viewStore.textId = 'input'
-          if (loadFile) {
-            this.loadYamlString(response.data);
-          }
+          // if (loadFile) {
+          //   this.loadYamlString(response);
+          // }
         })
         .catch((error) => {
           this.$q.notify({
@@ -100,9 +100,9 @@ export default defineComponent({
     writeInputFile() {
 
       writeInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, inputString: this.viewStore.textOutput })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: 'Inputfile saved'
           })
         })
         .catch((error) => {
@@ -115,19 +115,25 @@ export default defineComponent({
     _getStatus() {
       console.log('getStatus');
 
-      const response = getStatus({
+      getStatus({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
-        meshfile: this.modelData.model.meshFile,
-        ownModel: this.modelData.model.ownModel,
+        meshfile: this.modelData.model.meshFile!,
+        // ownModel: this.modelData.model.ownModel,
         cluster: this.modelData.job.cluster,
         sbatch: this.modelData.job.sbatch
-      });
-      console.log(response)
-      this.$q.notify({
-        message: response.message
+      }).then((response) => {
+        console.log(response)
+        this.$q.notify({
+          message: 'Status updated'
+        })
+        this.store.status = response
+      }).catch((error) => {
+        this.$q.notify({
+          type: 'negative',
+          message: error.response.detail
+        })
       })
-      this.store.status = response.data
       // if (this.store.status.submitted)
       // {
       //   this.enableWebsocket()
@@ -166,7 +172,7 @@ export default defineComponent({
       };
 
       const queryString = Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value as string)}`)
         .join('&');
 
       // TODO: socket path wont work on build
@@ -187,7 +193,7 @@ export default defineComponent({
           if (lastLine && lastLine.includes('[Info] Run ')) {
             this.viewStore.viewId = 'results';
           }
-          if (lastLine && lastLine.includes('[Info] PeriLab finished')) {
+          if (lastLine && lastLine.includes('[Info] PeriLab finished') && this.connection ) {
             this.connection.close();
             this.connection = null; // Reset the connection variable
             this._getStatus();
@@ -198,7 +204,7 @@ export default defineComponent({
               })
             }
           }
-          if (lastLine && lastLine.includes('[Error]')) {
+          if (lastLine && lastLine.includes('[Error]') && this.connection) {
             this.connection.close();
             this.connection = null; // Reset the connection variable
             this._getStatus();
@@ -210,10 +216,10 @@ export default defineComponent({
               })
             }
           }
-          this.lastLine = lastLine
+          this.lastLine = lastLine!
         }
       }
-      this.connection.onerror = (event) => {
+      this.connection.onerror = (event: Event) => {
         console.log(event)
         this.$q.notify({
           type: 'negative',

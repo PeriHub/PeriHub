@@ -80,7 +80,7 @@ import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 import JsonEditorVue from 'json-editor-vue'
 
-import { getOwnModels, getOwnModelFile, getConfig, saveConfig, saveModel, addModel, deleteModel } from '../client';
+import { getOwnModels, getOwnModelFile, getConfig, saveConfig, saveModelFile, addModel, deleteModelFile } from '../client';
 import type { GetOwnModelsResponse, ModelData_Output } from 'src/client';
 
 export default {
@@ -145,7 +145,7 @@ export default {
       this.config = config;
     },
     async _saveModel() {
-      await saveModel({
+      await saveModelFile({
         modelFile: this.selectedModel.file,
         sourceCode: this.sourceCode
       }).then(() => this.$q.notify({
@@ -175,7 +175,7 @@ export default {
       })
     },
     async _deleteModel() {
-      await deleteModel({
+      await deleteModelFile({
         modelName: this.selectedModel.file,
       }).then(() => {
         this.$q.notify({

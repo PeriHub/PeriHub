@@ -12,7 +12,7 @@ export type Additive = {
 };
 
 export type AdditiveModel = {
-    additiveModelsId?: number | null;
+    additiveModelId?: number | null;
     name: string;
     additiveType: string;
     printTemp: number;
@@ -46,7 +46,7 @@ export type Body_upload_files = {
 };
 
 export type BondFilters = {
-    id?: number | null;
+    bondFiltersId?: number | null;
     name: string;
     type: string;
     allow_contact?: boolean | null;
@@ -229,7 +229,7 @@ export type Jobs = {
 };
 
 export type Material_Input = {
-    id?: number | null;
+    materialsId?: number | null;
     name: string;
     matType: Array<(string)>;
     bulkModulus?: number | null;
@@ -251,7 +251,7 @@ export type Material_Input = {
 };
 
 export type Material_Output = {
-    id?: number | null;
+    materialsId?: number | null;
     name: string;
     matType: Array<(string)>;
     bulkModulus?: number | null;
@@ -467,13 +467,15 @@ export type ValidationError = {
 
 export type Valve = {
     name: string;
-    type: string;
-    value: unknown;
+    type: 'text' | 'number' | 'select' | 'checkbox' | 'data';
+    value: number | boolean;
     label: string;
     description: string;
     options: Array<(string)> | null;
-    depends: Array<(string)> | null;
+    depends: string | null;
 };
+
+export type type = 'text' | 'number' | 'select' | 'checkbox' | 'data';
 
 export type Valves = {
     valves: Array<Valve>;
@@ -485,8 +487,13 @@ export type Verlet = {
     outputFrequency?: number;
 };
 
+export type VersionData = {
+    current: string;
+    latest: string;
+};
+
 export type properties = {
-    id?: number | null;
+    materialsPropId?: number | null;
     name: string;
     value?: number | null;
 };
@@ -577,18 +584,18 @@ export type GetOwnModelFileData = {
 
 export type GetOwnModelFileResponse = string;
 
-export type SaveModelData = {
+export type SaveModelFileData = {
     modelFile: string;
     sourceCode: string;
 };
 
-export type SaveModelResponse = unknown;
+export type SaveModelFileResponse = unknown;
 
-export type DeleteModelData = {
+export type DeleteModelFileData = {
     modelName: string;
 };
 
-export type DeleteModelResponse = unknown;
+export type DeleteModelFileResponse = unknown;
 
 export type UploadFilesData = {
     formData: Body_upload_files;
@@ -637,7 +644,7 @@ export type GetJobFoldersData = {
     modelName?: string;
 };
 
-export type GetJobFoldersResponse = unknown;
+export type GetJobFoldersResponse = Array<(string)>;
 
 export type GetJobsData = {
     modelName?: string;
@@ -712,7 +719,9 @@ export type GetPlotData = {
     tasks?: number;
 };
 
-export type GetPlotResponse = unknown;
+export type GetPlotResponse = {
+    [key: string]: unknown;
+};
 
 export type GetResultsData = {
     allData?: boolean;
@@ -742,12 +751,12 @@ export type GetPointDataResultsData = {
 
 export type GetPointDataResultsResponse = PointDataResults;
 
-export type DeleteModel1Data = {
+export type DeleteModelData = {
     modelFolderName?: string;
     modelName?: string;
 };
 
-export type DeleteModel1Response = unknown;
+export type DeleteModelResponse = unknown;
 
 export type DeleteModelFromClusterData = {
     cluster?: boolean;
@@ -778,11 +787,11 @@ export type GetPrognosisEnergyResponse = {
     [key: string]: unknown;
 };
 
-export type GetCurrentEnergyResponse = unknown;
+export type GetCurrentEnergyResponse = number;
 
 export type HealthcheckHealthGetResponse = unknown;
 
-export type GetVersionResponse = unknown;
+export type GetVersionResponse = VersionData;
 
 export type $OpenApiTs = {
     '/generate/model': {
@@ -974,7 +983,7 @@ export type $OpenApiTs = {
     };
     '/model/save': {
         post: {
-            req: SaveModelData;
+            req: SaveModelFileData;
             res: {
                 /**
                  * Successful Response
@@ -989,7 +998,7 @@ export type $OpenApiTs = {
     };
     '/model/delete': {
         delete: {
-            req: DeleteModelData;
+            req: DeleteModelFileData;
             res: {
                 /**
                  * Successful Response
@@ -1084,7 +1093,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: Array<(string)>;
                 /**
                  * Validation Error
                  */
@@ -1174,7 +1183,9 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: {
+                    [key: string]: unknown;
+                };
                 /**
                  * Validation Error
                  */
@@ -1214,7 +1225,7 @@ export type $OpenApiTs = {
     };
     '/delete/model': {
         delete: {
-            req: DeleteModel1Data;
+            req: DeleteModelData;
             res: {
                 /**
                  * Successful Response
@@ -1300,7 +1311,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: number;
             };
         };
     };
@@ -1320,7 +1331,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: VersionData;
             };
         };
     };

@@ -239,7 +239,7 @@ export default defineComponent({
       }
     },
     copyText(id: string) {
-      copyToClipboard(this.conversionResults[id])
+      copyToClipboard(this.conversionResults[id as keyof typeof this.conversionResults] as string)
         .then(() => {
           this.$q.notify({
             message: 'Copied to clipboard',

@@ -4,10 +4,12 @@
 
 import json
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Union,Literal
 
 from pydantic import BaseModel
-
+class VersionData(BaseModel):
+    current: str
+    latest: str
 
 class PointDataResults(BaseModel):
     nodes: List[float]
@@ -27,12 +29,12 @@ class PointData(BaseModel):
 
 class Valve(BaseModel):
     name: str
-    type: str
-    value: Any
+    type: Literal['text', 'number', 'select', 'checkbox', 'data']
+    value: Union[int, float, bool]
     label: str
     description: str
     options: Optional[List[str]]
-    depends: Optional[List[str]]
+    depends: Optional[str]
 
 
 class Valves(BaseModel):
@@ -67,7 +69,7 @@ class Jobs(BaseModel):
 
 
 class properties(BaseModel):
-    id: Optional[int] = None
+    materialsPropId: Optional[int] = None
     name: str
     value: Optional[float] = None
 
@@ -115,7 +117,7 @@ class StiffnessMatrix(BaseModel):
 
 
 class Material(BaseModel):
-    id: Optional[int] = None
+    materialsId: Optional[int] = None
     name: str
     matType: List[str]
     bulkModulus: Optional[float] = None
@@ -184,7 +186,7 @@ class Thermal(BaseModel):
 
 
 class AdditiveModel(BaseModel):
-    additiveModelsId: Optional[int] = None
+    additiveModelId: Optional[int] = None
     name: str
     additiveType: str
     printTemp: float
@@ -289,7 +291,7 @@ class BoundaryConditions(BaseModel):
 
 
 class BondFilters(BaseModel):
-    id: Optional[int] = None
+    bondFiltersId: Optional[int] = None
     name: str
     type: str
     allow_contact: Optional[bool] = False

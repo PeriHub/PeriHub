@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 <template>
   <div>
-    <q-list v-for="solver, index in solvers" :key="solver.solverId" style="padding: 0px">
+    <q-list v-for="solver, index in solvers" :key="solver.solverId as PropertyKey" style="padding: 0px">
       <div
         v-bind:style="(solver.solverId! % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
         <h4 class="my-title">Solver {{ solver.solverId }}</h4>
@@ -35,7 +35,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-if="solver.stepId != 1" v-model="solver.additionalTime" clearable
             :rules="[rules.float]" :label="solverKeys.additionalTime" standout dense></q-input>
           <q-input class="my-input" v-model="solver.fixedDt"
-            v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'" :rules="[rules.posFloat]"
+            v-show="solver.solvertype == 'Implicit' || solver.solvertype == 'Verlet'" :rules="[rules.posFloat]"
             :label="solverKeys.fixedDt" standout dense clearable></q-input>
         </div>
         <div class="row my-row">
@@ -81,6 +81,7 @@ SPDX-License-Identifier: Apache-2.0
                 :label="solverKeys.verlet.outputFrequency" standout dense></q-input>
         </div> -->
         <div class="row my-row" v-show="solver.solvertype == 'Verlet' && solver.verlet != null">
+          <!-- @vue-expect-error Bla-->
           <q-input class="my-input" v-model="solver.verlet.numericalDamping" :rules="[rules.required, rules.posFloat]"
             :label="solverKeys.verlet.numericalDamping" standout dense></q-input>
           <q-toggle class="my-toggle" v-model="solver.adaptivetimeStepping" :label="solverKeys.adaptivetimeStepping"
@@ -247,7 +248,7 @@ export default defineComponent({
       newItem.stepId = len + 1
       this.solvers.push(newItem);
     },
-    removeSolver(index) {
+    removeSolver(index: number) {
       this.solvers.splice(index, 1);
       this.solvers.forEach((solver, i) => {
         solver.solverId = i + 1

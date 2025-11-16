@@ -206,7 +206,7 @@ def get_plot(
     # y_axis: str = "X",
     # y_absolute: bool = True,
     request: Request = "",
-):
+) -> dict:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 

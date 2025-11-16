@@ -37,7 +37,7 @@
     "vue-image-zoomer": "^2.2.3",
     "vue-prism-editor": "^2.0.0-alpha.2",
     "vue-router": "^4.0.12",
-    "vue-vtk-js": "^3.0.2",
+    "vue-vtk-js": "^3.3.1",
     "vue3-plotly": "^0.0.5"
   },
   "devDependencies": {

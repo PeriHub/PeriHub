@@ -3,7 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineStore } from 'pinia';
-
+interface BondFilterPoint {
+  bondFilterPointsId: number;
+  bondFilterPointString: number[];
+}
 export const useViewStore = defineStore('view', {
   state: () => ({
     viewId: 'image',
@@ -13,7 +16,7 @@ export const useViewStore = defineStore('view', {
     textLoading: false,
     textOutput: '',
     logOutput: '',
-    bondFilterPoints: [],
+    bondFilterPoints: [] as BondFilterPoint[],
     filteredPointString: [1, 0, 0],
     filteredBlockIdString: [1],
     dx_value: 0.1,
@@ -39,11 +42,13 @@ export const useViewStore = defineStore('view', {
         showgrid: true,
         zeroline: true,
         color: 'white',
+        title: 'Time',
       },
       yaxis: {
         showgrid: true,
         zeroline: true,
         color: 'white',
+        title: 'Displacement',
       },
       plot_bgcolor: '#2D2D2D',
       paper_bgcolor: '#2D2D2D',

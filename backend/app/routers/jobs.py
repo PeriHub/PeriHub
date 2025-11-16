@@ -281,6 +281,8 @@ def get_job_folders(
 
     job_folders = next(os.walk(localpath))[1]
 
+    return job_folders
+
 
 @router.get("/getJobs", operation_id="get_jobs")
 def get_jobs(

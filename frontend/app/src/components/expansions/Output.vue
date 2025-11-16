@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div>
     <h6 class="my-title">Compute Parameters (Global Variables)</h6>
-    <q-list v-for="compute, index in computes" :key="compute.computesId" style="padding: 0px">
+    <q-list v-for="compute, index in computes" :key="compute.computesId as PropertyKey" style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="compute.name" :rules="[rules.required, rules.name]" :label="computeKeys.name"
           standout dense></q-input>
@@ -52,12 +52,12 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
     <q-separator></q-separator>
-    <q-list v-for="output, index in outputs" :key="output.outputsId" style="padding: 0px">
+    <q-list v-for="output, index in outputs" :key="output.outputsId as PropertyKey" style="padding: 0px">
       <div
-        v-bind:style="(output.outputsId % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+        v-bind:style="(output.outputsId! % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
         <h4 class="my-title">Output {{ output.outputsId }}</h4>
         <div class="row my-row">
-          <q-input class="my-input" v-model="output.name" :rules="[rules.required, rules.name]" :label="outputKeys.name"
+          <q-input class="my-input" v-model="output.name" :rules="[rules.required, rules.name]" label="Output Name"
             standout dense></q-input>
           <q-btn flat icon="fas fa-trash-alt" @click="removeOutput(index)">
             <q-tooltip>
@@ -100,7 +100,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import type { Compute } from 'src/client';
+import type { NodeSet, Compute } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -108,7 +108,7 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const blocks = computed(() => store.modelData.blocks)
-    const nodeSets = computed(() => store.modelData.discretization.nodeSets) as unknown as NodeSet[]
+    const nodeSets = computed(() => store.modelData.discretization!.nodeSets) as unknown as NodeSet[]
     const computes = computed(() => store.modelData.computes) as unknown as Compute[]
     const outputs = computed(() => store.modelData.outputs)
     const job = computed(() => store.modelData.job)
@@ -214,12 +214,12 @@ export default defineComponent({
       //   'Velocity_Gradient',
       //   'PiolaStressTimesInvShapeTensor',
       // ],
-      filterOptions: this.outputKeys,
-      filterOptionsCsv: this.outputKeys,
+      filterOptions: [] as string[],
+      filterOptionsCsv:  [] as string[],
     };
   },
   methods: {
-    filterFn(val, update) {
+    filterFn(val: string, update: (callbackFn: () => void) => void) {
       update(() => {
         if (val === '') {
           this.filterOptions = this.outputKeys
@@ -232,11 +232,11 @@ export default defineComponent({
         }
       })
     },
-    filterFnCsv(val, update) {
+    filterFnCsv(val: string, update: (callbackFn: () => void) => void) {
       update(() => {
         const outputKeys = []
         for (let i = 0; i < this.computes.length; i++) {
-          outputKeys.push(this.computes[i].name)
+          outputKeys.push(this.computes[i]!.name)
         }
         if (val === '') {
           this.filterOptionsCsv = outputKeys

@@ -100,6 +100,7 @@ import { api } from 'boot/axios';
 import { generateModel, saveConfig } from 'src/client';
 import type { Discretization_Input } from 'src/client';
 import rules from 'assets/rules.js';
+import Driver from 'driver.js';
 
 const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -146,15 +147,16 @@ export default defineComponent({
       // @ts-expect-error Bla
       this.$refs.nodesetsInput.click();
     },
+    // @ts-expect-error Bla
     async uploadFinished(res) {
       this.$q.notify({
         message: 'Files uploaded'
       })
       this.dialogUpload = false
-      const type = res.files[0].name.split('.')[1]
+      const type = res.files[0]!.name.split('.')[1]
       console.log(type)
       if (type == 'gcode') {
-        this.modelStore.modelData.model.meshFile = res.files[0].name
+        this.modelStore.modelData.model.meshFile = res.files[0]!.name
         if (!this.modelStore.modelData.discretization) {
           this.modelStore.modelData.discretization = {} as Discretization_Input
         }
@@ -175,7 +177,7 @@ export default defineComponent({
         this.$bus.emit('viewPointData');
       } else if (type == 'txt') {
         if (JSON.parse(res.xhr.response).message != '') {
-          this.modelStore.modelData.model.meshFile = res.files[0].name
+          this.modelStore.modelData.model.meshFile = res.files[0]!.name
           if (!this.modelStore.modelData.discretization) {
             this.modelStore.modelData.discretization = {} as Discretization_Input
           }
@@ -189,6 +191,7 @@ export default defineComponent({
       this.$bus.emit('getStatus')
       this.viewStore.modelLoading = false;
     },
+    // @ts-expect-error Bla
     uploadFailed(res) {
       console.log(res)
       this.$q.notify({
@@ -229,7 +232,7 @@ export default defineComponent({
         this.loadJsonFile(fr, file);
       }
     },
-    loadJsonFile(fr: FileReader, file: string) {
+    loadJsonFile(fr: FileReader, file: Blob) {
       this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = false;
 
@@ -314,7 +317,7 @@ export default defineComponent({
       this.viewStore.viewId = 'model';
 
       const body = {
-        'model_data': this.modelData,
+        'data': this.modelData,
         'valves': this.modelStore.modelParams
       }
 
@@ -323,12 +326,12 @@ export default defineComponent({
         modelFolderName: this.modelData.model.modelFolderName,
         requestBody: body
       })
-        .then((response) => {
+        .then(() => {
           console.log('generateModel')
           this.$q.notify({
-            message: response.message
+            message: 'Model generated'
           })
-          this.$bus.emit('viewInputFile', false)
+          this.$bus.emit('viewInputFile')
           if (this.modelData.model.ownModel == false) {
             // if (this.viewStore.viewId != 'model') {
             this.$bus.emit('viewPointData');
@@ -373,11 +376,13 @@ export default defineComponent({
     },
     showTutorial() {
       let color = 'gray';
+      // @ts-expect-error Bla
       if (this.$cookie.get('darkMode') == 'true') {
         color = 'gray';
       } else {
         color = 'white';
       }
+      // @ts-expect-error Bla
       console.log(this.$cookie.get('darkMode'));
       console.log(color);
 

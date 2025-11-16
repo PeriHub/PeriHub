@@ -365,11 +365,11 @@ import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
 import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
-import type { BondFilters, Computes } from 'src/client';
+import type { Block, BondFilters, Compute, Damage, Material_Input } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export default defineComponent({
   name: 'ViewActions',
@@ -383,8 +383,11 @@ export default defineComponent({
     const viewStore = useViewStore();
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData)
+    const blocks = computed(() => modelStore.modelData.blocks) as unknown as Block[]
     const bondFilters = computed(() => modelStore.modelData.bondFilters) as unknown as BondFilters[]
-    const computes = computed(() => modelStore.modelData.computes) as unknown as Computes
+    const computes = computed(() => modelStore.modelData.computes) as unknown as Compute[]
+    const damages = computed(() => modelStore.modelData.damages) as unknown as Damage[]
+    const materials = computed(() => modelStore.modelData.materials) as unknown as Material_Input[]
 
     return {
       status,
@@ -392,8 +395,11 @@ export default defineComponent({
       viewStore,
       modelStore,
       modelData,
+      blocks,
       bondFilters,
       computes,
+      damages,
+      materials,
       rules
     }
   },
@@ -413,7 +419,7 @@ export default defineComponent({
       dialogGetEnfAnalysis: false,
 
       dialogGetPlot: false,
-      getPlotVariables: [],
+      getPlotVariables: [] as string[],
       getPlotOutput: 'Output1',
       getPlotOutputCsv: 'Output2',
       getPlotVariableX: 'Time',
@@ -455,13 +461,13 @@ export default defineComponent({
       getImageAzimuth: 30,
       getImageRoll: 0,
 
-      computeKeys: [],
+      computeKeys: [] as string[],
       getAnalysisVariables: ['External_Forces', 'External_Displacements'],
 
       port: null,
 
       plotRawData: null,
-      timer: null,
+      timer: null as NodeJS.Timeout | null,
       intervalCount: 0,
 
       color: [
@@ -494,15 +500,15 @@ export default defineComponent({
         await getCurrentEnergy()
           .then((response) => {
             this.$q.notify({
-              message: response.message
+              message: "Energy saved"
             })
-            this.energyPercent = response.data;
+            this.energyPercent = response;
           })
           .catch(() => {
             this.$q.notify({
               color: 'negative',
               position: 'bottom-right',
-              message: response.message,
+              message: 'Failed',
               icon: 'report_problem'
             })
           })
@@ -523,25 +529,15 @@ export default defineComponent({
       this.viewStore.textLoading = true;
 
       await runModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, verbose: this.modelData.job.verbose, requestBody: this.modelData })
-        .then((response) => {
-          if (response.data) {
-            this.$q.notify({
-              message: response.message
-            })
-            this.viewStore.textId = 'log';
-            this.viewStore.viewId = 'jobs';
-            this.intervalCount = 0;
-            // eslint-disable-next-line
-            this.timer = setInterval(this.checkStatus, 5000)
-          }
-          else {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message
-            })
-            this.submitLoading = false;
-            this.viewStore.textLoading = false;
-          }
+        .then(() => {
+          this.$q.notify({
+            message: 'Job submitted'
+          })
+          this.viewStore.textId = 'log';
+          this.viewStore.viewId = 'jobs';
+          this.intervalCount = 0;
+          // eslint-disable-next-line
+          this.timer = setInterval(this.checkStatus, 5000)
         })
         .catch((error) => {
           let message = '';
@@ -584,6 +580,7 @@ export default defineComponent({
           message: 'Failed to submit model',
           icon: 'report_problem'
         })
+        // @ts-expect-error Bla
         clearInterval(this.timer)
       }
       if (this.status.submitted) {
@@ -594,6 +591,7 @@ export default defineComponent({
           await sleep(20000);
         }
         this.$bus.emit('enableWebsocket');
+        // @ts-expect-error Bla
         clearInterval(this.timer)
       }
     },
@@ -606,9 +604,9 @@ export default defineComponent({
         cluster: this.modelData.job.cluster,
         sbatch: this.modelData.job.sbatch
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: 'Job canceled'
           })
         })
         .catch(() => {
@@ -623,7 +621,7 @@ export default defineComponent({
       this.$bus.emit('getStatus');
       this.submitLoading = false;
     },
-    async saveResults(allData) {
+    async saveResults(allData: boolean) {
       this.resultsLoading = true;
 
       const params = {
@@ -646,7 +644,7 @@ export default defineComponent({
       // )
       await api.get('/results/getResults', { params, responseType: 'blob' })
         .then((response) => {
-          let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '_' + this.modelData.outputs[0].name + '.e'
+          let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '_' + this.modelData.outputs[0]!.name + '.e'
           if (allData) {
             filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
           }
@@ -674,7 +672,7 @@ export default defineComponent({
       const items = [];
 
       for (let i = 0; i < this.computes.length; i++) {
-        items.push(this.computes[i].name);
+        items.push(this.computes[i]!.name);
       }
       items.push('Time');
       this.getPlotVariables = items;
@@ -691,35 +689,29 @@ export default defineComponent({
         tasks: this.modelData.job.tasks
       })
         .then((response) => {
-          if (response.data == false) {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message,
-            })
-          } else {
-            plotRawData = response.data
-            this.$q.notify({
-              message: response.message,
-            })
+          plotRawData = response
+          this.$q.notify({
+            message: 'Plot loaded',
+          })
 
-            const tempData = []
-            const tempLayout = structuredClone(this.viewStore.plotLayout)
-            const firstPropety = Object.keys(plotRawData)[0]
-            let id = 0
-            for (const propertyName in plotRawData) {
-              if (propertyName != firstPropety) {
-                tempData.push({ name: propertyName, x: plotRawData[firstPropety], y: plotRawData[propertyName], type: 'scatter', marker: { color: this.color[id] } })
-                id += 1
-              }
+          const tempData = []
+          const tempLayout = structuredClone(this.viewStore.plotLayout)
+          const firstPropety = Object.keys(plotRawData)[0] as string
+          let id = 0
+          for (const propertyName in plotRawData) {
+            if (propertyName != firstPropety) {
+              tempData.push({ name: propertyName, x: plotRawData[firstPropety] as number[], y: plotRawData[propertyName] as number[], type: 'scatter', marker: { color: this.color[id] } })
+              id += 1
             }
-            tempLayout.xaxis.title = firstPropety
-            tempLayout.title = this.$route.params.id
-
-            this.viewStore.plotData = structuredClone(tempData)
-            this.viewStore.plotLayout = structuredClone(tempLayout)
-
-            this.viewStore.viewId = 'plotly';
           }
+          tempLayout.xaxis.title = firstPropety
+          // @ts-expect-error Bla
+          tempLayout.title = this.$route.params.id
+
+          this.viewStore.plotData = structuredClone(tempData)
+          this.viewStore.plotLayout = structuredClone(tempLayout)
+
+          this.viewStore.viewId = 'plotly';
         })
         .catch(() => {
           this.$q.notify({
@@ -776,25 +768,36 @@ export default defineComponent({
       // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.store.username } });
 
       let materialName = '';
-      for (let i = 0; i < this.modelData.blocks.length; i++) {
-        if (this.modelData.blocks[i].damageModel != '') {
-          materialName = this.modelData.blocks[i].material;
+      for (let i = 0; i < this.blocks.length; i++) {
+        if (this.blocks[i]!.damageModel != '') {
+          materialName = this.blocks[i]!.material!;
         }
       }
       let materialId = 1
-      for (let i = 0; i < this.modelData.materials.length; i++) {
-        if (this.modelData.materials[i].name == materialName) {
+      for (let i = 0; i < this.materials.length; i++) {
+        if (this.materials[i]!.name == materialName) {
           materialId = i
         }
       }
+
+      let height = 0
+
+      for (let i = 0; i < this.modelStore.modelParams.valves.length; i++) {
+        const param = this.modelStore.modelParams.valves[i]!
+        if (param.name == 'HEIGHT') {
+          height = param.value as number
+        }
+      }
+      console.log(length)
+
       const params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
-        height: this.modelData.model.height,
-        crack_length: this.bondFilters[0].lowerLeftCornerX + this.bondFilters[0].bottomLength,
-        young_modulus: this.modelData.materials[materialId].youngsModulus,
-        poissions_ratio: this.modelData.materials[materialId].poissonsRatio,
-        yield_stress: this.modelData.materials[materialId].yieldStress,
+        height: height,
+        crack_length: this.bondFilters[0]!.lowerLeftCornerX! + this.bondFilters[0]!.bottomLength!,
+        young_modulus: this.materials[materialId]!.youngsModulus,
+        poissions_ratio: this.materials[materialId]!.poissonsRatio,
+        yield_stress: this.materials[materialId]!.yieldStress,
         cluster: this.modelData.job.cluster,
         tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
@@ -856,7 +859,7 @@ export default defineComponent({
       // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.store.username } });
       let thickness = null
       if (this.modelData.model.twoDimensional) {
-        thickness = this.modelData.damages[0].thickness;
+        thickness = this.damages[0]!.thickness;
       }
 
       const params = {
@@ -939,7 +942,7 @@ export default defineComponent({
     openGetEnfAnalysisDialog() {
       const outputKeys = []
       for (let i = 0; i < this.computes.length; i++) {
-        outputKeys.push(this.computes[i].name)
+        outputKeys.push(this.computes[i]!.name)
       }
       this.computeKeys = outputKeys
       this.dialogGetEnfAnalysis = true;
@@ -952,15 +955,15 @@ export default defineComponent({
       let cracklength = 0
 
       for (let i = 0; i < this.modelStore.modelParams.valves.length; i++) {
-        const param = this.modelStore.modelParams.valves[i]
+        const param = this.modelStore.modelParams.valves[i]!
         if (param.name == 'LENGTH') {
-          length = param.value
+          length = param.value as number
         }
         if (param.name == 'WIDTH') {
-          width = param.value
+          width = param.value as number
         }
         if (param.name == 'CRACK_LENGTH') {
-          cracklength = param.value
+          cracklength = param.value as number
         }
       }
       console.log(length)
@@ -975,8 +978,8 @@ export default defineComponent({
         tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
         step: this.getImageStep,
-        loadVariable: this.getAnalysisVariables[0],
-        displVariable: this.getAnalysisVariables[1]
+        loadVariable: this.getAnalysisVariables[0]!,
+        displVariable: this.getAnalysisVariables[1]!
       })
         .then((response) => {
           console.log(response)
@@ -1000,9 +1003,9 @@ export default defineComponent({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: "Model deleted"
           })
         })
         .catch(() => {
@@ -1019,9 +1022,9 @@ export default defineComponent({
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: "Model deleted from cluster"
           })
         })
         .catch(() => {
@@ -1036,9 +1039,9 @@ export default defineComponent({
     async deleteUserData() {
 
       await deleteUserData({ checkDate: false })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: "User data deleted"
           })
         })
         .catch(() => {
@@ -1053,9 +1056,9 @@ export default defineComponent({
       await deleteUserDataFromCluster({
         cluster: this.modelData.job.cluster, checkDate: false
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: "User data deleted from cluster"
           })
         })
         .catch(() => {
@@ -1071,7 +1074,7 @@ export default defineComponent({
     },
     csvDefined() {
       for (let i = 0; i < this.modelData.outputs.length; i++) {
-        if (this.modelData.outputs[i].selectedFileType == 'CSV') {
+        if (this.modelData.outputs[i]!.selectedFileType == 'CSV') {
           return true
         }
       }
@@ -1084,6 +1087,7 @@ export default defineComponent({
     },
   },
   unmounted() {
+    // @ts-expect-error Bla
     clearInterval(this.timer)
   }
 })

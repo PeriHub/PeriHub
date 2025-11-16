@@ -50,7 +50,7 @@ export const $Additive = {
 
 export const $AdditiveModel = {
     properties: {
-        additiveModelsId: {
+        additiveModelId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -59,7 +59,7 @@ export const $AdditiveModel = {
                     type: 'null'
                 }
             ],
-            title: 'Additivemodelsid'
+            title: 'Additivemodelid'
         },
         name: {
             type: 'string',
@@ -227,7 +227,7 @@ export const $Body_upload_files = {
 
 export const $BondFilters = {
     properties: {
-        id: {
+        bondFiltersId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -236,7 +236,7 @@ export const $BondFilters = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Bondfiltersid'
         },
         name: {
             type: 'string',
@@ -1441,6 +1441,7 @@ export const $Jobs = {
         model: {
             anyOf: [
                 {
+                    additionalProperties: true,
                     type: 'object'
                 },
                 {
@@ -1457,7 +1458,7 @@ export const $Jobs = {
 
 export const $Material_Input = {
     properties: {
-        id: {
+        materialsId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -1466,7 +1467,7 @@ export const $Material_Input = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Materialsid'
         },
         name: {
             type: 'string',
@@ -1630,7 +1631,7 @@ export const $Material_Input = {
 
 export const $Material_Output = {
     properties: {
-        id: {
+        materialsId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -1639,7 +1640,7 @@ export const $Material_Output = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Materialsid'
         },
         name: {
             type: 'string',
@@ -3723,9 +3724,21 @@ export const $Valve = {
         },
         type: {
             type: 'string',
+            enum: ['text', 'number', 'select', 'checkbox', 'data'],
             title: 'Type'
         },
         value: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'boolean'
+                }
+            ],
             title: 'Value'
         },
         label: {
@@ -3753,10 +3766,7 @@ export const $Valve = {
         depends: {
             anyOf: [
                 {
-                    items: {
-                        type: 'string'
-                    },
-                    type: 'array'
+                    type: 'string'
                 },
                 {
                     type: 'null'
@@ -3807,9 +3817,25 @@ export const $Verlet = {
     title: 'Verlet'
 } as const;
 
+export const $VersionData = {
+    properties: {
+        current: {
+            type: 'string',
+            title: 'Current'
+        },
+        latest: {
+            type: 'string',
+            title: 'Latest'
+        }
+    },
+    type: 'object',
+    required: ['current', 'latest'],
+    title: 'VersionData'
+} as const;
+
 export const $properties = {
     properties: {
-        id: {
+        materialsPropId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -3818,7 +3844,7 @@ export const $properties = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Materialspropid'
         },
         name: {
             type: 'string',

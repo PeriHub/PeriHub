@@ -552,7 +552,7 @@ def get_own_model_file(model_file: str = "Dogbone") -> str:
     return Path(file_path).read_text()
 
 
-@router.post("/save", operation_id="save_model")
+@router.post("/save", operation_id="save_model_file")
 def save_model(model_file: str, source_code: str, request: Request = ""):
     username = FileHandler.get_user_name(request, dev)
 
@@ -567,7 +567,7 @@ def save_model(model_file: str, source_code: str, request: Request = ""):
         file.write(source_code)
 
 
-@router.delete("/delete", operation_id="delete_model")
+@router.delete("/delete", operation_id="delete_model_file")
 def delete_model(model_name: str):
     file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name)
     shutil.rmtree(file_path, ignore_errors=True)

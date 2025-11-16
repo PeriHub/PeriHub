@@ -269,7 +269,7 @@ export default defineComponent({
       this.calculated.pWaveModulus = null;
     },
     copyText(id: string) {
-      copyToClipboard(this.calculated[id])
+      copyToClipboard(this.calculated[id as keyof typeof this.calculated] as string)
         .then(() => {
           this.$q.notify({
             message: 'Copied to clipboard',
