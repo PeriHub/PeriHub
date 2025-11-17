@@ -40,6 +40,11 @@ export const useModelStore = defineStore('model', {
           scale: 1,
         },
       },
+      deviations: {
+        enabled: false,
+        sampleSize: 5,
+        parameters: [],
+      },
       materials: [
         {
           materialsId: 1,
@@ -416,6 +421,10 @@ export const useModelStore = defineStore('model', {
       if (localStorage.getItem('selectedModel')) {
         const object = JSON.parse(localStorage.getItem('selectedModel'));
         this.selectedModel = structuredClone(object);
+      }
+      if (localStorage.getItem('modelParams')) {
+        const object = JSON.parse(localStorage.getItem('modelParams'));
+        this.modelParams = structuredClone(object);
       }
     },
   },

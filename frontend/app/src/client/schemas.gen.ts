@@ -977,6 +977,29 @@ export const $Damage = {
     title: 'Damage'
 } as const;
 
+export const $Deviations = {
+    properties: {
+        enabled: {
+            type: 'boolean',
+            title: 'Enabled'
+        },
+        sampleSize: {
+            type: 'integer',
+            title: 'Samplesize'
+        },
+        parameters: {
+            items: {
+                '$ref': '#/components/schemas/Parameter'
+            },
+            type: 'array',
+            title: 'Parameters'
+        }
+    },
+    type: 'object',
+    required: ['enabled', 'sampleSize', 'parameters'],
+    title: 'Deviations'
+} as const;
+
 export const $Discretization = {
     properties: {
         distributionType: {
@@ -1876,6 +1899,16 @@ export const $ModelData = {
                 }
             ]
         },
+        deviations: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/Deviations'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
         job: {
             '$ref': '#/components/schemas/Job'
         },
@@ -2269,6 +2302,36 @@ export const $Output = {
     title: 'Output'
 } as const;
 
+export const $Parameter = {
+    properties: {
+        parameterId: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Parameterid'
+        },
+        id: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Id'
+        },
+        std: {
+            type: 'number',
+            title: 'Std'
+        }
+    },
+    type: 'object',
+    required: ['id', 'std'],
+    title: 'Parameter'
+} as const;
+
 export const $PreCalculations = {
     properties: {
         deformedBondGeometry: {
@@ -2514,7 +2577,7 @@ export const $Solver = {
             ],
             title: 'Stopaftercertaindamage'
         },
-        maxDamageValue: {
+        maximumDamage: {
             anyOf: [
                 {
                     type: 'number'
@@ -2523,7 +2586,7 @@ export const $Solver = {
                     type: 'null'
                 }
             ],
-            title: 'Maxdamagevalue'
+            title: 'Maximumdamage'
         },
         stopBeforeDamageInitation: {
             anyOf: [
@@ -2996,11 +3059,6 @@ export const $Valves = {
 
 export const $Verlet = {
     properties: {
-        safetyFactor: {
-            type: 'number',
-            title: 'Safetyfactor',
-            default: 0.95
-        },
         numericalDamping: {
             type: 'number',
             title: 'Numericaldamping',

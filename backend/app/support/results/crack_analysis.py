@@ -291,28 +291,28 @@ class CrackAnalysis:
         a = crack_length
         L = length
 
-        if os.path.exists(file + ".e"):
-            (
-                points,
-                point_data,
-                global_data,
-                cell_data,
-                ns,
-                block_data,
-                time,
-            ) = exodusreader.read_timestep(file + ".e", step)
+        # if os.path.exists(file + ".e"):
+        #     (
+        #         points,
+        #         point_data,
+        #         global_data,
+        #         cell_data,
+        #         ns,
+        #         block_data,
+        #         time,
+        #     ) = exodusreader.read_timestep(file + ".e", step)
 
-            P = global_data[load_variable + "y"]
-            d = global_data[displ_variable + "y"]
+        #     P = global_data[load_variable + "y"]
+        #     d = global_data[displ_variable + "y"]
 
-        elif os.path.exists(file + ".csv"):
-            df = pd.read_csv(file + ".csv")
+        # elif os.path.exists(file + ".csv"):
+        df = pd.read_csv(file)
 
-            P = df[load_variable + "y"][step]
-            d = df[displ_variable + "y"][step]
+        P = df[load_variable + "y"].iloc[step]
+        d = df[displ_variable + "y"].iloc[step]
 
-        else:
-            return 0
+        # else:
+        #     return 0
 
         GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3)))
 

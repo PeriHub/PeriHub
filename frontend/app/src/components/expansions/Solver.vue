@@ -37,6 +37,8 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-model="solver.fixedDt"
             v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'" :rules="[rules.posFloat]"
             :label="solverKeys.fixedDt" standout dense clearable></q-input>
+          <q-input class="my-input" v-model="solver.maximumDamage" :rules="[rules.float]"
+            :label="solverKeys.maximumDamage" standout dense></q-input>
         </div>
         <div class="row my-row">
           <q-select class="my-input" :options="solvertype" v-model="solver.solvertype" :label="solverKeys.solvertype"
@@ -123,8 +125,6 @@ SPDX-License-Identifier: Apache-2.0
         <div class="row my-row">
             <q-toggle class="my-toggle" v-model="solver.stopAfterCertainDamage" :label="solverKeys.stopAfterCertainDamage"
                 standout dense></q-toggle>
-            <q-input v-show="solver.stopAfterCertainDamage" class="my-input" v-model="solver.maxDamageValue"
-                :rules="[rules.required, rules.float]" :label="solverKeys.maxDamageValue" standout dense></q-input>
         </div>
         <div class="row my-row" v-show="solver.solvertype == 'Verlet' & solver.adaptivetimeStepping">
             <q-input class="my-input" v-model="solver.adapt.stableStepDifference" :rules="[rules.required, rules.int]"
@@ -227,7 +227,7 @@ export default defineComponent({
         endStepAfterDamage: 'End step after damage',
         stopBeforeDamageInitation: 'Stop before damage initation',
         stopAfterCertainDamage: 'Stop after certain damage value',
-        maxDamageValue: 'Max. damage value',
+        maximumDamage: 'Max. damage value',
         adaptivetimeStepping: 'Adaptive Time Stepping',
         adapt: {
           stableStepDifference: 'Stable Step Difference',

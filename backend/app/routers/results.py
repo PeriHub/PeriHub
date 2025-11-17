@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import csv
+import json
 import os
 import shutil
 from typing import Optional
@@ -179,15 +180,32 @@ def get_enf_analysis(
         raise IOError  # NotFoundException(name=model_name)
 
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-    file = os.path.join(resultpath, model_name + "_" + output)
 
-    g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step, load_variable, displ_variable)
+    deviation_file = os.path.join(resultpath, model_name + "_deviations.json")
+    deviations = {}
 
-    try:
-        return g2c
-    except IOError:
-        log.error("%s results can not be found on %s", model_name, cluster)
-        return model_name + " results can not be found on " + cluster
+    if os.path.exists(deviation_file):
+        with open(deviation_file) as f:
+            deviations = json.load(f)
+        sample_names = []
+        for i in range(deviations["sample_size"]):
+            sample_names.append(model_name + "_" + str(i + 1))
+
+    matching_files = FileHandler.get_all_output_files_with_extension(resultpath, model_name, output, ".csv")
+
+    if deviations == {}:
+        deviations = {"values": []}
+        for file in matching_files:
+            deviations["values"].append(
+                CrackAnalysis.get_g2c(file, length, width, crack_length, step, load_variable, displ_variable)
+            )
+    else:
+        for i, file in enumerate(matching_files):
+            deviations["samples"][sample_names[i]]["G2C"] = CrackAnalysis.get_g2c(
+                file, length, width, crack_length, step, load_variable, displ_variable
+            )
+
+    return deviations
 
 
 @router.get("/getPlot", operation_id="get_plot")
@@ -214,10 +232,8 @@ def get_plot(
         raise IOError  # NotFoundException(name=model_name)
 
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-    file = os.path.join(resultpath, model_name + "_" + output + ".csv")
 
-    if not os.path.exists(file):
-        return ResponseModel(data=False, message=model_name + "_" + output + ".csv can not be found")
+    matching_files = FileHandler.get_all_output_files_with_extension(resultpath, model_name, output, ".csv")
 
     # x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
     # y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
@@ -225,21 +241,24 @@ def get_plot(
     data = {}
     first_row = True
     # try:
-    with open(file, "r", encoding="UTF-8") as csv_file:
-        reader = csv.reader(csv_file)
-        for row in reader:
-            if first_row:
-                # Extract column names from the first row
-                column_names = row
-                for column_name in column_names:
-                    data[column_name] = []
+    for file in matching_files:
+        with open(file, "r", encoding="UTF-8") as csv_file:
+            reader = csv.reader(csv_file)
+            for row in reader:
+                if first_row:
+                    # Extract column names from the first row
+                    column_names = row
+                    for idx, column_name in enumerate(column_names):
+                        if len(matching_files) > 1 and column_name != "Time":
+                            column_names[idx] = column_name + "_" + file.split(".")[0].split("_")[-1]
+                        data[column_names[idx]] = []
 
-                first_row = False
-            else:
-                # Populate data dictionary with values
-                for i, value in enumerate(row):
-                    data[column_names[i]].append(value)
-
+                    first_row = False
+                else:
+                    # Populate data dictionary with values
+                    for i, value in enumerate(row):
+                        data[column_names[i]].append(value)
+        first_row = True
     return ResponseModel(data=data, message="Plot received")
     # except IOError:
     #     log.error("%s results can not be found on %s", model_name, cluster)

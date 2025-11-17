@@ -149,6 +149,12 @@ export type Damage = {
     thickness?: number | null;
 };
 
+export type Deviations = {
+    enabled: boolean;
+    sampleSize: number;
+    parameters: Array<Parameter>;
+};
+
 export type Discretization = {
     distributionType: string;
     discType?: string | null;
@@ -265,6 +271,7 @@ export type ModelData = {
     contact?: Contact | null;
     damages?: Array<Damage> | null;
     discretization?: Discretization | null;
+    deviations?: Deviations | null;
     job: Job;
     materials: Array<Material>;
     model: Model;
@@ -289,6 +296,12 @@ export type Output = {
     numberOfOutputSteps?: number | null;
     useOutputFrequency?: boolean | null;
     InitStep: number;
+};
+
+export type Parameter = {
+    parameterId?: number | null;
+    id: Array<(string)>;
+    std: number;
 };
 
 export type PreCalculations = {
@@ -319,7 +332,7 @@ export type Solver = {
     stopAfterDamageInitation?: boolean | null;
     endStepAfterDamage?: number | null;
     stopAfterCertainDamage?: boolean | null;
-    maxDamageValue?: number | null;
+    maximumDamage?: number | null;
     stopBeforeDamageInitation?: boolean | null;
     adaptivetimeStepping?: boolean | null;
     adapt?: Adapt | null;
@@ -389,7 +402,6 @@ export type Valves = {
 };
 
 export type Verlet = {
-    safetyFactor?: number;
     numericalDamping?: number;
     outputFrequency?: number;
 };
@@ -523,6 +535,7 @@ export type TranslateModelData = {
 export type TranslateModelResponse = unknown;
 
 export type RunModelData = {
+    jobIds?: string | null;
     modelFolderName?: string;
     modelName?: string;
     requestBody: ModelData;

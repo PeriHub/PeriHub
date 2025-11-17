@@ -9,6 +9,18 @@ from typing import Any, List, Optional, Union
 from pydantic import BaseModel
 
 
+class Parameter(BaseModel):
+    parameterId: Optional[int] = None
+    id: List[str]
+    std: float
+
+
+class Deviations(BaseModel):
+    enabled: bool
+    sampleSize: int
+    parameters: List[Parameter]
+
+
 class Valve(BaseModel):
     name: str
     type: str
@@ -330,7 +342,6 @@ class Output(BaseModel):
 
 
 class Verlet(BaseModel):
-    safetyFactor: float = 0.95
     numericalDamping: float = 0.000005
     outputFrequency: int = 1000
 
@@ -373,7 +384,7 @@ class Solver(BaseModel):
     stopAfterDamageInitation: Optional[bool] = None
     endStepAfterDamage: Optional[int] = None
     stopAfterCertainDamage: Optional[bool] = None
-    maxDamageValue: Optional[float] = None
+    maximumDamage: Optional[float] = None
     stopBeforeDamageInitation: Optional[bool] = None
     adaptivetimeStepping: Optional[bool] = None
     adapt: Optional[Adapt] = None
@@ -680,6 +691,7 @@ class ModelData(BaseModel):
     contact: Optional[Contact] = None
     damages: Optional[List[Damage]] = None
     discretization: Optional[Discretization] = None
+    deviations: Optional[Deviations] = None
     job: Job
     materials: List[Material]
     model: Model

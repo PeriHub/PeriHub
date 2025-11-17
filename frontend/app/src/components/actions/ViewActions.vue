@@ -15,6 +15,34 @@ SPDX-License-Identifier: Apache-2.0
         <div v-if="!submitLoading && status.created && status.meshfileExist">Submit Model</div>
       </q-tooltip>
     </q-btn>
+
+    <q-dialog v-model="dialogSubmitMultiple" persistent max-width="800">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Submit Mulitple Models</div>
+        </q-card-section>
+        <q-card-section>
+          <q-select filled v-model="jobIds" :options="jobIdsOptions" label="Multi with toggle" multiple map-options>
+            <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
+              <q-item v-bind="itemProps">
+                <q-item-section>
+                  <q-item-label v-html="opt" />
+                </q-item-section>
+                <q-item-section side>
+                  <q-toggle :model-value="selected" @update:model-value="toggleOption(opt)" />
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn flat label="Yes" color="primary" v-close-popup @click="runModel(jobIds.join(','))"></q-btn>
+          <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="runModel"></q-btn> -->
+          <q-btn flat label="No" color="primary" v-close-popup></q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog v-model="dialogEnergySavings" persistent max-width="800">
       <q-card>
         <q-card-section>
@@ -410,6 +438,10 @@ export default defineComponent({
       dialogGetImage: false,
       showResultsOutputName: 'Output1',
 
+      dialogSubmitMultiple: false,
+      jobIdsOptions: [1, 2, 3],
+      jobIds: [],
+
       dialogGetFractureAnalysis: false,
       dialogGetEnergyReleasePlot: false,
       dialogGetEnfAnalysis: false,
@@ -515,16 +547,18 @@ export default defineComponent({
         //   this.runModel();
         // }
         this.dialogEnergySavings = true
+      } else if (this.modelData.deviations.enabled) {
+        const n = this.modelData.deviations.sampleSize;
+        this.jobIdsOptions = Array.from({ length: n }, (_, i) => i + 1);
+        this.dialogSubmitMultiple = true
       } else {
         this.runModel();
       }
     },
-    async runModel() {
-
+    async runModel(jobIds = null) {
       this.submitLoading = true;
       this.viewStore.textLoading = true;
-
-      await runModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, verbose: this.modelData.job.verbose, requestBody: this.modelData })
+      await runModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, verbose: this.modelData.job.verbose, jobIds: jobIds, requestBody: this.modelData })
         .then((response) => {
           if (response.data) {
             this.$q.notify({
@@ -679,6 +713,7 @@ export default defineComponent({
       }
       items.push('Time');
       this.getPlotVariables = items;
+      this.getPlotOutput = this.modelData.outputs[0]
     },
     async _getPlot(append) {
       this.viewStore.modelLoading = true;
@@ -981,6 +1016,8 @@ export default defineComponent({
       })
         .then((response) => {
           console.log(response)
+          this.viewStore.jsonData = response
+          this.viewStore.viewId = 'json';
           this.$q.notify({
             message: 'ENF analyzed',
           })
@@ -1081,6 +1118,8 @@ export default defineComponent({
     deleteCookies() {
       localStorage.removeItem('darkMode');
       localStorage.removeItem('modelData');
+      localStorage.removeItem('selectedModel');
+      localStorage.removeItem('modelParams');
       localStorage.removeItem('panel');
     },
   },

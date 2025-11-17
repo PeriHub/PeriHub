@@ -57,10 +57,17 @@ export default defineComponent({
     }
   },
   watch: {
-    modelStore: {
+    'modelStore.modelData': {
       handler() {
         console.log("model changed!");
         localStorage.setItem("modelData", JSON.stringify(this.modelStore.modelData));
+      },
+      deep: true,
+    },
+    'modelStore.modelParams': {
+      handler() {
+        console.log("model changed!");
+        localStorage.setItem("modelParams", JSON.stringify(this.modelStore.modelParams));
       },
       deep: true,
     },

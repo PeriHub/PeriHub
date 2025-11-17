@@ -55,6 +55,7 @@ export const useViewStore = defineStore('view', {
         // color: "#6E6E6E"
       },
     },
+    jsonData: {},
   }),
   actions: {},
 });

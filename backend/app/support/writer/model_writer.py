@@ -5,9 +5,11 @@
 """
 doc
 """
+import json
 import os
 import time
 
+import magicattr
 import numpy as np
 
 from ...support.file_handler import FileHandler
@@ -111,10 +113,45 @@ class ModelWriter:
         )
         log.info("Mesh written in %.2f seconds", time.time() - start_time)
 
-    def create_file(self, block_def, max_block_id):
+    def create_file(self, block_def, max_block_id, deviations=None):
         """doc"""
-        string = ""
+
         yaml_perilab = YAMLcreatorPeriLab(self, block_def=block_def)
         string = yaml_perilab.create_yaml(max_block_id)
 
         self.file_writer(self.filename + ".yaml", string)
+        deviation_dict = {"sample_size": deviations.sampleSize, "samples": {}}
+
+        if deviations is not None and deviations.enabled:
+
+            output_names = []
+            for _, output in enumerate(self.model_data.outputs):
+                output_names.append(output.name)
+
+            sample_names = []
+            for i in range(deviations.sampleSize):
+                sample_names.append(self.filename + "_" + str(i + 1))
+                deviation_dict["samples"][sample_names[i]] = {}
+
+            value_list = []
+            for parameter in deviations.parameters:
+                mean = magicattr.get(self.model_data, parameter.id[0])
+                value = np.random.normal(mean, parameter.std, deviations.sampleSize)
+                value_list.append(value)
+                for i in range(deviations.sampleSize):
+                    for ids in parameter.id:
+                        deviation_dict["samples"][sample_names[i]][ids] = value[i]
+
+            for i in range(deviations.sampleSize):
+                for j in range(len(deviations.parameters)):
+                    for parameter in deviations.parameters[j].id:
+                        magicattr.set(self.model_data, parameter, value_list[j][i])
+                for idx, output in enumerate(self.model_data.outputs):
+                    output.name = output_names[idx] + "_" + str(i + 1)
+                yaml_perilab = YAMLcreatorPeriLab(self, block_def=block_def)
+                string = yaml_perilab.create_yaml(max_block_id)
+
+                self.file_writer(sample_names[i] + ".yaml", string)
+
+        with open(self.path + "/" + self.filename + "_deviations.json", "w", encoding="UTF-8") as file:
+            json.dump(deviation_dict, file)
