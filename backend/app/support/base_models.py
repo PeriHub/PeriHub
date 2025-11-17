@@ -25,8 +25,8 @@ class PointDataResults(BaseModel):
 
 
 class PointData(BaseModel):
-    points: List[str]
-    block_ids: List[str]
+    points: List[float]
+    block_ids: List[int]
     dx_value: float
 
 

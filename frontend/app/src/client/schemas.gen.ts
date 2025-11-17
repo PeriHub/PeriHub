@@ -1441,7 +1441,6 @@ export const $Jobs = {
         model: {
             anyOf: [
                 {
-                    additionalProperties: true,
                     type: 'object'
                 },
                 {

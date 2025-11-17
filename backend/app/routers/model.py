@@ -263,11 +263,11 @@ def get_point_data(
                         block_id[int(node) - 1] = i + 1
                 for i in range(0, len(coords[0])):
                     # points += coords[0][i] + "," + coords[1][i] + "," + coords[2][i] + ","
-                    points.append(str(coords[0][i]))
-                    points.append(str(coords[1][i]))
-                    points.append(str(coords[2][i]))
-                    # block_id_string += str(block_id[i] / num_of_blocks) + ","
-                    block_ids.append(str(block_id[i] / num_of_blocks))
+                    points.append(coords[0][i])
+                    points.append(coords[1][i])
+                    points.append(coords[2][i])
+                    # block_id_string += block_id[i] / num_of_blocks) + ","
+                    block_ids.append(block_id[i] / num_of_blocks)
             response = PointData(points, block_ids)
             return response
         except IOError:
@@ -315,8 +315,8 @@ def get_point_data(
                             detail="Model don't support 2D model, switch two dimensional model off",
                         )
                     # points += parts[0] + "," + parts[1] + ",0.0,"
-                    points.append(str(parts[0]))
-                    points.append(str(parts[1]))
+                    points.append(parts[0])
+                    points.append(parts[1])
                     points.append("0.0")
                 else:
                     if len(parts) < 3:
@@ -334,9 +334,9 @@ def get_point_data(
                             detail="Model don't support 3D model, switch to two dimensional model",
                         )
                     # points += parts[0] + "," + parts[1] + "," + parts[2] + ","
-                    points.append(str(parts[0]))
-                    points.append(str(parts[1]))
-                    points.append(str(parts[2]))
+                    points.append(parts[0])
+                    points.append(parts[1])
+                    points.append(parts[2])
                 if block_id > max_block_id:
                     max_block_id = block_id
             dx = []
@@ -374,10 +374,10 @@ def get_point_data(
                     continue
                 if max_block_id == 1:
                     # block_id_string += str(0.1) + ","
-                    block_ids.append(str(0.1))
+                    block_ids.append(0.1)
                 else:
-                    # block_id_string += str(block_id / max_block_id) + ","
-                    block_ids.append(str(block_id / max_block_id))
+                    # block_id_string += block_id / max_block_id + ","
+                    block_ids.append(block_id / max_block_id)
         dx_value = np.average(dx)
         response = PointData(points=points, block_ids=block_ids, dx_value=dx_value)
         return response

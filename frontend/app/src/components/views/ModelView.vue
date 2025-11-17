@@ -31,7 +31,7 @@ SPDX-License-Identifier: Apache-2.0
           switch-label-side color="gray"></q-slider>
       </div>
     </div>
-    <vtk-view ref="view">
+    <!-- <vtk-view ref="view">
       <vtk-geometry-representation>
         <vtk-polydata :points="[0, 0, 0, 0, 1, 0, 1, 0, 0]" :polys="[3, 0, 1, 2]">
           <vtk-point-data>
@@ -39,10 +39,10 @@ SPDX-License-Identifier: Apache-2.0
           </vtk-point-data>
         </vtk-polydata>
       </vtk-geometry-representation>
-    </vtk-view>
-    <!-- <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]">
+    </vtk-view> -->
+    <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]">
       <div v-if="viewStore.bondFilterPoints.length != 0">
-        <q-list v-for="bondFilterPoint in viewStore.bondFilterPoints" :key="bondFilterPoint.id">
+        <q-list v-for="bondFilterPoint in viewStore.bondFilterPoints" :key="bondFilterPoint.bondFilterPointsId">
           <vtk-geometry-representation>
             <vtk-polydata :points="bondFilterPoint.bondFilterPointString" :polys="[4, 0, 1, 2, 3]">
               <vtk-point-data>
@@ -63,7 +63,7 @@ SPDX-License-Identifier: Apache-2.0
           :state="{ phiResolution: resolution, thetaResolution: resolution, radius: radius * multiplier / 100 }"
           :port="1" />
       </vtk-glyph-representation>
-    </vtk-view> -->
+    </vtk-view>
   </div>
 </template>
 
