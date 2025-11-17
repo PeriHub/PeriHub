@@ -47,6 +47,9 @@ SPDX-License-Identifier: Apache-2.0
         label="Job">
         <JobSettings></JobSettings>
       </q-expansion-item>
+      <q-expansion-item v-model="panel[13]" expand-separator icon="fas fa-square-poll-vertical" label="Deviations">
+        <DeviationsSettings></DeviationsSettings>
+      </q-expansion-item>
     </q-list>
   </q-scroll-area>
 </template>
@@ -56,6 +59,7 @@ import { defineComponent } from 'vue'
 import { useDefaultStore } from 'stores/default-store';
 import ModelSettings from 'components/expansions/Model.vue'
 import DiscretizationSettings from 'components/expansions/Discretization.vue'
+import DeviationsSettings from 'components/expansions/Deviations.vue'
 import MaterialSettings from 'components/expansions/Material.vue'
 import ThermalSettings from 'components/expansions/Thermal.vue'
 import AdditiveSettings from 'components/expansions/Additive.vue'
@@ -73,6 +77,7 @@ export default defineComponent({
   components: {
     ModelSettings,
     DiscretizationSettings,
+    DeviationsSettings,
     MaterialSettings,
     ThermalSettings,
     AdditiveSettings,
@@ -99,7 +104,7 @@ export default defineComponent({
   },
   data() {
     return {
-      panel: [false, false, false, false, false, false, false, false, false, false],
+      panel: [false, false, false, false, false, false, false, false, false, false, false],
     }
   },
   mounted() {
@@ -112,9 +117,9 @@ export default defineComponent({
   methods: {
     openHidePanels() {
       if (this.panel.includes(true)) {
-        this.panel = [false, false, false, false, false, false, false, false, false, false, false, false];
+        this.panel = [false, false, false, false, false, false, false, false, false, false, false, false, false];
       } else {
-        this.panel = [true, true, true, true, true, true, true, true, true, true, true, true];
+        this.panel = [true, true, true, true, true, true, true, true, true, true, true, true, true];
       }
     }
   },

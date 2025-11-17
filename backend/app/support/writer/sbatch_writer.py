@@ -19,6 +19,7 @@ class SbatchCreator:
         job="",
         usermail="",
         trial=True,
+        job_ids="-1",
     ):
         """doc"""
         self.nodes = job.nodes
@@ -35,6 +36,7 @@ class SbatchCreator:
         self.output_dict = output
         self.remotepath = remotepath
         self.trial = trial
+        self.job_ids = job_ids
 
     def create_sbatch(self):
         """doc"""
@@ -72,24 +74,32 @@ class SbatchCreator:
     def create_sh(self, verbose, docker=True, cluster_perilab_path=""):
         """doc"""
 
-        string = "#!/bin/sh" + "\n"
-        if self.trial:
-            string += "timeout 600s "
-        if docker:
-            string += "/app/PeriLab/bin/PeriLab -s "
-            if verbose:
-                string += "-v "
-            string += self.filename + ".yaml"
-        else:
-            if self.tasks > 1:
-                string += "mpiexecjl -n " + str(self.tasks) + " "
-            string += "julia -e '" + 'using PeriLab; PeriLab.main("' + self.filename + '.yaml"' + ";silent=true"
-            if verbose:
-                string += ";verbose=true"
-            string += ")'"
-        string += " & echo $! > pid.txt \n"
-        string += "pid=`cat pid.txt` \n"
-        string += "wait $pid \n"
+        string = "#!/bin/sh \n"
+        string = "> pid.txt \n"
+        for job_id in self.job_ids.split(","):
+            filename = self.filename + '.yaml"'
+            if job_id != "-1":
+                filename = self.filename + "_" + job_id + '.yaml"'
+            if self.trial:
+                string += "timeout 600s "
+            if docker:
+                string += "/app/PeriLab/bin/PeriLab -s "
+                if verbose:
+                    string += "-v "
+                string += filename
+            else:
+                if self.tasks > 1:
+                    string += "mpiexecjl -n " + str(self.tasks) + " "
+                string += "julia -e '" + 'using PeriLab; PeriLab.main("' + filename + ";silent=true"
+                if verbose:
+                    string += ";verbose=true"
+                string += ")'"
+            string += " & echo $! >> pid.txt \n"
+        string += "while read -r pid; do \n"
+        string += "    wait $pid \n"
+        string += "    echo 'Job $pid finished.' \n"
+        string += "done < pid.txt \n"
         string += "rm pid.txt \n"
+        string += "echo 'All simulations finished.'"
 
         return string

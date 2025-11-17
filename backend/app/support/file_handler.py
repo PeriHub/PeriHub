@@ -604,6 +604,29 @@ class FileHandler:
                 print(f"Installing requirement: {req}")
                 subprocess.check_call([sys.executable, "-m", "pip", "install", req])
 
+    @staticmethod
+    def get_all_output_files_with_extension(directory, model_name, output, extension):
+        entries = os.listdir(directory)
+        matching_files = []
+
+        for entry in entries:
+            full_path = os.path.join(directory, entry)
+            if (
+                os.path.isfile(full_path)
+                and (
+                    entry.rsplit("_", 1)[0] == (model_name + "_" + output)
+                    and entry.rsplit("_", 1)[1].split(".")[0].isdigit()
+                    or entry.split(".")[0] == (model_name + "_" + output)
+                )
+                and entry.endswith(extension)
+            ):
+                matching_files.append(full_path)
+
+        if len(matching_files) == 0:
+            raise HTTPException(status_code=404, detail="No matching files found")
+
+        return matching_files
+
     # @staticmethod
     # def write_get_cara_job_ids():
     #     """doc"""

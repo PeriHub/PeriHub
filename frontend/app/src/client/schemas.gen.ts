@@ -2530,6 +2530,16 @@ export const $ModelData_Output = {
                 }
             ]
         },
+        deviations: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/Deviations'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        },
         job: {
             '$ref': '#/components/schemas/Job'
         },
@@ -3239,7 +3249,7 @@ export const $Solver = {
             ],
             title: 'Stopaftercertaindamage'
         },
-        maxDamageValue: {
+        maximumDamage: {
             anyOf: [
                 {
                     type: 'number'
@@ -3248,7 +3258,7 @@ export const $Solver = {
                     type: 'null'
                 }
             ],
-            title: 'Maxdamagevalue'
+            title: 'Maximumdamage'
         },
         stopBeforeDamageInitation: {
             anyOf: [
@@ -3796,11 +3806,6 @@ export const $Valves = {
 
 export const $Verlet = {
     properties: {
-        safetyFactor: {
-            type: 'number',
-            title: 'Safetyfactor',
-            default: 0.95
-        },
         numericalDamping: {
             type: 'number',
             title: 'Numericaldamping',

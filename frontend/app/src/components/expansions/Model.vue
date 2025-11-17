@@ -273,7 +273,7 @@ export default defineComponent({
   },
   async beforeMount() {
     this.modelStore.availableModels = await getModels()
-    await this.selectMethod()
+    // this.selectMethod()
   },
   watch: {
     'modelStore.selectedModel': {

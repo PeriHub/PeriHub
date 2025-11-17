@@ -402,7 +402,7 @@ export type Solver = {
     stopAfterDamageInitation?: boolean | null;
     endStepAfterDamage?: number | null;
     stopAfterCertainDamage?: boolean | null;
-    maxDamageValue?: number | null;
+    maximumDamage?: number | null;
     stopBeforeDamageInitation?: boolean | null;
     adaptivetimeStepping?: boolean | null;
     adapt?: Adapt | null;
@@ -482,7 +482,6 @@ export type Valves = {
 };
 
 export type Verlet = {
-    safetyFactor?: number;
     numericalDamping?: number;
     outputFrequency?: number;
 };
@@ -623,6 +622,7 @@ export type TranslateModelData = {
 export type TranslateModelResponse = unknown;
 
 export type RunModelData = {
+    jobIds?: string | null;
     modelFolderName?: string;
     modelName?: string;
     requestBody: ModelData_Input;

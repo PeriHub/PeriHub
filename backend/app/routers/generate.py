@@ -18,7 +18,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 # from ..models.PlateWithOpening.plate_with_opening import PlateWithOpening
 # from ..models.RingOnRing.ring_on_ring import RingOnRing
 # from ..models.Smetana.smetana import Smetana
-from ..support.base_models import Block, ModelData, Valves
+from ..support.base_models import Block, Deviations, ModelData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log
 from ..support.writer.model_writer import ModelWriter
@@ -192,7 +192,8 @@ def generate_model(
     block_def = data.blocks
 
     try:
-        writer.create_file(block_def, max(k))
+        # deviations = {'sampleSize': 5, 'parameters': [{'id': "materials[0].youngsModulus", "mean": 0.1, "std": 10}]}
+        writer.create_file(block_def, max(k), model_data.deviations)
     except TypeError as exception:
         log.error(f"Failed to create file: {exception}")
         return str(exception)

@@ -25,6 +25,7 @@ async def run_model(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     verbose: bool = False,
+    job_ids: Optional[str] = "-1",
     request: Request = "",
 ):
     """doc"""
@@ -60,6 +61,7 @@ async def run_model(
             job=model_data.job,
             usermail=usermail,
             trial=trial,
+            job_ids=job_ids,
         )
         sbatch_string = sbatch.create_sbatch()
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
@@ -89,6 +91,7 @@ async def run_model(
             job=model_data.job,
             usermail=usermail,
             trial=trial,
+            job_ids=job_ids,
         )
         sh_string = sbatch.create_sh(verbose, False, cluster_perilab_path)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
@@ -118,6 +121,7 @@ async def run_model(
             job=model_data.job,
             usermail=usermail,
             trial=trial,
+            job_ids=job_ids,
         )
         sh_string = sbatch.create_sh(verbose)
         with open(

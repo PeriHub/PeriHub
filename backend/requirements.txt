@@ -22,3 +22,4 @@ python-slugify
 pandas
 aiohttp
 toml
+magicattr

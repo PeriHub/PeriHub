@@ -14,6 +14,7 @@ SPDX-License-Identifier: Apache-2.0
       <q-tab name="jobs" label="Jobs"></q-tab>
       <q-tab name="results" label="Results"></q-tab>
       <q-tab name="plotly" label="Plotly"></q-tab>
+      <q-tab name="json" label="Json"></q-tab>
       <q-tab v-show="store.saveEnergy" name="renewable" label="Renewable"></q-tab>
       <!-- <q-tab name="trame" label="Trame"></q-tab> -->
     </q-tabs>
@@ -45,6 +46,10 @@ SPDX-License-Identifier: Apache-2.0
         <PlotlyView></PlotlyView>
       </q-tab-panel>
 
+      <q-tab-panel name="json">
+        <JsonView></JsonView>
+      </q-tab-panel>
+
       <q-tab-panel name="renewable">
         <RenewableView></RenewableView>
       </q-tab-panel>
@@ -68,6 +73,7 @@ import ModelView from 'components/views/ModelView.vue'
 import CadView from 'components/views/CadView.vue'
 import JobsView from 'components/views/JobsView.vue'
 import PlotlyView from 'components/views/PlotlyView.vue'
+import JsonView from 'components/views/JsonView.vue'
 import RenewableView from 'components/views/RenewableView.vue'
 import ResultsView from 'components/views/ResultsView.vue'
 import { useDefaultStore } from 'src/stores/default-store';
@@ -81,6 +87,7 @@ export default defineComponent({
     CadView,
     JobsView,
     PlotlyView,
+    JsonView,
     RenewableView,
     ResultsView
   },

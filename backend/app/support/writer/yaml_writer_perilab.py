@@ -5,6 +5,7 @@
 
 import numpy as np
 import yaml
+from fastapi import HTTPException
 
 
 class YAMLcreatorPeriLab:
@@ -354,7 +355,6 @@ class YAMLcreatorPeriLab:
 
     def solver(self, id=0, multistep=False):
         data = {}
-        print(self.solver_dict[id])
         if multistep:
             data["Step ID"] = self.solver_dict[id].stepId
 
@@ -374,17 +374,14 @@ class YAMLcreatorPeriLab:
             data["Initial Time"] = float(self.solver_dict[id].initialTime)
             data["Final Time"] = float(self.solver_dict[id].finalTime)
 
-        if self.solver_dict[id].stopAfterDamageInitation:
-            data["Stop after damage initiation"] = True
+        if self.check_if_defined(self.solver_dict[id].maximumDamage):
+            data["Maximum Damage"] = float(self.solver_dict[id].maximumDamage)
 
         # if self.solver_dict[id].stopAfterCertainDamage and self.solver_dict[id].endStepAfterDamage:
         #     data["End step after damage"] = self.solver_dict[id].endStepAfterDamage
 
         # if self.solver_dict[id].stopAfterCertainDamage:
         #     data["Stop after certain damage value"] = True
-
-        # if self.solver_dict[id].stopAfterCertainDamage and self.solver_dict[id].maxDamageValue:
-        #     data["Max. damage value"] = self.solver_dict[id].maxDamageValue
 
         if self.solver_dict[id].stopBeforeDamageInitation:
             data["Stop before damage initiation"] = True
@@ -395,6 +392,7 @@ class YAMLcreatorPeriLab:
                 data["Verlet"]["Fixed dt"] = float(self.solver_dict[id].fixedDt)
 
             data["Verlet"]["Safety Factor"] = float(self.solver_dict[id].safetyFactor)
+            data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].verlet.numericalDamping)
 
             if (
                 self.check_if_defined(self.solver_dict[id].adaptivetimeStepping)
@@ -424,11 +422,8 @@ class YAMLcreatorPeriLab:
             if self.check_if_defined(self.solver_dict[id].static.m):
                 data["Static"]["m"] = int(self.solver_dict[id].static.m)
         else:
-            data["Verlet"] = {}
 
-            data["Verlet"]["Safety Factor"] = float(self.solver_dict[id].safetyFactor)
-
-            data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].numericalDamping)
+            raise HTTPException(status_code=400, detail="Solver not defined")
 
         if self.check_if_defined(self.solver_dict[id].calculateCauchy):
             data["Calculate Cauchy"] = self.solver_dict[id].calculateCauchy

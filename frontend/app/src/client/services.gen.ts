@@ -383,6 +383,7 @@ export const translateModel = (data: TranslateModelData): CancelablePromise<Tran
  * @param data.modelName
  * @param data.modelFolderName
  * @param data.verbose
+ * @param data.jobIds
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -392,7 +393,8 @@ export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
-        verbose: data.verbose
+        verbose: data.verbose,
+        job_ids: data.jobIds
     },
     body: data.requestBody,
     mediaType: 'application/json',
