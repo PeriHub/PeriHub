@@ -27,7 +27,7 @@ export const useModelStore = defineStore('model', {
         this.selectedModel = structuredClone(object);
       }
       if (localStorage.getItem('modelParams')) {
-        const object = JSON.parse(localStorage.getItem('modelParams'));
+        const object = JSON.parse(localStorage.getItem('modelParams')!);
         this.modelParams = structuredClone(object);
       }
     },

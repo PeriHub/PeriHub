@@ -47,7 +47,7 @@ SPDX-License-Identifier: Apache-2.0
         label="Job">
         <JobSettings></JobSettings>
       </q-expansion-item>
-      <q-expansion-item v-model="panel[13]" expand-separator icon="fas fa-square-poll-vertical" label="Deviations">
+      <q-expansion-item v-model="panel[13]!" expand-separator icon="fas fa-square-poll-vertical" label="Deviations">
         <DeviationsSettings></DeviationsSettings>
       </q-expansion-item>
     </q-list>

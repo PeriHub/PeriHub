@@ -172,7 +172,7 @@ def get_enf_analysis(
     load_variable: str = "External_Forces",
     displ_variable: str = "External_Displacements",
     request: Request = "",
-):
+) -> dict:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -263,7 +263,7 @@ def get_plot(
                     for i, value in enumerate(row):
                         data[column_names[i]].append(value)
         first_row = True
-    return ResponseModel(data=data, message="Plot received")
+    return data
     # except IOError:
     #     log.error("%s results can not be found on %s", model_name, cluster)
     #     return ResponseModel(data=data, message=model_name + " results can not be found on " + cluster)

@@ -12,7 +12,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn> -->
     <q-btn flat icon="fas fa-save" @click="writeInputFile"
-      :disable="!status.created || viewStore.textId != 'input' || store.TRIAL">
+      :disable="!store.status.created || viewStore.textId != 'input' || store.TRIAL">
       <q-tooltip>
         <div v-if="!store.TRIAL">Save Inputfile</div>
         <div v-if="store.TRIAL">Disabled in trial version</div>
@@ -36,14 +36,12 @@ export default defineComponent({
   name: 'TextActions',
   setup() {
     const store = useDefaultStore();
-    const status = store.status
     const modelStore = useModelStore();
     const viewStore = useViewStore();
     const modelData = computed(() => modelStore.modelData)
 
     return {
       store,
-      status,
       viewStore,
       modelStore,
       modelData,
@@ -193,7 +191,7 @@ export default defineComponent({
           if (lastLine && lastLine.includes('[Info] Run ')) {
             this.viewStore.viewId = 'results';
           }
-          if (lastLine && lastLine.includes('[Info] PeriLab finished') && this.connection ) {
+          if (lastLine && lastLine.includes('[Info] PeriLab finished') && this.connection) {
             this.connection.close();
             this.connection = null; // Reset the connection variable
             this._getStatus();

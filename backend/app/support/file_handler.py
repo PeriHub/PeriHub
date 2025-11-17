@@ -625,6 +625,9 @@ class FileHandler:
         if len(matching_files) == 0:
             raise HTTPException(status_code=404, detail="No matching files found")
 
+        if len(matching_files) > 1:
+            matching_files.remove(os.path.join(directory, model_name + "_" + output + extension))
+
         return matching_files
 
     # @staticmethod

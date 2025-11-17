@@ -7,12 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div class="row">
     <q-btn flat icon="fas fa-play" @click="checkEnergy" :loading="submitLoading"
-      :disable="submitLoading || !status.created || !status.meshfileExist" v-if="!status.submitted">
+      :disable="submitLoading || !store.status.created || !store.status.meshfileExist" v-if="!store.status.submitted">
       <q-tooltip>
-        <div v-if="!status.created"> Model not created yet</div>
-        <div v-if="!status.meshfileExist"> Meshfile not created or uploaded yet</div>
-        <div v-if="status.submitted">Model is submitted</div>
-        <div v-if="!submitLoading && status.created && status.meshfileExist">Submit Model</div>
+        <div v-if="!store.status.created"> Model not created yet</div>
+        <div v-if="!store.status.meshfileExist"> Meshfile not created or uploaded yet</div>
+        <div v-if="store.status.submitted">Model is submitted</div>
+        <div v-if="!submitLoading && store.status.created && store.status.meshfileExist">Submit Model</div>
       </q-tooltip>
     </q-btn>
 
@@ -26,6 +26,7 @@ SPDX-License-Identifier: Apache-2.0
             <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
               <q-item v-bind="itemProps">
                 <q-item-section>
+                  <!-- eslint-disable-next-line -->
                   <q-item-label v-html="opt" />
                 </q-item-section>
                 <q-item-section side>
@@ -36,7 +37,7 @@ SPDX-License-Identifier: Apache-2.0
           </q-select>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Yes" color="primary" v-close-popup @click="runModel(jobIds.join(','))"></q-btn>
+          <q-btn flat label="Yes" color="primary" v-close-popup @click="runModel(jobIds!.join(','))"></q-btn>
           <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="runModel"></q-btn> -->
           <q-btn flat label="No" color="primary" v-close-popup></q-btn>
         </q-card-actions>
@@ -56,20 +57,20 @@ SPDX-License-Identifier: Apache-2.0
           <RenewableView></RenewableView>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Yes" color="primary" v-close-popup @click="runModel"></q-btn>
+          <q-btn flat label="Yes" color="primary" v-close-popup @click="runModel()"></q-btn>
           <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="runModel"></q-btn> -->
           <q-btn flat label="No" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-times" @click="cancelJob" :loading="submitLoading" v-if="status.submitted">
+    <q-btn flat icon="fas fa-times" @click="cancelJob" :loading="submitLoading" v-if="store.status.submitted">
       <q-tooltip>
         Cancel Job
       </q-tooltip>
     </q-btn>
     <q-btn flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading"
-      :disable="resultsLoading || !status.results">
+      :disable="resultsLoading || !store.status.results">
       <q-tooltip>
         Download Results
       </q-tooltip>
@@ -92,20 +93,21 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-eye" @click="viewStore.viewId = 'results'" :disable="!status.results">
+    <q-btn flat icon="fas fa-eye" @click="viewStore.viewId = 'results'" :disable="!store.status.results">
       <q-tooltip>
         Show Results
       </q-tooltip>
     </q-btn>
 
     <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
-      icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
+      icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!store.status.results">
       <q-tooltip>
         Show Fracture Analysis
       </q-tooltip>
     </q-btn>
     <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
-      icon="fas fa-image" @click="dialogGetEnergyReleasePlot = true, updatePlotVariables()" :disable="!status.results">
+      icon="fas fa-image" @click="dialogGetEnergyReleasePlot = true, updatePlotVariables()"
+      :disable="!store.status.results">
       <q-tooltip>
         Show Energy Release Plot
       </q-tooltip>
@@ -169,7 +171,7 @@ SPDX-License-Identifier: Apache-2.0
     </q-dialog>
 
     <q-btn v-if="['DIN6034'].includes(modelStore.selectedModel.file)" flat icon="fas fa-image"
-      @click="openGetEnfAnalysisDialog()" :disable="!status.results">
+      @click="openGetEnfAnalysisDialog()" :disable="!store.status.results">
       <q-tooltip>
         Show ENF Analysis
       </q-tooltip>
@@ -393,7 +395,7 @@ import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
 import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
-import type { Block, BondFilters, Compute, Damage, Material_Input } from 'src/client';
+import type { Block, BondFilters, Compute, Damage, Material_Input, Deviations, Output } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
@@ -406,7 +408,7 @@ export default defineComponent({
   },
   setup() {
     const store = useDefaultStore();
-    const status = store.status
+    const status = computed(() => store.status)
     const saveEnergy = computed(() => store.saveEnergy)
     const viewStore = useViewStore();
     const modelStore = useModelStore();
@@ -416,8 +418,10 @@ export default defineComponent({
     const computes = computed(() => modelStore.modelData.computes) as unknown as Compute[]
     const damages = computed(() => modelStore.modelData.damages) as unknown as Damage[]
     const materials = computed(() => modelStore.modelData.materials) as unknown as Material_Input[]
+    const deviations = computed(() => modelStore.modelData.deviations) as unknown as Deviations
 
     return {
+      store,
       status,
       saveEnergy,
       viewStore,
@@ -428,6 +432,7 @@ export default defineComponent({
       computes,
       damages,
       materials,
+      deviations,
       rules
     }
   },
@@ -452,7 +457,7 @@ export default defineComponent({
 
       dialogGetPlot: false,
       getPlotVariables: [] as string[],
-      getPlotOutput: 'Output1',
+      getPlotOutput: {} as Output,
       getPlotOutputCsv: 'Output2',
       getPlotVariableX: 'Time',
       getEnergyPlotVariableX: 'External_Displacement',
@@ -551,15 +556,15 @@ export default defineComponent({
         //   this.runModel();
         // }
         this.dialogEnergySavings = true
-      } else if (this.modelData.deviations.enabled) {
-        const n = this.modelData.deviations.sampleSize;
+      } else if (this.deviations.enabled) {
+        const n = this.deviations.sampleSize;
         this.jobIdsOptions = Array.from({ length: n }, (_, i) => i + 1);
         this.dialogSubmitMultiple = true
       } else {
         await this.runModel();
       }
     },
-    async runModel(jobIds = null) {
+    async runModel(jobIds: string | null = null) {
       this.submitLoading = true;
       this.viewStore.textLoading = true;
 
@@ -573,15 +578,6 @@ export default defineComponent({
           this.intervalCount = 0;
           // eslint-disable-next-line
           this.timer = setInterval(this.checkStatus, 5000)
-          }
-          else {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message
-            })
-            this.submitLoading = false;
-            this.viewStore.textLoading = false;
-          }
         })
         .catch((error) => {
           let message = '';
@@ -720,7 +716,7 @@ export default defineComponent({
       }
       items.push('Time');
       this.getPlotVariables = items;
-      this.getPlotOutput = this.modelData.outputs[0]
+      this.getPlotOutput = this.modelData.outputs[0]!
     },
     async _getPlot() {
       this.viewStore.modelLoading = true;
@@ -730,7 +726,7 @@ export default defineComponent({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
-        output: this.getPlotOutput,
+        output: this.getPlotOutput.name,
         tasks: this.modelData.job.tasks
       })
         .then((response) => {

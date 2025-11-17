@@ -156,6 +156,12 @@ export type Damage = {
     thickness?: number | null;
 };
 
+export type Deviations = {
+    enabled: boolean;
+    sampleSize: number;
+    parameters: Array<Parameter>;
+};
+
 export type Discretization_Input = {
     distributionType: string;
     discType?: string | null;
@@ -314,6 +320,7 @@ export type ModelData_Input = {
     contact?: Contact_Input | null;
     damages?: Array<Damage> | null;
     discretization?: Discretization_Input | null;
+    deviations?: Deviations | null;
     job: Job;
     materials: Array<Material_Input>;
     model: Model;
@@ -332,6 +339,7 @@ export type ModelData_Output = {
     contact?: Contact_Output | null;
     damages?: Array<Damage> | null;
     discretization?: Discretization_Output | null;
+    deviations?: Deviations | null;
     job: Job;
     materials: Array<Material_Output>;
     model: Model;
@@ -356,6 +364,12 @@ export type Output = {
     numberOfOutputSteps?: number | null;
     useOutputFrequency?: boolean | null;
     InitStep: number;
+};
+
+export type Parameter = {
+    parameterId?: number | null;
+    id: Array<(string)>;
+    std: number;
 };
 
 export type PointData = {
@@ -709,7 +723,9 @@ export type GetEnfAnalysisData = {
     width?: number;
 };
 
-export type GetEnfAnalysisResponse = unknown;
+export type GetEnfAnalysisResponse = {
+    [key: string]: unknown;
+};
 
 export type GetPlotData = {
     cluster?: boolean;
@@ -1168,7 +1184,9 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: {
+                    [key: string]: unknown;
+                };
                 /**
                  * Validation Error
                  */

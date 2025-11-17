@@ -18,3 +18,4 @@ declare module 'prismjs/components/prism-core';
 declare module 'bibtex-parse-js';
 declare module 'vue-vtk-js';
 declare module 'vue-chartkick';
+declare module 'objleaves';
