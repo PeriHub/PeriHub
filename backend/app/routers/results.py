@@ -201,9 +201,11 @@ def get_enf_analysis(
             )
     else:
         for i, file in enumerate(matching_files):
-            deviations["samples"][sample_names[i]]["G2C"] = CrackAnalysis.get_g2c(
-                file, length, width, crack_length, step, load_variable, displ_variable
-            )
+            g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step, load_variable, displ_variable)
+            if sample_names[i] in deviations["samples"]:
+                deviations["samples"][sample_names[i]]["G2C"] = g2c
+            else:
+                deviations["values"].append(g2c)
 
     return deviations
 

@@ -153,5 +153,5 @@ class ModelWriter:
 
                 self.file_writer(sample_names[i] + ".yaml", string)
 
-        with open(self.path + "/" + self.filename + "_deviations.json", "w", encoding="UTF-8") as file:
-            json.dump(deviation_dict, file)
+            with open(self.path + "/" + self.filename + "_deviations.json", "w", encoding="UTF-8") as file:
+                json.dump(deviation_dict, file)
