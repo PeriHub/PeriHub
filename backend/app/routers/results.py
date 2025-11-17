@@ -558,16 +558,16 @@ def get_data(
         log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
 
     data = PointDataResults(
-        np.ravel(
+        nodes=np.ravel(
             [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
             order="F",
         ).tolist(),
-        normalized_cell_value.tolist()[::reduce_factor],
-        variable_list,
-        number_of_steps,
-        min_cell_value,
-        max_cell_value,
-        np.format_float_scientific(time, 2),
+        value=normalized_cell_value.tolist()[::reduce_factor],
+        variables=variable_list,
+        number_of_steps=number_of_steps,
+        min_value=min_cell_value,
+        max_value=max_cell_value,
+        time=np.format_float_scientific(time, 2),
     )
     # data = {
     #     "nodes": np.ravel(

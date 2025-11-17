@@ -4,12 +4,15 @@
 
 import json
 from enum import Enum
-from typing import Any, List, Optional, Union,Literal
+from typing import Any, List, Literal, Optional, Union
 
 from pydantic import BaseModel
+
+
 class VersionData(BaseModel):
     current: str
     latest: str
+
 
 class PointDataResults(BaseModel):
     nodes: List[float]
@@ -22,14 +25,14 @@ class PointDataResults(BaseModel):
 
 
 class PointData(BaseModel):
-    points: List[float]
-    block_ids: List[int]
+    points: List[str]
+    block_ids: List[str]
     dx_value: float
 
 
 class Valve(BaseModel):
     name: str
-    type: Literal['text', 'number', 'select', 'checkbox', 'data']
+    type: Literal["text", "number", "select", "checkbox", "data"]
     value: Union[int, float, bool]
     label: str
     description: str

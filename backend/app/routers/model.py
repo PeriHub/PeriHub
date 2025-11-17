@@ -379,7 +379,7 @@ def get_point_data(
                     # block_id_string += str(block_id / max_block_id) + ","
                     block_ids.append(str(block_id / max_block_id))
         dx_value = np.average(dx)
-        response = PointData(points, block_ids, dx_value)
+        response = PointData(points=points, block_ids=block_ids, dx_value=dx_value)
         return response
         # except IOError:
         #     log.error("%s results can not be found", model_name)
