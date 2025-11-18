@@ -16,7 +16,7 @@ from typing import Optional
 
 import numpy as np
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from slugify import slugify
 
 from ..support.base_models import ModelData, PointData, Valves
@@ -130,7 +130,7 @@ def get_valves(model_name: str, source: bool = False) -> Valves:
 
 
 @router.get("/getConfig", operation_id="get_config")
-def get_config(config_file: str = "Dogbone") -> ModelData:
+def get_config(config_file: str = "Dogbone") -> JSONResponse:
     """doc"""
 
     config_path = os.path.join(
@@ -147,10 +147,12 @@ def get_config(config_file: str = "Dogbone") -> ModelData:
     )
     if os.path.exists(config_path):
         with open(config_path, "r") as file:
-            return json.load(file)
+            data = json.load(file)
+            return JSONResponse(content=data)
     if os.path.exists(own_config_path):
         with open(own_config_path, "r") as file:
-            return json.load(file)
+            data = json.load(file)
+            return JSONResponse(content=data)
 
     log.error("%s files can not be found", config_file)
     raise HTTPException(

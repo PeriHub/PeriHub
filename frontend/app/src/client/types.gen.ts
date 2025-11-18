@@ -37,7 +37,7 @@ export type BlockFunction = {
 };
 
 export type Body_generate_model = {
-    data: ModelData_Input;
+    data: ModelData;
     valves: Valves;
 };
 
@@ -98,14 +98,7 @@ export type Compute = {
     zValue?: number | null;
 };
 
-export type Contact_Input = {
-    enabled: boolean;
-    contactModels?: Array<ContactModel> | null;
-    searchFrequency?: number | null;
-    onlySurfaceContactNodes?: boolean | null;
-};
-
-export type Contact_Output = {
+export type Contact = {
     enabled: boolean;
     contactModels?: Array<ContactModel> | null;
     searchFrequency?: number | null;
@@ -162,14 +155,7 @@ export type Deviations = {
     parameters: Array<Parameter>;
 };
 
-export type Discretization_Input = {
-    distributionType: string;
-    discType?: string | null;
-    gcode?: Gcode | null;
-    nodeSets?: Array<NodeSet> | null;
-};
-
-export type Discretization_Output = {
+export type Discretization = {
     distributionType: string;
     discType?: string | null;
     gcode?: Gcode | null;
@@ -234,29 +220,7 @@ export type Jobs = {
 } | null;
 };
 
-export type Material_Input = {
-    materialsId?: number | null;
-    name: string;
-    matType: Array<(string)>;
-    bulkModulus?: number | null;
-    shearModulus?: number | null;
-    youngsModulus?: number | null;
-    poissonsRatio?: number | null;
-    planeStress: boolean;
-    planeStrain: boolean;
-    materialSymmetry: string;
-    stabilizationType: string;
-    hourglassCoefficient: number;
-    actualHorizon?: number | null;
-    yieldStress?: number | null;
-    stiffnessMatrix?: StiffnessMatrix | null;
-    properties: Array<properties> | null;
-    numStateVars?: number | null;
-    computePartialStress?: boolean | null;
-    useCollocationNodes?: boolean | null;
-};
-
-export type Material_Output = {
+export type Material = {
     materialsId?: number | null;
     name: string;
     matType: Array<(string)>;
@@ -311,37 +275,18 @@ export type Model = {
     meshFile?: string | null;
 };
 
-export type ModelData_Input = {
+export type ModelData = {
     additive?: Additive | null;
     blocks: Array<Block>;
     bondFilters?: Array<BondFilters> | null;
     boundaryConditions: BoundaryConditions;
     computes?: Array<Compute> | null;
-    contact?: Contact_Input | null;
+    contact?: Contact | null;
     damages?: Array<Damage> | null;
-    discretization?: Discretization_Input | null;
+    discretization?: Discretization | null;
     deviations?: Deviations | null;
     job: Job;
-    materials: Array<Material_Input>;
-    model: Model;
-    outputs: Array<Output>;
-    preCalculations?: PreCalculations | null;
-    solvers: Array<Solver>;
-    thermal?: Thermal | null;
-};
-
-export type ModelData_Output = {
-    additive?: Additive | null;
-    blocks: Array<Block>;
-    bondFilters?: Array<BondFilters> | null;
-    boundaryConditions: BoundaryConditions;
-    computes?: Array<Compute> | null;
-    contact?: Contact_Output | null;
-    damages?: Array<Damage> | null;
-    discretization?: Discretization_Output | null;
-    deviations?: Deviations | null;
-    job: Job;
-    materials: Array<Material_Output>;
+    materials: Array<Material>;
     model: Model;
     outputs: Array<Output>;
     preCalculations?: PreCalculations | null;
@@ -548,11 +493,11 @@ export type GetConfigData = {
     configFile?: string;
 };
 
-export type GetConfigResponse = ModelData_Output;
+export type GetConfigResponse = unknown;
 
 export type SaveConfigData = {
     configFile: string;
-    requestBody: ModelData_Input;
+    requestBody: ModelData;
 };
 
 export type SaveConfigResponse = unknown;
@@ -639,7 +584,7 @@ export type RunModelData = {
     jobIds?: string | null;
     modelFolderName?: string;
     modelName?: string;
-    requestBody: ModelData_Input;
+    requestBody: ModelData;
     verbose?: boolean;
 };
 
@@ -735,9 +680,7 @@ export type GetPlotData = {
     tasks?: number;
 };
 
-export type GetPlotResponse = {
-    [key: string]: unknown;
-};
+export type GetPlotResponse = unknown;
 
 export type GetResultsData = {
     allData?: boolean;
@@ -889,7 +832,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: ModelData_Output;
+                200: unknown;
                 /**
                  * Validation Error
                  */
@@ -1201,9 +1144,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: {
-                    [key: string]: unknown;
-                };
+                200: unknown;
                 /**
                  * Validation Error
                  */

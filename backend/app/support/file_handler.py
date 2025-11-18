@@ -623,6 +623,7 @@ class FileHandler:
                 matching_files.append(full_path)
 
         if len(matching_files) == 0:
+            log.warning("No matching files found")
             raise HTTPException(status_code=404, detail="No matching files found")
 
         if len(matching_files) > 1:

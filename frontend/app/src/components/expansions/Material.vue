@@ -25,7 +25,8 @@ SPDX-License-Identifier: Apache-2.0
             :label="materialKeys.matType" standout dense></q-select>
         </div>
         <div v-if="material.matType.includes('User')">
-          <q-list v-for="prop, subindex in material.properties" :key="prop.materialsPropId as PropertyKey" style="padding: 0px">
+          <q-list v-for="prop, subindex in material.properties" :key="prop.materialsPropId as PropertyKey"
+            style="padding: 0px">
             <div class="row my-row">
               <q-input class="my-input" v-model="prop.value" :rules="[rules.required, rules.float]" :label="prop.name"
                 standout dense></q-input>
@@ -56,8 +57,8 @@ SPDX-License-Identifier: Apache-2.0
               </q-tooltip>
             </q-btn>
             <q-input class="my-input" v-model="material.numStateVars" :rules="[rules.required, rules.int]"
-              :label="materialKeys.numStateVars"
-              @update:model-value="editNumStateVars(material.numStateVars!)" standout dense></q-input>
+              :label="materialKeys.numStateVars" @update:model-value="editNumStateVars(material.numStateVars!)" standout
+              dense></q-input>
           </div>
         </div>
         <div class="row my-row">
@@ -85,8 +86,8 @@ SPDX-License-Identifier: Apache-2.0
             :label="materialKeys.stiffnessMatrix.calculateStiffnessMatrix" standout dense></q-toggle>
         </div>
         <div class="row my-row"
-          v-if="material.stiffnessMatrix && material.materialSymmetry == 'Anisotropic' &&  material.matType.includes('Correspondence')">
-          <q-list v-if=" material.stiffnessMatrix.calculateStiffnessMatrix" style="padding: 0px">
+          v-if="material.stiffnessMatrix && material.materialSymmetry == 'Anisotropic' && material.matType.includes('Correspondence')">
+          <q-list v-if="material.stiffnessMatrix.calculateStiffnessMatrix" style="padding: 0px">
             <q-item v-for="(value, key) in material.stiffnessMatrix.engineeringConstants" :key="key">
               <q-input class="my-input" v-model="material.stiffnessMatrix.engineeringConstants[key]"
                 :rules="[rules.required, rules.float]" :label="materialKeys.stiffnessMatrix.engineeringConstants[key]"
@@ -140,14 +141,14 @@ import { useViewStore } from 'src/stores/view-store';
 import rules from 'assets/rules.js';
 import { matrix, inv } from 'mathjs'
 import { uploadFiles } from 'src/client';
-import type { Material_Input, properties } from 'src/client';
+import type { Material, properties } from 'src/client';
 
 export default defineComponent({
   name: 'MaterialSettings',
   setup() {
     const store = useModelStore();
     const viewStore = useViewStore();
-    const materials = computed(() => store.modelData.materials) as unknown as Material_Input[]
+    const materials = computed(() => store.modelData.materials) as unknown as Material[]
     const job = computed(() => store.modelData.job)
     const modelData = computed(() => store.modelData)
     return {
@@ -475,7 +476,7 @@ export default defineComponent({
         this.materials = []
       }
       const len = this.materials.length;
-      const newItem = len > 0 ? structuredClone(toRaw(this.materials[len - 1])) as Material_Input : {} as Material_Input;
+      const newItem = len > 0 ? structuredClone(toRaw(this.materials[len - 1])) as Material : {} as Material;
       newItem.materialsId = 1
       newItem.name = 'Material 1'
       this.materials.push(newItem);

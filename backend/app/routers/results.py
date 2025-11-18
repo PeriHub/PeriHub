@@ -195,6 +195,12 @@ def get_enf_analysis(
 
     matching_files = FileHandler.get_all_output_files_with_extension(resultpath, model_name, output, ".csv")
 
+    default_file = os.path.join(resultpath, model_name + "_" + output + ".csv")
+    if os.path.exists(default_file):
+        deviations["default"]["G2C"] = CrackAnalysis.get_g2c(
+            default_file, length, width, crack_length, step, load_variable, displ_variable
+        )
+
     if deviations == {}:
         deviations = {"values": []}
         for file in matching_files:
@@ -226,14 +232,15 @@ def get_plot(
     # y_axis: str = "X",
     # y_absolute: bool = True,
     request: Request = "",
-) -> dict:
+) -> JSONResponse:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
         username, model_name, model_folder_name, cluster, False, tasks, output
     ):
-        raise IOError  # NotFoundException(name=model_name)
+        log.warning("Results not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Results not found")
 
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
@@ -263,7 +270,7 @@ def get_plot(
                     for i, value in enumerate(row):
                         data[column_names[i]].append(value)
         first_row = True
-    return data
+    return JSONResponse(content=data)
     # except IOError:
     #     log.error("%s results can not be found on %s", model_name, cluster)
     #     return ResponseModel(data=data, message=model_name + " results can not be found on " + cluster)

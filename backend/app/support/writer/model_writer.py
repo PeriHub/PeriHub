@@ -120,9 +120,9 @@ class ModelWriter:
         string = yaml_perilab.create_yaml(max_block_id)
 
         self.file_writer(self.filename + ".yaml", string)
-        deviation_dict = {"sample_size": deviations.sampleSize, "samples": {}}
 
         if deviations is not None and deviations.enabled:
+            deviation_dict = {"sample_size": deviations.sampleSize, "samples": {}, "default": {}}
 
             output_names = []
             for _, output in enumerate(self.model_data.outputs):
@@ -138,6 +138,8 @@ class ModelWriter:
                 mean = magicattr.get(self.model_data, parameter.id[0])
                 value = np.random.normal(mean, parameter.std, deviations.sampleSize)
                 value_list.append(value)
+                for ids in parameter.id:
+                    deviation_dict["default"][ids] = {"mean": mean, "std": parameter.std}
                 for i in range(deviations.sampleSize):
                     for ids in parameter.id:
                         deviation_dict["samples"][sample_names[i]][ids] = value[i]

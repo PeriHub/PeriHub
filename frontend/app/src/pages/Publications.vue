@@ -45,9 +45,9 @@ SPDX-License-Identifier: Apache-2.0
               entry['entryTags']['journal']
                   }}</span></em>&nbsp;</span>
             <span v-if="entry['entryTags']['Month']"><span class="month">{{ entry['entryTags']['Month']
-            }}</span>,&nbsp;</span>
+                }}</span>,&nbsp;</span>
             <span v-if="entry['entryTags']['month']"><span class="month">{{ entry['entryTags']['month']
-            }}</span>,&nbsp;</span>
+                }}</span>,&nbsp;</span>
             <span v-if="entry['entryTags']['Year']"><span class="year">{{ entry['entryTags']['Year'] }}</span></span>
             <span v-if="entry['entryTags']['year']"><span class="year">{{ entry['entryTags']['year'] }}</span></span>.
           </div>

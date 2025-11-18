@@ -35,8 +35,8 @@ SPDX-License-Identifier: Apache-2.0
 
         <q-separator></q-separator>
 
-        <q-list v-for="contactGroup, subindex in contactModel.contactGroups" :key="contactGroup.contactGroupId as PropertyKey"
-          style="padding: 0px">
+        <q-list v-for="contactGroup, subindex in contactModel.contactGroups"
+          :key="contactGroup.contactGroupId as PropertyKey" style="padding: 0px">
           <div class="row my-row">
             <q-input class="my-input" v-model="contactGroup.name" :rules="[rules.required, rules.name]" label="Name"
               standout dense></q-input>
@@ -76,7 +76,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import type { Contact_Input, ContactGroup, ContactModel } from 'src/client';
+import type { Contact, ContactGroup, ContactModel } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -84,8 +84,8 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const blocks = computed(() => store.modelData.blocks)
-    const contact = computed(() => store.modelData.contact) as unknown as Contact_Input
-    const contactModels = computed(() =>contact.contactModels) as unknown as ContactModel[]
+    const contact = computed(() => store.modelData.contact) as unknown as Contact
+    const contactModels = computed(() => contact.contactModels) as unknown as ContactModel[]
     return {
       store,
       blocks,

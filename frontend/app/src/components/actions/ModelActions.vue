@@ -98,7 +98,7 @@ import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
 import { generateModel, saveConfig } from 'src/client';
-import type { Discretization_Input } from 'src/client';
+import type { Discretization, ModelData } from 'src/client';
 import rules from 'assets/rules.js';
 import Driver from 'driver.js';
 
@@ -158,7 +158,7 @@ export default defineComponent({
       if (type == 'gcode') {
         this.modelStore.modelData.model.meshFile = res.files[0]!.name
         if (!this.modelStore.modelData.discretization) {
-          this.modelStore.modelData.discretization = {} as Discretization_Input
+          this.modelStore.modelData.discretization = {} as Discretization
         }
         this.modelStore.modelData.discretization.discType = 'gcode'
         if (!this.modelStore.modelData.discretization.gcode) {
@@ -179,7 +179,7 @@ export default defineComponent({
         if (JSON.parse(res.xhr.response).message != '') {
           this.modelStore.modelData.model.meshFile = res.files[0]!.name
           if (!this.modelStore.modelData.discretization) {
-            this.modelStore.modelData.discretization = {} as Discretization_Input
+            this.modelStore.modelData.discretization = {} as Discretization
           }
           this.modelStore.modelData.discretization.discType = 'txt'
         }
@@ -241,9 +241,9 @@ export default defineComponent({
         const result = JSON.parse(e.target.result);
         console.log(result)
         if (result.modelData) {
-          this.modelStore.modelData = structuredClone(result.modelData)
+          this.modelStore.modelData = { ...this.modelStore.modelData, ...result.modelData } as ModelData
         } else {
-          this.modelStore.modelData = structuredClone(result)
+          this.modelStore.modelData = { ...this.modelStore.modelData, ...result } as ModelData
           console.log('Deprecated Json Format!')
         }
         if (result.modelParams) {

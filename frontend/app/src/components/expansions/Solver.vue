@@ -10,8 +10,8 @@ SPDX-License-Identifier: Apache-2.0
         v-bind:style="(solver.solverId! % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
         <h4 class="my-title">Solver {{ solver.solverId }}</h4>
         <div class="row my-row">
-          <q-input class="my-input" v-model="solver.name" :rules="[rules.required, rules.name]" :label="solverKeys.name"
-            standout dense></q-input>
+          <q-input class="my-input" v-model="solver.name" :rules="[rules.name]" :label="solverKeys.name" standout
+            dense></q-input>
           <q-space></q-space>
           <q-btn v-if="solvers.length > 1" flat icon="fas fa-trash-alt" @click="removeSolver(index)">
             <q-tooltip>

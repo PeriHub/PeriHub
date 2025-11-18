@@ -108,7 +108,7 @@ export const getValves = (data: GetValvesData): CancelablePromise<GetValvesRespo
  * doc
  * @param data The data for the request.
  * @param data.configFile
- * @returns ModelData_Output Successful Response
+ * @returns unknown Successful Response
  * @throws ApiError
  */
 export const getConfig = (data: GetConfigData = {}): CancelablePromise<GetConfigResponse> => { return __request(OpenAPI, {

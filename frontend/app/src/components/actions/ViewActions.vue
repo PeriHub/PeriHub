@@ -388,14 +388,14 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
+import { computed, defineComponent, toRaw } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
 import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
-import type { Block, BondFilters, Compute, Damage, Material_Input, Deviations, Output } from 'src/client';
+import type { Block, BondFilters, Compute, Damage, Material, Deviations } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
@@ -417,7 +417,7 @@ export default defineComponent({
     const bondFilters = computed(() => modelStore.modelData.bondFilters) as unknown as BondFilters[]
     const computes = computed(() => modelStore.modelData.computes) as unknown as Compute[]
     const damages = computed(() => modelStore.modelData.damages) as unknown as Damage[]
-    const materials = computed(() => modelStore.modelData.materials) as unknown as Material_Input[]
+    const materials = computed(() => modelStore.modelData.materials) as unknown as Material[]
     const deviations = computed(() => modelStore.modelData.deviations) as unknown as Deviations
 
     return {
@@ -457,7 +457,7 @@ export default defineComponent({
 
       dialogGetPlot: false,
       getPlotVariables: [] as string[],
-      getPlotOutput: {} as Output,
+      getPlotOutput: 'Output1',
       getPlotOutputCsv: 'Output2',
       getPlotVariableX: 'Time',
       getEnergyPlotVariableX: 'External_Displacement',
@@ -716,27 +716,27 @@ export default defineComponent({
       }
       items.push('Time');
       this.getPlotVariables = items;
-      this.getPlotOutput = this.modelData.outputs[0]!
+      this.getPlotOutput = this.modelData.outputs[0]!.name
     },
     async _getPlot() {
       this.viewStore.modelLoading = true;
-      let plotRawData = null;
+      let plotRawData = {};
 
       await getPlot({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
-        output: this.getPlotOutput.name,
+        output: this.getPlotOutput,
         tasks: this.modelData.job.tasks
       })
         .then((response) => {
-          plotRawData = response
+          plotRawData = response as object
           this.$q.notify({
             message: 'Plot loaded',
           })
 
           const tempData = []
-          const tempLayout = structuredClone(this.viewStore.plotLayout)
+          const tempLayout = structuredClone(toRaw(this.viewStore.plotLayout))
           const firstPropety = Object.keys(plotRawData)[0] as string
           let id = 0
           for (const propertyName in plotRawData) {
@@ -754,7 +754,8 @@ export default defineComponent({
 
           this.viewStore.viewId = 'plotly';
         })
-        .catch(() => {
+        .catch((e) => {
+          console.log(e)
           this.$q.notify({
             type: 'negative',
             message: 'Failed',

@@ -25,6 +25,7 @@ import { useModelStore } from 'src/stores/model-store';
 import MainHeader from 'layouts/MainHeader.vue'
 import MainFooter from 'layouts/MainFooter.vue'
 import { getValves, getConfig } from 'src/client'
+import type { ModelData } from 'src/client'
 
 export default defineComponent({
   name: 'MainLayout',
@@ -55,7 +56,10 @@ export default defineComponent({
     },
     resetData() {
       getConfig({ configFile: this.modelStore.selectedModel.file }).then((response) => {
-        this.modelStore.modelData = structuredClone(response)
+        // @ts-expect-error Bla
+        const data = JSON.parse(JSON.stringify(response))
+        console.log(data)
+        this.modelStore.modelData = { ...this.modelStore.modelData, ...data } as ModelData
       })
         .catch((error) => {
           this.$q.notify({
@@ -82,7 +86,7 @@ export default defineComponent({
     }
     if (!localStorage.getItem('modelData')) {
       console.log('beforeMount');
-      this.resetData()
+      // this.resetData()
     }
   },
   watch: {

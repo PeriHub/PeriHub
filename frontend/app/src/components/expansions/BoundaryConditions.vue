@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-list v-for="boundaryCondition, index in boundaryConditions.conditions" :key="boundaryCondition.conditionsId as PropertyKey"
-      style="padding: 0px">
+    <q-list v-for="boundaryCondition, index in boundaryConditions.conditions"
+      :key="boundaryCondition.conditionsId as PropertyKey" style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="boundaryCondition.name" :rules="[rules.required, rules.name]"
           :label="boundaryKeys.name" standout dense></q-input>
@@ -51,7 +51,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import type { BoundaryCondition, Discretization_Input } from 'src/client';
+import type { BoundaryCondition, Discretization } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -62,7 +62,7 @@ export default defineComponent({
     const blocks = computed(() => store.modelData.blocks)
     const solvers = computed(() => store.modelData.solvers)
     const boundaryConditions = computed(() => store.modelData.boundaryConditions)
-    const discretization = computed(() => store.modelData.discretization) as unknown as Discretization_Input
+    const discretization = computed(() => store.modelData.discretization) as unknown as Discretization
     return {
       store,
       model,

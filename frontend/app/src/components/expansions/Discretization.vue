@@ -8,7 +8,8 @@ SPDX-License-Identifier: Apache-2.0
   <div>
     <q-select class="my-select" :options="distributionTypes" v-model="discretization.distributionType"
       label="Distribution Type" standout dense></q-select>
-    <q-list v-for="nodeSet, index  in discretization.nodeSets" :key="nodeSet.nodeSetId as PropertyKey" style="padding: 0px">
+    <q-list v-for="nodeSet, index in discretization.nodeSets" :key="nodeSet.nodeSetId as PropertyKey"
+      style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="nodeSet.file" :rules="[rules.required, rules.name]" label="Nodeset" standout
           dense></q-input>
@@ -36,7 +37,7 @@ SPDX-License-Identifier: Apache-2.0
         :label="discKeys.gcode.height" standout dense></q-input>
       <q-input class="my-input" v-model="discretization.gcode.scale" :rules="[rules.required, rules.float]"
         :label="discKeys.gcode.scale" standout dense></q-input>
-      <q-list v-for="block, index  in discretization.gcode.blockFunctions" :key="block.id" style="padding: 0px">
+      <q-list v-for="block, index in discretization.gcode.blockFunctions" :key="block.id" style="padding: 0px">
         <div class="row my-row">
           <q-input class="my-input" v-model="block.id" :rules="[rules.required, rules.float]" label="id" standout
             dense></q-input>
@@ -62,14 +63,14 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import type { Discretization_Input, BlockFunction, Gcode, NodeSet } from 'src/client';
+import type { Discretization, BlockFunction, Gcode, NodeSet } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'DiscretizazionSettings',
   setup() {
     const store = useModelStore();
-    const discretization = computed(() => store.modelData.discretization) as unknown as Discretization_Input
+    const discretization = computed(() => store.modelData.discretization) as unknown as Discretization
     return {
       store,
       discretization,
@@ -126,7 +127,7 @@ export default defineComponent({
       this.discretization.gcode.blockFunctions.push(newItem);
     },
     removeBlockFunction(index: number) {
-      if (!this.discretization.gcode ||!this.discretization.gcode.blockFunctions) {
+      if (!this.discretization.gcode || !this.discretization.gcode.blockFunctions) {
         return
       }
       this.discretization.gcode.blockFunctions.splice(index, 1);

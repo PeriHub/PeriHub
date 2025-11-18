@@ -3,11 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineStore } from 'pinia';
-import type { ModelData_Input, Valves, GetModelsResponse } from 'src/client';
+import type { ModelData, Valves, GetModelsResponse } from 'src/client';
+import { $ModelData } from 'src/client';
 
 export const useModelStore = defineStore('model', {
   state: () => ({
-    modelData: {} as ModelData_Input,
+    // @ts-expect-error Bla
+    modelData: { ...$ModelData.example } as ModelData,
     availableModels: [] as GetModelsResponse,
     modelParams: {} as Valves,
     selectedModel: {

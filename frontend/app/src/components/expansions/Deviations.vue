@@ -45,7 +45,7 @@ import { computed, defineComponent, toRaw } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import type { Parameter, Deviations } from 'src/client';
-// @vue-expect-error Bla
+//@ts-expect-error Bla
 import objleaves from 'objleaves';
 import rules from 'assets/rules.js';
 
