@@ -68,7 +68,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
 import { useModelStore } from 'src/stores/model-store';
 import { getPointData } from 'src/client';
@@ -81,13 +81,11 @@ export default defineComponent({
     const viewStore = useViewStore();
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData);
-    const view = ref(null);
 
     return {
       viewStore,
       modelStore,
-      modelData,
-      view
+      modelData
     }
   },
   created() {
@@ -104,7 +102,7 @@ export default defineComponent({
       radius: 0.2,
       multiplier: 100,
       pointString: [1, 0, 0],
-      blockIdString: [1],
+      blockIdString: [1]
     };
   },
   mounted() {

@@ -55,7 +55,7 @@ import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { cancelJob, getJobs } from 'src/client';
-import type { Jobs, ModelData_Output } from 'src/client';
+import type { Jobs, ModelData } from 'src/client';
 
 export default defineComponent({
   name: 'JobsView',
@@ -119,7 +119,7 @@ export default defineComponent({
       this._getJobs();
     },
     onRowClick(row: Jobs) {
-      this.modelStore.modelData = row.model as ModelData_Output;
+      this.modelStore.modelData = row.model as ModelData;
       console.log(row.model);
     },
     _getJobs() {

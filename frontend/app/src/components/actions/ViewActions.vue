@@ -503,7 +503,6 @@ export default defineComponent({
 
       port: null,
 
-      plotRawData: null,
       timer: null as NodeJS.Timeout | null,
       intervalCount: 0,
 
@@ -720,7 +719,6 @@ export default defineComponent({
     },
     async _getPlot() {
       this.viewStore.modelLoading = true;
-      let plotRawData = {};
 
       await getPlot({
         modelName: this.modelStore.selectedModel.file,
@@ -730,7 +728,7 @@ export default defineComponent({
         tasks: this.modelData.job.tasks
       })
         .then((response) => {
-          plotRawData = response as object
+          const plotRawData = response as { [index: string]: number[] }
           this.$q.notify({
             message: 'Plot loaded',
           })

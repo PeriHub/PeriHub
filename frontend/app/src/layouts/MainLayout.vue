@@ -56,9 +56,7 @@ export default defineComponent({
     },
     resetData() {
       getConfig({ configFile: this.modelStore.selectedModel.file }).then((response) => {
-        // @ts-expect-error Bla
         const data = JSON.parse(JSON.stringify(response))
-        console.log(data)
         this.modelStore.modelData = { ...this.modelStore.modelData, ...data } as ModelData
       })
         .catch((error) => {

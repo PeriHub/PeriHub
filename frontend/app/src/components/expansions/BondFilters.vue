@@ -95,9 +95,9 @@ export default defineComponent({
     this.$bus.on('showHideBondFilters', () => {
       this.showHideBondFilters()
     })
-      // this.$bus.on('updateCracklength', () => {
-      //   this.updateCracklength()
-      // })
+    // this.$bus.on('updateCracklength', () => {
+    //   this.updateCracklength()
+    // })
   },
   data() {
     return {
@@ -190,7 +190,7 @@ export default defineComponent({
             const cy = bondFilter.centerY;
             const cz = bondFilter.centerZ;
             const radius = bondFilter.radius;
-            if (!cx || !cy || !cz || !radius) {
+            if (cx == null || cy == null || cz == null || radius == null) {
               console.log('Disk: cx, cy, cz, radius not defined');
               continue;
             }
@@ -241,7 +241,7 @@ export default defineComponent({
           } else {
             const lx = bondFilter.lowerLeftCornerX;
             const ly = bondFilter.lowerLeftCornerY;
-            const lz = -bondFilter.lowerLeftCornerZ!;
+            const lz = bondFilter.lowerLeftCornerZ;
             const bx = bondFilter.bottomUnitVectorX;
             const by = bondFilter.bottomUnitVectorY;
             const bz = bondFilter.bottomUnitVectorZ;
@@ -249,14 +249,14 @@ export default defineComponent({
             const sl = bondFilter.sideLength;
 
             if (
-              !lx ||
-              !ly ||
-              !lz ||
-              !bx ||
-              !by ||
-              !bz ||
-              !bl ||
-              !sl
+              lx == null ||
+              ly == null ||
+              lz == null ||
+              bx == null ||
+              by == null ||
+              bz == null ||
+              bl == null ||
+              sl == null
             ) {
               console.log('Rectangular_Plane: lx, ly, lz, bx, by, bz, bl, sl not defined');
               continue;
@@ -264,13 +264,13 @@ export default defineComponent({
 
             const point1x = lx;
             const point1y = ly;
-            const point1z = lz;
+            const point1z = -lz;
 
             const [normx, normy, normz] = this.getVectorNorm(bx, by, bz);
 
             const point2x = lx + normx! * bl;
             const point2y = ly + normy! * bl;
-            const point2z = lz + normz! * bl;
+            const point2z = -lz + normz! * bl;
 
             const crossVector = this.cross(nx, ny, nz, bx, by, bz);
 
@@ -282,7 +282,7 @@ export default defineComponent({
 
             const point4x = lx + normVector[0]! * sl;
             const point4y = ly + normVector[1]! * sl;
-            const point4z = lz + normVector[2]! * sl;
+            const point4z = -lz + normVector[2]! * sl;
 
             const point3x = point2x + normVector[0]! * sl;
             const point3y = point2y + normVector[1]! * sl;

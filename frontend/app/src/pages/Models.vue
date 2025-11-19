@@ -81,7 +81,7 @@ import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 import JsonEditorVue from 'json-editor-vue'
 
 import { getOwnModels, getOwnModelFile, getConfig, saveConfig, saveModelFile, addModel, deleteModelFile } from '../client';
-import type { GetOwnModelsResponse, ModelData_Output } from 'src/client';
+import type { GetOwnModelsResponse, ModelData } from 'src/client';
 
 export default {
   name: 'CuratorPage',
@@ -110,7 +110,7 @@ export default {
       description: '',
 
       sourceCode: '',
-      config: {} as ModelData_Output,
+      config: {} as ModelData,
       verticalSplitterModel: 50,
     };
   },
@@ -142,7 +142,7 @@ export default {
       const config = await getConfig({
         configFile: this.selectedModel.file
       })
-      this.config = config;
+      this.config = config as ModelData;
     },
     async _saveModel() {
       await saveModelFile({
