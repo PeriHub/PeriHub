@@ -105,8 +105,9 @@ SPDX-License-Identifier: Apache-2.0
         Show Fracture Analysis
       </q-tooltip>
     </q-btn>
-    <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
-      icon="fas fa-image" @click="dialogGetEnergyReleasePlot = true, updatePlotVariables()"
+    <q-btn
+      v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel', 'DIN6034'].includes(modelStore.selectedModel.file)"
+      flat icon="fas fa-image" @click="dialogGetEnergyReleasePlot = true, updatePlotVariables()"
       :disable="!store.status.results">
       <q-tooltip>
         Show Energy Release Plot
@@ -394,7 +395,7 @@ import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
-import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
+import { getCurrentEnergy, runModel, cancelJob, getOwnAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
 import type { Block, BondFilters, Compute, Damage, Material, Deviations } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
@@ -990,41 +991,54 @@ export default defineComponent({
     async _getEnfAnalysis() {
       this.viewStore.modelLoading = true;
 
-      let length = 0
-      let width = 0
-      let cracklength = 0
+      // let length = 0
+      // let width = 0
+      // let cracklength = 0
 
-      for (let i = 0; i < this.modelStore.modelParams.valves.length; i++) {
-        const param = this.modelStore.modelParams.valves[i]!
-        if (param.name == 'LENGTH') {
-          length = param.value as number
-        }
-        if (param.name == 'WIDTH') {
-          width = param.value as number
-        }
-        if (param.name == 'CRACK_LENGTH') {
-          cracklength = param.value as number
-        }
+      // for (let i = 0; i < this.modelStore.modelParams.valves.length; i++) {
+      //   const param = this.modelStore.modelParams.valves[i]!
+      //   if (param.name == 'LENGTH') {
+      //     length = param.value as number
+      //   }
+      //   if (param.name == 'WIDTH') {
+      //     width = param.value as number
+      //   }
+      //   if (param.name == 'CRACK_LENGTH') {
+      //     cracklength = param.value as number
+      //   }
+      // }
+      // console.log(length)
+
+      // await getEnfAnalysis({
+      //   modelName: this.modelStore.selectedModel.file,
+      //   modelFolderName: this.modelData.model.modelFolderName,
+      //   length: length,
+      //   width: width,
+      //   crackLength: cracklength,
+      //   cluster: this.modelData.job.cluster,
+      //   tasks: this.modelData.job.tasks,
+      //   output: this.getImageOutput,
+      //   step: this.getImageStep,
+      //   loadVariable: this.getAnalysisVariables[0]!,
+      //   displVariable: this.getAnalysisVariables[1]!
+      // })
+
+      const body = {
+        'data': this.modelData,
+        'valves': this.modelStore.modelParams
       }
-      console.log(length)
 
-      await getEnfAnalysis({
+      await getOwnAnalysis({
         modelName: this.modelStore.selectedModel.file,
-        modelFolderName: this.modelData.model.modelFolderName,
-        length: length,
-        width: width,
-        crackLength: cracklength,
-        cluster: this.modelData.job.cluster,
-        tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
-        step: this.getImageStep,
-        loadVariable: this.getAnalysisVariables[0]!,
-        displVariable: this.getAnalysisVariables[1]!
+        requestBody: body
       })
-        .then((response) => {
+        .then((response: Blob) => {
           console.log(response)
-          this.viewStore.jsonData = response
-          this.viewStore.viewId = 'json';
+          const blob = new Blob([response], { type: "image/png" }); // adjust MIME
+          this.viewStore.modelImg = window.URL.createObjectURL(blob)
+          // this.viewStore.jsonData = response
+          this.viewStore.viewId = 'image';
           this.$q.notify({
             message: 'ENF analyzed',
           })

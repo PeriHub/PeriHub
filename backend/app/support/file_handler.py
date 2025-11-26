@@ -116,10 +116,10 @@ class FileHandler:
     @staticmethod
     def get_user_name(request, dev):
         """doc"""
-        return request.headers.get("userName")
-        # if user_name is not None and user_name != "" and user_name != "undefined":
-        #     return user_name
-        # return "guest"
+        user_name = request.headers.get("userName")
+        if user_name is not None and user_name != "" and user_name != "undefined":
+            return user_name
+        return "user"
 
         # encoded_token = request.headers.get("Authorization")
         # if encoded_token is None or encoded_token == "":

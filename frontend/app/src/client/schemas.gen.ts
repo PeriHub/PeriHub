@@ -209,6 +209,20 @@ export const $Body_generate_model = {
     title: 'Body_generate_model'
 } as const;
 
+export const $Body_get_own_analysis = {
+    properties: {
+        data: {
+            '$ref': '#/components/schemas/ModelData'
+        },
+        valves: {
+            '$ref': '#/components/schemas/Valves'
+        }
+    },
+    type: 'object',
+    required: ['data', 'valves'],
+    title: 'Body_get_own_analysis'
+} as const;
+
 export const $Body_upload_files = {
     properties: {
         files: {

@@ -41,6 +41,11 @@ export type Body_generate_model = {
     valves: Valves;
 };
 
+export type Body_get_own_analysis = {
+    data: ModelData;
+    valves: Valves;
+};
+
 export type Body_upload_files = {
     files: Array<((Blob | File))>;
 };
@@ -623,6 +628,17 @@ export type GetStatusData = {
 
 export type GetStatusResponse = Status;
 
+export type GetOwnAnalysisData = {
+    cluster?: boolean;
+    modelFolderName?: string;
+    modelName?: string;
+    output?: string;
+    requestBody: Body_get_own_analysis;
+    tasks?: number;
+};
+
+export type GetOwnAnalysisResponse = (Blob | File);
+
 export type GetFractureAnalysisData = {
     cluster?: boolean;
     crackLength?: number;
@@ -668,9 +684,7 @@ export type GetEnfAnalysisData = {
     width?: number;
 };
 
-export type GetEnfAnalysisResponse = {
-    [key: string]: unknown;
-};
+export type GetEnfAnalysisResponse = (Blob | File);
 
 export type GetPlotData = {
     cluster?: boolean;
@@ -1090,6 +1104,21 @@ export type $OpenApiTs = {
             };
         };
     };
+    '/results/getOwnAnalysis': {
+        post: {
+            req: GetOwnAnalysisData;
+            res: {
+                /**
+                 * The image.
+                 */
+                200: (Blob | File);
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
     '/results/getFractureAnalysis': {
         get: {
             req: GetFractureAnalysisData;
@@ -1125,11 +1154,9 @@ export type $OpenApiTs = {
             req: GetEnfAnalysisData;
             res: {
                 /**
-                 * Successful Response
+                 * The image.
                  */
-                200: {
-                    [key: string]: unknown;
-                };
+                200: (Blob | File);
                 /**
                  * Validation Error
                  */

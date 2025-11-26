@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnergyReleasePlotData, GetEnergyReleasePlotResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetOwnAnalysisData, GetOwnAnalysisResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnergyReleasePlotData, GetEnergyReleasePlotResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -498,6 +498,36 @@ export const getStatus = (data: GetStatusData = {}): CancelablePromise<GetStatus
 }); };
 
 /**
+ * Get Own Analysis
+ * doc
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @param data.modelName
+ * @param data.modelFolderName
+ * @param data.cluster
+ * @param data.tasks
+ * @param data.output
+ * @returns binary The image.
+ * @throws ApiError
+ */
+export const getOwnAnalysis = (data: GetOwnAnalysisData): CancelablePromise<GetOwnAnalysisResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/results/getOwnAnalysis',
+    query: {
+        model_name: data.modelName,
+        model_folder_name: data.modelFolderName,
+        cluster: data.cluster,
+        tasks: data.tasks,
+        output: data.output
+    },
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
  * Get Fracture Analysis
  * doc
  * @param data The data for the request.
@@ -588,7 +618,7 @@ export const getEnergyReleasePlot = (data: GetEnergyReleasePlotData = {}): Cance
  * @param data.step
  * @param data.loadVariable
  * @param data.displVariable
- * @returns unknown Successful Response
+ * @returns binary The image.
  * @throws ApiError
  */
 export const getEnfAnalysis = (data: GetEnfAnalysisData = {}): CancelablePromise<GetEnfAnalysisResponse> => { return __request(OpenAPI, {

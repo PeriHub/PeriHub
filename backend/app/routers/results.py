@@ -3,9 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import csv
+import importlib
 import json
 import os
 import shutil
+import sys
 from typing import Optional
 
 import matplotlib.pyplot as plt
@@ -15,13 +17,81 @@ from exodusreader import exodusreader
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 
-from ..support.base_models import PointDataResults
+from ..support.base_models import ModelData, PointDataResults, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
 from ..support.results.analysis import Analysis
 from ..support.results.crack_analysis import CrackAnalysis
 
 router = APIRouter(prefix="/results", tags=["Results Methods"])
+
+
+def load_or_reload_main(model_name: str):
+    """
+    Dynamically import/reload `app.own_models.<model_name>.<model_name>`
+    and return the `main` attribute from that module.
+    """
+    # Build the fully‑qualified module path
+    module_name = f"app.own_models.{model_name}.{model_name}"
+
+    # If the module is already loaded, reload it; otherwise, import it.
+    if module_name in sys.modules:
+        mod = importlib.reload(sys.modules[module_name])
+    else:
+        mod = importlib.import_module(module_name)
+
+    # Pull the attribute you care about.
+    return getattr(mod, "main")
+
+
+@router.post(
+    "/getOwnAnalysis",
+    operation_id="get_own_analysis",
+    response_class=FileResponse,
+    responses={
+        200: {
+            "description": "The image.",
+            "content": {"image/png": {"schema": {"type": "string", "format": "binary"}}},
+        }
+    },
+)
+def get_own_analysis(
+    data: ModelData,
+    valves: Valves,
+    model_name: str = "ENFmodel",
+    output: str = "Output1",
+    request: Request = "",
+):
+    """doc"""
+    username = FileHandler.get_user_name(request, dev)
+
+    model_folder_name = data.model.modelFolderName
+    cluster = data.job.cluster
+    tasks = data.job.tasks
+
+    if not FileHandler.copy_results_from_cluster(
+        username, model_name, model_folder_name, cluster, False, tasks, output
+    ):
+        raise IOError  # NotFoundException(name=model_name)
+
+    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+
+    valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
+
+    try:
+        module = getattr(
+            __import__("app.models." + model_name + "." + model_name, fromlist=[model_name]),
+            "main",
+        )
+    except:
+        try:
+            module = load_or_reload_main(model_name)
+        except:
+            log.error("Model Name unknown")
+            return "Model Name unknown"
+
+    model = module(valves_dict, data)
+    return model.analysis(model_name, resultpath, output)
 
 
 @router.get(
@@ -158,66 +228,6 @@ def get_energy_release_plot(
     return FileResponse(result_file, media_type="image/png")
 
 
-@router.get("/getEnfAnalysis", operation_id="get_enf_analysis")
-def get_enf_analysis(
-    model_name: str = "ENFmodel",
-    model_folder_name: str = "Default",
-    length: float = 15.0,
-    width: float = 1.0,
-    crack_length: float = 6.0,
-    cluster: bool = False,
-    tasks: int = 1,
-    output: str = "Output1",
-    step: int = -1,
-    load_variable: str = "External_Forces",
-    displ_variable: str = "External_Displacements",
-    request: Request = "",
-) -> dict:
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output
-    ):
-        raise IOError  # NotFoundException(name=model_name)
-
-    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-
-    deviation_file = os.path.join(resultpath, model_name + "_deviations.json")
-    deviations = {}
-
-    if os.path.exists(deviation_file):
-        with open(deviation_file) as f:
-            deviations = json.load(f)
-        sample_names = []
-        for i in range(deviations["sample_size"]):
-            sample_names.append(model_name + "_" + str(i + 1))
-
-    matching_files = FileHandler.get_all_output_files_with_extension(resultpath, model_name, output, ".csv")
-
-    default_file = os.path.join(resultpath, model_name + "_" + output + ".csv")
-    if os.path.exists(default_file):
-        deviations["default"]["G2C"] = CrackAnalysis.get_g2c(
-            default_file, length, width, crack_length, step, load_variable, displ_variable
-        )
-
-    if deviations == {}:
-        deviations = {"values": []}
-        for file in matching_files:
-            deviations["values"].append(
-                CrackAnalysis.get_g2c(file, length, width, crack_length, step, load_variable, displ_variable)
-            )
-    else:
-        for i, file in enumerate(matching_files):
-            g2c = CrackAnalysis.get_g2c(file, length, width, crack_length, step, load_variable, displ_variable)
-            if sample_names[i] in deviations["samples"]:
-                deviations["samples"][sample_names[i]]["G2C"] = g2c
-            else:
-                deviations["values"].append(g2c)
-
-    return deviations
-
-
 @router.get("/getPlot", operation_id="get_plot")
 def get_plot(
     model_name: str = "Dogbone",
@@ -260,7 +270,7 @@ def get_plot(
                     # Extract column names from the first row
                     column_names = row
                     for idx, column_name in enumerate(column_names):
-                        if len(matching_files) > 1 and column_name != "Time":
+                        if len(matching_files) > 1:
                             column_names[idx] = column_name + "_" + file.split(".")[0].split("_")[-1]
                         data[column_names[idx]] = []
 

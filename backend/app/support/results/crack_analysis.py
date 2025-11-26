@@ -277,52 +277,6 @@ class CrackAnalysis:
         return os.path.join(nodemap_folder, "plots", "nodemap_r.png")
 
     @staticmethod
-    def get_g2c(
-        file: str,
-        length: float,
-        width: float,
-        crack_length: float,
-        step: int = -1,
-        load_variable: str = "External_Forces",
-        displ_variable: str = "External_Displacements",
-    ):
-
-        w = width
-        a = crack_length
-        L = length
-
-        # if os.path.exists(file + ".e"):
-        #     (
-        #         points,
-        #         point_data,
-        #         global_data,
-        #         cell_data,
-        #         ns,
-        #         block_data,
-        #         time,
-        #     ) = exodusreader.read_timestep(file + ".e", step)
-
-        #     P = global_data[load_variable + "y"]
-        #     d = global_data[displ_variable + "y"]
-
-        # elif os.path.exists(file + ".csv"):
-        df = pd.read_csv(file)
-
-        P = df[load_variable + "y"].iloc[step]
-        d = df[displ_variable + "y"].iloc[step]
-
-        # else:
-        #     return 0
-
-        GIIC = (9 * P * math.pow(a, 2) * d * 1000) / (2 * w * (1 / 4 * math.pow(L, 3) + 3 * math.pow(a, 3)))
-
-        log.info(P)
-        log.info(d)
-        log.info(f"GIIC: {GIIC} J/m^2")
-
-        return GIIC
-
-    @staticmethod
     def get_crack_end(file: str, step: int = -1):
 
         (
