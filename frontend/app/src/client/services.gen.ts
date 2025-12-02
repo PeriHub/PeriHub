@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, GetOwnAnalysisData, GetOwnAnalysisResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnergyReleasePlotData, GetEnergyReleasePlotResponse, GetEnfAnalysisData, GetEnfAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, RunOwnAnalysisData, RunOwnAnalysisResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnergyReleasePlotData, GetEnergyReleasePlotResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -388,7 +388,7 @@ export const translateModel = (data: TranslateModelData): CancelablePromise<Tran
  * @throws ApiError
  */
 export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse> => { return __request(OpenAPI, {
-    method: 'PUT',
+    method: 'POST',
     url: '/jobs/run',
     query: {
         model_name: data.modelName,
@@ -498,30 +498,42 @@ export const getStatus = (data: GetStatusData = {}): CancelablePromise<GetStatus
 }); };
 
 /**
- * Get Own Analysis
+ * Run Own Analysis
  * doc
  * @param data The data for the request.
  * @param data.requestBody
  * @param data.modelName
- * @param data.modelFolderName
- * @param data.cluster
- * @param data.tasks
  * @param data.output
- * @returns binary The image.
+ * @returns string Successful Response
  * @throws ApiError
  */
-export const getOwnAnalysis = (data: GetOwnAnalysisData): CancelablePromise<GetOwnAnalysisResponse> => { return __request(OpenAPI, {
+export const runOwnAnalysis = (data: RunOwnAnalysisData): CancelablePromise<RunOwnAnalysisResponse> => { return __request(OpenAPI, {
     method: 'POST',
-    url: '/results/getOwnAnalysis',
+    url: '/results/runOwnAnalysis',
     query: {
         model_name: data.modelName,
-        model_folder_name: data.modelFolderName,
-        cluster: data.cluster,
-        tasks: data.tasks,
         output: data.output
     },
     body: data.requestBody,
     mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Result File
+ * @param data The data for the request.
+ * @param data.file
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getResultFile = (data: GetResultFileData): CancelablePromise<GetResultFileResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/results/getResultFile',
+    query: {
+        file: data.file
+    },
     errors: {
         422: 'Validation Error'
     }
@@ -597,45 +609,6 @@ export const getEnergyReleasePlot = (data: GetEnergyReleasePlotData = {}): Cance
         displacement_output_name: data.displacementOutputName,
         step: data.step,
         thickness: data.thickness
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Enf Analysis
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.modelFolderName
- * @param data.length
- * @param data.width
- * @param data.crackLength
- * @param data.cluster
- * @param data.tasks
- * @param data.output
- * @param data.step
- * @param data.loadVariable
- * @param data.displVariable
- * @returns binary The image.
- * @throws ApiError
- */
-export const getEnfAnalysis = (data: GetEnfAnalysisData = {}): CancelablePromise<GetEnfAnalysisResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/results/getEnfAnalysis',
-    query: {
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName,
-        length: data.length,
-        width: data.width,
-        crack_length: data.crackLength,
-        cluster: data.cluster,
-        tasks: data.tasks,
-        output: data.output,
-        step: data.step,
-        load_variable: data.loadVariable,
-        displ_variable: data.displVariable
     },
     errors: {
         422: 'Validation Error'

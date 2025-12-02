@@ -45,23 +45,16 @@ def load_or_reload_main(model_name: str):
 
 
 @router.post(
-    "/getOwnAnalysis",
-    operation_id="get_own_analysis",
-    response_class=FileResponse,
-    responses={
-        200: {
-            "description": "The image.",
-            "content": {"image/png": {"schema": {"type": "string", "format": "binary"}}},
-        }
-    },
+    "/runOwnAnalysis",
+    operation_id="run_own_analysis"
 )
-def get_own_analysis(
+async def run_own_analysis(
     data: ModelData,
     valves: Valves,
     model_name: str = "ENFmodel",
     output: str = "Output1",
     request: Request = "",
-):
+)-> str:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -88,11 +81,24 @@ def get_own_analysis(
             module = load_or_reload_main(model_name)
         except:
             log.error("Model Name unknown")
-            return "Model Name unknown"
+
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Model Name unknown",
+            )
 
     model = module(valves_dict, data)
     return model.analysis(model_name, resultpath, output)
 
+@router.get(
+    "/getResultFile",
+    operation_id="get_result_file",
+    response_class=FileResponse
+)
+def get_result_file(
+    file: str
+):
+    return FileResponse(file)
 
 @router.get(
     "/getFractureAnalysis",

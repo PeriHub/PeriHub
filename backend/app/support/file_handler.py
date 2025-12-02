@@ -294,7 +294,8 @@ class FileHandler:
 
         for root, _, files in os.walk(localpath):
             for name in files:
-                sftp.put(os.path.join(root, name), name)
+                if name.split(".")[-1] in ["yaml", "txt", "e", "gcode"]:
+                    sftp.put(os.path.join(root, name), name)
 
         sftp.close()
         ssh.close()
@@ -411,6 +412,7 @@ class FileHandler:
         log.info("Start copying")
 
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+        # log.info(remotepath)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         # if tasks != 1:
         #     try:
@@ -431,35 +433,36 @@ class FileHandler:
         #         log.error("MergeFiles.py failed")
         #         pass
         try:
-            for filename in sftp.listdir(remotepath):
-                if all_data or filename.endswith(".e") or filename.endswith(".csv"):
-                    if os.path.exists(os.path.join(resultpath, filename)):
-                        remote_info = sftp.stat(os.path.join(remotepath, filename))
-                        remote_time = remote_info.st_mtime
-                        # remote_size = remote_info.st_size
-                        local_time = os.path.getmtime(os.path.join(resultpath, filename))
-                        # local_size = os.path.getsize(os.path.join(resultpath, filename))
-                        print(
-                            "compare "
-                            + filename
-                            + " remote_time: "
-                            + str(remote_time)
-                            + ", local_time: "
-                            + str(local_time)
-                        )
-                        if remote_time > local_time:
-                            os.remove(os.path.join(resultpath, filename))
-                            log.info("Copy " + filename)
-                            sftp.get(
-                                os.path.join(remotepath, filename),
-                                os.path.join(resultpath, filename),
-                            )
-                    else:
-                        sftp.get(
-                            os.path.join(remotepath, filename),
-                            os.path.join(resultpath, filename),
-                        )
+            attrs = sftp.listdir_attr(remotepath)
+
+            for attr in attrs:
+                filename = attr.filename
+
+                # Skip files that don't match the filter
+                if not (all_data or filename.endswith('.e') or filename.endswith('.csv')):
+                    continue
+
+                local_path = Path(resultpath) / filename
+                remote_path = Path(remotepath) / filename
+
+                # If the file already exists locally, compare timestamps
+                if local_path.exists():
+                    remote_mtime = attr.st_mtime            # from listdir_attr
+                    local_mtime = local_path.stat().st_mtime
+
+                    if remote_mtime <= local_mtime:
+                        # Local copy is up‑to‑date; nothing to do
+                        continue
+
+                    log.info(f"Copy {filename} (remote newer)")
+                else:
+                    log.info(f"Copy {filename} (new file)")
+
+                # One‑liner transfer
+                sftp.get(str(remote_path), str(local_path))
         except paramiko.SFTPError:
+            sftp.close()
+            ssh.close()
             return False
         sftp.close()
         ssh.close()
@@ -626,8 +629,9 @@ class FileHandler:
             log.warning("No matching files found")
             raise HTTPException(status_code=404, detail="No matching files found")
 
-        if len(matching_files) > 1:
-            matching_files.remove(os.path.join(directory, model_name + "_" + output + extension))
+        default_file = os.path.join(directory, model_name + "_" + output + extension)
+        if len(matching_files) > 1 and os.path.exists(default_file):
+            matching_files.remove(default_file)
 
         return matching_files
 

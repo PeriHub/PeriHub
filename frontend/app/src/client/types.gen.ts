@@ -41,7 +41,7 @@ export type Body_generate_model = {
     valves: Valves;
 };
 
-export type Body_get_own_analysis = {
+export type Body_run_own_analysis = {
     data: ModelData;
     valves: Valves;
 };
@@ -628,16 +628,19 @@ export type GetStatusData = {
 
 export type GetStatusResponse = Status;
 
-export type GetOwnAnalysisData = {
-    cluster?: boolean;
-    modelFolderName?: string;
+export type RunOwnAnalysisData = {
     modelName?: string;
     output?: string;
-    requestBody: Body_get_own_analysis;
-    tasks?: number;
+    requestBody: Body_run_own_analysis;
 };
 
-export type GetOwnAnalysisResponse = (Blob | File);
+export type RunOwnAnalysisResponse = string;
+
+export type GetResultFileData = {
+    file: string;
+};
+
+export type GetResultFileResponse = unknown;
 
 export type GetFractureAnalysisData = {
     cluster?: boolean;
@@ -669,22 +672,6 @@ export type GetEnergyReleasePlotData = {
 };
 
 export type GetEnergyReleasePlotResponse = unknown;
-
-export type GetEnfAnalysisData = {
-    cluster?: boolean;
-    crackLength?: number;
-    displVariable?: string;
-    length?: number;
-    loadVariable?: string;
-    modelFolderName?: string;
-    modelName?: string;
-    output?: string;
-    step?: number;
-    tasks?: number;
-    width?: number;
-};
-
-export type GetEnfAnalysisResponse = (Blob | File);
 
 export type GetPlotData = {
     cluster?: boolean;
@@ -1030,7 +1017,7 @@ export type $OpenApiTs = {
         };
     };
     '/jobs/run': {
-        put: {
+        post: {
             req: RunModelData;
             res: {
                 /**
@@ -1104,14 +1091,29 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/results/getOwnAnalysis': {
+    '/results/runOwnAnalysis': {
         post: {
-            req: GetOwnAnalysisData;
+            req: RunOwnAnalysisData;
             res: {
                 /**
-                 * The image.
+                 * Successful Response
                  */
-                200: (Blob | File);
+                200: string;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/results/getResultFile': {
+        get: {
+            req: GetResultFileData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
                 /**
                  * Validation Error
                  */
@@ -1142,21 +1144,6 @@ export type $OpenApiTs = {
                  * Successful Response
                  */
                 200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/results/getEnfAnalysis': {
-        get: {
-            req: GetEnfAnalysisData;
-            res: {
-                /**
-                 * The image.
-                 */
-                200: (Blob | File);
                 /**
                  * Validation Error
                  */

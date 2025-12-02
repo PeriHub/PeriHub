@@ -37,8 +37,8 @@ SPDX-License-Identifier: Apache-2.0
           </q-select>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Yes" color="primary" v-close-popup @click="runModel(jobIds!.join(','))"></q-btn>
-          <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="runModel"></q-btn> -->
+          <q-btn flat label="Yes" color="primary" v-close-popup @click="_runModel(jobIds!.join(','))"></q-btn>
+          <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="_runModel"></q-btn> -->
           <q-btn flat label="No" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -57,8 +57,8 @@ SPDX-License-Identifier: Apache-2.0
           <RenewableView></RenewableView>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Yes" color="primary" v-close-popup @click="runModel()"></q-btn>
-          <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="runModel"></q-btn> -->
+          <q-btn flat label="Yes" color="primary" v-close-popup @click="_runModel()"></q-btn>
+          <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="_runModel"></q-btn> -->
           <q-btn flat label="No" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -395,7 +395,7 @@ import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
-import { getCurrentEnergy, runModel, cancelJob, getOwnAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
+import { getCurrentEnergy, runModel, cancelJob, runOwnAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
 import type { Block, BondFilters, Compute, Damage, Material, Deviations } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
@@ -561,10 +561,10 @@ export default defineComponent({
         this.jobIdsOptions = Array.from({ length: n }, (_, i) => i + 1);
         this.dialogSubmitMultiple = true
       } else {
-        await this.runModel();
+        await this._runModel();
       }
     },
-    async runModel(jobIds: string | null = null) {
+    async _runModel(jobIds: string | null = null) {
       this.submitLoading = true;
       this.viewStore.textLoading = true;
 
@@ -580,6 +580,7 @@ export default defineComponent({
           this.timer = setInterval(this.checkStatus, 5000)
         })
         .catch((error) => {
+          console.log(error)
           let message = '';
           if (error.response != undefined) {
             if (error.response.status == 422) {
@@ -1027,21 +1028,30 @@ export default defineComponent({
         'data': this.modelData,
         'valves': this.modelStore.modelParams
       }
-
-      await getOwnAnalysis({
+      await runOwnAnalysis({
         modelName: this.modelStore.selectedModel.file,
         output: this.getImageOutput,
         requestBody: body
       })
-        .then((response: Blob) => {
-          console.log(response)
-          const blob = new Blob([response], { type: "image/png" }); // adjust MIME
-          this.viewStore.modelImg = window.URL.createObjectURL(blob)
-          // this.viewStore.jsonData = response
-          this.viewStore.viewId = 'image';
-          this.$q.notify({
-            message: 'ENF analyzed',
-          })
+        .then((response) => {
+          const params = { file: response }
+          api.get('/results/getResultFile', { params, responseType: 'blob' })
+            .then((response) => {
+              console.log(response)
+              this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
+              // this.viewStore.jsonData = response
+              this.viewStore.viewId = 'image';
+              this.$q.notify({
+                message: 'ENF analyzed',
+              })
+            })
+            .catch((error) => {
+              this.$q.notify({
+                type: 'negative',
+                message: JSON.stringify(error.message)
+              })
+              this.viewStore.modelLoading = false;
+            })
         })
         .catch((error) => {
           this.$q.notify({

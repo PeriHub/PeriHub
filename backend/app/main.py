@@ -18,6 +18,7 @@ from fastapi import (
     WebSocketDisconnect,
     status,
 )
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -56,7 +57,25 @@ tags_metadata = [
     },
 ]
 
-app = FastAPI(openapi_tags=tags_metadata)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown of the application."""
+    # Startup
+    file_path = str(Path(__file__).parent.resolve())
+    try:
+        for model in os.listdir(file_path + "/own_models"):
+            if model.startswith("__"):
+                continue
+            doc_string = FileHandler.get_docstring(os.path.join(file_path, "own_models", model, model + ".py"))
+            if doc_string:
+                doc_dict = FileHandler.doc_to_dict(doc_string)
+                FileHandler.install_frontmatter_requirements(doc_dict.get("requirements", ""))
+    except FileNotFoundError as e:
+        print(e)
+    yield
+    # Shutdown
+
+app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan)
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 

@@ -19,7 +19,7 @@ from ..support.writer.sbatch_writer import SbatchCreator
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
 
 
-@router.put("/run", operation_id="run_model")
+@router.post("/run", operation_id="run_model")
 async def run_model(
     model_data: ModelData,
     model_name: str = "Dogbone",
