@@ -13,8 +13,8 @@ FROM develop-stage as build-stage
 
 RUN npm i -g @quasar/cli
 RUN npm install
-RUN npm patch
-RUN npm build
+RUN npm run patch
+RUN npm run build
 
 # production stage
 FROM nginx:alpine as production-stage
