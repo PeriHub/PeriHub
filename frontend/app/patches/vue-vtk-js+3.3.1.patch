@@ -1,0 +1,10 @@
+diff --git a/node_modules/vue-vtk-js/dist/vue-vtk.mjs b/node_modules/vue-vtk-js/dist/vue-vtk.mjs
+index a725a8c..4fd5383 100644
+--- a/node_modules/vue-vtk-js/dist/vue-vtk.mjs
++++ b/node_modules/vue-vtk-js/dist/vue-vtk.mjs
+@@ -1,4 +1,4 @@
+-import { ref as $t, inject as yt, provide as rn, onMounted as Bn, onBeforeUnmount as Un, watch as Pe, onUpdated as Gd, toRefs as ui, nextTick as Ha, computed as Hn, unref as ms } from "vue";
++import { ref as $t, inject as yt, provide as rn, onMounted as Bn, onBeforeUnmount as Un, watch as Pe, onUpdated as Gd, toRefs as ui, nextTick as Ha, computed as Hn, unref as ms } from "vue/dist/vue.esm-bundler.js";
+ var Ie = 1e-6, St = typeof Float32Array < "u" ? Float32Array : Array, Id = Math.PI / 180;
+ function Pd(t) {
+   return t * Id;

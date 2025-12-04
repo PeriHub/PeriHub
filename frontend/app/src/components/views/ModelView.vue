@@ -108,8 +108,10 @@ export default defineComponent({
   },
   mounted() {
     console.log('ModelView mounted')
-    this.$bus.on('viewPointData', async () => {
-      await this.viewPointData()
+    this.$bus.on('viewPointData', () => {
+      this.viewPointData().catch(err => {
+        console.error('Error loading view point data:', err);
+      });
     })
     this.$bus.on('filterPointData', () => {
       this.filterPointData()

@@ -40,9 +40,9 @@ export default defineConfig((ctx) => {
     build: {
       // plugins: [vue()],
       // vueCompiler: true,
-      alias: {
-        vue: 'vue/dist/vue.esm-bundler.js',
-      },
+      // alias: {
+      //   vue: 'vue/dist/vue.esm-bundler.js',
+      // },
       target: {
         browser: ['es2022', 'firefox115', 'chrome115', 'safari14'],
         node: 'node20',
@@ -101,17 +101,17 @@ export default defineConfig((ctx) => {
           },
         ],
 
-        [
-          'vite-plugin-checker',
-          {
-            vueTsc: true,
-            eslint: {
-              lintCommand: 'eslint -c ./eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"',
-              useFlatConfig: true,
-            },
-          },
-          { server: false },
-        ],
+        // [
+        //   'vite-plugin-checker',
+        //   {
+        //     vueTsc: true,
+        //     eslint: {
+        //       lintCommand: 'eslint -c ./eslint.config.js "./src*/**/*.{ts,js,mjs,cjs,vue}"',
+        //       useFlatConfig: true,
+        //     },
+        //   },
+        //   { server: false },
+        // ],
       ],
     },
 

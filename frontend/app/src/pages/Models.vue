@@ -29,8 +29,9 @@ SPDX-License-Identifier: Apache-2.0
       <template v-slot:after>
         <q-scroll-area style="height:100%;">
           <div v-if="config">
-            <JsonEditorVue v-model="config" :mainMenuBar=false :navigationBar=false :statusBar=false :readOnly=false
-              v-bind="{/* local props & attrs */ }" />
+            <vue-json-pretty :data="config" :editable=true />
+            <!-- <JsonEditorVue v-model="config" :mainMenuBar=false :navigationBar=false :statusBar=false :readOnly=false
+              v-bind="{/* local props & attrs */ }" /> -->
             <q-btn class="q-mt-sm" color="primary" label="Save" @click="_saveConfig" />
           </div>
         </q-scroll-area>
@@ -78,7 +79,9 @@ import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhe
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
-import JsonEditorVue from 'json-editor-vue'
+// import JsonEditorVue from 'json-editor-vue'
+import VueJsonPretty from 'vue-json-pretty';
+import 'vue-json-pretty/lib/styles.css';
 
 import { getOwnModels, getOwnModelFile, getConfig, saveConfig, saveModelFile, addModel, deleteModelFile } from '../client';
 import type { GetOwnModelsResponse, ModelData } from 'src/client';
@@ -88,7 +91,8 @@ export default {
 
   components: {
     PrismEditor,
-    JsonEditorVue
+    VueJsonPretty
+    // JsonEditorVue
   },
   setup() {
     const store = useDefaultStore();
