@@ -5,14 +5,14 @@ import { OpenAPI } from '../client';
 import { jwtDecode } from 'jwt-decode';
 import type { JwtPayload } from 'jwt-decode';
 import { useDefaultStore } from 'src/stores/default-store';
-import {sha256} from 'js-sha256'
+import { sha256 } from 'js-sha256';
 
 interface CustomJwtPayload extends JwtPayload {
   preferred_username: string;
   email: string;
 }
 
-export default defineBoot(({ app }) => {
+export default defineBoot(async ({ app }) => {
   // for Options API
   app.config.globalProperties.$keycloak = Keycloak;
 
@@ -49,7 +49,7 @@ export default defineBoot(({ app }) => {
     console.log('Using Keycloak');
 
     try {
-      keycloak
+      await keycloak
         .init({
           onLoad: 'login-required',
         })

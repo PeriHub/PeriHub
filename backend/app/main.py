@@ -252,7 +252,7 @@ async def get_app_latest_release_version() -> VersionData:
                 data = await response.json()
                 latest_version = data["tag_name"]
 
-                return VersionData(version, latest_version[1:])
+                return VersionData(current=version, latest=latest_version[1:])
     except Exception as e:
         log.debug(e)
-        return  VersionData(version, version)
+        return  VersionData(current=version, latest="-")
