@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { defineStore, acceptHMRUpdate } from 'pinia';
+import { defineStore } from 'pinia';
 import type { Status } from 'src/client';
 
 export const useDefaultStore = defineStore('default', {
@@ -16,7 +16,7 @@ export const useDefaultStore = defineStore('default', {
     DEV: false,
     TRIAL: false,
 
-    status: {} as Status
+    status: {} as Status,
   }),
   actions: {
     initialiseStore() {
@@ -28,7 +28,3 @@ export const useDefaultStore = defineStore('default', {
     },
   },
 });
-
-if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useDefaultStore, import.meta.hot));
-}

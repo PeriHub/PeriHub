@@ -142,6 +142,7 @@ async def run_model(
                     username="root",
                     allow_agent=False,
                     password="root",
+                    timeout=5,
                 )
             except paramiko.SSHException:
                 log.error("ssh connection to %s failed!", server)
@@ -174,7 +175,7 @@ async def run_model(
                 )
             break
         command = (
-            "cd /app" + "/simulations/" + os.path.join(username, model_name, model_folder_name) + " \n sh runPerilab.sh"
+            "cd /app" + "/simulations/" + os.path.join(username, model_name, model_folder_name) + " \n sh runPerilab.sh > /dev/null 2>&1 &"
         )
         ssh.exec_command(command)
         # stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
@@ -213,6 +214,7 @@ def cancel_job(
                     username="root",
                     allow_agent=False,
                     password="root",
+                    timeout=5,
                 )
             except socket.gaierror:
                 if server != "localhost":

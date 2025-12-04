@@ -68,7 +68,7 @@ export const getModels = (): CancelablePromise<GetModelsResponse> => { return __
  * doc
  * @param data The data for the request.
  * @param data.verify
- * @returns string Successful Response
+ * @returns unknown Successful Response
  * @throws ApiError
  */
 export const getOwnModels = (data: GetOwnModelsData = {}): CancelablePromise<GetOwnModelsResponse> => { return __request(OpenAPI, {

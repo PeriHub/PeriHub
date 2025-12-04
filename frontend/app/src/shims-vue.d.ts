@@ -7,6 +7,17 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>;
   export default component;
 }
+// declare module '*.vue.esm-bundler.js' {
+//   // Re‑export everything from the real Vue module
+//   export * from 'vue';
+//   // Keep the default export as the Vue constructor
+//   export { default } from 'vue';
+// }
+declare module '*.vue.esm-bundler.js' {
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<{}, {}, any>;
+  export default component;
+}
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
     $q: Quasar;

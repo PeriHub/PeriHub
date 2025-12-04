@@ -101,7 +101,7 @@ SPDX-License-Identifier: Apache-2.0
     </div> -->
       </div>
       <div class="viewport">
-        <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]">
+        <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]" :key="viewKey">
           <vtk-glyph-representation>
             <vtk-polydata :points="pointString">
               <vtk-cell-data>
@@ -205,6 +205,7 @@ export default {
       maxValue: 100,
       minValue: 0,
       legendKey: 0,
+      viewKey: 0,
       time: 0,
       playing: false,
       timer: ref(),
@@ -212,11 +213,10 @@ export default {
     };
   },
 
-  mounted() {
+  async mounted() {
     console.log('ModelView mounted')
-    this.viewPointData(true);
-    // @ts-expect-error Bla
-    this.$refs.view.resetCamera();
+    await this.viewPointData(true);
+    this.viewKey++;
   },
   methods: {
     async viewPointData(loading = true) {
@@ -278,8 +278,8 @@ export default {
         displFactor: this.modelParams.displFactor,
         variable: this.modelParams.variable,
         filter: this.modelParams.filter,
-        colorBarMin: Number(this.modelParams.colorBarMin),
-        colorBarMax: Number(this.modelParams.colorBarMax)
+        colorBarMin: this.modelParams.colorBarMin,
+        colorBarMax: this.modelParams.colorBarMax
       })
         .then((response) => {
           const data = response

@@ -485,7 +485,9 @@ export type GetOwnModelsData = {
     verify?: boolean;
 };
 
-export type GetOwnModelsResponse = Array<(string)>;
+export type GetOwnModelsResponse = Array<{
+    [key: string]: unknown;
+}>;
 
 export type GetValvesData = {
     modelName: string;
@@ -697,8 +699,8 @@ export type GetResultsResponse = unknown;
 export type GetPointDataResultsData = {
     axis?: string;
     cluster?: boolean;
-    colorBarMax?: number;
-    colorBarMin?: number;
+    colorBarMax?: number | null;
+    colorBarMin?: number | null;
     displFactor?: number;
     filter?: string;
     modelFolderName?: string;
@@ -803,7 +805,9 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: Array<(string)>;
+                200: Array<{
+                    [key: string]: unknown;
+                }>;
                 /**
                  * Validation Error
                  */

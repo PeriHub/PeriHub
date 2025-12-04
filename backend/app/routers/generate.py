@@ -106,9 +106,12 @@ def generate_model(
         except:
             try:
                 module = load_or_reload_main(model_name)
-            except:
-                log.error("Model Name unknown")
-                return "Model Name unknown"
+            except Exception as e:
+                log.error(e)
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Model not found",
+                )
 
         model = module(valves_dict, data)
 

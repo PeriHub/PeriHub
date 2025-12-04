@@ -488,6 +488,7 @@ class FileHandler:
                     username=username,
                     allow_agent=False,
                     password=password,
+                    timeout=5,
                     # key_filename=keypath,
                 )
             except paramiko.SSHException:
@@ -508,6 +509,7 @@ class FileHandler:
                         username=username,
                         allow_agent=False,
                         password="root",
+                    timeout=5,
                     )
                 except paramiko.SSHException:
                     if server != "localhost":
@@ -554,6 +556,7 @@ class FileHandler:
                 allow_agent=False,
                 # password=password,
                 key_filename=keypath,
+                timeout=5,
             )
         except paramiko.SSHException:
             log.error("ssh connection to " + server + " failed!")

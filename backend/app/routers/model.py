@@ -53,7 +53,7 @@ def get_models() -> list[dict]:
 
 
 @router.get("/getOwnModels", operation_id="get_own_models")
-def get_own_models(verify: bool = False, request: Request = "") -> list[str]:
+def get_own_models(verify: bool = False, request: Request = "") -> list[dict]:
     """doc"""
 
     model_list = []
@@ -184,9 +184,16 @@ def save_config(config_file: str, config: ModelData, request: Request = ""):
     else:
         log.error("%s files can not be found", config_file)
         return
-
+    #remove first layer object if value null
+    config_dict = config.dict()
+    remove_keys = []
+    for key, value in config_dict.items():
+        if not value:
+            remove_keys.append(key)
+    for k in remove_keys: del config_dict[k]
+    #save config to file
     with open(file_path, "w") as file:
-        file.write(config.to_json())
+        file.write(json.dumps(config_dict))
 
 
 @router.get("/getMaxFeSize", operation_id="get_max_fe_size")
@@ -443,7 +450,7 @@ def add_model(model_name: str, description: str, request: Request = "") -> str:
 import numpy as np
 from pydantic import BaseModel, Field
 
-from ..support.model.geometry import Geometry
+from ...support.model.geometry import Geometry
 
 class Valves(BaseModel):
     DISCRETIZATION: float = Field(
@@ -468,10 +475,8 @@ class Valves(BaseModel):
     )
 
 class main:
-    def __init__(
-        self,
-        valves,
-    ):
+    
+    def __init__(self, valves, model_data):
         self.xbegin = 0
         self.xend = valves["LENGTH"]
         self.ybegin = 0

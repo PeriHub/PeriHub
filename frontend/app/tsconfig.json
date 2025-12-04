@@ -1,4 +1,5 @@
 {
   "extends": "./.quasar/tsconfig.json",
-  "exclude": ["playwright.config.ts", "./src/client"]
+  "exclude": ["playwright.config.ts", "./src/client"],
+  "include": ["./src/**/*", "./src/stores/view-store.ts"]
 }

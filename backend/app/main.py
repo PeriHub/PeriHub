@@ -160,17 +160,17 @@ async def websocket_endpoint_log(
         try:
             output_files = os.listdir(remotepath)
             filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
+            if len(filtered_values) == 0:
+                log.error("LogFile can not be found in %s", remotepath)
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="LogFile can't be found in " + remotepath,
+                )
             paths = [os.path.join(remotepath, basename) for basename in filtered_values]
             latest_file = max(paths, key=os.path.getctime)
         except IOError:
             log.error("LogFile can not be found in %s", remotepath)
 
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="LogFile can't be found in " + remotepath,
-            )
-        if len(filtered_values) == 0:
-            log.error("LogFile can not be found in %s", remotepath)
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="LogFile can't be found in " + remotepath,

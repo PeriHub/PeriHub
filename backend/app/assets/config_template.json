@@ -15,6 +15,18 @@
             "show": true,
             "specificHeatCapacity": null,
             "thermalModel": null
+        },
+        {
+            "additiveModel": "",
+            "blocksId": 2,
+            "damageModel": "Damage",
+            "density": 2.699e-09,
+            "horizon": null,
+            "material": "Aluminium",
+            "name": "Part",
+            "show": true,
+            "specificHeatCapacity": null,
+            "thermalModel": null
         }
     ],
     "bondFilters": [

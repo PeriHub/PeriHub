@@ -464,8 +464,8 @@ def get_data(
     displ_factor: float = 100,
     variable: str = "Displacements",
     filter: str = "",
-    color_bar_min: float = None,
-    color_bar_max: float = None,
+    color_bar_min: Optional[float] = None,
+    color_bar_max: Optional[float] = None,
     request: Request = "",
 ) -> PointDataResults:
     """doc"""
@@ -520,6 +520,10 @@ def get_data(
     variable_list = list(
         set([entry[:-1] if entry[-1].lower() in ["x", "y", "z"] else entry for entry in variable_list])
     )
+
+    if variable not in variable_list:
+        log.warning(f"Variable {variable} not found, using first available: {variable_list[0]}")
+        variable = variable_list[0]
 
     np_points_all_z = None
     use_multi_data = False
@@ -595,13 +599,13 @@ def get_data(
         normalized_cell_value = np.zeros_like(cell_value)
     else:
         normalized_cell_value = (cell_value - min_cell_value) / (max_cell_value - min_cell_value)
-    print(time)
+    # print(time)
 
     reduce_factor = 1
     if len(np_points_all_x) > max_nodes:
         reduce_factor = int(len(np_points_all_x) / max_nodes)
         log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
-
+    # print(normalized_cell_value.tolist()[::reduce_factor])
     data = PointDataResults(
         nodes=np.ravel(
             [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],

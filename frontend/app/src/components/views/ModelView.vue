@@ -40,7 +40,7 @@ SPDX-License-Identifier: Apache-2.0
         </vtk-polydata>
       </vtk-geometry-representation>
     </vtk-view> -->
-    <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]">
+    <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]" :key="viewKey">
       <div v-if="viewStore.bondFilterPoints.length != 0">
         <q-list v-for="bondFilterPoint in viewStore.bondFilterPoints" :key="bondFilterPoint.bondFilterPointsId">
           <vtk-geometry-representation>
@@ -102,12 +102,12 @@ export default defineComponent({
       radius: 0.2,
       multiplier: 100,
       pointString: [1, 0, 0],
-      blockIdString: [1]
+      blockIdString: [1],
+      viewKey: 0
     };
   },
   mounted() {
     console.log('ModelView mounted')
-    // eslint-disable-next-line
     this.$bus.on('viewPointData', async () => {
       await this.viewPointData()
     })
@@ -126,6 +126,7 @@ export default defineComponent({
       this.updatePoints();
       this.$bus.emit('showHideBondFilters');
 
+      this.viewKey++;
       this.viewStore.modelLoading = false;
       // console.log(this.$refs)
       // this.view.resetCamera();

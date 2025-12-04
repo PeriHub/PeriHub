@@ -30,14 +30,14 @@ SPDX-License-Identifier: Apache-2.0
         <!-- @vue-expect-error Bla-->
         <div v-if="!param.depends || modelStore.modelParams.valves.find(o => o.name === param.depends).value">
           <!-- @vue-expect-error Bla-->
-          <q-input class="my-select" v-if="typeof(param.value) != 'boolean' && ['text', 'number'].includes(param.type)" :label="param.label"
-            v-model="param.value" :type="param.type" standout dense>
+          <q-input class="my-select" v-if="typeof (param.value) != 'boolean' && ['text', 'number'].includes(param.type)"
+            :label="param.label" v-model="param.value" :type="param.type" standout dense>
             <q-tooltip>
               {{ param.description }}
             </q-tooltip>
           </q-input>
-          <q-select class="my-select" standout dense v-if="param.type == 'select' && param.options" :options="param.options"
-            option-label="name" v-model="param.value" :label="param.label">
+          <q-select class="my-select" standout dense v-if="param.type == 'select' && param.options"
+            :options="param.options" option-label="name" v-model="param.value" :label="param.label">
             <q-tooltip>
               {{ param.description }}
             </q-tooltip>
@@ -248,7 +248,7 @@ export default defineComponent({
       }
       await this.selectMethod()
     },
-    createValue(val: string, done: (item: string, mode:  "add" | "add-unique" | "toggle" | undefined) => void) {
+    createValue(val: string, done: (item: string, mode: "add" | "add-unique" | "toggle" | undefined) => void) {
 
       if (val.length > 0) {
         if (!this.modelFolderNameList.includes(val)) {
@@ -273,7 +273,7 @@ export default defineComponent({
   },
   async beforeMount() {
     this.modelStore.availableModels = await getModels()
-    // this.selectMethod()
+    await this.selectMethod()
   },
   watch: {
     'modelStore.selectedModel': {

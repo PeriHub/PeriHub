@@ -99,7 +99,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
+    <!-- <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
       icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!store.status.results">
       <q-tooltip>
         Show Fracture Analysis
@@ -207,7 +207,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-dialog> -->
 
     <q-btn v-if="viewStore.viewId == 'image'" flat icon="fas fa-download" @click="downloadModelImage()"
       :disable="!status.results">

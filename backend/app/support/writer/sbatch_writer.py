@@ -75,6 +75,7 @@ class SbatchCreator:
         """doc"""
 
         string = "#!/bin/sh \n"
+        string = "trap 'rm pid.txt; exit 1' 0 1 2 3 6 9 14 15 \n"
         string = "> pid.txt \n"
         for job_id in self.job_ids.split(","):
             filename = self.filename + ".yaml"

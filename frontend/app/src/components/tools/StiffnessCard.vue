@@ -140,15 +140,15 @@ export default defineComponent({
   },
   methods: {
     convert() {
-      const E1: number = this.constants.E1!;   // Elastic modulus along the fiber direction (Pa)
-      const E2: number = this.constants.E2!;    // Elastic modulus transverse to the fiber direction (Pa)
-      const E3: number = this.constants.E3!;    // Elastic modulus transverse to the fiber direction (Pa)
-      const G12: number = this.constants.G12!;    // Shear modulus in the 1-2 plane (Pa)
-      const G13: number = this.constants.G13!;    // Shear modulus in the 1-3 plane (Pa)
-      const G23: number = this.constants.G23!;    // Shear modulus in the 2-3 plane (Pa)
-      const nu12: number = this.constants.nu12!;   // Poisson's ratio in the 1-2 plane
-      const nu13: number = this.constants.nu13!;   // Poisson's ratio in the 1-3 plane
-      const nu23: number = this.constants.nu23!;   // Poisson's ratio in the 2-3 plane
+      const E1 = this.constants.E1!;   // Elastic modulus along the fiber direction (Pa)
+      const E2 = this.constants.E2!;    // Elastic modulus transverse to the fiber direction (Pa)
+      const E3 = this.constants.E3!;    // Elastic modulus transverse to the fiber direction (Pa)
+      const G12 = this.constants.G12!;    // Shear modulus in the 1-2 plane (Pa)
+      const G13 = this.constants.G13!;    // Shear modulus in the 1-3 plane (Pa)
+      const G23 = this.constants.G23!;    // Shear modulus in the 2-3 plane (Pa)
+      const nu12 = this.constants.nu12!;   // Poisson's ratio in the 1-2 plane
+      const nu13 = this.constants.nu13!;   // Poisson's ratio in the 1-3 plane
+      const nu23 = this.constants.nu23!;   // Poisson's ratio in the 2-3 plane
       this.calculated.C11 = 1 / +E1;
       this.calculated.C22 = 1 / +E2;
       this.calculated.C33 = 1 / +E3;
