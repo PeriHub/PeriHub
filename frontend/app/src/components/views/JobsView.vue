@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-table flat :rows="rows" :columns="columns" row-key="id" :loading="loading" clickable @row-click="onRowClick"
+    <q-table flat :rows="rows" :columns="columns" row-key="id" :loading="loading" clickable
       :rows-per-page-options="[0]">
       <template v-slot:loading>
         <q-inner-loading showing color="primary"></q-inner-loading>
@@ -50,11 +50,12 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent, inject } from 'vue'
+<script lang="ts">
+import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 import { cancelJob, getJobs } from 'src/client';
+import type { Jobs, ModelData } from 'src/client';
 
 export default defineComponent({
   name: 'JobsView',
@@ -62,16 +63,14 @@ export default defineComponent({
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData)
     const viewStore = useViewStore();
-    const bus = inject('bus')
     return {
       modelStore,
       modelData,
-      viewStore,
-      bus
+      viewStore
     }
   },
   created() {
-    this.bus.on('getJobs', () => {
+    this.$bus.on('getJobs', () => {
       this._getJobs()
     })
   },
@@ -80,22 +79,21 @@ export default defineComponent({
       loading: false,
       selected: [],
       columns: [
-        { name: 'name', label: 'ModelName', field: 'name', sortable: true, align: 'left' },
+        { name: 'name', label: 'ModelName', field: 'name', sortable: true, align: 'left' as 'left' | 'right' | 'center' },
         { name: 'cluster', label: 'Cluster', field: 'cluster', sortable: true },
         { name: 'submitted', label: 'Submitted', field: 'submitted', sortable: true },
         { name: 'results', label: 'Results', field: 'results', sortable: true },
         // { name: 'created', hidden: true},
-        { name: 'id', required: true, hidden: true },
+        { name: 'id', label: 'id', field: 'id', required: true, hidden: true },
       ],
-      rows: [
-      ]
+      rows: [] as Jobs[]
     };
   },
   mounted() {
     this._getJobs()
   },
   methods: {
-    async cancelJob(row) {
+    async cancelJob(row: Jobs) {
       this.loading = true;
 
       await cancelJob({
@@ -104,9 +102,9 @@ export default defineComponent({
         cluster: row.cluster,
         sbatch: true,
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: 'Job canceled'
           })
         })
         .catch(() => {
@@ -117,21 +115,21 @@ export default defineComponent({
             icon: 'report_problem'
           })
         })
-      this.bus.emit('getStatus')
+      this.$bus.emit('getStatus')
       this._getJobs();
     },
-    onRowClick(row) {
-      this.modelStore.modelData = row.model;
+    onRowClick(row: Jobs) {
+      this.modelStore.modelData = row.model as ModelData;
       console.log(row.model);
     },
-    async _getJobs() {
+    _getJobs() {
       this.loading = true;
 
-      await getJobs({ modelName: this.modelStore.selectedModel.file, sbatch: this.modelData.job.sbatch })
+      getJobs({ modelName: this.modelStore.selectedModel.file, sbatch: this.modelData.job.sbatch })
         .then((response) => {
-          this.rows = response.data
+          this.rows = response
           this.$q.notify({
-            message: response.message
+            message: "Jobs found"
           })
         })
         .catch((error) => {

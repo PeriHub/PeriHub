@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div>
     <h6 class="my-title">Compute Parameters (Global Variables)</h6>
-    <q-list v-for="compute, index in computes" :key="compute.computesId" style="padding: 0px">
+    <q-list v-for="compute, index in computes" :key="compute.computesId as PropertyKey" style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="compute.name" :rules="[rules.required, rules.name]" :label="computeKeys.name"
           standout dense></q-input>
@@ -52,12 +52,12 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
     <q-separator></q-separator>
-    <q-list v-for="output, index in outputs" :key="output.outputsId" style="padding: 0px">
+    <q-list v-for="output, index in outputs" :key="output.outputsId as PropertyKey" style="padding: 0px">
       <div
-        v-bind:style="(output.outputsId % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+        v-bind:style="(output.outputsId! % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
         <h4 class="my-title">Output {{ output.outputsId }}</h4>
         <div class="row my-row">
-          <q-input class="my-input" v-model="output.name" :rules="[rules.required, rules.name]" :label="outputKeys.name"
+          <q-input class="my-input" v-model="output.name" :rules="[rules.required, rules.name]" label="Output Name"
             standout dense></q-input>
           <q-btn flat icon="fas fa-trash-alt" @click="removeOutput(index)">
             <q-tooltip>
@@ -97,10 +97,10 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent } from 'vue'
+<script lang="ts">
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
+import type { NodeSet, Compute } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -108,11 +108,10 @@ export default defineComponent({
   setup() {
     const store = useModelStore();
     const blocks = computed(() => store.modelData.blocks)
-    const nodeSets = computed(() => store.modelData.discretization.nodeSets)
-    const computes = computed(() => store.modelData.computes)
+    const nodeSets = computed(() => store.modelData.discretization!.nodeSets) as unknown as NodeSet[]
+    const computes = computed(() => store.modelData.computes) as unknown as Compute[]
     const outputs = computed(() => store.modelData.outputs)
     const job = computed(() => store.modelData.job)
-    const bus = inject('bus')
     return {
       store,
       blocks,
@@ -120,12 +119,11 @@ export default defineComponent({
       computes,
       outputs,
       job,
-      rules,
-      bus
+      rules
     }
   },
   created() {
-    this.bus.on('addStateVarsToOutput', (numStateVars) => {
+    this.$bus.on('addStateVarsToOutput', (numStateVars) => {
       this.addStateVarsToOutput(numStateVars)
     })
   },
@@ -146,6 +144,7 @@ export default defineComponent({
         xValue: 'X',
         yValue: 'Y',
         zValue: 'Z',
+        nodeSetId: 'Node Set Id',
       },
 
       outputKeys: [
@@ -215,12 +214,12 @@ export default defineComponent({
       //   'Velocity_Gradient',
       //   'PiolaStressTimesInvShapeTensor',
       // ],
-      filterOptions: this.outputKeys,
-      filterOptionsCsv: this.outputKeys,
+      filterOptions: [] as string[],
+      filterOptionsCsv:  [] as string[],
     };
   },
   methods: {
-    filterFn(val, update) {
+    filterFn(val: string, update: (callbackFn: () => void) => void) {
       update(() => {
         if (val === '') {
           this.filterOptions = this.outputKeys
@@ -233,11 +232,11 @@ export default defineComponent({
         }
       })
     },
-    filterFnCsv(val, update) {
+    filterFnCsv(val: string, update: (callbackFn: () => void) => void) {
       update(() => {
-        let outputKeys = []
-        for (var i = 0; i < this.computes.length; i++) {
-          outputKeys.push(this.computes[i].name)
+        const outputKeys = []
+        for (let i = 0; i < this.computes.length; i++) {
+          outputKeys.push(this.computes[i]!.name)
         }
         if (val === '') {
           this.filterOptionsCsv = outputKeys
@@ -250,9 +249,9 @@ export default defineComponent({
         }
       })
     },
-    addStateVarsToOutput(numStateVars) {
-      for (var i = 1; i <= numStateVars; i++) {
-        var name = 'State_Parameter_Field_' + i.toString()
+    addStateVarsToOutput(numStateVars: number) {
+      for (let i = 1; i <= numStateVars; i++) {
+        const name = 'State_Parameter_Field_' + i.toString()
         if (!this.outputKeys.includes(name)) {
           this.outputKeys.push('State_Parameter_Field_' + i.toString())
         }
@@ -263,25 +262,12 @@ export default defineComponent({
         this.computes = []
       }
       const len = this.computes.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.computes[len - 1])
-      } else {
-        newItem = {
-          'id': 1,
-          'computeClass': 'Block_Data',
-          'name': 'External_Force',
-          'variable': 'Forces',
-          'calculationType': 'Sum',
-          'blockName': this.blocks[0].name,
-          'nodeSetId': 1
-        }
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.computes[len - 1])) as Compute : {} as Compute;
       newItem.computesId = len + 1
       newItem.name = 'Compute' + (len + 1)
       this.computes.push(newItem);
     },
-    removeCompute(index) {
+    removeCompute(index: number) {
       this.computes.splice(index, 1);
       this.computes.forEach((model, i) => {
         model.computesId = i + 1
@@ -298,7 +284,7 @@ export default defineComponent({
         InitStep: 0,
       });
     },
-    removeOutput(index) {
+    removeOutput(index: number) {
       this.outputs.splice(index, 1);
       this.outputs.forEach((model, i) => {
         model.outputsId = i + 1

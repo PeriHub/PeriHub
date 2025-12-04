@@ -36,7 +36,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import ModelActions from 'src/components/actions/ModelActions.vue'
 import ExpansionComp from 'src/components/ExpansionComp.vue'
 import ViewActions from 'src/components/actions/ViewActions.vue'
@@ -46,8 +46,6 @@ import TextComp from 'src/components/TextComp.vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import Driver from 'driver.js';
 import 'driver.js/dist/driver.min.css';
-
-import { inject } from 'vue'
 
 export default {
   name: 'PeriHub',
@@ -61,15 +59,13 @@ export default {
   },
   setup() {
     const store = useDefaultStore();
-    const bus = inject('bus')
 
     return {
-      store,
-      bus
+      store
     }
   },
   created() {
-    this.bus.on('showTutorial', () => {
+    this.$bus.on('showTutorial', () => {
       this.showTutorial()
     })
   },
@@ -80,16 +76,20 @@ export default {
     };
   },
   methods: {
-    onResizeBefore({ width, height }) {
+    onResizeBefore(size: object) {
       // console.log('get resize', width, height)
-      this.bus.emit('resizeViewPanel', height)
+      if ('height' in size) {
+        this.$bus.emit('resizeViewPanel', size.height)
+      }
     },
-    onResizeAfter({ width, height }) {
+    onResizeAfter(size: object) {
       // console.log('get resize', width, height)
-      this.bus.emit('resizeTextPanel', height)
+      if ('height' in size) {
+        this.$bus.emit('resizeTextPanel', size.height)
+      }
     },
     showTutorial() {
-      var color = 'white';
+      let color = 'white';
       if (this.store.darkMode) {
         color = 'gray';
       }

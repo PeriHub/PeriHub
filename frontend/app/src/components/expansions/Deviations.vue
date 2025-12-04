@@ -15,7 +15,8 @@ SPDX-License-Identifier: Apache-2.0
       <q-input class="my-input" v-model="deviations.sampleSize" :rules="[rules.required, rules.int]" label="sampleSize"
         standout dense></q-input>
       <q-separator></q-separator>
-      <q-list v-for="parameter, index in deviations.parameters" :key="parameter.parameterId" style="padding: 0px">
+      <q-list v-for="parameter, index in deviations.parameters" :key="parameter.parameterId as PropertyKey"
+        style="padding: 0px">
         <div class="row my-row">
           <q-select class="my-input" :options="filterOptions" v-model="parameter.id" label="Id" use-input use-chips
             multiple input-debounce="0" @filter="filterFn" standout dense></q-select>
@@ -39,10 +40,12 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent } from 'vue'
+<script lang="ts">
+import { computed, defineComponent, toRaw } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
+import type { Parameter, Deviations } from 'src/client';
+//@ts-expect-error Bla
 import objleaves from 'objleaves';
 import rules from 'assets/rules.js';
 
@@ -52,7 +55,7 @@ export default defineComponent({
     const store = useDefaultStore();
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData)
-    const deviations = computed(() => modelStore.modelData.deviations)
+    const deviations = computed(() => modelStore.modelData.deviations) as unknown as Deviations
     return {
       store,
       modelData,
@@ -74,14 +77,14 @@ export default defineComponent({
           scale: 'Scale'
         }
       },
-      filterOptions: this.parameters,
+      filterOptions: [] as string[],
     }
   },
   mounted() {
     this.getAllParameters()
   },
   methods: {
-    filterFn(val, update) {
+    filterFn(val: string, update: (callbackFn: () => void) => void) {
       update(() => {
         if (val === '') {
           this.filterOptions = this.parameters
@@ -102,14 +105,11 @@ export default defineComponent({
         this.deviations.parameters = []
       }
       const len = this.deviations.parameters.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.deviations.parameters[len - 1])
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.deviations.parameters[len - 1])) as Parameter : {} as Parameter;
       newItem.parameterId = len + 1
       this.deviations.parameters.push(newItem);
     },
-    removeParameter(index) {
+    removeParameter(index: number) {
       this.deviations.parameters.splice(index, 1);
       this.deviations.parameters.forEach((model, i) => {
         model.parameterId = i + 1

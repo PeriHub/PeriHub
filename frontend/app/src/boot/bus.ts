@@ -2,15 +2,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { EventBus } from "quasar";
-import { boot } from "quasar/wrappers";
+import { EventBus } from 'quasar';
+import { defineBoot } from '#q-app/wrappers';
 
-export default boot(({ app }) => {
+export default defineBoot(({ app }) => {
   const bus = new EventBus();
 
   // for Options API
   app.config.globalProperties.$bus = bus;
 
   // for Composition API
-  app.provide("bus", bus);
+  app.provide('bus', bus);
 });
+
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
+    $bus: EventBus;
+  }
+}

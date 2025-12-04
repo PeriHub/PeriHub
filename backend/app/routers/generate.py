@@ -18,7 +18,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 # from ..models.PlateWithOpening.plate_with_opening import PlateWithOpening
 # from ..models.RingOnRing.ring_on_ring import RingOnRing
 # from ..models.Smetana.smetana import Smetana
-from ..support.base_models import Block, Deviations, ModelData, ResponseModel, Valves
+from ..support.base_models import Block, Deviations, ModelData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log
 from ..support.writer.model_writer import ModelWriter
@@ -56,7 +56,7 @@ def load_or_reload_main(model_name: str):
 
 @router.post("/model", operation_id="generate_model")
 def generate_model(
-    model_data: ModelData,
+    data: ModelData,
     valves: Valves,
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -79,22 +79,22 @@ def generate_model(
     # if os.path.exists(json_file):
     #     with open(json_file, "r", encoding="UTF-8") as file:
     #         json_data = json.load(file)
-    #         # print(model_data.model)
+    #         # print(data.model)
     #         if (
-    #             model_data.model == json_data["model"]
-    #             and model_data.boundaryConditions == json_data["boundaryConditions"]
+    #             data.model == json_data["model"]
+    #             and data.boundaryConditions == json_data["boundaryConditions"]
     #         ):
     #             log.info("Model not changed")
     #             ignore_mesh = True
 
     with open(json_file, "w", encoding="UTF-8") as file:
-        file.write(model_data.to_json())
+        file.write(data.to_json())
 
     start_time = time.time()
 
     log.info("Create %s", model_name)
 
-    if not model_data.model.ownModel:
+    if not data.model.ownModel:
 
         valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
 
@@ -106,18 +106,21 @@ def generate_model(
         except:
             try:
                 module = load_or_reload_main(model_name)
-            except:
-                log.error("Model Name unknown")
-                return "Model Name unknown"
+            except Exception as e:
+                log.error(e)
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Model not found",
+                )
 
-        model = module(valves_dict, model_data)
+        model = module(valves_dict, data)
 
         dx_value = model.get_discretization()
 
         x_value, y_value, z_value, vol = model.create_geometry()
 
         try:
-            model.edit_model_data(model_data)
+            model.edit_model_data(data)
         except:
             pass
 
@@ -131,13 +134,13 @@ def generate_model(
                 detail="The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes),
             )
 
-        # if model_data.model.rotatedAngles:
+        # if data.model.rotatedAngles:
         #     angle_x = np.zeros(len(x_value))
         #     angle_y = np.zeros(len(x_value))
         #     angle_z = np.zeros(len(x_value))
         # check if vol is defined
         if vol is None:
-            if model_data.model.twoDimensional:
+            if data.model.twoDimensional:
                 vol = np.full_like(
                     x_value,
                     dx_value[0] * dx_value[1],
@@ -148,9 +151,9 @@ def generate_model(
                     dx_value[0] * dx_value[1] * dx_value[2],
                 )
 
-    writer = ModelWriter(model_data, model_name, model_folder_name, username)
+    writer = ModelWriter(data, model_name, model_folder_name, username)
 
-    # if model_data.model.rotatedAngles:
+    # if data.model.rotatedAngles:
     #     model = np.transpose(
     #         np.vstack(
     #             [
@@ -167,7 +170,7 @@ def generate_model(
     #     )
     #     writer.write_mesh_with_angles(model, two_d)
     # else:
-    if not model_data.model.ownModel:
+    if not data.model.ownModel:
         model = np.transpose(
             np.vstack(
                 [
@@ -179,31 +182,26 @@ def generate_model(
                 ]
             )
         )
-        writer.write_mesh(model, model_data.model.twoDimensional)
+        writer.write_mesh(model, data.model.twoDimensional)
         writer.write_node_sets(model)
 
-        for i, block in enumerate(model_data.blocks):
+        for i, block in enumerate(data.blocks):
             if isinstance(dx_value[0], float):
                 block.horizon = 2.5 * max([dx_value[0], dx_value[1]])
             else:
                 block.horizon = 2.5 * max([dx_value[i][0], dx_value[i][1]])
     else:
         k = [1e10]
-    block_def = model_data.blocks
+    block_def = data.blocks
 
     try:
         # deviations = {'sampleSize': 5, 'parameters': [{'id': "materials[0].youngsModulus", "mean": 0.1, "std": 10}]}
-        writer.create_file(block_def, max(k), model_data.deviations)
+        writer.create_file(block_def, max(k), data.deviations)
     except TypeError as exception:
         log.error(f"Failed to create file: {exception}")
         return str(exception)
 
     log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
-
-    return ResponseModel(
-        data=True,
-        message=f"{model_name} has been created in {time.time() - start_time} seconds.",
-    )
 
 
 @router.get("/mesh", operation_id="generate_mesh")
@@ -252,4 +250,3 @@ def generate_mesh(
     #     return FileResponse(file_path)
     # except Exception:
     log.info("Mesh generated")
-    return ResponseModel(data=True, message="Mesh generated")

@@ -7,12 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 <template>
   <div class="row">
     <q-btn flat icon="fas fa-play" @click="checkEnergy" :loading="submitLoading"
-      :disable="submitLoading || !status.created || !status.meshfileExist" v-if="!status.submitted">
+      :disable="submitLoading || !store.status.created || !store.status.meshfileExist" v-if="!store.status.submitted">
       <q-tooltip>
-        <div v-if="!status.created"> Model not created yet</div>
-        <div v-if="!status.meshfileExist"> Meshfile not created or uploaded yet</div>
-        <div v-if="status.submitted">Model is submitted</div>
-        <div v-if="!submitLoading && status.created && status.meshfileExist">Submit Model</div>
+        <div v-if="!store.status.created"> Model not created yet</div>
+        <div v-if="!store.status.meshfileExist"> Meshfile not created or uploaded yet</div>
+        <div v-if="store.status.submitted">Model is submitted</div>
+        <div v-if="!submitLoading && store.status.created && store.status.meshfileExist">Submit Model</div>
       </q-tooltip>
     </q-btn>
 
@@ -26,6 +26,7 @@ SPDX-License-Identifier: Apache-2.0
             <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
               <q-item v-bind="itemProps">
                 <q-item-section>
+                  <!-- eslint-disable-next-line -->
                   <q-item-label v-html="opt" />
                 </q-item-section>
                 <q-item-section side>
@@ -36,8 +37,8 @@ SPDX-License-Identifier: Apache-2.0
           </q-select>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Yes" color="primary" v-close-popup @click="runModel(jobIds.join(','))"></q-btn>
-          <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="runModel"></q-btn> -->
+          <q-btn flat label="Yes" color="primary" v-close-popup @click="_runModel(jobIds!.join(','))"></q-btn>
+          <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="_runModel"></q-btn> -->
           <q-btn flat label="No" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
@@ -56,20 +57,20 @@ SPDX-License-Identifier: Apache-2.0
           <RenewableView></RenewableView>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Yes" color="primary" v-close-popup @click="runModel"></q-btn>
-          <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="runModel"></q-btn> -->
+          <q-btn flat label="Yes" color="primary" v-close-popup @click="_runModel()"></q-btn>
+          <!-- <q-btn flat label="Remind me later" color="primary" v-close-popup @click="_runModel"></q-btn> -->
           <q-btn flat label="No" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-times" @click="cancelJob" :loading="submitLoading" v-if="status.submitted">
+    <q-btn flat icon="fas fa-times" @click="cancelJob" :loading="submitLoading" v-if="store.status.submitted">
       <q-tooltip>
         Cancel Job
       </q-tooltip>
     </q-btn>
     <q-btn flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading"
-      :disable="resultsLoading || !status.results">
+      :disable="resultsLoading || !store.status.results">
       <q-tooltip>
         Download Results
       </q-tooltip>
@@ -92,20 +93,22 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-eye" @click="viewStore.viewId = 'results'" :disable="!status.results">
+    <q-btn flat icon="fas fa-eye" @click="viewStore.viewId = 'results'" :disable="!store.status.results">
       <q-tooltip>
         Show Results
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
-      icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!status.results">
+    <!-- <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
+      icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!store.status.results">
       <q-tooltip>
         Show Fracture Analysis
       </q-tooltip>
     </q-btn>
-    <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
-      icon="fas fa-image" @click="dialogGetEnergyReleasePlot = true, updatePlotVariables()" :disable="!status.results">
+    <q-btn
+      v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel', 'DIN6034'].includes(modelStore.selectedModel.file)"
+      flat icon="fas fa-image" @click="dialogGetEnergyReleasePlot = true, updatePlotVariables()"
+      :disable="!store.status.results">
       <q-tooltip>
         Show Energy Release Plot
       </q-tooltip>
@@ -169,7 +172,7 @@ SPDX-License-Identifier: Apache-2.0
     </q-dialog>
 
     <q-btn v-if="['DIN6034'].includes(modelStore.selectedModel.file)" flat icon="fas fa-image"
-      @click="openGetEnfAnalysisDialog()" :disable="!status.results">
+      @click="openGetEnfAnalysisDialog()" :disable="!store.status.results">
       <q-tooltip>
         Show ENF Analysis
       </q-tooltip>
@@ -204,7 +207,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
-    </q-dialog>
+    </q-dialog> -->
 
     <q-btn v-if="viewStore.viewId == 'image'" flat icon="fas fa-download" @click="downloadModelImage()"
       :disable="!status.results">
@@ -213,7 +216,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
     <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()"
-      :disable="!status.results || modelData.computes.length == 0 || !csvDefined()">
+      :disable="!status.results || computes.length == 0 || !csvDefined()">
       <q-tooltip>
         Show Plot
       </q-tooltip>
@@ -246,7 +249,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-toggle class="my-toggle" v-model="getPlotAbsoluteY" label="Absolute" dense></q-toggle>
         </q-card-section> -->
         <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="_getPlot(false)"></q-btn>
+          <q-btn flat label="Show" color="primary" v-close-popup @click="_getPlot()"></q-btn>
           <!-- <q-btn flat label="Append" color="primary" v-close-popup @click="_getPlot(true)"></q-btn> -->
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
@@ -385,20 +388,19 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent } from 'vue'
+<script lang="ts">
+import { computed, defineComponent, toRaw } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
-import { inject } from 'vue'
-import { useQuasar } from 'quasar'
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
-import { getCurrentEnergy, runModel, cancelJob, getEnfAnalysis, getPlot, getFractureAnalysis, getEnergyReleasePlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
+import { getCurrentEnergy, runModel, cancelJob, runOwnAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
+import type { Block, BondFilters, Compute, Damage, Material, Deviations } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export default defineComponent({
   name: 'ViewActions',
@@ -406,25 +408,33 @@ export default defineComponent({
     RenewableView
   },
   setup() {
-    const $q = useQuasar()
     const store = useDefaultStore();
     const status = computed(() => store.status)
     const saveEnergy = computed(() => store.saveEnergy)
     const viewStore = useViewStore();
     const modelStore = useModelStore();
     const modelData = computed(() => modelStore.modelData)
-    const computes = computed(() => modelStore.modelData.computes)
-    const bus = inject('bus')
+    const blocks = computed(() => modelStore.modelData.blocks) as unknown as Block[]
+    const bondFilters = computed(() => modelStore.modelData.bondFilters) as unknown as BondFilters[]
+    const computes = computed(() => modelStore.modelData.computes) as unknown as Compute[]
+    const damages = computed(() => modelStore.modelData.damages) as unknown as Damage[]
+    const materials = computed(() => modelStore.modelData.materials) as unknown as Material[]
+    const deviations = computed(() => modelStore.modelData.deviations) as unknown as Deviations
 
     return {
+      store,
       status,
       saveEnergy,
       viewStore,
       modelStore,
       modelData,
+      blocks,
+      bondFilters,
       computes,
-      rules,
-      bus,
+      damages,
+      materials,
+      deviations,
+      rules
     }
   },
   data() {
@@ -447,7 +457,7 @@ export default defineComponent({
       dialogGetEnfAnalysis: false,
 
       dialogGetPlot: false,
-      getPlotVariables: [],
+      getPlotVariables: [] as string[],
       getPlotOutput: 'Output1',
       getPlotOutputCsv: 'Output2',
       getPlotVariableX: 'Time',
@@ -489,13 +499,12 @@ export default defineComponent({
       getImageAzimuth: 30,
       getImageRoll: 0,
 
-      computeKeys: [],
+      computeKeys: [] as string[],
       getAnalysisVariables: ['External_Forces', 'External_Displacements'],
 
       port: null,
 
-      plotRawData: null,
-      timer: null,
+      timer: null as NodeJS.Timeout | null,
       intervalCount: 0,
 
       color: [
@@ -528,15 +537,15 @@ export default defineComponent({
         await getCurrentEnergy()
           .then((response) => {
             this.$q.notify({
-              message: response.message
+              message: "Energy saved"
             })
-            this.energyPercent = response.data;
+            this.energyPercent = response;
           })
-          .catch((error) => {
+          .catch(() => {
             this.$q.notify({
               color: 'negative',
               position: 'bottom-right',
-              message: response.message,
+              message: 'Failed',
               icon: 'report_problem'
             })
           })
@@ -547,42 +556,35 @@ export default defineComponent({
         //   this.runModel();
         // }
         this.dialogEnergySavings = true
-      } else if (this.modelData.deviations.enabled) {
-        const n = this.modelData.deviations.sampleSize;
+      } else if (this.deviations.enabled) {
+        const n = this.deviations.sampleSize;
         this.jobIdsOptions = Array.from({ length: n }, (_, i) => i + 1);
         this.dialogSubmitMultiple = true
       } else {
-        this.runModel();
+        await this._runModel();
       }
     },
-    async runModel(jobIds = null) {
+    async _runModel(jobIds: string | null = null) {
       this.submitLoading = true;
       this.viewStore.textLoading = true;
+
       await runModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, verbose: this.modelData.job.verbose, jobIds: jobIds, requestBody: this.modelData })
-        .then((response) => {
-          if (response.data) {
-            this.$q.notify({
-              message: response.message
-            })
-            this.viewStore.textId = 'log';
-            this.viewStore.viewId = 'jobs';
-            this.intervalCount = 0;
-            this.timer = setInterval(this.checkStatus, 5000)
-          }
-          else {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message
-            })
-            this.submitLoading = false;
-            this.viewStore.textLoading = false;
-          }
+        .then(() => {
+          this.$q.notify({
+            message: 'Job submitted'
+          })
+          this.viewStore.textId = 'log';
+          this.viewStore.viewId = 'jobs';
+          this.intervalCount = 0;
+          // eslint-disable-next-line
+          this.timer = setInterval(this.checkStatus, 5000)
         })
         .catch((error) => {
+          console.log(error)
           let message = '';
           if (error.response != undefined) {
             if (error.response.status == 422) {
-              for (let i in error.response.detail) {
+              for (const i in error.response.detail) {
                 message += error.response.detail[i].loc[1] + ' ';
                 message += error.response.detail[i].loc[2] + ', ';
                 message += error.response.detail[i].loc[3] + ', ';
@@ -608,7 +610,7 @@ export default defineComponent({
 
     },
     async checkStatus() {
-      this.bus.emit('getStatus');
+      this.$bus.emit('getStatus');
       this.intervalCount += 1;
 
       if (this.intervalCount > 10) {
@@ -619,6 +621,7 @@ export default defineComponent({
           message: 'Failed to submit model',
           icon: 'report_problem'
         })
+        // @ts-expect-error Bla
         clearInterval(this.timer)
       }
       if (this.status.submitted) {
@@ -628,7 +631,8 @@ export default defineComponent({
         } else {
           await sleep(20000);
         }
-        this.bus.emit('enableWebsocket');
+        this.$bus.emit('enableWebsocket');
+        // @ts-expect-error Bla
         clearInterval(this.timer)
       }
     },
@@ -641,9 +645,9 @@ export default defineComponent({
         cluster: this.modelData.job.cluster,
         sbatch: this.modelData.job.sbatch
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: 'Job canceled'
           })
         })
         .catch(() => {
@@ -655,13 +659,13 @@ export default defineComponent({
           })
         })
 
-      this.bus.emit('getStatus');
+      this.$bus.emit('getStatus');
       this.submitLoading = false;
     },
-    async saveResults(allData) {
+    async saveResults(allData: boolean) {
       this.resultsLoading = true;
 
-      let params = {
+      const params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
         output: this.getPlotOutput,
@@ -681,17 +685,17 @@ export default defineComponent({
       // )
       await api.get('/results/getResults', { params, responseType: 'blob' })
         .then((response) => {
-          let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '_' + this.modelData.outputs[0].name + '.e'
+          let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '_' + this.modelData.outputs[0]!.name + '.e'
           if (allData) {
             filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
           }
-          const status = exportFile(filename, response.data)
+          const status: boolean | Error = exportFile(filename, response.data)
           if (status) {
             // browser allowed it
             console.log('ok')
           } else {
             // browser denied it
-            console.log('Error: ' + status)
+            console.log(status)
           }
         })
         .catch(() => {
@@ -706,18 +710,17 @@ export default defineComponent({
       this.resultsLoading = false;
     },
     updatePlotVariables() {
-      let items = [];
+      const items = [];
 
-      for (var i = 0; i < this.modelData.computes.length; i++) {
-        items.push(this.modelData.computes[i].name);
+      for (let i = 0; i < this.computes.length; i++) {
+        items.push(this.computes[i]!.name);
       }
       items.push('Time');
       this.getPlotVariables = items;
-      this.getPlotOutput = this.modelData.outputs[0]
+      this.getPlotOutput = this.modelData.outputs[0]!.name
     },
-    async _getPlot(append) {
+    async _getPlot() {
       this.viewStore.modelLoading = true;
-      let plotRawData = null;
 
       await getPlot({
         modelName: this.modelStore.selectedModel.file,
@@ -727,37 +730,32 @@ export default defineComponent({
         tasks: this.modelData.job.tasks
       })
         .then((response) => {
-          if (response.data == false) {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message,
-            })
-          } else {
-            plotRawData = response.data
-            this.$q.notify({
-              message: response.message,
-            })
+          const plotRawData = response as { [index: string]: number[] }
+          this.$q.notify({
+            message: 'Plot loaded',
+          })
 
-            let tempData = []
-            let tempLayout = structuredClone(this.viewStore.plotLayout)
-            const firstPropety = Object.keys(plotRawData)[0]
-            let id = 0
-            for (const propertyName in plotRawData) {
-              if (propertyName != firstPropety) {
-                tempData.push({ name: propertyName, x: plotRawData[firstPropety], y: plotRawData[propertyName], type: 'scatter', marker: { color: this.color[id] } })
-                id += 1
-              }
+          const tempData = []
+          const tempLayout = structuredClone(toRaw(this.viewStore.plotLayout))
+          const firstPropety = Object.keys(plotRawData)[0] as string
+          let id = 0
+          for (const propertyName in plotRawData) {
+            if (propertyName != firstPropety) {
+              tempData.push({ name: propertyName, x: plotRawData[firstPropety] as number[], y: plotRawData[propertyName] as number[], type: 'scatter', marker: { color: this.color[id] } })
+              id += 1
             }
-            tempLayout.xaxis.title = firstPropety
-            tempLayout.title = this.$route.params.id
-
-            this.viewStore.plotData = structuredClone(tempData)
-            this.viewStore.plotLayout = structuredClone(tempLayout)
-
-            this.viewStore.viewId = 'plotly';
           }
+          tempLayout.xaxis.title = firstPropety
+          // @ts-expect-error Bla
+          tempLayout.title = this.$route.params.id
+
+          this.viewStore.plotData = structuredClone(tempData)
+          this.viewStore.plotLayout = structuredClone(tempLayout)
+
+          this.viewStore.viewId = 'plotly';
         })
-        .catch(() => {
+        .catch((e) => {
+          console.log(e)
           this.$q.notify({
             type: 'negative',
             message: 'Failed',
@@ -812,25 +810,36 @@ export default defineComponent({
       // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.store.username } });
 
       let materialName = '';
-      for (var i = 0; i < this.modelData.blocks.length; i++) {
-        if (this.modelData.blocks[i].damageModel != '') {
-          materialName = this.modelData.blocks[i].material;
+      for (let i = 0; i < this.blocks.length; i++) {
+        if (this.blocks[i]!.damageModel != '') {
+          materialName = this.blocks[i]!.material!;
         }
       }
       let materialId = 1
-      for (var i = 0; i < this.modelData.materials.length; i++) {
-        if (this.modelData.materials[i].name == materialName) {
+      for (let i = 0; i < this.materials.length; i++) {
+        if (this.materials[i]!.name == materialName) {
           materialId = i
         }
       }
-      let params = {
+
+      let height = 0
+
+      for (let i = 0; i < this.modelStore.modelParams.valves.length; i++) {
+        const param = this.modelStore.modelParams.valves[i]!
+        if (param.name == 'HEIGHT') {
+          height = param.value as number
+        }
+      }
+      console.log(length)
+
+      const params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
-        height: this.modelData.model.height,
-        crack_length: this.modelData.bondFilters[0].lowerLeftCornerX + this.modelData.bondFilters[0].bottomLength,
-        young_modulus: this.modelData.materials[materialId].youngsModulus,
-        poissions_ratio: this.modelData.materials[materialId].poissonsRatio,
-        yield_stress: this.modelData.materials[materialId].yieldStress,
+        height: height,
+        crack_length: this.bondFilters[0]!.lowerLeftCornerX! + this.bondFilters[0]!.bottomLength!,
+        young_modulus: this.materials[materialId]!.youngsModulus,
+        poissions_ratio: this.materials[materialId]!.poissonsRatio,
+        yield_stress: this.materials[materialId]!.yieldStress,
         cluster: this.modelData.job.cluster,
         tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
@@ -892,10 +901,10 @@ export default defineComponent({
       // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.store.username } });
       let thickness = null
       if (this.modelData.model.twoDimensional) {
-        thickness = this.modelData.damages[0].thickness;
+        thickness = this.damages[0]!.thickness;
       }
 
-      let params = {
+      const params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
@@ -927,8 +936,8 @@ export default defineComponent({
       this.viewStore.viewId = 'image';
       this.viewStore.modelLoading = false;
     },
-    async downloadModelImage() {
-      var fileLink = document.createElement('a');
+    downloadModelImage() {
+      const fileLink = document.createElement('a');
       fileLink.href = this.viewStore.modelImg;
       fileLink.setAttribute('download', this.modelStore.selectedModel.file + '.png');
       document.body.appendChild(fileLink);
@@ -973,9 +982,9 @@ export default defineComponent({
     //   this.viewStore.modelLoading = false;
     // },
     openGetEnfAnalysisDialog() {
-      let outputKeys = []
-      for (var i = 0; i < this.computes.length; i++) {
-        outputKeys.push(this.computes[i].name)
+      const outputKeys = []
+      for (let i = 0; i < this.computes.length; i++) {
+        outputKeys.push(this.computes[i]!.name)
       }
       this.computeKeys = outputKeys
       this.dialogGetEnfAnalysis = true;
@@ -983,44 +992,66 @@ export default defineComponent({
     async _getEnfAnalysis() {
       this.viewStore.modelLoading = true;
 
-      let length = 0
-      let width = 0
-      let cracklength = 0
+      // let length = 0
+      // let width = 0
+      // let cracklength = 0
 
-      for (let i = 0; i < this.modelStore.modelParams.valves.length; i++) {
-        let param = this.modelStore.modelParams.valves[i]
-        if (param.name == 'LENGTH') {
-          length = param.value
-        }
-        if (param.name == 'WIDTH') {
-          width = param.value
-        }
-        if (param.name == 'CRACK_LENGTH') {
-          cracklength = param.value
-        }
+      // for (let i = 0; i < this.modelStore.modelParams.valves.length; i++) {
+      //   const param = this.modelStore.modelParams.valves[i]!
+      //   if (param.name == 'LENGTH') {
+      //     length = param.value as number
+      //   }
+      //   if (param.name == 'WIDTH') {
+      //     width = param.value as number
+      //   }
+      //   if (param.name == 'CRACK_LENGTH') {
+      //     cracklength = param.value as number
+      //   }
+      // }
+      // console.log(length)
+
+      // await getEnfAnalysis({
+      //   modelName: this.modelStore.selectedModel.file,
+      //   modelFolderName: this.modelData.model.modelFolderName,
+      //   length: length,
+      //   width: width,
+      //   crackLength: cracklength,
+      //   cluster: this.modelData.job.cluster,
+      //   tasks: this.modelData.job.tasks,
+      //   output: this.getImageOutput,
+      //   step: this.getImageStep,
+      //   loadVariable: this.getAnalysisVariables[0]!,
+      //   displVariable: this.getAnalysisVariables[1]!
+      // })
+
+      const body = {
+        'data': this.modelData,
+        'valves': this.modelStore.modelParams
       }
-      console.log(length)
-
-      await getEnfAnalysis({
+      await runOwnAnalysis({
         modelName: this.modelStore.selectedModel.file,
-        modelFolderName: this.modelData.model.modelFolderName,
-        length: length,
-        width: width,
-        crackLength: cracklength,
-        cluster: this.modelData.job.cluster,
-        tasks: this.modelData.job.tasks,
         output: this.getImageOutput,
-        step: this.getImageStep,
-        loadVariable: this.getAnalysisVariables[0],
-        displVariable: this.getAnalysisVariables[1]
+        requestBody: body
       })
         .then((response) => {
-          console.log(response)
-          this.viewStore.jsonData = response
-          this.viewStore.viewId = 'json';
-          this.$q.notify({
-            message: 'ENF analyzed',
-          })
+          const params = { file: response }
+          api.get('/results/getResultFile', { params, responseType: 'blob' })
+            .then((response) => {
+              console.log(response)
+              this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
+              // this.viewStore.jsonData = response
+              this.viewStore.viewId = 'image';
+              this.$q.notify({
+                message: 'ENF analyzed',
+              })
+            })
+            .catch((error) => {
+              this.$q.notify({
+                type: 'negative',
+                message: JSON.stringify(error.message)
+              })
+              this.viewStore.modelLoading = false;
+            })
         })
         .catch((error) => {
           this.$q.notify({
@@ -1038,9 +1069,9 @@ export default defineComponent({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: "Model deleted"
           })
         })
         .catch(() => {
@@ -1057,9 +1088,9 @@ export default defineComponent({
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: "Model deleted from cluster"
           })
         })
         .catch(() => {
@@ -1074,9 +1105,9 @@ export default defineComponent({
     async deleteUserData() {
 
       await deleteUserData({ checkDate: false })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: "User data deleted"
           })
         })
         .catch(() => {
@@ -1091,9 +1122,9 @@ export default defineComponent({
       await deleteUserDataFromCluster({
         cluster: this.modelData.job.cluster, checkDate: false
       })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: "User data deleted from cluster"
           })
         })
         .catch(() => {
@@ -1105,11 +1136,11 @@ export default defineComponent({
           })
         })
 
-      this.bus.emit('getStatus');
+      this.$bus.emit('getStatus');
     },
     csvDefined() {
-      for (var i = 0; i < this.modelData.outputs.length; i++) {
-        if (this.modelData.outputs[i].selectedFileType == 'CSV') {
+      for (let i = 0; i < this.modelData.outputs.length; i++) {
+        if (this.modelData.outputs[i]!.selectedFileType == 'CSV') {
           return true
         }
       }
@@ -1124,6 +1155,7 @@ export default defineComponent({
     },
   },
   unmounted() {
+    // @ts-expect-error Bla
     clearInterval(this.timer)
   }
 })

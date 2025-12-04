@@ -29,8 +29,9 @@ SPDX-License-Identifier: Apache-2.0
       <template v-slot:after>
         <q-scroll-area style="height:100%;">
           <div v-if="config">
-            <JsonEditorVue v-model="config" mode="tree" :mainMenuBar=false :navigationBar=false :statusBar=false
-              :readOnly=false v-bind="{/* local props & attrs */ }" />
+            <vue-json-pretty :data="config" :editable=true />
+            <!-- <JsonEditorVue v-model="config" :mainMenuBar=false :navigationBar=false :statusBar=false :readOnly=false
+              v-bind="{/* local props & attrs */ }" /> -->
             <q-btn class="q-mt-sm" color="primary" label="Save" @click="_saveConfig" />
           </div>
         </q-scroll-area>
@@ -69,24 +70,29 @@ SPDX-License-Identifier: Apache-2.0
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 
 import { useDefaultStore } from 'src/stores/default-store';
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+//@ts-expect-error Bla
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
-import JsonEditorVue from 'json-editor-vue'
+// import JsonEditorVue from 'json-editor-vue'
+import VueJsonPretty from 'vue-json-pretty';
+import 'vue-json-pretty/lib/styles.css';
 
-import { getOwnModels, getOwnModelFile, getConfig, saveConfig, saveModel, addModel, deleteModel } from '../client';
+import { getOwnModels, getOwnModelFile, getConfig, saveConfig, saveModelFile, addModel, deleteModelFile } from '../client';
+import type { GetOwnModelsResponse, ModelData } from 'src/client';
 
 export default {
   name: 'CuratorPage',
 
   components: {
     PrismEditor,
-    JsonEditorVue
+    VueJsonPretty
+    // JsonEditorVue
   },
   setup() {
     const store = useDefaultStore();
@@ -96,7 +102,7 @@ export default {
   },
   data() {
     return {
-      modelList: [],
+      modelList: [] as GetOwnModelsResponse,
       selectedModel: {
         title: '',
         file: '',
@@ -108,12 +114,12 @@ export default {
       description: '',
 
       sourceCode: '',
-      config: null,
+      config: {} as ModelData,
       verticalSplitterModel: 50,
     };
   },
   methods: {
-    highlighter(code) {
+    highlighter(code: string) {
       return highlight(code, languages.py); // languages.<insert language> to return html with markup
     },
     async _addModel() {
@@ -121,10 +127,10 @@ export default {
         modelName: this.newModelName,
         description: this.description
       })
-      this.selectedModel.title = this.newMethodName
+      this.selectedModel.title = this.newModelName
       this.selectedModel.file = response
-      this._getModels()
-      this.selectModel()
+      await this._getModels()
+      await this.selectModel()
     },
     async _getModels() {
       const response = await getOwnModels({
@@ -140,10 +146,10 @@ export default {
       const config = await getConfig({
         configFile: this.selectedModel.file
       })
-      this.config = config;
+      this.config = config as ModelData;
     },
     async _saveModel() {
-      await saveModel({
+      await saveModelFile({
         modelFile: this.selectedModel.file,
         sourceCode: this.sourceCode
       }).then(() => this.$q.notify({
@@ -173,19 +179,19 @@ export default {
       })
     },
     async _deleteModel() {
-      await deleteModel({
+      await deleteModelFile({
         modelName: this.selectedModel.file,
       }).then(() => {
         this.$q.notify({
           message: 'Model deleted',
         })
         this.sourceCode = ''
-        this._getModels()
       })
+      await this._getModels()
     }
   },
-  mounted() {
-    this._getModels()
+  async mounted() {
+    await this._getModels()
   },
   watch: {
   }

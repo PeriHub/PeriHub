@@ -75,11 +75,12 @@ class SbatchCreator:
         """doc"""
 
         string = "#!/bin/sh \n"
+        string = "trap 'rm pid.txt; exit 1' 0 1 2 3 6 9 14 15 \n"
         string = "> pid.txt \n"
         for job_id in self.job_ids.split(","):
-            filename = self.filename + '.yaml"'
+            filename = self.filename + ".yaml"
             if job_id != "-1":
-                filename = self.filename + "_" + job_id + '.yaml"'
+                filename = self.filename + "_" + job_id + ".yaml"
             if self.trial:
                 string += "timeout 600s "
             if docker:
@@ -90,7 +91,7 @@ class SbatchCreator:
             else:
                 if self.tasks > 1:
                     string += "mpiexecjl -n " + str(self.tasks) + " "
-                string += "julia -e '" + 'using PeriLab; PeriLab.main("' + filename + ";silent=true"
+                string += "julia -e '" + 'using PeriLab; PeriLab.main("' + filename + '";silent=true'
                 if verbose:
                     string += ";verbose=true"
                 string += ")'"

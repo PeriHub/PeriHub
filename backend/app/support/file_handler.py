@@ -16,7 +16,7 @@ from pathlib import Path
 
 import jwt
 import paramiko
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from random_username.generate import generate_username
 
 from ..support.globals import (
@@ -116,10 +116,10 @@ class FileHandler:
     @staticmethod
     def get_user_name(request, dev):
         """doc"""
-        return request.headers.get("userName")
-        # if user_name is not None and user_name != "" and user_name != "undefined":
-        #     return user_name
-        # return "guest"
+        user_name = request.headers.get("userName")
+        if user_name is not None and user_name != "" and user_name != "undefined":
+            return user_name
+        return "user"
 
         # encoded_token = request.headers.get("Authorization")
         # if encoded_token is None or encoded_token == "":
@@ -241,7 +241,7 @@ class FileHandler:
         """doc"""
 
         if not cluster:
-            return "Success"
+            return
 
         localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
@@ -268,7 +268,10 @@ class FileHandler:
 
         if not os.path.exists(localpath):
             log.warning(model_name + " has not been created yet")
-            return model_name + " has not been created yet"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=model_name + " has not been created yet",
+            )
 
         input_exist = False
         mesh_exist = False
@@ -279,27 +282,32 @@ class FileHandler:
                 mesh_exist = True
         if not input_exist:
             log.warning("Inputfile of " + model_name + " has not been created yet")
-            return "Inputfile of " + model_name + " has not been created yet"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Inputfile of " + model_name + " has not been created yet"
+            )
 
         if not mesh_exist:
             log.warning("Meshfile of " + model_name + " has not been created yet")
-            return "Meshfile of " + model_name + " has not been created yet"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Meshfile of " + model_name + " has not been created yet"
+            )
 
         for root, _, files in os.walk(localpath):
             for name in files:
-                sftp.put(os.path.join(root, name), name)
+                if name.split(".")[-1] in ["yaml", "txt", "e", "gcode"]:
+                    sftp.put(os.path.join(root, name), name)
 
         sftp.close()
         ssh.close()
 
-        return "Success"
+        return
 
     @staticmethod
     def copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat):
         """doc"""
 
         if not cluster:
-            return "Success"
+            return
 
         localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
         remotepath = FileHandler._get_remote_umat_path(cluster)
@@ -307,13 +315,13 @@ class FileHandler:
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         except paramiko.SFTPError:
             log.error("ssh connection to cluster failed!")
-            return "ssh connection to cluster failed!"
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to cluster failed!")
         except Exception as e:
-            return str(e)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
         if not os.path.exists(localpath):
             log.error("Shared libray can not been found")
-            return "Shared libray can not been found"
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shared libray can not been found")
         for root, _, files in os.walk(localpath):
             if len(files) == 0:
                 log.error("Shared libray can not been found")
@@ -333,7 +341,7 @@ class FileHandler:
                             os.path.join(root, name),
                             lib_file_path,
                         )
-                        return "Success"
+                        return
                 else:
                     try:
                         print(sftp.stat(lib_base_file_path))
@@ -342,15 +350,15 @@ class FileHandler:
                             lib_base_file_path,
                             lib_file_path,
                         )
-                        return "Success"
+                        return
                     except IOError:
-                        return "Success"
+                        return
 
         sftp.close()
         ssh.close()
 
         log.error("Shared libray can not been found")
-        return "Shared libray can not been found"
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shared libray can not been found")
 
     @staticmethod
     def copy_file_to_from_peridigm_container(username, model_name, model_folder_name, file_name, to_or_from):
@@ -404,6 +412,7 @@ class FileHandler:
         log.info("Start copying")
 
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
+        # log.info(remotepath)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         # if tasks != 1:
         #     try:
@@ -424,35 +433,36 @@ class FileHandler:
         #         log.error("MergeFiles.py failed")
         #         pass
         try:
-            for filename in sftp.listdir(remotepath):
-                if all_data or filename.endswith(".e") or filename.endswith(".csv"):
-                    if os.path.exists(os.path.join(resultpath, filename)):
-                        remote_info = sftp.stat(os.path.join(remotepath, filename))
-                        remote_time = remote_info.st_mtime
-                        # remote_size = remote_info.st_size
-                        local_time = os.path.getmtime(os.path.join(resultpath, filename))
-                        # local_size = os.path.getsize(os.path.join(resultpath, filename))
-                        print(
-                            "compare "
-                            + filename
-                            + " remote_time: "
-                            + str(remote_time)
-                            + ", local_time: "
-                            + str(local_time)
-                        )
-                        if remote_time > local_time:
-                            os.remove(os.path.join(resultpath, filename))
-                            log.info("Copy " + filename)
-                            sftp.get(
-                                os.path.join(remotepath, filename),
-                                os.path.join(resultpath, filename),
-                            )
-                    else:
-                        sftp.get(
-                            os.path.join(remotepath, filename),
-                            os.path.join(resultpath, filename),
-                        )
+            attrs = sftp.listdir_attr(remotepath)
+
+            for attr in attrs:
+                filename = attr.filename
+
+                # Skip files that don't match the filter
+                if not (all_data or filename.endswith('.e') or filename.endswith('.csv')):
+                    continue
+
+                local_path = Path(resultpath) / filename
+                remote_path = Path(remotepath) / filename
+
+                # If the file already exists locally, compare timestamps
+                if local_path.exists():
+                    remote_mtime = attr.st_mtime            # from listdir_attr
+                    local_mtime = local_path.stat().st_mtime
+
+                    if remote_mtime <= local_mtime:
+                        # Local copy is up‑to‑date; nothing to do
+                        continue
+
+                    log.info(f"Copy {filename} (remote newer)")
+                else:
+                    log.info(f"Copy {filename} (new file)")
+
+                # One‑liner transfer
+                sftp.get(str(remote_path), str(local_path))
         except paramiko.SFTPError:
+            sftp.close()
+            ssh.close()
             return False
         sftp.close()
         ssh.close()
@@ -478,6 +488,7 @@ class FileHandler:
                     username=username,
                     allow_agent=False,
                     password=password,
+                    timeout=5,
                     # key_filename=keypath,
                 )
             except paramiko.SSHException:
@@ -498,6 +509,7 @@ class FileHandler:
                         username=username,
                         allow_agent=False,
                         password="root",
+                    timeout=5,
                     )
                 except paramiko.SSHException:
                     if server != "localhost":
@@ -544,6 +556,7 @@ class FileHandler:
                 allow_agent=False,
                 # password=password,
                 key_filename=keypath,
+                timeout=5,
             )
         except paramiko.SSHException:
             log.error("ssh connection to " + server + " failed!")
@@ -616,7 +629,12 @@ class FileHandler:
                 matching_files.append(full_path)
 
         if len(matching_files) == 0:
+            log.warning("No matching files found")
             raise HTTPException(status_code=404, detail="No matching files found")
+
+        default_file = os.path.join(directory, model_name + "_" + output + extension)
+        if len(matching_files) > 1 and os.path.exists(default_file):
+            matching_files.remove(default_file)
 
         return matching_files
 

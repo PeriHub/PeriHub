@@ -1,6 +1,5 @@
 {
-  "extends": "@quasar/app-webpack/tsconfig-preset",
-  "compilerOptions": {
-    "baseUrl": "."
-  }
+  "extends": "./.quasar/tsconfig.json",
+  "exclude": ["playwright.config.ts", "./src/client"],
+  "include": ["./src/**/*", "./src/stores/view-store.ts"]
 }

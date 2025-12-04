@@ -18,12 +18,14 @@ SPDX-License-Identifier: Apache-2.0
   </q-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import MainHeader from 'layouts/MainHeader.vue'
 import MainFooter from 'layouts/MainFooter.vue'
+import { getValves, getConfig } from 'src/client'
+import type { ModelData } from 'src/client'
 
 export default defineComponent({
   name: 'MainLayout',
@@ -43,17 +45,46 @@ export default defineComponent({
       modelStore
     }
   },
+  created() {
+    this.$bus.on('resetData', () => {
+      this.resetData()
+    })
+  },
   methods: {
     initializeDarkMode() {
       this.$q.dark.set(localStorage.getItem("darkMode") == "true");
     },
+    resetData() {
+      getConfig({ configFile: this.modelStore.selectedModel.file }).then((response) => {
+        const data = JSON.parse(JSON.stringify(response))
+        this.modelStore.modelData = { ...this.modelStore.modelData, ...data } as ModelData
+      })
+        .catch((error) => {
+          this.$q.notify({
+            type: 'negative',
+            message: error.body.detail
+          })
+        })
+      getValves({ modelName: this.modelStore.selectedModel.file }).then((response) => {
+        this.modelStore.modelParams = structuredClone(response)
+      }).catch((error) => {
+        this.$q.notify({
+          type: 'negative',
+          message: error.body.detail
+        })
+      })
+    },
   },
-  async beforeMount() {
-    await this.store.initialiseStore();
-    await this.modelStore.initialiseStore();
+  beforeMount() {
+    this.store.initialiseStore();
+    this.modelStore.initialiseStore();
     if (localStorage.getItem("darkMode") == "true") {
       this.store.darkMode = true;
       this.$q.dark.toggle();
+    }
+    if (!localStorage.getItem('modelData')) {
+      console.log('beforeMount');
+      // this.resetData()
     }
   },
   watch: {

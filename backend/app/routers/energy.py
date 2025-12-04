@@ -5,18 +5,18 @@
 from datetime import datetime, timedelta
 
 import requests
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 
-from ..support.base_models import ResponseModel
+# from ..support.base_models import
 
 router = APIRouter(prefix="/energy", tags=["Upload Methods"])
 
 
 @router.get("/prognosis", operation_id="get_prognosis_energy")
-async def energy():
+async def energy() -> dict:
     """doc"""
     # Define the URL and query parameters
-    url = "https://api.energy-charts.info/traffic_signal"
+    url = "https://api.energy-charts.info/signal"
     params = {"country": "de"}
 
     # Send a GET request to the URL with the query parameters
@@ -28,9 +28,9 @@ async def energy():
         data = {}
 
         # Loop through the xAxisValues and data arrays
-        for index, value in enumerate(raw_data[0]["data"]):
+        for index, value in enumerate(raw_data["share"]):
             # Convert the timestamp to a date string
-            timestamp = raw_data[0]["xAxisValues"][index]
+            timestamp = raw_data["unix_seconds"][index]
             date = datetime.utcfromtimestamp(timestamp / 1000) + timedelta(
                 hours=2
             )  # Assuming the timestamp is in milliseconds and utc
@@ -40,20 +40,17 @@ async def energy():
             data[date_string] = value
 
         # Now, 'data' contains the processed data
-        return ResponseModel(
-            data=data,
-            message="Current Energy Data retrieved successfully",
-        )
+        return data
 
     else:
-        return ResponseModel(
-            data=False,
-            message=f"Request failed with status code {response.status_code}",
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Request failed with status code {response.status_code}",
         )
 
 
 @router.get("/current", operation_id="get_current_energy")
-async def energy():
+async def energy() -> float:
     """doc"""
     # Define the URL and query parameters
     url = "https://api.energy-charts.info/traffic_signal"
@@ -78,13 +75,10 @@ async def energy():
         nearest_value = raw_data[0]["data"][nearest_index]
 
         # Now, 'data' contains the processed data
-        return ResponseModel(
-            data=nearest_value,
-            message="Current Energy Data retrieved successfully",
-        )
+        return nearest_value
 
     else:
-        return ResponseModel(
-            data=False,
-            message=f"Request failed with status code {response.status_code}",
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Request failed with status code {response.status_code}",
         )

@@ -9,7 +9,7 @@ from typing import List
 import magic
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
 
-from ..support.base_models import ResponseModel
+# from ..support.base_models import
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, trial
 
@@ -22,7 +22,7 @@ async def upload_files(
     model_folder_name: str = "Default",
     request: Request = "",
     files: List[UploadFile] = File(...),
-):
+) -> str:
     """doc"""
 
     # Check file size
@@ -88,10 +88,7 @@ async def upload_files(
                         meshfile_name = file.filename
                         break
 
-    return ResponseModel(
-        data=True,
-        message=meshfile_name,
-    )
+    return meshfile_name
 
 
 @router.put("/inputFile", operation_id="write_input_file")
@@ -112,7 +109,3 @@ def write_input_file(
         file.write(input_string)
 
     log.info("%s-InputFile has been saved", model_name)
-    return ResponseModel(
-        data=True,
-        message=model_name + "-InputFile has been saved",
-    )

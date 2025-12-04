@@ -13,7 +13,7 @@ SPDX-License-Identifier: Apache-2.0
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import ConversionCard from 'components/tools/ConversionCard.vue'
 import SiConversionCard from 'components/tools/SiConversionCard.vue'

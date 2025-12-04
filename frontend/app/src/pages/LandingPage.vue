@@ -96,13 +96,13 @@ SPDX-License-Identifier: Apache-2.0
   </q-page>
 </template>
 
-<script>
-import { defineComponent } from 'vue'
+<!-- <script  lang="ts"> -->
+// import { defineComponent } from 'vue'
 
-export default defineComponent({
-  name: 'IndexPage'
-})
-</script>
+// export default {
+// name: 'IndexPage'
+// }
+<!-- </script> -->
 <style>
 .my-card {
   width: 400px;

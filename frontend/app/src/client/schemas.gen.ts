@@ -50,7 +50,7 @@ export const $Additive = {
 
 export const $AdditiveModel = {
     properties: {
-        id: {
+        additiveModelId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -59,7 +59,7 @@ export const $AdditiveModel = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Additivemodelid'
         },
         name: {
             type: 'string',
@@ -197,7 +197,7 @@ export const $BlockFunction = {
 
 export const $Body_generate_model = {
     properties: {
-        model_data: {
+        data: {
             '$ref': '#/components/schemas/ModelData'
         },
         valves: {
@@ -205,8 +205,22 @@ export const $Body_generate_model = {
         }
     },
     type: 'object',
-    required: ['model_data', 'valves'],
+    required: ['data', 'valves'],
     title: 'Body_generate_model'
+} as const;
+
+export const $Body_run_own_analysis = {
+    properties: {
+        data: {
+            '$ref': '#/components/schemas/ModelData'
+        },
+        valves: {
+            '$ref': '#/components/schemas/Valves'
+        }
+    },
+    type: 'object',
+    required: ['data', 'valves'],
+    title: 'Body_run_own_analysis'
 } as const;
 
 export const $Body_upload_files = {
@@ -227,7 +241,7 @@ export const $Body_upload_files = {
 
 export const $BondFilters = {
     properties: {
-        id: {
+        bondFiltersId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -236,7 +250,7 @@ export const $BondFilters = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Bondfiltersid'
         },
         name: {
             type: 'string',
@@ -512,7 +526,7 @@ export const $BoundaryConditions = {
 
 export const $Compute = {
     properties: {
-        id: {
+        computesId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -521,7 +535,7 @@ export const $Compute = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Computesid'
         },
         computeClass: {
             type: 'string',
@@ -774,7 +788,7 @@ export const $CriticalEnergyCalc = {
 
 export const $Damage = {
     properties: {
-        id: {
+        damagesId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -783,7 +797,7 @@ export const $Damage = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Damagesid'
         },
         name: {
             type: 'string',
@@ -1212,7 +1226,7 @@ export const $HTTPValidationError = {
 
 export const $InterBlock = {
     properties: {
-        id: {
+        interBlockid: {
             anyOf: [
                 {
                     type: 'integer'
@@ -1221,7 +1235,7 @@ export const $InterBlock = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Interblockid'
         },
         firstBlockId: {
             type: 'integer',
@@ -1268,16 +1282,8 @@ export const $Job = {
             default: 1
         },
         tasks: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Tasks',
-            default: 1
+            type: 'integer',
+            title: 'Tasks'
         },
         tasksPerNode: {
             anyOf: [
@@ -1339,13 +1345,61 @@ export const $Job = {
         }
     },
     type: 'object',
-    required: ['cluster', 'sbatch', 'verbose'],
+    required: ['cluster', 'sbatch', 'verbose', 'tasks'],
     title: 'Job'
+} as const;
+
+export const $Jobs = {
+    properties: {
+        id: {
+            type: 'integer',
+            title: 'Id'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        sub_name: {
+            type: 'string',
+            title: 'Sub Name'
+        },
+        cluster: {
+            type: 'boolean',
+            title: 'Cluster'
+        },
+        created: {
+            type: 'boolean',
+            title: 'Created'
+        },
+        submitted: {
+            type: 'boolean',
+            title: 'Submitted'
+        },
+        results: {
+            type: 'boolean',
+            title: 'Results'
+        },
+        model: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Model'
+        }
+    },
+    type: 'object',
+    required: ['id', 'name', 'sub_name', 'cluster', 'created', 'submitted', 'results'],
+    title: 'Jobs'
 } as const;
 
 export const $Material = {
     properties: {
-        id: {
+        materialsId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -1354,7 +1408,7 @@ export const $Material = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Materialsid'
         },
         name: {
             type: 'string',
@@ -1757,16 +1811,8 @@ export const $Matrix = {
 export const $Model = {
     properties: {
         modelFolderName: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Modelfoldername',
-            default: 'Default'
+            type: 'string',
+            title: 'Modelfoldername'
         },
         ownModel: {
             type: 'boolean',
@@ -1811,7 +1857,7 @@ export const $Model = {
         }
     },
     type: 'object',
-    required: ['ownModel', 'twoDimensional'],
+    required: ['modelFolderName', 'ownModel', 'twoDimensional'],
     title: 'Model'
 } as const;
 
@@ -1961,140 +2007,177 @@ export const $ModelData = {
     required: ['blocks', 'boundaryConditions', 'job', 'materials', 'model', 'outputs', 'solvers'],
     title: 'ModelData',
     example: {
+        additive: {
+            enabled: false
+        },
         blocks: [
             {
-                damageModel: '',
-                density: '1.4e5',
-                id: 1,
-                material: 'PMMAElast',
-                name: 'block_1',
+                additiveModel: '',
+                blocksId: 1,
+                damageModel: 'Damage',
+                density: 2.699e-9,
+                material: 'Aluminium',
+                name: 'Part',
                 show: true
             },
             {
+                additiveModel: '',
+                blocksId: 2,
                 damageModel: '',
-                density: '1.4e5',
-                id: 2,
-                material: 'PMMAElast',
-                name: 'block_2',
+                density: 2.699e-9,
+                material: 'BC',
+                name: 'Top_BC',
                 show: true
             },
             {
+                additiveModel: '',
+                blocksId: 3,
                 damageModel: '',
-                density: '1.4e5',
-                id: 3,
-                material: 'PMMA',
-                name: 'block_3',
+                density: 2.699e-9,
+                material: 'BC',
+                name: 'Bottom_BC',
                 show: true
             },
             {
+                additiveModel: '',
+                blocksId: 4,
                 damageModel: '',
-                density: '1.4e5',
-                id: 4,
-                material: 'PMMAElast',
-                name: 'block_4',
+                density: 2.699e-9,
+                material: 'Aluminium',
+                name: 'Top_Part',
                 show: true
             },
             {
+                additiveModel: '',
+                blocksId: 5,
                 damageModel: '',
-                density: '1.4e5',
-                id: 5,
-                material: 'PMMAElast',
-                name: 'block_5',
+                density: 2.699e-9,
+                material: 'Aluminium',
+                name: 'Bottom_Part',
                 show: true
+            }
+        ],
+        bondFilters: [
+            {
+                allow_contact: false,
+                bottomLength: 56.75,
+                bottomUnitVectorX: 1,
+                bottomUnitVectorY: 0,
+                bottomUnitVectorZ: 0,
+                centerX: 0,
+                centerY: 1,
+                centerZ: 0,
+                lowerLeftCornerX: -0.5,
+                lowerLeftCornerY: 0,
+                lowerLeftCornerZ: -2,
+                name: 'bf_1',
+                normalX: 0,
+                normalY: 1,
+                normalZ: 0,
+                radius: 1,
+                show: true,
+                sideLength: 4,
+                type: 'Rectangular_Plane'
             }
         ],
         boundaryConditions: {
             conditions: [
                 {
-                    blockId: 1,
+                    blockId: 2,
                     boundarytype: 'Dirichlet',
                     conditionsId: 1,
-                    coordinate: 'x',
+                    coordinate: 'y',
                     name: 'BC_1',
-                    nodeSet: 1,
-                    value: '0*t',
+                    stepId: [1],
+                    value: '1000*t',
                     variable: 'Displacements'
                 },
                 {
-                    blockId: 5,
+                    blockId: 3,
                     boundarytype: 'Dirichlet',
                     conditionsId: 2,
-                    coordinate: 'x',
+                    coordinate: 'y',
                     name: 'BC_2',
-                    nodeSet: 2,
-                    value: '0.05*t',
+                    stepId: [1],
+                    value: '-1000*t',
                     variable: 'Displacements'
-                }
-            ],
-            nodeSets: [
-                {
-                    file: 'ns_Dogbone_1.txt',
-                    nodeSetId: 1
-                },
-                {
-                    file: 'ns_Dogbone_2.txt',
-                    nodeSetId: 2
                 }
             ]
         },
         computes: [
             {
-                blockName: 'block_5',
-                calculationType: 'Maximum',
-                computeClass: 'Block_Data',
-                id: 1,
-                name: 'External_Displacement',
-                variable: 'Displacement'
-            },
-            {
-                blockName: 'block_5',
+                blockName: 'Bottom_BC',
                 calculationType: 'Sum',
                 computeClass: 'Block_Data',
-                id: 2,
+                id: 1,
                 name: 'External_Force',
-                variable: 'Force'
+                variable: 'Forces'
+            },
+            {
+                blockName: 'Top_BC',
+                calculationType: 'Maximum',
+                computeClass: 'Block_Data',
+                id: 2,
+                name: 'External_Displacement',
+                variable: 'Displacements'
             }
         ],
+        contact: {
+            enabled: false
+        },
         damages: [
             {
-                criticalEnergy: '10.1',
+                anistropicDamage: false,
+                criticalEnergy: 5.714285714285715,
                 criticalEnergyCalc: {
-                    calculateCriticalEnergy: false
+                    calculateCriticalEnergy: true,
+                    k1c: 632.4555320336759
                 },
-                criticalStretch: 10,
-                damageModel: 'Critical Energy Correspondence',
-                detachedNodesCheck: true,
-                hourglassCoefficient: 1,
+                damageModel: 'Critical Energy',
                 id: 1,
-                interblockdamageEnergy: '0.01',
-                name: 'PMMADamage',
-                onlyTension: false,
-                planeStress: true,
-                stabilizationType: 'Global Stiffness',
-                thickness: 10
+                interBlockDamage: false,
+                interBlocks: [],
+                name: 'Damage',
+                onlyTension: true,
+                thickness: 1
             }
         ],
+        deviations: {
+            enabled: false,
+            parameters: [
+                {
+                    id: ['materials[0].youngsModulus'],
+                    std: 10
+                }
+            ],
+            sampleSize: 10
+        },
+        discretization: {
+            discType: 'txt',
+            distributionType: 'Neighbor based'
+        },
         job: {
             account: 2263032,
             cluster: false,
             cpusPerTask: 1,
             multithread: false,
             nodes: 1,
+            sbatch: false,
             tasks: 1,
             tasksPerNode: 1,
-            time: '00:20:00'
+            time: '00:20:00',
+            verbose: false
         },
         materials: [
             {
-                density: '1.4e5',
                 hourglassCoefficient: 1,
                 id: 1,
-                matType: ['Correspondence Elastic'],
+                matType: ['PD Solid Elastic'],
                 materialSymmetry: 'Isotropic',
-                name: 'PMMA',
-                nonLinear: true,
+                name: 'BC',
+                planeStrain: false,
                 planeStress: true,
-                poissonsRatio: 0.3,
+                poissonsRatio: 0.35,
                 properties: [
                     {
                         id: 1,
@@ -2102,20 +2185,17 @@ export const $ModelData = {
                     }
                 ],
                 stabilizationType: 'Global Stiffness',
-                tensionSeparation: false,
-                thickness: '0.01',
-                youngsModulus: '2.997e9'
+                youngsModulus: 200000
             },
             {
-                density: '1.4e5',
-                hourglassCoefficient: '1',
-                id: 2,
-                matType: ['Correspondence Elastic'],
+                hourglassCoefficient: 1,
+                id: 1,
+                matType: ['Correspondence Elastic', 'Correspondence Plastic'],
                 materialSymmetry: 'Isotropic',
-                name: 'PMMAElast',
-                nonLinear: true,
+                name: 'Aluminium',
+                planeStrain: false,
                 planeStress: true,
-                poissonsRatio: '0.3',
+                poissonsRatio: 0.35,
                 properties: [
                     {
                         id: 1,
@@ -2123,33 +2203,36 @@ export const $ModelData = {
                     }
                 ],
                 stabilizationType: 'Global Stiffness',
-                tensionSeparation: false,
-                thickness: '0.01',
-                youngsModulus: '2.997e9'
+                yieldStress: 350,
+                youngsModulus: 70000
             }
         ],
         model: {
-            angles: [0, 0],
-            discretization: 21,
-            gcode: false,
-            height: 2,
-            height2: 1,
-            horizon: 1,
-            length: 13,
             modelFolderName: 'Default',
             ownModel: false,
-            rotatedAngles: false,
-            structured: true,
-            twoDimensional: true,
-            width: 0.1
+            twoDimensional: true
         },
         outputs: [
             {
-                Frequency: '100',
+                Frequency: 1,
                 InitStep: 0,
-                id: 1,
+                Write_After_Damage: false,
                 name: 'Output1',
-                selectedOutputs: ['Displacement', 'Force', 'Damage', 'Velocity', 'Partial_Stress']
+                numberOfOutputSteps: 100,
+                selectedFileType: 'Exodus',
+                selectedOutputs: ['Displacements', 'Damage', 'Cauchy Stress', 'Strain', 'Number of Neighbors'],
+                useOutputFrequency: false
+            },
+            {
+                Frequency: 100,
+                InitStep: 0,
+                Write_After_Damage: false,
+                name: 'Output2',
+                numberOfOutputSteps: 500,
+                outputsId: 2,
+                selectedFileType: 'CSV',
+                selectedOutputs: ['External_Force', 'External_Displacement'],
+                useOutputFrequency: false
             }
         ],
         solvers: [
@@ -2160,22 +2243,32 @@ export const $ModelData = {
                     stableStepDifference: 4
                 },
                 adaptivetimeStepping: false,
-                filetype: 'yaml',
-                finalTime: '0.0075',
+                calculateStrain: true,
+                calculateVonMises: true,
+                damEnabled: true,
+                dispEnabled: true,
+                endStepAfterDamage: 3,
+                finalTime: 0.0005,
                 initialTime: 0,
-                numericalDamping: '0.0005',
-                safetyFactor: '0.9',
+                matEnabled: true,
+                maxDamageValue: 0.3,
+                safetyFactor: 0.95,
                 solvertype: 'Verlet',
+                stepId: 1,
+                stopAfterCertainDamage: false,
                 stopAfterDamageInitation: false,
                 stopBeforeDamageInitation: false,
-                verbose: false,
+                tempEnabled: false,
                 verlet: {
                     numericalDamping: 0.000005,
-                    outputFrequency: 7500,
+                    outputFrequency: 100,
                     safetyFactor: 0.95
                 }
             }
-        ]
+        ],
+        thermal: {
+            enabled: false
+        }
     }
 } as const;
 
@@ -2330,6 +2423,77 @@ export const $Parameter = {
     type: 'object',
     required: ['id', 'std'],
     title: 'Parameter'
+} as const;
+
+export const $PointData = {
+    properties: {
+        points: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Points'
+        },
+        block_ids: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Block Ids'
+        },
+        dx_value: {
+            type: 'number',
+            title: 'Dx Value'
+        }
+    },
+    type: 'object',
+    required: ['points', 'block_ids', 'dx_value'],
+    title: 'PointData'
+} as const;
+
+export const $PointDataResults = {
+    properties: {
+        nodes: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Nodes'
+        },
+        value: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Value'
+        },
+        variables: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Variables'
+        },
+        number_of_steps: {
+            type: 'integer',
+            title: 'Number Of Steps'
+        },
+        min_value: {
+            type: 'number',
+            title: 'Min Value'
+        },
+        max_value: {
+            type: 'number',
+            title: 'Max Value'
+        },
+        time: {
+            type: 'number',
+            title: 'Time'
+        }
+    },
+    type: 'object',
+    required: ['nodes', 'value', 'variables', 'number_of_steps', 'min_value', 'max_value', 'time'],
+    title: 'PointDataResults'
 } as const;
 
 export const $PreCalculations = {
@@ -2762,6 +2926,61 @@ export const $Static = {
     title: 'Static'
 } as const;
 
+export const $Status = {
+    properties: {
+        created: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Created',
+            default: false
+        },
+        submitted: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Submitted',
+            default: false
+        },
+        results: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Results',
+            default: false
+        },
+        meshfileExist: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Meshfileexist',
+            default: false
+        }
+    },
+    type: 'object',
+    title: 'Status'
+} as const;
+
 export const $StiffnessMatrix = {
     properties: {
         calculateStiffnessMatrix: {
@@ -2954,10 +3173,7 @@ export const $ThermalModel = {
         predefinedFieldNames: {
             anyOf: [
                 {
-                    items: {
-                        type: 'string'
-                    },
-                    type: 'array'
+                    type: 'string'
                 },
                 {
                     type: 'null'
@@ -3009,7 +3225,22 @@ export const $Valve = {
         },
         type: {
             type: 'string',
+            enum: ['text', 'number', 'select', 'checkbox', 'data'],
             title: 'Type'
+        },
+        value: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'boolean'
+                }
+            ],
+            title: 'Value'
         },
         label: {
             type: 'string',
@@ -3018,9 +3249,6 @@ export const $Valve = {
         description: {
             type: 'string',
             title: 'Description'
-        },
-        value: {
-            title: 'Value'
         },
         options: {
             anyOf: [
@@ -3035,10 +3263,21 @@ export const $Valve = {
                 }
             ],
             title: 'Options'
+        },
+        depends: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Depends'
         }
     },
     type: 'object',
-    required: ['name', 'type', 'label', 'description', 'value', 'options'],
+    required: ['name', 'type', 'value', 'label', 'description', 'options', 'depends'],
     title: 'Valve'
 } as const;
 
@@ -3074,9 +3313,25 @@ export const $Verlet = {
     title: 'Verlet'
 } as const;
 
+export const $VersionData = {
+    properties: {
+        current: {
+            type: 'string',
+            title: 'Current'
+        },
+        latest: {
+            type: 'string',
+            title: 'Latest'
+        }
+    },
+    type: 'object',
+    required: ['current', 'latest'],
+    title: 'VersionData'
+} as const;
+
 export const $properties = {
     properties: {
-        id: {
+        materialsPropId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -3085,7 +3340,7 @@ export const $properties = {
                     type: 'null'
                 }
             ],
-            title: 'Id'
+            title: 'Materialspropid'
         },
         name: {
             type: 'string',

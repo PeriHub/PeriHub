@@ -9,8 +9,8 @@ SPDX-License-Identifier: Apache-2.0
     alt="ModelImag" />
 </template>
 
-<script>
-import { defineComponent, inject } from 'vue'
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
 
@@ -19,20 +19,18 @@ export default defineComponent({
   setup() {
     const modelStore = useModelStore();
     const viewStore = useViewStore();
-    const bus = inject('bus')
     return {
       modelStore,
-      viewStore,
-      bus
+      viewStore
     }
   },
   created() {
-    this.bus.on('showModelImg', (modelName) => {
+    this.$bus.on('showModelImg', (modelName: string) => {
       this.showModelImg(modelName)
     })
   },
   methods: {
-    showModelImg(modelName) {
+    showModelImg(modelName: string) {
       this.viewStore.modelImg = process.env.API + '/assets/images/' + modelName + '.jpg';
 
       this.viewStore.viewId = 'image';

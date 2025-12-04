@@ -12,13 +12,14 @@ import os
 import shutil
 from pathlib import Path
 from re import findall
+from typing import Optional
 
 import numpy as np
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from slugify import slugify
 
-from ..support.base_models import ModelData, ResponseModel
+from ..support.base_models import ModelData, PointData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
 
@@ -26,7 +27,7 @@ router = APIRouter(prefix="/model", tags=["Model Methods"])
 
 
 @router.get("/getModels", operation_id="get_models")
-def get_models():
+def get_models() -> list[dict]:
     """doc"""
 
     model_list = []
@@ -52,7 +53,7 @@ def get_models():
 
 
 @router.get("/getOwnModels", operation_id="get_own_models")
-def get_own_models(verify: bool = False, request: Request = ""):
+def get_own_models(verify: bool = False, request: Request = "") -> list[dict]:
     """doc"""
 
     model_list = []
@@ -81,7 +82,7 @@ def get_own_models(verify: bool = False, request: Request = ""):
 
 
 @router.get("/getValves", operation_id="get_valves")
-def get_valves(model_name: str, source: bool = False):
+def get_valves(model_name: str, source: bool = False) -> Valves:
     """doc"""
     parent_path = str(Path(__file__).parent.parent.name)
 
@@ -129,7 +130,7 @@ def get_valves(model_name: str, source: bool = False):
 
 
 @router.get("/getConfig", operation_id="get_config")
-def get_config(config_file: str = "Dogbone"):
+def get_config(config_file: str = "Dogbone") -> JSONResponse:
     """doc"""
 
     config_path = os.path.join(
@@ -146,10 +147,12 @@ def get_config(config_file: str = "Dogbone"):
     )
     if os.path.exists(config_path):
         with open(config_path, "r") as file:
-            return json.load(file)
+            data = json.load(file)
+            return JSONResponse(content=data)
     if os.path.exists(own_config_path):
         with open(own_config_path, "r") as file:
-            return json.load(file)
+            data = json.load(file)
+            return JSONResponse(content=data)
 
     log.error("%s files can not be found", config_file)
     raise HTTPException(
@@ -181,13 +184,20 @@ def save_config(config_file: str, config: ModelData, request: Request = ""):
     else:
         log.error("%s files can not be found", config_file)
         return
-
+    #remove first layer object if value null
+    config_dict = config.dict()
+    remove_keys = []
+    for key, value in config_dict.items():
+        if not value:
+            remove_keys.append(key)
+    for k in remove_keys: del config_dict[k]
+    #save config to file
     with open(file_path, "w") as file:
-        file.write(config.to_json())
+        file.write(json.dumps(config_dict))
 
 
 @router.get("/getMaxFeSize", operation_id="get_max_fe_size")
-def get_max_fe_size(request: Request = ""):
+def get_max_fe_size(request: Request = "") -> int:
     """doc"""
 
     username = FileHandler.get_user_name(request, dev)
@@ -228,11 +238,11 @@ def get_point_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     own_model: bool = False,
-    own_mesh: bool = False,
-    mesh_file: str = "Dogbone.txt",
-    two_d: bool = True,
+    own_mesh: Optional[bool] = False,
+    mesh_file: Optional[str] = "Dogbone.txt",
+    two_d: Optional[bool] = True,
     request: Request = "",
-):
+) -> PointData:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -262,16 +272,12 @@ def get_point_data(
                         block_id[int(node) - 1] = i + 1
                 for i in range(0, len(coords[0])):
                     # points += coords[0][i] + "," + coords[1][i] + "," + coords[2][i] + ","
-                    points.append(str(coords[0][i]))
-                    points.append(str(coords[1][i]))
-                    points.append(str(coords[2][i]))
-                    # block_id_string += str(block_id[i] / num_of_blocks) + ","
-                    block_ids.append(str(block_id[i] / num_of_blocks))
-
-            response = [
-                points,
-                block_ids,
-            ]
+                    points.append(coords[0][i])
+                    points.append(coords[1][i])
+                    points.append(coords[2][i])
+                    # block_id_string += block_id[i] / num_of_blocks) + ","
+                    block_ids.append(block_id[i] / num_of_blocks)
+            response = PointData(points, block_ids)
             return response
         except IOError:
             log.error("%s results can not be found", model_name)
@@ -318,8 +324,8 @@ def get_point_data(
                             detail="Model don't support 2D model, switch two dimensional model off",
                         )
                     # points += parts[0] + "," + parts[1] + ",0.0,"
-                    points.append(str(parts[0]))
-                    points.append(str(parts[1]))
+                    points.append(parts[0])
+                    points.append(parts[1])
                     points.append("0.0")
                 else:
                     if len(parts) < 3:
@@ -337,9 +343,9 @@ def get_point_data(
                             detail="Model don't support 3D model, switch to two dimensional model",
                         )
                     # points += parts[0] + "," + parts[1] + "," + parts[2] + ","
-                    points.append(str(parts[0]))
-                    points.append(str(parts[1]))
-                    points.append(str(parts[2]))
+                    points.append(parts[0])
+                    points.append(parts[1])
+                    points.append(parts[2])
                 if block_id > max_block_id:
                     max_block_id = block_id
             dx = []
@@ -377,17 +383,13 @@ def get_point_data(
                     continue
                 if max_block_id == 1:
                     # block_id_string += str(0.1) + ","
-                    block_ids.append(str(0.1))
+                    block_ids.append(0.1)
                 else:
-                    # block_id_string += str(block_id / max_block_id) + ","
-                    block_ids.append(str(block_id / max_block_id))
+                    # block_id_string += block_id / max_block_id + ","
+                    block_ids.append(block_id / max_block_id)
         dx_value = np.average(dx)
-        response = {
-            "points": points,
-            "block_ids": block_ids,
-            "dx_value": dx_value,
-        }
-        return ResponseModel(data=response, message="Points received")
+        response = PointData(points=points, block_ids=block_ids, dx_value=dx_value)
+        return response
         # except IOError:
         #     log.error("%s results can not be found", model_name)
         #     return model_name + " results can not be found"
@@ -398,7 +400,7 @@ def view_input_file(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     request: Request = "",
-):
+) -> str:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
@@ -415,7 +417,7 @@ def view_input_file(
     try:
         with open(file_path, "r") as f:
             string = f.read()
-        return ResponseModel(data=string, message="Input File received")
+        return string
     except IOError:
         log.error("Inputfile can't be found")
         raise HTTPException(
@@ -425,7 +427,7 @@ def view_input_file(
 
 
 @router.post("/add", operation_id="add_model")
-def add_model(model_name: str, description: str, request: Request = ""):
+def add_model(model_name: str, description: str, request: Request = "") -> str:
     """doc"""
 
     username = FileHandler.get_user_name(request, dev)
@@ -448,7 +450,7 @@ def add_model(model_name: str, description: str, request: Request = ""):
 import numpy as np
 from pydantic import BaseModel, Field
 
-from ..support.model.geometry import Geometry
+from ...support.model.geometry import Geometry
 
 class Valves(BaseModel):
     DISCRETIZATION: float = Field(
@@ -473,10 +475,8 @@ class Valves(BaseModel):
     )
 
 class main:
-    def __init__(
-        self,
-        valves,
-    ):
+    
+    def __init__(self, valves, model_data):
         self.xbegin = 0
         self.xend = valves["LENGTH"]
         self.ybegin = 0
@@ -549,7 +549,7 @@ class main:
 
 
 @router.get("/getOwnModelFile", operation_id="get_own_model_file")
-def get_own_model_file(model_file: str = "Dogbone"):
+def get_own_model_file(model_file: str = "Dogbone") -> str:
     """doc"""
 
     folder_path = str(Path(__file__).parent.parent.resolve())
@@ -559,7 +559,7 @@ def get_own_model_file(model_file: str = "Dogbone"):
     return Path(file_path).read_text()
 
 
-@router.post("/save", operation_id="save_model")
+@router.post("/save", operation_id="save_model_file")
 def save_model(model_file: str, source_code: str, request: Request = ""):
     username = FileHandler.get_user_name(request, dev)
 
@@ -574,7 +574,7 @@ def save_model(model_file: str, source_code: str, request: Request = ""):
         file.write(source_code)
 
 
-@router.delete("/delete", operation_id="delete_model")
+@router.delete("/delete", operation_id="delete_model_file")
 def delete_model(model_name: str):
     file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name)
     shutil.rmtree(file_path, ignore_errors=True)

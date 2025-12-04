@@ -9,9 +9,10 @@ SPDX-License-Identifier: Apache-2.0
   </VuePlotly>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
+//@ts-expect-error Bla
 import { VuePlotly } from 'vue3-plotly'
 export default defineComponent({
   name: 'PlotlyView',

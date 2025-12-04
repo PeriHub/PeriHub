@@ -100,7 +100,7 @@ If you like to start PeriHub in a development mode, you will need to install fol
 ```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 source ~/.bashrc
-nvm install node
+nvm install --lts
 ```
 
 - Now you can get the [quasar cli](https://quasar.dev/start/quick-start) and install the node packages

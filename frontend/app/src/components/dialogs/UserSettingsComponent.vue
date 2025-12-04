@@ -39,6 +39,7 @@ import { defineComponent } from 'vue';
 import rules from 'assets/rules.js';
 import { useDefaultStore } from 'stores/default-store';
 import { getVersion } from 'src/client';
+import type { VersionData } from 'src/client';
 // import { client } from '../../client/client.gen';
 
 export default defineComponent({
@@ -53,15 +54,15 @@ export default defineComponent({
   },
   data() {
     return {
-      version: { 'current': '', 'latest': '' },
+      version: {} as VersionData,
       bib_entries: [],
     };
   },
   methods: {
   },
-  beforeMount() {
+  async beforeMount() {
 
-    getVersion().then((response) => this.version = response)
+    await getVersion().then((response) => this.version = response)
   }
 });
 </script>

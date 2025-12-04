@@ -24,74 +24,67 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
-import { inject } from 'vue'
-import { useQuasar } from 'quasar'
 import { getStatus, viewInputFile, writeInputFile, OpenAPI } from 'src/client';
 import rules from 'assets/rules.js';
-
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export default defineComponent({
   name: 'TextActions',
   setup() {
-    const $q = useQuasar()
     const store = useDefaultStore();
     const modelStore = useModelStore();
     const viewStore = useViewStore();
     const modelData = computed(() => modelStore.modelData)
-    const bus = inject('bus')
 
     return {
       store,
       viewStore,
       modelStore,
       modelData,
-      rules,
-      bus,
+      rules
     }
   },
   created() {
-    this.bus.on('enableWebsocket', (loadFile) => {
-      this.enableWebsocket(loadFile)
+    this.$bus.on('enableWebsocket', () => {
+      this.enableWebsocket()
     })
-    this.bus.on('viewInputFile', (loadFile) => {
-      this.viewInputFile(loadFile)
+    this.$bus.on('viewInputFile', () => {
+      this.viewInputFile()
     })
-    this.bus.on('getStatus', () => {
+    this.$bus.on('getStatus', () => {
       this._getStatus()
     })
   },
   beforeUnmount() {
-    this.bus.off('enableWebsocket')
-    this.bus.off('viewInputFile')
-    this.bus.off('getStatus')
+    this.$bus.off('enableWebsocket')
+    this.$bus.off('viewInputFile')
+    this.$bus.off('getStatus')
   },
   data() {
     return {
-      connection: null,
+      connection: null as WebSocket | null,
       debug: false,
       lastLine: '',
     };
   },
   methods: {
-    async viewInputFile(loadFile) {
+    viewInputFile() {
       console.log('viewInputFile')
 
-      viewInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, ownMesh: this.modelData.model.ownMesh })
+      viewInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName })
         .then((response) => {
           this.$q.notify({
-            message: response.message
+            message: 'Inputfile loaded'
           })
-          this.viewStore.textOutput = response.data;
+          this.viewStore.textOutput = response;
           this.viewStore.textId = 'input'
-          if (loadFile) {
-            this.loadYamlString(response.data);
-          }
+          // if (loadFile) {
+          //   this.loadYamlString(response);
+          // }
         })
         .catch((error) => {
           this.$q.notify({
@@ -105,9 +98,9 @@ export default defineComponent({
     writeInputFile() {
 
       writeInputFile({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName, inputString: this.viewStore.textOutput })
-        .then((response) => {
+        .then(() => {
           this.$q.notify({
-            message: response.message
+            message: 'Inputfile saved'
           })
         })
         .catch((error) => {
@@ -117,22 +110,28 @@ export default defineComponent({
           })
         })
     },
-    async _getStatus() {
+    _getStatus() {
       console.log('getStatus');
 
-      const response = await getStatus({
+      getStatus({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
-        meshfile: this.modelData.model.meshFile,
-        ownModel: this.modelData.model.ownModel,
+        meshfile: this.modelData.model.meshFile!,
+        // ownModel: this.modelData.model.ownModel,
         cluster: this.modelData.job.cluster,
         sbatch: this.modelData.job.sbatch
-      });
-      console.log(response)
-      this.$q.notify({
-        message: response.message
+      }).then((response) => {
+        console.log(response)
+        this.$q.notify({
+          message: 'Status updated'
+        })
+        this.store.status = response
+      }).catch((error) => {
+        this.$q.notify({
+          type: 'negative',
+          message: error.response.detail
+        })
       })
-      this.store.status = response.data
       // if (this.store.status.submitted)
       // {
       //   this.enableWebsocket()
@@ -152,13 +151,13 @@ export default defineComponent({
       //     })
       //   })
     },
-    async enableWebsocket() {
+    enableWebsocket() {
       console.log('enableWebsocket')
       // Check if there is an existing connection
       if (this.connection) {
         // Close the existing connection
         console.log('close existing connection')
-        await this.connection.close();
+        this.connection.close();
         this.connection = null; // Reset the connection variable
       }
       const params = {
@@ -171,7 +170,7 @@ export default defineComponent({
       };
 
       const queryString = Object.entries(params)
-        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value as string)}`)
         .join('&');
 
       // TODO: socket path wont work on build
@@ -192,22 +191,22 @@ export default defineComponent({
           if (lastLine && lastLine.includes('[Info] Run ')) {
             this.viewStore.viewId = 'results';
           }
-          if (lastLine && lastLine.includes('[Info] PeriLab finished')) {
+          if (lastLine && lastLine.includes('[Info] PeriLab finished') && this.connection) {
             this.connection.close();
             this.connection = null; // Reset the connection variable
             this._getStatus();
-            this.bus.emit('getJobs')
+            this.$bus.emit('getJobs')
             if (this.store.status.submitted) {
               this.$q.notify({
                 message: 'PeriLab finished'
               })
             }
           }
-          if (lastLine && lastLine.includes('[Error]')) {
+          if (lastLine && lastLine.includes('[Error]') && this.connection) {
             this.connection.close();
             this.connection = null; // Reset the connection variable
             this._getStatus();
-            this.bus.emit('getJobs')
+            this.$bus.emit('getJobs')
             if (this.store.status.submitted) {
               this.$q.notify({
                 color: 'negative',
@@ -215,10 +214,10 @@ export default defineComponent({
               })
             }
           }
-          this.lastLine = lastLine
+          this.lastLine = lastLine!
         }
       }
-      this.connection.onerror = (event) => {
+      this.connection.onerror = (event: Event) => {
         console.log(event)
         this.$q.notify({
           type: 'negative',

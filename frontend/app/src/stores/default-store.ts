@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineStore } from 'pinia';
+import type { Status } from 'src/client';
 
 export const useDefaultStore = defineStore('default', {
   state: () => ({
@@ -15,17 +16,12 @@ export const useDefaultStore = defineStore('default', {
     DEV: false,
     TRIAL: false,
 
-    status: {
-      created: false,
-      submitted: false,
-      results: false,
-      meshfileExist: false,
-    },
+    status: {} as Status,
   }),
   actions: {
     initialiseStore() {
-      this.DEV = process.env.DEV;
-      this.TRIAL = process.env.TRIAL;
+      this.DEV = process.env.DEV?.toLowerCase?.() === 'true';
+      this.TRIAL = process.env.TRIAL?.toLowerCase?.() === 'true';
     },
     toggleDarkMode() {
       this.darkMode = !this.darkMode;

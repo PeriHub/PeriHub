@@ -4,9 +4,30 @@
 
 import json
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import Any, List, Literal, Optional, Union
 
 from pydantic import BaseModel
+
+
+class VersionData(BaseModel):
+    current: str
+    latest: str
+
+
+class PointDataResults(BaseModel):
+    nodes: List[float]
+    value: List[float]
+    variables: List[str]
+    number_of_steps: int
+    min_value: float
+    max_value: float
+    time: float
+
+
+class PointData(BaseModel):
+    points: List[float]
+    block_ids: List[float]
+    dx_value: float
 
 
 class Parameter(BaseModel):
@@ -23,11 +44,12 @@ class Deviations(BaseModel):
 
 class Valve(BaseModel):
     name: str
-    type: str
+    type: Literal["text", "number", "select", "checkbox", "data"]
+    value: Union[int, float, bool]
     label: str
     description: str
-    value: Any
     options: Optional[List[str]]
+    depends: Optional[str]
 
 
 class Valves(BaseModel):
@@ -42,7 +64,7 @@ class Status(BaseModel):
 
 
 class Model(BaseModel):
-    modelFolderName: Optional[str] = "Default"
+    modelFolderName: str
     ownModel: bool
     twoDimensional: bool
     ownMesh: Optional[bool] = None
@@ -62,7 +84,7 @@ class Jobs(BaseModel):
 
 
 class properties(BaseModel):
-    id: Optional[int] = None
+    materialsPropId: Optional[int] = None
     name: str
     value: Optional[float] = None
 
@@ -110,7 +132,7 @@ class StiffnessMatrix(BaseModel):
 
 
 class Material(BaseModel):
-    id: Optional[int] = None
+    materialsId: Optional[int] = None
     name: str
     matType: List[str]
     bulkModulus: Optional[float] = None
@@ -170,7 +192,7 @@ class ThermalModel(BaseModel):
     printBedZCoord: Optional[float] = None
     file: Optional[str] = None
     numStateVars: Optional[int] = None
-    predefinedFieldNames: Optional[List[str]] = None
+    predefinedFieldNames: Optional[str] = None
 
 
 class Thermal(BaseModel):
@@ -179,7 +201,7 @@ class Thermal(BaseModel):
 
 
 class AdditiveModel(BaseModel):
-    id: Optional[int] = None
+    additiveModelId: Optional[int] = None
     name: str
     additiveType: str
     printTemp: float
@@ -192,7 +214,7 @@ class Additive(BaseModel):
 
 
 class InterBlock(BaseModel):
-    id: Optional[int] = None
+    interBlockid: Optional[int] = None
     firstBlockId: int
     secondBlockId: int
     value: float
@@ -204,7 +226,7 @@ class CriticalEnergyCalc(BaseModel):
 
 
 class Damage(BaseModel):
-    id: Optional[int] = None
+    damagesId: Optional[int] = None
     name: str
     damageModel: str
     criticalStretch: Optional[float] = None
@@ -284,7 +306,7 @@ class BoundaryConditions(BaseModel):
 
 
 class BondFilters(BaseModel):
-    id: Optional[int] = None
+    bondFiltersId: Optional[int] = None
     name: str
     type: str
     allow_contact: Optional[bool] = False
@@ -307,7 +329,7 @@ class BondFilters(BaseModel):
 
 
 class Compute(BaseModel):
-    id: Optional[int] = None
+    computesId: Optional[int] = None
     computeClass: str
     name: str
     variable: str
@@ -398,7 +420,7 @@ class Job(BaseModel):
     sbatch: bool
     verbose: bool
     nodes: Optional[int] = 1
-    tasks: Optional[int] = 1
+    tasks: int
     tasksPerNode: Optional[int] = 1
     cpusPerTask: Optional[int] = 1
     multithread: Optional[bool] = False
@@ -406,279 +428,296 @@ class Job(BaseModel):
     account: Optional[int] = None
 
 
-class RunData(BaseModel):
-    job: Job
-    materials: List[Material]
-    outputs: List[Output]
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "job": {
-                    "cluster": False,
-                    "tasks": 1,
-                    "time": "00:20:00",
-                    "account": "2263032",
-                },
-                "materials": [
-                    {
-                        "id": 1,
-                        "name": "PMMA",
-                        "matType": ["Correspondence Elastic"],
-                        "density": "1.4e5",
-                        "youngsModulus": "2.997e9",
-                        "poissonsRatio": 0.3,
-                        "tensionSeparation": False,
-                        "nonLinear": True,
-                        "planeStress": True,
-                        "materialSymmetry": "Isotropic",
-                        "stabilizationType": "Global Stiffness",
-                        "thickness": "0.01",
-                        "hourglassCoefficient": 1,
-                        "properties": [{"id": 1, "name": "Prop_1", "value": None}],
-                    },
-                    {
-                        "id": 2,
-                        "name": "PMMAElast",
-                        "matType": ["Correspondence Elastic"],
-                        "density": "1.4e5",
-                        "youngsModulus": "2.997e9",
-                        "poissonsRatio": "0.3",
-                        "tensionSeparation": False,
-                        "nonLinear": True,
-                        "planeStress": True,
-                        "materialSymmetry": "Isotropic",
-                        "stabilizationType": "Global Stiffness",
-                        "thickness": "0.01",
-                        "hourglassCoefficient": "1",
-                        "properties": [{"id": 1, "name": "Prop_1", "value": None}],
-                    },
-                ],
-                "outputs": [
-                    {
-                        "id": 1,
-                        "name": "Output1",
-                        "Displacement": True,
-                        "Force": True,
-                        "Damage": True,
-                        "Partial_Stress": True,
-                        "Number_Of_Neighbors": False,
-                        "Frequency": "100",
-                        "InitStep": 0,
-                    }
-                ],
-            }
-        }
-
-
 default_model = {
-    "model": {
-        "modelFolderName": "Default",
-        "ownModel": False,
-        "gcode": False,
-        "length": 13.0,
-        "width": 0.1,
-        "height": 2.0,
-        "height2": 1.0,
-        "structured": True,
-        "discretization": 21,
-        "horizon": 1.0,
-        "twoDimensional": True,
-        "rotatedAngles": False,
-        "angles": [0, 0],
-    },
-    "materials": [
-        {
-            "id": 1,
-            "name": "PMMA",
-            "matType": ["Correspondence Elastic"],
-            "density": "1.4e5",
-            "youngsModulus": "2.997e9",
-            "poissonsRatio": 0.3,
-            "tensionSeparation": False,
-            "nonLinear": True,
-            "planeStress": True,
-            "materialSymmetry": "Isotropic",
-            "stabilizationType": "Global Stiffness",
-            "thickness": "0.01",
-            "hourglassCoefficient": 1,
-            "properties": [{"id": 1, "name": "Prop_1", "value": None}],
-        },
-        {
-            "id": 2,
-            "name": "PMMAElast",
-            "matType": ["Correspondence Elastic"],
-            "density": "1.4e5",
-            "youngsModulus": "2.997e9",
-            "poissonsRatio": "0.3",
-            "tensionSeparation": False,
-            "nonLinear": True,
-            "planeStress": True,
-            "materialSymmetry": "Isotropic",
-            "stabilizationType": "Global Stiffness",
-            "thickness": "0.01",
-            "hourglassCoefficient": "1",
-            "properties": [{"id": 1, "name": "Prop_1", "value": None}],
-        },
-    ],
-    "damages": [
-        {
-            "id": 1,
-            "name": "PMMADamage",
-            "damageModel": "Critical Energy Correspondence",
-            "criticalStretch": 10,
-            "criticalEnergy": "10.1",
-            "interblockdamageEnergy": "0.01",
-            "planeStress": True,
-            "onlyTension": False,
-            "detachedNodesCheck": True,
-            "thickness": 10,
-            "hourglassCoefficient": 1,
-            "stabilizationType": "Global Stiffness",
-            "criticalEnergyCalc": {
-                "calculateCriticalEnergy": False,
-                "k1c": None,
-                "youngsModulus": None,
-            },
-        }
-    ],
+    "additive": {"additiveModels": None, "enabled": False},
     "blocks": [
         {
-            "id": 1,
-            "name": "block_1",
-            "material": "PMMAElast",
-            "damageModel": "",
-            "density": "1.4e5",
+            "additiveModel": "",
+            "blocksId": 1,
+            "damageModel": "Damage",
+            "density": 2.699e-09,
+            "horizon": None,
+            "material": "Aluminium",
+            "name": "Part",
             "show": True,
+            "specificHeatCapacity": None,
+            "thermalModel": None,
         },
         {
-            "id": 2,
-            "name": "block_2",
-            "material": "PMMAElast",
+            "additiveModel": "",
+            "blocksId": 2,
             "damageModel": "",
-            "density": "1.4e5",
+            "density": 2.699e-09,
+            "horizon": None,
+            "material": "BC",
+            "name": "Top_BC",
             "show": True,
+            "specificHeatCapacity": None,
+            "thermalModel": None,
         },
         {
-            "id": 3,
-            "name": "block_3",
-            "material": "PMMA",
+            "additiveModel": "",
+            "blocksId": 3,
             "damageModel": "",
-            "density": "1.4e5",
+            "density": 2.699e-09,
+            "horizon": None,
+            "material": "BC",
+            "name": "Bottom_BC",
             "show": True,
+            "specificHeatCapacity": None,
+            "thermalModel": None,
         },
         {
-            "id": 4,
-            "name": "block_4",
-            "material": "PMMAElast",
+            "additiveModel": "",
+            "blocksId": 4,
             "damageModel": "",
-            "density": "1.4e5",
+            "density": 2.699e-09,
+            "horizon": None,
+            "material": "Aluminium",
+            "name": "Top_Part",
             "show": True,
+            "specificHeatCapacity": None,
+            "thermalModel": None,
         },
         {
-            "id": 5,
-            "name": "block_5",
-            "material": "PMMAElast",
+            "additiveModel": "",
+            "blocksId": 5,
             "damageModel": "",
-            "density": "1.4e5",
+            "density": 2.699e-09,
+            "horizon": None,
+            "material": "Aluminium",
+            "name": "Bottom_Part",
             "show": True,
+            "specificHeatCapacity": None,
+            "thermalModel": None,
         },
+    ],
+    "bondFilters": [
+        {
+            "allow_contact": False,
+            "bottomLength": 56.75,
+            "bottomUnitVectorX": 1.0,
+            "bottomUnitVectorY": 0.0,
+            "bottomUnitVectorZ": 0.0,
+            "centerX": 0.0,
+            "centerY": 1.0,
+            "centerZ": 0.0,
+            "id": None,
+            "lowerLeftCornerX": -0.5,
+            "lowerLeftCornerY": 0.0,
+            "lowerLeftCornerZ": -2.0,
+            "name": "bf_1",
+            "normalX": 0.0,
+            "normalY": 1.0,
+            "normalZ": 0.0,
+            "radius": 1.0,
+            "show": True,
+            "sideLength": 4.0,
+            "type": "Rectangular_Plane",
+        }
     ],
     "boundaryConditions": {
         "conditions": [
             {
-                "conditionsId": 1,
-                "name": "BC_1",
-                "nodeSet": 1,
+                "blockId": 2,
                 "boundarytype": "Dirichlet",
+                "conditionsId": 1,
+                "coordinate": "y",
+                "name": "BC_1",
+                "nodeSet": None,
+                "stepId": [1],
+                "value": "1000*t",
                 "variable": "Displacements",
-                "blockId": 1,
-                "coordinate": "x",
-                "value": "0*t",
             },
             {
-                "conditionsId": 2,
-                "name": "BC_2",
-                "nodeSet": 2,
+                "blockId": 3,
                 "boundarytype": "Dirichlet",
+                "conditionsId": 2,
+                "coordinate": "y",
+                "name": "BC_2",
+                "nodeSet": None,
+                "stepId": [1],
+                "value": "-1000*t",
                 "variable": "Displacements",
-                "blockId": 5,
-                "coordinate": "x",
-                "value": "0.05*t",
             },
-        ],
-        "nodeSets": [
-            {"nodeSetId": 1, "file": "ns_Dogbone_1.txt"},
-            {"nodeSetId": 2, "file": "ns_Dogbone_2.txt"},
-        ],
+        ]
     },
     "computes": [
         {
-            "id": 1,
-            "computeClass": "Block_Data",
-            "name": "External_Displacement",
-            "variable": "Displacement",
-            "calculationType": "Maximum",
-            "blockName": "block_5",
-        },
-        {
-            "id": 2,
-            "computeClass": "Block_Data",
-            "name": "External_Force",
-            "variable": "Force",
+            "blockName": "Bottom_BC",
             "calculationType": "Sum",
-            "blockName": "block_5",
+            "computeClass": "Block_Data",
+            "id": 1,
+            "name": "External_Force",
+            "nodeSetId": None,
+            "variable": "Forces",
+            "xValue": None,
+            "yValue": None,
+            "zValue": None,
+        },
+        {
+            "blockName": "Top_BC",
+            "calculationType": "Maximum",
+            "computeClass": "Block_Data",
+            "id": 2,
+            "name": "External_Displacement",
+            "nodeSetId": None,
+            "variable": "Displacements",
+            "xValue": None,
+            "yValue": None,
+            "zValue": None,
         },
     ],
-    "outputs": [
+    "contact": {"contactModels": None, "enabled": False, "onlySurfaceContactNodes": None, "searchFrequency": None},
+    "damages": [
         {
+            "anistropicDamage": False,
+            "anistropicDamageX": None,
+            "anistropicDamageY": None,
+            "anistropicDamageZ": None,
+            "criticalDamage": None,
+            "criticalDamageToNeglect": None,
+            "criticalEnergy": 5.714285714285715,
+            "criticalEnergyCalc": {"calculateCriticalEnergy": True, "k1c": 632.4555320336759},
+            "criticalStretch": None,
+            "criticalVonMisesStress": None,
+            "damageModel": "Critical Energy",
             "id": 1,
-            "name": "Output1",
-            "selectedOutputs": [
-                "Displacement",
-                "Force",
-                "Damage",
-                "Velocity",
-                "Partial_Stress",
-            ],
-            "Frequency": "100",
-            "InitStep": 0,
+            "interBlockDamage": False,
+            "interBlocks": [],
+            "name": "Damage",
+            "numberOfBlocks": None,
+            "onlyTension": True,
+            "thickness": 1.0,
+            "thresholdDamage": None,
         }
     ],
-    "solvers": [
-        {
-            "verbose": False,
-            "initialTime": 0,
-            "finalTime": "0.0075",
-            "solvertype": "Verlet",
-            "safetyFactor": "0.9",
-            "numericalDamping": "0.0005",
-            "verlet": {
-                "safetyFactor": 0.95,
-                "numericalDamping": 0.000005,
-                "outputFrequency": 7500,
-            },
-            "stopAfterDamageInitation": False,
-            "stopBeforeDamageInitation": False,
-            "adaptivetimeStepping": False,
-            "adapt": {
-                "stableStepDifference": 4,
-                "maximumBondDifference": 4,
-                "stableBondDifference": 1,
-            },
-            "filetype": "yaml",
-        }
-    ],
+    "deviations": {
+        "enabled": False,
+        "sampleSize": 10,
+        "parameters": [{"id": ["materials[0].youngsModulus"], "std": 10}],
+    },
+    "discretization": {"discType": "txt", "distributionType": "Neighbor based", "gcode": None, "nodeSets": None},
     "job": {
+        "account": 2263032,
         "cluster": False,
-        "nodes": 1,
-        "tasks": 1,
-        "tasksPerNode": 1,
         "cpusPerTask": 1,
         "multithread": False,
+        "nodes": 1,
+        "sbatch": False,
+        "tasks": 1,
+        "tasksPerNode": 1,
         "time": "00:20:00",
-        "account": 2263032,
+        "verbose": False,
     },
+    "materials": [
+        {
+            "actualHorizon": None,
+            "bulkModulus": None,
+            "computePartialStress": None,
+            "hourglassCoefficient": 1.0,
+            "id": 1,
+            "matType": ["PD Solid Elastic"],
+            "materialSymmetry": "Isotropic",
+            "name": "BC",
+            "numStateVars": None,
+            "planeStrain": False,
+            "planeStress": True,
+            "poissonsRatio": 0.35,
+            "properties": [{"id": 1, "name": "Prop_1", "value": None}],
+            "shearModulus": None,
+            "stabilizationType": "Global Stiffness",
+            "stiffnessMatrix": None,
+            "useCollocationNodes": None,
+            "yieldStress": None,
+            "youngsModulus": 200000.0,
+        },
+        {
+            "actualHorizon": None,
+            "bulkModulus": None,
+            "computePartialStress": None,
+            "hourglassCoefficient": 1.0,
+            "id": 1,
+            "matType": ["Correspondence Elastic", "Correspondence Plastic"],
+            "materialSymmetry": "Isotropic",
+            "name": "Aluminium",
+            "numStateVars": None,
+            "planeStrain": False,
+            "planeStress": True,
+            "poissonsRatio": 0.35,
+            "properties": [{"id": 1, "name": "Prop_1", "value": None}],
+            "shearModulus": None,
+            "stabilizationType": "Global Stiffness",
+            "stiffnessMatrix": None,
+            "useCollocationNodes": None,
+            "yieldStress": 350.0,
+            "youngsModulus": 70000.0,
+        },
+    ],
+    "model": {
+        "horizon": None,
+        "meshFile": None,
+        "modelFolderName": "Default",
+        "ownMesh": None,
+        "ownModel": False,
+        "twoDimensional": True,
+    },
+    "outputs": [
+        {
+            "Frequency": 1,
+            "InitStep": 0,
+            "Write_After_Damage": False,
+            "name": "Output1",
+            "numberOfOutputSteps": 100,
+            "outputsId": None,
+            "selectedFileType": "Exodus",
+            "selectedOutputs": ["Displacements", "Damage", "Cauchy Stress", "Strain", "Number of Neighbors"],
+            "useOutputFrequency": False,
+        },
+        {
+            "Frequency": 100,
+            "InitStep": 0,
+            "Write_After_Damage": False,
+            "name": "Output2",
+            "numberOfOutputSteps": 500,
+            "outputsId": 2,
+            "selectedFileType": "CSV",
+            "selectedOutputs": ["External_Force", "External_Displacement"],
+            "useOutputFrequency": False,
+        },
+    ],
+    "preCalculations": None,
+    "solvers": [
+        {
+            "adapt": {"maximumBondDifference": 4, "stableBondDifference": 1, "stableStepDifference": 4},
+            "adaptivetimeStepping": False,
+            "addEnabled": None,
+            "additionalTime": None,
+            "calculateCauchy": None,
+            "calculateStrain": True,
+            "calculateVonMises": True,
+            "damEnabled": True,
+            "dispEnabled": True,
+            "endStepAfterDamage": 3,
+            "finalTime": 0.0005,
+            "fixedDt": None,
+            "initialTime": 0.0,
+            "matEnabled": True,
+            "maxDamageValue": 0.3,
+            "name": None,
+            "safetyFactor": 0.95,
+            "solverId": None,
+            "solvertype": "Verlet",
+            "static": None,
+            "stepId": 1,
+            "stopAfterCertainDamage": False,
+            "stopAfterDamageInitation": False,
+            "stopBeforeDamageInitation": False,
+            "tempEnabled": False,
+            "verlet": {"numericalDamping": 5e-06, "outputFrequency": 100, "safetyFactor": 0.95},
+        }
+    ],
+    "thermal": {"enabled": False, "thermalModels": None},
 }
 
 
@@ -716,9 +755,3 @@ class SmetanaData(BaseModel):
     compute: Optional[List[Compute]]
     output: List[Output]
     solver: Solver
-
-
-class ResponseModel(BaseModel):
-    data: Union[str, bool, dict, int, float, List[str], List[float], List[List[float]], Status, List[Jobs]]
-    code: int = 200
-    message: str

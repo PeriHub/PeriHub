@@ -5,13 +5,13 @@ SPDX-License-Identifier: Apache-2.0
 -->
 <template>
   <div>
-    <q-list v-for="solver, index in solvers" :key="solver.solverId" style="padding: 0px">
+    <q-list v-for="solver, index in solvers" :key="solver.solverId as PropertyKey" style="padding: 0px">
       <div
-        v-bind:style="(solver.solverId % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+        v-bind:style="(solver.solverId! % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
         <h4 class="my-title">Solver {{ solver.solverId }}</h4>
         <div class="row my-row">
-          <q-input class="my-input" v-model="solver.name" :rules="[rules.required, rules.name]" :label="solverKeys.name"
-            standout dense></q-input>
+          <q-input class="my-input" v-model="solver.name" :rules="[rules.name]" :label="solverKeys.name" standout
+            dense></q-input>
           <q-space></q-space>
           <q-btn v-if="solvers.length > 1" flat icon="fas fa-trash-alt" @click="removeSolver(index)">
             <q-tooltip>
@@ -35,10 +35,10 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-if="solver.stepId != 1" v-model="solver.additionalTime" clearable
             :rules="[rules.float]" :label="solverKeys.additionalTime" standout dense></q-input>
           <q-input class="my-input" v-model="solver.fixedDt"
-            v-show="solver.solvertype == 'Implicit' | solver.solvertype == 'Verlet'" :rules="[rules.posFloat]"
+            v-show="solver.solvertype == 'Implicit' || solver.solvertype == 'Verlet'" :rules="[rules.posFloat]"
             :label="solverKeys.fixedDt" standout dense clearable></q-input>
-          <q-input class="my-input" v-model="solver.maximumDamage" :rules="[rules.float]"
-            :label="solverKeys.maximumDamage" standout dense></q-input>
+          <q-input class="my-input" v-model="solver.maximumDamage" :rules="[rules.posFloat]"
+            :label="solverKeys.maximumDamage" standout dense clearable></q-input>
         </div>
         <div class="row my-row">
           <q-select class="my-input" :options="solvertype" v-model="solver.solvertype" :label="solverKeys.solvertype"
@@ -82,7 +82,8 @@ SPDX-License-Identifier: Apache-2.0
             <q-input class="my-input" v-model="solver.verlet.outputFrequency" :rules="[rules.required, rules.int]"
                 :label="solverKeys.verlet.outputFrequency" standout dense></q-input>
         </div> -->
-        <div class="row my-row" v-show="solver.solvertype == 'Verlet'">
+        <div class="row my-row" v-show="solver.solvertype == 'Verlet' && solver.verlet != null">
+          <!-- @vue-expect-error Bla-->
           <q-input class="my-input" v-model="solver.verlet.numericalDamping" :rules="[rules.required, rules.posFloat]"
             :label="solverKeys.verlet.numericalDamping" standout dense></q-input>
           <q-toggle class="my-toggle" v-model="solver.adaptivetimeStepping" :label="solverKeys.adaptivetimeStepping"
@@ -94,7 +95,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-toggle class="my-toggle" v-model="solver.calculateStrain" :label="solverKeys.calculateStrain" standout
             dense></q-toggle>
         </div>
-        <div class="row my-row" v-if="solver.solvertype == 'Static'">
+        <div class="row my-row" v-if="solver.solvertype == 'Static' && solver.static != null">
           <q-input class="my-input" v-model="solver.static.numberOfSteps" :rules="[rules.required, rules.int]"
             :label="solverKeys.static.numberOfSteps" standout dense></q-input>
           <q-input class="my-input" v-model="solver.static.maximumNumberOfIterations"
@@ -149,10 +150,10 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
+import type { Solver } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -161,13 +162,11 @@ export default defineComponent({
     const store = useModelStore();
     const solvers = computed(() => store.modelData.solvers)
     const job = computed(() => store.modelData.job)
-    const bus = inject('bus')
     return {
       store,
       solvers,
       job,
-      rules,
-      bus
+      rules
     }
   },
   created() {
@@ -183,6 +182,7 @@ export default defineComponent({
       preconditioner: ['User Defined', 'None'],
       lineSearchMethod: ['Polynomial'],
       solverKeys: {
+        name: 'Solver Name',
         // dispEnabled: 'Solve For Displacement',
         matEnabled: 'Material Models',
         damEnabled: 'Damage Models',
@@ -243,12 +243,12 @@ export default defineComponent({
   methods: {
     addSolver() {
       const len = this.solvers.length;
-      let newItem = structuredClone(this.solvers[len - 1])
+      const newItem = structuredClone(this.solvers[len - 1]) as Solver
       newItem.solverId = len + 1
       newItem.stepId = len + 1
       this.solvers.push(newItem);
     },
-    removeSolver(index) {
+    removeSolver(index: number) {
       this.solvers.splice(index, 1);
       this.solvers.forEach((solver, i) => {
         solver.solverId = i + 1

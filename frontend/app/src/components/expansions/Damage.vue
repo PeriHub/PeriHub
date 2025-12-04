@@ -6,9 +6,9 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-list v-for="damage, index in damages" :key="damage.damagesId" style="padding: 0px">
+    <q-list v-for="damage, index in damages" :key="damage.damagesId as PropertyKey" style="padding: 0px">
       <div
-        v-bind:style="(damage.damagesId % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
+        v-bind:style="(damage.damagesId! % 2 == 0) ? 'background-color: rgba(190, 190, 190, 0.1);' : 'background-color: rgba(255, 255, 255, 0.0);'">
         <h4 class="my-title">Damage Model {{ damage.damagesId }}</h4>
         <div class="row my-row">
           <q-input class="my-input" v-model="damage.name" :rules="[rules.required, rules.name]" :label="damageKeys.name"
@@ -28,7 +28,7 @@ SPDX-License-Identifier: Apache-2.0
             :label="damageKeys.criticalStretch" clearable standout dense></q-input>
           <q-input class="my-input" v-model="damage.criticalEnergy" :rules="[rules.required, rules.float]"
             :label="damageKeys.criticalEnergy" clearable standout dense
-            :readonly="damage.criticalEnergyCalc.calculateCriticalEnergy"></q-input>
+            :readonly="damage.criticalEnergyCalc!.calculateCriticalEnergy!"></q-input>
         </div>
         <div class="row my-row" v-if="damage.damageModel == 'Von Mises Stress'">
           <q-input class="my-input" v-model="damage.criticalVonMisesStress" :rules="[rules.required, rules.float]"
@@ -42,16 +42,16 @@ SPDX-License-Identifier: Apache-2.0
           <q-input class="my-input" v-model="damage.criticalDamageToNeglect" :rules="[rules.required, rules.float]"
             :label="damageKeys.criticalDamageToNeglect" clearable standout dense></q-input>
         </div>
-        <q-toggle class="my-toggle" v-model="damage.criticalEnergyCalc.calculateCriticalEnergy"
+        <q-toggle class="my-toggle" v-model="damage.criticalEnergyCalc!.calculateCriticalEnergy"
           label="Calculate Critical Energy" dense></q-toggle>
-        <div class="row my-row" v-if="damage.criticalEnergyCalc.calculateCriticalEnergy">
-          <q-input class="my-input" v-model="damage.criticalEnergyCalc.k1c" :rules="[rules.required, rules.float]"
+        <div class="row my-row" v-if="damage.criticalEnergyCalc!.calculateCriticalEnergy">
+          <q-input class="my-input" v-model="damage.criticalEnergyCalc!.k1c" :rules="[rules.required, rules.float]"
             label="Fracture Toughness (K1C)" @update:model-value="calculateCriticalEnergy(index)" clearable standout
             dense></q-input>
         </div>
         <q-toggle class="my-toggle" v-model="damage.interBlockDamage" label="Inter Block Damage" dense></q-toggle>
         <div v-if="damage.interBlockDamage">
-          <q-list v-for="prop, subindex in damage.interBlocks" :key="prop.damagesInterId" style="padding: 0px">
+          <q-list v-for="prop, subindex in damage.interBlocks" :key="prop.interBlockid as PropertyKey" style="padding: 0px">
             <div class="row my-row">
               <q-select class="my-input" :options="blocks" option-label="blocksId" option-value="blocksId" emit-value
                 v-model="prop.firstBlockId" label="First Block Id" standout dense></q-select>
@@ -110,27 +110,25 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent } from 'vue'
+<script lang="ts">
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
+import type { Damage, InterBlock } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
   name: 'DamageSettings',
   setup() {
     const store = useModelStore();
-    const damages = computed(() => store.modelData.damages)
+    const damages = computed(() => store.modelData.damages) as unknown as Damage[]
     const blocks = computed(() => store.modelData.blocks)
     const materials = computed(() => store.modelData.materials)
-    const bus = inject('bus')
     return {
       store,
       damages,
       blocks,
       materials,
-      rules,
-      bus
+      rules
     }
   },
   created() {
@@ -188,80 +186,62 @@ export default defineComponent({
         this.damages = []
       }
       const len = this.damages.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.damages[len - 1])
-      } else {
-        newItem = {
-          'damagesId': 1,
-          'name': 'Damage 1',
-          'criticalEnergyCalc': {},
-        }
-      }
+      const newItem = len > 0 ? structuredClone(toRaw(this.damages[len - 1])) as Damage : {} as Damage;
       newItem.damagesId = len + 1
       newItem.name = 'Damage' + (len + 1)
+      newItem.criticalEnergyCalc = {}
       this.damages.push(newItem);
     },
-    removeDamage(index) {
+    removeDamage(index: number) {
       this.damages.splice(index, 1);
       this.damages.forEach((model, i) => {
         model.damagesId = i + 1
       })
       if (this.damages.length == 0) {
-        for (var i = 0; i < this.blocks.length; i++) {
-          this.blocks[i].damageModel = '';
+        for (let i = 0; i < this.blocks.length; i++) {
+          this.blocks[i]!.damageModel = '';
         }
       }
     },
-    addInterBlock(index) {
-      if (!this.damages[index].interBlocks) {
-        this.damages[index].interBlocks = []
+    addInterBlock(index: number) {
+      if (!this.damages[index]!.interBlocks) {
+        this.damages[index]!.interBlocks = []
       }
-      const len = this.damages[index].interBlocks.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.damages[index].interBlocks[len - 1])
-      } else {
-        newItem = {
-          'damagesInterId': 1,
-          'firstBlockId': 1,
-          'secondBlockId': 2,
-          'value': 0.1
-        }
-      }
-      newItem.damagesInterId = len + 1
-      newItem.firtsId = 1
-      newItem.secondId = len + 1
-      this.damages[index].interBlocks.push(newItem);
+      const len = this.damages[index]!.interBlocks.length;
+      const newItem = len > 0 ? structuredClone(toRaw(this.damages[index]?.interBlocks[len - 1])) as InterBlock : {} as InterBlock;
+      newItem.interBlockid = len + 1
+      newItem.firstBlockId = 1
+      newItem.secondBlockId = len + 1
+      this.damages[index]!.interBlocks.push(newItem);
     },
-    removeInterBlock(index, subindex) {
-      this.damages[index].interBlocks.splice(subindex, 1);
+    removeInterBlock(index: number, subindex: number) {
+      this.damages[index]!.interBlocks!.splice(subindex, 1);
     },
-    calculateCriticalEnergy(damageId) {
-      if (this.damages[damageId].criticalEnergyCalc.calculateCriticalEnergy) {
-        const k1c = this.damages[damageId].criticalEnergyCalc.k1c;
+    calculateCriticalEnergy(damageId: number) {
+      if (this.damages[damageId]!.criticalEnergyCalc!.calculateCriticalEnergy) {
+        const k1c = this.damages[damageId]!.criticalEnergyCalc!.k1c;
         if (k1c != null) {
-          let E = null;
-          let pr = null;
+          let E = 0;
+          let pr = 0;
           let materialName = '';
-          for (var i = 0; i < this.blocks.length; i++) {
-            if (this.blocks[i].damageModel == this.damages[damageId].name) {
-              materialName = this.blocks[i].material;
+          for (let i = 0; i < this.blocks.length; i++) {
+            if (this.blocks[i]!.damageModel == this.damages[damageId]!.name) {
+              materialName = this.blocks[i]!.material!;
             }
           }
           let planeStress = true;
-          for (var i = 0; i < this.materials.length; i++) {
-            if (this.materials[i].name == materialName) {
-              planeStress = this.materials[i].planeStress;
-              E = this.materials[i].youngsModulus;
-              pr = this.materials[i].poissonsRatio;
+          for (let i = 0; i < this.materials.length; i++) {
+            if (this.materials[i]?.name == materialName) {
+              planeStress = this.materials[i]!.planeStress;
+              E = this.materials[i]!.youngsModulus!;
+              pr = this.materials[i]!.poissonsRatio!;
             }
           }
           console.log(E)
           if (planeStress) {
-            this.damages[damageId].criticalEnergy = k1c ** 2 / +E;
+            this.damages[damageId]!.criticalEnergy = k1c ** 2 / +E;
           } else {
-            this.damages[damageId].criticalEnergy =
+            this.damages[damageId]!.criticalEnergy =
               k1c ** 2 / (+E / (1 - pr ** 2));
           }
         }

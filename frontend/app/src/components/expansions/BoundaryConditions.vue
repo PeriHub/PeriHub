@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div>
-    <q-list v-for="boundaryCondition, index in boundaryConditions.conditions" :key="boundaryCondition.conditionsId"
-      style="padding: 0px">
+    <q-list v-for="boundaryCondition, index in boundaryConditions.conditions"
+      :key="boundaryCondition.conditionsId as PropertyKey" style="padding: 0px">
       <div class="row my-row">
         <q-input class="my-input" v-model="boundaryCondition.name" :rules="[rules.required, rules.name]"
           :label="boundaryKeys.name" standout dense></q-input>
@@ -48,10 +48,10 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent } from 'vue'
+<script lang="ts">
+import { computed, defineComponent, toRaw } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
-import { inject } from 'vue'
+import type { BoundaryCondition, Discretization } from 'src/client';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -62,8 +62,7 @@ export default defineComponent({
     const blocks = computed(() => store.modelData.blocks)
     const solvers = computed(() => store.modelData.solvers)
     const boundaryConditions = computed(() => store.modelData.boundaryConditions)
-    const discretization = computed(() => store.modelData.discretization)
-    const bus = inject('bus')
+    const discretization = computed(() => store.modelData.discretization) as unknown as Discretization
     return {
       store,
       model,
@@ -71,12 +70,11 @@ export default defineComponent({
       solvers,
       boundaryConditions,
       discretization,
-      rules,
-      bus
+      rules
     }
   },
   created() {
-    this.bus.on('addCondition', () => {
+    this.$bus.on('addCondition', () => {
       this.addCondition()
     })
   },
@@ -113,20 +111,17 @@ export default defineComponent({
         this.boundaryConditions.conditions = []
       }
       const len = this.boundaryConditions.conditions.length;
-      let newItem = {}
-      if (len != 0) {
-        newItem = structuredClone(this.boundaryConditions.conditions[len - 1])
-      }
-      newItem.boundaryConditionsId = len + 1
+      const newItem = len > 0 ? structuredClone(toRaw(this.boundaryConditions.conditions[len - 1])) as BoundaryCondition : {} as BoundaryCondition;
+      newItem.conditionsId = len + 1
       newItem.name = 'BC_' + (len + 1)
       newItem.blockId = len + 1
       this.boundaryConditions.conditions.push(newItem);
     },
-    removeCondition(index) {
+    removeCondition(index: number) {
       this.boundaryConditions.conditions.splice(index, 1);
       // this.boundaryConditions.nodeSets.splice(index, 1);
       this.boundaryConditions.conditions.forEach((condition, i) => {
-        condition.boundaryConditionsId = i + 1
+        condition.conditionsId = i + 1
       })
     },
   }

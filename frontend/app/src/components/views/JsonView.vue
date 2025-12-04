@@ -6,19 +6,22 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div class="my-json-editor jse-theme-dark">
-    <JsonEditorVue v-model="viewStore.jsonData" mode="tree" :mainMenuBar=false :navigationBar=false :statusBar=false
-      :readOnly=true v-bind="{/* local props & attrs */ }" />
+    <vue-json-pretty :data="viewStore.jsonData" />
+    <!-- <JsonEditorVue v-model="viewStore.jsonData" :mainMenuBar=false :navigationBar=false :statusBar=false :readOnly=true
+      v-bind="{/* local props & attrs */ }" /> -->
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
-import JsonEditorVue from 'json-editor-vue'
+// import JsonEditorVue from 'json-editor-vue'
+import VueJsonPretty from 'vue-json-pretty';
 export default defineComponent({
   name: 'JsonView',
   components: {
-    JsonEditorVue
+    VueJsonPretty
+    // JsonEditorVue
   },
   setup() {
     const viewStore = useViewStore();

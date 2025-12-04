@@ -8,12 +8,13 @@ SPDX-License-Identifier: Apache-2.0
   <div style="height:calc(100% - 60px);">
     <div class="row">
       <div style="width: 100px;">
-        <q-btn v-if="!modelData.modelownModel" flat icon="fas fa-sync-alt" @click="viewPointData">
+        <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-sync-alt" @click="viewPointData">
           <q-tooltip>
             Reload Model
           </q-tooltip>
         </q-btn>
-        <q-btn v-if="!modelData.modelownModel" flat icon="fas fa-expand" @click="$refs.view.resetCamera()">
+        <!-- @vue-ignore -->
+        <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-expand" @click="$refs.view.resetCamera()">
           <q-tooltip>
             Reset Camera
           </q-tooltip>
@@ -30,9 +31,18 @@ SPDX-License-Identifier: Apache-2.0
           switch-label-side color="gray"></q-slider>
       </div>
     </div>
-    <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]">
+    <!-- <vtk-view ref="view">
+      <vtk-geometry-representation>
+        <vtk-polydata :points="[0, 0, 0, 0, 1, 0, 1, 0, 0]" :polys="[3, 0, 1, 2]">
+          <vtk-point-data>
+            <vtk-data-array registration="setScalars" name="temperature" :values="[0, 0.5, 1]" />
+          </vtk-point-data>
+        </vtk-polydata>
+      </vtk-geometry-representation>
+    </vtk-view> -->
+    <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]" :key="viewKey">
       <div v-if="viewStore.bondFilterPoints.length != 0">
-        <q-list v-for="bondFilterPoint in viewStore.bondFilterPoints" :key="bondFilterPoint.id">
+        <q-list v-for="bondFilterPoint in viewStore.bondFilterPoints" :key="bondFilterPoint.bondFilterPointsId">
           <vtk-geometry-representation>
             <vtk-polydata :points="bondFilterPoint.bondFilterPointString" :polys="[4, 0, 1, 2, 3]">
               <vtk-point-data>
@@ -57,8 +67,8 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { inject, computed, defineComponent } from 'vue'
+<script lang="ts">
+import { computed, defineComponent } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
 import { useModelStore } from 'src/stores/model-store';
 import { getPointData } from 'src/client';
@@ -70,13 +80,12 @@ export default defineComponent({
   setup() {
     const viewStore = useViewStore();
     const modelStore = useModelStore();
-    const modelData = computed(() => modelStore.modelData)
-    const bus = inject('bus')
+    const modelData = computed(() => modelStore.modelData);
+
     return {
       viewStore,
       modelStore,
-      modelData,
-      bus,
+      modelData
     }
   },
   created() {
@@ -84,8 +93,8 @@ export default defineComponent({
   },
   unmounted() {
     console.log('unmountedModelView')
-    this.bus.off('viewPointData');
-    this.bus.off('filterPointData');
+    this.$bus.off('viewPointData');
+    this.$bus.off('filterPointData');
   },
   data() {
     return {
@@ -94,14 +103,17 @@ export default defineComponent({
       multiplier: 100,
       pointString: [1, 0, 0],
       blockIdString: [1],
+      viewKey: 0
     };
   },
   mounted() {
     console.log('ModelView mounted')
-    this.bus.on('viewPointData', async () => {
-      await this.viewPointData()
+    this.$bus.on('viewPointData', () => {
+      this.viewPointData().catch(err => {
+        console.error('Error loading view point data:', err);
+      });
     })
-    this.bus.on('filterPointData', () => {
+    this.$bus.on('filterPointData', () => {
       this.filterPointData()
     })
     // this.viewPointData()
@@ -113,26 +125,27 @@ export default defineComponent({
 
       await this.getPointDataAndUpdateDx();
       this.radius = parseFloat(this.viewStore.dx_value.toFixed(3));
-      await this.updatePoints();
-      this.bus.emit('showHideBondFilters');
+      this.updatePoints();
+      this.$bus.emit('showHideBondFilters');
 
+      this.viewKey++;
       this.viewStore.modelLoading = false;
       // console.log(this.$refs)
-      this.$refs.view.resetCamera();
+      // this.view.resetCamera();
     },
     filterPointData() {
       console.log('filterPointData')
-      var idx = 0;
-      let filteredBlockIdStringTemp = [];
-      let filteredPointStringTemp = [];
+      let idx = 0;
+      const filteredBlockIdStringTemp = [0];
+      const filteredPointStringTemp = [0];
       const blocks = this.modelData.blocks
-      for (var i = 0; i < this.blockIdString.length; i++) {
+      for (let i = 0; i < this.blockIdString.length; i++) {
         if (
-          blocks[parseInt(this.blockIdString[i] * this.modelData.blocks.length - 1)].show
+          blocks[this.blockIdString[i]! * this.modelData.blocks.length - 1]!.show
         ) {
-          filteredBlockIdStringTemp[idx] = this.blockIdString[i];
-          for (var j = 0; j < 3; j++) {
-            filteredPointStringTemp[idx * 3 + j] = this.pointString[i * 3 + j];
+          filteredBlockIdStringTemp[idx] = this.blockIdString[i]!;
+          for (let j = 0; j < 3; j++) {
+            filteredPointStringTemp[idx * 3 + j] = this.pointString[i * 3 + j]!;
             // this.pointString[i * 3 + j] * this.multiplier;
           }
           idx += 1;
@@ -141,7 +154,7 @@ export default defineComponent({
       this.viewStore.filteredBlockIdString = filteredBlockIdStringTemp;
       this.viewStore.filteredPointString = filteredPointStringTemp;
     },
-    async updatePoints() {
+    updatePoints() {
       this.viewStore.modelLoading = true;
       console.log('updatePoints')
       // if (this.radius < 0.01) {
@@ -162,17 +175,14 @@ export default defineComponent({
         modelName: this.modelStore.selectedModel.file,
         modelFolderName: this.modelData.model.modelFolderName,
         ownModel: this.modelData.model.ownModel,
-        ownMesh: this.modelData.model.ownMesh,
-        meshFile: this.modelData.model.meshFile,
+        ownMesh: this.modelData.model.ownMesh!,
+        meshFile: this.modelData.model.meshFile!,
         twoD: this.modelData.model.twoDimensional
       })
         .then((response) => {
-          this.pointString = response.data.points
-          this.blockIdString = response.data.block_ids
-          this.viewStore.dx_value = response.data.dx_value
-          this.$q.notify({
-            message: response.message,
-          })
+          this.pointString = response.points
+          this.blockIdString = response.block_ids
+          this.viewStore.dx_value = response.dx_value
         })
         .catch((error) => {
           console.log(error.body.detail)
@@ -185,12 +195,12 @@ export default defineComponent({
       // if (!this.modelData.model.ownModel) {
       //   this.viewStore.dx_value =
       //     this.modelData.model.height / (2 * parseInt(this.modelData.model.discretization / 2) + 1);
-      if (this.modelStore.selectedModel.file == 'Smetana') {
-        let numOfPlys = 8;
-        this.viewStore.dx_value =
-          (this.modelData.model.height * numOfPlys) /
-          (2 * parseInt(this.modelData.model.discretization / 2) + 1);
-      }
+      // if (this.modelStore.selectedModel.file == 'Smetana') {
+      //   const numOfPlys = 8;
+      //   this.viewStore.dx_value =
+      //     (this.modelData.model.height * numOfPlys) /
+      //     (2 * this.modelData.discretization / 2 + 1);
+      // }
       // else {
       //   this.viewStore.dx_value = Math.hypot(
       //     parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),

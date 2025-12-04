@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
             Reload Model
           </q-tooltip>
         </q-btn>
+        <!-- @vue-ignore -->
         <q-btn padding="none" flat dense icon="fas fa-expand" @click="$refs.view.resetCamera()">
           <q-tooltip>
             Reset Camera
@@ -100,7 +101,7 @@ SPDX-License-Identifier: Apache-2.0
     </div> -->
       </div>
       <div class="viewport">
-        <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]">
+        <vtk-view ref="view" :background="[45 / 255, 45 / 255, 45 / 255]" :key="viewKey">
           <vtk-glyph-representation>
             <vtk-polydata :points="pointString">
               <vtk-cell-data>
@@ -141,8 +142,8 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent } from 'vue'
+<script lang="ts">
+import { computed, ref } from 'vue'
 import { useModelStore } from 'src/stores/model-store';
 import VerticalColoredLegend from 'src/components/tools/VerticalColoredLegend.vue';
 import { getPointDataResults } from 'src/client';
@@ -204,17 +205,18 @@ export default {
       maxValue: 100,
       minValue: 0,
       legendKey: 0,
+      viewKey: 0,
       time: 0,
       playing: false,
-      timer: null,
+      timer: ref(),
       expansion: false
     };
   },
 
-  mounted() {
+  async mounted() {
     console.log('ModelView mounted')
-    this.viewPointData(true);
-    this.$refs.view.resetCamera();
+    await this.viewPointData(true);
+    this.viewKey++;
   },
   methods: {
     async viewPointData(loading = true) {
@@ -223,7 +225,7 @@ export default {
 
       await this.getPointDataAndUpdateDx();
       this.radius = parseFloat(this.dx_value.toFixed(3));
-      await this.updatePoints();
+      this.updatePoints();
 
       this.modelLoading = false;
     },
@@ -248,7 +250,7 @@ export default {
     //   this.viewStore.filteredBlockIdString = filteredBlockIdStringTemp;
     //   this.viewStore.filteredPointString = filteredPointStringTemp;
     // },
-    async updatePoints() {
+    updatePoints() {
       this.modelLoading = true;
       console.log('updatePoints')
       // if (this.radius < 0.01) {
@@ -265,12 +267,11 @@ export default {
     async getPointDataAndUpdateDx() {
 
       console.log('getPointDataAndUpdateDx')
-      let data = null;
       await getPointDataResults({
         modelName: this.modelStore.selectedModel.file,
-        modelFolderName: this.modelData.model.modelFolderName,
+        modelFolderName: this.modelData.model.modelFolderName!,
         cluster: this.modelData.job.cluster,
-        output: this.modelData.outputs[0].name,
+        output: this.modelData.outputs[0]!.name,
         tasks: this.modelData.job.tasks,
         axis: this.modelParams.axis,
         step: this.modelParams.step,
@@ -281,72 +282,65 @@ export default {
         colorBarMax: this.modelParams.colorBarMax
       })
         .then((response) => {
-          data = response
-          if (response.data == false) {
-            this.$q.notify({
-              type: 'negative',
-              message: response.message,
-            })
-          } else {
-            this.pointString = data['nodes']
-            this.blockIdString = data['value']
-            this.dx_value = Math.hypot(
-              parseFloat(this.pointString[3]) - parseFloat(this.pointString[0]),
-              parseFloat(this.pointString[4]) - parseFloat(this.pointString[1]),
-              parseFloat(this.pointString[5]) - parseFloat(this.pointString[2])
-            );
-            this.maxValue = data['max_value']
-            this.minValue = data['min_value']
-            this.variableOptions = data['variables']
-            this.modelParams.numberOfSteps = data['number_of_steps']
-            this.time = data['time']
-          }
+          const data = response
+          this.pointString = data.nodes
+          this.blockIdString = data.value
+          this.dx_value = Math.hypot(
+            this.pointString[3]! - this.pointString[0]!,
+            this.pointString[4]! - this.pointString[1]!,
+            this.pointString[5]! - this.pointString[2]!
+          );
+          this.maxValue = data.max_value
+          this.minValue = data.min_value
+          this.variableOptions = data.variables
+          this.modelParams.numberOfSteps = data.number_of_steps
+          this.time = data.time
         })
         .catch((error) => {
-          console.log(error)
           this.$q.notify({
             type: 'negative',
-            message: error.response.detail,
+            message: error.body.detail
           })
         })
     },
     play() {
       this.playing = true
+      // eslint-disable-next-line
       this.timer = setInterval(this.forward, 1000)
     },
     pause() {
       this.playing = false
       clearInterval(this.timer)
     },
-    backward() {
+    async backward() {
       if (this.modelParams.step > 1) {
         this.modelParams.step = this.modelParams.step - 1
-        this.viewPointData(false)
+        await this.viewPointData(false)
       }
     },
-    fastBackward() {
+    async fastBackward() {
       this.modelParams.step = 1
-      this.viewPointData(false)
+      await this.viewPointData(false)
     },
-    forward() {
+    async forward() {
       if (this.modelParams.step < this.modelParams.numberOfSteps) {
         this.modelParams.step = this.modelParams.step + 1
-        this.viewPointData(false)
+        await this.viewPointData(false)
       } else {
         this.pause()
       }
     },
-    fastForward() {
+    async fastForward() {
       this.modelParams.step = this.modelParams.numberOfSteps
-      this.viewPointData(false)
+      await this.viewPointData(false)
     }
 
   },
   watch: {
-    maxValue(newValue) {
+    maxValue() {
       this.legendKey++; // Increment key to force re-rendering
     },
-    minValue(newValue) {
+    minValue() {
       this.legendKey++; // Increment key to force re-rendering
     }
   },

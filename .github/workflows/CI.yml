@@ -53,8 +53,10 @@ jobs:
       - name: Build Docker image
         run: docker build -t perihub/frontend:dev ./frontend
       - name: Publish to Registry
+        if: github.ref_name == 'main'
         run: docker push perihub/backend:dev
       - name: Publish to Registry
+        if: github.ref_name == 'main'
         run: docker push perihub/frontend:dev
   # ci:
   #   defaults:

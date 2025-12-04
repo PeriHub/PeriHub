@@ -5,10 +5,9 @@ Copyright © 2023 German Aerospace Center (DLR)
 This work is licensed under multiple licenses:
 
 - The source code and the accompanying material is licensed under [Apache-2.0](LICENSES/Apache-2.0.txt).
-- ParaView, Trame and Shepard is licensed under [Apache-2.0](LICENSES/Apache-2.0.txt).
 - DLR Logos are licensed under [CC-BY-NC-ND-3.0-DE](LICENSES/CC-BY-NC-ND-3.0-DE.txt).
 - Images are licensed under [LicenseRef-Pexels](LICENSES/LicenseRef-Pexels.txt).
-- Vue, Quasar and Crackpy is licensed under [MIT](LICENSES/MIT.txt).
+- Vue and Quasar is licensed under [MIT](LICENSES/MIT.txt).
 
 Please see the individual files for more accurate information.
 

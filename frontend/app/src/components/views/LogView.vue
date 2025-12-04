@@ -10,12 +10,13 @@ SPDX-License-Identifier: Apache-2.0
   </q-scroll-area>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue'
 import { useViewStore } from 'src/stores/view-store';
 
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+// @ts-expect-error Bla
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
@@ -37,7 +38,7 @@ export default defineComponent({
     };
   },
   methods: {
-    highlighter(code) {
+    highlighter(code: string) {
       return highlight(code, languages.js); // languages.<insert language> to return html with markup
     },
   },

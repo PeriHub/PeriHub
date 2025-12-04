@@ -12,7 +12,7 @@ export type Additive = {
 };
 
 export type AdditiveModel = {
-    id?: number | null;
+    additiveModelId?: number | null;
     name: string;
     additiveType: string;
     printTemp: number;
@@ -37,7 +37,12 @@ export type BlockFunction = {
 };
 
 export type Body_generate_model = {
-    model_data: ModelData;
+    data: ModelData;
+    valves: Valves;
+};
+
+export type Body_run_own_analysis = {
+    data: ModelData;
     valves: Valves;
 };
 
@@ -46,7 +51,7 @@ export type Body_upload_files = {
 };
 
 export type BondFilters = {
-    id?: number | null;
+    bondFiltersId?: number | null;
     name: string;
     type: string;
     allow_contact?: boolean | null;
@@ -85,7 +90,7 @@ export type BoundaryConditions = {
 };
 
 export type Compute = {
-    id?: number | null;
+    computesId?: number | null;
     computeClass: string;
     name: string;
     variable: string;
@@ -128,7 +133,7 @@ export type CriticalEnergyCalc = {
 };
 
 export type Damage = {
-    id?: number | null;
+    damagesId?: number | null;
     name: string;
     damageModel: string;
     criticalStretch?: number | null;
@@ -188,7 +193,7 @@ export type HTTPValidationError = {
 };
 
 export type InterBlock = {
-    id?: number | null;
+    interBlockid?: number | null;
     firstBlockId: number;
     secondBlockId: number;
     value: number;
@@ -199,7 +204,7 @@ export type Job = {
     sbatch: boolean;
     verbose: boolean;
     nodes?: number | null;
-    tasks?: number | null;
+    tasks: number;
     tasksPerNode?: number | null;
     cpusPerTask?: number | null;
     multithread?: boolean | null;
@@ -207,8 +212,21 @@ export type Job = {
     account?: number | null;
 };
 
+export type Jobs = {
+    id: number;
+    name: string;
+    sub_name: string;
+    cluster: boolean;
+    created: boolean;
+    submitted: boolean;
+    results: boolean;
+    model?: {
+    [key: string]: unknown;
+} | null;
+};
+
 export type Material = {
-    id?: number | null;
+    materialsId?: number | null;
     name: string;
     matType: Array<(string)>;
     bulkModulus?: number | null;
@@ -254,7 +272,7 @@ export type Matrix = {
 };
 
 export type Model = {
-    modelFolderName?: string | null;
+    modelFolderName: string;
     ownModel: boolean;
     twoDimensional: boolean;
     ownMesh?: boolean | null;
@@ -302,6 +320,22 @@ export type Parameter = {
     parameterId?: number | null;
     id: Array<(string)>;
     std: number;
+};
+
+export type PointData = {
+    points: Array<(number)>;
+    block_ids: Array<(number)>;
+    dx_value: number;
+};
+
+export type PointDataResults = {
+    nodes: Array<(number)>;
+    value: Array<(number)>;
+    variables: Array<(string)>;
+    number_of_steps: number;
+    min_value: number;
+    max_value: number;
+    time: number;
 };
 
 export type PreCalculations = {
@@ -353,6 +387,13 @@ export type Static = {
     m?: number | null;
 };
 
+export type Status = {
+    created?: boolean | null;
+    submitted?: boolean | null;
+    results?: boolean | null;
+    meshfileExist?: boolean | null;
+};
+
 export type StiffnessMatrix = {
     calculateStiffnessMatrix?: boolean | null;
     engineeringConstants: EngineeringConstants;
@@ -379,7 +420,7 @@ export type ThermalModel = {
     printBedZCoord?: number | null;
     file?: string | null;
     numStateVars?: number | null;
-    predefinedFieldNames?: Array<(string)> | null;
+    predefinedFieldNames?: string | null;
 };
 
 export type ValidationError = {
@@ -390,12 +431,15 @@ export type ValidationError = {
 
 export type Valve = {
     name: string;
-    type: string;
+    type: 'text' | 'number' | 'select' | 'checkbox' | 'data';
+    value: number | boolean;
     label: string;
     description: string;
-    value: unknown;
     options: Array<(string)> | null;
+    depends: string | null;
 };
+
+export type type = 'text' | 'number' | 'select' | 'checkbox' | 'data';
 
 export type Valves = {
     valves: Array<Valve>;
@@ -406,8 +450,13 @@ export type Verlet = {
     outputFrequency?: number;
 };
 
+export type VersionData = {
+    current: string;
+    latest: string;
+};
+
 export type properties = {
-    id?: number | null;
+    materialsPropId?: number | null;
     name: string;
     value?: number | null;
 };
@@ -428,20 +477,24 @@ export type GenerateMeshData = {
 
 export type GenerateMeshResponse = unknown;
 
-export type GetModelsResponse = unknown;
+export type GetModelsResponse = Array<{
+    [key: string]: unknown;
+}>;
 
 export type GetOwnModelsData = {
     verify?: boolean;
 };
 
-export type GetOwnModelsResponse = unknown;
+export type GetOwnModelsResponse = Array<{
+    [key: string]: unknown;
+}>;
 
 export type GetValvesData = {
     modelName: string;
     source?: boolean;
 };
 
-export type GetValvesResponse = unknown;
+export type GetValvesResponse = Valves;
 
 export type GetConfigData = {
     configFile?: string;
@@ -456,7 +509,7 @@ export type SaveConfigData = {
 
 export type SaveConfigResponse = unknown;
 
-export type GetMaxFeSizeResponse = unknown;
+export type GetMaxFeSizeResponse = number;
 
 export type GetModelData = {
     modelFolderName?: string;
@@ -466,48 +519,48 @@ export type GetModelData = {
 export type GetModelResponse = unknown;
 
 export type GetPointDataData = {
-    meshFile?: string;
+    meshFile?: string | null;
     modelFolderName?: string;
     modelName?: string;
-    ownMesh?: boolean;
+    ownMesh?: boolean | null;
     ownModel?: boolean;
-    twoD?: boolean;
+    twoD?: boolean | null;
 };
 
-export type GetPointDataResponse = unknown;
+export type GetPointDataResponse = PointData;
 
 export type ViewInputFileData = {
     modelFolderName?: string;
     modelName?: string;
 };
 
-export type ViewInputFileResponse = unknown;
+export type ViewInputFileResponse = string;
 
 export type AddModelData = {
     description: string;
     modelName: string;
 };
 
-export type AddModelResponse = unknown;
+export type AddModelResponse = string;
 
 export type GetOwnModelFileData = {
     modelFile?: string;
 };
 
-export type GetOwnModelFileResponse = unknown;
+export type GetOwnModelFileResponse = string;
 
-export type SaveModelData = {
+export type SaveModelFileData = {
     modelFile: string;
     sourceCode: string;
 };
 
-export type SaveModelResponse = unknown;
+export type SaveModelFileResponse = unknown;
 
-export type DeleteModelData = {
+export type DeleteModelFileData = {
     modelName: string;
 };
 
-export type DeleteModelResponse = unknown;
+export type DeleteModelFileResponse = unknown;
 
 export type UploadFilesData = {
     formData: Body_upload_files;
@@ -515,7 +568,7 @@ export type UploadFilesData = {
     modelName: string;
 };
 
-export type UploadFilesResponse = unknown;
+export type UploadFilesResponse = string;
 
 export type WriteInputFileData = {
     inputString: string;
@@ -557,25 +610,39 @@ export type GetJobFoldersData = {
     modelName?: string;
 };
 
-export type GetJobFoldersResponse = unknown;
+export type GetJobFoldersResponse = Array<(string)>;
 
 export type GetJobsData = {
     modelName?: string;
     sbatch?: boolean;
 };
 
-export type GetJobsResponse = unknown;
+export type GetJobsResponse = Array<Jobs>;
 
 export type GetStatusData = {
     cluster?: boolean;
-    meshfile?: string;
+    meshfile?: string | null;
     modelFolderName?: string;
     modelName?: string;
-    ownMesh?: boolean;
+    ownMesh?: boolean | null;
     sbatch?: boolean;
 };
 
-export type GetStatusResponse = unknown;
+export type GetStatusResponse = Status;
+
+export type RunOwnAnalysisData = {
+    modelName?: string;
+    output?: string;
+    requestBody: Body_run_own_analysis;
+};
+
+export type RunOwnAnalysisResponse = string;
+
+export type GetResultFileData = {
+    file: string;
+};
+
+export type GetResultFileResponse = unknown;
 
 export type GetFractureAnalysisData = {
     cluster?: boolean;
@@ -608,22 +675,6 @@ export type GetEnergyReleasePlotData = {
 
 export type GetEnergyReleasePlotResponse = unknown;
 
-export type GetEnfAnalysisData = {
-    cluster?: boolean;
-    crackLength?: number;
-    displVariable?: string;
-    length?: number;
-    loadVariable?: string;
-    modelFolderName?: string;
-    modelName?: string;
-    output?: string;
-    step?: number;
-    tasks?: number;
-    width?: number;
-};
-
-export type GetEnfAnalysisResponse = unknown;
-
 export type GetPlotData = {
     cluster?: boolean;
     modelFolderName?: string;
@@ -648,8 +699,8 @@ export type GetResultsResponse = unknown;
 export type GetPointDataResultsData = {
     axis?: string;
     cluster?: boolean;
-    colorBarMax?: number;
-    colorBarMin?: number;
+    colorBarMax?: number | null;
+    colorBarMin?: number | null;
     displFactor?: number;
     filter?: string;
     modelFolderName?: string;
@@ -660,14 +711,14 @@ export type GetPointDataResultsData = {
     variable?: string;
 };
 
-export type GetPointDataResultsResponse = unknown;
+export type GetPointDataResultsResponse = PointDataResults;
 
-export type DeleteModel1Data = {
+export type DeleteModelData = {
     modelFolderName?: string;
     modelName?: string;
 };
 
-export type DeleteModel1Response = unknown;
+export type DeleteModelResponse = unknown;
 
 export type DeleteModelFromClusterData = {
     cluster?: boolean;
@@ -692,15 +743,17 @@ export type DeleteUserDataFromClusterData = {
 
 export type DeleteUserDataFromClusterResponse = unknown;
 
-export type GetPublicationsResponse = unknown;
+export type GetPublicationsResponse = string;
 
-export type GetPrognosisEnergyResponse = unknown;
+export type GetPrognosisEnergyResponse = {
+    [key: string]: unknown;
+};
 
-export type GetCurrentEnergyResponse = unknown;
+export type GetCurrentEnergyResponse = number;
 
 export type HealthcheckHealthGetResponse = unknown;
 
-export type GetVersionResponse = unknown;
+export type GetVersionResponse = VersionData;
 
 export type $OpenApiTs = {
     '/generate/model': {
@@ -739,7 +792,9 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: Array<{
+                    [key: string]: unknown;
+                }>;
             };
         };
     };
@@ -750,7 +805,9 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: Array<{
+                    [key: string]: unknown;
+                }>;
                 /**
                  * Validation Error
                  */
@@ -765,7 +822,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: Valves;
                 /**
                  * Validation Error
                  */
@@ -809,7 +866,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: number;
             };
         };
     };
@@ -835,7 +892,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: PointData;
                 /**
                  * Validation Error
                  */
@@ -850,7 +907,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: string;
                 /**
                  * Validation Error
                  */
@@ -865,7 +922,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: string;
                 /**
                  * Validation Error
                  */
@@ -880,7 +937,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: string;
                 /**
                  * Validation Error
                  */
@@ -890,7 +947,7 @@ export type $OpenApiTs = {
     };
     '/model/save': {
         post: {
-            req: SaveModelData;
+            req: SaveModelFileData;
             res: {
                 /**
                  * Successful Response
@@ -905,7 +962,7 @@ export type $OpenApiTs = {
     };
     '/model/delete': {
         delete: {
-            req: DeleteModelData;
+            req: DeleteModelFileData;
             res: {
                 /**
                  * Successful Response
@@ -925,7 +982,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: string;
                 /**
                  * Validation Error
                  */
@@ -964,7 +1021,7 @@ export type $OpenApiTs = {
         };
     };
     '/jobs/run': {
-        put: {
+        post: {
             req: RunModelData;
             res: {
                 /**
@@ -1000,7 +1057,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: Array<(string)>;
                 /**
                  * Validation Error
                  */
@@ -1015,7 +1072,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: Array<Jobs>;
                 /**
                  * Validation Error
                  */
@@ -1026,6 +1083,36 @@ export type $OpenApiTs = {
     '/jobs/getStatus': {
         get: {
             req: GetStatusData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Status;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/results/runOwnAnalysis': {
+        post: {
+            req: RunOwnAnalysisData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: string;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/results/getResultFile': {
+        get: {
+            req: GetResultFileData;
             res: {
                 /**
                  * Successful Response
@@ -1056,21 +1143,6 @@ export type $OpenApiTs = {
     '/results/getEnergyReleasePlot': {
         get: {
             req: GetEnergyReleasePlotData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/results/getEnfAnalysis': {
-        get: {
-            req: GetEnfAnalysisData;
             res: {
                 /**
                  * Successful Response
@@ -1120,7 +1192,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: PointDataResults;
                 /**
                  * Validation Error
                  */
@@ -1130,7 +1202,7 @@ export type $OpenApiTs = {
     };
     '/delete/model': {
         delete: {
-            req: DeleteModel1Data;
+            req: DeleteModelData;
             res: {
                 /**
                  * Successful Response
@@ -1194,7 +1266,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: string;
             };
         };
     };
@@ -1204,7 +1276,9 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: {
+                    [key: string]: unknown;
+                };
             };
         };
     };
@@ -1214,7 +1288,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: number;
             };
         };
     };
@@ -1234,7 +1308,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: VersionData;
             };
         };
     };

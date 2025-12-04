@@ -1,6 +1,8 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
+import type Keycloak from 'keycloak-js';
+import { inject } from 'vue';
 
-export const useAuthStore = defineStore("auth", {
+export const useAuthStore = defineStore('auth', {
   state: () => ({
     authenticated: false,
   }),
@@ -9,19 +11,21 @@ export const useAuthStore = defineStore("auth", {
   },
   actions: {
     async login() {
+      const keycloak: Keycloak = inject('keycloak') as Keycloak;
       try {
-        const authenticated = await this.$keycloak.login();
-        this.authenticated = authenticated;
+        const authenticated = await keycloak.login();
+        this.authenticated = Boolean(authenticated);
       } catch (error) {
-        console.error("Login error:", error);
+        console.error('Login error:', error);
       }
     },
     async logout() {
+      const keycloak: Keycloak = inject('keycloak') as Keycloak;
       try {
-        await this.$keycloak.logout();
+        await keycloak.logout();
         this.authenticated = false;
       } catch (error) {
-        console.error("Logout error:", error);
+        console.error('Logout error:', error);
       }
     },
   },

@@ -16,7 +16,7 @@ SPDX-License-Identifier: Apache-2.0
 
     <q-select standout dense class="q-pa-sm" v-model="model.modelFolderName" use-input hide-selected fill-input
       input-debounce="0" @new-value="createValue" :options="filteredModelFolderNameList" @filter="filterFn"
-      label="Model Subname" @update:model-value="bus.emit('getStatus')"></q-select>
+      label="Model Subname" @update:model-value="selectModelFolderName"></q-select>
 
     <!-- <q-input class="my-select" v-model="model.modelFolderName" label="Model Subname" placeholder="Default" standout
       dense></q-input> -->
@@ -25,29 +25,32 @@ SPDX-License-Identifier: Apache-2.0
 
     <q-toggle class="my-toggle" standout dense v-model="model.twoDimensional" label="Two Dimensional"></q-toggle>
 
-    <div v-for="param in modelStore.modelParams.valves" :key="param.name" v-if="!model.ownModel">
-      <div v-if="!param.depends || modelStore.modelParams.valves.find(o => o.name === param.depends).value">
-        <q-input class="my-select" v-if="['text', 'number'].includes(param.type)" :label="param.label"
-          v-model.number="param.value" :type="param.type" standout dense>
-          <q-tooltip>
-            {{ param.description }}
-          </q-tooltip>
-        </q-input>
-        <q-select class="my-select" standout dense v-if="param.type == 'select'" :options="param.options"
-          option-label="name" v-model="param.value" :label="param.label">
-          <q-tooltip>
-            {{ param.description }}
-          </q-tooltip>
-        </q-select>
-        <q-toggle class="my-toggle" standout dense v-if="param.type == 'checkbox'" v-model="param.value"
-          :label="param.label">
-          <q-tooltip>
-            {{ param.description }}
-          </q-tooltip>
-        </q-toggle>
+    <div v-if="!model.ownModel">
+      <div v-for="param in modelStore.modelParams.valves" :key="param.name">
+        <!-- @vue-expect-error Bla-->
+        <div v-if="!param.depends || modelStore.modelParams.valves.find(o => o.name === param.depends).value">
+          <!-- @vue-expect-error Bla-->
+          <q-input class="my-select" v-if="typeof (param.value) != 'boolean' && ['text', 'number'].includes(param.type)"
+            :label="param.label" v-model="param.value" :type="param.type" standout dense>
+            <q-tooltip>
+              {{ param.description }}
+            </q-tooltip>
+          </q-input>
+          <q-select class="my-select" standout dense v-if="param.type == 'select' && param.options"
+            :options="param.options" option-label="name" v-model="param.value" :label="param.label">
+            <q-tooltip>
+              {{ param.description }}
+            </q-tooltip>
+          </q-select>
+          <q-toggle class="my-toggle" standout dense v-if="param.type == 'checkbox'" v-model="param.value"
+            :label="param.label">
+            <q-tooltip>
+              {{ param.description }}
+            </q-tooltip>
+          </q-toggle>
+        </div>
       </div>
     </div>
-
     <!-- <q-input class="my-input" v-model="model.length" v-show="!model.ownModel & modelStore.selectedModel.file != 'RVE'"
       :rules="[rules.required, rules.float]" label="Length" standout dense></q-input>
     <q-input class="my-input" v-model="model.cracklength"
@@ -181,13 +184,12 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
-import { computed, defineComponent, inject } from 'vue'
+<script lang="ts">
+import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
-import { getConfig, getModels, getValves, getJobFolders } from 'src/client'
+import { getModels, getValves, getJobFolders } from 'src/client'
 import rules from 'assets/rules.js';
-import { store } from 'quasar/wrappers';
 
 export default defineComponent({
   name: 'ModelSettings',
@@ -195,47 +197,28 @@ export default defineComponent({
     const store = useDefaultStore();
     const modelStore = useModelStore();
     const model = computed(() => modelStore.modelData.model)
-    const bus = inject('bus')
     return {
       store,
       modelStore,
       model,
-      rules,
-      bus
+      rules
     }
   },
   created() {
-    this.bus.on('resetData', () => {
-      this.resetData()
-    })
-    this.bus.on('getJobFolders', () => {
+    this.$bus.on('getJobFolders', () => {
       this._getJobFolders()
     })
   },
   data() {
     return {
       modelFolderNameList: ['Default'],
-      filteredModelFolderNameList: [],
+      filteredModelFolderNameList: [] as string[],
     };
   },
   methods: {
-    async resetData() {
-      await getConfig({ configFile: this.modelStore.selectedModel.file }).then((response) => {
-        this.modelStore.modelData = structuredClone(response)
-      })
-        .catch((error) => {
-          this.$q.notify({
-            type: 'negative',
-            message: error.body.detail
-          })
-        })
-      await getValves({ modelName: this.modelStore.selectedModel.file }).then((response) => {
-        this.modelStore.modelParams = structuredClone(response)
-      })
-    },
-    async _getJobFolders() {
-      await getJobFolders({ modelName: this.modelStore.selectedModel.file }).then((response) => {
-        this.modelFolderNameList = response.data
+    _getJobFolders() {
+      getJobFolders({ modelName: this.modelStore.selectedModel.file }).then((response) => {
+        this.modelFolderNameList = response
       })
         .catch((error) => {
           this.$q.notify({
@@ -253,6 +236,9 @@ export default defineComponent({
       // this.viewStore.viewLoading = false
       this._getJobFolders()
     },
+    selectModelFolderName() {
+      this.$bus.emit('getStatus')
+    },
     async switchOwnModels() {
       if (!this.model.ownModel) {
         this.modelStore.selectedModel = {
@@ -260,9 +246,9 @@ export default defineComponent({
           file: 'CompactTension',
         }
       }
-      this.selectMethod()
+      await this.selectMethod()
     },
-    createValue(val, done) {
+    createValue(val: string, done: (item: string, mode: "add" | "add-unique" | "toggle" | undefined) => void) {
 
       if (val.length > 0) {
         if (!this.modelFolderNameList.includes(val)) {
@@ -271,8 +257,7 @@ export default defineComponent({
         done(val, 'toggle')
       }
     },
-
-    filterFn(val, update) {
+    filterFn(val: string, update: (callbackFn: () => void) => void) {
       update(() => {
         if (val === '') {
           this.filteredModelFolderNameList = this.modelFolderNameList
@@ -288,17 +273,17 @@ export default defineComponent({
   },
   async beforeMount() {
     this.modelStore.availableModels = await getModels()
-    // this.selectMethod()
+    await this.selectMethod()
   },
   watch: {
     'modelStore.selectedModel': {
       handler() {
         localStorage.setItem('selectedModel', JSON.stringify(this.modelStore.selectedModel));
         if (!this.modelStore.modelData.model.ownModel) {
-          this.bus.emit('showModelImg', this.modelStore.selectedModel.file)
+          this.$bus.emit('showModelImg', this.modelStore.selectedModel.file)
           // this.resetData()
         }
-        this.bus.emit('getStatus')
+        this.$bus.emit('getStatus')
       },
       deep: true,
     },

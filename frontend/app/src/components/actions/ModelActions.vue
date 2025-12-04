@@ -26,7 +26,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-undo" @click="bus.emit('resetData')">
+    <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-undo" @click="$bus.emit('resetData')">
       <q-tooltip>
         Reset Data
       </q-tooltip>
@@ -47,7 +47,7 @@ SPDX-License-Identifier: Apache-2.0
     </q-btn>
 
     <q-btn flat icon="fas fa-download" @click="saveModel" :loading="modelLoading"
-      :disable="modelLoading || !store.status.created">
+      :disable="modelLoading || !status.created">
       <q-tooltip>
         Download Modelfiles
       </q-tooltip>
@@ -61,13 +61,13 @@ SPDX-License-Identifier: Apache-2.0
 
     <q-space></q-space>
 
-    <q-btn flat icon="fas fa-sort" @click="bus.emit('openHidePanels')">
+    <q-btn flat icon="fas fa-sort" @click="$bus.emit('openHidePanels')">
       <q-tooltip>
         Collapse/Expand all panel
       </q-tooltip>
     </q-btn>
 
-    <q-btn flat icon="fas fa-info" @click="bus.emit('showTutorial')">
+    <q-btn flat icon="fas fa-info" @click="$bus.emit('showTutorial')">
       <q-tooltip>
         Show Tutorial
       </q-tooltip>
@@ -79,7 +79,7 @@ SPDX-License-Identifier: Apache-2.0
         </q-card-section>
         <q-card-section class="q-pt-none">
           <q-uploader
-            :url="uploadPath + '?model_name=' + this.modelStore.selectedModel.file + '&model_folder_name=' + this.modelData.model.modelFolderName"
+            :url="uploadPath + '?model_name=' + modelStore.selectedModel.file + '&model_folder_name=' + modelData.model.modelFolderName"
             :headers="[{ name: 'username', value: store.username }]" field-name="files" label="Pick file" filled counter
             multiple style="max-width: 300px" @uploaded="uploadFinished" @failed="uploadFailed" />
           <!--max-file-size="2097152"  -->
@@ -90,36 +90,37 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { computed, defineComponent } from 'vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import { useViewStore } from 'src/stores/view-store';
-import { inject } from 'vue'
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
-import { uploadFiles, getModel, generateModel, saveConfig } from 'src/client';
+import { generateModel, saveConfig } from 'src/client';
+import type { Discretization, ModelData } from 'src/client';
 import rules from 'assets/rules.js';
+import Driver from 'driver.js';
 
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export default defineComponent({
   name: 'ModelActions',
   setup() {
     const store = useDefaultStore();
+    const status = store.status;
     const modelStore = useModelStore();
     const viewStore = useViewStore();
     const modelData = computed(() => modelStore.modelData)
-    const bus = inject('bus')
     const uploadPath = process.env.API + '/upload/files'
 
     return {
       store,
+      status,
       viewStore,
       modelStore,
       modelData,
       rules,
-      bus,
       uploadPath
     }
   },
@@ -133,26 +134,32 @@ export default defineComponent({
     switchModels() {
       this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = false;
-      this.modelStore.modelData.model.gcode = false;
     },
     readData() {
+      // @ts-expect-error Bla
       this.$refs.fileInput.click();
     },
     uploadMesh() {
+      // @ts-expect-error Bla
       this.$refs.meshInput.click();
     },
     uploadNodesets() {
+      // @ts-expect-error Bla
       this.$refs.nodesetsInput.click();
     },
+    // @ts-expect-error Bla
     async uploadFinished(res) {
       this.$q.notify({
         message: 'Files uploaded'
       })
       this.dialogUpload = false
-      const type = res.files[0].name.split('.')[1]
+      const type = res.files[0]!.name.split('.')[1]
       console.log(type)
       if (type == 'gcode') {
-        this.modelStore.modelData.model.meshFile = res.files[0].name
+        this.modelStore.modelData.model.meshFile = res.files[0]!.name
+        if (!this.modelStore.modelData.discretization) {
+          this.modelStore.modelData.discretization = {} as Discretization
+        }
         this.modelStore.modelData.discretization.discType = 'gcode'
         if (!this.modelStore.modelData.discretization.gcode) {
           this.modelStore.modelData.discretization.gcode = {
@@ -167,21 +174,25 @@ export default defineComponent({
         this.viewStore.modelLoading = true;
         this.viewStore.viewId = 'model';
         await sleep(500)
-        this.bus.emit('viewPointData');
+        this.$bus.emit('viewPointData');
       } else if (type == 'txt') {
         if (JSON.parse(res.xhr.response).message != '') {
-          this.modelStore.modelData.model.meshFile = res.files[0].name
+          this.modelStore.modelData.model.meshFile = res.files[0]!.name
+          if (!this.modelStore.modelData.discretization) {
+            this.modelStore.modelData.discretization = {} as Discretization
+          }
           this.modelStore.modelData.discretization.discType = 'txt'
         }
         this.viewStore.modelLoading = true;
         this.viewStore.viewId = 'model';
         await sleep(500)
-        this.bus.emit('viewPointData');
+        this.$bus.emit('viewPointData');
       }
-      this.bus.emit('getStatus')
+      this.$bus.emit('getStatus')
       this.viewStore.modelLoading = false;
     },
-    async uploadFailed(res) {
+    // @ts-expect-error Bla
+    uploadFailed(res) {
       console.log(res)
       this.$q.notify({
         message: 'Upload failed, file type not supported!',
@@ -200,14 +211,15 @@ export default defineComponent({
 
     //   for (var i = 0; i < files.length; i++) {
     //     if (this.modelStore.modelData.boundaryConditions.conditions.length < i + 1) {
-    //       this.bus.emit('addCondition')
+    //       this.$bus.emit('addCondition')
     //     }
     //     this.modelStore.modelData.boundaryConditions.nodeSets[i].file = files[i].name
     //   }
 
     //   this.viewStore.modelLoading = false;
     // },
-    onFilePicked(event) {
+    onFilePicked(event: Event) {
+      // @ts-expect-error Bla
       const file = event.target.files[0];
       const filetype = file.type;
       if (file.length <= 0) {
@@ -218,34 +230,20 @@ export default defineComponent({
 
       if (filetype == 'application/json') {
         this.loadJsonFile(fr, file);
-      } else if (file.name.includes('.yaml')) {
-        this.loadYamlModel(fr, file);
       }
     },
-    onMultiFilePicked(event) {
-      const files = event.target.files;
-      const filetype = files[0].type;
-      if (files.length <= 0) {
-        return false;
-      }
-
-      this.viewStore.modelLoading = true;
-      this._uploadfiles(files);
-
-      this.viewStore.modelLoading = false;
-    },
-    loadJsonFile(fr, file) {
+    loadJsonFile(fr: FileReader, file: Blob) {
       this.modelStore.modelData.model.ownMesh = false;
       this.modelStore.modelData.model.ownModel = false;
-      this.modelStore.modelData.model.gcode = false;
 
       fr.onload = (e) => {
+        // @ts-expect-error Bla
         const result = JSON.parse(e.target.result);
         console.log(result)
         if (result.modelData) {
-          this.modelStore.modelData = structuredClone(result.modelData)
+          this.modelStore.modelData = { ...this.modelStore.modelData, ...result.modelData } as ModelData
         } else {
-          this.modelStore.modelData = structuredClone(result)
+          this.modelStore.modelData = { ...this.modelStore.modelData, ...result } as ModelData
           console.log('Deprecated Json Format!')
         }
         if (result.modelParams) {
@@ -258,33 +256,6 @@ export default defineComponent({
         // if (this.modelStore.modelData.model.ownModel) {
         //   this.modelStore.selectedModel.file = filename;
         // }
-      };
-      fr.readAsText(file);
-    },
-    loadYamlModel(fr, file) {
-      this.modelStore.modelData.model.ownMesh = false;
-      this.modelStore.modelData.model.ownModel = true;
-      this.modelStore.modelData.model.gcode = false;
-
-      this.modelStore.selectedModel.file = file.name.split('.')[0];
-
-      fr.onload = (e) => {
-        const yaml = e.target.result;
-        this.loadYamlString(yaml);
-      };
-      fr.readAsText(file);
-    },
-    loadXmlModel(fr, file) {
-      this.modelStore.modelData.model.ownMesh = false;
-      this.modelStore.modelData.model.ownModel = true;
-      this.modelStore.modelData.model.gcode = false;
-
-      this.modelStore.selectedModel.file = file.name.split('.')[0];
-
-      fr.onload = (e) => {
-        const xml = e.target.result;
-        var yaml = this.translateXMLtoYAML(xml);
-        this.loadYamlString(yaml);
       };
       fr.readAsText(file);
     },
@@ -307,23 +278,23 @@ export default defineComponent({
     },
     async saveModel() {
       this.modelLoading = true;
-      let params = {
+      const params = {
         model_name: this.modelStore.selectedModel.file,
         model_folder_name: this.modelData.model.modelFolderName
       }
       // getModel({ modelName: this.modelStore.selectedModel.file, modelFolderName: this.modelData.model.modelFolderName })
       await api.get('/model/getModel', { params, responseType: 'blob' })
         .then((response) => {
-          let filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
+          const filename = this.modelStore.selectedModel.file + '_' + this.modelData.model.modelFolderName + '.zip'
           const status = exportFile(filename, response.data)
           if (status) {
             // browser allowed it
             console.log('ok')
           } else {
             // browser denied it
-            console.log('Error: ' + status)
+            console.log(status)
             this.$q.notify({
-              message: 'Error: ' + status
+              message: status
             })
           }
         })
@@ -346,7 +317,7 @@ export default defineComponent({
       this.viewStore.viewId = 'model';
 
       const body = {
-        'model_data': this.modelData,
+        'data': this.modelData,
         'valves': this.modelStore.modelParams
       }
 
@@ -355,19 +326,19 @@ export default defineComponent({
         modelFolderName: this.modelData.model.modelFolderName,
         requestBody: body
       })
-        .then((response) => {
+        .then(() => {
           console.log('generateModel')
           this.$q.notify({
-            message: response.message
+            message: 'Model generated'
           })
-          this.bus.emit('viewInputFile', false)
+          this.$bus.emit('viewInputFile')
           if (this.modelData.model.ownModel == false) {
             // if (this.viewStore.viewId != 'model') {
-            this.bus.emit('viewPointData');
+            this.$bus.emit('viewPointData');
             // }
           }
-          this.bus.emit('getStatus')
-          this.bus.emit('getJobFolders')
+          this.$bus.emit('getStatus')
+          this.$bus.emit('getJobFolders')
         })
         .catch((error) => {
           error = JSON.parse(JSON.stringify(error))
@@ -375,10 +346,10 @@ export default defineComponent({
           // console.log(error.response)
           // console.log(error.response.status)
           if (error != undefined && error.status == 422) {
-            for (let i in error.body.detail) {
+            for (const i in error.body.detail) {
               let message = '';
               message += error.body.detail[i].msg + ' ';
-              for (let j in error.body.detail[i].loc) {
+              for (const j in error.body.detail[i].loc) {
                 message += error.body.detail[i].loc[j] + ', ';
               }
               this.$q.notify({
@@ -404,12 +375,14 @@ export default defineComponent({
       this.viewStore.textLoading = false;
     },
     showTutorial() {
-      var color = 'gray';
+      let color = 'gray';
+      // @ts-expect-error Bla
       if (this.$cookie.get('darkMode') == 'true') {
         color = 'gray';
       } else {
         color = 'white';
       }
+      // @ts-expect-error Bla
       console.log(this.$cookie.get('darkMode'));
       console.log(color);
 

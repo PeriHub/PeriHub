@@ -343,10 +343,9 @@ SPDX-License-Identifier: Apache-2.0
   </q-page-container>
 </template>
 
-<script>
-import { defineComponent } from 'vue'
+<script lang="ts">
 
-export default defineComponent({
+export default {
   name: "PrivacyPage",
-});
+};
 </script>

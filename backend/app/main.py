@@ -18,6 +18,7 @@ from fastapi import (
     WebSocketDisconnect,
     status,
 )
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -32,6 +33,7 @@ from .routers import (
     translate,
     upload,
 )
+from .support.base_models import VersionData
 from .support.file_handler import FileHandler
 from .support.globals import dev, log, trial
 
@@ -55,7 +57,25 @@ tags_metadata = [
     },
 ]
 
-app = FastAPI(openapi_tags=tags_metadata)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown of the application."""
+    # Startup
+    file_path = str(Path(__file__).parent.resolve())
+    try:
+        for model in os.listdir(file_path + "/own_models"):
+            if model.startswith("__"):
+                continue
+            doc_string = FileHandler.get_docstring(os.path.join(file_path, "own_models", model, model + ".py"))
+            if doc_string:
+                doc_dict = FileHandler.doc_to_dict(doc_string)
+                FileHandler.install_frontmatter_requirements(doc_dict.get("requirements", ""))
+    except FileNotFoundError as e:
+        print(e)
+    yield
+    # Shutdown
+
+app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan)
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
@@ -140,17 +160,17 @@ async def websocket_endpoint_log(
         try:
             output_files = os.listdir(remotepath)
             filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
+            if len(filtered_values) == 0:
+                log.error("LogFile can not be found in %s", remotepath)
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="LogFile can't be found in " + remotepath,
+                )
             paths = [os.path.join(remotepath, basename) for basename in filtered_values]
             latest_file = max(paths, key=os.path.getctime)
         except IOError:
             log.error("LogFile can not be found in %s", remotepath)
 
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="LogFile can't be found in " + remotepath,
-            )
-        if len(filtered_values) == 0:
-            log.error("LogFile can not be found in %s", remotepath)
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="LogFile can't be found in " + remotepath,
@@ -208,7 +228,7 @@ async def websocket_endpoint_log(
 
 
 @app.get("/updates", operation_id="get_version")
-async def get_app_latest_release_version():
+async def get_app_latest_release_version() -> VersionData:
     version = "unknown"
     # adopt path to your pyproject.toml
     pyproject_toml_file = Path(__file__).parent / "pyproject.toml"
@@ -232,7 +252,7 @@ async def get_app_latest_release_version():
                 data = await response.json()
                 latest_version = data["tag_name"]
 
-                return {"current": version, "latest": latest_version[1:]}
+                return VersionData(version, latest_version[1:])
     except Exception as e:
         log.debug(e)
-        return {"current": version, "latest": version}
+        return  VersionData(version, version)
