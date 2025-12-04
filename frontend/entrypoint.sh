@@ -11,7 +11,7 @@ KEYCLOAK_URL
 REALM
 CLIENT_ID"
 
-for file in $ROOT_DIR/js/*.js* ;
+for file in $ROOT_DIR/assets/*.js* ;
 do
   # echo "Processing $file ...";
   for key in $keys
