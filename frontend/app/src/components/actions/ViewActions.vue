@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div class="row">
-    <q-btn flat icon="fas fa-play" @click="checkEnergy" :loading="submitLoading"
+    <q-btn class="action-btn" flat icon="fas fa-play" @click="checkEnergy" :loading="submitLoading"
       :disable="submitLoading || !store.status.created || !store.status.meshfileExist" v-if="!store.status.submitted">
       <q-tooltip>
         <div v-if="!store.status.created"> Model not created yet</div>
@@ -64,12 +64,13 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-times" @click="cancelJob" :loading="submitLoading" v-if="store.status.submitted">
+    <q-btn class="action-btn" flat icon="fas fa-times" @click="cancelJob" :loading="submitLoading"
+      v-if="store.status.submitted">
       <q-tooltip>
         Cancel Job
       </q-tooltip>
     </q-btn>
-    <q-btn flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading"
+    <q-btn class="action-btn" flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading"
       :disable="resultsLoading || !store.status.results">
       <q-tooltip>
         Download Results
@@ -93,7 +94,8 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-eye" @click="viewStore.viewId = 'results'" :disable="!store.status.results">
+    <q-btn class="action-btn" flat icon="fas fa-eye" @click="viewStore.viewId = 'results'"
+      :disable="!store.status.results">
       <q-tooltip>
         Show Results
       </q-tooltip>
@@ -151,13 +153,13 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn v-if="viewStore.viewId == 'image'" flat icon="fas fa-download" @click="downloadModelImage()"
-      :disable="!status.results">
+    <q-btn v-if="viewStore.viewId == 'image'" class="action-btn" flat icon="fas fa-download"
+      @click="downloadModelImage()" :disable="!status.results">
       <q-tooltip>
         Download Image
       </q-tooltip>
     </q-btn>
-    <q-btn flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()"
+    <q-btn class="action-btn" flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()"
       :disable="!status.results || computes.length == 0 || !csvDefined()">
       <q-tooltip>
         Show Plot
@@ -198,7 +200,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <q-btn flat icon="fas fa-trash" @click="dialogDeleteData = true">
+    <q-btn class="action-btn" flat icon="fas fa-trash" @click="dialogDeleteData = true">
       <q-tooltip>
         Delete Data
       </q-tooltip>

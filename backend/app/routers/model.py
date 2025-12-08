@@ -103,17 +103,17 @@ def get_valves(model_name: str, source: bool = False) -> Valves:
     my_class = getattr(module, "Valves")
     my_instance = my_class()
 
-    fields = my_instance.__fields__
+    fields = my_instance.model_fields
     response = {"valves": [], "analysisValves": []}
     for key in fields:
         type = "text"
-        if fields[key].annotation.__name__ == "bool":
+        if fields[key].annotation == bool:
             type = "checkbox"
-        elif fields[key].annotation.__name__ == "Any":
-            type = "data"
-        elif fields[key].annotation.__name__ in ["float", "int"]:
+        # elif fields[key].annotation == Any:
+        #     type = "data"
+        elif fields[key].annotation in [float, int]:
             type = "number"
-        elif fields[key].annotation.__name__ == "str" and fields[key].examples:
+        elif fields[key].annotation == str and fields[key].examples:
             type = "select"
         response_key = "valves"
         if key.startswith("ANALYSIS_"):
@@ -123,6 +123,7 @@ def get_valves(model_name: str, source: bool = False) -> Valves:
                 "name": key,
                 "type": type,
                 "value": fields[key].default,
+                "value_type": fields[key].annotation.__name__,
                 "label": fields[key].title,
                 "description": fields[key].description,
                 "options": fields[key].examples,
@@ -444,14 +445,19 @@ def add_model(model_name: str, description: str, request: Request = "") -> str:
 
     source_code = f'''
 """
-| title: {model_name}
-| description: {description}
-| author: {username}
-| requirements:
-| version: 0.1.0
+title: {model_name}
+description: {description}
+author: {username}
+requirements:
+analysis: Get Analysis Plot
+version: 0.1.0
 """
 import numpy as np
 from pydantic import BaseModel, Field
+
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
 
 from ...support.model.geometry import Geometry
 
@@ -462,12 +468,12 @@ class Valves(BaseModel):
         description="Discretization",
     )
     LENGTH: float = Field(
-        default=110,
+        default=20,
         title="Length",
         description="Length",
     )
     HEIGHT: float = Field(
-        default=3,
+        default=10,
         title="Height",
         description="Height",
     )
@@ -476,10 +482,22 @@ class Valves(BaseModel):
         title="Width",
         description="Width",
     )
+    ANALYSIS_CSV_OUTPUT: str = Field(
+        default= "CSV", 
+        title='CSV Output',
+        description='CSV Output',
+        examples='outputs',
+    )
+    ANALYSIS_VARIABLE: str = Field(
+        default= "External_Displacements", 
+        title='Variable',
+        description='Variable',
+        examples='computes',
+    )
 
 class main:
     
-    def __init__(self, valves, model_data):
+    def __init__(self, valves, model_data, analysisValves = {{}}):
         self.xbegin = 0
         self.xend = valves["LENGTH"]
         self.ybegin = 0
@@ -494,6 +512,10 @@ class main:
             self.zbegin = -valves["WIDTH"] / 2
             self.zend = valves["WIDTH"] / 2
 
+        if analysisValves:
+            self.variable = analysisValves["ANALYSIS_VARIABLE"]
+            self.csv_output = analysisValves["ANALYSIS_CSV_OUTPUT"]
+
     def get_discretization(self):
         number_nodes = 2 * int(self.discretization / 2) + 1
         dx_value = [
@@ -505,8 +527,6 @@ class main:
         return dx_value
 
     def create_geometry(self):
-        """doc"""
-
         geo = Geometry()
 
         x_value, y_value, z_value = geo.create_rectangle(
@@ -532,13 +552,30 @@ class main:
         return model_data
 
     def crate_block_definition(self, x_value, y_value, z_value, k):
-        """doc"""
         k = np.where(
             y_value <= self.yend / 2,
             2,
             k,
         )
-        return k'''
+        return k
+        
+    def analysis(self,model_name,resultpath):
+        variable = self.variable + "y"
+        csv_output = self.csv_output
+
+        file = os.path.join(resultpath, model_name + "_" + csv_output + ".csv")
+        result_file = os.path.join(resultpath, model_name + "_results.png")
+        
+        df = pd.read_csv(file)
+
+        plt.clf()
+        plt.plot(df["Time"], df[variable], label="Original data")
+
+        # Display the plot
+        plt.savefig(result_file)
+
+        return result_file
+        '''
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
     with open(file_path, "w") as file:

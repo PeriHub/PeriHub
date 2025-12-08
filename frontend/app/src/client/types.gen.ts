@@ -433,6 +433,7 @@ export type Valve = {
     name: string;
     type: 'text' | 'number' | 'select' | 'checkbox' | 'data';
     value: number | boolean | string;
+    value_type: unknown;
     label: string;
     description: string;
     options: Array<(string)> | string | null;
@@ -454,6 +455,8 @@ export type Verlet = {
 export type VersionData = {
     current: string;
     latest: string;
+    perilab_current: string;
+    perilab_latest: string;
 };
 
 export type properties = {
@@ -659,21 +662,6 @@ export type GetFractureAnalysisData = {
 };
 
 export type GetFractureAnalysisResponse = (Blob | File);
-
-export type GetEnergyReleasePlotData = {
-    cluster?: boolean;
-    displacementOutputName?: string;
-    forceOutputName?: string;
-    modelFolderName?: string;
-    modelName?: string;
-    outputCsv?: string;
-    outputExodus?: string;
-    step?: number;
-    tasks?: number;
-    thickness?: number;
-};
-
-export type GetEnergyReleasePlotResponse = unknown;
 
 export type GetPlotData = {
     cluster?: boolean;
@@ -1133,21 +1121,6 @@ export type $OpenApiTs = {
                  * The image.
                  */
                 200: (Blob | File);
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/results/getEnergyReleasePlot': {
-        get: {
-            req: GetEnergyReleasePlotData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
                 /**
                  * Validation Error
                  */

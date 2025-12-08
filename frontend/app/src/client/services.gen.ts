@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, RunOwnAnalysisData, RunOwnAnalysisResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetEnergyReleasePlotData, GetEnergyReleasePlotResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, RunOwnAnalysisData, RunOwnAnalysisResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -570,43 +570,6 @@ export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): Cancela
         tasks: data.tasks,
         output: data.output,
         step: data.step
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Energy Release Plot
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.modelFolderName
- * @param data.cluster
- * @param data.outputExodus
- * @param data.outputCsv
- * @param data.tasks
- * @param data.forceOutputName
- * @param data.displacementOutputName
- * @param data.step
- * @param data.thickness
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const getEnergyReleasePlot = (data: GetEnergyReleasePlotData = {}): CancelablePromise<GetEnergyReleasePlotResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/results/getEnergyReleasePlot',
-    query: {
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName,
-        cluster: data.cluster,
-        output_exodus: data.outputExodus,
-        output_csv: data.outputCsv,
-        tasks: data.tasks,
-        force_output_name: data.forceOutputName,
-        displacement_output_name: data.displacementOutputName,
-        step: data.step,
-        thickness: data.thickness
     },
     errors: {
         422: 'Validation Error'

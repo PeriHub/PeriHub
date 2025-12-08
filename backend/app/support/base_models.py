@@ -4,7 +4,7 @@
 
 import json
 from enum import Enum
-from typing import Any, List, Literal, Optional, Union
+from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
@@ -48,6 +48,7 @@ class Valve(BaseModel):
     name: str
     type: Literal["text", "number", "select", "checkbox", "data"]
     value: Union[int, float, bool, str]
+    value_type: Literal["int", "float", "bool", "str"]
     label: str
     description: str
     options: Optional[Union[List[str],str]]

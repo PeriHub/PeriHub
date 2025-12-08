@@ -9,14 +9,19 @@ SPDX-License-Identifier: Apache-2.0
     <q-toolbar>
       <div style="text-align: center; width:100%">
         <div :style="{ fontSize: $q.screen.lt.md ? '10px' : '12px' }">
-          <q-btn :style="buttonStyle" flat text-color="white" label="ABOUT US" href="https://www.dlr.de/sy"></q-btn>
-          <q-btn :style="buttonStyle" flat text-color="white" label="BLOG" href="https://leichtbau.dlr.de/"></q-btn>
-          <q-btn :style="buttonStyle" flat text-color="white" label="CONTACT US"
+          <q-btn class="footer-btn" :style="buttonStyle" flat text-color="white" label="ABOUT US"
+            href="https://www.dlr.de/sy"></q-btn>
+          <q-btn class="footer-btn" :style="buttonStyle" flat text-color="white" label="BLOG"
+            href="https://leichtbau.dlr.de/"></q-btn>
+          <q-btn class="footer-btn" :style="buttonStyle" flat text-color="white" label="CONTACT US"
             href="mailto:Jan-Timo.Hesse@dlr.de"></q-btn> --
-          <q-btn :style="buttonStyle" flat text-color="white" label="IMPRESSUM" to="/impressum"></q-btn>
-          <q-btn :style="buttonStyle" flat text-color="white" label="PRIVACY POLICY" to="/privacy"></q-btn>
-          <q-btn :style="buttonStyle" flat text-color="white" label="TERMS OF USE" to="/copyright"></q-btn>
-          <q-btn :style="buttonStyle" flat text-color="white" label="ACCESSIBILITY STATEMENT"
+          <q-btn class="footer-btn" :style="buttonStyle" flat text-color="white" label="IMPRESSUM"
+            to="/impressum"></q-btn>
+          <q-btn class="footer-btn" :style="buttonStyle" flat text-color="white" label="PRIVACY POLICY"
+            to="/privacy"></q-btn>
+          <q-btn class="footer-btn" :style="buttonStyle" flat text-color="white" label="TERMS OF USE"
+            to="/copyright"></q-btn>
+          <q-btn class="footer-btn" :style="buttonStyle" flat text-color="white" label="ACCESSIBILITY STATEMENT"
             to="/accessibility"></q-btn>
         </div>
         <div :style="{ fontSize: $q.screen.lt.md ? '12' : '14' }">
@@ -53,9 +58,8 @@ export default defineComponent({
 })
 </script>
 <style>
-.q-btn {
-  margin-right: 5px;
-  margin-left: 5px;
-  padding: 0px;
+.footer-btn {
+  padding: 0;
+  margin: 0;
 }
 </style>

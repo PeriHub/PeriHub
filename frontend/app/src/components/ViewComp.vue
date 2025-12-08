@@ -14,7 +14,7 @@ SPDX-License-Identifier: Apache-2.0
       <q-tab name="jobs" label="Jobs"></q-tab>
       <q-tab name="results" label="Results"></q-tab>
       <q-tab name="plotly" label="Plotly"></q-tab>
-      <q-tab name="json" label="Json"></q-tab>
+      <!-- <q-tab name="json" label="Json"></q-tab> -->
       <q-tab v-show="store.saveEnergy" name="renewable" label="Renewable"></q-tab>
       <!-- <q-tab name="trame" label="Trame"></q-tab> -->
     </q-tabs>

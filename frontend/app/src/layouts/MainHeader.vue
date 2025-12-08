@@ -23,12 +23,11 @@ SPDX-License-Identifier: Apache-2.0
       <q-space></q-space>
 
       <q-btn round color="white" @click="dialogUserSettings = true">
-        <q-avatar v-if="!store.useGravatar" size="38px" color="primary">{{ store.gravatarUrl }}</q-avatar>
+        <q-avatar v-if="!store.useGravatar" size="38px" color="primary" icon="person" />
         <q-avatar v-if="store.useGravatar">
           <img :src="store.gravatarUrl">
         </q-avatar>
       </q-btn>
-
       <q-toggle v-model="store.saveEnergy" checked-icon="eco" color="green" unchecked-icon="bolt"></q-toggle>
 
       <q-toggle v-model="store.darkMode" @click="toggleDarkMode" checked-icon="dark_mode" color="red"

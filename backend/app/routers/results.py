@@ -68,8 +68,8 @@ async def run_own_analysis(
 
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
-    valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
-    analysis_valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["analysisValves"]}
+    valves_dict = {valve["name"]: eval(valve["value_type"])(valve["value"]) for valve in valves.model_dump()["valves"]}
+    analysis_valves_dict = {valve["name"]: eval(valve["value_type"])(valve["value"]) for valve in valves.model_dump()["analysisValves"]}
 
     try:
         module = getattr(

@@ -3245,6 +3245,9 @@ export const $Valve = {
             ],
             title: 'Value'
         },
+        value_type: {
+            title: 'Value Type'
+        },
         label: {
             type: 'string',
             title: 'Label'
@@ -3283,7 +3286,7 @@ export const $Valve = {
         }
     },
     type: 'object',
-    required: ['name', 'type', 'value', 'label', 'description', 'options', 'depends'],
+    required: ['name', 'type', 'value', 'value_type', 'label', 'description', 'options', 'depends'],
     title: 'Valve'
 } as const;
 
@@ -3335,10 +3338,18 @@ export const $VersionData = {
         latest: {
             type: 'string',
             title: 'Latest'
+        },
+        perilab_current: {
+            type: 'string',
+            title: 'Perilab Current'
+        },
+        perilab_latest: {
+            type: 'string',
+            title: 'Perilab Latest'
         }
     },
     type: 'object',
-    required: ['current', 'latest'],
+    required: ['current', 'latest', 'perilab_current', 'perilab_latest'],
     title: 'VersionData'
 } as const;
 

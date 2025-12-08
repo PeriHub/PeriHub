@@ -96,7 +96,7 @@ def generate_model(
 
     if not data.model.ownModel:
 
-        valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
+        valves_dict = {valve["name"]: eval(valve["value_type"])(valve["value"]) for valve in valves.model_dump()["valves"]}
 
         try:
             module = getattr(

@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <template>
   <div class="row">
-    <q-btn flat icon="fas fa-upload" @click="readData" :disable="store.TRIAL">
+    <q-btn class="action-btn" flat icon="fas fa-upload" @click="readData" :disable="store.TRIAL">
       <q-tooltip>
         <div v-if="!store.TRIAL">Load Model</div>
         <div v-if="store.TRIAL">Disabled in trial version</div>
@@ -14,31 +14,31 @@ SPDX-License-Identifier: Apache-2.0
     </q-btn>
     <input type="file" style="display: none" ref="fileInput" accept="application/json" @change="onFilePicked" />
 
-    <q-btn flat icon="fas fa-save" @click="saveData">
+    <q-btn class="action-btn" flat icon="fas fa-save" @click="saveData">
       <q-tooltip>
         Save as JSON
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="store.DEV" flat icon="fas fa-save" @click="_saveConfig">
+    <q-btn v-if="store.DEV" class="action-btn" flat icon="fas fa-save" @click="_saveConfig">
       <q-tooltip>
         Save Config
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="!modelData.model.ownModel" flat icon="fas fa-undo" @click="$bus.emit('resetData')">
+    <q-btn v-if="!modelData.model.ownModel" class="action-btn" flat icon="fas fa-undo" @click="$bus.emit('resetData')">
       <q-tooltip>
         Reset Data
       </q-tooltip>
     </q-btn>
 
-    <q-btn flat icon="fas fa-cogs" @click="generateModel">
+    <q-btn class="action-btn" flat icon="fas fa-cogs" @click="generateModel">
       <q-tooltip>
         Generate Model
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-upload" @click="dialogUpload = true"
+    <q-btn v-if="modelData.model.ownModel" class="action-btn" flat icon="fas fa-upload" @click="dialogUpload = true"
       :disable="store.TRIAL">
       <q-tooltip>
         <div v-if="!store.TRIAL">Upload Modelfiles</div>
@@ -46,14 +46,14 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn flat icon="fas fa-download" @click="saveModel" :loading="modelLoading"
+    <q-btn class="action-btn" flat icon="fas fa-download" @click="saveModel" :loading="modelLoading"
       :disable="modelLoading || !status.created">
       <q-tooltip>
         Download Modelfiles
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="modelData.model.ownModel" flat icon="fas fa-backward" @click="switchModels">
+    <q-btn v-if="modelData.model.ownModel" class="action-btn" flat icon="fas fa-backward" @click="switchModels">
       <q-tooltip>
         Use predefined Models
       </q-tooltip>
@@ -61,13 +61,13 @@ SPDX-License-Identifier: Apache-2.0
 
     <q-space></q-space>
 
-    <q-btn flat icon="fas fa-sort" @click="$bus.emit('openHidePanels')">
+    <q-btn class="action-btn" flat icon="fas fa-sort" @click="$bus.emit('openHidePanels')">
       <q-tooltip>
         Collapse/Expand all panel
       </q-tooltip>
     </q-btn>
 
-    <q-btn flat icon="fas fa-info" @click="$bus.emit('showTutorial')">
+    <q-btn class="action-btn" flat icon="fas fa-info" @click="$bus.emit('showTutorial')">
       <q-tooltip>
         Show Tutorial
       </q-tooltip>
@@ -428,7 +428,7 @@ export default defineComponent({
 })
 </script>
 <style>
-.q-btn {
+.action-btn {
   padding-right: 5px;
 }
 </style>
