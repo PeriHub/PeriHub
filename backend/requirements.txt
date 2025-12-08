@@ -21,6 +21,5 @@ random-username
 python-magic
 python-slugify
 pandas
-aiohttp
 toml
 magicattr

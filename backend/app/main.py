@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from re import match
 
-import aiohttp
+import requests, json
 import paramiko
 import toml
 from fastapi import (
@@ -226,6 +226,12 @@ async def websocket_endpoint_log(
         except RuntimeError as e:
             pass
 
+def get_latest_release(owner: str, repo: str) -> dict:
+    """Return the JSON payload for the latest GitHub release."""
+    url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+    r = requests.get(url, timeout=10)            # <-- add headers if you hit rate‑limit
+    r.raise_for_status()                        # raise an HTTPError for 4xx/5xx
+    return r.json()                              # a Python dict
 
 @app.get("/updates", operation_id="get_version")
 async def get_app_latest_release_version() -> VersionData:
@@ -256,27 +262,13 @@ async def get_app_latest_release_version() -> VersionData:
         perilab_current = stdout.read().decode().strip()
 
     ssh.close()
+
     try:
-        timeout = aiohttp.ClientTimeout(total=1)
-        async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
-            async with session.get(
-                "https://api.github.com/repos/PeriHub/PeriHub/releases/latest",
-                ssl=True,
-            ) as response:
-                response.raise_for_status()
-                data = await response.json()
-                latest_version = data["tag_name"]
+        release = get_latest_release("PeriHub", "PeriHub")
+        latest = release["tag_name"]
 
-                latest=latest_version[1:]
-            async with session.get(
-                "https://api.github.com/repos/PeriHub/PeriLab.jl/releases/latest",
-                ssl=True,
-            ) as response:
-                response.raise_for_status()
-                data = await response.json()
-                latest_version = data["tag_name"]
-
-                perilab_latest=latest_version[1:]
+        release = get_latest_release("PeriHub", "PeriLab.jl")
+        perilab_latest = release["tag_name"]
     except Exception as e:
         log.debug(e)
 
