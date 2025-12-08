@@ -24,12 +24,15 @@ load_dotenv()
 # Access the variables using os.getenv
 trial = False
 dev = False
+frontmatter_installation = True
 if os.getenv("TRIAL") == "True":
     trial = True
     log.info("Running in trial mode")
 if os.getenv("DEV") == "True":
     dev = True
     log.info("Running in dev mode")
+if os.getenv("FRONTMATTER_INSTALLATION") == "False":
+    frontmatter_installation = False
 max_nodes = int(os.getenv("MAX_NODES", default="10000"))
 cluster_url = os.getenv("CLUSTER_URL", default="")
 cluster_user = os.getenv("CLUSTER_USER", default="")

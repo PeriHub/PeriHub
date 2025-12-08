@@ -131,49 +131,9 @@ async def run_model(
         ) as file:
             file.write(sh_string)
         os.chmod(os.path.join(remotepath, "runPerilab.sh"), 0o0755)
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-        while True:
-            try:
-                ssh.connect(
-                    server,
-                    port=22,
-                    username="root",
-                    allow_agent=False,
-                    password="root",
-                    timeout=5,
-                )
-            except paramiko.SSHException:
-                log.error("ssh connection to %s failed!", server)
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to " + server + " failed!"
-                )
-            except socket.gaierror:
-                if server != "localhost":
-                    server = "localhost"
-                    log.info("retrying ssh connection to %s", server)
-                    continue
-                else:
-                    log.error(
-                        "ssh connection to %s failed! Is the PeriLab Service running?",
-                        server,
-                    )
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail="ssh connection to " + server + " failed! Is the PeriLab Service running?",
-                    )
-            except Exception as e:
-                log.error(type(e))
-                log.error(
-                    "ssh connection to %s failed! Is the PeriLab Service running?",
-                    server,
-                )
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="ssh connection to " + server + " failed! Is the PeriLab Service running?",
-                )
-            break
+        ssh = FileHandler.ssh_to_perilab()
+        
         command = (
             "cd /app" + "/simulations/" + os.path.join(username, model_name, model_folder_name) + " \n sh runPerilab.sh > /dev/null 2>&1 &"
         )

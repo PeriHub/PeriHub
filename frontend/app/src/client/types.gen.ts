@@ -432,10 +432,10 @@ export type ValidationError = {
 export type Valve = {
     name: string;
     type: 'text' | 'number' | 'select' | 'checkbox' | 'data';
-    value: number | boolean;
+    value: number | boolean | string;
     label: string;
     description: string;
-    options: Array<(string)> | null;
+    options: Array<(string)> | string | null;
     depends: string | null;
 };
 
@@ -443,6 +443,7 @@ export type type = 'text' | 'number' | 'select' | 'checkbox' | 'data';
 
 export type Valves = {
     valves: Array<Valve>;
+    analysisValves: Array<Valve>;
 };
 
 export type Verlet = {
@@ -632,7 +633,6 @@ export type GetStatusResponse = Status;
 
 export type RunOwnAnalysisData = {
     modelName?: string;
-    output?: string;
     requestBody: Body_run_own_analysis;
 };
 

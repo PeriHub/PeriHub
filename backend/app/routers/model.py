@@ -97,14 +97,14 @@ def get_valves(model_name: str, source: bool = False) -> Valves:
         try:
             module = importlib.import_module(parent_path + ".own_models." + model_name + "." + model_name, package=".")
         except:
-            return {"valves": []}
+            return {"valves": [], "analysisValves": []}
     if not hasattr(module, "Valves"):
-        return {"valves": []}
+        return {"valves": [], "analysisValves": []}
     my_class = getattr(module, "Valves")
     my_instance = my_class()
 
     fields = my_instance.__fields__
-    response = {"valves": []}
+    response = {"valves": [], "analysisValves": []}
     for key in fields:
         type = "text"
         if fields[key].annotation.__name__ == "bool":
@@ -115,7 +115,10 @@ def get_valves(model_name: str, source: bool = False) -> Valves:
             type = "number"
         elif fields[key].annotation.__name__ == "str" and fields[key].examples:
             type = "select"
-        response["valves"].append(
+        response_key = "valves"
+        if key.startswith("ANALYSIS_"):
+          response_key = "analysisValves"
+        response[response_key].append(
             {
                 "name": key,
                 "type": type,

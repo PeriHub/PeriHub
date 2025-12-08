@@ -3238,6 +3238,9 @@ export const $Valve = {
                 },
                 {
                     type: 'boolean'
+                },
+                {
+                    type: 'string'
                 }
             ],
             title: 'Value'
@@ -3257,6 +3260,9 @@ export const $Valve = {
                         type: 'string'
                     },
                     type: 'array'
+                },
+                {
+                    type: 'string'
                 },
                 {
                     type: 'null'
@@ -3289,10 +3295,17 @@ export const $Valves = {
             },
             type: 'array',
             title: 'Valves'
+        },
+        analysisValves: {
+            items: {
+                '$ref': '#/components/schemas/Valve'
+            },
+            type: 'array',
+            title: 'Analysisvalves'
         }
     },
     type: 'object',
-    required: ['valves'],
+    required: ['valves', 'analysisValves'],
     title: 'Valves'
 } as const;
 

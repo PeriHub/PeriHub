@@ -12,6 +12,8 @@ from pydantic import BaseModel
 class VersionData(BaseModel):
     current: str
     latest: str
+    perilab_current: str
+    perilab_latest: str
 
 
 class PointDataResults(BaseModel):
@@ -45,15 +47,16 @@ class Deviations(BaseModel):
 class Valve(BaseModel):
     name: str
     type: Literal["text", "number", "select", "checkbox", "data"]
-    value: Union[int, float, bool]
+    value: Union[int, float, bool, str]
     label: str
     description: str
-    options: Optional[List[str]]
+    options: Optional[Union[List[str],str]]
     depends: Optional[str]
 
 
 class Valves(BaseModel):
     valves: List[Valve]
+    analysisValves: List[Valve]
 
 
 class Status(BaseModel):

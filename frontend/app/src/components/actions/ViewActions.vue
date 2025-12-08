@@ -99,115 +99,57 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <!-- <q-btn v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel'].includes(modelStore.selectedModel.file)" flat
-      icon="fas fa-image" @click="dialogGetFractureAnalysis = true" :disable="!store.status.results">
-      <q-tooltip>
-        Show Fracture Analysis
-      </q-tooltip>
-    </q-btn>
-    <q-btn
-      v-if="['CompactTension', 'DCBmodel', 'KIICmodel', 'ENFmodel', 'DIN6034'].includes(modelStore.selectedModel.file)"
-      flat icon="fas fa-image" @click="dialogGetEnergyReleasePlot = true, updatePlotVariables()"
+    <q-btn v-if="modelStore.selectedModel.analysis" flat icon="fas fa-image" @click="openAnalysisDialog()"
       :disable="!store.status.results">
       <q-tooltip>
-        Show Energy Release Plot
+        {{ modelStore.selectedModel.analysis }}
       </q-tooltip>
     </q-btn>
-    <q-dialog v-model="dialogGetFractureAnalysis" persistent max-width="800">
+    <q-dialog v-model="dialogGetAnalysis" persistent max-width="800">
       <q-card>
         <q-card-section>
-          <div class="text-h6">Show Fracture Analysis</div>
+          <div class="text-h6">{{ modelStore.selectedModel.analysis }}</div>
         </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          Which output do you want to analyse?
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
-            v-model="getImageOutput" label="Output Name" standout dense></q-select>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.int]" label="Time Step"
-            standout dense></q-input>
-        </q-card-section>
+        <div v-for="param in modelStore.modelParams.analysisValves" :key="param.name">
+          <!-- @vue-expect-error Bla-->
+          <div v-if="!param.depends || modelStore.modelParams.analysisValves.find(o => o.name === param.depends).value">
+            <!-- @vue-expect-error Bla-->
+            <q-input class="my-select"
+              v-if="typeof (param.value) != 'boolean' && ['text', 'number'].includes(param.type)" :label="param.label"
+              v-model="param.value" :type="param.type" standout dense>
+              <q-tooltip>
+                {{ param.description }}
+              </q-tooltip>
+            </q-input>
+            <q-select class="my-select" standout dense
+              v-if="param.type == 'select' && param.options && typeof (param.options) == 'object'"
+              :options="param.options" option-label="name" v-model="param.value" :label="param.label">
+              <q-tooltip>
+                {{ param.description }}
+              </q-tooltip>
+            </q-select>
+            <q-select class="my-select" standout dense
+              v-if="param.type == 'select' && param.options && typeof (param.options) == 'string'"
+              :options="modelData[param.options]" option-label="name" option-value="name" emit-value
+              v-model="param.value" :label="param.label">
+              <q-tooltip>
+                {{ param.description }}
+              </q-tooltip>
+            </q-select>
+            <q-toggle class="my-toggle" standout dense v-if="param.type == 'checkbox'" v-model="param.value"
+              :label="param.label">
+              <q-tooltip>
+                {{ param.description }}
+              </q-tooltip>
+            </q-toggle>
+          </div>
+        </div>
         <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="getFractureAnalysis"></q-btn>
+          <q-btn flat label="Show" color="primary" v-close-popup @click="_getAnalysis"></q-btn>
           <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
-
-    <q-dialog v-model="dialogGetEnergyReleasePlot" persistent max-width="800">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Show Energy Release Plot</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          Which output do you want to analyse?
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.int]" label="Time Step"
-            standout dense></q-input>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
-            v-model="getPlotOutput" label="Exodus Output File" standout dense></q-select>
-          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
-            v-model="getPlotOutputCsv" label="CSV Output File" standout dense></q-select>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="getPlotVariables" v-model="getEnergyPlotVariableX"
-            label="Displacement Variable" standout dense></q-select>
-          <q-select class="my-select" :options="getPlotVariables" v-model="getEnergyPlotVariableY"
-            label="Force Variable" standout dense></q-select>
-          <q-select class="my-select" :options="getImageAxis" v-model="getImageAxisSelected" label="Axis" standout
-            dense></q-select>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="getEnergyReleasePlot()"></q-btn>
-          <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-btn v-if="['DIN6034'].includes(modelStore.selectedModel.file)" flat icon="fas fa-image"
-      @click="openGetEnfAnalysisDialog()" :disable="!store.status.results">
-      <q-tooltip>
-        Show ENF Analysis
-      </q-tooltip>
-    </q-btn>
-    <q-dialog v-model="dialogGetEnfAnalysis" persistent max-width="800">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Show ENF Analysis</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          Which output do you want to analyse?
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
-            v-model="getImageOutput" label="Output Name" standout dense></q-select>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.int]" label="Time Step"
-            standout dense></q-input>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="computeKeys" emit-value v-model="getAnalysisVariables[0]"
-            label="Load Variable" standout dense></q-select>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="computeKeys" emit-value v-model="getAnalysisVariables[1]"
-            label="Displacement Variable" standout dense></q-select>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="_getEnfAnalysis"></q-btn>
-          <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog> -->
 
     <q-btn v-if="viewStore.viewId == 'image'" flat icon="fas fa-download" @click="downloadModelImage()"
       :disable="!status.results">
@@ -256,67 +198,6 @@ SPDX-License-Identifier: Apache-2.0
       </q-card>
     </q-dialog>
 
-    <!-- <q-btn flat icon="fas fa-image" @click="dialogGetImagePython = true" :disable="!status.results">
-      <q-tooltip>
-        Show Image
-      </q-tooltip>
-    </q-btn> -->
-    <!-- <q-dialog v-model="dialogGetImagePython" persistent max-width="800">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Show Image</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          Which variable do you want to display?
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-select class="my-select" :options="modelData.outputs" option-label="name" option-value="name" emit-value
-            v-model="getImageOutput" label="Output Name" standout dense></q-select>
-          <q-select class="my-select" :options="getImageVariable" v-model="getImageVariableSelected" label="Variable"
-            standout dense></q-select>
-          <q-select class="my-select" :options="getImageAxis" :readonly="getImageVariableSelected == 'Damage'"
-            v-model="getImageAxisSelected" label="Axis" standout dense></q-select>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-input class="my-input" v-model="getImageDisplFactor" :rules="[rules.required, rules.name]"
-            label="Displacement Factor" standout dense></q-input>
-          <q-input class="my-input" v-show="!getImageTriangulate" v-model="getImageMarkerSize"
-            :rules="[rules.required, rules.name]" label="Marker Size" standout dense></q-input>
-          <q-input class="my-input" v-model="getImageStep" :rules="[rules.required, rules.name]" label="Time Step"
-            standout dense></q-input>
-          <q-toggle class="my-toggle" v-model="getImageTriangulate" label="Triangulate" dense></q-toggle>
-          <q-input class="my-input" v-model="getImageDxFactor" :rules="[rules.required, rules.name]" label="Dx Factor"
-            standout dense></q-input>
-          <q-toggle class="my-toggle" v-model="getImageThreeD" label="Three Dimensional" dense></q-toggle>
-          <div class="row my-row" v-show="getImageThreeD">
-            <q-input class="my-input" v-model="getImageElevation" label="Elevation" standout dense></q-input>
-            <q-input class="my-input" v-model="getImageAzimuth" label="Azimuth" standout dense></q-input>
-            <q-input class="my-input" v-model="getImageRoll" label="Roll" standout dense></q-input>
-          </div>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Show" color="primary" v-close-popup @click="getImagePython"></q-btn>
-          <q-btn flat label="Cancel" color="primary" v-close-popup></q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog> -->
-
-    <!-- <q-btn flat icon="fas fa-image" @click="getG1c" :disable="!status.results">
-            <q-tooltip>
-                Show G1c
-            </q-tooltip>
-        </q-btn>
-        <q-btn flat icon="fas fa-image" @click="getG2c" :disable="!status.results">
-            <q-tooltip>
-                Get GIIC
-            </q-tooltip>
-        </q-btn> -->
-    <!-- <q-btn flat icon="fas fa-chess-board" @click="bus.emit('viewPointData')" :disable="!status.created">
-            <q-tooltip>
-                Show Model
-            </q-tooltip>
-        </q-btn> -->
     <q-btn flat icon="fas fa-trash" @click="dialogDeleteData = true">
       <q-tooltip>
         Delete Data
@@ -452,9 +333,7 @@ export default defineComponent({
       jobIdsOptions: [1, 2, 3],
       jobIds: [],
 
-      dialogGetFractureAnalysis: false,
-      dialogGetEnergyReleasePlot: false,
-      dialogGetEnfAnalysis: false,
+      dialogGetAnalysis: false,
 
       dialogGetPlot: false,
       getPlotVariables: [] as string[],
@@ -474,7 +353,6 @@ export default defineComponent({
       dialogDeleteCookies: false,
       dialogDeleteUserData: false,
 
-      //dialogGetImagePython: false,
       getImageOutput: 'Output1',
       getImageVariable: [
         'Displacement',
@@ -763,46 +641,6 @@ export default defineComponent({
         })
       this.viewStore.modelLoading = false;
     },
-    // async getImagePython() {
-
-    //   this.viewStore.modelLoading = true;
-
-    //   await getImagePython({
-    //     model_name: this.modelStore.selectedModel.file,
-    //     model_folder_name: this.modelData.model.modelFolderName,
-    //     cluster: this.modelData.job.cluster,
-    //     tasks: this.modelData.job.tasks,
-    //     output: this.getImageOutput,
-    //     variable: this.getImageVariableSelected,
-    //     axis: this.getImageAxisSelected,
-    //     displ_factor: this.getImageDisplFactor,
-    //     marker_size: this.getImageMarkerSize,
-    //     length: this.modelData.model.length,
-    //     height: this.modelData.model.height,
-    //     triangulate: this.getImageTriangulate,
-    //     dx_value: this.viewStore.dx_value * this.getImageDxFactor,
-    //     step: this.getImageStep,
-    //     three_d: this.getImageThreeD,
-    //     elevation: this.getImageElevation,
-    //     azimuth: this.getImageAzimuth,
-    //     roll: this.getImageRoll
-    //   })
-    //     .then((response) => {
-    //       this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response]))
-    //     })
-    //     .catch((error) => {
-    //       console.log(error.response)
-    //       console.log(error.response.detail)
-    //       this.$q.notify({
-    //         type: 'negative',
-    //         message: error.response.statusText
-    //       })
-    //       this.viewStore.modelLoading = false;
-    //     })
-
-    //   this.viewStore.viewId = 'image';
-    //   this.viewStore.modelLoading = false;
-    // },
     async getFractureAnalysis() {
 
       this.viewStore.modelLoading = true;
@@ -894,48 +732,6 @@ export default defineComponent({
       this.viewStore.viewId = 'image';
       this.viewStore.modelLoading = false;
     },
-    async getEnergyReleasePlot() {
-
-      this.viewStore.modelLoading = true;
-
-      // const api = axios.create({ baseURL: 'http://localhost:8080', headers: { 'userName': this.store.username } });
-      let thickness = null
-      if (this.modelData.model.twoDimensional) {
-        thickness = this.damages[0]!.thickness;
-      }
-
-      const params = {
-        model_name: this.modelStore.selectedModel.file,
-        model_folder_name: this.modelData.model.modelFolderName,
-        cluster: this.modelData.job.cluster,
-        output_exodus: this.getPlotOutput,
-        output_csv: this.getPlotOutputCsv,
-        tasks: this.modelData.job.tasks,
-        force_output_name: this.getEnergyPlotVariableY + this.getImageAxisSelected.toLowerCase(),
-        displacement_output_name: this.getEnergyPlotVariableX + this.getImageAxisSelected.toLowerCase(),
-        step: this.getImageStep,
-        thickness: thickness,
-        // crack_start: this.modelData.bondFilters[0].lowerLeftCornerX + this.modelData.bondFilters[0].bottomLength,
-      }
-      await api.get('/results/getEnergyReleasePlot', { params, responseType: 'blob' })
-        .then((response) => {
-          console.log(response)
-          this.viewStore.modelImg = window.URL.createObjectURL(new Blob([response.data]))
-          this.$q.notify({
-            message: 'Fracture analyzed',
-          })
-        })
-        .catch((error) => {
-          this.$q.notify({
-            type: 'negative',
-            message: JSON.stringify(error.message)
-          })
-          this.viewStore.modelLoading = false;
-        })
-
-      this.viewStore.viewId = 'image';
-      this.viewStore.modelLoading = false;
-    },
     downloadModelImage() {
       const fileLink = document.createElement('a');
       fileLink.href = this.viewStore.modelImg;
@@ -943,53 +739,15 @@ export default defineComponent({
       document.body.appendChild(fileLink);
       fileLink.click();
     },
-    // async getG1c() {
-    //   let headersList = {
-    //     'Cache-Control': 'no-cache',
-    //     Authorization: this.authToken,
-    //   };
-
-    //   let reqOptions = {
-    //     url: this.url + 'calculateG1c',
-    //     params: {
-    //       youngs_modulus: this.materials[0].youngsModulus,
-    //       model_name: this.model.modelNameSelected,
-    //       model_folder_name: this.modelData.model.modelFolderName,
-    //       cluster: this.job.cluster,
-    //     },
-    //     data: this.model,
-    //     method: 'POST',
-    //     responseType: 'blob',
-    //     headers: headersList,
-    //   };
-
-    //   this.viewStore.modelLoading = true;
-    //   await axios
-    //     .request(reqOptions)
-    //     .then(
-    //       (response) =>
-    //       (this.modelImg = window.URL.createObjectURL(
-    //         new Blob([response.data])
-    //       ))
-    //     )
-    //     .catch((error) => {
-    //       this.message = error;
-    //       this.snackbar = true;
-    //       this.viewStore.modelLoading = false;
-    //       return;
-    //     });
-    //   this.viewStore.viewId = 0;
-    //   this.viewStore.modelLoading = false;
-    // },
-    openGetEnfAnalysisDialog() {
+    openAnalysisDialog() {
       const outputKeys = []
       for (let i = 0; i < this.computes.length; i++) {
         outputKeys.push(this.computes[i]!.name)
       }
       this.computeKeys = outputKeys
-      this.dialogGetEnfAnalysis = true;
+      this.dialogGetAnalysis = true;
     },
-    async _getEnfAnalysis() {
+    async _getAnalysis() {
       this.viewStore.modelLoading = true;
 
       // let length = 0
@@ -1030,7 +788,6 @@ export default defineComponent({
       }
       await runOwnAnalysis({
         modelName: this.modelStore.selectedModel.file,
-        output: this.getImageOutput,
         requestBody: body
       })
         .then((response) => {

@@ -13,6 +13,7 @@
     <q-item-label header v-if="store.TRIAL">Trial mode enabled, different features are disabled! </q-item-label>
     <q-item-label header v-if="store.cluster != ''">Configured Cluster: {{ store.cluster }}</q-item-label>
     <q-item-label header> PeriHub Version: {{ version.current }} / {{ version.latest }}</q-item-label>
+    <q-item-label header> Perilab Version: {{ version.perilab_current }} / {{ version.perilab_latest }}</q-item-label>
     <!-- <q-item dense>
       <q-item-section avatar>
         <q-icon name="link" />

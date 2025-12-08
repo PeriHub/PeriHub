@@ -503,7 +503,6 @@ export const getStatus = (data: GetStatusData = {}): CancelablePromise<GetStatus
  * @param data The data for the request.
  * @param data.requestBody
  * @param data.modelName
- * @param data.output
  * @returns string Successful Response
  * @throws ApiError
  */
@@ -511,8 +510,7 @@ export const runOwnAnalysis = (data: RunOwnAnalysisData): CancelablePromise<RunO
     method: 'POST',
     url: '/results/runOwnAnalysis',
     query: {
-        model_name: data.modelName,
-        output: data.output
+        model_name: data.modelName
     },
     body: data.requestBody,
     mediaType: 'application/json',

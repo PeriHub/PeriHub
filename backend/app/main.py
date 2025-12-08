@@ -35,8 +35,7 @@ from .routers import (
 )
 from .support.base_models import VersionData
 from .support.file_handler import FileHandler
-from .support.globals import dev, log, trial
-
+from .support.globals import dev, log, trial, frontmatter_installation
 tags_metadata = [
     {
         "name": "Generate Methods",
@@ -61,17 +60,18 @@ tags_metadata = [
 async def lifespan(app: FastAPI):
     """Startup and shutdown of the application."""
     # Startup
-    file_path = str(Path(__file__).parent.resolve())
-    try:
-        for model in os.listdir(file_path + "/own_models"):
-            if model.startswith("__"):
-                continue
-            doc_string = FileHandler.get_docstring(os.path.join(file_path, "own_models", model, model + ".py"))
-            if doc_string:
-                doc_dict = FileHandler.doc_to_dict(doc_string)
-                FileHandler.install_frontmatter_requirements(doc_dict.get("requirements", ""))
-    except FileNotFoundError as e:
-        print(e)
+    if frontmatter_installation:
+        file_path = str(Path(__file__).parent.resolve())
+        try:
+            for model in os.listdir(file_path + "/own_models"):
+                if model.startswith("__"):
+                    continue
+                doc_string = FileHandler.get_docstring(os.path.join(file_path, "own_models", model, model + ".py"))
+                if doc_string:
+                    doc_dict = FileHandler.doc_to_dict(doc_string)
+                    FileHandler.install_frontmatter_requirements(doc_dict.get("requirements", ""))
+        except FileNotFoundError as e:
+            print(e)
     yield
     # Shutdown
 
@@ -229,18 +229,33 @@ async def websocket_endpoint_log(
 
 @app.get("/updates", operation_id="get_version")
 async def get_app_latest_release_version() -> VersionData:
-    version = "unknown"
+    current = "unknown"
+    latest = "unknown"
+    perilab_current = "unknown"
+    perilab_latest = "unknown"
     # adopt path to your pyproject.toml
     pyproject_toml_file = Path(__file__).parent / "pyproject.toml"
     if pyproject_toml_file.exists() and pyproject_toml_file.is_file():
         data = toml.load(pyproject_toml_file)
         # check project.version
         if "project" in data and "version" in data["project"]:
-            version = data["project"]["version"]
+            current = data["project"]["version"]
         # check tool.poetry.version
         elif "tool" in data and "poetry" in data["tool"] and "version" in data["tool"]["poetry"]:
-            version = data["tool"]["poetry"]["version"]
-    print(version)
+            current = data["tool"]["poetry"]["version"]
+    
+    ssh = FileHandler.ssh_to_perilab()
+    stdin, stdout, stderr = ssh.exec_command(
+        "cd /app \n awk -F'\"' '/version/{print $2}' Project.toml"
+    )
+
+    err = stderr.read().decode().strip()
+    if err:
+        print(f"❌ Error while reading Project.toml: {err}")
+    else:
+        perilab_current = stdout.read().decode().strip()
+
+    ssh.close()
     try:
         timeout = aiohttp.ClientTimeout(total=1)
         async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
@@ -252,7 +267,17 @@ async def get_app_latest_release_version() -> VersionData:
                 data = await response.json()
                 latest_version = data["tag_name"]
 
-                return VersionData(current=version, latest=latest_version[1:])
+                latest=latest_version[1:]
+            async with session.get(
+                "https://api.github.com/repos/PeriHub/PeriLab.jl/releases/latest",
+                ssl=True,
+            ) as response:
+                response.raise_for_status()
+                data = await response.json()
+                latest_version = data["tag_name"]
+
+                perilab_latest=latest_version[1:]
     except Exception as e:
         log.debug(e)
-        return  VersionData(current=version, latest="-")
+
+    return  VersionData(current=current, latest=latest, perilab_current=perilab_current, perilab_latest=perilab_latest)

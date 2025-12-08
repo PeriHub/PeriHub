@@ -52,7 +52,6 @@ async def run_own_analysis(
     data: ModelData,
     valves: Valves,
     model_name: str = "ENFmodel",
-    output: str = "Output1",
     request: Request = "",
 )-> str:
     """doc"""
@@ -63,13 +62,14 @@ async def run_own_analysis(
     tasks = data.job.tasks
 
     if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output
+        username, model_name, model_folder_name, cluster, False, tasks
     ):
         raise IOError  # NotFoundException(name=model_name)
 
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
     valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["valves"]}
+    analysis_valves_dict = {valve["name"]: valve["value"] for valve in valves.model_dump()["analysisValves"]}
 
     try:
         module = getattr(
@@ -87,8 +87,8 @@ async def run_own_analysis(
                 detail="Model Name unknown",
             )
 
-    model = module(valves_dict, data)
-    return model.analysis(model_name, resultpath, output)
+    model = module(valves_dict, data, analysis_valves_dict)
+    return model.analysis(model_name, resultpath)
 
 @router.get(
     "/getResultFile",
@@ -129,7 +129,7 @@ def get_fracture_analysis(
     username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output
+        username, model_name, model_folder_name, cluster, False, tasks
     ):
         raise IOError  # NotFoundException(name=model_name)
 
@@ -153,87 +153,6 @@ def get_fracture_analysis(
 
     return FileResponse(filepath, media_type="image/png")
 
-
-@router.get("/getEnergyReleasePlot", operation_id="get_energy_release_plot")
-def get_energy_release_plot(
-    model_name: str = "Dogbone",
-    model_folder_name: str = "Default",
-    cluster: bool = False,
-    output_exodus: str = "Output1",
-    output_csv: str = "Output2",
-    tasks: int = 1,
-    force_output_name: str = "External_Forcey",
-    displacement_output_name: str = "External_Displacementy",
-    step: int = -1,
-    thickness: float = None,
-    # crack_start: float = 56.25,
-    request: Request = "",
-):
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output_exodus
-    ):
-        raise IOError  # NotFoundException(name=model_name)
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output_csv
-    ):
-        raise IOError  # NotFoundException(name=model_name)
-
-    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-    file = os.path.join(resultpath, model_name + "_" + output_csv + ".csv")
-    result_file = os.path.join(resultpath, model_name + "_" + output_csv + ".png")
-
-    if not os.path.exists(file):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=model_name + "_" + output_csv + ".csv can not be found"
-        )
-
-    df = pd.read_csv(file)
-
-    file = os.path.join(resultpath, model_name + "_" + output_exodus + ".e")
-    (crack_length, crack_width, time) = CrackAnalysis.get_crack_length(file, step)
-
-    x = df[displacement_output_name]
-    y1 = df[force_output_name]
-
-    time_array = df["Time"]
-    index = np.argmin(np.abs(time_array - time))
-    y2 = np.linspace(0, y1[index], index)
-
-    plt.clf()
-    plt.plot(x, df[force_output_name], label="Original data")
-
-    x = x[:index]
-    y1 = y1[:index]
-
-    plt.plot(x, y2, "r", label="Linear equation (y=x+2)")
-    plt.fill_between(x, y1, y2, alpha=0.3, label="Area between lines")
-
-    z = np.array(y1 - y2)
-    dx = x[2] - x[1]
-    areas_pos = abs(z[:-1] + z[1:]) * 0.5 * dx
-    dissipated_energy = np.sum(areas_pos)
-
-    thickness_crack = thickness
-    if thickness == None:
-        thickness_crack = crack_width
-
-    GIC = dissipated_energy / (thickness_crack * crack_length)
-
-    # Add title and labels
-    plt.title(f"Energy: {round(dissipated_energy,4)} | Crack: {round(crack_length,4)}mm | GIC: {round(GIC,4)}N/mm")
-    plt.xlabel("Displacement [mm]")
-    plt.ylabel("Force [N]")
-    plt.legend()
-
-    # Display the plot
-    plt.savefig(result_file)
-
-    return FileResponse(result_file, media_type="image/png")
-
-
 @router.get("/getPlot", operation_id="get_plot")
 def get_plot(
     model_name: str = "Dogbone",
@@ -253,7 +172,7 @@ def get_plot(
     username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output
+        username, model_name, model_folder_name, cluster, False, tasks
     ):
         log.warning("Results not found")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Results not found")
@@ -306,7 +225,7 @@ def get_results(
     username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, all_data, tasks, output
+        username, model_name, model_folder_name, cluster, all_data, tasks
     ):
         raise HTTPException(
             status_code=404,
@@ -472,7 +391,7 @@ def get_data(
     username = FileHandler.get_user_name(request, dev)
 
     if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks, output
+        username, model_name, model_folder_name, cluster, False, tasks
     ):
         raise IOError  # NotFoundException(name=model_name)
 

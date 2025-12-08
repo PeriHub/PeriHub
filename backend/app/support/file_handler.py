@@ -398,7 +398,6 @@ class FileHandler:
         cluster,
         all_data,
         tasks,
-        output,
         filetype=".e",
     ):
         """doc"""
@@ -536,6 +535,57 @@ class FileHandler:
             return True
         except FileNotFoundError:
             return False
+
+    @staticmethod
+    def ssh_to_perilab():
+        """doc"""
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        server = "perihub_perilab"
+        
+        while True:
+            try:
+                ssh.connect(
+                    server,
+                    port=22,
+                    username="root",
+                    allow_agent=False,
+                    password="root",
+                    timeout=5,
+                )
+            except paramiko.SSHException:
+                log.error("ssh connection to %s failed!", server)
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to " + server + " failed!"
+                )
+            except socket.gaierror:
+                if server != "localhost":
+                    server = "localhost"
+                    log.info("retrying ssh connection to %s", server)
+                    continue
+                else:
+                    log.error(
+                        "ssh connection to %s failed! Is the PeriLab Service running?",
+                        server,
+                    )
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="ssh connection to " + server + " failed! Is the PeriLab Service running?",
+                    )
+            except Exception as e:
+                log.error(type(e))
+                log.error(
+                    "ssh connection to %s failed! Is the PeriLab Service running?",
+                    server,
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="ssh connection to " + server + " failed! Is the PeriLab Service running?",
+                )
+            break
+        return ssh
 
     @staticmethod
     def ssh_to_cluster(cluster):
