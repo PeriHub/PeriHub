@@ -14,44 +14,43 @@ SPDX-License-Identifier: Apache-2.0
           </q-tooltip>
         </q-btn>
         <!-- @vue-ignore -->
-        <q-btn padding="none" flat dense icon="fas fa-expand" @click="$refs.view.resetCamera()">
+        <q-btn flat dense icon="fas fa-expand" @click="$refs.view.resetCamera()">
           <q-tooltip>
             Reset Camera
           </q-tooltip>
         </q-btn>
-        <q-btn :disabled="modelParams.step == 1" padding="none" flat dense icon="fas fa-fast-backward"
-          @click="fastBackward()">
+        <q-btn :disabled="modelParams.step == 1" flat dense icon="fas fa-fast-backward" @click="fastBackward()">
           <q-tooltip>
             Fast Backward
           </q-tooltip>
         </q-btn>
-        <q-btn padding="none" flat dense icon="fas fa-backward" @click="backward()">
+        <q-btn flat dense icon="fas fa-backward" @click="backward()">
           <q-tooltip>
             Backward
           </q-tooltip>
         </q-btn>
-        <q-btn :disabled="!playing" padding="none" flat dense icon="fas fa-pause" @click="pause()">
+        <q-btn :disabled="!playing" flat dense icon="fas fa-pause" @click="pause()">
           <q-tooltip>
             Pause
           </q-tooltip>
         </q-btn>
-        <q-btn :disabled="playing" padding="none" flat dense icon="fas fa-play" @click="play()">
+        <q-btn :disabled="playing" flat dense icon="fas fa-play" @click="play()">
           <q-tooltip>
             Play
           </q-tooltip>
         </q-btn>
-        <q-btn padding="none" flat dense icon="fas fa-forward" @click="forward()">
+        <q-btn flat dense icon="fas fa-forward" @click="forward()">
           <q-tooltip>
             Forward
           </q-tooltip>
         </q-btn>
-        <q-btn :disabled="modelParams.step == modelParams.numberOfSteps" padding="none" flat dense
-          icon="fas fa-fast-forward" @click="fastForward()">
+        <q-btn :disabled="modelParams.step == modelParams.numberOfSteps" flat dense icon="fas fa-fast-forward"
+          @click="fastForward()">
           <q-tooltip>
             Fast Forward
           </q-tooltip>
         </q-btn>
-        <q-item style="padding-right: 5px">
+        <q-item style="padding-right: 2px">
           <q-item-section style="width: 10px; margin-right:15px" side>
             <q-icon color=" #cfcfcf" name="fas fa-clock" />
           </q-item-section>
@@ -76,7 +75,7 @@ SPDX-License-Identifier: Apache-2.0
           <q-input v-model.number="modelParams.displFactor" type="number" label="Displ. Magnitude" outlined dense
             debounce:500 @update:model-value="viewPointData"></q-input>
         </div> -->
-        <q-item style="padding-right: 5px">
+        <q-item style="padding-right: 2px">
           <q-item-section style="width: 10px; margin-right:15px" side>
             <q-icon color="#cfcfcf" name="fas fa-up-right-and-down-left-from-center" />
           </q-item-section>
@@ -86,7 +85,7 @@ SPDX-License-Identifier: Apache-2.0
               color="secondary"></q-slider>
           </q-item-section>
         </q-item>
-        <q-item style="padding-right: 5px">
+        <q-item style="padding-right: 2px">
           <q-item-section style="width: 10px; margin-right:15px" side>
             <q-icon color="#cfcfcf" name="fas fa-eye" />
           </q-item-section>
