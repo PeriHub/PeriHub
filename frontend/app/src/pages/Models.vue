@@ -5,38 +5,66 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
-  <q-page class="flex-center" style="height:100vh;">
-    <q-btn flat icon="fas fa-add" @click="dialogAddModel = true" :disable="store.TRIAL">
-      <q-tooltip>
-        <div v-if="!store.TRIAL">Add Model</div>
-        <div v-if="store.TRIAL">Disabled in trial version</div>
-      </q-tooltip>
-    </q-btn>
-    <q-select class="q-pa-sm" :options="modelList" option-label="title" v-model="selectedModel" label="Model" standout
-      dense @update:model-value="selectModel"></q-select>
+  <q-page class="flex-center">
+    <div v-if="selectedModel.file == ''" class="row justify-center full-width q-pa-md q-my-lg">
+      <q-card style="width: 400px">
+        <q-card-section v-if="modelList.length > 0">
+          <div class="text-h6" style="text-align: center">Select existing model</div>
+        </q-card-section>
+        <q-select v-if="modelList.length > 0" dense class="q-pa-md" :options="modelList" option-label="title"
+          v-model="selectedModel" label="Model" standout @update:model-value="selectModel"></q-select>
 
-    <q-splitter v-model="verticalSplitterModel" class="body" :limits="[0, 100]" style="height:calc(100vh - 225px);">
-      <template v-slot:before>
-        <q-scroll-area style="height:100%;">
+        <q-separator inset />
+        <q-card-section v-if="modelList.length > 0">
+          <div class="text-h6" style="text-align: center">Or</div>
+        </q-card-section>
+        <q-btn flat icon="fas fa-add" @click="dialogAddModel = true" :disable="store.TRIAL" style="width: 390px"
+          label="Add a new Model">
+          <q-tooltip v-if="!store.TRIAL">
+            Disabled in trial version
+          </q-tooltip>
+        </q-btn>
+      </q-card>
+    </div>
+    <div v-if="selectedModel.file != ''">
+      <q-btn flat icon="fas fa-add" @click="dialogAddModel = true" :disable="store.TRIAL">
+        <q-tooltip>
+          <div v-if="!store.TRIAL">Add Model</div>
+          <div v-if="store.TRIAL">Disabled in trial version</div>
+        </q-tooltip>
+      </q-btn>
+      <q-select class="q-pa-sm" :options="modelList" option-label="title" v-model="selectedModel" label="Model" standout
+        dense @update:model-value="selectModel"></q-select>
+
+      <q-splitter v-model="verticalSplitterModel" class="body" :limits="[0, 100]" style="height:calc(100vh - 225px);">
+        <template v-slot:before>
+          <q-resize-observer @resize="onResizeBefore" :debounce="0" />
           <div v-if="sourceCode != ''">
-            <prism-editor class="my-editor" v-model="sourceCode" :highlight="highlighter" line-numbers></prism-editor>
-            <q-btn class="q-mt-sm" color="primary" label="Save" @click="_saveModel" />
-            <q-btn class="q-mt-sm" color="negative" label="Delete" @click="dialogDeleteModel = true" />
+            <div class="row">
+              <q-btn class="q-ma-sm" color="primary" label="Save" @click="_saveModel" />
+              <q-btn class="q-ma-sm" color="negative" label="Delete" @click="dialogDeleteModel = true" />
+            </div>
+            <q-scroll-area :style="{ 'height': modelHeight }">
+              <prism-editor class="my-editor" v-model="sourceCode" :highlight="highlighter" line-numbers></prism-editor>
+            </q-scroll-area>
           </div>
-        </q-scroll-area>
-      </template>
+        </template>
 
-      <template v-slot:after>
-        <q-scroll-area style="height:100%;">
-          <div v-if="config">
-            <vue-json-pretty :data="config" :editable=true />
-            <!-- <JsonEditorVue v-model="config" :mainMenuBar=false :navigationBar=false :statusBar=false :readOnly=false
+        <template v-slot:after>
+          <q-resize-observer @resize="onResizeAfter" :debounce="0" />
+          <div v-if="Object.keys(config).length !== 0">
+            <div class="row">
+              <q-btn class="q-ma-sm" color="primary" label="Save" @click="_saveConfig" />
+            </div>
+            <q-scroll-area :style="{ 'height': configHeight }">
+              <vue-json-pretty :data="config" :editable=true />
+              <!-- <JsonEditorVue v-model="config" :mainMenuBar=false :navigationBar=false :statusBar=false :readOnly=false
               v-bind="{/* local props & attrs */ }" /> -->
-            <q-btn class="q-mt-sm" color="primary" label="Save" @click="_saveConfig" />
+            </q-scroll-area>
           </div>
-        </q-scroll-area>
-      </template>
-    </q-splitter>
+        </template>
+      </q-splitter>
+    </div>
 
     <q-dialog v-model="dialogAddModel" persistent max-width="800">
       <q-card>
@@ -116,9 +144,22 @@ export default {
       sourceCode: '',
       config: {} as ModelData,
       verticalSplitterModel: 50,
+
+      modelHeight: '400px',
+      configHeight: '400px',
     };
   },
   methods: {
+    onResizeBefore(size: object) {
+      if ('height' in size) {
+        this.modelHeight = size.height - 60 + 'px'
+      }
+    },
+    onResizeAfter(size: object) {
+      if ('height' in size) {
+        this.configHeight = size.height - 60 + 'px'
+      }
+    },
     highlighter(code: string) {
       return highlight(code, languages.py); // languages.<insert language> to return html with markup
     },
@@ -186,6 +227,7 @@ export default {
           message: 'Model deleted',
         })
         this.sourceCode = ''
+        this.config = {}
       })
       await this._getModels()
     }

@@ -101,8 +101,8 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
 
-    <q-btn v-if="modelStore.selectedModel.analysis" flat icon="fas fa-image" @click="openAnalysisDialog()"
-      :disable="!store.status.results">
+    <q-btn v-if="modelStore.selectedModel.analysis" class="action-btn" flat icon="fas fa-image"
+      @click="openAnalysisDialog()" :disable="!store.status.results">
       <q-tooltip>
         {{ modelStore.selectedModel.analysis }}
       </q-tooltip>

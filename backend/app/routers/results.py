@@ -79,8 +79,9 @@ async def run_own_analysis(
     except:
         try:
             module = load_or_reload_main(model_name)
-        except:
+        except Exception as e:
             log.error("Model Name unknown")
+            log.error(e)
 
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

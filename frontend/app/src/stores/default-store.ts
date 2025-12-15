@@ -20,8 +20,9 @@ export const useDefaultStore = defineStore('default', {
   }),
   actions: {
     initialiseStore() {
-      this.DEV = process.env.DEV?.toLowerCase?.() === 'true';
-      this.TRIAL = process.env.TRIAL?.toLowerCase?.() === 'true';
+      this.DEV = String(process.env.DEV).toLowerCase() === 'true';
+      console.log(this.DEV);
+      this.TRIAL = String(process.env.TRIAL).toLowerCase() === 'true';
     },
     toggleDarkMode() {
       this.darkMode = !this.darkMode;

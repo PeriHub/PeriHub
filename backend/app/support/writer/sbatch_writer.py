@@ -75,8 +75,8 @@ class SbatchCreator:
         """doc"""
 
         string = "#!/bin/sh \n"
-        string = "trap 'rm pid.txt; exit 1' 0 1 2 3 6 9 14 15 \n"
-        string = "> pid.txt \n"
+        string += "trap 'rm pid.txt; exit 1' 0 1 2 3 6 9 14 15 \n"
+        string += "> pid.txt \n"
         for job_id in self.job_ids.split(","):
             filename = self.filename + ".yaml"
             if job_id != "-1":
@@ -98,9 +98,7 @@ class SbatchCreator:
             string += " & echo $! >> pid.txt \n"
         string += "while read -r pid; do \n"
         string += "    wait $pid \n"
-        string += "    echo 'Job $pid finished.' \n"
         string += "done < pid.txt \n"
         string += "rm pid.txt \n"
-        string += "echo 'All simulations finished.'"
 
         return string
