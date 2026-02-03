@@ -1443,6 +1443,39 @@ export const $Material = {
             ],
             title: 'Shearmodulus'
         },
+        shearModulusXY: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Shearmodulusxy'
+        },
+        shearModulusYZ: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Shearmodulusyz'
+        },
+        shearModulusXZ: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Shearmodulusxz'
+        },
         youngsModulus: {
             anyOf: [
                 {
@@ -1454,6 +1487,39 @@ export const $Material = {
             ],
             title: 'Youngsmodulus'
         },
+        youngsModulusX: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Youngsmodulusx'
+        },
+        youngsModulusY: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Youngsmodulusy'
+        },
+        youngsModulusZ: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Youngsmodulusz'
+        },
         poissonsRatio: {
             anyOf: [
                 {
@@ -1464,6 +1530,39 @@ export const $Material = {
                 }
             ],
             title: 'Poissonsratio'
+        },
+        poissonsRatioXY: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Poissonsratioxy'
+        },
+        poissonsRatioYZ: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Poissonsratioyz'
+        },
+        poissonsRatioXZ: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Poissonsratioxz'
         },
         planeStress: {
             type: 'boolean',
@@ -2964,6 +3063,18 @@ export const $Status = {
             title: 'Results',
             default: false
         },
+        csvResults: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Csvresults',
+            default: false
+        },
         meshfileExist: {
             anyOf: [
                 {
@@ -3246,6 +3357,8 @@ export const $Valve = {
             title: 'Value'
         },
         value_type: {
+            type: 'string',
+            enum: ['int', 'float', 'bool', 'str'],
             title: 'Value Type'
         },
         label: {
@@ -3309,7 +3422,60 @@ export const $Valves = {
     },
     type: 'object',
     required: ['valves', 'analysisValves'],
-    title: 'Valves'
+    title: 'Valves',
+    example: {
+        analysisValves: [],
+        valves: [
+            {
+                description: 'Discretization',
+                label: 'Discretization',
+                name: 'DISCRETIZATION',
+                type: 'number',
+                value: 21,
+                value_type: 'float'
+            },
+            {
+                description: 'Length',
+                label: 'Length',
+                name: 'LENGTH',
+                type: 'number',
+                value: 13,
+                value_type: 'float'
+            },
+            {
+                description: 'Inner Height',
+                label: 'Inner Height',
+                name: 'HEIGHT1',
+                type: 'number',
+                value: 1,
+                value_type: 'float'
+            },
+            {
+                description: 'Outer Height',
+                label: 'Outer Height',
+                name: 'HEIGHT2',
+                type: 'number',
+                value: 2,
+                value_type: 'float'
+            },
+            {
+                description: 'Width',
+                label: 'Width',
+                name: 'WIDTH',
+                type: 'number',
+                value: 0.1,
+                value_type: 'float'
+            },
+            {
+                description: 'Structured',
+                label: 'Structured',
+                name: 'STRUCTURED',
+                type: 'checkbox',
+                value: true,
+                value_type: 'bool'
+            }
+        ]
+    }
 } as const;
 
 export const $Verlet = {

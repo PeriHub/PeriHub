@@ -231,8 +231,17 @@ export type Material = {
     matType: Array<(string)>;
     bulkModulus?: number | null;
     shearModulus?: number | null;
+    shearModulusXY?: number | null;
+    shearModulusYZ?: number | null;
+    shearModulusXZ?: number | null;
     youngsModulus?: number | null;
+    youngsModulusX?: number | null;
+    youngsModulusY?: number | null;
+    youngsModulusZ?: number | null;
     poissonsRatio?: number | null;
+    poissonsRatioXY?: number | null;
+    poissonsRatioYZ?: number | null;
+    poissonsRatioXZ?: number | null;
     planeStress: boolean;
     planeStrain: boolean;
     materialSymmetry: string;
@@ -391,6 +400,7 @@ export type Status = {
     created?: boolean | null;
     submitted?: boolean | null;
     results?: boolean | null;
+    csvResults?: boolean | null;
     meshfileExist?: boolean | null;
 };
 
@@ -433,7 +443,7 @@ export type Valve = {
     name: string;
     type: 'text' | 'number' | 'select' | 'checkbox' | 'data';
     value: number | boolean | string;
-    value_type: unknown;
+    value_type: 'int' | 'float' | 'bool' | 'str';
     label: string;
     description: string;
     options: Array<(string)> | string | null;
@@ -441,6 +451,8 @@ export type Valve = {
 };
 
 export type type = 'text' | 'number' | 'select' | 'checkbox' | 'data';
+
+export type value_type = 'int' | 'float' | 'bool' | 'str';
 
 export type Valves = {
     valves: Array<Valve>;
@@ -665,6 +677,7 @@ export type GetFractureAnalysisResponse = (Blob | File);
 
 export type GetPlotData = {
     cluster?: boolean;
+    deviationsEnabled?: boolean;
     modelFolderName?: string;
     modelName?: string;
     output?: string;

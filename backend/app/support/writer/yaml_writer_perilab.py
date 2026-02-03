@@ -151,27 +151,58 @@ class YAMLcreatorPeriLab:
                 material["Symmetry"] = "anisotropic plane stress"
             elif mat.materialSymmetry == "Isotropic" and mat.planeStress:
                 material["Symmetry"] = "isotropic plane stress"
+            elif mat.materialSymmetry == "Orthotropic" and mat.planeStress:
+                material["Symmetry"] = "orthotropic plane stress"
+            elif mat.materialSymmetry == "Transverse Isotropic" and mat.planeStress:
+                material["Symmetry"] = "transverse isotropic plane stress"
             elif mat.materialSymmetry == "Isotropic" and mat.planeStrain:
                 material["Symmetry"] = "isotropic plane strain"
             elif mat.materialSymmetry == "Anisotropic" and mat.planeStrain:
                 material["Symmetry"] = "anisotropic plane strain"
+            elif mat.materialSymmetry == "Orthotropic" and mat.planeStrain:
+                material["Symmetry"] = "orthotropic plane strain"
+            elif mat.materialSymmetry == "Transverse Isotropic" and mat.planeStrain:
+                material["Symmetry"] = "transverse isotropic plane strain"
             if mat.materialSymmetry == "Anisotropic":
                 # material["Material Symmetry"] = mat.materialSymmetry
                 if mat.stiffnessMatrix is not None:
                     for key, value in mat.stiffnessMatrix.matrix:
                         material[key] = float(np.format_float_scientific(float(value)))
 
-            if self.check_if_defined(mat.youngsModulus):
-                material["Young's Modulus"] = float(np.format_float_scientific(float(mat.youngsModulus)))
+            if mat.materialSymmetry == "Transverse Isotropic":
+                material["Young's Modulus X"] = float(np.format_float_scientific(float(mat.youngsModulusX)))
+                material["Young's Modulus Y"] = float(np.format_float_scientific(float(mat.youngsModulusY)))
+                material["Poisson's Ratio XY"] = float(np.format_float_scientific(float(mat.poissonsRatioXY)))
+                material["Shear Modulus XY"] = float(np.format_float_scientific(float(mat.shearModulusXY)))
+                if mat.planeStrain:
+                    material["Poisson's Ratio YZ"] = float(np.format_float_scientific(float(mat.poissonsRatioYZ)))
+                if not mat.planeStress and not mat.planeStrain:
+                    material["Poisson's Ratio YZ"] = float(np.format_float_scientific(float(mat.poissonsRatioYZ)))
+                    material["Shear Modulus YZ"] = float(np.format_float_scientific(float(mat.shearModulusYZ)))
 
-            if self.check_if_defined(mat.shearModulus):
-                material["Shear Modulus"] = float(np.format_float_scientific(float(mat.shearModulus)))
+            if mat.materialSymmetry == "Orthotropic":
+                material["Young's Modulus X"] = float(np.format_float_scientific(float(mat.youngsModulusX)))
+                material["Young's Modulus Y"] = float(np.format_float_scientific(float(mat.youngsModulusY)))
+                material["Young's Modulus Z"] = float(np.format_float_scientific(float(mat.youngsModulusZ)))
+                material["Poisson's Ratio XY"] = float(np.format_float_scientific(float(mat.poissonsRatioXY)))
+                material["Poisson's Ratio YZ"] = float(np.format_float_scientific(float(mat.poissonsRatioYZ)))
+                material["Poisson's Ratio XZ"] = float(np.format_float_scientific(float(mat.poissonsRatioXZ)))
+                material["Shear Modulus XY"] = float(np.format_float_scientific(float(mat.shearModulusXY)))
+                material["Shear Modulus YZ"] = float(np.format_float_scientific(float(mat.shearModulusYZ)))
+                material["Shear Modulus XZ"] = float(np.format_float_scientific(float(mat.shearModulusXZ)))
 
-            if self.check_if_defined(mat.bulkModulus):
-                material["Bulk Modulus"] = float(np.format_float_scientific(float(mat.bulkModulus)))
+            if mat.materialSymmetry == "Isotropic":
+                if self.check_if_defined(mat.youngsModulus):
+                    material["Young's Modulus"] = float(np.format_float_scientific(float(mat.youngsModulus)))
 
-            if self.check_if_defined(mat.poissonsRatio):
-                material["Poisson's Ratio"] = float(np.format_float_scientific(float(mat.poissonsRatio)))
+                if self.check_if_defined(mat.shearModulus):
+                    material["Shear Modulus"] = float(np.format_float_scientific(float(mat.shearModulus)))
+
+                if self.check_if_defined(mat.bulkModulus):
+                    material["Bulk Modulus"] = float(np.format_float_scientific(float(mat.bulkModulus)))
+
+                if self.check_if_defined(mat.poissonsRatio):
+                    material["Poisson's Ratio"] = float(np.format_float_scientific(float(mat.poissonsRatio)))
 
             material["Zero Energy Control"] = "Global"
             # material["Thickness"] = float(mat.thickness)
@@ -181,7 +212,7 @@ class YAMLcreatorPeriLab:
             #     material["Tension Separation"] = mat.tensionSeparation
             # if self.check_if_defined(mat.actualHorizon):
             #     material["Actual Horizon"] = float(mat.actualHorizon)
-            if self.check_if_defined(mat.yieldStress):
+            if self.check_if_defined(mat.yieldStress) and "Plastic" in material["Material Model"]:
                 material["Yield Stress"] = float(mat.yieldStress)
             # if self.check_if_defined(mat.nonLinear):
             #     material["Non linear"] = mat.nonLinear

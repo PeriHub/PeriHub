@@ -61,12 +61,12 @@ SPDX-License-Identifier: Apache-2.0
               dense></q-input>
           </div>
         </div>
-        <div class="row my-row">
-          <q-input class="my-input" v-model="material.poissonsRatio" :rules="[rules.required, rules.float]"
+        <div class="row my-row" v-if="material.materialSymmetry == 'Isotropic'">
+          <q-input class=" my-input" v-model="material.poissonsRatio" :rules="[rules.required, rules.float]"
             :label="materialKeys.poissonsRatio" clearable standout dense></q-input>
         </div>
-        <div class="row my-row">
-          <q-input class="my-input" v-model="material.bulkModulus" :rules="[rules.required, rules.float]"
+        <div class="row my-row" v-if="material.materialSymmetry == 'Isotropic'">
+          <q-input class=" my-input" v-model="material.bulkModulus" :rules="[rules.required, rules.float]"
             :label="materialKeys.bulkModulus" clearable standout dense></q-input>
           <q-input class="my-input" v-model="material.shearModulus" :rules="[rules.required, rules.float]"
             :label="materialKeys.shearModulus" clearable standout dense></q-input>
@@ -84,6 +84,32 @@ SPDX-License-Identifier: Apache-2.0
             v-if="material.stiffnessMatrix && material.materialSymmetry == 'Anisotropic' && material.matType.includes('Correspondence')"
             class="my-toggle" v-model="material.stiffnessMatrix.calculateStiffnessMatrix"
             :label="materialKeys.stiffnessMatrix.calculateStiffnessMatrix" standout dense></q-toggle>
+        </div>
+        <div class="row my-row"
+          v-if="material.materialSymmetry == 'Transverse Isotropic' || material.materialSymmetry == 'Orthotropic'">
+          <q-input class="my-input" v-model="material.youngsModulusX" :rules="[rules.required, rules.float]"
+            :label="materialKeys.youngsModulusX" clearable standout dense></q-input>
+          <q-input class="my-input" v-model="material.youngsModulusY" :rules="[rules.required, rules.float]"
+            :label="materialKeys.youngsModulusY" clearable standout dense></q-input>
+          <q-input class="my-input" v-model="material.youngsModulusZ" :rules="[rules.required, rules.float]"
+            :label="materialKeys.youngsModulusZ" clearable standout dense
+            v-if="material.materialSymmetry == 'Orthotropic'"></q-input>
+          <q-input class="my-input" v-model="material.poissonsRatioXY" :rules="[rules.required, rules.float]"
+            :label="materialKeys.poissonsRatioXY" clearable standout dense></q-input>
+          <q-input class="my-input" v-model="material.poissonsRatioYZ" :rules="[rules.required, rules.float]"
+            :label="materialKeys.poissonsRatioYZ" clearable standout dense
+            v-if="material.planeStrain || material.materialSymmetry == 'Orthotropic'"></q-input>
+          <q-input class="my-input" v-model="material.poissonsRatioXZ" :rules="[rules.required, rules.float]"
+            :label="materialKeys.poissonsRatioXZ" clearable standout dense
+            v-if="material.materialSymmetry == 'Orthotropic'"></q-input>
+          <q-input class="my-input" v-model="material.shearModulusXY" :rules="[rules.required, rules.float]"
+            :label="materialKeys.shearModulusXY" clearable standout dense></q-input>
+          <q-input class="my-input" v-model="material.shearModulusYZ" :rules="[rules.required, rules.float]"
+            :label="materialKeys.shearModulusYZ" clearable standout dense
+            v-if="material.materialSymmetry == 'Orthotropic'"></q-input>
+          <q-input class="my-input" v-model="material.shearModulusXZ" :rules="[rules.required, rules.float]"
+            :label="materialKeys.shearModulusXZ" clearable standout dense
+            v-if="material.materialSymmetry == 'Orthotropic'"></q-input>
         </div>
         <div class="row my-row"
           v-if="material.stiffnessMatrix && material.materialSymmetry == 'Anisotropic' && material.matType.includes('Correspondence')">
@@ -200,7 +226,7 @@ export default defineComponent({
         'Correspondence Elastic',
         'Correspondence Plastic'
       ],
-      materialSymmetry: ['Isotropic', 'Anisotropic'],
+      materialSymmetry: ['Isotropic', 'Anisotropic', 'Orthotropic', 'Transverse Isotropic'],
       stabilizationType: [
         'Bond Based',
         'State Based',
@@ -227,8 +253,17 @@ export default defineComponent({
         materialSymmetry: 'Material Symmetry',
         bulkModulus: 'Bulk Modulus',
         shearModulus: 'Shear Modulus',
+        shearModulusXY: "Shear Modulus XY",
+        shearModulusYZ: "Shear Modulus YZ",
+        shearModulusXZ: "Shear Modulus XZ",
         youngsModulus: "Young's Modulus",
+        youngsModulusX: "Young's Modulus X",
+        youngsModulusY: "Young's Modulus Y",
+        youngsModulusZ: "Young's Modulus Z",
         poissonsRatio: "Poisson's Ratio",
+        poissonsRatioXY: "Poisson's Ratio XY",
+        poissonsRatioYZ: "Poisson's Ratio YZ",
+        poissonsRatioXZ: "Poisson's Ratio XZ",
         planeStress: 'Plane Stress',
         planeStrain: 'Plane Strain',
         stabilizationType: 'Stabilization Type',

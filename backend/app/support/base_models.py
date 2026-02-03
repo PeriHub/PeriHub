@@ -54,16 +54,85 @@ class Valve(BaseModel):
     options: Optional[Union[List[str],str]]
     depends: Optional[str]
 
+default_valves = {
+    "valves": [
+            {
+                "name": "DISCRETIZATION",
+                "type": "number",
+                "value": 21,
+                "value_type": "float",
+                "label": "Discretization",
+                "description": "Discretization",
+                "options": None,
+                "depends": None
+            },
+            {
+                "name": "LENGTH",
+                "type": "number",
+                "value": 13,
+                "value_type": "float",
+                "label": "Length",
+                "description": "Length",
+                "options": None,
+                "depends": None
+            },
+            {
+                "name": "HEIGHT1",
+                "type": "number",
+                "value": 1,
+                "value_type": "float",
+                "label": "Inner Height",
+                "description": "Inner Height",
+                "options": None,
+                "depends": None
+            },
+            {
+                "name": "HEIGHT2",
+                "type": "number",
+                "value": 2,
+                "value_type": "float",
+                "label": "Outer Height",
+                "description": "Outer Height",
+                "options": None,
+                "depends": None
+            },
+            {
+                "name": "WIDTH",
+                "type": "number",
+                "value": 0.1,
+                "value_type": "float",
+                "label": "Width",
+                "description": "Width",
+                "options": None,
+                "depends": None
+            },
+            {
+                "name": "STRUCTURED",
+                "type": "checkbox",
+                "value": True,
+                "value_type": "bool",
+                "label": "Structured",
+                "description": "Structured",
+                "options": None,
+                "depends": None
+            }
+        ],
+        "analysisValves": []
+}
 
 class Valves(BaseModel):
     valves: List[Valve]
     analysisValves: List[Valve]
+
+    class Config:
+        json_schema_extra = {"example": default_valves}
 
 
 class Status(BaseModel):
     created: Optional[bool] = False
     submitted: Optional[bool] = False
     results: Optional[bool] = False
+    csvResults: Optional[bool] = False
     meshfileExist: Optional[bool] = False
 
 
@@ -141,8 +210,17 @@ class Material(BaseModel):
     matType: List[str]
     bulkModulus: Optional[float] = None
     shearModulus: Optional[float] = None
+    shearModulusXY: Optional[float] = None
+    shearModulusYZ: Optional[float] = None
+    shearModulusXZ: Optional[float] = None
     youngsModulus: Optional[float] = None
+    youngsModulusX: Optional[float] = None
+    youngsModulusY: Optional[float] = None
+    youngsModulusZ: Optional[float] = None
     poissonsRatio: Optional[float] = None
+    poissonsRatioXY: Optional[float] = None
+    poissonsRatioYZ: Optional[float] = None
+    poissonsRatioXZ: Optional[float] = None
     planeStress: bool
     planeStrain: bool
     materialSymmetry: str

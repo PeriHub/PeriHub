@@ -585,6 +585,7 @@ export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): Cancela
  * @param data.cluster
  * @param data.output
  * @param data.tasks
+ * @param data.deviationsEnabled
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -596,7 +597,8 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
         model_folder_name: data.modelFolderName,
         cluster: data.cluster,
         output: data.output,
-        tasks: data.tasks
+        tasks: data.tasks,
+        deviations_enabled: data.deviationsEnabled
     },
     errors: {
         422: 'Validation Error'
