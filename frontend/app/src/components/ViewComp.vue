@@ -12,8 +12,9 @@ SPDX-License-Identifier: Apache-2.0
       <q-tab name="model" label="Model"></q-tab>
       <q-tab name="cad" label="CAD"></q-tab>
       <q-tab name="jobs" label="Jobs"></q-tab>
-      <q-tab name="results" label="Results"></q-tab>
-      <q-tab name="plotly" label="Plotly"></q-tab>
+      <q-tab v-show="outputs.some((output) => output.selectedFileType == 'Exodus')" name="results"
+        label="Results"></q-tab>
+      <q-tab v-show="outputs.some((output) => output.selectedFileType == 'CSV')" name="plotly" label="Plotly"></q-tab>
       <!-- <q-tab name="json" label="Json"></q-tab> -->
       <q-tab v-show="store.saveEnergy" name="renewable" label="Renewable"></q-tab>
       <!-- <q-tab name="trame" label="Trame"></q-tab> -->
@@ -67,7 +68,7 @@ SPDX-License-Identifier: Apache-2.0
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import ImageView from 'components/views/ImageView.vue'
 import ModelView from 'components/views/ModelView.vue'
 import CadView from 'components/views/CadView.vue'
@@ -78,6 +79,7 @@ import RenewableView from 'components/views/RenewableView.vue'
 import ResultsView from 'components/views/ResultsView.vue'
 import { useDefaultStore } from 'src/stores/default-store';
 import { useViewStore } from 'src/stores/view-store';
+import { useModelStore } from 'src/stores/model-store';
 
 export default defineComponent({
   name: 'ViewComp',
@@ -100,9 +102,12 @@ export default defineComponent({
   setup() {
     const store = useDefaultStore();
     const viewStore = useViewStore();
+    const modelStore = useModelStore();
+    const outputs = computed(() => modelStore.modelData.outputs)
     return {
       store,
-      viewStore
+      viewStore,
+      outputs
     }
   },
   created() {

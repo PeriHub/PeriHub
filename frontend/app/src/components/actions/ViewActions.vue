@@ -22,6 +22,14 @@ SPDX-License-Identifier: Apache-2.0
           <div class="text-h6">Submit Mulitple Models</div>
         </q-card-section>
         <q-card-section>
+          <div class="row my-row">
+            <q-input class="my-input" v-model="startId" label="Start ID" standout dense></q-input>
+            <q-input class="my-input" v-model="endId" label="End ID" standout dense></q-input>
+            <q-btn flat label="Select" color="primary"
+              @click="jobIds = Array.from({ length: parseInt(endId) - parseInt(startId) + 1 }, (_, a) => a + parseInt(startId))"></q-btn>
+          </div>
+        </q-card-section>
+        <q-card-section>
           <q-select filled v-model="jobIds" :options="jobIdsOptions" label="Multi with toggle" multiple map-options>
             <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
               <q-item v-bind="itemProps">
@@ -71,7 +79,7 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
     <q-btn class="action-btn" flat icon="fas fa-download" @click="dialog = true" :loading="resultsLoading"
-      :disable="resultsLoading || !store.status.results">
+      :disable="resultsLoading || !store.status.results && !store.status.csvResults">
       <q-tooltip>
         Download Results
       </q-tooltip>
@@ -95,14 +103,17 @@ SPDX-License-Identifier: Apache-2.0
     </q-dialog>
 
     <q-btn class="action-btn" flat icon="fas fa-eye" @click="viewStore.viewId = 'results'"
-      :disable="!store.status.results">
+      :disable="!store.status.results || !(outputs.some((output) => output.selectedFileType == 'Exodus'))">
       <q-tooltip>
-        Show Results
+        <div v-if="!store.status.results">Results not generated yet</div>
+        <div v-if="!(outputs.some((output) => output.selectedFileType == 'Exodus'))">Exodus Results not declared</div>
+        <div v-if="store.status.results && outputs.some((output) => output.selectedFileType == 'Exodus')">Show Results
+        </div>
       </q-tooltip>
     </q-btn>
 
     <q-btn v-if="modelStore.selectedModel.analysis" class="action-btn" flat icon="fas fa-image"
-      @click="openAnalysisDialog()" :disable="!store.status.results">
+      @click="openAnalysisDialog()" :disable="!store.status.results && !store.status.csvResults">
       <q-tooltip>
         {{ modelStore.selectedModel.analysis }}
       </q-tooltip>
@@ -160,9 +171,12 @@ SPDX-License-Identifier: Apache-2.0
       </q-tooltip>
     </q-btn>
     <q-btn class="action-btn" flat icon="fas fa-chart-line" @click="dialogGetPlot = true, updatePlotVariables()"
-      :disable="!status.results || computes.length == 0 || !csvDefined()">
+      :disable="!store.status.csvResults || computes.length == 0 || !(outputs.some((output) => output.selectedFileType == 'CSV'))">
       <q-tooltip>
-        Show Plot
+        <div v-if="!store.status.csvResults">Results not generated yet</div>
+        <div v-if="!(outputs.some((output) => output.selectedFileType == 'CSV'))">CSV Results not declared</div>
+        <div v-if="store.status.csvResults && outputs.some((output) => output.selectedFileType == 'CSV')">Show Plot
+        </div>
       </q-tooltip>
     </q-btn>
     <q-dialog v-model="dialogGetPlot" persistent max-width="800">
@@ -279,7 +293,7 @@ import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
 import { getCurrentEnergy, runModel, cancelJob, runOwnAnalysis, getPlot, deleteModel, deleteModelFromCluster, deleteUserData, deleteUserDataFromCluster } from 'src/client';
-import type { Block, BondFilters, Compute, Damage, Material, Deviations } from 'src/client';
+import type { Block, BondFilters, Compute, Damage, Material, Deviations, Output } from 'src/client';
 import rules from 'assets/rules.js';
 import RenewableView from 'components/views/RenewableView.vue'
 
@@ -303,6 +317,7 @@ export default defineComponent({
     const damages = computed(() => modelStore.modelData.damages) as unknown as Damage[]
     const materials = computed(() => modelStore.modelData.materials) as unknown as Material[]
     const deviations = computed(() => modelStore.modelData.deviations) as unknown as Deviations
+    const outputs = computed(() => modelStore.modelData.outputs) as unknown as Output[]
 
     return {
       store,
@@ -317,6 +332,7 @@ export default defineComponent({
       damages,
       materials,
       deviations,
+      outputs,
       rules
     }
   },
@@ -386,6 +402,9 @@ export default defineComponent({
 
       timer: null as NodeJS.Timeout | null,
       intervalCount: 0,
+
+      startId: 1,
+      endId: 50,
 
       color: [
         '#00658b',
@@ -607,7 +626,8 @@ export default defineComponent({
         modelFolderName: this.modelData.model.modelFolderName,
         cluster: this.modelData.job.cluster,
         output: this.getPlotOutput,
-        tasks: this.modelData.job.tasks
+        tasks: this.modelData.job.tasks,
+        deviationsEnabled: this.modelData.deviations.enabled
       })
         .then((response) => {
           const plotRawData = response as { [index: string]: number[] }
@@ -896,14 +916,6 @@ export default defineComponent({
         })
 
       this.$bus.emit('getStatus');
-    },
-    csvDefined() {
-      for (let i = 0; i < this.modelData.outputs.length; i++) {
-        if (this.modelData.outputs[i]!.selectedFileType == 'CSV') {
-          return true
-        }
-      }
-      return false
     },
     deleteCookies() {
       localStorage.removeItem('darkMode');

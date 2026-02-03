@@ -18,6 +18,7 @@ import jwt
 import paramiko
 from fastapi import HTTPException, status
 from random_username.generate import generate_username
+from natsort import natsorted
 
 from ..support.globals import (
     cluster_job_path,
@@ -237,7 +238,7 @@ class FileHandler:
         print(stderr.read().decode())
 
     @staticmethod
-    def copy_model_to_cluster(username, model_name, model_folder_name, cluster):
+    def copy_model_to_cluster(username, model_name, model_folder_name, cluster, disc_type):
         """doc"""
 
         if not cluster:
@@ -278,7 +279,7 @@ class FileHandler:
         for file in os.listdir(localpath):
             if file.split(".")[-1] == "yaml":
                 input_exist = True
-            if file.split(".")[-1] in ["txt", "e", "gcode"]:
+            if file.split(".")[-1] == disc_type:
                 mesh_exist = True
         if not input_exist:
             log.warning("Inputfile of " + model_name + " has not been created yet")
@@ -294,7 +295,7 @@ class FileHandler:
 
         for root, _, files in os.walk(localpath):
             for name in files:
-                if name.split(".")[-1] in ["yaml", "txt", "e", "gcode"]:
+                if name.split(".")[-1] in ["yaml", "txt", disc_type]:
                     sftp.put(os.path.join(root, name), name)
 
         sftp.close()
@@ -438,7 +439,7 @@ class FileHandler:
                 filename = attr.filename
 
                 # Skip files that don't match the filter
-                if not (all_data or filename.endswith('.e') or filename.endswith('.csv')):
+                if not (all_data or filename.endswith('.e') or filename.endswith('.csv') or filename.endswith('.log')):
                     continue
 
                 local_path = Path(resultpath) / filename
@@ -661,9 +662,14 @@ class FileHandler:
                 subprocess.check_call([sys.executable, "-m", "pip", "install", req])
 
     @staticmethod
-    def get_all_output_files_with_extension(directory, model_name, output, extension):
+    def get_all_output_files_with_extension(directory, model_name, output, extension, deviations_enabled):
         entries = os.listdir(directory)
         matching_files = []
+
+        default_file = os.path.join(directory, model_name + "_" + output + extension)
+
+        if not deviations_enabled and os.path.exists(default_file):
+            return [default_file]
 
         for entry in entries:
             full_path = os.path.join(directory, entry)
@@ -682,11 +688,10 @@ class FileHandler:
             log.warning("No matching files found")
             raise HTTPException(status_code=404, detail="No matching files found")
 
-        default_file = os.path.join(directory, model_name + "_" + output + extension)
         if len(matching_files) > 1 and os.path.exists(default_file):
             matching_files.remove(default_file)
 
-        return matching_files
+        return natsorted(matching_files)
 
     # @staticmethod
     # def write_get_cara_job_ids():

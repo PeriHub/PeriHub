@@ -41,13 +41,14 @@ async def run_model(
 
     cluster = model_data.job.cluster
     sbatch = model_data.job.sbatch
+    disc_type = model_data.discretization.discType
 
     remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
     if os.path.exists(os.path.join(remotepath, "runPerilab.sh")):
         os.remove(os.path.join(remotepath, "runPerilab.sh"))
 
-    FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster)
+    FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster, disc_type)
 
     FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
 
@@ -388,6 +389,8 @@ def get_status(
             for filename in sftp.listdir(remotepath):
                 if ".e" in filename:
                     status.results = True
+                if ".csv" in filename:
+                    status.csvResults = True
         except IOError:
             sftp.close()
             ssh.close()
@@ -410,4 +413,6 @@ def get_status(
             for files in os.listdir(remotepath):
                 if ".e" in files:
                     status.results = True
+                if ".csv" in files:
+                    status.csvResults = True
     return status
