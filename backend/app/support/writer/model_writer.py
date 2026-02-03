@@ -140,6 +140,7 @@ class ModelWriter:
                 value_list.append(value)
                 for ids in parameter.id:
                     deviation_dict["default"][ids] = {"mean": mean, "std": parameter.std}
+                deviation_dict["default"]["G2C"] = 0.0
                 for i in range(deviations.sampleSize):
                     for ids in parameter.id:
                         deviation_dict["samples"][sample_names[i]][ids] = value[i]

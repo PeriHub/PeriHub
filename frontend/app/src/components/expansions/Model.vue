@@ -273,7 +273,8 @@ export default defineComponent({
   },
   async beforeMount() {
     this.modelStore.availableModels = await getModels()
-    await this.selectMethod()
+    await this._getJobFolders()
+    // await this.selectMethod()
   },
   watch: {
     'modelStore.selectedModel': {

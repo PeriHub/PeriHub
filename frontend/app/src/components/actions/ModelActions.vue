@@ -98,7 +98,7 @@ import { useViewStore } from 'src/stores/view-store';
 import { exportFile } from 'quasar'
 import { api } from 'boot/axios';
 import { generateModel, saveConfig } from 'src/client';
-import type { Discretization, ModelData } from 'src/client';
+import type { Discretization, ModelData, Valves } from 'src/client';
 import rules from 'assets/rules.js';
 import Driver from 'driver.js';
 
@@ -247,6 +247,7 @@ export default defineComponent({
           console.log('Deprecated Json Format!')
         }
         if (result.modelParams) {
+          this.modelStore.modelParams = { ...this.modelStore.modelParams, ...result.modelParams } as Valves
           this.modelStore.modelParams = structuredClone(result.modelParams)
         }
         if (result.selectedModel) {

@@ -161,6 +161,7 @@ def get_plot(
     cluster: bool = False,
     output: str = "Output1",
     tasks: int = 1,
+    deviations_enabled: bool = False,
     # x_variable: str = "Time",
     # x_axis: str = "X",
     # x_absolute: bool = True,
@@ -180,7 +181,7 @@ def get_plot(
 
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
-    matching_files = FileHandler.get_all_output_files_with_extension(resultpath, model_name, output, ".csv")
+    matching_files = FileHandler.get_all_output_files_with_extension(resultpath, model_name, output, ".csv", deviations_enabled)
 
     # x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
     # y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
