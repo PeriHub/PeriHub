@@ -33,7 +33,7 @@ if os.getenv("DEV") == "True":
     log.info("Running in dev mode")
 if os.getenv("FRONTMATTER_INSTALLATION") == "False":
     frontmatter_installation = False
-max_nodes = int(os.getenv("MAX_NODES", default="10000"))
+max_nodes = int(os.getenv("MAX_NODES", default="50000"))
 cluster_url = os.getenv("CLUSTER_URL", default="")
 cluster_user = os.getenv("CLUSTER_USER", default="")
 cluster_password = os.getenv("CLUSTER_PASSWORD", default="")
