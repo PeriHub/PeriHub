@@ -14,6 +14,7 @@ SPDX-License-Identifier: Apache-2.0
     <div v-if="deviations.enabled">
       <q-input class="my-input" v-model="deviations.sampleSize" :rules="[rules.required, rules.int]" label="sampleSize"
         standout dense></q-input>
+      <q-input class="my-input" v-model="deviations.file" label="File" standout dense></q-input>
       <q-separator></q-separator>
       <q-list v-for="parameter, index in deviations.parameters" :key="parameter.parameterId as PropertyKey"
         style="padding: 0px">

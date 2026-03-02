@@ -1007,10 +1007,21 @@ export const $Deviations = {
             },
             type: 'array',
             title: 'Parameters'
+        },
+        file: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'File'
         }
     },
     type: 'object',
-    required: ['enabled', 'sampleSize', 'parameters'],
+    required: ['enabled', 'sampleSize', 'parameters', 'file'],
     title: 'Deviations'
 } as const;
 

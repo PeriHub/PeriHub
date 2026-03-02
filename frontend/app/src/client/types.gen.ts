@@ -158,6 +158,7 @@ export type Deviations = {
     enabled: boolean;
     sampleSize: number;
     parameters: Array<Parameter>;
+    file: string | null;
 };
 
 export type Discretization = {

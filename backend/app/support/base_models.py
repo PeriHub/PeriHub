@@ -42,6 +42,7 @@ class Deviations(BaseModel):
     enabled: bool
     sampleSize: int
     parameters: List[Parameter]
+    file: Optional[str]
 
 
 class Valve(BaseModel):

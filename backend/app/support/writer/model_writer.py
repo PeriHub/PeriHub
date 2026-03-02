@@ -11,6 +11,7 @@ import time
 
 import magicattr
 import numpy as np
+import pandas as pd
 
 from ...support.file_handler import FileHandler
 from ...support.globals import log
@@ -122,6 +123,7 @@ class ModelWriter:
         self.file_writer(self.filename + ".yaml", string)
 
         if deviations is not None and deviations.enabled:
+            
             deviation_dict = {"sample_size": deviations.sampleSize, "samples": {}, "default": {}}
 
             output_names = []
@@ -134,21 +136,71 @@ class ModelWriter:
                 deviation_dict["samples"][sample_names[i]] = {}
 
             value_list = []
+            old_params = []
+            if deviations.file is not None:
+                deviations_path =os.path.join(self.path,deviations.file)
+                if not os.path.exists(deviations_path):
+                    log.error("Deviation file does not exist: %s", deviations_path)
+                    return
+                with open(deviations_path, "r", encoding="UTF-8") as file:
+                    old_deviation_dict = json.load(file)
+                    
+                df_samples = pd.DataFrame.from_dict(old_deviation_dict['samples'], orient='index')
+                min_val = np.min(df_samples["G1C"])
+                max_val = np.max(df_samples["G1C"])
+                scaled_data = ((df_samples["G1C"] - min_val) / (max_val - min_val)  - 0.5) * np.std(df_samples["G1C"]) + np.mean(df_samples["G1C"])
+                for parameter in old_deviation_dict["default"]:
+                    new_key = []
+                    if parameter == "G1C":
+                        new_key.append("damages[0].interBlocks[0].value")
+                        new_key.append("damages[0].interBlocks[1].value")
+                    elif parameter == "materials[0].youngsModulus":
+                        new_key.append("materials[0].youngsModulusY")
+                    elif parameter == "materials[0].poissonsRatio":
+                        new_key.append("materials[0].poissonsRatioXY")
+                    old_params.append(new_key)
+                    values = []
+                    for i,sample in enumerate(old_deviation_dict["samples"]):
+                        if i == deviations.sampleSize:
+                            break
+                        old_value = old_deviation_dict["samples"][sample][parameter]
+                        values.append(old_value)
+                        for key in new_key:
+                            if parameter == "G1C":
+                                old_value = scaled_data[i]
+                            deviation_dict["samples"][sample_names[i]][key] = old_value
+                    value_list.append(values)
+                    for key in new_key:
+                        if parameter == "G1C":
+                            deviation_dict["default"][key] = {"mean": np.mean(df_samples[parameter]), "std": np.std(df_samples[parameter])}
+                        else:
+                            deviation_dict["default"][key] = old_deviation_dict["default"][parameter]
+
+
+            num_old_params = 0
+
             for parameter in deviations.parameters:
                 mean = magicattr.get(self.model_data, parameter.id[0])
                 value = np.random.normal(mean, parameter.std, deviations.sampleSize)
                 value_list.append(value)
                 for ids in parameter.id:
                     deviation_dict["default"][ids] = {"mean": mean, "std": parameter.std}
-                deviation_dict["default"]["G2C"] = 0.0
+                # deviation_dict["default"]["G2C"] = 0.0
                 for i in range(deviations.sampleSize):
                     for ids in parameter.id:
                         deviation_dict["samples"][sample_names[i]][ids] = value[i]
 
+                num_old_params = len(old_deviation_dict["default"])
+
+            num_new_params = len(deviations.parameters)
+
             for i in range(deviations.sampleSize):
-                for j in range(len(deviations.parameters)):
-                    for parameter in deviations.parameters[j].id:
+                for j in range(num_old_params):
+                    for parameter in old_params[j]:
                         magicattr.set(self.model_data, parameter, value_list[j][i])
+                for j in range(num_new_params):
+                    for parameter in deviations.parameters[j].id:
+                        magicattr.set(self.model_data, parameter, value_list[j+num_old_params][i])
                 for idx, output in enumerate(self.model_data.outputs):
                     output.name = output_names[idx] + "_" + str(i + 1)
                 yaml_perilab = YAMLcreatorPeriLab(self, block_def=block_def)
