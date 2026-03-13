@@ -63,15 +63,21 @@ class CrackAnalysis:
         damaged_points_x = points_x[damage != 0]
         damaged_points_y = points_y[damage != 0]
         damaged_points_z = points_z[damage != 0]
+        # print(damaged_points_x)
 
         if len(damaged_points_x) == 0:
             log.warning("No damaged points found")
             return 1, 1, time
+        crack_y = damaged_points_y[np.argmin(damaged_points_x)]
+        
+        damaged_points_x = damaged_points_x[damaged_points_y == crack_y]
 
-        crack_length = np.sqrt(
-            pow(np.max(damaged_points_x) - np.min(damaged_points_x), 2)
-            + pow(np.max(damaged_points_y) - np.min(damaged_points_y), 2)
-        )
+        crack_length = np.max(damaged_points_x) - np.min(damaged_points_x)
+        
+        # crack_length = np.sqrt(
+        #     pow(np.max(damaged_points_x) - np.min(damaged_points_x), 2)
+        #     + pow(np.max(damaged_points_y) - np.min(damaged_points_y), 2)
+        # )
         crack_width = np.max(damaged_points_z) - np.min(damaged_points_z)
 
         return crack_length, crack_width, time
