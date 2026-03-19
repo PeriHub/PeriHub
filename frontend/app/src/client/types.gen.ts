@@ -156,9 +156,13 @@ export type Damage = {
 
 export type Deviations = {
     enabled: boolean;
+    fileInput: boolean;
     sampleSize: number;
     parameters: Array<Parameter>;
-    file: string | null;
+    oldParameters: Array<OldParameter>;
+    file?: string | null;
+    mean?: number | null;
+    std?: number | null;
 };
 
 export type Discretization = {
@@ -312,6 +316,12 @@ export type ModelData = {
 export type NodeSet = {
     nodeSetId?: number | null;
     file: string;
+};
+
+export type OldParameter = {
+    parameterId?: number | null;
+    id: Array<(string)>;
+    factor: number;
 };
 
 export type Output = {

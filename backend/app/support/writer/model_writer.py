@@ -137,47 +137,63 @@ class ModelWriter:
 
             value_list = []
             old_params = []
+            old_deviation_dict = None
+            num_old_params = 0
             if deviations.file is not None:
                 deviations_path =os.path.join(self.path,deviations.file)
                 if not os.path.exists(deviations_path):
                     log.error("Deviation file does not exist: %s", deviations_path)
                     return
-                with open(deviations_path, "r", encoding="UTF-8") as file:
-                    old_deviation_dict = json.load(file)
-                    
-                df_samples = pd.DataFrame.from_dict(old_deviation_dict['samples'], orient='index')
-                min_val = np.min(df_samples["G1C"])
-                max_val = np.max(df_samples["G1C"])
-                scaled_data = ((df_samples["G1C"] - min_val) / (max_val - min_val)  - 0.5) * np.std(df_samples["G1C"]) + np.mean(df_samples["G1C"])
-                for parameter in old_deviation_dict["default"]:
-                    new_key = []
-                    if parameter == "G1C":
-                        new_key.append("damages[0].interBlocks[0].value")
-                        new_key.append("damages[0].interBlocks[1].value")
-                    elif parameter == "materials[0].youngsModulus":
-                        new_key.append("materials[0].youngsModulusY")
-                    elif parameter == "materials[0].poissonsRatio":
-                        new_key.append("materials[0].poissonsRatioXY")
-                    old_params.append(new_key)
-                    values = []
-                    for i,sample in enumerate(old_deviation_dict["samples"]):
-                        if i == deviations.sampleSize:
-                            break
-                        old_value = old_deviation_dict["samples"][sample][parameter]
-                        values.append(old_value)
-                        for key in new_key:
-                            if parameter == "G1C":
-                                old_value = scaled_data[i]
-                            deviation_dict["samples"][sample_names[i]][key] = old_value
-                    value_list.append(values)
-                    for key in new_key:
-                        if parameter == "G1C":
-                            deviation_dict["default"][key] = {"mean": np.mean(df_samples[parameter]), "std": np.std(df_samples[parameter])}
-                        else:
-                            deviation_dict["default"][key] = old_deviation_dict["default"][parameter]
-
-
-            num_old_params = 0
+                # if deviations.type == "json":
+                #     with open(deviations_path, "r", encoding="UTF-8") as file:
+                #         old_deviation_dict = json.load(file)
+                        
+                #     df_samples = pd.DataFrame.from_dict(old_deviation_dict['samples'], orient='index')
+                #     min_val = np.min(df_samples["G1C"])
+                #     max_val = np.max(df_samples["G1C"])
+                #     scaled_data = (df_samples['G1C'] - df_samples['G1C'].mean()) / df_samples['G1C'].std() * deviations.std + deviations.mean
+                #     print(scaled_data)
+                #     # scaled_data = ((df_samples["G1C"] - min_val) / (max_val - min_val)  - 0.5) * np.std(df_samples["G1C"]) + np.mean(df_samples["G1C"])
+                #     default_keys = list(old_deviation_dict["default"])
+                #     default_keys.append("G1C")
+                #     for parameter in default_keys:
+                #         new_key = []
+                #         if parameter == "G1C":
+                #             new_key.append("damages[0].interBlocks[0].value")
+                #             new_key.append("damages[0].interBlocks[1].value")
+                #         elif parameter == "materials[0].youngsModulus":
+                #             new_key.append("materials[0].youngsModulusY")
+                #         elif parameter == "materials[0].poissonsRatio":
+                #             new_key.append("materials[0].poissonsRatioXY")
+                #         old_params.append(new_key)
+                #         values = []
+                #         for i,sample in enumerate(old_deviation_dict["samples"]):
+                #             if i == deviations.sampleSize:
+                #                 break
+                #             old_value = old_deviation_dict["samples"][sample][parameter]
+                #             for key in new_key:
+                #                 if parameter == "G1C":
+                #                     old_value = scaled_data[i]
+                #                 deviation_dict["samples"][sample_names[i]][key] = old_value
+                #             values.append(old_value)
+                #         value_list.append(values)
+                #         for key in new_key:
+                #             if parameter == "G1C":
+                #                 deviation_dict["default"][key] = {"mean": deviations.mean, "std": deviations.std}
+                #             else:
+                #                 deviation_dict["default"][key] = old_deviation_dict["default"][parameter]
+                if deviations.fileInput:
+                    old_deviation = np.loadtxt(deviations_path)
+                    num_old_params = len(deviations.oldParameters)
+                    # old_params = [["materials[0].youngsModulusX"],["materials[0].poissonsRatioXY"],["materials[0].youngsModulusY"],["materials[0].shearModulusXY"],["damages[0].interBlocks[0].value","damages[0].interBlocks[1].value"]]
+                    # factor = [1000,1,1000,1000,0.001]
+                    for i in range(old_deviation.shape[1]):
+                        factor = deviations.oldParameters[i].factor
+                        value_list.append(old_deviation[:,i]* factor)
+                        for key in deviations.oldParameters[i].id:
+                            for j in range(old_deviation.shape[0]):
+                                deviation_dict["samples"][sample_names[j]][key] = old_deviation[j,i] * factor
+                            deviation_dict["default"][key] = {"mean": old_deviation[:,i].mean()* factor, "std": old_deviation[:,i].std()* factor}
 
             for parameter in deviations.parameters:
                 mean = magicattr.get(self.model_data, parameter.id[0])
@@ -189,14 +205,14 @@ class ModelWriter:
                 for i in range(deviations.sampleSize):
                     for ids in parameter.id:
                         deviation_dict["samples"][sample_names[i]][ids] = value[i]
-
-                num_old_params = len(old_deviation_dict["default"])
-
+            
+            if old_deviation_dict is not None:
+                num_old_params = len(old_deviation_dict["default"]) + 1
             num_new_params = len(deviations.parameters)
 
             for i in range(deviations.sampleSize):
                 for j in range(num_old_params):
-                    for parameter in old_params[j]:
+                    for parameter in deviations.oldParameters[j].id:
                         magicattr.set(self.model_data, parameter, value_list[j][i])
                 for j in range(num_new_params):
                     for parameter in deviations.parameters[j].id:

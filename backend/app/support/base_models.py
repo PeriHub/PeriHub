@@ -37,12 +37,20 @@ class Parameter(BaseModel):
     id: List[str]
     std: float
 
-
+class OldParameter(BaseModel):
+    parameterId: Optional[int] = None
+    id: List[str]
+    factor: float
+    
 class Deviations(BaseModel):
     enabled: bool
+    fileInput: bool
     sampleSize: int
     parameters: List[Parameter]
-    file: Optional[str]
+    oldParameters: List[OldParameter]
+    file: Optional[str] = None
+    mean: Optional[float] = None
+    std: Optional[float] = None
 
 
 class Valve(BaseModel):

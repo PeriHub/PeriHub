@@ -14,7 +14,38 @@ SPDX-License-Identifier: Apache-2.0
     <div v-if="deviations.enabled">
       <q-input class="my-input" v-model="deviations.sampleSize" :rules="[rules.required, rules.int]" label="sampleSize"
         standout dense></q-input>
-      <q-input class="my-input" v-model="deviations.file" label="File" standout dense></q-input>
+      <q-separator></q-separator>
+      <q-toggle class="my-toggle" v-model="deviations.fileInput" label="Additional txt Input" standout dense />
+      <div v-if="deviations.fileInput">
+        <q-input class="my-input" v-model="deviations.file" label="File" standout dense></q-input>
+        <!-- <div v-if='deviations.type == "json"'>
+          <q-input class="my-input" v-model="deviations.mean" :rules="[rules.float]" label="mean" standout
+            dense></q-input>
+          <q-input class="my-input" v-model="deviations.std" :rules="[rules.float]" label="std" standout
+            dense></q-input>
+        </div> -->
+        <q-list v-for="parameter, index in deviations.oldParameters" :key="parameter.parameterId as PropertyKey"
+          style="padding: 0px">
+          <div class="row my-row">
+            <q-select class="my-input" :options="filterOptions" v-model="parameter.id" label="Id" use-input use-chips
+              multiple input-debounce="0" @filter="filterFn" standout dense></q-select>
+            <q-input class="my-input" v-model="parameter.factor" :rules="[rules.required, rules.float]" label="Factor"
+              standout dense></q-input>
+            <q-btn flat icon="fas fa-trash-alt" @click="removeOldParameter(index)">
+              <q-tooltip>
+                Remove parameter
+              </q-tooltip>
+            </q-btn>
+          </div>
+          <q-separator></q-separator>
+        </q-list>
+
+        <q-btn flat icon="fas fa-plus" @click="addOldParameter">
+          <q-tooltip>
+            Add parameter
+          </q-tooltip>
+        </q-btn>
+      </div>
       <q-separator></q-separator>
       <q-list v-for="parameter, index in deviations.parameters" :key="parameter.parameterId as PropertyKey"
         style="padding: 0px">
@@ -113,6 +144,21 @@ export default defineComponent({
     removeParameter(index: number) {
       this.deviations.parameters.splice(index, 1);
       this.deviations.parameters.forEach((model, i) => {
+        model.parameterId = i + 1
+      })
+    },
+    addOldParameter() {
+      if (!this.deviations.oldParameters) {
+        this.deviations.oldParameters = []
+      }
+      const len = this.deviations.oldParameters.length;
+      const newItem = len > 0 ? structuredClone(toRaw(this.deviations.oldParameters[len - 1])) as Parameter : {} as Parameter;
+      newItem.parameterId = len + 1
+      this.deviations.oldParameters.push(newItem);
+    },
+    removeOldParameter(index: number) {
+      this.deviations.oldParameters.splice(index, 1);
+      this.deviations.oldParameters.forEach((model, i) => {
         model.parameterId = i + 1
       })
     },

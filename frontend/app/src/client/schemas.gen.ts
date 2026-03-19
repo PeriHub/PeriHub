@@ -997,6 +997,10 @@ export const $Deviations = {
             type: 'boolean',
             title: 'Enabled'
         },
+        fileInput: {
+            type: 'boolean',
+            title: 'Fileinput'
+        },
         sampleSize: {
             type: 'integer',
             title: 'Samplesize'
@@ -1008,6 +1012,13 @@ export const $Deviations = {
             type: 'array',
             title: 'Parameters'
         },
+        oldParameters: {
+            items: {
+                '$ref': '#/components/schemas/OldParameter'
+            },
+            type: 'array',
+            title: 'Oldparameters'
+        },
         file: {
             anyOf: [
                 {
@@ -1018,10 +1029,32 @@ export const $Deviations = {
                 }
             ],
             title: 'File'
+        },
+        mean: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Mean'
+        },
+        std: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Std'
         }
     },
     type: 'object',
-    required: ['enabled', 'sampleSize', 'parameters', 'file'],
+    required: ['enabled', 'fileInput', 'sampleSize', 'parameters', 'oldParameters'],
     title: 'Deviations'
 } as const;
 
@@ -2403,6 +2436,36 @@ export const $NodeSet = {
     type: 'object',
     required: ['file'],
     title: 'NodeSet'
+} as const;
+
+export const $OldParameter = {
+    properties: {
+        parameterId: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Parameterid'
+        },
+        id: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Id'
+        },
+        factor: {
+            type: 'number',
+            title: 'Factor'
+        }
+    },
+    type: 'object',
+    required: ['id', 'factor'],
+    title: 'OldParameter'
 } as const;
 
 export const $Output = {
