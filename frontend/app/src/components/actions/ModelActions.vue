@@ -187,6 +187,18 @@ export default defineComponent({
         this.viewStore.viewId = 'model';
         await sleep(500)
         this.$bus.emit('viewPointData');
+      } else if (type == 'e') {
+        if (JSON.parse(res.xhr.response).message != '') {
+          this.modelStore.modelData.model.meshFile = res.files[0]!.name
+          if (!this.modelStore.modelData.discretization) {
+            this.modelStore.modelData.discretization = {} as Discretization
+          }
+          this.modelStore.modelData.discretization.discType = 'e'
+        }
+        // this.viewStore.modelLoading = true;
+        // this.viewStore.viewId = 'model';
+        // await sleep(500)
+        // this.$bus.emit('viewPointData');
       }
       this.$bus.emit('getStatus')
       this.viewStore.modelLoading = false;
