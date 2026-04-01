@@ -44,10 +44,10 @@ class OldParameter(BaseModel):
     
 class Deviations(BaseModel):
     enabled: bool
-    fileInput: bool
+    fileInput: Optional[bool] = None
     sampleSize: int
     parameters: List[Parameter]
-    oldParameters: List[OldParameter]
+    oldParameters: Optional[List[OldParameter]] = []
     file: Optional[str] = None
     mean: Optional[float] = None
     std: Optional[float] = None
