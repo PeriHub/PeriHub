@@ -46,6 +46,7 @@ async def upload_files(
         ".cdb",
         ".inp",
         ".gcode",
+        ".e",
         ".obj",
         "text/plain",
         ".g",
@@ -61,7 +62,7 @@ async def upload_files(
             log.warning("Invalid file type, got %s, expected %s", content_type, allowed_types)
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                message=f"Invalid file type, got {content_type}, expected 'application/json', '.yaml', '.cdb', '.inp', '.gcode', '.obj', 'text/plain', '.g', 'application/octet-stream', '.so' or '.inp'",
+                message=f"Invalid file type, got {content_type}, expected 'application/json', '.yaml', '.cdb', '.inp', '.gcode', '.e', '.obj', 'text/plain', '.g', 'application/octet-stream', '.so' or '.inp'",
             )
 
     username = FileHandler.get_user_name(request, dev)
