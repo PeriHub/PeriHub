@@ -35,6 +35,8 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
+          cache: 'npm'
+          cache-dependency-path: ./frontend/app/package-lock.json
       - name: Install dependencies
         working-directory: ./frontend/app
         run: npm ci
