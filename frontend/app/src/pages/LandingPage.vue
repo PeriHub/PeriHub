@@ -83,9 +83,7 @@ SPDX-License-Identifier: Apache-2.0
       </a>
       <a class="card" href="https://www.youtube.com/@PeriHub">
         <q-card class="my-card">
-          <q-img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_(2017).svg/2560px-YouTube_full-color_icon_(2017).svg.png"
-            height="200px">
+          <q-img src="https://upload.wikimedia.org/wikipedia/commons/e/ef/Youtube_logo.png" height="200px">
             <div class="text-h5 absolute-bottom text-right">
               YouTube
             </div>

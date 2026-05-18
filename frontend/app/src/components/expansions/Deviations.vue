@@ -78,7 +78,7 @@ import { useDefaultStore } from 'src/stores/default-store';
 import { useModelStore } from 'src/stores/model-store';
 import type { Parameter, Deviations } from 'src/client';
 //@ts-expect-error Bla
-import objleaves from 'objleaves';
+// import objleaves from 'objleaves';
 import rules from 'assets/rules.js';
 
 export default defineComponent({
@@ -129,8 +129,29 @@ export default defineComponent({
         }
       })
     },
+    isObject(val) {
+      return val != null && typeof val === 'object' && Array.isArray(val) === false;
+    },
+    objleaves(obj, acc = []) {
+      const fn = (o, s) => {
+        if (Array.isArray(o) || this.isObject(o)) {
+          return Object.keys(o).forEach((k) => {
+            const path = s ? (Array.isArray(o) ? `${s}[${k}]` : `${s}.${k}`) : k;
+
+            const isLeaf = fn(o[k], path) === false;
+            if (isLeaf) {
+              acc.push(path);
+            }
+          });
+        }
+        return false;
+      };
+
+      fn(obj, undefined);
+      return acc;
+    },
     getAllParameters() {
-      this.parameters = objleaves(this.modelData)
+      this.parameters = this.objleaves(this.modelData)
     },
     addParameter() {
       if (!this.deviations.parameters) {

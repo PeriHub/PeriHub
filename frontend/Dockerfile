@@ -3,22 +3,26 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # develop stage
-FROM node:lts-alpine as develop-stage
-WORKDIR /app
+FROM node:24-slim AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+FROM base AS prod
+
 COPY app/package*.json ./
+COPY app/pnpm-lock.yaml ./
+WORKDIR /app
+RUN pnpm fetch --prod
+
 COPY app/. .
-
-# build stage
-FROM develop-stage as build-stage
-
 RUN npm i -g @quasar/cli
-RUN npm install
 RUN npm run patch
 RUN npm run build
 
-# production stage
 FROM nginx:alpine as production-stage
-COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
+COPY --from=prod /app/dist/spa /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod u+x /usr/local/bin/entrypoint.sh
