@@ -50,6 +50,9 @@ importers:
       uuid:
         specifier: ^13.0.0
         version: 13.0.2
+      vite-plugin-prismjs:
+        specifier: ^0.0.11
+        version: 0.0.11(prismjs@1.30.0)
       vue:
         specifier: ^3.5.22
         version: 3.5.34(typescript@5.9.3)
@@ -1948,6 +1951,11 @@ packages:
     resolution: {integrity: sha512-M762rNHfSF1EV3SLtnCJXFoQbbIIz0OyRwnCmV0KPC7qosSfCO0QLTSuJX3ayAebubhE6oYBAYPrBA5ljowaZg==}
     peerDependencies:
       '@babel/core': ^7.4.0 || ^8.0.0-0 <8.0.0
+
+  babel-plugin-prismjs@2.1.0:
+    resolution: {integrity: sha512-ehzSKYfeAz4U78zi/sfwsjDPlq0LvDKxNefcZTJ/iKBu+plsHsLqZhUeGf1+82LAcA35UZGbU6ksEx2Utphc/g==}
+    peerDependencies:
+      prismjs: ^1.18.0
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -4353,6 +4361,10 @@ packages:
       vue-tsc:
         optional: true
 
+  vite-plugin-prismjs@0.0.11:
+    resolution: {integrity: sha512-20NBQxg/zH+3FTrlU6BQTob720xkuXNYtrx7psAQ4E6pMcRDeLEK77QU9kXURU587+f2To7ASH1JVTGbXVV/vQ==}
+    engines: {node: '>=12.0.0'}
+
   vite@8.0.13:
     resolution: {integrity: sha512-MFtjBYgzmSxmgA4RAfjIyXWpGe1oALnjgUTzzV7QLx/TKxCzjtMH6Fd9/eVK+5Fg1qNoz5VAwsmMs/NofrmJvw==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -6676,6 +6688,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  babel-plugin-prismjs@2.1.0(prismjs@1.30.0):
+    dependencies:
+      prismjs: 1.30.0
+
   balanced-match@1.0.2: {}
 
   balanced-match@4.0.4: {}
@@ -8993,6 +9009,14 @@ snapshots:
       optionator: 0.9.4
       typescript: 5.9.3
       vue-tsc: 3.2.9(typescript@5.9.3)
+
+  vite-plugin-prismjs@0.0.11(prismjs@1.30.0):
+    dependencies:
+      '@babel/core': 7.29.0
+      babel-plugin-prismjs: 2.1.0(prismjs@1.30.0)
+    transitivePeerDependencies:
+      - prismjs
+      - supports-color
 
   vite@8.0.13(@types/node@20.19.41)(esbuild@0.27.7)(jiti@1.21.7)(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.47.1)(yaml@2.9.0):
     dependencies:

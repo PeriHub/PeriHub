@@ -7,6 +7,7 @@
 
 import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
+import prismjs from 'vite-plugin-prismjs';
 // import vue from '@vitejs/plugin-vue';
 
 export default defineConfig((ctx) => {
@@ -100,7 +101,9 @@ export default defineConfig((ctx) => {
             include: [fileURLToPath(new URL('./src/i18n', import.meta.url))],
           },
         ],
-
+        prismjs({
+          languages: 'all',
+        }),
         // [
         //   'vite-plugin-checker',
         //   {
