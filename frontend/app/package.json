@@ -28,7 +28,7 @@
     "keycloak-js": "^24.0.1",
     "mathjs": "^11.9.1",
     "pinia": "^3.0.1",
-    "prismjs": "^1.29.0",
+    "prismjs": "^1.30.0",
     "quasar": "^2.16.0",
     "svelte-jsoneditor": "^3.10.0",
     "uuid": "^13.0.0",
@@ -37,7 +37,7 @@
     "vue-i18n": "^11.0.0",
     "vue-image-zoomer": "^2.2.3",
     "vue-json-pretty": "^2.6.0",
-    "vue-prism-editor": "^2.0.0-alpha.2",
+    "vue-prism-editor": "2.0.0-alpha.2",
     "vue-router": "^4.0.12",
     "vue-vtk-js": "^3.3.1",
     "vue3-plotly": "^0.0.5"

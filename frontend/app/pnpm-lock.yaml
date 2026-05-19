@@ -35,14 +35,11 @@ importers:
       mathjs:
         specifier: ^11.9.1
         version: 11.12.0
-      objleaves:
-        specifier: ^1.0.0
-        version: 1.0.0
       pinia:
         specifier: ^3.0.1
         version: 3.0.4(typescript@5.9.3)(vue@3.5.34(typescript@5.9.3))
       prismjs:
-        specifier: ^1.29.0
+        specifier: ^1.30.0
         version: 1.30.0
       quasar:
         specifier: ^2.16.0
@@ -69,7 +66,7 @@ importers:
         specifier: ^2.6.0
         version: 2.6.0(vue@3.5.34(typescript@5.9.3))
       vue-prism-editor:
-        specifier: ^2.0.0-alpha.2
+        specifier: 2.0.0-alpha.2
         version: 2.0.0-alpha.2(vue@3.5.34(typescript@5.9.3))
       vue-router:
         specifier: ^4.0.12
@@ -3426,9 +3423,6 @@ packages:
   object-keys@1.1.1:
     resolution: {integrity: sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==}
     engines: {node: '>= 0.4'}
-
-  objleaves@1.0.0:
-    resolution: {integrity: sha512-FT2C0OG/BAaB70PDBy6LUzSDUlppj14+3yj0/hqjk/FPrDjadNvc9Rf5FO4KNPJI6gZst/SB3eEq3SFB7Be/9A==}
 
   ohash@1.1.6:
     resolution: {integrity: sha512-TBu7PtV8YkAZn0tSxobKY2n2aAQva936lhRrj6957aDaCf9IEtqsKbgMzXE/F/sjqYOwmrukeORHNLe5glk7Cg==}
@@ -8092,8 +8086,6 @@ snapshots:
   object-inspect@1.13.4: {}
 
   object-keys@1.1.1: {}
-
-  objleaves@1.0.0: {}
 
   ohash@1.1.6: {}
 

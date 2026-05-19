@@ -101,10 +101,10 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 
 import { useDefaultStore } from 'src/stores/default-store';
+import { highlight, languages } from 'prismjs/components/prism-core';
 import { PrismEditor } from 'vue-prism-editor';
 import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
 //@ts-expect-error Bla
-import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-python';
 import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 // import JsonEditorVue from 'json-editor-vue'
