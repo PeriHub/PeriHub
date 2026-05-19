@@ -16,6 +16,7 @@ import { useViewStore } from 'src/stores/view-store';
 import { PrismEditor } from 'vue-prism-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+import 'prismjs';
 //@ts-expect-error Bla
 import 'prismjs/components/prism-yaml';
 import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
