@@ -115,11 +115,6 @@ import 'vue-json-pretty/lib/styles.css';
 import { getOwnModels, getOwnModelFile, getConfig, saveConfig, saveModelFile, addModel, deleteModelFile } from '../client';
 import type { GetOwnModelsResponse, ModelData } from 'src/client';
 
-// FIX: Attach Prism to the global window object so plugins can find it
-if (typeof window !== 'undefined') {
-  window.Prism = Prism;
-}
-
 export default {
   name: 'CuratorPage',
 
