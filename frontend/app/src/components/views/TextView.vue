@@ -13,7 +13,6 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
 import { useViewStore } from 'src/stores/view-store';
 
-import Prism from "prismjs";
 import { PrismEditor } from 'vue-prism-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
