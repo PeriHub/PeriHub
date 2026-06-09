@@ -75,7 +75,22 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
 
-app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan)
+app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan, version="3.2.3")
+
+
+banner = rf"""
+██████╗ ███████╗██████╗ ██╗██╗  ██╗██╗   ██╗██████╗ 
+██╔══██╗██╔════╝██╔══██╗██║██║  ██║██║   ██║██╔══██╗
+██████╔╝█████╗  ██████╔╝██║███████║██║   ██║██████╔╝
+██╔═══╝ ██╔══╝  ██╔══██╗██║██╔══██║██║   ██║██╔══██╗
+██║     ███████╗██║  ██║██║██║  ██║╚██████╔╝██████╔╝
+╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ 
+v{app.version} - PeriHub                                                
+https://github.com/PeriHub/PeriHub.git
+"""
+
+print(banner)
+
 
 app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
@@ -226,29 +241,22 @@ async def websocket_endpoint_log(
         except RuntimeError as e:
             pass
 
-def get_latest_release(owner: str, repo: str) -> dict:
+def get_latest_release(owner: str, repo: str, tag= False) -> dict:
     """Return the JSON payload for the latest GitHub release."""
-    url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+    if tag:
+        url = f"https://api.github.com/repos/{owner}/{repo}/tags"
+    else:
+        url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
     r = requests.get(url, timeout=10)            # <-- add headers if you hit rate‑limit
     r.raise_for_status()                        # raise an HTTPError for 4xx/5xx
     return r.json()                              # a Python dict
 
 @app.get("/updates", operation_id="get_version")
 async def get_app_latest_release_version() -> VersionData:
-    current = "unknown"
+    current = app.version
     latest = "unknown"
     perilab_current = "unknown"
     perilab_latest = "unknown"
-    # adopt path to your pyproject.toml
-    pyproject_toml_file = Path(__file__).parent / "pyproject.toml"
-    if pyproject_toml_file.exists() and pyproject_toml_file.is_file():
-        data = toml.load(pyproject_toml_file)
-        # check project.version
-        if "project" in data and "version" in data["project"]:
-            current = data["project"]["version"]
-        # check tool.poetry.version
-        elif "tool" in data and "poetry" in data["tool"] and "version" in data["tool"]["poetry"]:
-            current = data["tool"]["poetry"]["version"]
     
     ssh = FileHandler.ssh_to_perilab()
     stdin, stdout, stderr = ssh.exec_command(
@@ -264,8 +272,8 @@ async def get_app_latest_release_version() -> VersionData:
     ssh.close()
 
     try:
-        release = get_latest_release("PeriHub", "PeriHub")
-        latest = release["tag_name"]
+        release = get_latest_release("PeriHub", "PeriHub", tag=True)
+        latest = release[0]["name"]
 
         release = get_latest_release("PeriHub", "PeriLab.jl")
         perilab_latest = release["tag_name"]
