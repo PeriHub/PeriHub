@@ -28,10 +28,12 @@ from .routers import (
     energy,
     generate,
     jobs,
+    license as license_router,
     model,
     results,
     translate,
     upload,
+    usage,
 )
 from .support.base_models import VersionData
 from .support.file_handler import FileHandler
@@ -53,6 +55,14 @@ tags_metadata = [
     {
         "name": "Documentation Methods",
         "description": "Retrieve markdown documentation or bibtex files",
+    },
+    {
+        "name": "Usage Methods",
+        "description": "Usage metering / job-submission analytics",
+    },
+    {
+        "name": "License Methods",
+        "description": "Plan & entitlement status from the license server",
     },
 ]
 
@@ -79,13 +89,13 @@ app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan, version="3.2.3")
 
 
 banner = rf"""
-██████╗ ███████╗██████╗ ██╗██╗  ██╗██╗   ██╗██████╗ 
+██████╗ ███████╗██████╗ ██╗██╗  ██╗██╗   ██╗██████╗
 ██╔══██╗██╔════╝██╔══██╗██║██║  ██║██║   ██║██╔══██╗
 ██████╔╝█████╗  ██████╔╝██║███████║██║   ██║██████╔╝
 ██╔═══╝ ██╔══╝  ██╔══██╗██║██╔══██║██║   ██║██╔══██╗
 ██║     ███████╗██║  ██║██║██║  ██║╚██████╔╝██████╔╝
-╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ 
-v{app.version} - PeriHub                                                
+╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝
+v{app.version} - PeriHub
 https://github.com/PeriHub/PeriHub.git
 """
 
@@ -113,6 +123,8 @@ app.include_router(results.router)
 app.include_router(delete.router)
 app.include_router(docs.router)
 app.include_router(energy.router)
+app.include_router(usage.router)
+app.include_router(license_router.router)
 
 if dev:
     log.info("--- Running in development mode ---")
@@ -183,7 +195,7 @@ async def websocket_endpoint_log(
                 )
             paths = [os.path.join(remotepath, basename) for basename in filtered_values]
             latest_file = max(paths, key=os.path.getctime)
-        except IOError:
+        except IOError or FileNotFoundError:
             log.error("LogFile can not be found in %s", remotepath)
 
             raise HTTPException(
@@ -257,7 +269,7 @@ async def get_app_latest_release_version() -> VersionData:
     latest = "unknown"
     perilab_current = "unknown"
     perilab_latest = "unknown"
-    
+
     ssh = FileHandler.ssh_to_perilab()
     stdin, stdout, stderr = ssh.exec_command(
         "cd /app \n awk -F'\"' '/version/{print $2}' Project.toml"

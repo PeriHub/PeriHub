@@ -8,12 +8,37 @@ from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
+from .yaml_field import yaml_field
+
 
 class VersionData(BaseModel):
     current: str
     latest: str
     perilab_current: str
     perilab_latest: str
+
+
+class UsageSummary(BaseModel):
+    """Aggregate usage stats - see support/usage_metering.py."""
+
+    total_jobs_submitted: int
+    total_jobs_cancelled: int
+    cluster_jobs: int
+    local_jobs: int
+    jobs_per_user: dict
+    jobs_per_model: dict
+
+
+class LicenseStatus(BaseModel):
+    """Current entitlement grant - see support/license_client.py and
+    support/entitlements.py."""
+
+    plan: str
+    features: List[str]
+    seats: Optional[int] = None
+    expires_at: Optional[str] = None
+    source: str  # "license_server" | "cache" | "default"
+    license_server_configured: bool
 
 
 class PointDataResults(BaseModel):
@@ -60,8 +85,8 @@ class Valve(BaseModel):
     value_type: Literal["int", "float", "bool", "str"]
     label: str
     description: str
-    options: Optional[Union[List[str],str]]
-    depends: Optional[str]
+    options: Optional[Union[List[str], str]] = None
+    depends: Optional[str] = None
 
 default_valves = {
     "valves": [
@@ -481,42 +506,52 @@ class Solver(BaseModel):
     solverId: Optional[int] = None
     name: Optional[str] = None
     stepId: int = 1
-    matEnabled: bool = True
-    damEnabled: Optional[bool] = None
+    matEnabled: bool = yaml_field(True, yaml_key="Material Models", ui_label="Material Models", ui_widget="toggle", ui_group="Solver", ui_order=1)
+    damEnabled: Optional[bool] = yaml_field(None, yaml_key="Damage Models", ui_label="Damage Models", ui_widget="toggle", ui_group="Solver", ui_order=2)
     dispEnabled: Optional[bool] = None
-    tempEnabled: Optional[bool] = None
-    addEnabled: Optional[bool] = None
-    initialTime: Optional[float] = None
-    finalTime: Optional[float] = None
+    tempEnabled: Optional[bool] = yaml_field(None, yaml_key="Thermal Models", ui_label="Thermal Models", ui_widget="toggle", ui_group="Solver", ui_order=3)
+    addEnabled: Optional[bool] = yaml_field(None, yaml_key="Additive Models", ui_label="Additive Models", ui_widget="toggle", ui_group="Solver", ui_order=4)
+    initialTime: Optional[float] = yaml_field(None, yaml_key="Initial Time", yaml_cast="float", ui_label="Initial Time", ui_widget="number", ui_group="Solver", ui_order=10)
+    finalTime: Optional[float] = yaml_field(None, yaml_key="Final Time", yaml_cast="float", ui_label="Final Time", ui_widget="number", ui_group="Solver", ui_order=11)
+    # additionalTime and initialTime/finalTime are mutually exclusive in the
+    # written YAML (see yaml_writer_perilab.py's solver()) - that XOR is
+    # structural logic, so additionalTime intentionally has no yaml_key here
+    # even though it's a simple scalar; it's written by hand alongside the
+    # branch that decides which of the two to emit.
     additionalTime: Optional[float] = None
-    fixedDt: Optional[float] = None
-    solvertype: str
-    safetyFactor: float
+    fixedDt: Optional[float] = yaml_field(None, ui_label="Fixed dt", ui_widget="number", ui_group="Verlet", ui_order=0)
+    solvertype: str = yaml_field(..., ui_label="Solvertype", ui_widget="select", ui_options=["Verlet", "Static"], ui_group="Solver", ui_order=0)
+    safetyFactor: float = yaml_field(..., yaml_cast="float", ui_label="Safety Factor", ui_widget="number", ui_group="Verlet", ui_order=1)
     verlet: Optional[Verlet] = None
     static: Optional[Static] = None
     stopAfterDamageInitation: Optional[bool] = None
     endStepAfterDamage: Optional[int] = None
     stopAfterCertainDamage: Optional[bool] = None
-    maximumDamage: Optional[float] = None
+    maximumDamage: Optional[float] = yaml_field(None, yaml_key="Maximum Damage", yaml_cast="float", ui_label="Max. damage value", ui_widget="number", ui_group="Solver", ui_order=14)
     stopBeforeDamageInitation: Optional[bool] = None
-    adaptivetimeStepping: Optional[bool] = None
+    adaptivetimeStepping: Optional[bool] = yaml_field(None, ui_label="Adaptive Time Stepping", ui_widget="toggle", ui_group="Verlet", ui_order=1)
     adapt: Optional[Adapt] = None
-    calculateCauchy: Optional[bool] = None
-    calculateVonMises: Optional[bool] = None
-    calculateStrain: Optional[bool] = None
+    calculateCauchy: Optional[bool] = yaml_field(None, yaml_key="Calculate Cauchy", ui_label="Calculate Cauchy", ui_widget="toggle", ui_group="Verlet", ui_order=2)
+    calculateVonMises: Optional[bool] = yaml_field(None, yaml_key="Calculate von Mises stress", ui_label="Calculate von Mises", ui_widget="toggle", ui_group="Verlet", ui_order=3)
+    calculateStrain: Optional[bool] = yaml_field(None, yaml_key="Calculate Strain", ui_label="Calculate Strain", ui_widget="toggle", ui_group="Verlet", ui_order=4)
 
 
 class Job(BaseModel):
-    cluster: bool
-    sbatch: bool
-    verbose: bool
+    # ui_group intentionally splits these into "always shown" vs "shown only
+    # when cluster/sbatch is enabled" - that visibility rule is genuine
+    # component logic (see Job.svelte), not something a generic field
+    # renderer should have to know about, so it's expressed here as separate
+    # groups the frontend conditionally renders rather than a single flat one.
+    cluster: bool = yaml_field(..., ui_label="Cluster", ui_widget="toggle", ui_group="Job", ui_order=1)
+    sbatch: bool = yaml_field(..., ui_label="Sbatch", ui_widget="toggle", ui_group="Job", ui_order=2)
+    verbose: bool = yaml_field(..., ui_label="Verbose", ui_widget="toggle", ui_group="Job", ui_order=0)
     nodes: Optional[int] = 1
-    tasks: int
+    tasks: int = yaml_field(..., ui_label="Tasks", ui_widget="number", ui_group="JobCluster", ui_order=0)
     tasksPerNode: Optional[int] = 1
-    cpusPerTask: Optional[int] = 1
-    multithread: Optional[bool] = False
-    time: Optional[str] = None
-    account: Optional[int] = None
+    cpusPerTask: Optional[int] = yaml_field(1, ui_label="CPUs per Task", ui_widget="number", ui_group="JobSbatch", ui_order=0)
+    multithread: Optional[bool] = yaml_field(False, ui_label="Multithreading", ui_widget="toggle", ui_group="JobSbatch", ui_order=1)
+    time: Optional[str] = yaml_field(None, ui_label="Time", ui_widget="text", ui_group="JobSbatch", ui_order=2)
+    account: Optional[int] = yaml_field(None, ui_label="Account", ui_widget="number", ui_group="JobSbatch", ui_order=3)
 
 
 default_model = {

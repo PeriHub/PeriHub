@@ -25,7 +25,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t perihub/backend:${{ steps.get_version.outputs.PERIHUB_VERSION }} ./backend
       - name: Build Docker image
-        run: docker build -t perihub/frontend:${{ steps.get_version.outputs.PERIHUB_VERSION }} ./frontend
+        run: docker build -t perihub/frontend:${{ steps.get_version.outputs.PERIHUB_VERSION }} .
       - name: Publish to Registry
         run: docker push perihub/backend:${{ steps.get_version.outputs.PERIHUB_VERSION }}
       - name: Publish to Registry

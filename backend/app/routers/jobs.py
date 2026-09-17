@@ -4,16 +4,17 @@
 
 import json
 import os
-import shutil
-import socket
 from typing import List, Optional
 
-import paramiko
 from fastapi import APIRouter, HTTPException, Request, status
 
+from ..support import audit_log, usage_metering
+from ..support.api_key_auth import get_user_name_with_api_key
 from ..support.base_models import Jobs, ModelData, Status
 from ..support.file_handler import FileHandler
-from ..support.globals import cluster_enabled, cluster_perilab_path, dev, log, trial
+from ..support.globals import cluster_enabled, cluster_perilab_path, dev, log, max_concurrent_local_jobs, trial
+from ..support.job_concurrency import count_active_local_jobs, has_capacity
+from ..support.solver_backend import get_solver_backend
 from ..support.writer.sbatch_writer import SbatchCreator
 
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
@@ -30,6 +31,7 @@ async def run_model(
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
+    username = get_user_name_with_api_key(request, dev, username)
     usermail = FileHandler.get_user_mail(request)
 
     material = model_data.materials
@@ -43,6 +45,22 @@ async def run_model(
     sbatch = model_data.job.sbatch
     disc_type = model_data.discretization.discType
 
+    # Back-pressure: local (non-cluster) jobs run on the single bundled
+    # perihub_perilab container, so cap how many can be in flight at once
+    # instead of silently piling them all on. Cluster/sbatch jobs are handed
+    # off to Slurm, which already queues, so they're not subject to this.
+    if not cluster and not has_capacity():
+        active = count_active_local_jobs()
+        log.warning("Rejecting %s: %d/%d local jobs already active", model_name, active, max_concurrent_local_jobs)
+        audit_log.record(username, "run_model", model_name, request, result="rejected_capacity")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=(
+                f"{active}/{max_concurrent_local_jobs} local simulation slots are in use. "
+                "Please retry once a running job finishes, or submit to a cluster."
+            ),
+        )
+
     remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
     if os.path.exists(os.path.join(remotepath, "runPerilab.sh")):
@@ -51,6 +69,13 @@ async def run_model(
     FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster, disc_type)
 
     FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
+
+    # ModelData.discretization doesn't currently carry a node count field, so
+    # this is left None for now rather than guessed at; it's a placeholder in
+    # the schema this call already accepts for when that data is available.
+    node_count = getattr(model_data.discretization, "nodeCount", None)
+    usage_metering.record_job_submission(username, model_name, model_folder_name, cluster, sbatch, node_count)
+    audit_log.record(username, "run_model", model_name, request, extra={"cluster": cluster, "sbatch": sbatch})
 
     if cluster and sbatch:
         # initial_jobs = FileHandler.write_get_cara_job_id()
@@ -133,18 +158,12 @@ async def run_model(
             file.write(sh_string)
         os.chmod(os.path.join(remotepath, "runPerilab.sh"), 0o0755)
 
-        ssh = FileHandler.ssh_to_perilab()
-        
-        command = (
-            "cd /app" + "/simulations/" + os.path.join(username, model_name, model_folder_name) + " \n sh runPerilab.sh > /dev/null 2>&1 &"
-        )
-        ssh.exec_command(command)
-        # stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
-        # stdout=stdout.readlines()
-        # stderr=stderr.readlines()
-        ssh.close()
+        # Delegates to the configured solver backend (local docker container
+        # by default; see support/solver_backend.py for the pluggability
+        # this enables - e.g. the planned external/remote PeriLab server
+        # enterprise feature).
+        get_solver_backend().submit(username, model_name, model_folder_name, remotepath)
 
-        # return stdout + stderr
         log.info("%s has been submitted", model_name)
         return
 
@@ -162,41 +181,17 @@ def cancel_job(
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
+    username = get_user_name_with_api_key(request, dev, username)
+
+    usage_metering.record_job_cancellation(username, model_name, model_folder_name, cluster)
+    audit_log.record(username, "cancel_job", model_name, request, extra={"cluster": cluster, "sbatch": sbatch})
 
     if not cluster:
-        server = "perihub_perilab"
         remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        while True:
-            try:
-                ssh.connect(
-                    server,
-                    username="root",
-                    allow_agent=False,
-                    password="root",
-                    timeout=5,
-                )
-            except socket.gaierror:
-                if server != "localhost":
-                    server = "localhost"
-                    continue
-                else:
-                    log.error("ssh connection to %s failed!", server)
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to " + server + " failed!"
-                    )
-            break
-        command = (
-            "kill -2 $(cat /app"
-            + os.path.join(remotepath, "pid.txt")
-            + ") \n rm /app"
-            + os.path.join(remotepath, "pid.txt")
-        )
-        _, stdout, stderr = ssh.exec_command(command)
-        stdout = stdout.readlines()
-        stderr = stderr.readlines()
-        ssh.close()
+        # Delegates to the configured solver backend (see support/solver_backend.py),
+        # which also de-duplicates the SSH-connect-with-localhost-fallback logic
+        # that used to be re-implemented here separately from FileHandler.ssh_to_perilab.
+        get_solver_backend().cancel(username, model_name, model_folder_name, remotepath)
 
         log.info("Job has been canceled")
         return
@@ -269,7 +264,7 @@ def get_jobs(
     if not os.path.exists(localpath):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="LogFile can't be found in " + remotepath,
+            detail="LogFile can't be found in " + localpath,
         )
 
     cluster_accesible = True

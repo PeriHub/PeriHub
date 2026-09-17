@@ -18,7 +18,7 @@ services:
   perihub_frontend:
     image: perihub/frontend
     build:
-      context: ./frontend
+      context: .
     container_name: perihub_frontend
     env_file:
       - .env

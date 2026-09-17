@@ -7,13 +7,19 @@ on:
   push:
     branches: [main]
     paths:
-      - "frontend/**"
+      - "src/**"
+      - "static/**"
       - "backend/**"
+      - "package.json"
+      - "package-lock.json"
   pull_request:
     branches: [main]
     paths:
-      - "frontend/**"
+      - "src/**"
+      - "static/**"
       - "backend/**"
+      - "package.json"
+      - "package-lock.json"
 jobs:
   build:
     timeout-minutes: 60
@@ -36,24 +42,25 @@ jobs:
         with:
           node-version: lts/*
           cache: 'npm'
-          cache-dependency-path: ./frontend/app/package-lock.json
+          cache-dependency-path: ./package-lock.json
       - name: Install dependencies
-        working-directory: ./frontend/app
         run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: npm run check
       - name: Install Playwright Browsers
-        working-directory: ./frontend/app
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        working-directory: ./frontend/app
         run: npx playwright test
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report
-          path: ./frontend/app/playwright-report/
+          path: ./playwright-report/
           retention-days: 30
       - name: Build Docker image
-        run: docker build -t perihub/frontend:dev ./frontend
+        run: docker build -t perihub/frontend:dev .
       - name: Publish to Registry
         if: github.ref_name == 'main'
         run: docker push perihub/backend:dev

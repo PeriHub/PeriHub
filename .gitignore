@@ -22,6 +22,18 @@ Output/
 # Mac/OSX
 .DS_Store
 
+# Node / SvelteKit
+node_modules/
+.svelte-kit/
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.local.example
+playwright-report/
+test-results/
+package-lock.json.bak
+
 # Windows
 Thumbs.db
 
@@ -42,7 +54,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/

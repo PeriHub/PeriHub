@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# NOTE: the backend also has a Python `pre-commit` (pre-commit.com) config
+# (.pre-commit-config.yaml, scoped to backend/ via its `files:` key). Both that tool and
+# Husky install into the same .git/hooks/pre-commit file, so whichever was `install`ed last
+# wins and silently drops the other. Chain to it here so `pre-commit install` +
+# `npm run prepare` (which runs `husky`) can coexist regardless of install order.
+if command -v pre-commit >/dev/null 2>&1 && [ -f .pre-commit-config.yaml ]; then
+  pre-commit run --hook-stage pre-commit || exit 1
+fi
+
+npx lint-staged
