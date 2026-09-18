@@ -262,10 +262,7 @@ def get_jobs(
     # print(localpath)
 
     if not os.path.exists(localpath):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="LogFile can't be found in " + localpath,
-        )
+        return jobs
 
     cluster_accesible = True
     if cluster_enabled:

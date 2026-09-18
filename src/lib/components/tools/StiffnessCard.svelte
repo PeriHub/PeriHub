@@ -63,6 +63,8 @@ SPDX-License-Identifier: Apache-2.0
   );
   let stiffnessString = $state('');
 
+  let initialized = $state(false);
+
   function resetResult() {
     for (const key of Object.keys(calculated) as CKey[]) calculated[key] = null;
     stiffnessString = '';
@@ -114,6 +116,19 @@ SPDX-License-Identifier: Apache-2.0
     stiffnessString = out;
   }
 
+  $effect.pre(() => {
+    if (initialized || typeof window === 'undefined') return;
+    initialized = true;
+    const stored = localStorage.getItem('constants');
+    if (stored) {
+      try {
+        constants = { ...constants, ...JSON.parse(stored) };
+      } catch {
+        /* ignore malformed cache */
+      }
+    }
+  });
+
   $effect(() => {
     const num = Object.values(constants).filter((v) => v != null).length;
     if (num === 9) {
@@ -123,18 +138,6 @@ SPDX-License-Identifier: Apache-2.0
     }
     if (typeof window !== 'undefined') {
       localStorage.setItem('constants', JSON.stringify(constants));
-    }
-  });
-
-  $effect(() => {
-    if (typeof window === 'undefined') return;
-    const stored = localStorage.getItem('constants');
-    if (stored) {
-      try {
-        constants = { ...constants, ...JSON.parse(stored) };
-      } catch {
-        /* ignore malformed cache */
-      }
     }
   });
 

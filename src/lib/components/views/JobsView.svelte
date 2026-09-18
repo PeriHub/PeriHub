@@ -24,7 +24,7 @@ SPDX-License-Identifier: Apache-2.0
         modelName: modelStore.selectedModel.file,
         sbatch: modelStore.modelData.job.sbatch
       });
-      notify.info('Jobs found');
+      // notify.info('Jobs found');
     } catch (error) {
       notify.apiError(error);
     } finally {

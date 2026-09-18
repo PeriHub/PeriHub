@@ -19,6 +19,22 @@ SPDX-License-Identifier: Apache-2.0
 
   let mobileTab = $state('setup');
 
+  // Only one of the desktop/mobile layouts must ever be mounted at a time -
+  // rendering both simultaneously (previously toggled with `hidden lg:grid` /
+  // `flex lg:hidden`) duplicated every stateful component (ModelActions,
+  // ViewActions, TextActions, TextComp, ...) and their bus listeners, causing
+  // every bus.emit(...) to fire its handlers multiple times.
+  // Default to desktop for SSR; corrected on the client before paint.
+  let isDesktop = $state(true);
+
+  onMount(() => {
+    const mql = window.matchMedia('(min-width: 1024px)');
+    isDesktop = mql.matches;
+    const onChange = (e: MediaQueryListEvent) => (isDesktop = e.matches);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  });
+
   async function showTutorial() {
     // @ts-expect-error driver.js v0.9 ships no type declarations
     const { default: Driver } = await import('driver.js');
@@ -103,8 +119,9 @@ SPDX-License-Identifier: Apache-2.0
   <title>PeriHub — Model Builder</title>
 </svelte:head>
 
+{#if isDesktop}
 <!-- Desktop / tablet layout: side-by-side panels. -->
-<div class="hidden h-[calc(100vh-4rem)] grid-cols-1 gap-3 overflow-hidden p-3 lg:grid lg:grid-cols-2">
+<div class="grid h-[calc(100vh-4rem)] grid-cols-1 gap-3 overflow-hidden p-3 lg:grid-cols-2">
   <div id="model-configuration" class="flex min-h-0 flex-col overflow-hidden rounded-lg border border-border">
     <div id="ModelActions"><ModelActions /></div>
     <div id="ExpansionComp" class="min-h-0 flex-1 overflow-hidden">
@@ -123,12 +140,12 @@ SPDX-License-Identifier: Apache-2.0
     </div>
   </div>
 </div>
-
+{:else}
 <!-- Narrow-screen layout: splitters/side-by-side panels don't work well with
      touch on small viewports, so stack the three work areas as swipeable
-     tabs instead. Pure CSS breakpoint (no JS screen-size detection) so it
-     also behaves correctly during SSR/hydration. -->
-<div class="flex h-[calc(100vh-4rem)] flex-col overflow-hidden lg:hidden">
+     tabs instead. Mounted only when isDesktop is false, so this never
+     coexists with the desktop layout above. -->
+<div class="flex h-[calc(100vh-4rem)] flex-col overflow-hidden">
   <Tabs.Root bind:value={mobileTab} class="flex h-full flex-col">
     <Tabs.List class="flex border-b border-border bg-muted/40">
       <Tabs.Trigger
@@ -169,3 +186,4 @@ SPDX-License-Identifier: Apache-2.0
     </div>
   </Tabs.Root>
 </div>
+{/if}

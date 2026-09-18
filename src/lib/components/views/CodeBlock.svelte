@@ -58,7 +58,9 @@ SPDX-License-Identifier: Apache-2.0
 {/if}
 
 <style>
+  .prism-editor,
   .prism-editor :global(*) {
     white-space: pre-wrap;
   }
 </style>
+
