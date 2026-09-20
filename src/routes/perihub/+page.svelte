@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Tabs } from 'bits-ui';
-  import { Sliders, LineChart, FileText, ChevronLeft, ChevronRight } from 'lucide-svelte';
+  import { Sliders, LineChart, FileText, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-svelte';
   import ExpansionComp from '$lib/components/ExpansionComp.svelte';
   import ViewComp from '$lib/components/ViewComp.svelte';
   import TextComp from '$lib/components/TextComp.svelte';
@@ -73,6 +73,44 @@ SPDX-License-Identifier: Apache-2.0
   function toggleSetupCollapsed() {
     setupCollapsed = !setupCollapsed;
     localStorage.setItem('periHubSetupCollapsed', String(setupCollapsed));
+  }
+
+  // Same drag-to-resize / collapse pattern, applied vertically to the
+  // ViewComp/TextComp split on the output side.
+  const COLLAPSED_HEIGHT_PX = 40;
+  let outputHeightPercent = $state(55);
+  let textCollapsed = $state(false);
+  let draggingV = $state(false);
+  let outputEl: HTMLDivElement | undefined;
+
+  onMount(() => {
+    const savedHeight = localStorage.getItem('periHubOutputHeight');
+    if (savedHeight) outputHeightPercent = Number(savedHeight);
+    textCollapsed = localStorage.getItem('periHubTextCollapsed') === 'true';
+  });
+
+  function startDragV(e: PointerEvent) {
+    if (textCollapsed) return;
+    draggingV = true;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  function onDragV(e: PointerEvent) {
+    if (!draggingV || !outputEl) return;
+    const rect = outputEl.getBoundingClientRect();
+    const pct = ((e.clientY - rect.top) / rect.height) * 100;
+    outputHeightPercent = Math.min(80, Math.max(20, pct));
+  }
+
+  function stopDragV() {
+    if (!draggingV) return;
+    draggingV = false;
+    localStorage.setItem('periHubOutputHeight', String(outputHeightPercent));
+  }
+
+  function toggleTextCollapsed() {
+    textCollapsed = !textCollapsed;
+    localStorage.setItem('periHubTextCollapsed', String(textCollapsed));
   }
 
   async function showTutorial() {
@@ -213,14 +251,61 @@ SPDX-License-Identifier: Apache-2.0
     </button>
   </div>
 
-  <div id="model-output" class="flex min-h-0 flex-col gap-3 overflow-hidden">
-    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+  <div
+    bind:this={outputEl}
+    id="model-output"
+    class="grid min-h-0 overflow-hidden"
+    style="grid-template-rows: {textCollapsed ? '1fr' : `${outputHeightPercent}%`} 10px {textCollapsed
+      ? `${COLLAPSED_HEIGHT_PX}px`
+      : '1fr'};"
+    onpointermove={onDragV}
+    onpointerup={stopDragV}
+  >
+    <div class="flex min-h-0 flex-col overflow-hidden">
       <div id="ViewActions"><ViewActions /></div>
       <div id="ViewComp" class="min-h-0 flex-1 overflow-hidden"><ViewComp /></div>
     </div>
-    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div id="TextActions"><TextActions /></div>
-      <div id="TextComp" class="min-h-0 flex-1 overflow-hidden"><TextComp /></div>
+
+    <div
+      role="separator"
+      aria-orientation="horizontal"
+      aria-label="Resize input/log panel"
+      tabindex="0"
+      class="group relative my-1 flex items-center justify-center {textCollapsed ? '' : 'cursor-row-resize'}"
+      onpointerdown={startDragV}
+      ondblclick={toggleTextCollapsed}
+    >
+      <div class="h-px w-full bg-border transition-colors group-hover:bg-primary"></div>
+      <button
+        type="button"
+        onclick={toggleTextCollapsed}
+        title={textCollapsed ? 'Expand input/log panel' : 'Collapse input/log panel'}
+        class="absolute rounded-full border border-border bg-background p-0.5 text-muted-foreground shadow-sm hover:text-foreground"
+      >
+        {#if textCollapsed}
+          <ChevronUp class="h-3 w-3" />
+        {:else}
+          <ChevronDown class="h-3 w-3" />
+        {/if}
+      </button>
+    </div>
+
+    <div class="relative flex min-h-0 flex-col overflow-hidden">
+      <button
+        type="button"
+        onclick={toggleTextCollapsed}
+        title="Expand input/log panel"
+        class="absolute inset-0 z-10 flex flex-row items-center justify-center gap-2 bg-background text-muted-foreground hover:text-foreground {textCollapsed
+          ? ''
+          : 'hidden'}"
+      >
+        <ChevronUp class="h-4 w-4" />
+        <span class="text-xs font-medium">Input / Log</span>
+      </button>
+      <div class="flex min-h-0 flex-1 flex-col overflow-hidden {textCollapsed ? 'invisible' : ''}">
+        <div id="TextActions"><TextActions /></div>
+        <div id="TextComp" class="min-h-0 flex-1 overflow-hidden"><TextComp /></div>
+      </div>
     </div>
   </div>
 </div>

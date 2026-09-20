@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   import { X } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
+  import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
   import { cancelJob as cancelJobApi, getJobs } from '$lib/client';
@@ -18,6 +19,25 @@ SPDX-License-Identifier: Apache-2.0
   let loading = $state(false);
   let rows = $state<Jobs[]>([]);
   let pollTimer: ReturnType<typeof setInterval> | undefined;
+
+  // The row whose log is already being tailed live over the open websocket
+  // (see TextActions.svelte) - its progress should come from that stream
+  // directly rather than the polled getJobs response, which would otherwise
+  // redundantly re-read the exact same log file from disk on every poll.
+  function isActiveJob(row: Jobs) {
+    return row.name === modelStore.selectedModel.file && row.sub_name === modelStore.modelData.model.modelFolderName;
+  }
+
+  function progressFor(row: Jobs) {
+    if (isActiveJob(row) && viewStore.logProgress) {
+      return {
+        percent: viewStore.logProgress.percent,
+        currentStep: viewStore.logProgress.currentStep,
+        totalSteps: viewStore.logProgress.totalSteps
+      };
+    }
+    return { percent: row.progress, currentStep: row.currentStep, totalSteps: row.totalSteps };
+  }
 
   async function fetchJobs() {
     loading = true;
@@ -73,11 +93,14 @@ SPDX-License-Identifier: Apache-2.0
     bus.on('resetData', fetchJobs);
     bus.on('getJobs' as never, fetchJobs);
 
-    // Keep progress bars live for any job that's running but has no results
-    // yet, without the user needing to manually refresh.
+    // Keep progress bars live for jobs running elsewhere (no websocket open
+    // for them), without the user needing to manually refresh. The active
+    // job's progress already updates live via viewStore.logProgress above,
+    // so it doesn't need this poll - skip it entirely if that's the only
+    // running job, to avoid the backend re-reading its log file for nothing.
     pollTimer = setInterval(() => {
-      const hasRunningJob = rows.some((row) => row.submitted && !row.results);
-      if (hasRunningJob) refreshJobsSilently();
+      const hasOtherRunningJob = rows.some((row) => row.submitted && !row.results && !isActiveJob(row));
+      if (hasOtherRunningJob) refreshJobsSilently();
     }, 3000);
 
     return () => {
@@ -128,9 +151,10 @@ SPDX-License-Identifier: Apache-2.0
             </td>
             <td class="px-3 py-2">
               {#if row.submitted && !row.results}
+                {@const p = progressFor(row)}
                 <ProgressBar
-                  value={row.progress}
-                  label={row.currentStep && row.totalSteps ? `${row.currentStep} / ${row.totalSteps}` : ''}
+                  value={p.percent}
+                  label={p.currentStep && p.totalSteps ? `${p.currentStep} / ${p.totalSteps}` : ''}
                   class="w-32"
                 />
               {:else}
