@@ -532,7 +532,7 @@ def get_data(
             [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
             order="F",
         ).tolist(),
-        value=normalized_cell_value.tolist()[::reduce_factor],
+        value=cell_value.tolist()[::reduce_factor],
         variables=variable_list,
         number_of_steps=number_of_steps,
         min_value=min_cell_value,

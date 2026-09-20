@@ -48,6 +48,8 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "@threlte/core": "^8.6.0",
+    "@threlte/extras": "^9.21.1",
     "axios": "^1.6.8",
     "bibtex-parse-js": "^0.0.23",
     "bits-ui": "^1.0.0",
@@ -69,6 +71,7 @@
     "sveltekit-i18n": "^2.4.2",
     "tailwind-merge": "^2.6.0",
     "tailwind-variants": "^0.3.1",
+    "three": "^0.186.0",
     "uuid": "^13.0.0",
     "vtk.js": "^32.13.1"
   },

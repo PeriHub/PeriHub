@@ -8,21 +8,35 @@ SPDX-License-Identifier: Apache-2.0
   interface Props {
     min: number;
     max: number;
+    numValues?: number;
   }
 
-  let { min, max }: Props = $props();
+  let { min, max, numValues = 11 }: Props = $props();
 
-  const mid = $derived((min + max) / 2);
-  // Matches vtk.js's own default lookup table (hueRange [0.0, 0.6667]):
-  // a rainbow sweep from red at the low end to blue at the high end.
-  const GRADIENT = 'linear-gradient(to top, red, yellow, lime, cyan, blue)';
+  // Evenly spaced tick values from min to max, low to high - matches the
+  // old Vue component's default of 11 labeled steps instead of just
+  // min/mid/max.
+  const values = $derived.by(() => {
+    const interval = (max - min) / (numValues - 1);
+    return Array.from({ length: numValues }, (_, i) => min + i * interval);
+  });
+
+  // Exact colours from the old Vue component's gradient, top (max, red) to
+  // bottom (min, blue) - a rainbow sweep, not vtk.js's own red-to-blue
+  // default direction.
+  const GRADIENT =
+    'linear-gradient(to bottom, #ec3c3f, #fb8620, #f3b500, #ded302, #bae216, #7fe345, #41da8a, #14c6c7, #21a1e7, #3f72f0, #5125ee)';
 </script>
 
-<div class="flex h-48 items-stretch gap-3 rounded-md bg-background/80 p-3 text-sm shadow-sm backdrop-blur-sm">
-  <div class="flex flex-col justify-between text-right text-muted-foreground">
-    <span>{max.toPrecision(3)}</span>
-    <span>{mid.toPrecision(3)}</span>
-    <span>{min.toPrecision(3)}</span>
+<div class="flex h-56 items-stretch gap-2 rounded-md p-1 pr-2 text-sm shadow-sm backdrop-blur-sm">
+  <div class="relative w-6 rounded-sm border border-border" style:background={GRADIENT}>
+    {#each values as value, index (index)}
+      <span
+        class="absolute left-full ml-1. translate-y-1/2 whitespace-nowrap text-xs text-white"
+        style:bottom={`${(index / (numValues - 1)) * 100}%`}
+      >
+        &#8213; {value.toExponential(2)}
+      </span>
+    {/each}
   </div>
-  <div class="w-6 rounded-sm border border-border" style:background={GRADIENT}></div>
 </div>

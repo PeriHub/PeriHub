@@ -28,9 +28,7 @@ SPDX-License-Identifier: Apache-2.0
   import Label from '$lib/components/ui/Label.svelte';
   import AccordionItem from '$lib/components/ui/AccordionItem.svelte';
   import VerticalColoredLegend from '$lib/components/views/VerticalColoredLegend.svelte';
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type Any = any;
+  import ResultsScene from '$lib/components/views/ResultsScene.svelte';
 
   const modelData = $derived(modelStore.modelData);
 
@@ -49,7 +47,6 @@ SPDX-License-Identifier: Apache-2.0
   });
   let variableOptions = $state<string[]>(['Displacements', 'Damage', 'Forces', 'Temperature']);
 
-  // Local view state - mirrors the old component's own `data()`.
   let resolution = $state(6);
   let radius = $state(0.2);
   let dxValue = $state(0.2);
@@ -65,137 +62,10 @@ SPDX-License-Identifier: Apache-2.0
 
   let timer: ReturnType<typeof setInterval> | undefined;
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-  let initialCameraFit = false;
 
-  let container: HTMLDivElement;
-  let resizeObserver: ResizeObserver | null = null;
-  let buildStarted = false;
-  let sceneReady = $state(false);
+  let scene: ResultsScene | undefined = $state();
 
-  // vtk.js objects, created once in buildScene() and mutated in place.
-  let fullScreenRenderer: Any;
-  let renderer: Any;
-  let renderWindow: Any;
-  let sphereSource: Any;
-  let glyphPoints: Any;
-  let glyphScalars: Any;
-  let glyphPolyData: Any;
-  let glyphMapper: Any;
-  let lut: Any;
-
-  async function buildScene() {
-    const [
-      { default: vtkFullScreenRenderWindow },
-      { default: vtkActor },
-      { default: vtkGlyph3DMapper },
-      { default: vtkSphereSource },
-      { default: vtkPolyData },
-      { default: vtkPoints },
-      { default: vtkDataArray },
-      { default: vtkLookupTable }
-    ] = await Promise.all([
-      import('vtk.js/Sources/Rendering/Misc/FullScreenRenderWindow'),
-      import('vtk.js/Sources/Rendering/Core/Actor'),
-      import('vtk.js/Sources/Rendering/Core/Glyph3DMapper'),
-      import('vtk.js/Sources/Filters/Sources/SphereSource'),
-      import('vtk.js/Sources/Common/DataModel/PolyData'),
-      import('vtk.js/Sources/Common/Core/Points'),
-      import('vtk.js/Sources/Common/Core/DataArray'),
-      import('vtk.js/Sources/Common/Core/LookupTable'),
-      // Side-effect only - registers the WebGL view-node implementations.
-      // Geometry covers vtkOpenGLRenderer/vtkOpenGLCamera, needed for any
-      // scene to render at all (even before any actor exists) - without it
-      // the render traversal crashes with "renNode is undefined" the moment
-      // vtkFullScreenRenderWindow does its first render on construction.
-      // Glyph additionally covers vtkGlyph3DMapper specifically.
-      import('vtk.js/Sources/Rendering/Profiles/Geometry'),
-      import('vtk.js/Sources/Rendering/Profiles/Glyph')
-    ]);
-
-    fullScreenRenderer = vtkFullScreenRenderWindow.newInstance({
-      rootContainer: container,
-      container,
-      background: [45 / 255, 45 / 255, 45 / 255]
-    });
-    renderer = fullScreenRenderer.getRenderer();
-    renderWindow = fullScreenRenderer.getRenderWindow();
-
-    sphereSource = vtkSphereSource.newInstance({
-      phiResolution: resolution,
-      thetaResolution: resolution,
-      radius: (radius * multiplier) / 100
-    });
-
-    glyphPoints = vtkPoints.newInstance();
-    glyphScalars = vtkDataArray.newInstance({ name: 'value', numberOfComponents: 1, values: [0] });
-    glyphPolyData = vtkPolyData.newInstance();
-    glyphPolyData.setPoints(glyphPoints);
-    glyphPolyData.getPointData().setScalars(glyphScalars);
-
-    // vtk.js's own default when no lookup table is explicitly assigned -
-    // matches the appearance of the original app, which never configured a
-    // custom one either. setRange() here is a plain stored range used
-    // directly in the colour-index calculation, so it's always correct
-    // (unlike a vtkColorTransferFunction, which needs its stops explicitly
-    // rescaled whenever the data's min/max changes).
-    lut = vtkLookupTable.newInstance();
-    lut.setRange(minValue, maxValue);
-    lut.build();
-
-    glyphMapper = vtkGlyph3DMapper.newInstance();
-    // Without this, Glyph3DMapper's default scaling falls back to the
-    // active scalars array - the same one used for colouring - so every
-    // glyph would be sized by its own value instead of rendered uniformly.
-    glyphMapper.setScaling(false);
-    glyphMapper.setInputData(glyphPolyData, 0);
-    glyphMapper.setInputConnection(sphereSource.getOutputPort(), 1);
-    glyphMapper.setScalarRange(minValue, maxValue);
-    glyphMapper.setLookupTable(lut);
-
-    const glyphActor = vtkActor.newInstance();
-    glyphActor.setMapper(glyphMapper);
-    renderer.addActor(glyphActor);
-
-    sceneReady = true;
-    renderWindow.render();
-    renderer.resetCamera();
-  }
-
-  function updateGlyphGeometry() {
-    if (!sceneReady) return;
-    glyphPoints.setData(Float32Array.from(pointString), 3);
-    glyphScalars.setData(Float32Array.from(blockIdString));
-    glyphPolyData.modified();
-    // Fit the camera once, the first time real geometry lands (buildScene's
-    // own resetCamera() ran earlier against whatever placeholder point was
-    // in state at construction time, usually before the API response
-    // arrives). Without this the camera stays framed on that placeholder
-    // and the actual point cloud renders completely outside view - i.e. an
-    // empty-looking scene. Only done once, matching the old component's
-    // one-time camera fit right after its initial load; later reloads
-    // during playback intentionally leave the user's own pan/zoom alone.
-    if (!initialCameraFit) {
-      initialCameraFit = true;
-      renderer.resetCamera();
-    }
-    renderWindow?.render();
-  }
-
-  function updateSphereGeometry() {
-    if (!sceneReady) return;
-    sphereSource.setPhiResolution(resolution);
-    sphereSource.setThetaResolution(resolution);
-    sphereSource.setRadius((radius * multiplier) / 100);
-    renderWindow?.render();
-  }
-
-  function updateColorRange() {
-    if (!sceneReady) return;
-    lut.setRange(minValue, maxValue);
-    lut.build();
-    glyphMapper.setScalarRange(minValue, maxValue);
-    renderWindow?.render();
-  }
+  const sphereRadius = $derived((radius * multiplier) / 100);
 
   async function viewPointData(loading = true) {
     modelLoading = loading;
@@ -208,7 +78,7 @@ SPDX-License-Identifier: Apache-2.0
   function updatePoints() {
     // Kept as its own step (matching the old component) even though it's
     // currently a no-op beyond the loading flag - radius/resolution changes
-    // are already applied reactively by updateSphereGeometry() above.
+    // are already applied reactively via props passed into ResultsScene.
     modelLoading = true;
     modelLoading = false;
   }
@@ -224,7 +94,7 @@ SPDX-License-Identifier: Apache-2.0
       step: modelParams.step,
       displFactor: modelParams.displFactor,
       variable: modelParams.variable,
-      filter: modelParams.filter || undefined,
+      filter: modelParams.filter,
       colorBarMin: modelParams.colorBarMin,
       colorBarMax: modelParams.colorBarMax
     })
@@ -233,7 +103,7 @@ SPDX-License-Identifier: Apache-2.0
         blockIdString = response.value;
         dxValue = Math.hypot(pointString[3]! - pointString[0]!, pointString[4]! - pointString[1]!, pointString[5]! - pointString[2]!);
         maxValue = response.max_value;
-        // minValue = response.min_value;
+        minValue = response.min_value;
         variableOptions = response.variables;
         modelParams.numberOfSteps = response.number_of_steps;
         time = response.time;
@@ -248,7 +118,7 @@ SPDX-License-Identifier: Apache-2.0
 
   function play() {
     playing = true;
-    timer = setInterval(forward, 1000);
+    timer = setInterval(forward, 200);
   }
 
   function pause() {
@@ -282,54 +152,16 @@ SPDX-License-Identifier: Apache-2.0
     await viewPointData(false);
   }
 
-  $effect(() => {
-    updateGlyphGeometry();
-  });
-
-  $effect(() => {
-    updateSphereGeometry();
-  });
-
-  $effect(() => {
-    updateColorRange();
-  });
-
   onMount(() => {
-    // Kick the initial data load off immediately - it's just an HTTP call,
-    // unrelated to whether the "Results" tab panel is currently visible.
+    // Just the data load - ResultsScene/Canvas handles its own sizing
+    // (including the tab-mounted-but-hidden case), so no ResizeObserver
+    // bookkeeping is needed here any more.
     viewPointData(true);
-
-    // The tab panel this view lives in stays mounted-but-hidden
-    // (display:none) while another tab is active. vtkFullScreenRenderWindow
-    // renders once synchronously on construction, and doing that against a
-    // container whose layout hasn't resolved to a real size yet crashes
-    // deep inside vtk.js's WebGL render pass. ResizeObserver only ever
-    // reports the container's actual laid-out content box (and never fires
-    // at all while it's display:none), so it doubles as both "wait until
-    // this tab is first shown with a real size" and, after that, the
-    // ongoing resize handler.
-    resizeObserver = new ResizeObserver((entries) => {
-      const { width, height } = entries[0]!.contentRect;
-      if (!buildStarted) {
-        if (width > 0 && height > 0) {
-          buildStarted = true;
-          buildScene();
-        }
-        return;
-      }
-      fullScreenRenderer?.resize();
-    });
-    resizeObserver.observe(container);
-
-    return () => {
-      resizeObserver?.disconnect();
-    };
   });
 
   onDestroy(() => {
     clearInterval(timer);
     clearTimeout(debounceTimer);
-    fullScreenRenderer?.delete();
   });
 </script>
 
@@ -339,7 +171,7 @@ SPDX-License-Identifier: Apache-2.0
       <Button variant="ghost" size="icon" onclick={() => viewPointData(true)} title="Reload Model">
         <RotateCw class="h-4 w-4" />
       </Button>
-      <Button variant="ghost" size="icon" onclick={() => renderer?.resetCamera()} title="Reset Camera">
+      <Button variant="ghost" size="icon" onclick={() => scene?.resetCamera()} title="Reset Camera">
         <Maximize class="h-4 w-4" />
       </Button>
       <Button
@@ -373,7 +205,7 @@ SPDX-License-Identifier: Apache-2.0
         <SkipForward class="h-4 w-4" />
       </Button>
 
-      <div class="ml-2 flex min-w-[220px] flex-1 items-center gap-2">
+      <div class="ml-2 flex min-w-[160px] items-center gap-2 px-2">
         <label for="results-step" class="whitespace-nowrap text-xs text-muted-foreground">
           Time Step: {modelParams.step}
         </label>
@@ -387,11 +219,8 @@ SPDX-License-Identifier: Apache-2.0
           onchange={() => viewPointData(true)}
           class="flex-1 accent-primary"
         />
-        <span class="w-16 shrink-0 whitespace-nowrap text-right text-xs text-muted-foreground">{time}</span>
+        <span class="w-10 shrink-0 whitespace-nowrap text-right text-xs text-muted-foreground">{time.toExponential(2)}</span>
       </div>
-    </div>
-
-    <div class="flex flex-wrap items-center gap-4">
       <div class="flex min-w-[160px] items-center gap-2">
         <label for="results-node-size" class="whitespace-nowrap text-xs text-muted-foreground">
           Node Size: {multiplier}%
@@ -426,7 +255,15 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 
   <div class="relative min-h-0 flex-1">
-    <div bind:this={container} class="absolute inset-0"></div>
+    <ResultsScene
+      bind:this={scene}
+      points={pointString}
+      values={blockIdString}
+      radius={sphereRadius}
+      {resolution}
+      {minValue}
+      {maxValue}
+    />
 
     <!-- Variable/axis/filter controls, floating over the 3D view like the
          old absolutely-positioned `.variables` panel. Positioned relative to
