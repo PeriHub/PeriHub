@@ -228,6 +228,9 @@ export type Jobs = {
     model?: {
     [key: string]: unknown;
 } | null;
+    progress?: number | null;
+    currentStep?: number | null;
+    totalSteps?: number | null;
 };
 
 /**
@@ -426,6 +429,9 @@ export type Status = {
     results?: boolean | null;
     csvResults?: boolean | null;
     meshfileExist?: boolean | null;
+    progress?: number | null;
+    currentStep?: number | null;
+    totalSteps?: number | null;
 };
 
 export type StiffnessMatrix = {

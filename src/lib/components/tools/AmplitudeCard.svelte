@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Select from '$lib/components/ui/Select.svelte';
-  import PlotlyChart from '$lib/components/views/PlotlyChart.svelte';
+  import SeriesLineChart from '$lib/components/views/SeriesLineChart.svelte';
   import CodeBlock from '$lib/components/views/CodeBlock.svelte';
 
   const amplitudeTypes = ['Type 1', 'Type 2', 'Sinus'];
@@ -26,21 +26,9 @@ SPDX-License-Identifier: Apache-2.0
   let valueOutput = $state('A*sin(B*(t-C))+D');
   let tab = $state('plotly');
 
-  let plotData = $state<{ name: string; x: number[]; y: number[]; type: string }[]>([
-    { name: 'Load', x: [1, 2, 3, 4], y: [10, 15, 20, 17], type: 'scatter' }
+  let plotData = $state<{ name: string; x: number[]; y: number[] }[]>([
+    { name: 'Load', x: [1, 2, 3, 4], y: [10, 15, 20, 17] }
   ]);
-
-  const plotLayout = {
-    showlegend: true,
-    hovermode: 'compare',
-    bargap: 0,
-    xaxis: { showgrid: true, zeroline: true, color: 'white' },
-    yaxis: { showgrid: true, zeroline: true, color: 'white' },
-    plot_bgcolor: '#2D2D2D',
-    paper_bgcolor: '#2D2D2D',
-    font: { color: 'white' },
-    modebar: { color: 'white' }
-  };
 
   function plotType1() {
     const { max, min, frequency, end } = amplitude;
@@ -238,7 +226,7 @@ SPDX-License-Identifier: Apache-2.0
           value="plotly"
           class="rounded-t-md px-3 py-2 text-sm font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground"
         >
-          Plotly
+          Plot
         </Tabs.Trigger>
         <Tabs.Trigger
           value="output"
@@ -248,7 +236,7 @@ SPDX-License-Identifier: Apache-2.0
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="plotly" class="pt-3">
-        <PlotlyChart data={plotData} layout={plotLayout} />
+        <SeriesLineChart series={plotData} />
       </Tabs.Content>
       <Tabs.Content value="output" class="pt-3">
         <CodeBlock bind:value={valueOutput} editable={false} />

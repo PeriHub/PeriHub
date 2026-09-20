@@ -262,7 +262,10 @@ def get_jobs(
     # print(localpath)
 
     if not os.path.exists(localpath):
-        return jobs
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="LogFile can't be found in " + localpath,
+        )
 
     cluster_accesible = True
     if cluster_enabled:
@@ -302,6 +305,14 @@ def get_jobs(
                             with open(filepath) as f:
                                 data = json.load(f)
                                 job.model = data
+
+                    log_file = FileHandler.find_latest_log_file_local(remotepath)
+                    if log_file is not None:
+                        try:
+                            with open(log_file, "r") as f:
+                                job.progress, job.currentStep, job.totalSteps = FileHandler.parse_progress(f.read())
+                        except OSError:
+                            pass
                     # print(job.cluster)
                     jobs.append(job)
                     job = Jobs(
@@ -337,6 +348,16 @@ def get_jobs(
                         else:
                             if "pid.txt" in sftp.listdir(remotepath):
                                 job.submitted = True
+
+                        log_file = FileHandler.find_latest_log_file_remote(sftp, remotepath)
+                        if log_file is not None:
+                            try:
+                                with sftp.open(log_file, "r") as f:
+                                    job.progress, job.currentStep, job.totalSteps = FileHandler.parse_progress(
+                                        f.read()
+                                    )
+                            except IOError:
+                                pass
 
                         # print(job.cluster)
                         jobs.append(job)
@@ -393,6 +414,15 @@ def get_status(
         else:
             if "pid.txt" in sftp.listdir(remotepath):
                 status.submitted = True
+
+        log_file = FileHandler.find_latest_log_file_remote(sftp, remotepath)
+        if log_file is not None:
+            try:
+                with sftp.open(log_file, "r") as f:
+                    status.progress, status.currentStep, status.totalSteps = FileHandler.parse_progress(f.read())
+            except IOError:
+                pass
+
         sftp.close()
         ssh.close()
 
@@ -407,4 +437,9 @@ def get_status(
                     status.results = True
                 if ".csv" in files:
                     status.csvResults = True
+
+            log_file = FileHandler.find_latest_log_file_local(remotepath)
+            if log_file is not None:
+                with open(log_file, "r") as f:
+                    status.progress, status.currentStep, status.totalSteps = FileHandler.parse_progress(f.read())
     return status

@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Tabs } from 'bits-ui';
-  import { Sliders, LineChart, FileText } from 'lucide-svelte';
+  import { Sliders, LineChart, FileText, ChevronLeft, ChevronRight } from 'lucide-svelte';
   import ExpansionComp from '$lib/components/ExpansionComp.svelte';
   import ViewComp from '$lib/components/ViewComp.svelte';
   import TextComp from '$lib/components/TextComp.svelte';
@@ -34,6 +34,46 @@ SPDX-License-Identifier: Apache-2.0
     mql.addEventListener('change', onChange);
     return () => mql.removeEventListener('change', onChange);
   });
+
+  // Draggable split between the setup panel and the output panels, plus a
+  // one-click collapse for when the user wants to give the output side the
+  // full width (e.g. while just watching a running simulation). Persisted
+  // so the layout a person settles on sticks across visits.
+  const COLLAPSED_WIDTH_PX = 44;
+  let setupWidthPercent = $state(42);
+  let setupCollapsed = $state(false);
+  let dragging = $state(false);
+  let gridEl: HTMLDivElement | undefined;
+
+  onMount(() => {
+    const savedWidth = localStorage.getItem('periHubSetupWidth');
+    if (savedWidth) setupWidthPercent = Number(savedWidth);
+    setupCollapsed = localStorage.getItem('periHubSetupCollapsed') === 'true';
+  });
+
+  function startDrag(e: PointerEvent) {
+    if (setupCollapsed) return;
+    dragging = true;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  function onDrag(e: PointerEvent) {
+    if (!dragging || !gridEl) return;
+    const rect = gridEl.getBoundingClientRect();
+    const pct = ((e.clientX - rect.left) / rect.width) * 100;
+    setupWidthPercent = Math.min(65, Math.max(20, pct));
+  }
+
+  function stopDrag() {
+    if (!dragging) return;
+    dragging = false;
+    localStorage.setItem('periHubSetupWidth', String(setupWidthPercent));
+  }
+
+  function toggleSetupCollapsed() {
+    setupCollapsed = !setupCollapsed;
+    localStorage.setItem('periHubSetupCollapsed', String(setupCollapsed));
+  }
 
   async function showTutorial() {
     // @ts-expect-error driver.js v0.9 ships no type declarations
@@ -120,13 +160,57 @@ SPDX-License-Identifier: Apache-2.0
 </svelte:head>
 
 {#if isDesktop}
-<!-- Desktop / tablet layout: side-by-side panels. -->
-<div class="grid h-[calc(100vh-4rem)] grid-cols-1 gap-3 overflow-hidden p-3 lg:grid-cols-2">
-  <div id="model-configuration" class="flex min-h-0 flex-col overflow-hidden rounded-lg border border-border">
-    <div id="ModelActions"><ModelActions /></div>
-    <div id="ExpansionComp" class="min-h-0 flex-1 overflow-hidden">
-      <ExpansionComp />
+<!-- Desktop / tablet layout: side-by-side panels, split adjustable via the
+     drag handle and collapsible via its double-click / chevron toggle. -->
+<div
+  bind:this={gridEl}
+  class="grid h-full gap-0 overflow-hidden p-3"
+  style="grid-template-columns: {setupCollapsed ? `${COLLAPSED_WIDTH_PX}px` : `${setupWidthPercent}%`} 10px 1fr;"
+  onpointermove={onDrag}
+  onpointerup={stopDrag}
+>
+  <div id="model-configuration" class="relative flex min-h-0 flex-col overflow-hidden rounded-lg border border-border">
+    <button
+      type="button"
+      onclick={toggleSetupCollapsed}
+      title="Expand setup panel"
+      class="absolute inset-0 z-10 flex flex-col items-center gap-2 bg-background py-3 text-muted-foreground hover:text-foreground {setupCollapsed
+        ? ''
+        : 'hidden'}"
+    >
+      <ChevronRight class="h-4 w-4" />
+      <span class="[writing-mode:vertical-rl] text-xs font-medium">Setup</span>
+    </button>
+    <div class="min-h-0 flex-1 {setupCollapsed ? 'invisible' : ''}">
+      <div id="ModelActions"><ModelActions /></div>
+      <div id="ExpansionComp" class="min-h-0 flex-1 overflow-hidden">
+        <ExpansionComp />
+      </div>
     </div>
+  </div>
+
+  <div
+    role="separator"
+    aria-orientation="vertical"
+    aria-label="Resize setup panel"
+    tabindex="0"
+    class="group relative mx-1 flex items-center justify-center {setupCollapsed ? '' : 'cursor-col-resize'}"
+    onpointerdown={startDrag}
+    ondblclick={toggleSetupCollapsed}
+  >
+    <div class="h-full w-px bg-border transition-colors group-hover:bg-primary"></div>
+    <button
+      type="button"
+      onclick={toggleSetupCollapsed}
+      title={setupCollapsed ? 'Expand setup panel' : 'Collapse setup panel'}
+      class="absolute rounded-full border border-border bg-background p-0.5 text-muted-foreground shadow-sm hover:text-foreground"
+    >
+      {#if setupCollapsed}
+        <ChevronRight class="h-3 w-3" />
+      {:else}
+        <ChevronLeft class="h-3 w-3" />
+      {/if}
+    </button>
   </div>
 
   <div id="model-output" class="flex min-h-0 flex-col gap-3 overflow-hidden">
@@ -145,7 +229,7 @@ SPDX-License-Identifier: Apache-2.0
      touch on small viewports, so stack the three work areas as swipeable
      tabs instead. Mounted only when isDesktop is false, so this never
      coexists with the desktop layout above. -->
-<div class="flex h-[calc(100vh-4rem)] flex-col overflow-hidden">
+<div class="flex h-full flex-col overflow-hidden">
   <Tabs.Root bind:value={mobileTab} class="flex h-full flex-col">
     <Tabs.List class="flex border-b border-border bg-muted/40">
       <Tabs.Trigger

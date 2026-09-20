@@ -7,6 +7,7 @@ doc
 """
 import ast
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -538,6 +539,53 @@ class FileHandler:
             return False
 
     @staticmethod
+    def find_latest_log_file_local(remotepath):
+        """Same `.log` discovery rule used by the /ws log-tail endpoint in main.py,
+        factored out so getStatus/getJobs can read the same file for progress."""
+        if not os.path.exists(remotepath):
+            return None
+        candidates = [f for f in os.listdir(remotepath) if re.match(r"^.+\.log$", f)]
+        if not candidates:
+            return None
+        paths = [os.path.join(remotepath, name) for name in candidates]
+        return max(paths, key=os.path.getctime)
+
+    @staticmethod
+    def find_latest_log_file_remote(sftp, remotepath):
+        """Cluster equivalent of find_latest_log_file_local, over an open sftp session."""
+        try:
+            candidates = [f for f in sftp.listdir(remotepath) if re.match(r"^.+\.log$", f)]
+        except IOError:
+            return None
+        if not candidates:
+            return None
+        # sftp has no getctime; filenames from PeriLab embed the run timestamp,
+        # so the lexicographically-last one is also the most recent.
+        return os.path.join(remotepath, sorted(candidates)[-1])
+
+    @staticmethod
+    def parse_progress(log_text):
+        """Looks for the most recent line matching `[Progress] step <current>/<total>`
+        - one such line, printed once per output time step, is the minimal addition
+        needed on the PeriLab side (see docs/progress-reporting.md). Returns
+        (percent, current_step, total_steps), all None if no such line is present
+        yet, so this degrades harmlessly against logs from a PeriLab build that
+        doesn't emit it, or before the first output step has been written.
+        """
+        last_match = None
+        for line in log_text.splitlines():
+            found = re.search(r"\[Progress\]\s*step\s*(\d+)\s*/\s*(\d+)", line)
+            if found:
+                last_match = found
+        if last_match is None:
+            return None, None, None
+        current_step, total_steps = int(last_match.group(1)), int(last_match.group(2))
+        if total_steps <= 0:
+            return None, current_step, total_steps
+        percent = round(100 * current_step / total_steps, 1)
+        return percent, current_step, total_steps
+
+    @staticmethod
     def ssh_to_perilab():
         """doc"""
 
@@ -545,7 +593,7 @@ class FileHandler:
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
         server = "perihub_perilab"
-        
+
         while True:
             try:
                 ssh.connect(

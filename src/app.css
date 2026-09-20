@@ -7,6 +7,15 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/*
+ * Tailwind v4 excludes node_modules from its automatic class scanning by
+ * default. layerchart's own compiled Svelte components rely on utilities
+ * such as `fill-none` (without it, an SVG <path> falls back to the SVG
+ * spec's default solid black fill) that would otherwise never get
+ * generated, since our own source files never mention them literally.
+ */
+@source '../node_modules/layerchart/dist/**/*.{svelte,js}';
+
 @custom-variant dark (&:is(.dark *));
 
 /*
@@ -114,8 +123,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans:
-    'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 
@@ -125,10 +133,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-feature-settings:
-      'cv02',
-      'cv03',
-      'cv04',
-      'cv11';
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 }

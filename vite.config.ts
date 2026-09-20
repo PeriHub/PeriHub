@@ -40,7 +40,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['vtk.js', 'plotly.js-dist-min'],
+    include: ['vtk.js'],
     esbuildOptions: {
       // Same fix as glslAsText() above, but for esbuild's own dependency
       // pre-bundling scan, which runs outside Vite's plugin pipeline.

@@ -9,6 +9,7 @@ SPDX-License-Identifier: Apache-2.0
   import { Tabs } from 'bits-ui';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
+  import ProgressBar from '$lib/components/ui/ProgressBar.svelte';
 
   import TextView from '$lib/components/views/TextView.svelte';
   import LogView from '$lib/components/views/LogView.svelte';
@@ -35,6 +36,15 @@ SPDX-License-Identifier: Apache-2.0
       <Tabs.Trigger value="input" class={tabClass}>Input</Tabs.Trigger>
       <Tabs.Trigger value="log" class={tabClass}>Log</Tabs.Trigger>
     </Tabs.List>
+
+    {#if viewStore.logProgress}
+      <div class="border-b border-border px-3 py-1.5">
+        <ProgressBar
+          value={viewStore.logProgress.percent}
+          label="Simulation step {viewStore.logProgress.currentStep} / {viewStore.logProgress.totalSteps}"
+        />
+      </div>
+    {/if}
 
     <div class="flex-1 overflow-auto">
       <Tabs.Content value="input" class="h-full"><TextView /></Tabs.Content>

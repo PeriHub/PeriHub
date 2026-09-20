@@ -1,0 +1,4 @@
+{"timestamp": "2026-09-20T08:30:21.153056+00:00", "event": "submitted", "username": "user", "model_name": "CompactTension", "model_folder_name": "Default", "cluster": false, "sbatch": false, "node_count": null}
+{"timestamp": "2026-09-20T08:31:11.320478+00:00", "event": "cancelled", "username": "user", "model_name": "CompactTension", "model_folder_name": "Default", "cluster": false}
+{"timestamp": "2026-09-20T08:37:11.136419+00:00", "event": "submitted", "username": "user", "model_name": "CompactTension", "model_folder_name": "Default", "cluster": false, "sbatch": false, "node_count": null}
+{"timestamp": "2026-09-20T08:38:51.198815+00:00", "event": "cancelled", "username": "user", "model_name": "CompactTension", "model_folder_name": "Default", "cluster": false}

@@ -92,7 +92,7 @@ SPDX-License-Identifier: Apache-2.0
       { default: vtkPolyData },
       { default: vtkPoints },
       { default: vtkDataArray },
-      { default: vtkColorTransferFunction }
+      { default: vtkLookupTable }
     ] = await Promise.all([
       import('vtk.js/Sources/Rendering/Misc/FullScreenRenderWindow'),
       import('vtk.js/Sources/Rendering/Core/Actor'),
@@ -101,10 +101,14 @@ SPDX-License-Identifier: Apache-2.0
       import('vtk.js/Sources/Common/DataModel/PolyData'),
       import('vtk.js/Sources/Common/Core/Points'),
       import('vtk.js/Sources/Common/Core/DataArray'),
-      import('vtk.js/Sources/Rendering/Core/ColorTransferFunction'),
-      // Side-effect only - registers the WebGL view-node implementation for
-      // vtkGlyph3DMapper. Without it the render traversal has nothing to
-      // draw the glyphs through and crashes with "renNode is undefined".
+      import('vtk.js/Sources/Common/Core/LookupTable'),
+      // Side-effect only - registers the WebGL view-node implementations.
+      // Geometry covers vtkOpenGLRenderer/vtkOpenGLCamera, needed for any
+      // scene to render at all (even before any actor exists) - without it
+      // the render traversal crashes with "renNode is undefined" the moment
+      // vtkFullScreenRenderWindow does its first render on construction.
+      // Glyph additionally covers vtkGlyph3DMapper specifically.
+      import('vtk.js/Sources/Rendering/Profiles/Geometry'),
       import('vtk.js/Sources/Rendering/Profiles/Glyph')
     ]);
 
@@ -128,10 +132,15 @@ SPDX-License-Identifier: Apache-2.0
     glyphPolyData.setPoints(glyphPoints);
     glyphPolyData.getPointData().setScalars(glyphScalars);
 
-    lut = vtkColorTransferFunction.newInstance();
-    lut.addRGBPoint(minValue, 0.231, 0.298, 0.752);
-    lut.addRGBPoint((minValue + maxValue) / 2, 0.865, 0.865, 0.865);
-    lut.addRGBPoint(maxValue, 0.706, 0.016, 0.15);
+    // vtk.js's own default when no lookup table is explicitly assigned -
+    // matches the appearance of the original app, which never configured a
+    // custom one either. setRange() here is a plain stored range used
+    // directly in the colour-index calculation, so it's always correct
+    // (unlike a vtkColorTransferFunction, which needs its stops explicitly
+    // rescaled whenever the data's min/max changes).
+    lut = vtkLookupTable.newInstance();
+    lut.setRange(minValue, maxValue);
+    lut.build();
 
     glyphMapper = vtkGlyph3DMapper.newInstance();
     // Without this, Glyph3DMapper's default scaling falls back to the
@@ -182,14 +191,8 @@ SPDX-License-Identifier: Apache-2.0
 
   function updateColorRange() {
     if (!sceneReady) return;
-    // Glyph3DMapper is supposed to propagate setScalarRange() to the lookup
-    // table's own range internally on its next rebuild, but rescaling the
-    // vtkColorTransferFunction's stops directly with setMappingRange() is
-    // the documented, guaranteed way to do it - relying only on the mapper
-    // rebuilding at the right time was producing a stale colour scale as
-    // the data's min/max changed between time steps (most values clamped
-    // to one end of the old range).
-    lut.setMappingRange(minValue, maxValue);
+    lut.setRange(minValue, maxValue);
+    lut.build();
     glyphMapper.setScalarRange(minValue, maxValue);
     renderWindow?.render();
   }
@@ -230,7 +233,7 @@ SPDX-License-Identifier: Apache-2.0
         blockIdString = response.value;
         dxValue = Math.hypot(pointString[3]! - pointString[0]!, pointString[4]! - pointString[1]!, pointString[5]! - pointString[2]!);
         maxValue = response.max_value;
-        minValue = response.min_value;
+        // minValue = response.min_value;
         variableOptions = response.variables;
         modelParams.numberOfSteps = response.number_of_steps;
         time = response.time;
@@ -370,7 +373,7 @@ SPDX-License-Identifier: Apache-2.0
         <SkipForward class="h-4 w-4" />
       </Button>
 
-      <div class="ml-2 flex min-w-[120px] flex-1 items-center gap-2">
+      <div class="ml-2 flex min-w-[220px] flex-1 items-center gap-2">
         <label for="results-step" class="whitespace-nowrap text-xs text-muted-foreground">
           Time Step: {modelParams.step}
         </label>

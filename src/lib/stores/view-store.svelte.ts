@@ -4,6 +4,7 @@
 
 import { config } from '$lib/config';
 import { modelStore } from './model-store.svelte';
+import { parseLogProgress } from '$lib/utils/progress';
 import type { BondFilters } from '$lib/client';
 
 interface BondFilterPoint {
@@ -73,9 +74,14 @@ function computeBondFilterPoints(bondFilters: BondFilters[]): BondFilterPoint[] 
           sl = bf.sideLength;
 
         if (
-          lx == null || ly == null || lz == null ||
-          bx == null || by == null || bz == null ||
-          bl == null || sl == null
+          lx == null ||
+          ly == null ||
+          lz == null ||
+          bx == null ||
+          by == null ||
+          bz == null ||
+          bl == null ||
+          sl == null
         ) {
           console.log('Rectangular_Plane: lx, ly, lz, bx, by, bz, bl, sl not defined');
           continue;
@@ -117,8 +123,13 @@ class ViewStore {
   textLoading = $state(false);
   textOutput = $state('');
   logOutput = $state('');
+  // Parsed live from the streamed log text - see parseLogProgress. null
+  // until PeriLab's log contains at least one recognized progress line.
+  logProgress = $derived(parseLogProgress(this.logOutput));
   // Derived from modelStore.modelData.bondFilters - no manual mutation needed
-  bondFilterPoints = $derived<BondFilterPoint[]>(computeBondFilterPoints(modelStore.modelData.bondFilters ?? []));
+  bondFilterPoints = $derived<BondFilterPoint[]>(
+    computeBondFilterPoints(modelStore.modelData.bondFilters ?? [])
+  );
   filteredPointString = $state([1, 0, 0]);
   filteredBlockIdString = $state([1]);
   dxValue = $state(0.1);

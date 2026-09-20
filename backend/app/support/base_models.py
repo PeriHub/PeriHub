@@ -66,7 +66,7 @@ class OldParameter(BaseModel):
     parameterId: Optional[int] = None
     id: List[str]
     factor: float
-    
+
 class Deviations(BaseModel):
     enabled: bool
     fileInput: Optional[bool] = None
@@ -168,6 +168,9 @@ class Status(BaseModel):
     results: Optional[bool] = False
     csvResults: Optional[bool] = False
     meshfileExist: Optional[bool] = False
+    progress: Optional[float] = None
+    currentStep: Optional[int] = None
+    totalSteps: Optional[int] = None
 
 
 class Model(BaseModel):
@@ -188,6 +191,9 @@ class Jobs(BaseModel):
     submitted: bool
     results: bool
     model: Optional[dict] = None
+    progress: Optional[float] = None
+    currentStep: Optional[int] = None
+    totalSteps: Optional[int] = None
 
 
 class properties(BaseModel):

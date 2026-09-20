@@ -15,12 +15,12 @@ SPDX-License-Identifier: Apache-2.0
   import ResultsView from '$lib/components/views/ResultsView.svelte';
   import CadView from '$lib/components/views/CadView.svelte';
   import JobsView from '$lib/components/views/JobsView.svelte';
-  import PlotlyView from '$lib/components/views/PlotlyView.svelte';
+  import ChartView from '$lib/components/views/ChartView.svelte';
   import RenewableView from '$lib/components/views/RenewableView.svelte';
 
   const outputs = $derived(modelStore.modelData.outputs ?? []);
   const showResults = $derived(outputs.some((o) => o.selectedFileType === 'Exodus'));
-  const showPlotly = $derived(outputs.some((o) => o.selectedFileType === 'CSV'));
+  const showChart = $derived(outputs.some((o) => o.selectedFileType === 'CSV'));
 
   const tabClass =
     'px-3 py-2 text-sm font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground';
@@ -36,8 +36,8 @@ SPDX-License-Identifier: Apache-2.0
       {#if showResults}
         <Tabs.Trigger value="results" class={tabClass}>Results</Tabs.Trigger>
       {/if}
-      {#if showPlotly}
-        <Tabs.Trigger value="plotly" class={tabClass}>Plotly</Tabs.Trigger>
+      {#if showChart}
+        <Tabs.Trigger value="plotly" class={tabClass}>Plot</Tabs.Trigger>
       {/if}
       {#if defaultStore.saveEnergy}
         <Tabs.Trigger value="renewable" class={tabClass}>Renewable</Tabs.Trigger>
@@ -50,7 +50,7 @@ SPDX-License-Identifier: Apache-2.0
       <Tabs.Content value="cad" class="h-full"><CadView /></Tabs.Content>
       <Tabs.Content value="jobs" class="h-full"><JobsView /></Tabs.Content>
       <Tabs.Content value="results" class="h-full"><ResultsView /></Tabs.Content>
-      <Tabs.Content value="plotly" class="h-full"><PlotlyView /></Tabs.Content>
+      <Tabs.Content value="plotly" class="h-full"><ChartView /></Tabs.Content>
       <Tabs.Content value="renewable" class="h-full"><RenewableView /></Tabs.Content>
     </div>
   </Tabs.Root>

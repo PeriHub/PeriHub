@@ -63,7 +63,6 @@
     "mathjs": "^11.9.1",
     "medium-zoom": "^1.1.0",
     "mitt": "^3.0.1",
-    "plotly.js-dist-min": "^2.35.2",
     "prismjs": "^1.30.0",
     "svelte-jsoneditor": "^3.10.0",
     "svelte-sonner": "^0.3.28",
@@ -77,7 +76,11 @@
     "node": "^22 || ^20"
   },
   "lint-staged": {
-    "*.{js,ts,svelte}": ["eslint --fix"],
-    "*.{js,ts,svelte,css,md,json}": ["prettier --write"]
+    "*.{js,ts,svelte}": [
+      "eslint --fix"
+    ],
+    "*.{js,ts,svelte,css,md,json}": [
+      "prettier --write"
+    ]
   }
 }

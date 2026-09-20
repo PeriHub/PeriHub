@@ -13,9 +13,9 @@ SPDX-License-Identifier: Apache-2.0
   let { min, max }: Props = $props();
 
   const mid = $derived((min + max) / 2);
-  // Same blue-white-red diverging scale used for the ModelView point cloud,
-  // so the two views read consistently.
-  const GRADIENT = 'linear-gradient(to top, rgb(59, 76, 192), rgb(221, 221, 221), rgb(180, 4, 38))';
+  // Matches vtk.js's own default lookup table (hueRange [0.0, 0.6667]):
+  // a rainbow sweep from red at the low end to blue at the high end.
+  const GRADIENT = 'linear-gradient(to top, red, yellow, lime, cyan, blue)';
 </script>
 
 <div class="flex h-48 items-stretch gap-3 rounded-md bg-background/80 p-3 text-sm shadow-sm backdrop-blur-sm">

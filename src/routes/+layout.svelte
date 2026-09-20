@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import '../app.css';
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
   import { Toaster } from 'svelte-sonner';
   import Header from '$lib/components/layout/Header.svelte';
   import Footer from '$lib/components/layout/Footer.svelte';
@@ -19,6 +20,12 @@ SPDX-License-Identifier: Apache-2.0
   import type { ModelData } from '$lib/client';
 
   let { children } = $props();
+
+  // The /perihub tool page is a dense, single-screen working area - it
+  // manages its own fixed-height layout and doesn't want the footer eating
+  // into that budget or the page becoming scrollable as a whole. Every
+  // other route keeps the normal document flow with the footer.
+  const isFullScreenTool = $derived($page.url.pathname === '/perihub');
 
   function resetData() {
     getConfig({ configFile: modelStore.selectedModel.file })
@@ -47,12 +54,14 @@ SPDX-License-Identifier: Apache-2.0
   });
 </script>
 
-<div class="flex min-h-screen flex-col">
+<div class="flex flex-col {isFullScreenTool ? 'h-screen overflow-hidden' : 'min-h-screen'}">
   <Header />
-  <main class="flex-1">
+  <main class="flex-1 {isFullScreenTool ? 'min-h-0 overflow-hidden' : ''}">
     {@render children?.()}
   </main>
-  <Footer />
+  {#if !isFullScreenTool}
+    <Footer />
+  {/if}
 </div>
 
 <Toaster richColors position="bottom-right" duration={2500} />

@@ -6,16 +6,18 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { X } from 'lucide-svelte';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
   import { cancelJob as cancelJobApi, getJobs } from '$lib/client';
   import type { Jobs, ModelData } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
+  import ProgressBar from '$lib/components/ui/ProgressBar.svelte';
 
   let loading = $state(false);
   let rows = $state<Jobs[]>([]);
+  let pollTimer: ReturnType<typeof setInterval> | undefined;
 
   async function fetchJobs() {
     loading = true;
@@ -24,11 +26,24 @@ SPDX-License-Identifier: Apache-2.0
         modelName: modelStore.selectedModel.file,
         sbatch: modelStore.modelData.job.sbatch
       });
-      // notify.info('Jobs found');
+      notify.info('Jobs found');
     } catch (error) {
       notify.apiError(error);
     } finally {
       loading = false;
+    }
+  }
+
+  // Used by the background poll below - same fetch, without the toast on
+  // every refresh (that would fire every few seconds while a job runs).
+  async function refreshJobsSilently() {
+    try {
+      rows = await getJobs({
+        modelName: modelStore.selectedModel.file,
+        sbatch: modelStore.modelData.job.sbatch
+      });
+    } catch {
+      // A transient failure here shouldn't interrupt the poll or spam toasts.
     }
   }
 
@@ -56,8 +71,22 @@ SPDX-License-Identifier: Apache-2.0
   onMount(() => {
     fetchJobs();
     bus.on('resetData', fetchJobs);
-    return () => bus.off('resetData', fetchJobs);
+    bus.on('getJobs' as never, fetchJobs);
+
+    // Keep progress bars live for any job that's running but has no results
+    // yet, without the user needing to manually refresh.
+    pollTimer = setInterval(() => {
+      const hasRunningJob = rows.some((row) => row.submitted && !row.results);
+      if (hasRunningJob) refreshJobsSilently();
+    }, 3000);
+
+    return () => {
+      bus.off('resetData', fetchJobs);
+      bus.off('getJobs' as never, fetchJobs);
+    };
   });
+
+  onDestroy(() => clearInterval(pollTimer));
 </script>
 
 <div class="overflow-x-auto">
@@ -67,15 +96,16 @@ SPDX-License-Identifier: Apache-2.0
         <th class="px-3 py-2 font-medium">Model Name</th>
         <th class="px-3 py-2 font-medium">Cluster</th>
         <th class="px-3 py-2 font-medium">Submitted</th>
+        <th class="px-3 py-2 font-medium">Progress</th>
         <th class="px-3 py-2 font-medium">Results</th>
         <th class="px-3 py-2 font-medium"></th>
       </tr>
     </thead>
     <tbody>
       {#if loading}
-        <tr><td colspan="5" class="px-3 py-6 text-center text-muted-foreground">Loading…</td></tr>
+        <tr><td colspan="6" class="px-3 py-6 text-center text-muted-foreground">Loading…</td></tr>
       {:else if rows.length === 0}
-        <tr><td colspan="5" class="px-3 py-6 text-center text-muted-foreground">No jobs found</td></tr>
+        <tr><td colspan="6" class="px-3 py-6 text-center text-muted-foreground">No jobs found</td></tr>
       {:else}
         {#each rows as row (row.id)}
           <tr class="border-b border-border hover:bg-muted/50">
@@ -95,6 +125,17 @@ SPDX-License-Identifier: Apache-2.0
               >
                 {row.submitted}
               </span>
+            </td>
+            <td class="px-3 py-2">
+              {#if row.submitted && !row.results}
+                <ProgressBar
+                  value={row.progress}
+                  label={row.currentStep && row.totalSteps ? `${row.currentStep} / ${row.totalSteps}` : ''}
+                  class="w-32"
+                />
+              {:else}
+                <span class="text-xs text-muted-foreground">–</span>
+              {/if}
             </td>
             <td class="px-3 py-2">
               <span
