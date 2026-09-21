@@ -133,7 +133,6 @@ class ViewStore {
   filteredPointString = $state([1, 0, 0]);
   filteredBlockIdString = $state([1]);
   dxValue = $state(0.1);
-  resultPort = $state<number | null>(null);
   plotData = $state<PlotSeries[]>([
     {
       name: 'Displacement',

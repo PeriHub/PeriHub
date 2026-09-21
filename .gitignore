@@ -11,6 +11,7 @@
 .idea/
 id_rsa_*
 *.dcv
+graphify-out/
 
 # Model Files
 Files/

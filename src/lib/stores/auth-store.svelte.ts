@@ -8,10 +8,6 @@ class AuthStore {
   authenticated = $state(false);
   keycloak: Keycloak | null = null;
 
-  get isAuthenticated() {
-    return this.authenticated;
-  }
-
   async login() {
     if (!this.keycloak) return;
     try {

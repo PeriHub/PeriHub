@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from re import match
 
-import requests, json
+import requests
 import paramiko
 import toml
 from fastapi import (
@@ -253,16 +253,6 @@ async def websocket_endpoint_log(
         except RuntimeError as e:
             pass
 
-def get_latest_release(owner: str, repo: str, tag= False) -> dict:
-    """Return the JSON payload for the latest GitHub release."""
-    if tag:
-        url = f"https://api.github.com/repos/{owner}/{repo}/tags"
-    else:
-        url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
-    r = requests.get(url, timeout=10)            # <-- add headers if you hit rate‑limit
-    r.raise_for_status()                        # raise an HTTPError for 4xx/5xx
-    return r.json()                              # a Python dict
-
 @app.get("/updates", operation_id="get_version")
 async def get_app_latest_release_version() -> VersionData:
     current = app.version
@@ -284,11 +274,13 @@ async def get_app_latest_release_version() -> VersionData:
     ssh.close()
 
     try:
-        release = get_latest_release("PeriHub", "PeriHub", tag=True)
-        latest = release[0]["name"]
+        r = requests.get("https://api.github.com/repos/PeriHub/PeriHub/tags", timeout=10)
+        r.raise_for_status()
+        latest = r.json()[0]["name"]
 
-        release = get_latest_release("PeriHub", "PeriLab.jl")
-        perilab_latest = release["tag_name"]
+        r = requests.get("https://api.github.com/repos/PeriHub/PeriLab.jl/releases/latest", timeout=10)
+        r.raise_for_status()
+        perilab_latest = r.json()["tag_name"]
     except Exception as e:
         log.debug(e)
 

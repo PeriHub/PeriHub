@@ -123,17 +123,6 @@ class FileHandler:
             return user_name
         return "user"
 
-        # encoded_token = request.headers.get("Authorization")
-        # if encoded_token is None or encoded_token == "":
-        #     return "guest"
-
-        # decoded_token = jwt.decode(
-        #     encoded_token.split(" ")[1],
-        #     options={"verify_signature": False},
-        # )
-
-        # return decoded_token["preferred_username"]
-
     @staticmethod
     def get_max_nodes(username):
         """doc"""
@@ -413,26 +402,7 @@ class FileHandler:
         log.info("Start copying")
 
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-        # log.info(remotepath)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
-        # if tasks != 1:
-        #     try:
-        #         command = "module load netCDF" + "\n"
-        #         command += "module load GCCcore/10.2.0" + "\n"
-        #         command += (
-        #             "cd "
-        #             + remotepath
-        #             + "\n python /home/f_peridi/peridigm/build/scripts/MergeFiles.py "
-        #             + model_name
-        #             + "_"
-        #             + output
-        #             + " "
-        #             + str(tasks)
-        #         )
-        #         ssh.exec_command(command)
-        #     except Exception:
-        #         log.error("MergeFiles.py failed")
-        #         pass
         try:
             attrs = sftp.listdir_attr(remotepath)
 

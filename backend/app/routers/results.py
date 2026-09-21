@@ -3,11 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import csv
-import importlib
-import json
 import os
 import shutil
-import sys
 from typing import Optional
 
 import matplotlib.pyplot as plt
@@ -25,71 +22,6 @@ from ..support.results.crack_analysis import CrackAnalysis
 
 router = APIRouter(prefix="/results", tags=["Results Methods"])
 
-
-def load_or_reload_main(model_name: str):
-    """
-    Dynamically import/reload `app.own_models.<model_name>.<model_name>`
-    and return the `main` attribute from that module.
-    """
-    # Build the fully‑qualified module path
-    module_name = f"app.own_models.{model_name}.{model_name}"
-
-    # If the module is already loaded, reload it; otherwise, import it.
-    if module_name in sys.modules:
-        mod = importlib.reload(sys.modules[module_name])
-    else:
-        mod = importlib.import_module(module_name)
-
-    # Pull the attribute you care about.
-    return getattr(mod, "main")
-
-
-@router.post(
-    "/runOwnAnalysis",
-    operation_id="run_own_analysis"
-)
-async def run_own_analysis(
-    data: ModelData,
-    valves: Valves,
-    model_name: str = "ENFmodel",
-    request: Request = "",
-)-> str:
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    model_folder_name = data.model.modelFolderName
-    cluster = data.job.cluster
-    tasks = data.job.tasks
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks
-    ):
-        raise IOError  # NotFoundException(name=model_name)
-
-    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-
-    valves_dict = {valve["name"]: eval(valve["value_type"])(valve["value"]) for valve in valves.model_dump()["valves"]}
-    analysis_valves_dict = {valve["name"]: eval(valve["value_type"])(valve["value"]) for valve in valves.model_dump()["analysisValves"]}
-
-    try:
-        module = getattr(
-            __import__("app.models." + model_name + "." + model_name, fromlist=[model_name]),
-            "main",
-        )
-    except:
-        try:
-            module = load_or_reload_main(model_name)
-        except Exception as e:
-            log.error("Model Name unknown")
-            log.error(e)
-
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Model Name unknown",
-            )
-
-    model = module(valves_dict, data, analysis_valves_dict)
-    return model.analysis(model_name, resultpath)
 
 @router.get(
     "/getResultFile",

@@ -22,10 +22,3 @@ export const notify = {
     toast.error(message);
   }
 };
-
-// Toaster defaults (position/duration) are set where <Toaster /> is mounted,
-// in src/routes/+layout.svelte — svelte-sonner has no global setDefaults().
-export const TOASTER_DEFAULTS = {
-  position: 'bottom-right' as const,
-  duration: 2500
-};

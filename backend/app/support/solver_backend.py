@@ -2,21 +2,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Pluggable solver-backend abstraction.
+"""Solver backend seam.
 
-routers/jobs.py used to hand-roll two *separate* SSH-connect-with-
-localhost-fallback implementations - one inline in `run_model` (via
-FileHandler.ssh_to_perilab) and a second, subtly different one duplicated
-inline in `cancel_job` (its own paramiko.SSHClient() + manual
-gaierror/localhost retry loop). This consolidates both call sites onto one
-implementation (LocalSolverBackend, itself just a thin wrapper around the
-existing FileHandler.ssh_to_perilab()) and gives the run/cancel call sites a
-single interface to depend on.
-
-That interface is also the seam for the planned "point PeriHub at a
-customer-hosted PeriLab server" enterprise feature (ExternalSolverBackend):
-gated via support/entitlements.py, not implemented here - see the
-NotImplementedError below and the roadmap.
+routers/jobs.py submits and cancels jobs through the bundled
+`perihub_perilab` docker container via FileHandler.ssh_to_perilab().
+get_solver_backend() is a seam for the planned "point PeriHub at a
+customer-hosted PeriLab server" enterprise feature: ExternalSolverBackend
+is gated on SOLVER_BACKEND=external and raises intentionally (fail-loud
+instead of doing nothing) - see support/entitlements.py and the roadmap.
 """
 
 import os
@@ -25,17 +18,7 @@ from .file_handler import FileHandler
 from .globals import external_perilab_url, log, solver_backend_kind
 
 
-class SolverBackend:
-    """Interface both backends implement."""
-
-    def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
-        raise NotImplementedError
-
-    def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
-        raise NotImplementedError
-
-
-class LocalSolverBackend(SolverBackend):
+class LocalSolverBackend:
     """Talks to the bundled `perihub_perilab` docker container over SSH -
     the only backend PeriHub actually runs jobs through today."""
 
