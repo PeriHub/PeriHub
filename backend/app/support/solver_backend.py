@@ -18,6 +18,16 @@ from .file_handler import FileHandler
 from .globals import external_perilab_url, log, solver_backend_kind
 
 
+class SolverBackend:
+    """Interface both backends implement."""
+
+    def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        raise NotImplementedError
+
+    def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        raise NotImplementedError
+
+
 class LocalSolverBackend:
     """Talks to the bundled `perihub_perilab` docker container over SSH -
     the only backend PeriHub actually runs jobs through today."""
@@ -37,7 +47,10 @@ class LocalSolverBackend:
         del username, model_name, model_folder_name  # only remotepath is needed for the kill command
         ssh = FileHandler.ssh_to_perilab()
         command = (
-            "kill -2 $(cat /app" + os.path.join(remotepath, "pid.txt") + ") \n rm /app" + os.path.join(remotepath, "pid.txt")
+            "kill -2 $(cat /app"
+            + os.path.join(remotepath, "pid.txt")
+            + ") \n rm /app"
+            + os.path.join(remotepath, "pid.txt")
         )
         ssh.exec_command(command)
         ssh.close()
@@ -66,9 +79,7 @@ class ExternalSolverBackend(SolverBackend):
         )
 
     def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
-        raise NotImplementedError(
-            "SOLVER_BACKEND=external is not implemented yet - see support/solver_backend.py."
-        )
+        raise NotImplementedError("SOLVER_BACKEND=external is not implemented yet - see support/solver_backend.py.")
 
 
 def get_solver_backend() -> SolverBackend:
