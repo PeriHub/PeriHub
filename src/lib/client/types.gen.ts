@@ -506,7 +506,7 @@ export type Valves = {
 };
 
 export type Verlet = {
-    numericalDamping?: number;
+    numericalDamping?: number | null;
     outputFrequency?: number;
 };
 

@@ -486,7 +486,7 @@ class Output(BaseModel):
 
 
 class Verlet(BaseModel):
-    numericalDamping: float = 0.000005
+    numericalDamping: Optional[float] = None
     outputFrequency: int = 1000
 
 

@@ -32,11 +32,16 @@ SPDX-License-Identifier: Apache-2.0
 
 <div class="space-y-3 p-3">
   {#each solvers as solver, index (solver.solverId ?? index)}
-    <div class="space-y-3 rounded-md border border-border p-3">
+    <div class="border-border space-y-3 rounded-md border p-3">
       <div class="flex items-center justify-between">
         <h4 class="font-medium">Solver {solver.solverId}</h4>
         {#if solvers.length > 1}
-          <Button variant="ghost" size="icon" onclick={() => removeSolver(index)} title="Remove Solver">
+          <Button
+            variant="ghost"
+            size="icon"
+            onclick={() => removeSolver(index)}
+            title="Remove Solver"
+          >
             <Trash2 class="h-4 w-4" />
           </Button>
         {/if}
@@ -69,7 +74,12 @@ SPDX-License-Identifier: Apache-2.0
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
             <Label for={`sv-damp-${index}`}>Numerical Damping</Label>
-            <Input id={`sv-damp-${index}`} type="number" bind:value={solver.verlet.numericalDamping} />
+            <Input
+              id={`sv-damp-${index}`}
+              type="number"
+              bind:value={solver.verlet.numericalDamping}
+              clearable
+            />
           </div>
           <!--
             fixedDt/safetyFactor/adaptivetimeStepping/calculateCauchy/
@@ -87,24 +97,44 @@ SPDX-License-Identifier: Apache-2.0
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
             <Label for={`sv-steps-${index}`}>Number of Steps</Label>
-            <Input id={`sv-steps-${index}`} type="number" bind:value={solver.static.numberOfSteps} />
+            <Input
+              id={`sv-steps-${index}`}
+              type="number"
+              bind:value={solver.static.numberOfSteps}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`sv-iters-${index}`}>Maximum number of iterations</Label>
-            <Input id={`sv-iters-${index}`} type="number" bind:value={solver.static.maximumNumberOfIterations} />
+            <Input
+              id={`sv-iters-${index}`}
+              type="number"
+              bind:value={solver.static.maximumNumberOfIterations}
+            />
           </div>
           <Toggle bind:checked={solver.static.showSolverIteration} label="Show Solver Iteration" />
           <div class="space-y-1">
             <Label for={`sv-restol-${index}`}>Residual Tolerance</Label>
-            <Input id={`sv-restol-${index}`} type="number" bind:value={solver.static.residualTolerance} />
+            <Input
+              id={`sv-restol-${index}`}
+              type="number"
+              bind:value={solver.static.residualTolerance}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`sv-soltol-${index}`}>Solution Tolerance</Label>
-            <Input id={`sv-soltol-${index}`} type="number" bind:value={solver.static.solutionTolerance} />
+            <Input
+              id={`sv-soltol-${index}`}
+              type="number"
+              bind:value={solver.static.solutionTolerance}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`sv-resscale-${index}`}>Residual Scaling</Label>
-            <Input id={`sv-resscale-${index}`} type="number" bind:value={solver.static.residualScaling} />
+            <Input
+              id={`sv-resscale-${index}`}
+              type="number"
+              bind:value={solver.static.residualScaling}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`sv-m-${index}`}>m</Label>

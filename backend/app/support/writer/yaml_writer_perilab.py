@@ -415,7 +415,8 @@ class YAMLcreatorPeriLab:
                 data["Verlet"]["Fixed dt"] = float(self.solver_dict[id].fixedDt)
 
             data["Verlet"]["Safety Factor"] = float(self.solver_dict[id].safetyFactor)
-            data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].verlet.numericalDamping)
+            if self.check_if_defined(self.solver_dict[id].verlet.numericalDamping):
+              data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].verlet.numericalDamping)
 
             if (
                 self.check_if_defined(self.solver_dict[id].adaptivetimeStepping)

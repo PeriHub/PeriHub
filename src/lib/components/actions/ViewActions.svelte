@@ -30,7 +30,16 @@ SPDX-License-Identifier: Apache-2.0
   import RenewableView from '$lib/components/views/RenewableView.svelte';
 
   const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
-  const PALETTE = ['#00658b', '#d2ae3d', '#82a043', '#666666', '#3b98cb', '#f2cd51', '#a6bf51', '#858585'];
+  const PALETTE = [
+    '#00658b',
+    '#d2ae3d',
+    '#82a043',
+    '#666666',
+    '#3b98cb',
+    '#f2cd51',
+    '#a6bf51',
+    '#858585'
+  ];
 
   const modelData = $derived(modelStore.modelData);
   const outputs = $derived(modelData.outputs ?? []);
@@ -48,7 +57,7 @@ SPDX-License-Identifier: Apache-2.0
   let dialogConfirm = $state<null | 'model' | 'cookies' | 'userData'>(null);
 
   let energyPercent = $state(0);
-  let plotVariables = $state<string[]>([]);
+  // let plotVariables = $state<string[]>([]);
   let plotOutput = $state('');
 
   async function checkEnergy() {
@@ -146,7 +155,7 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   function updatePlotVariables() {
-    plotVariables = [...(modelData.computes ?? []).map((c) => c.name), 'Time'];
+    // plotVariables = [...(modelData.computes ?? []).map((c) => c.name), 'Time'];
     plotOutput = outputs[0]?.name ?? '';
     dialogPlot = true;
   }
@@ -162,17 +171,26 @@ SPDX-License-Identifier: Apache-2.0
         output: plotOutput,
         tasks: modelData.job.tasks,
         deviationsEnabled: modelData.deviations.enabled
-      })) as Record<string, number[]>;
+      })) as Record<string, (number | string)[]>;
 
       notify.positive('Plot loaded');
 
+      // The API can hand back numeric-looking values as strings (e.g. raw
+      // CSV cells); coerce explicitly rather than trusting the type cast
+      // above, since a chart's axis domain needs real numbers to compare
+      // correctly - comparing strings numerically-but-not ("10" < "9")
+      // silently produces a corrupted axis range that "reset zoom" can't fix.
+      const toNumbers = (values: (number | string)[]): number[] =>
+        values.map((v) => (typeof v === 'number' ? v : Number(v)));
+
       const firstProperty = Object.keys(plotRawData)[0]!;
+      const xValues = toNumbers(plotRawData[firstProperty]!);
       const tempData = Object.entries(plotRawData)
         .filter(([name]) => name !== firstProperty)
         .map(([name, values], i) => ({
           name,
-          x: plotRawData[firstProperty]!,
-          y: values,
+          x: xValues,
+          y: toNumbers(values),
           type: 'scatter',
           marker: { color: PALETTE[i % PALETTE.length] }
         }));
@@ -247,7 +265,7 @@ SPDX-License-Identifier: Apache-2.0
   onDestroy(() => timer && clearInterval(timer));
 </script>
 
-<div class="flex flex-wrap items-center gap-1 border-b border-border bg-muted/30 px-2 py-1">
+<div class="border-border bg-muted/30 flex flex-wrap items-center gap-1 border-b px-2 py-1">
   {#if !status.submitted}
     <Button
       variant="ghost"
@@ -263,7 +281,13 @@ SPDX-License-Identifier: Apache-2.0
       <Play class="h-4 w-4" />
     </Button>
   {:else}
-    <Button variant="ghost" size="icon" onclick={cancelJob} disabled={submitLoading} title="Cancel Job">
+    <Button
+      variant="ghost"
+      size="icon"
+      onclick={cancelJob}
+      disabled={submitLoading}
+      title="Cancel Job"
+    >
       <X class="h-4 w-4" />
     </Button>
   {/if}
@@ -303,10 +327,10 @@ SPDX-License-Identifier: Apache-2.0
   <Dialog.Portal>
     <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
     <Dialog.Content
-      class="fixed left-1/2 top-1/2 z-50 w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-5 shadow-lg"
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
       <Dialog.Title class="mb-2 text-lg font-semibold">Submit Model</Dialog.Title>
-      <p class="text-sm text-muted-foreground">
+      <p class="text-muted-foreground text-sm">
         Are you sure you want to submit the model? The current renewable energy share is {energyPercent}%.
       </p>
       <div class="my-3"><RenewableView /></div>
@@ -329,10 +353,10 @@ SPDX-License-Identifier: Apache-2.0
   <Dialog.Portal>
     <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
     <Dialog.Content
-      class="fixed left-1/2 top-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-5 shadow-lg"
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
       <Dialog.Title class="mb-2 text-lg font-semibold">Download Results</Dialog.Title>
-      <p class="text-sm text-muted-foreground">
+      <p class="text-muted-foreground text-sm">
         Do you want to retrieve all model files, including the input files and log data, or only the
         exodus result?
       </p>
@@ -349,7 +373,7 @@ SPDX-License-Identifier: Apache-2.0
   <Dialog.Portal>
     <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
     <Dialog.Content
-      class="fixed left-1/2 top-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-5 shadow-lg"
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
       <Dialog.Title class="mb-3 text-lg font-semibold">Plot results</Dialog.Title>
       <Select bind:value={plotOutput}>
@@ -369,7 +393,7 @@ SPDX-License-Identifier: Apache-2.0
   <Dialog.Portal>
     <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
     <Dialog.Content
-      class="fixed left-1/2 top-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-5 shadow-lg"
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
       {#if !dialogConfirm}
         <Dialog.Title class="mb-3 text-lg font-semibold">Delete data</Dialog.Title>
@@ -381,7 +405,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
       {:else}
         <Dialog.Title class="mb-2 text-lg font-semibold">Are you sure?</Dialog.Title>
-        <p class="text-sm text-muted-foreground">This action cannot be undone.</p>
+        <p class="text-muted-foreground text-sm">This action cannot be undone.</p>
         <div class="mt-4 flex justify-end gap-2">
           <Button variant="ghost" onclick={() => (dialogConfirm = null)}>No</Button>
           <Button variant="destructive" onclick={confirmDelete}>Yes</Button>

@@ -203,9 +203,23 @@ def get_plot(
 
                     first_row = False
                 else:
-                    # Populate data dictionary with values
+                    # Populate data dictionary with values. Values come out of
+                    # csv.reader as strings (e.g. "0.00", "1.000000E+02"); cast
+                    # to float so the frontend receives real numbers and can
+                    # compute a correct numeric axis domain instead of doing a
+                    # lexicographic string comparison ("10.0" < "9.0").
                     for i, value in enumerate(row):
-                        data[column_names[i]].append(value)
+                        try:
+                            parsed_value = float(value)
+                        except ValueError:
+                            log.warning(
+                                "Non-numeric value %r in column %s of %s; keeping as string",
+                                value,
+                                column_names[i],
+                                file,
+                            )
+                            parsed_value = value
+                        data[column_names[i]].append(parsed_value)
         first_row = True
     return JSONResponse(content=data)
     # except IOError:

@@ -101,7 +101,11 @@ SPDX-License-Identifier: Apache-2.0
 <div class="flex flex-wrap items-end gap-3">
   {#each fields as field (field.name)}
     {#if field.widget === 'toggle'}
-      <Toggle bind:checked={data[field.name]} label={field.label} disabled={disabledFields.includes(field.name)} />
+      <Toggle
+        bind:checked={data[field.name]}
+        label={field.label}
+        disabled={disabledFields.includes(field.name)}
+      />
     {:else if field.widget === 'select' && field.options}
       <div class="space-y-1">
         <Label for={fieldId(field.name)}>{field.label}</Label>
@@ -132,6 +136,7 @@ SPDX-License-Identifier: Apache-2.0
             data[field.name] = field.widget === 'number' && raw !== '' ? Number(raw) : raw;
             onchange?.();
           }}
+          clearable={field.widget === 'number'}
         />
       </div>
     {/if}

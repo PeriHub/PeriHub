@@ -1478,6 +1478,39 @@ export const $Jobs = {
                 }
             ],
             title: 'Model'
+        },
+        progress: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Progress'
+        },
+        currentStep: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Currentstep'
+        },
+        totalSteps: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Totalsteps'
         }
     },
     type: 'object',
@@ -3324,6 +3357,39 @@ export const $Status = {
             ],
             title: 'Meshfileexist',
             default: false
+        },
+        progress: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Progress'
+        },
+        currentStep: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Currentstep'
+        },
+        totalSteps: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Totalsteps'
         }
     },
     type: 'object',
@@ -3754,9 +3820,15 @@ export const $Valves = {
 export const $Verlet = {
     properties: {
         numericalDamping: {
-            type: 'number',
-            title: 'Numericaldamping',
-            default: 0.000005
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Numericaldamping'
         },
         outputFrequency: {
             type: 'integer',
