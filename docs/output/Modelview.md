@@ -5,19 +5,26 @@ parent: Output
 nav_order: 2
 ---
 
-# Modelview
+# Model view
 
-The Modelview is able to show four different visual outputs:
+The model view renders your simulation in 3-D. You can switch between several
+views depending on what you want to look at.
 
-- Model view:
-  - The basis of every predefined model, it shows the geometric and the block configuration
-- VTK view:
-  - If a mesh is generated or uploaded the VTK view will show a modifiable representation. The block number of each node is shown by its color. The radius and resolution of every node is adjustable.
-- Plotly view:
-  - Similar to images the user also hast the ability to retrieve a csv file from the ParaView instance. The data will then by visible and manageable in a Plotly environment.
+- **Model view** — the starting point for every model. It shows the geometry and
+  the blocks (regions) you defined, each block colored differently so you can see
+  how the part is split up.
 
-|                Model view                 |                 VTK view                  |
-| :---------------------------------------: | :---------------------------------------: |
+- **VTK view** — the full mesh of points and bonds that the solver actually
+  computes with. Points are colored by which block they belong to, and you can
+  adjust the size and density of the points to inspect the mesh closely. After a
+  run you can use this view to spot a crack — the broken bonds show up as gaps.
+
+- **Plotly view** — a simpler, web-based version of the same data, handy for a
+  quick check without loading the heavier 3-D view.
+
+Use your mouse to navigate: **drag to rotate**, **scroll to zoom**, and
+**right-drag to pan**.
+
+| Model view | VTK view |
+| :--------: | :------: |
 | ![drawing](/assets/images/modelView1.PNG) | ![drawing](/assets/images/modelView2.PNG) |
-|            **ParaView image**             |              **Plotly view**              |
-| ![drawing](/assets/images/modelView3.PNG) | ![drawing](/assets/images/modelView4.PNG) |

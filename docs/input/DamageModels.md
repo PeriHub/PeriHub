@@ -7,17 +7,23 @@ nav_order: 2
 
 # Damage Models
 
-With the damage model configuration panel multiple damage models can be specified:
+In peridynamics, a material breaks when the bonds connecting its points break.
+A **damage model** is the rule that decides _when_ a bond breaks. These settings
+are applied per block, in the **Blocks** panel.
 
-| Configuration            | Description                                                         |
-| ------------------------ | ------------------------------------------------------------------- |
-| Damage Name              | Current used Damage                                                 |
-| Damage Model Name        | Current used Damage Model                                           |
-| Critical Stretch         | Maximal stretch before bond damage will occur                       |
-| Critical Energy          | Maximal energy before bond damage will occur                        |
-| Interblock Damage Energy | Maximal energy between defined blocks before bond damage will occur |
-| Only Tension             | Switch to allow bond damage only in direction of pull               |
-| Stabilization Type       | Type of stabilization method                                        |
-| Detached Nodes Check     | Check if nodes are already detached                                 |
-| Thickness                | Thickness for the damage calculations                               |
-| Hourglass Coefficient    | Hourglass Coefficient for the damage calculations                   |
+| Setting                  | What it controls                                                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------------- |
+| Damage name              | A label for this damage definition, so you can tell several apart.                             |
+| Damage model name        | The type of damage rule to use.                                                                |
+| Critical stretch         | How far a bond can stretch before it breaks. Pull too hard and it snaps.                       |
+| Critical energy          | How much energy a bond can absorb before it breaks.                                            |
+| Interblock damage energy | Energy needed to break the bonds _between_ two blocks (useful where different materials meet). |
+| Only tension             | Allow damage only when the bond is being pulled apart, not squeezed.                           |
+| Stabilization type       | The numerical method used to keep the calculation stable.                                      |
+| Detached nodes check     | Whether the solver checks for points that have already become detached.                        |
+| Thickness                | The thickness used in the damage calculations.                                                 |
+| Hourglass coefficient    | A factor that damps a numerical artefact; usually leave at the default.                        |
+
+> **Tip:** most models only need one damage definition, with the default rule.
+> Raise the **critical stretch** or **critical energy** to make the material
+> tougher, or lower them to make it more brittle.

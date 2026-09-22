@@ -7,21 +7,31 @@ nav_order: 2
 
 # Output
 
-The output configuration panel defines which output files should be written and which variables are to be included:
+The **Output** section decides _what_ your simulation writes down as it runs, and
+how often. The more you ask it to save, the more disk space the run uses and the
+slower it runs — so save only what you need to analyze.
 
-| Configuration    | Description                           |
-| ---------------- | ------------------------------------- |
-| Name             | Name of compute parameter             |
-| Variable         | Variable of compute parameter         |
-| Calculation Type | Calculation Type of compute parameter |
-| Block Id         | Direction of compute parameter        |
+| Setting          | What it controls                                                 |
+| ---------------- | ---------------------------------------------------------------- |
+| Name             | A label for the output set you are configuring.                  |
+| Variable         | Which quantity to save (displacement, force, damage, and so on). |
+| Calculation type | How the quantity should be computed or aggregated.               |
+| Block id         | Which block(s) the output applies to.                            |
 
-|
-Name | Output file name
-Displacement | Enable Displacements for output
-Force | Enable Force for output
-Damage | Enable Damage for output
-Partial_Stress | Enable Partial_Stress for output
-Number_of_Neighbors | Enable Number_of_Neighbors for output
-Output Frequency | Frequency of output to write
-Initial Output Step | Number of step on which the output will start
+## Available quantities
+
+| Quantity            | What you get from it                                              |
+| ------------------- | ----------------------------------------------------------------- |
+| Displacement        | How far each point has moved — the basis for most visualizations. |
+| Force               | The forces between points.                                        |
+| Damage              | Which bonds have broken — how far the crack has spread.           |
+| Partial stress      | The stress carried by individual bonds.                           |
+| Number of neighbors | How many neighbors each point still has connected to it.          |
+
+| Setting             | What it controls                                            |
+| ------------------- | ----------------------------------------------------------- |
+| Output frequency    | How often, in steps, data is written to disk.               |
+| Initial output step | The step at which output begins (useful to skip the start). |
+
+> **Tip:** displacement and damage are the quantities you will want most often,
+> since they are what the mesh view, plots, and crack analysis use.

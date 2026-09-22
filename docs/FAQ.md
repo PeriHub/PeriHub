@@ -6,72 +6,68 @@ nav_order: 2
 
 # PeriHub FAQ
 
-Welcome to PeriHub! Below are some frequently asked questions (FAQs) to help you understand our project better.
+Answers to the most common questions, written for new users.
 
 ### What is PeriHub?
 
-PeriHub is a web framework designed for peridynamic simulations using PeriLab. It provides a user-friendly interface for conducting peridynamic simulations, allowing researchers and engineers to explore complex material behaviors efficiently.
+PeriHub is a web application for running peridynamic simulations. You build and
+configure a model in your browser, submit it to a solver, and get back 3-D
+visualizations, plots, and fracture analysis. You don't need to install anything
+to use a hosted version.
+
+### What is peridynamics?
+
+Peridynamics is a way of modeling how solid materials behave. Unlike traditional
+methods that treat a material as a continuous object, peridynamics treats it as a
+large number of points that pull and push on each other, connected by springs.
+Because a "spring" can simply break, peridynamics is especially good at predicting
+**cracks, damage, and fragmentation** — things that are hard for other methods to
+handle.
 
 ### What is PeriLab?
 
-PeriLab is a computational platform for peridynamic simulations. It offers a range of tools and functionalities tailored for peridynamic analysis, making it a powerful tool for studying material behavior at different scales.
+PeriLab is the open-source solver that actually does the heavy computing.
+PeriHub is the web interface in front of it, taking your model, running it on
+PeriLab, and presenting the results back to you.
 
-### What is Peridynamics?
+### Who is PeriHub for?
 
-Peridynamics is a non-local continuum theory used to model material behavior, particularly in materials with discontinuities or irregularities. It is a valuable tool for studying fracture, damage, and other complex phenomena that traditional continuum mechanics struggle to capture.
+Anyone studying how materials break or deform — researchers and engineers in
+materials science, mechanical engineering, and computational physics. Common
+uses include studying how cracks grow, testing how materials respond to impact,
+and measuring material properties.
 
-### How does PeriHub help with peridynamic simulations?
+### What does a typical simulation look like?
 
-PeriHub simplifies the process of setting up, running, and analyzing peridynamic simulations. It provides a user-friendly interface that abstracts away the complexities of simulation setup, allowing users to focus on their research or engineering tasks.
+The loop is: generate a model → configure material, blocks, and boundary
+conditions → submit the job → view and plot the results → download them. See
+**[First Simulation](/FirstSimulation.html)** for a complete walkthrough.
 
-### Who can benefit from using PeriHub?
+### Is PeriHub free and open source?
 
-PeriHub is suitable for researchers, engineers, and students working in the fields of materials science, mechanical engineering, computational physics, and related disciplines. It can be used for a wide range of applications, including fracture mechanics, material characterization, and structural analysis.
+Yes. It is open source under the Apache 2.0 license, which allows both
+non-commercial and commercial use. See the [LICENSE](https://github.com/PeriHub/PeriHub/blob/main/LICENSE.md)
+for details.
 
-### Is PeriHub open source?
+### How do I install and run it myself?
 
-Yes, PeriHub is an open-source project released under the [Apache 2.0 license](https://github.com/PeriHub/PeriHub/blob/main/LICENSES/Apache-2.0.txt). This means that the source code is freely available for anyone to use, modify, and distribute, subject to the terms of the license.
+Use Docker Compose. See **[Getting Started](/GettingStarted.html)** for the
+full step-by-step, including how to start the solver so you can submit jobs.
 
-### How can I get started with PeriHub?
+### How large a simulation can I run?
 
-To get started with PeriHub, simply visit our [getting started guide](https://perihub.github.io/PeriHub/GettingStarted.html) and follow the instructions for downloading and installing the framework. We also provide documentation and tutorials to help you get up to speed quickly.
+Performance depends on your hardware and on how large or fine-grained your model
+is. The built-in models are good starting points; the built-in tour explains how
+the three panels (Setup, Results, Input/Log) fit together and how to get the most
+out of them. See **[Getting Started](/GettingStarted.html)** for how to launch it.
 
-### Can I contribute to the development of PeriHub?
+### Can I use my own models?
 
-Absolutely! We welcome contributions from the community to help improve PeriHub and make it even more useful. Whether you're a developer, researcher, or enthusiast, there are many ways to get involved, from submitting bug reports and feature requests to contributing code and documentation.
+Yes. You can write your own model and drop it into a folder to have it appear in
+the model list. See the model documentation for how to create one.
 
-### Where can I get help or support?
+### Where can I get help or report a bug?
 
-If you have any questions, encounter issues, or just want to connect with other users and developers, you can go ahead and start a new [discussion](https://github.com/PeriHub/PeriHub/discussions/new/choose). Our team and community members are always ready to help and provide support.
-
-### Is there a cost associated with using PeriHub?
-
-No, PeriHub is completely free to use. We believe in making powerful tools like PeriHub accessible to everyone, regardless of their financial resources.
-
-### Can PeriHub be used for commercial purposes?
-
-Yes, PeriHub can be used for both non-commercial and commercial purposes. However, please be sure to review the terms of the license to ensure compliance with any relevant legal requirements.
-
-### How often is PeriHub updated?
-
-We strive to regularly update PeriHub with new features, improvements, and bug fixes to ensure that it remains a valuable tool for our users. You can stay up to date with the latest developments by following our blog and social media channels.
-
-### Where can I report bugs or request features?
-
-If you encounter any bugs or have ideas for new features, please submit them to our [issue tracker](https://github.com/PeriHub/PeriHub/discussions/new/choose). Your feedback is invaluable in helping us improve PeriHub for everyone.
-
-### Can I use PeriHub to teach or conduct research?
-
-Yes, PeriHub is well-suited for both teaching and research purposes. Its user-friendly interface and powerful simulation capabilities make it an excellent tool for exploring peridynamic concepts and conducting cutting-edge research in materials science and engineering.
-
-### Is there a limit to the size or complexity of simulations I can run with PeriHub?
-
-While PeriHub is designed to handle simulations of varying sizes and complexities, the performance may depend on factors such as hardware resources and the specific characteristics of the simulation. We recommend experimenting with different settings and consulting the documentation for tips on optimizing performance.
-
-### How secure is PeriHub?
-
-Security is a top priority for us, and we take all necessary precautions to ensure that PeriHub is secure and reliable. We regularly update the framework to address any security vulnerabilities and follow best practices for safeguarding user data and privacy.
-
-### Can I use PeriHub with other simulation software or tools?
-
-PeriHub is designed to be compatible with a wide range of simulation software and tools, allowing users to integrate it seamlessly into their existing workflows. If you have specific compatibility requirements or need assistance with integration, please reach out to our support team for assistance.
+Open a [GitHub Discussion](https://github.com/PeriHub/PeriHub/discussions/new/choose)
+for questions, or the [issue tracker](https://github.com/PeriHub/PeriHub/issues)
+for bugs. The community and maintainers are happy to help.
