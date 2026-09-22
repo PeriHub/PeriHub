@@ -123,6 +123,11 @@ class ViewStore {
   textLoading = $state(false);
   textOutput = $state('');
   logOutput = $state('');
+  // Drives the loading/error UI in LogView while the /ws log-tail socket is
+  // connecting, waiting for the job's .log file to appear, or streaming it.
+  // 'idle' before any job has been run this session.
+  logStatus = $state<'idle' | 'waiting' | 'streaming' | 'error'>('idle');
+  logStatusMessage = $state('');
   // Parsed live from the streamed log text - see parseLogProgress. null
   // until PeriLab's log contains at least one recognized progress line.
   logProgress = $derived(parseLogProgress(this.logOutput));

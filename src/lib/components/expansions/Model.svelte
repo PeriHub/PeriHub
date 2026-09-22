@@ -10,7 +10,8 @@ SPDX-License-Identifier: Apache-2.0
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
-  import { getModels, getValves, getJobFolders } from '$lib/client';
+  import { getModels, getJobFolders } from '$lib/client';
+  import { refreshModelFromBackend } from '$lib/utils/modelSync';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
@@ -27,7 +28,7 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   async function selectMethod() {
-    modelStore.modelParams = await getValves({ modelName: modelStore.selectedModel.file });
+    refreshModelFromBackend(modelStore.selectedModel.file);
     _getJobFolders();
   }
 
@@ -110,7 +111,7 @@ SPDX-License-Identifier: Apache-2.0
       list="model-folder-names"
       bind:value={model.modelFolderName}
       onchange={selectModelFolderName}
-      class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+      class="border-input bg-background flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm"
     />
     <datalist id="model-folder-names">
       {#each modelFolderNameList as name, folderIdx (name ?? folderIdx)}
@@ -129,13 +130,18 @@ SPDX-License-Identifier: Apache-2.0
   <Toggle bind:checked={model.twoDimensional} label="Two Dimensional" />
 
   {#if !model.ownModel}
-    <div class="space-y-2 border-t border-border pt-3">
+    <div class="border-border space-y-2 border-t pt-3">
       {#each modelStore.modelParams.valves ?? [] as param, paramIdx (param.name ?? paramIdx)}
         {#if !param.depends || modelStore.modelParams.valves?.find((o) => o.name === param.depends)?.value}
           {#if typeof param.value !== 'boolean' && ['text', 'number'].includes(param.type)}
             <div class="max-w-xs space-y-1">
               <Label for={`valve-${param.name}`}>{param.label}</Label>
-              <Input id={`valve-${param.name}`} type={param.type} bind:value={param.value} title={param.description} />
+              <Input
+                id={`valve-${param.name}`}
+                type={param.type}
+                bind:value={param.value}
+                title={param.description}
+              />
             </div>
           {:else if param.type === 'select' && param.options}
             <div class="max-w-xs space-y-1">

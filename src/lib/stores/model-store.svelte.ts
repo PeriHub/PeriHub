@@ -19,6 +19,15 @@ class ModelStore {
     title: 'Compact Tenison',
     file: 'CompactTension'
   });
+  // Which model's config/valves are currently loaded into modelData /
+  // modelParams (null until a real fetch happens - the schema `example`
+  // defaults above never set these). Compared against selectedModel.file
+  // by utils/modelSync.ts to tell a genuinely stale/mismatched cache apart
+  // from one that's already correct for the selected model, so a page
+  // reload can auto-refresh only when it actually needs to, without
+  // clobbering in-progress edits on every load.
+  modelDataFile = $state<string | null>(null);
+  modelParamsFile = $state<string | null>(null);
 
   initialiseStore() {
     if (!browser()) return;
@@ -35,6 +44,14 @@ class ModelStore {
     if (modelParams) {
       this.modelParams = structuredClone(JSON.parse(modelParams));
     }
+    const modelDataFile = localStorage.getItem('modelDataFile');
+    if (modelDataFile) {
+      this.modelDataFile = modelDataFile;
+    }
+    const modelParamsFile = localStorage.getItem('modelParamsFile');
+    if (modelParamsFile) {
+      this.modelParamsFile = modelParamsFile;
+    }
   }
 }
 
@@ -49,6 +66,16 @@ if (browser()) {
     });
     $effect(() => {
       localStorage.setItem('modelParams', JSON.stringify(modelStore.modelParams));
+    });
+    $effect(() => {
+      if (modelStore.modelDataFile) {
+        localStorage.setItem('modelDataFile', modelStore.modelDataFile);
+      }
+    });
+    $effect(() => {
+      if (modelStore.modelParamsFile) {
+        localStorage.setItem('modelParamsFile', modelStore.modelParamsFile);
+      }
     });
   });
 }

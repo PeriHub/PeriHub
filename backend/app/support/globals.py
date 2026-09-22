@@ -51,14 +51,19 @@ if cluster_url != "":
 api_keys_raw = os.getenv("API_KEYS", default="")
 
 # --- Audit logging -------------------------------------------------------
-audit_log_path = os.getenv(
-    "AUDIT_LOG_PATH", default=os.path.join(os.path.dirname(__file__), "..", "logs", "audit.log")
-)
+audit_log_path = os.getenv("AUDIT_LOG_PATH", default=os.path.join(os.path.dirname(__file__), "..", "logs", "audit.log"))
 
 # --- Usage metering -------------------------------------------------------
 usage_log_path = os.getenv(
     "USAGE_LOG_PATH", default=os.path.join(os.path.dirname(__file__), "..", "logs", "usage.jsonl")
 )
+
+# --- Log-stream websocket ----------------------------------------------------
+# How long the /ws log-tail endpoint waits for a job's .log file to show up
+# before giving up and reporting an error to the client, instead of failing
+# immediately if the job hasn't written anything yet (containers/clusters can
+# take a while to actually start the solver process).
+ws_log_wait_timeout_seconds = int(os.getenv("WS_LOG_WAIT_TIMEOUT_SECONDS", default="300"))
 
 # --- Job back-pressure -----------------------------------------------------
 # Simple in-process concurrency cap on locally-submitted jobs. This is a
@@ -95,6 +100,4 @@ license_refresh_interval_seconds = int(os.getenv("LICENSE_REFRESH_INTERVAL_SECON
 # last-known-good entitlements before falling back to open-core only. Keeps a
 # transient outage on the license server from taking down paying customers'
 # already-granted features.
-license_offline_grace_period_seconds = int(
-    os.getenv("LICENSE_OFFLINE_GRACE_PERIOD_SECONDS", default=str(72 * 60 * 60))
-)
+license_offline_grace_period_seconds = int(os.getenv("LICENSE_OFFLINE_GRACE_PERIOD_SECONDS", default=str(72 * 60 * 60)))

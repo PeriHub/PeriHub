@@ -92,6 +92,10 @@ async def run_model(
         sbatch_string = sbatch.create_sbatch()
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        # Written before anything else so the /ws log-tail endpoint (and
+        # getStatus/getJobs progress parsing) can tell this run's .log file
+        # apart from one left behind by a previous run in the same folder.
+        FileHandler.write_run_marker_remote(sftp, remotepath)
         file = sftp.file(remotepath + "/" + model_name + ".sbatch", "w", -1)
         file.write(sbatch_string)
         file.flush()
@@ -121,6 +125,7 @@ async def run_model(
         )
         sh_string = sbatch.create_sh(verbose, False, cluster_perilab_path)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        FileHandler.write_run_marker_remote(sftp, remotepath)
         file = sftp.file(remotepath + "/" + "runPerilab.sh", "w", -1)
         file.write(sh_string)
         file.flush()
@@ -150,6 +155,7 @@ async def run_model(
             job_ids=job_ids,
         )
         sh_string = sbatch.create_sh(verbose)
+        FileHandler.write_run_marker_local(remotepath)
         with open(
             os.path.join(remotepath, "runPerilab.sh"),
             "w",
@@ -188,9 +194,10 @@ def cancel_job(
 
     if not cluster:
         remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
-        # Delegates to the configured solver backend (see support/solver_backend.py),
-        # which also de-duplicates the SSH-connect-with-localhost-fallback logic
-        # that used to be re-implemented here separately from FileHandler.ssh_to_perilab.
+        # Delegates to the configured solver backend (see
+        # support/solver_backend.py), which runs the kill command directly
+        # inside perihub_perilab via the Docker Engine API - see
+        # FileHandler.get_perilab_container().
         get_solver_backend().cancel(username, model_name, model_folder_name, remotepath)
 
         log.info("Job has been canceled")
@@ -213,9 +220,7 @@ def cancel_job(
         command = "scancel -n " + model_name + "_" + model_folder_name
         ssh.exec_command(command)
     else:
-        command = (
-            "kill -2 $(cat " + os.path.join(remotepath, "pid.txt") + ") \n rm " + os.path.join(remotepath, "pid.txt")
-        )
+        command = FileHandler.wait_and_kill_shell_command(os.path.join(remotepath, "pid.txt"))
         _, stdout, stderr = ssh.exec_command(command)
         stdout = stdout.readlines()
         stderr = stderr.readlines()
@@ -306,7 +311,9 @@ def get_jobs(
                                 data = json.load(f)
                                 job.model = data
 
-                    log_file = FileHandler.find_latest_log_file_local(remotepath)
+                    log_file = FileHandler.find_latest_log_file_local(
+                        remotepath, not_before=FileHandler.get_run_marker_time_local(remotepath)
+                    )
                     if log_file is not None:
                         try:
                             with open(log_file, "r") as f:
@@ -349,13 +356,13 @@ def get_jobs(
                             if "pid.txt" in sftp.listdir(remotepath):
                                 job.submitted = True
 
-                        log_file = FileHandler.find_latest_log_file_remote(sftp, remotepath)
+                        log_file = FileHandler.find_latest_log_file_remote(
+                            sftp, remotepath, not_before=FileHandler.get_run_marker_time_remote(sftp, remotepath)
+                        )
                         if log_file is not None:
                             try:
                                 with sftp.open(log_file, "r") as f:
-                                    job.progress, job.currentStep, job.totalSteps = FileHandler.parse_progress(
-                                        f.read()
-                                    )
+                                    job.progress, job.currentStep, job.totalSteps = FileHandler.parse_progress(f.read())
                             except IOError:
                                 pass
 
@@ -415,7 +422,9 @@ def get_status(
             if "pid.txt" in sftp.listdir(remotepath):
                 status.submitted = True
 
-        log_file = FileHandler.find_latest_log_file_remote(sftp, remotepath)
+        log_file = FileHandler.find_latest_log_file_remote(
+            sftp, remotepath, not_before=FileHandler.get_run_marker_time_remote(sftp, remotepath)
+        )
         if log_file is not None:
             try:
                 with sftp.open(log_file, "r") as f:
@@ -438,7 +447,9 @@ def get_status(
                 if ".csv" in files:
                     status.csvResults = True
 
-            log_file = FileHandler.find_latest_log_file_local(remotepath)
+            log_file = FileHandler.find_latest_log_file_local(
+                remotepath, not_before=FileHandler.get_run_marker_time_local(remotepath)
+            )
             if log_file is not None:
                 with open(log_file, "r") as f:
                     status.progress, status.currentStep, status.totalSteps = FileHandler.parse_progress(f.read())

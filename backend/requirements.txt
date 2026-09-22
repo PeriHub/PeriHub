@@ -7,6 +7,7 @@ matplotlib
 scipy
 numpy
 paramiko
+docker
 aiofiles
 python-multipart
 pyjwt
