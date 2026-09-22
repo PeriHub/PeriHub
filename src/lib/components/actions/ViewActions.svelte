@@ -29,7 +29,6 @@ SPDX-License-Identifier: Apache-2.0
   import Select from '$lib/components/ui/Select.svelte';
   import RenewableView from '$lib/components/views/RenewableView.svelte';
 
-  const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
   const PALETTE = [
     '#00658b',
     '#d2ae3d',
@@ -44,6 +43,14 @@ SPDX-License-Identifier: Apache-2.0
   const modelData = $derived(modelStore.modelData);
   const outputs = $derived(modelData.outputs ?? []);
   const status = $derived(defaultStore.status);
+  // True as soon as a job has been submitted for this model, even before
+  // the pid.txt-backed `status.submitted` flag catches up on the next
+  // getStatus poll (up to 5s later) - driven by the same logStatus the Log
+  // tab uses, so Cancel becomes available immediately, including during
+  // the "waiting for the log file" window right after submit.
+  const jobActive = $derived(
+    status.submitted || viewStore.logStatus === 'waiting' || viewStore.logStatus === 'streaming'
+  );
 
   let submitLoading = $state(false);
   let resultsLoading = $state(false);
@@ -88,6 +95,22 @@ SPDX-License-Identifier: Apache-2.0
       notify.positive('Job submitted');
       viewStore.textId = 'log';
       viewStore.viewId = 'jobs';
+
+      // Open the log stream right away instead of guessing a fixed delay:
+      // the backend now waits for the .log file to appear on its own and
+      // reports "waiting" over the socket, so the user sees progress
+      // immediately instead of a blank tab for the next 20+ seconds.
+      bus.emit('enableWebsocket' as never, { force: true } as never);
+
+      // The submit request itself is done - jobActive (driven by
+      // viewStore.logStatus, set above) now shows the Cancel button, and it
+      // should be usable right away rather than staying disabled until the
+      // slower getStatus poll below confirms pid.txt exists.
+      submitLoading = false;
+
+      // Separately, keep polling getStatus so `submitted` (pid.txt present)
+      // and the other status flags used elsewhere in the UI stay current.
+      // This no longer gates the log view or the Cancel button.
       intervalCount = 0;
       timer = setInterval(checkStatus, 5000);
     } catch (error) {
@@ -101,21 +124,25 @@ SPDX-License-Identifier: Apache-2.0
     bus.emit('getStatus' as never);
     intervalCount += 1;
 
-    if (intervalCount > 10) {
-      submitLoading = false;
-      notify.negative('Failed to submit model');
-      if (timer) clearInterval(timer);
-    }
     if (status.submitted) {
-      submitLoading = false;
-      await sleep(20000);
-      bus.emit('enableWebsocket' as never);
+      if (timer) clearInterval(timer);
+      return;
+    }
+
+    // A generous cap (~2 minutes) before giving up on polling the
+    // "submitted" flag - the log stream itself already reports if the job
+    // never actually started (via its own, longer timeout).
+    if (intervalCount > 24) {
       if (timer) clearInterval(timer);
     }
   }
 
   async function cancelJob() {
     submitLoading = true;
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
     try {
       await cancelJobApi({
         modelName: modelStore.selectedModel.file,
@@ -124,6 +151,7 @@ SPDX-License-Identifier: Apache-2.0
         sbatch: modelData.job.sbatch
       });
       notify.positive('Job canceled');
+      bus.emit('stopWebsocket' as never);
     } catch {
       notify.negative('Failed');
     }
@@ -266,7 +294,7 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="border-border bg-muted/30 flex flex-wrap items-center gap-1 border-b px-2 py-1">
-  {#if !status.submitted}
+  {#if !jobActive}
     <Button
       variant="ghost"
       size="icon"

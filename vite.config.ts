@@ -30,6 +30,13 @@ export default defineConfig({
   plugins: [tailwindcss(), sveltekit(), glslAsText()],
   server: {
     port: 9000,
+    watch: {
+      // The FastAPI backend appends to this log file on every API request
+      // (including simulation start/cancel). It lives inside the project
+      // root, so without this Vite's watcher treats every write as a
+      // source change it can't HMR and triggers a full page reload.
+      ignored: ['**/backend/**']
+    },
     proxy: {
       // Mirrors the old Quasar dev proxy to the FastAPI backend.
       '/api': {

@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy, tick } from 'svelte';
   import { Accordion } from 'bits-ui';
   import {
     RotateCw,
@@ -47,7 +47,7 @@ SPDX-License-Identifier: Apache-2.0
   });
   let variableOptions = $state<string[]>(['Displacements', 'Damage', 'Forces', 'Temperature']);
 
-  let resolution = $state(6);
+  let resolution = $state(8);
   let radius = $state(0.2);
   let dxValue = $state(0.2);
   let multiplier = $state(100);
@@ -101,7 +101,11 @@ SPDX-License-Identifier: Apache-2.0
       .then((response) => {
         pointString = response.nodes;
         blockIdString = response.value;
-        dxValue = Math.hypot(pointString[3]! - pointString[0]!, pointString[4]! - pointString[1]!, pointString[5]! - pointString[2]!);
+        dxValue = Math.hypot(
+          pointString[3]! - pointString[0]!,
+          pointString[4]! - pointString[1]!,
+          pointString[5]! - pointString[2]!
+        );
         maxValue = response.max_value;
         minValue = response.min_value;
         variableOptions = response.variables;
@@ -152,11 +156,16 @@ SPDX-License-Identifier: Apache-2.0
     await viewPointData(false);
   }
 
-  onMount(() => {
+  onMount(async () => {
     // Just the data load - ResultsScene/Canvas handles its own sizing
     // (including the tab-mounted-but-hidden case), so no ResizeObserver
     // bookkeeping is needed here any more.
-    viewPointData(true);
+    await viewPointData(true);
+    // After data + tick, the scene ref and Three.js camera/controls are
+    // ready — reset the camera so each tab visit starts at a clean framing
+    // rather than restoring the user's last view.
+    await tick();
+    scene?.resetCamera();
   });
 
   onDestroy(() => {
@@ -166,7 +175,7 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="relative flex h-full flex-col overflow-hidden">
-  <div class="flex flex-col gap-1 border-b border-border bg-muted/30 px-2 py-1.5">
+  <div class="border-border bg-muted/30 flex flex-col gap-1 border-b px-2 py-1.5">
     <div class="flex flex-wrap items-center gap-1">
       <Button variant="ghost" size="icon" onclick={() => viewPointData(true)} title="Reload Model">
         <RotateCw class="h-4 w-4" />
@@ -206,7 +215,7 @@ SPDX-License-Identifier: Apache-2.0
       </Button>
 
       <div class="ml-2 flex min-w-[160px] items-center gap-2 px-2">
-        <label for="results-step" class="whitespace-nowrap text-xs text-muted-foreground">
+        <label for="results-step" class="text-muted-foreground text-xs whitespace-nowrap">
           Time Step: {modelParams.step}
         </label>
         <input
@@ -217,12 +226,14 @@ SPDX-License-Identifier: Apache-2.0
           step="1"
           bind:value={modelParams.step}
           onchange={() => viewPointData(true)}
-          class="flex-1 accent-primary"
+          class="accent-primary flex-1"
         />
-        <span class="w-10 shrink-0 whitespace-nowrap text-right text-xs text-muted-foreground">{time.toExponential(2)}</span>
+        <span class="text-muted-foreground w-10 shrink-0 text-right text-xs whitespace-nowrap"
+          >{time.toExponential(2)}</span
+        >
       </div>
       <div class="flex min-w-[160px] items-center gap-2">
-        <label for="results-node-size" class="whitespace-nowrap text-xs text-muted-foreground">
+        <label for="results-node-size" class="text-muted-foreground text-xs whitespace-nowrap">
           Node Size: {multiplier}%
         </label>
         <input
@@ -233,12 +244,12 @@ SPDX-License-Identifier: Apache-2.0
           step="1"
           bind:value={multiplier}
           onchange={updatePoints}
-          class="w-24 accent-primary"
+          class="accent-primary w-24"
         />
       </div>
 
       <div class="flex min-w-[160px] items-center gap-2">
-        <label for="results-resolution" class="whitespace-nowrap text-xs text-muted-foreground">
+        <label for="results-resolution" class="text-muted-foreground text-xs whitespace-nowrap">
           Resolution: {resolution}
         </label>
         <input
@@ -248,7 +259,7 @@ SPDX-License-Identifier: Apache-2.0
           max="20"
           step="1"
           bind:value={resolution}
-          class="w-24 accent-primary"
+          class="accent-primary w-24"
         />
       </div>
     </div>
@@ -270,10 +281,16 @@ SPDX-License-Identifier: Apache-2.0
          this viewport wrapper (not the whole component), so it always sits
          at the top-left of the 3D view regardless of how many rows the
          toolbar above ends up needing. -->
-    <div class="absolute left-2 top-2 flex w-56 flex-col gap-2 rounded-md border border-border bg-background/90 p-2 shadow-sm backdrop-blur-sm">
+    <div
+      class="border-border bg-background/90 absolute top-2 left-2 flex w-56 flex-col gap-2 rounded-md border p-2 shadow-sm backdrop-blur-sm"
+    >
       <div>
         <Label for="results-variable">Variable</Label>
-        <Select id="results-variable" bind:value={modelParams.variable} onchange={() => viewPointData(true)}>
+        <Select
+          id="results-variable"
+          bind:value={modelParams.variable}
+          onchange={() => viewPointData(true)}
+        >
           {#each variableOptions as option (option)}
             <option value={option}>{option}</option>
           {/each}
@@ -281,7 +298,11 @@ SPDX-License-Identifier: Apache-2.0
       </div>
       <div>
         <Label for="results-axis">Axis</Label>
-        <Select id="results-axis" bind:value={modelParams.axis} onchange={() => viewPointData(true)}>
+        <Select
+          id="results-axis"
+          bind:value={modelParams.axis}
+          onchange={() => viewPointData(true)}
+        >
           {#each AXIS_OPTIONS as option (option)}
             <option value={option}>{option}</option>
           {/each}
@@ -302,7 +323,11 @@ SPDX-License-Identifier: Apache-2.0
           <div class="flex flex-col gap-2">
             <div>
               <Label for="results-filter">Filter</Label>
-              <Select id="results-filter" bind:value={modelParams.filter} onchange={() => viewPointData(true)}>
+              <Select
+                id="results-filter"
+                bind:value={modelParams.filter}
+                onchange={() => viewPointData(true)}
+              >
                 <option value="">-</option>
                 {#each FILTER_OPTIONS as option (option)}
                   <option value={option}>{option}</option>
@@ -311,11 +336,21 @@ SPDX-License-Identifier: Apache-2.0
             </div>
             <div>
               <Label for="results-min">Min.</Label>
-              <Input id="results-min" type="number" bind:value={modelParams.colorBarMin} oninput={debouncedReload} />
+              <Input
+                id="results-min"
+                type="number"
+                bind:value={modelParams.colorBarMin}
+                oninput={debouncedReload}
+              />
             </div>
             <div>
               <Label for="results-max">Max.</Label>
-              <Input id="results-max" type="number" bind:value={modelParams.colorBarMax} oninput={debouncedReload} />
+              <Input
+                id="results-max"
+                type="number"
+                bind:value={modelParams.colorBarMax}
+                oninput={debouncedReload}
+              />
             </div>
           </div>
         </AccordionItem>
@@ -327,8 +362,8 @@ SPDX-License-Identifier: Apache-2.0
     </div>
 
     {#if modelLoading}
-      <div class="absolute inset-0 flex items-center justify-center bg-background/40">
-        <LoaderCircle class="h-10 w-10 animate-spin text-primary" />
+      <div class="bg-background/40 absolute inset-0 flex items-center justify-center">
+        <LoaderCircle class="text-primary h-10 w-10 animate-spin" />
       </div>
     {/if}
   </div>

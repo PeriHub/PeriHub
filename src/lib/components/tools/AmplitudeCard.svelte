@@ -57,7 +57,7 @@ SPDX-License-Identifier: Apache-2.0
         }
       }
     }
-    plotData = [{ ...plotData[0], x, y }];
+    plotData = [{ name: 'Load', x, y }];
     valueOutput =
       `double max = ${max};\n` +
       `double min = ${min};\n` +
@@ -111,7 +111,7 @@ SPDX-License-Identifier: Apache-2.0
         }
       }
     }
-    plotData = [{ ...plotData[0], x, y }];
+    plotData = [{ name: 'Load', x, y }];
     valueOutput =
       `double max = ${max};\n` +
       `double frequency = ${frequency};\n` +
@@ -149,7 +149,7 @@ SPDX-License-Identifier: Apache-2.0
       x[i] = t;
       y[i] = R * Math.sin(2 * Math.PI * frequency * t - Math.PI / 2) + offset;
     }
-    plotData = [{ ...plotData[0], x, y }];
+    plotData = [{ name: 'Load', x, y }];
     valueOutput = `${R} * sin(2 * pi * ${frequency} * t - pi / 2) + ${offset}`;
   }
 
@@ -188,7 +188,7 @@ SPDX-License-Identifier: Apache-2.0
 <Card class="w-full max-w-4xl p-5">
   <h2 class="text-lg font-semibold">Amplitude Generator</h2>
 
-  <div class="my-4 border-t border-border"></div>
+  <div class="border-border my-4 border-t"></div>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,16rem)_1fr]">
     <div class="space-y-3">
@@ -221,16 +221,16 @@ SPDX-License-Identifier: Apache-2.0
     </div>
 
     <Tabs.Root bind:value={tab}>
-      <Tabs.List class="flex gap-1 border-b border-border">
+      <Tabs.List class="border-border flex gap-1 border-b">
         <Tabs.Trigger
           value="plotly"
-          class="rounded-t-md px-3 py-2 text-sm font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground"
+          class="text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground rounded-t-md px-3 py-2 text-sm font-medium data-[state=active]:border-b-2"
         >
           Plot
         </Tabs.Trigger>
         <Tabs.Trigger
           value="output"
-          class="rounded-t-md px-3 py-2 text-sm font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground"
+          class="text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground rounded-t-md px-3 py-2 text-sm font-medium data-[state=active]:border-b-2"
         >
           Output
         </Tabs.Trigger>

@@ -4,12 +4,14 @@
 
 """Solver backend seam.
 
-routers/jobs.py submits and cancels jobs through the bundled
-`perihub_perilab` docker container via FileHandler.ssh_to_perilab().
-get_solver_backend() is a seam for the planned "point PeriHub at a
-customer-hosted PeriLab server" enterprise feature: ExternalSolverBackend
-is gated on SOLVER_BACKEND=external and raises intentionally (fail-loud
-instead of doing nothing) - see support/entitlements.py and the roadmap.
+routers/jobs.py submits and cancels local jobs by running commands
+directly inside the bundled `perihub_perilab` docker container via
+FileHandler.get_perilab_container() (Docker Engine API `exec`, not SSH -
+see that method's docstring for why). get_solver_backend() is also a seam
+for the planned "point PeriHub at a customer-hosted PeriLab server"
+enterprise feature: ExternalSolverBackend is gated on SOLVER_BACKEND=external
+and raises intentionally (fail-loud instead of doing nothing) - see
+support/entitlements.py and the roadmap.
 """
 
 import os
@@ -18,29 +20,41 @@ from .file_handler import FileHandler
 from .globals import external_perilab_url, log, solver_backend_kind
 
 
-class LocalSolverBackend:
-    """Talks to the bundled `perihub_perilab` docker container over SSH -
-    the only backend PeriHub actually runs jobs through today."""
+class SolverBackend:
+    """Interface both backends implement."""
 
     def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
-        ssh = FileHandler.ssh_to_perilab()
-        command = (
-            "cd /app"
-            + "/simulations/"
-            + os.path.join(username, model_name, model_folder_name)
-            + " \n sh runPerilab.sh > /dev/null 2>&1 &"
+        raise NotImplementedError
+
+    def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        raise NotImplementedError
+
+
+class LocalSolverBackend:
+    """Runs jobs directly inside the bundled `perihub_perilab` docker
+    container - the only backend PeriHub actually runs jobs through today."""
+
+    def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        del remotepath  # the container-side path is always under /app/simulations
+        container = FileHandler.get_perilab_container()
+        workdir = "/app/simulations/" + os.path.join(username, model_name, model_folder_name)
+        # detach=True: fire-and-forget, matching the old `sh runPerilab.sh &`
+        # backgrounding over SSH - we don't wait for the solver run to
+        # finish here, just for the script to start (it manages its own
+        # pid.txt, which the rest of the app polls for status/cancel).
+        container.exec_run(
+            ["sh", "-c", "sh runPerilab.sh > /dev/null 2>&1"],
+            workdir=workdir,
+            detach=True,
         )
-        ssh.exec_command(command)
-        ssh.close()
 
     def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
         del username, model_name, model_folder_name  # only remotepath is needed for the kill command
-        ssh = FileHandler.ssh_to_perilab()
-        command = (
-            "kill -2 $(cat /app" + os.path.join(remotepath, "pid.txt") + ") \n rm /app" + os.path.join(remotepath, "pid.txt")
-        )
-        ssh.exec_command(command)
-        ssh.close()
+        container = FileHandler.get_perilab_container()
+        command = FileHandler.wait_and_kill_shell_command("/app" + os.path.join(remotepath, "pid.txt"))
+        # detach=False (the default): blocks until the command - including
+        # its short wait-for-pid.txt loop - actually finishes.
+        container.exec_run(["sh", "-c", command])
 
 
 class ExternalSolverBackend(SolverBackend):
@@ -66,9 +80,7 @@ class ExternalSolverBackend(SolverBackend):
         )
 
     def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
-        raise NotImplementedError(
-            "SOLVER_BACKEND=external is not implemented yet - see support/solver_backend.py."
-        )
+        raise NotImplementedError("SOLVER_BACKEND=external is not implemented yet - see support/solver_backend.py.")
 
 
 def get_solver_backend() -> SolverBackend:

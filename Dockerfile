@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # --- build stage ---
-FROM node:22-slim AS build
+FROM node:lts-slim AS build
 WORKDIR /app
 
 COPY package*.json ./

@@ -14,10 +14,8 @@ SPDX-License-Identifier: Apache-2.0
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
-  import { notify } from '$lib/utils/notify';
   import { initAuth } from '$lib/auth/keycloak';
-  import { getValves, getConfig } from '$lib/client';
-  import type { ModelData } from '$lib/client';
+  import { refreshModelFromBackend, modelNeedsRefresh } from '$lib/utils/modelSync';
 
   let { children } = $props();
 
@@ -28,18 +26,7 @@ SPDX-License-Identifier: Apache-2.0
   const isFullScreenTool = $derived($page.url.pathname === '/perihub');
 
   function resetData() {
-    getConfig({ configFile: modelStore.selectedModel.file })
-      .then((response) => {
-        const data = JSON.parse(JSON.stringify(response));
-        modelStore.modelData = { ...modelStore.modelData, ...data } as ModelData;
-      })
-      .catch((error) => notify.apiError(error));
-
-    getValves({ modelName: modelStore.selectedModel.file })
-      .then((response) => {
-        modelStore.modelParams = structuredClone(response);
-      })
-      .catch((error) => notify.apiError(error));
+    refreshModelFromBackend(modelStore.selectedModel.file);
   }
 
   onMount(() => {
@@ -48,6 +35,16 @@ SPDX-License-Identifier: Apache-2.0
     document.documentElement.classList.toggle('dark', defaultStore.darkMode);
 
     initAuth();
+
+    // Load the selected model's config/valves automatically instead of
+    // requiring a manual "Reset Data" click - but only when there's
+    // nothing usable cached yet (first visit, or localStorage's
+    // selectedModel and modelData/modelParams belong to different models
+    // after drifting apart between sessions). If they already match, the
+    // cache is left alone so in-progress edits survive a reload.
+    if (modelNeedsRefresh(modelStore.selectedModel.file)) {
+      resetData();
+    }
 
     bus.on('resetData', resetData);
     return () => bus.off('resetData', resetData);
