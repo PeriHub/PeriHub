@@ -57,6 +57,14 @@ class ModelStore {
 
 export const modelStore = new ModelStore();
 
+// Restore any cached values BEFORE the persistence effects below are set up.
+// Those effects run once immediately on creation (with modelData/modelParams
+// still at their default $state values), so without this, that first run
+// would overwrite the just-cached localStorage entries with the defaults
+// before initialiseStore() (called later, from +layout.svelte's onMount)
+// ever gets a chance to read them back.
+modelStore.initialiseStore();
+
 // Persist to localStorage whenever modelData/modelParams change, mirroring
 // the deep watchers in the old MainLayout.vue.
 if (browser()) {

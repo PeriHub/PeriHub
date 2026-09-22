@@ -47,7 +47,7 @@ SPDX-License-Identifier: Apache-2.0
   });
   let variableOptions = $state<string[]>(['Displacements', 'Damage', 'Forces', 'Temperature']);
 
-  let resolution = $state(6);
+  let resolution = $state(8);
   let radius = $state(0.2);
   let dxValue = $state(0.2);
   let multiplier = $state(100);

@@ -23,12 +23,12 @@ SPDX-License-Identifier: Apache-2.0
   const showChart = $derived(outputs.some((o) => o.selectedFileType === 'CSV'));
 
   const tabClass =
-    'px-3 py-2 text-sm font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground';
+    'px-3 py-2 pr-4 text-ml font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground';
 </script>
 
-<div class="flex h-full flex-col overflow-hidden rounded-lg border border-border">
+<div class="border-border flex h-full flex-col overflow-hidden rounded-lg border">
   <Tabs.Root bind:value={viewStore.viewId} class="flex h-full flex-col">
-    <Tabs.List class="flex flex-wrap justify-between border-b border-border bg-muted/40">
+    <Tabs.List class="border-border bg-muted/40 flex flex-wrap justify-between border-b">
       <Tabs.Trigger value="image" class={tabClass}>Image</Tabs.Trigger>
       <Tabs.Trigger value="model" class={tabClass}>Model</Tabs.Trigger>
       <Tabs.Trigger value="cad" class={tabClass}>CAD</Tabs.Trigger>

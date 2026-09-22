@@ -64,7 +64,7 @@ SPDX-License-Identifier: Apache-2.0
       sbatch: modelData.job.sbatch
     })
       .then((response) => {
-        notify.positive('Status updated');
+        // notify.positive('Status updated');
         defaultStore.status = response;
       })
       .catch((error) => notify.apiError(error));
