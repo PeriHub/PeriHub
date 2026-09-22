@@ -70,8 +70,8 @@ npm run client    # writes src/lib/client/ via @hey-api/openapi-ts — never han
 ### Backend (`backend/app`)
 
 - `main.py` — FastAPI app; mounts routers, serves `/assets`, streams job logs over WebSocket `/ws`.
-- `routers/` — one module per API tag: `generate` (models/mesh), `model` (model/input-deck CRUD), `upload`, `translate`, `jobs` (run/cancel/status), `results`, `energy`, `delete`, `docs`. Each endpoint sets an `operation_id`; the OpenAPI schema is the contract for the frontend client.
-- `support/globals.py` — all configuration comes from env vars loaded from `.env`: `DEV`, `TRIAL`, `MAX_NODES`, `CLUSTER_URL/USER/PASSWORD/JOB_PATH/PERILAB_PATH` (cluster mode enabled when CLUSTER_URL is set).
+- `routers/` — one module per API tag: `generate` (models/mesh), `model` (model/input-deck CRUD), `upload`, `translate`, `jobs` (run/cancel/status), `results`, `energy`, `delete`, `docs`, `settings` (read/edit the env-var config below). Each endpoint sets an `operation_id`; the OpenAPI schema is the contract for the frontend client.
+- `support/globals.py` — all configuration comes from env vars loaded from `.env`: `DEV`, `TRIAL`, `MAX_NODES`, `CLUSTER_URL/USER/PASSWORD/JOB_PATH/PERILAB_PATH` (cluster mode enabled when CLUSTER_URL is set). `ENV_LOCKED_KEYS` snapshots which of these actually came from the real environment before `support/runtime_settings.py` fills in anything saved from the Settings dialog - see that module's docstring for the read-only/editable split and why an edit needs a backend restart to apply.
 - `support/file_handler.py` — centralizes everything path- and auth-related: user data lives under `backend/app/simulations/<username>/<model>/<folder>` (mounted volume); usernames come from a Keycloak JWT or, in dev mode, a random guest name. Also owns SSH/SFTP connections (paramiko) to the cluster and to the `perihub_perilab` container.
 - `support/writer/` — generates what the solver consumes: `model_writer.py` (input deck), `sbatch_writer.py` (`runPerilab.sh` / sbatch scripts), `yaml_writer_perilab.py`.
 - `support/model/` (geometry, meshing, material, rve) and `support/results/` (analysis, crack_analysis).

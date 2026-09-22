@@ -6,7 +6,6 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { Accordion } from 'bits-ui';
-  import { SvelteComponent } from 'svelte';
   import type { Component } from 'svelte';
   import {
     Box,
@@ -58,7 +57,7 @@ SPDX-License-Identifier: Apache-2.0
   interface PanelSection {
     key: string;
     label: string;
-    icon: typeof SvelteComponent;
+    icon: Component;
     component: Component;
     schema: string;
     schemaKind: 'object' | 'array';

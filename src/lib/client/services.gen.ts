@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, RunOwnAnalysisData, RunOwnAnalysisResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, CancelJobData, CancelJobResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, RunOwnAnalysisData, RunOwnAnalysisResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, HealthcheckHealthGetResponse, GetVersionResponse, GetSettingsResponse, UpdateSettingsData, UpdateSettingsResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -875,4 +875,51 @@ export const healthcheckHealthGet = (): CancelablePromise<HealthcheckHealthGetRe
 export const getVersion = (): CancelablePromise<GetVersionResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/updates'
+}); };
+
+/**
+ * Get Settings
+ * Every env-var-backed configuration value from support/globals.py,
+ * with its current value and whether it can be edited here.
+ *
+ * A setting is read-only whenever it's already provided by the real
+ * process environment (docker `env_file`/`environment:`, or a real `.env`
+ * file) - a value saved from this dialog is only ever allowed to fill in a
+ * setting nobody has explicitly configured, never override one that has.
+ * `secret`-typed settings (passwords, API keys, the license key) never
+ * have their actual value sent to the client, only whether one is set.
+ *
+ * NOTE: unauthenticated for now, matching the rest of this router set (see
+ * the security roadmap item on trusted-header auth). Before exposing this
+ * beyond a single trusted operator, writing to it should be gated the same
+ * way the eventual admin-only endpoints are, since several of these
+ * settings (cluster credentials, the license key, API keys) are secrets.
+ * @returns SettingsResponse Successful Response
+ * @throws ApiError
+ */
+export const getSettings = (): CancelablePromise<GetSettingsResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/settings/'
+}); };
+
+/**
+ * Update Settings
+ * Persists new values for the given (editable) settings so they're
+ * picked up the next time the backend process starts - see
+ * support/runtime_settings.py for why this can't take effect immediately
+ * for most of them. Raises 400 for an unknown key or an invalid value, and
+ * 403 if any key in the request is locked by the real environment.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns SettingsResponse Successful Response
+ * @throws ApiError
+ */
+export const updateSettings = (data: UpdateSettingsData): CancelablePromise<UpdateSettingsResponse> => { return __request(OpenAPI, {
+    method: 'PUT',
+    url: '/settings/',
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
 }); };

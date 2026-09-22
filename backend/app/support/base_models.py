@@ -4,7 +4,7 @@
 
 import json
 from enum import Enum
-from typing import List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel
 
@@ -41,6 +41,38 @@ class LicenseStatus(BaseModel):
     license_server_configured: bool
 
 
+class SettingInfo(BaseModel):
+    """One entry from support/runtime_settings.py's SETTINGS_SCHEMA - see
+    that module's docstring for what `editable` actually means and why a
+    saved change needs a restart to take effect."""
+
+    key: str
+    label: str
+    description: str
+    type: str  # "bool" | "int" | "string" | "secret"
+    default: str
+    choices: Optional[List[str]] = None
+    editable: bool
+    is_set: bool
+    # Never populated for a `secret`-type field - see SettingInfo docstring.
+    value: str
+
+
+class SettingsResponse(BaseModel):
+    settings: List[SettingInfo]
+    restart_required_note: str = (
+        "Most of these are only read once when the backend process starts. "
+        "A saved change takes effect the next time it restarts, not immediately."
+    )
+
+
+class SettingsUpdateRequest(BaseModel):
+    """`values` maps a setting's `key` (env var name) to its new string
+    value. Only editable keys may be included - see PUT /settings."""
+
+    values: Dict[str, str]
+
+
 class PointDataResults(BaseModel):
     nodes: List[float]
     value: List[float]
@@ -62,10 +94,12 @@ class Parameter(BaseModel):
     id: List[str]
     std: float
 
+
 class OldParameter(BaseModel):
     parameterId: Optional[int] = None
     id: List[str]
     factor: float
+
 
 class Deviations(BaseModel):
     enabled: bool
@@ -88,71 +122,73 @@ class Valve(BaseModel):
     options: Optional[Union[List[str], str]] = None
     depends: Optional[str] = None
 
+
 default_valves = {
     "valves": [
-            {
-                "name": "DISCRETIZATION",
-                "type": "number",
-                "value": 21,
-                "value_type": "float",
-                "label": "Discretization",
-                "description": "Discretization",
-                "options": None,
-                "depends": None
-            },
-            {
-                "name": "LENGTH",
-                "type": "number",
-                "value": 13,
-                "value_type": "float",
-                "label": "Length",
-                "description": "Length",
-                "options": None,
-                "depends": None
-            },
-            {
-                "name": "HEIGHT1",
-                "type": "number",
-                "value": 1,
-                "value_type": "float",
-                "label": "Inner Height",
-                "description": "Inner Height",
-                "options": None,
-                "depends": None
-            },
-            {
-                "name": "HEIGHT2",
-                "type": "number",
-                "value": 2,
-                "value_type": "float",
-                "label": "Outer Height",
-                "description": "Outer Height",
-                "options": None,
-                "depends": None
-            },
-            {
-                "name": "WIDTH",
-                "type": "number",
-                "value": 0.1,
-                "value_type": "float",
-                "label": "Width",
-                "description": "Width",
-                "options": None,
-                "depends": None
-            },
-            {
-                "name": "STRUCTURED",
-                "type": "checkbox",
-                "value": True,
-                "value_type": "bool",
-                "label": "Structured",
-                "description": "Structured",
-                "options": None,
-                "depends": None
-            }
-        ],
-        "analysisValves": []
+        {
+            "name": "DISCRETIZATION",
+            "type": "number",
+            "value": 21,
+            "value_type": "float",
+            "label": "Discretization",
+            "description": "Discretization",
+            "options": None,
+            "depends": None,
+        },
+        {
+            "name": "LENGTH",
+            "type": "number",
+            "value": 13,
+            "value_type": "float",
+            "label": "Length",
+            "description": "Length",
+            "options": None,
+            "depends": None,
+        },
+        {
+            "name": "HEIGHT1",
+            "type": "number",
+            "value": 1,
+            "value_type": "float",
+            "label": "Inner Height",
+            "description": "Inner Height",
+            "options": None,
+            "depends": None,
+        },
+        {
+            "name": "HEIGHT2",
+            "type": "number",
+            "value": 2,
+            "value_type": "float",
+            "label": "Outer Height",
+            "description": "Outer Height",
+            "options": None,
+            "depends": None,
+        },
+        {
+            "name": "WIDTH",
+            "type": "number",
+            "value": 0.1,
+            "value_type": "float",
+            "label": "Width",
+            "description": "Width",
+            "options": None,
+            "depends": None,
+        },
+        {
+            "name": "STRUCTURED",
+            "type": "checkbox",
+            "value": True,
+            "value_type": "bool",
+            "label": "Structured",
+            "description": "Structured",
+            "options": None,
+            "depends": None,
+        },
+    ],
+    "analysisValves": [],
 }
+
 
 class Valves(BaseModel):
     valves: List[Valve]
@@ -512,13 +548,37 @@ class Solver(BaseModel):
     solverId: Optional[int] = None
     name: Optional[str] = None
     stepId: int = 1
-    matEnabled: bool = yaml_field(True, yaml_key="Material Models", ui_label="Material Models", ui_widget="toggle", ui_group="Solver", ui_order=1)
-    damEnabled: Optional[bool] = yaml_field(None, yaml_key="Damage Models", ui_label="Damage Models", ui_widget="toggle", ui_group="Solver", ui_order=2)
+    matEnabled: bool = yaml_field(
+        True, yaml_key="Material Models", ui_label="Material Models", ui_widget="toggle", ui_group="Solver", ui_order=1
+    )
+    damEnabled: Optional[bool] = yaml_field(
+        None, yaml_key="Damage Models", ui_label="Damage Models", ui_widget="toggle", ui_group="Solver", ui_order=2
+    )
     dispEnabled: Optional[bool] = None
-    tempEnabled: Optional[bool] = yaml_field(None, yaml_key="Thermal Models", ui_label="Thermal Models", ui_widget="toggle", ui_group="Solver", ui_order=3)
-    addEnabled: Optional[bool] = yaml_field(None, yaml_key="Additive Models", ui_label="Additive Models", ui_widget="toggle", ui_group="Solver", ui_order=4)
-    initialTime: Optional[float] = yaml_field(None, yaml_key="Initial Time", yaml_cast="float", ui_label="Initial Time", ui_widget="number", ui_group="Solver", ui_order=10)
-    finalTime: Optional[float] = yaml_field(None, yaml_key="Final Time", yaml_cast="float", ui_label="Final Time", ui_widget="number", ui_group="Solver", ui_order=11)
+    tempEnabled: Optional[bool] = yaml_field(
+        None, yaml_key="Thermal Models", ui_label="Thermal Models", ui_widget="toggle", ui_group="Solver", ui_order=3
+    )
+    addEnabled: Optional[bool] = yaml_field(
+        None, yaml_key="Additive Models", ui_label="Additive Models", ui_widget="toggle", ui_group="Solver", ui_order=4
+    )
+    initialTime: Optional[float] = yaml_field(
+        None,
+        yaml_key="Initial Time",
+        yaml_cast="float",
+        ui_label="Initial Time",
+        ui_widget="number",
+        ui_group="Solver",
+        ui_order=10,
+    )
+    finalTime: Optional[float] = yaml_field(
+        None,
+        yaml_key="Final Time",
+        yaml_cast="float",
+        ui_label="Final Time",
+        ui_widget="number",
+        ui_group="Solver",
+        ui_order=11,
+    )
     # additionalTime and initialTime/finalTime are mutually exclusive in the
     # written YAML (see yaml_writer_perilab.py's solver()) - that XOR is
     # structural logic, so additionalTime intentionally has no yaml_key here
@@ -526,20 +586,55 @@ class Solver(BaseModel):
     # branch that decides which of the two to emit.
     additionalTime: Optional[float] = None
     fixedDt: Optional[float] = yaml_field(None, ui_label="Fixed dt", ui_widget="number", ui_group="Verlet", ui_order=0)
-    solvertype: str = yaml_field(..., ui_label="Solvertype", ui_widget="select", ui_options=["Verlet", "Static"], ui_group="Solver", ui_order=0)
-    safetyFactor: float = yaml_field(..., yaml_cast="float", ui_label="Safety Factor", ui_widget="number", ui_group="Verlet", ui_order=1)
+    solvertype: str = yaml_field(
+        ..., ui_label="Solvertype", ui_widget="select", ui_options=["Verlet", "Static"], ui_group="Solver", ui_order=0
+    )
+    safetyFactor: float = yaml_field(
+        ..., yaml_cast="float", ui_label="Safety Factor", ui_widget="number", ui_group="Verlet", ui_order=1
+    )
     verlet: Optional[Verlet] = None
     static: Optional[Static] = None
     stopAfterDamageInitation: Optional[bool] = None
     endStepAfterDamage: Optional[int] = None
     stopAfterCertainDamage: Optional[bool] = None
-    maximumDamage: Optional[float] = yaml_field(None, yaml_key="Maximum Damage", yaml_cast="float", ui_label="Max. damage value", ui_widget="number", ui_group="Solver", ui_order=14)
+    maximumDamage: Optional[float] = yaml_field(
+        None,
+        yaml_key="Maximum Damage",
+        yaml_cast="float",
+        ui_label="Max. damage value",
+        ui_widget="number",
+        ui_group="Solver",
+        ui_order=14,
+    )
     stopBeforeDamageInitation: Optional[bool] = None
-    adaptivetimeStepping: Optional[bool] = yaml_field(None, ui_label="Adaptive Time Stepping", ui_widget="toggle", ui_group="Verlet", ui_order=1)
+    adaptivetimeStepping: Optional[bool] = yaml_field(
+        None, ui_label="Adaptive Time Stepping", ui_widget="toggle", ui_group="Verlet", ui_order=1
+    )
     adapt: Optional[Adapt] = None
-    calculateCauchy: Optional[bool] = yaml_field(None, yaml_key="Calculate Cauchy", ui_label="Calculate Cauchy", ui_widget="toggle", ui_group="Verlet", ui_order=2)
-    calculateVonMises: Optional[bool] = yaml_field(None, yaml_key="Calculate von Mises stress", ui_label="Calculate von Mises", ui_widget="toggle", ui_group="Verlet", ui_order=3)
-    calculateStrain: Optional[bool] = yaml_field(None, yaml_key="Calculate Strain", ui_label="Calculate Strain", ui_widget="toggle", ui_group="Verlet", ui_order=4)
+    calculateCauchy: Optional[bool] = yaml_field(
+        None,
+        yaml_key="Calculate Cauchy",
+        ui_label="Calculate Cauchy",
+        ui_widget="toggle",
+        ui_group="Verlet",
+        ui_order=2,
+    )
+    calculateVonMises: Optional[bool] = yaml_field(
+        None,
+        yaml_key="Calculate von Mises stress",
+        ui_label="Calculate von Mises",
+        ui_widget="toggle",
+        ui_group="Verlet",
+        ui_order=3,
+    )
+    calculateStrain: Optional[bool] = yaml_field(
+        None,
+        yaml_key="Calculate Strain",
+        ui_label="Calculate Strain",
+        ui_widget="toggle",
+        ui_group="Verlet",
+        ui_order=4,
+    )
 
 
 class Job(BaseModel):
@@ -554,8 +649,12 @@ class Job(BaseModel):
     nodes: Optional[int] = 1
     tasks: int = yaml_field(..., ui_label="Tasks", ui_widget="number", ui_group="JobCluster", ui_order=0)
     tasksPerNode: Optional[int] = 1
-    cpusPerTask: Optional[int] = yaml_field(1, ui_label="CPUs per Task", ui_widget="number", ui_group="JobSbatch", ui_order=0)
-    multithread: Optional[bool] = yaml_field(False, ui_label="Multithreading", ui_widget="toggle", ui_group="JobSbatch", ui_order=1)
+    cpusPerTask: Optional[int] = yaml_field(
+        1, ui_label="CPUs per Task", ui_widget="number", ui_group="JobSbatch", ui_order=0
+    )
+    multithread: Optional[bool] = yaml_field(
+        False, ui_label="Multithreading", ui_widget="toggle", ui_group="JobSbatch", ui_order=1
+    )
     time: Optional[str] = yaml_field(None, ui_label="Time", ui_widget="text", ui_group="JobSbatch", ui_order=2)
     account: Optional[int] = yaml_field(None, ui_label="Account", ui_widget="number", ui_group="JobSbatch", ui_order=3)
 
