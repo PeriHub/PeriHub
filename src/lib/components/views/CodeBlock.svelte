@@ -22,8 +22,12 @@ SPDX-License-Identifier: Apache-2.0
     class?: string;
   }
 
-  let { value = $bindable(), editable = true, language = 'javascript', class: className = '' }: Props =
-    $props();
+  let {
+    value = $bindable(),
+    editable = true,
+    language = 'javascript',
+    class: className = ''
+  }: Props = $props();
 
   let highlighted = $state('');
 
@@ -46,15 +50,19 @@ SPDX-License-Identifier: Apache-2.0
 
 {#if editable}
   <div
-    class="prism-editor language-{language} min-h-[200px] w-full overflow-auto rounded-md border border-border bg-[#2d2d2d] p-3 font-mono text-sm text-white outline-none {className}"
+    class="prism-editor language-{language} border-border min-h-[200px] w-full overflow-auto rounded-md border bg-[#2d2d2d] p-3 font-mono text-sm text-white outline-none {className}"
     contenteditable="plaintext-only"
     spellcheck="false"
     oninput={onInput}
-  >{@html mounted ? highlighted : value}</div>
+  >
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html mounted ? highlighted : value}
+  </div>
 {:else}
   <pre
-    class="language-{language} min-h-[200px] w-full overflow-auto rounded-md border border-border bg-[#2d2d2d] p-3 font-mono text-sm {className}"
-  ><code>{@html highlighted}</code></pre>
+    class="language-{language} border-border min-h-[200px] w-full overflow-auto rounded-md border bg-[#2d2d2d] p-3 font-mono text-sm {className}">
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+   <code>{@html highlighted}</code></pre>
 {/if}
 
 <style>
@@ -63,4 +71,3 @@ SPDX-License-Identifier: Apache-2.0
     white-space: pre-wrap;
   }
 </style>
-

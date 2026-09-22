@@ -20,14 +20,17 @@ SPDX-License-Identifier: Apache-2.0
 
   const materials = $derived(modelStore.modelData.materials ?? []);
   const materialModelNames = [
-    'Bond-based Elastic', 'PD Solid Elastic', 'PD Solid Plastic', 'Correspondence Elastic', 'Correspondence Plastic'
+    'Bond-based Elastic',
+    'PD Solid Elastic',
+    'PD Solid Plastic',
+    'Correspondence Elastic',
+    'Correspondence Plastic'
   ];
   const materialSymmetries = ['Isotropic', 'Anisotropic', 'Orthotropic', 'Transverse Isotropic'];
   const stabilizationTypes = ['Bond Based', 'State Based', 'Sub Horizon', 'Global Stiffness'];
 
   let multiSoInput: HTMLInputElement;
   let propsInput: HTMLInputElement;
-  let selectedMaterial = 0;
 
   function editNumStateVars(numStateVars: number) {
     bus.emit('addStateVarsToOutput' as never, numStateVars as never);
@@ -67,11 +70,26 @@ SPDX-License-Identifier: Apache-2.0
     const s = inv(compliance).toArray() as number[][];
 
     sm.matrix = {
-      C11: s[0]![0]!, C12: s[0]![1]!, C13: s[0]![2]!, C14: s[0]![3]!, C15: s[0]![4]!, C16: s[0]![5]!,
-      C22: s[1]![1]!, C23: s[1]![2]!, C24: s[1]![3]!, C25: s[1]![4]!, C26: s[1]![5]!,
-      C33: s[2]![2]!, C34: s[2]![3]!, C35: s[2]![4]!, C36: s[2]![5]!,
-      C44: s[3]![3]!, C45: s[3]![4]!, C46: s[3]![5]!,
-      C55: s[4]![4]!, C56: s[4]![5]!,
+      C11: s[0]![0]!,
+      C12: s[0]![1]!,
+      C13: s[0]![2]!,
+      C14: s[0]![3]!,
+      C15: s[0]![4]!,
+      C16: s[0]![5]!,
+      C22: s[1]![1]!,
+      C23: s[1]![2]!,
+      C24: s[1]![3]!,
+      C25: s[1]![4]!,
+      C26: s[1]![5]!,
+      C33: s[2]![2]!,
+      C34: s[2]![3]!,
+      C35: s[2]![4]!,
+      C36: s[2]![5]!,
+      C44: s[3]![3]!,
+      C45: s[3]![4]!,
+      C46: s[3]![5]!,
+      C55: s[4]![4]!,
+      C56: s[4]![5]!,
       C66: s[5]![5]!
     };
   }
@@ -99,9 +117,8 @@ SPDX-License-Identifier: Apache-2.0
     viewStore.modelLoading = false;
   }
 
-  function uploadProps(id: number) {
+  function uploadProps() {
     propsInput.click();
-    selectedMaterial = id;
   }
 
   function onPropsFilePicked(event: Event) {
@@ -163,7 +180,8 @@ SPDX-License-Identifier: Apache-2.0
     if (!modelStore.modelData.materials) modelStore.modelData.materials = [];
     const list = modelStore.modelData.materials;
     const len = list.length;
-    const newItem = len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Material) : ({} as Material);
+    const newItem =
+      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Material) : ({} as Material);
     newItem.materialsId = len + 1;
     newItem.name = `Material ${len + 1}`;
     list.push(newItem);
@@ -194,7 +212,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <div class="space-y-3 p-3">
   {#each materials as material, index (material.materialsId ?? index)}
-    <div class="space-y-3 rounded-md border border-border p-3">
+    <div class="border-border space-y-3 rounded-md border p-3">
       <h4 class="font-medium">Material {material.materialsId}</h4>
 
       <div class="flex flex-wrap items-end gap-3">
@@ -202,7 +220,12 @@ SPDX-License-Identifier: Apache-2.0
           <Label for={`mat-name-${index}`}>name</Label>
           <Input id={`mat-name-${index}`} bind:value={material.name} />
         </div>
-        <Button variant="ghost" size="icon" onclick={() => removeMaterial(index)} title="Remove Material">
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={() => removeMaterial(index)}
+          title="Remove Material"
+        >
           <Trash2 class="h-4 w-4" />
         </Button>
       </div>
@@ -213,7 +236,7 @@ SPDX-License-Identifier: Apache-2.0
           id={`mat-type-${index}`}
           multiple
           bind:value={material.matType}
-          class="h-24 w-full rounded-md border border-input bg-background px-2 py-1 text-sm"
+          class="border-input bg-background h-24 w-full rounded-md border px-2 py-1 text-sm"
         >
           {#each materialModelNames as name (name)}
             <option value={name}>{name}</option>
@@ -222,14 +245,19 @@ SPDX-License-Identifier: Apache-2.0
       </div>
 
       {#if material.matType?.includes('User')}
-        <div class="space-y-2 border-t border-border pt-2">
+        <div class="border-border space-y-2 border-t pt-2">
           {#each material.properties ?? [] as prop, subindex (prop.materialsPropId ?? subindex)}
             <div class="flex flex-wrap items-end gap-3">
               <div class="space-y-1">
                 <Label for={`mat-prop-${index}-${subindex}`}>{prop.name}</Label>
                 <Input id={`mat-prop-${index}-${subindex}`} type="number" bind:value={prop.value} />
               </div>
-              <Button variant="ghost" size="icon" onclick={() => removeProp(index, subindex)} title="Remove Property">
+              <Button
+                variant="ghost"
+                size="icon"
+                onclick={() => removeProp(index, subindex)}
+                title="Remove Property"
+              >
                 <Trash2 class="h-4 w-4" />
               </Button>
             </div>
@@ -238,7 +266,7 @@ SPDX-License-Identifier: Apache-2.0
             <Button variant="outline" size="sm" onclick={() => addProp(index)}>
               <Plus class="h-4 w-4" /> Add Property
             </Button>
-            <Button variant="outline" size="sm" onclick={() => uploadProps(index)}>
+            <Button variant="outline" size="sm" onclick={() => uploadProps()}>
               <Upload class="h-4 w-4" /> Upload Property
             </Button>
             <Button variant="outline" size="sm" onclick={uploadSo}>
@@ -284,7 +312,7 @@ SPDX-License-Identifier: Apache-2.0
           <select
             id={`mat-sym-${index}`}
             bind:value={material.materialSymmetry}
-            class="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+            class="border-input bg-background flex h-9 rounded-md border px-3 py-1 text-sm shadow-sm"
           >
             {#each materialSymmetries as sym (sym)}
               <option value={sym}>{sym}</option>
@@ -294,7 +322,10 @@ SPDX-License-Identifier: Apache-2.0
         <Toggle bind:checked={material.planeStress} label="Plane Stress" />
         <Toggle bind:checked={material.planeStrain} label="Plane Strain" />
         {#if material.stiffnessMatrix && material.materialSymmetry === 'Anisotropic' && material.matType?.includes('Correspondence')}
-          <Toggle bind:checked={material.stiffnessMatrix.calculateStiffnessMatrix} label="Calculate Stiffness Matrix" />
+          <Toggle
+            bind:checked={material.stiffnessMatrix.calculateStiffnessMatrix}
+            label="Calculate Stiffness Matrix"
+          />
         {/if}
       </div>
 
@@ -348,7 +379,7 @@ SPDX-License-Identifier: Apache-2.0
       {/if}
 
       {#if material.stiffnessMatrix && material.materialSymmetry === 'Anisotropic' && material.matType?.includes('Correspondence')}
-        <div class="flex flex-wrap gap-6 border-t border-border pt-3">
+        <div class="border-border flex flex-wrap gap-6 border-t pt-3">
           {#if material.stiffnessMatrix.calculateStiffnessMatrix}
             <div class="space-y-2">
               {#each Object.keys(material.stiffnessMatrix.engineeringConstants) as key (key)}
@@ -375,7 +406,11 @@ SPDX-License-Identifier: Apache-2.0
                 <Input
                   id={`mat-mx-${index}-${key}`}
                   type="number"
-                  bind:value={material.stiffnessMatrix.matrix[key as keyof typeof material.stiffnessMatrix.matrix]}
+                  bind:value={
+                    material.stiffnessMatrix.matrix[
+                      key as keyof typeof material.stiffnessMatrix.matrix
+                    ]
+                  }
                   readonly={material.stiffnessMatrix.calculateStiffnessMatrix}
                 />
               </div>
@@ -389,7 +424,7 @@ SPDX-License-Identifier: Apache-2.0
         <select
           id={`mat-stab-${index}`}
           bind:value={material.stabilizationType}
-          class="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+          class="border-input bg-background flex h-9 rounded-md border px-3 py-1 text-sm shadow-sm"
         >
           {#each stabilizationTypes as type (type)}
             <option value={type}>{type}</option>
@@ -410,6 +445,20 @@ SPDX-License-Identifier: Apache-2.0
     <Plus class="h-4 w-4" /> Add Material
   </Button>
 
-  <input bind:this={multiSoInput} type="file" multiple accept=".so" class="hidden" onchange={onMultiFilePicked} />
-  <input bind:this={propsInput} type="file" multiple accept=".inp" class="hidden" onchange={onPropsFilePicked} />
+  <input
+    bind:this={multiSoInput}
+    type="file"
+    multiple
+    accept=".so"
+    class="hidden"
+    onchange={onMultiFilePicked}
+  />
+  <input
+    bind:this={propsInput}
+    type="file"
+    multiple
+    accept=".inp"
+    class="hidden"
+    onchange={onPropsFilePicked}
+  />
 </div>

@@ -5,13 +5,23 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { DropdownMenu } from 'bits-ui';
-import Button from '$lib/components/ui/Button.svelte';
+  import Button from '$lib/components/ui/Button.svelte';
   import {
-    Compass, Github, Youtube, Zap, Moon, Sun, Leaf, User,
-    HelpCircle, MoreVertical, Award, Clock, ExternalLink
+    Compass,
+    Github,
+    Youtube,
+    Zap,
+    Moon,
+    Sun,
+    Leaf,
+    User,
+    HelpCircle,
+    MoreVertical,
+    Award,
+    Clock,
+    ExternalLink
   } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { bus } from '$lib/utils/bus';
@@ -66,10 +76,6 @@ import Button from '$lib/components/ui/Button.svelte';
 
   onMount(fetchPlan);
 
-  function isActive(href: string) {
-    return $page.url.pathname.startsWith(href);
-  }
-
   function toggleDarkMode() {
     defaultStore.toggleDarkMode();
   }
@@ -90,11 +96,15 @@ import Button from '$lib/components/ui/Button.svelte';
 </script>
 
 <header
-  class="sticky top-0 z-40 border-b border-primary/20 bg-primary text-primary-foreground shadow-sm"
+  class="border-primary/20 bg-primary text-primary-foreground sticky top-0 z-40 border-b shadow-sm"
 >
   <div class="relative mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:px-6">
     <!-- Logo -->
-    <a href="/" class="z-10 flex shrink-0 items-center gap-2 no-underline" aria-label="PeriHub home">
+    <a
+      href="/"
+      class="z-10 flex shrink-0 items-center gap-2 no-underline"
+      aria-label="PeriHub home"
+    >
       <img
         src="/PeriHubLogo2b.png"
         alt="PeriHub"
@@ -104,13 +114,9 @@ import Button from '$lib/components/ui/Button.svelte';
       />
     </a>
 
-    <nav class="absolute left-1/2 -translate-x-1/2 flex items-center gap-3 md:flex">
+    <nav class="absolute left-1/2 flex -translate-x-1/2 items-center gap-3 md:flex">
       {#each navItems as item (item.href)}
-        <Button
-          href={item.href}
-          variant="ghost"
-          size="lg"
-        >
+        <Button href={item.href} variant="ghost" size="lg">
           {item.label}
         </Button>
       {/each}
@@ -152,7 +158,9 @@ import Button from '$lib/components/ui/Button.svelte';
         size="icon"
         class={iconButtonClass}
         onclick={toggleSaveEnergy}
-        title={defaultStore.saveEnergy ? 'Renewable energy check: on' : 'Renewable energy check: off'}
+        title={defaultStore.saveEnergy
+          ? 'Renewable energy check: on'
+          : 'Renewable energy check: off'}
         aria-label="Check renewable energy availability before submitting simulations"
         aria-pressed={defaultStore.saveEnergy}
       >
@@ -191,13 +199,20 @@ import Button from '$lib/components/ui/Button.svelte';
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
           <DropdownMenu.Content
-            class="z-50 min-w-[200px] rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
+            class="border-border bg-popover text-popover-foreground z-50 min-w-[200px] rounded-md border p-1 shadow-md"
             align="end"
           >
             {#each links as link (link.href)}
-              <DropdownMenu.Item class="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-muted">
+              <DropdownMenu.Item
+                class="hover:bg-muted flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none"
+              >
                 {#snippet child({ props })}
-                  <a {...props} href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel="noopener">
+                  <a
+                    {...props}
+                    href={link.href}
+                    target={link.href.startsWith('http') ? '_blank' : undefined}
+                    rel="noopener"
+                  >
                     <link.icon class="h-4 w-4" />
                     {link.label}
                     {#if link.href.startsWith('http')}
@@ -220,7 +235,13 @@ import Button from '$lib/components/ui/Button.svelte';
         aria-label="Open user settings"
       >
         {#if defaultStore.useGravatar}
-          <img src={defaultStore.gravatarUrl} alt="User avatar" width="36" height="36" class="h-full w-full object-cover" />
+          <img
+            src={defaultStore.gravatarUrl}
+            alt="User avatar"
+            width="36"
+            height="36"
+            class="h-full w-full object-cover"
+          />
         {:else}
           <User class="h-5 w-5" />
         {/if}

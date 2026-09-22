@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
   import { Plus, Trash2 } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
-  import type { Parameter, OldParameter } from '$lib/client';
+  import type { Parameter } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
@@ -26,7 +26,11 @@ SPDX-License-Identifier: Apache-2.0
     if (Array.isArray(obj) || isObject(obj)) {
       const entries = Array.isArray(obj) ? obj.entries() : Object.entries(obj);
       for (const [k, v] of entries) {
-        const path = prefix ? (Array.isArray(obj) ? `${prefix}[${k}]` : `${prefix}.${k}`) : String(k);
+        const path = prefix
+          ? Array.isArray(obj)
+            ? `${prefix}[${k}]`
+            : `${prefix}.${k}`
+          : String(k);
         if (Array.isArray(v) || isObject(v)) {
           objleaves(v, path, acc);
         } else {
@@ -45,7 +49,8 @@ SPDX-License-Identifier: Apache-2.0
     if (!deviations.parameters) deviations.parameters = [];
     const list = deviations.parameters;
     const len = list.length;
-    const newItem = len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Parameter) : ({} as Parameter);
+    const newItem =
+      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Parameter) : ({} as Parameter);
     newItem.parameterId = len + 1;
     list.push(newItem);
   }
@@ -59,7 +64,8 @@ SPDX-License-Identifier: Apache-2.0
     if (!deviations.oldParameters) deviations.oldParameters = [];
     const list = deviations.oldParameters;
     const len = list.length;
-    const newItem = len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Parameter) : ({} as Parameter);
+    const newItem =
+      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Parameter) : ({} as Parameter);
     newItem.parameterId = len + 1;
     list.push(newItem);
   }
@@ -90,14 +96,14 @@ SPDX-License-Identifier: Apache-2.0
       </div>
 
       {#each deviations.oldParameters ?? [] as parameter, index (parameter.parameterId ?? index)}
-        <div class="flex flex-wrap items-end gap-3 border-b border-border pb-2">
+        <div class="border-border flex flex-wrap items-end gap-3 border-b pb-2">
           <div class="w-56 space-y-1">
             <Label for={`dev-old-id-${index}`}>Id</Label>
             <select
               id={`dev-old-id-${index}`}
               multiple
               bind:value={parameter.id}
-              class="h-20 w-full rounded-md border border-input bg-background px-2 py-1 text-sm"
+              class="border-input bg-background h-20 w-full rounded-md border px-2 py-1 text-sm"
             >
               {#each parameters as p (p)}
                 <option value={p}>{p}</option>
@@ -108,7 +114,12 @@ SPDX-License-Identifier: Apache-2.0
             <Label for={`dev-old-factor-${index}`}>Factor</Label>
             <Input id={`dev-old-factor-${index}`} type="number" bind:value={parameter.factor} />
           </div>
-          <Button variant="ghost" size="icon" onclick={() => removeOldParameter(index)} title="Remove parameter">
+          <Button
+            variant="ghost"
+            size="icon"
+            onclick={() => removeOldParameter(index)}
+            title="Remove parameter"
+          >
             <Trash2 class="h-4 w-4" />
           </Button>
         </div>
@@ -118,17 +129,17 @@ SPDX-License-Identifier: Apache-2.0
       </Button>
     {/if}
 
-    <div class="border-t border-border pt-3"></div>
+    <div class="border-border border-t pt-3"></div>
 
     {#each deviations.parameters ?? [] as parameter, index (parameter.parameterId ?? index)}
-      <div class="flex flex-wrap items-end gap-3 border-b border-border pb-2">
+      <div class="border-border flex flex-wrap items-end gap-3 border-b pb-2">
         <div class="w-56 space-y-1">
           <Label for={`dev-id-${index}`}>Id</Label>
           <select
             id={`dev-id-${index}`}
             multiple
             bind:value={parameter.id}
-            class="h-20 w-full rounded-md border border-input bg-background px-2 py-1 text-sm"
+            class="border-input bg-background h-20 w-full rounded-md border px-2 py-1 text-sm"
           >
             {#each parameters as p (p)}
               <option value={p}>{p}</option>
@@ -139,7 +150,12 @@ SPDX-License-Identifier: Apache-2.0
           <Label for={`dev-std-${index}`}>Std</Label>
           <Input id={`dev-std-${index}`} type="number" bind:value={parameter.std} />
         </div>
-        <Button variant="ghost" size="icon" onclick={() => removeParameter(index)} title="Remove parameter">
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={() => removeParameter(index)}
+          title="Remove parameter"
+        >
           <Trash2 class="h-4 w-4" />
         </Button>
       </div>
