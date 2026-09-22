@@ -7,21 +7,22 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { Plus, Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
-  import type { BlockFunction, Gcode, NodeSet } from '$lib/client';
+  import type { BlockFunction, Discretization, Gcode, NodeSet } from '$lib/client';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Button from '$lib/components/ui/Button.svelte';
 
-  const discretization = $derived(modelStore.modelData.discretization);
+  const discretization = $derived(modelStore.modelData.discretization ?? ({} as Discretization));
   const distributionTypes = ['Neighbor based', 'Node based'];
 
   function addNodeSet() {
     if (!discretization.nodeSets) discretization.nodeSets = [];
     const list = discretization.nodeSets;
     const len = list.length;
-    const newItem = len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as NodeSet) : ({} as NodeSet);
+    const newItem =
+      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as NodeSet) : ({} as NodeSet);
     newItem.nodeSetId = len + 1;
     list.push(newItem);
   }
@@ -38,7 +39,9 @@ SPDX-License-Identifier: Apache-2.0
     const list = discretization.gcode.blockFunctions;
     const len = list.length;
     const newItem =
-      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as BlockFunction) : ({} as BlockFunction);
+      len > 0
+        ? (structuredClone($state.snapshot(list[len - 1])) as BlockFunction)
+        : ({} as BlockFunction);
     newItem.id = len + 1;
     list.push(newItem);
   }
@@ -61,12 +64,17 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 
   {#each discretization.nodeSets ?? [] as nodeSet, index (nodeSet.nodeSetId ?? index)}
-    <div class="flex items-end gap-2 border-b border-border pb-2">
+    <div class="border-border flex items-end gap-2 border-b pb-2">
       <div class="flex-1 space-y-1">
         <Label for={`nodeset-${index}`}>Nodeset</Label>
         <Input id={`nodeset-${index}`} bind:value={nodeSet.file} />
       </div>
-      <Button variant="ghost" size="icon" onclick={() => removeNodeSet(index)} title="Remove Nodeset">
+      <Button
+        variant="ghost"
+        size="icon"
+        onclick={() => removeNodeSet(index)}
+        title="Remove Nodeset"
+      >
         <Trash2 class="h-4 w-4" />
       </Button>
     </div>
@@ -76,7 +84,7 @@ SPDX-License-Identifier: Apache-2.0
   </Button>
 
   {#if discretization.discType === 'gcode' && discretization.gcode != null}
-    <div class="space-y-3 border-t border-border pt-3">
+    <div class="border-border space-y-3 border-t pt-3">
       <Toggle bind:checked={discretization.gcode.overwriteMesh} label="Overwrite Mesh" />
       <div class="space-y-1">
         <Label for="gcode-sampling">Sampling</Label>
@@ -96,7 +104,7 @@ SPDX-License-Identifier: Apache-2.0
       </div>
 
       {#each discretization.gcode.blockFunctions ?? [] as block, index (block.id ?? index)}
-        <div class="flex flex-wrap items-end gap-2 border-b border-border pb-2">
+        <div class="border-border flex flex-wrap items-end gap-2 border-b pb-2">
           <div class="space-y-1">
             <Label for={`bf-id-${index}`}>id</Label>
             <Input id={`bf-id-${index}`} type="number" bind:value={block.id} />
@@ -105,7 +113,12 @@ SPDX-License-Identifier: Apache-2.0
             <Label for={`bf-fn-${index}`}>Function</Label>
             <Input id={`bf-fn-${index}`} bind:value={block.function} />
           </div>
-          <Button variant="ghost" size="icon" onclick={() => removeBlockFunction(index)} title="Remove Block Function">
+          <Button
+            variant="ghost"
+            size="icon"
+            onclick={() => removeBlockFunction(index)}
+            title="Remove Block Function"
+          >
             <Trash2 class="h-4 w-4" />
           </Button>
         </div>

@@ -6,6 +6,9 @@ import mitt from 'mitt';
 
 export type AppEvents = {
   resetData: void;
+  openHidePanels: void;
+  showTutorial: void;
+  showModelImg: string;
 };
 
 export const bus = mitt<AppEvents>();

@@ -21,7 +21,7 @@ fitToPoints() calls useThrelte()'s invalidate().
   const { invalidate } = useThrelte();
 
   let camera: THREE.PerspectiveCamera | undefined = $state();
-  let controls: InstanceType<typeof OrbitControls> | undefined = $state();
+  let controls: any | undefined = $state();
 
   // One-time auto-fit the first time real geometry lands - mirrors the
   // original components' `initialCameraFit` flag. Callers that need to
@@ -77,6 +77,13 @@ fitToPoints() calls useThrelte()'s invalidate().
   });
 </script>
 
-<T.PerspectiveCamera makeDefault position={[5, 5, 5]} fov={50} near={0.01} far={1000} bind:ref={camera}>
+<T.PerspectiveCamera
+  makeDefault
+  position={[5, 5, 5]}
+  fov={50}
+  near={0.01}
+  far={1000}
+  bind:ref={camera}
+>
   <OrbitControls bind:ref={controls} enableDamping dampingFactor={0.1} />
 </T.PerspectiveCamera>

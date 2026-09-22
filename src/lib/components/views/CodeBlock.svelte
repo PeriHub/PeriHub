@@ -9,9 +9,7 @@ SPDX-License-Identifier: Apache-2.0
   import Prism from 'prismjs';
   import 'prismjs/components/prism-clike';
   import 'prismjs/components/prism-javascript';
-  // @ts-expect-error no types shipped for this submodule
   import 'prismjs/components/prism-yaml';
-  // @ts-expect-error no types shipped for this submodule
   import 'prismjs/components/prism-python';
   import 'prismjs/themes/prism-tomorrow.css';
 

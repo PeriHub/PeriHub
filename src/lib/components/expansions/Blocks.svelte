@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   import { Plus, Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
+  import type { Additive, Thermal } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
@@ -17,8 +18,8 @@ SPDX-License-Identifier: Apache-2.0
   const model = $derived(modelStore.modelData.model);
   const materials = $derived(modelStore.modelData.materials ?? []);
   const damages = $derived(modelStore.modelData.damages ?? []);
-  const thermal = $derived(modelStore.modelData.thermal);
-  const additive = $derived(modelStore.modelData.additive);
+  const thermal = $derived(modelStore.modelData.thermal ?? ({} as Thermal));
+  const additive = $derived(modelStore.modelData.additive ?? ({} as Additive));
   const blocks = $derived(modelStore.modelData.blocks ?? []);
 
   function showBlock() {
@@ -42,7 +43,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <div class="space-y-3 p-3">
   {#each blocks as block, index (block.blocksId ?? index)}
-    <div class="flex flex-wrap items-end gap-3 border-b border-border pb-3">
+    <div class="border-border flex flex-wrap items-end gap-3 border-b pb-3">
       <div class="w-28 space-y-1">
         <Label for={`blk-name-${index}`}>Block Name</Label>
         <Input id={`blk-name-${index}`} bind:value={block.name} />
@@ -103,7 +104,12 @@ SPDX-License-Identifier: Apache-2.0
       {/if}
       <Toggle bind:checked={block.show} label="Show" onCheckedChange={showBlock} />
       {#if model.ownModel}
-        <Button variant="ghost" size="icon" onclick={() => removeBlock(block.blocksId - 1)} title="Remove block">
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={() => removeBlock(block.blocksId - 1)}
+          title="Remove block"
+        >
           <Trash2 class="h-4 w-4" />
         </Button>
       {/if}

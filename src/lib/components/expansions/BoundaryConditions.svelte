@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
   import { Plus, Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
-  import type { BoundaryCondition } from '$lib/client';
+  import type { BoundaryCondition, Discretization } from '$lib/client';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import Label from '$lib/components/ui/Label.svelte';
@@ -19,10 +19,17 @@ SPDX-License-Identifier: Apache-2.0
   const blocks = $derived(modelStore.modelData.blocks ?? []);
   const solvers = $derived(modelStore.modelData.solvers ?? []);
   const boundaryConditions = $derived(modelStore.modelData.boundaryConditions);
-  const discretization = $derived(modelStore.modelData.discretization);
+  const discretization = $derived(modelStore.modelData.discretization ?? ({} as Discretization));
 
   const boundaryTypes = ['Dirichlet', 'Initial'];
-  const boundaryVariables = ['Displacements', 'Force Densities', 'Forces', 'Temperature', 'Damage', 'Velocity'];
+  const boundaryVariables = [
+    'Displacements',
+    'Force Densities',
+    'Forces',
+    'Temperature',
+    'Damage',
+    'Velocity'
+  ];
   const coordinates = ['x', 'y', 'z'];
 
   function addCondition() {
@@ -30,7 +37,9 @@ SPDX-License-Identifier: Apache-2.0
     const list = boundaryConditions.conditions;
     const len = list.length;
     const newItem =
-      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as BoundaryCondition) : ({} as BoundaryCondition);
+      len > 0
+        ? (structuredClone($state.snapshot(list[len - 1])) as BoundaryCondition)
+        : ({} as BoundaryCondition);
     newItem.conditionsId = len + 1;
     newItem.name = `BC_${len + 1}`;
     newItem.blockId = len + 1;
@@ -50,7 +59,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <div class="space-y-3 p-3">
   {#each boundaryConditions.conditions ?? [] as condition, index (condition.conditionsId ?? index)}
-    <div class="space-y-2 border-b border-border pb-3">
+    <div class="border-border space-y-2 border-b pb-3">
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
           <Label for={`bc-name-${index}`}>name</Label>
@@ -91,7 +100,7 @@ SPDX-License-Identifier: Apache-2.0
               id={`bc-step-${index}`}
               multiple
               bind:value={condition.stepId}
-              class="h-20 w-full rounded-md border border-input bg-background px-2 py-1 text-sm"
+              class="border-input bg-background h-20 w-full rounded-md border px-2 py-1 text-sm"
             >
               {#each solvers as solver, solverIndex (solver.stepId ?? solverIndex)}
                 <option value={solver.stepId}>{solver.stepId}</option>
@@ -122,7 +131,12 @@ SPDX-License-Identifier: Apache-2.0
           <Label for={`bc-value-${index}`}>Value</Label>
           <Input id={`bc-value-${index}`} bind:value={condition.value} />
         </div>
-        <Button variant="ghost" size="icon" onclick={() => removeCondition(index)} title="Remove Condition">
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={() => removeCondition(index)}
+          title="Remove Condition"
+        >
           <Trash2 class="h-4 w-4" />
         </Button>
       </div>

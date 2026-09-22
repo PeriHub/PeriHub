@@ -6,10 +6,23 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { Accordion } from 'bits-ui';
+  import { SvelteComponent } from 'svelte';
   import type { Component } from 'svelte';
   import {
-    Box, Grid3x3, Wrench, Flame, Layers, Scissors, Grid2x2, Boxes,
-    Waypoints, Filter, LogOut, Calculator, FlaskConical, BarChart3
+    Box,
+    Grid3x3,
+    Wrench,
+    Flame,
+    Layers,
+    Scissors,
+    Grid2x2,
+    Boxes,
+    Waypoints,
+    Filter,
+    LogOut,
+    Calculator,
+    FlaskConical,
+    BarChart3
   } from 'lucide-svelte';
   import { onMount } from 'svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
@@ -45,7 +58,7 @@ SPDX-License-Identifier: Apache-2.0
   interface PanelSection {
     key: string;
     label: string;
-    icon: Component;
+    icon: typeof SvelteComponent;
     component: Component;
     schema: string;
     schemaKind: 'object' | 'array';
@@ -282,11 +295,18 @@ SPDX-License-Identifier: Apache-2.0
 <div class={scrollable ? 'h-full overflow-y-auto' : ''}>
   <Accordion.Root type="multiple" bind:value={openPanels}>
     {#each panelGroups as group (group.key)}
-      <div class="border-b border-border bg-muted/30 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <div
+        class="border-border bg-muted/30 text-muted-foreground border-b px-4 py-1.5 text-xs font-semibold tracking-wide uppercase"
+      >
         {group.label}
       </div>
       {#each group.sections as section (section.key)}
-        <AccordionItem value={section.key} label={section.label} icon={section.icon} complete={section.complete}>
+        <AccordionItem
+          value={section.key}
+          label={section.label}
+          icon={section.icon}
+          complete={section.complete}
+        >
           <section.component />
         </AccordionItem>
       {/each}

@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { LineChart, defaultChartPadding } from 'layerchart';
+  import { LineChart } from 'layerchart';
 
   interface Series {
     name: string;
@@ -84,7 +84,7 @@ SPDX-License-Identifier: Apache-2.0
   // legend row rendered below the chart - otherwise the title overflows
   // the plot area and renders on top of/underneath the legend. Widen
   // left/bottom padding to fit both.
-  const chartPadding = defaultChartPadding({ top: 8, right: 16, bottom: 48, left: 64 });
+  const chartPadding = { top: 8, right: 16, bottom: 48, left: 64 };
 </script>
 
 <div class="relative flex h-[28rem] w-full flex-col {className}">

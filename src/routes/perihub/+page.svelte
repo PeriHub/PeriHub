@@ -122,9 +122,7 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   async function showTutorial() {
-    // @ts-expect-error driver.js v0.9 ships no type declarations
     const { default: Driver } = await import('driver.js');
-    // @ts-expect-error nor for its CSS
     await import('driver.js/dist/driver.min.css');
 
     const driver = new Driver({

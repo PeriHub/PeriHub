@@ -7,13 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { Accordion } from 'bits-ui';
   import { ChevronDown } from 'lucide-svelte';
-  import type { Component } from 'svelte';
+  import type { SvelteComponent as SvelteComponentType } from 'svelte';
   import { cn } from '$lib/utils';
 
   interface Props {
     value: string;
     label: string;
-    icon: Component;
+    icon: SvelteComponentType;
     /** Optional required-fields-filled-in indicator (see schemaValidation.ts). Omit to hide. */
     complete?: boolean;
     children?: import('svelte').Snippet;
@@ -22,12 +22,12 @@ SPDX-License-Identifier: Apache-2.0
   let { value, label, icon: Icon, complete, children }: Props = $props();
 </script>
 
-<Accordion.Item {value} class="border-b border-border last:border-b-0">
+<Accordion.Item {value} class="border-border border-b last:border-b-0">
   <Accordion.Header>
     <Accordion.Trigger
-      class="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-muted [&[data-state=open]>svg]:rotate-180"
+      class="hover:bg-muted flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium transition-colors [&[data-state=open]>svg]:rotate-180"
     >
-      <Icon class="h-4 w-4 shrink-0 text-primary" />
+      <Icon class="text-primary h-4 w-4 shrink-0" />
       <span class="flex-1">{label}</span>
       {#if complete !== undefined}
         <span
@@ -35,7 +35,7 @@ SPDX-License-Identifier: Apache-2.0
           title={complete ? 'Required fields filled in' : 'Missing required fields'}
         ></span>
       {/if}
-      <ChevronDown class="h-4 w-4 shrink-0 text-muted-foreground transition-transform" />
+      <ChevronDown class="text-muted-foreground h-4 w-4 shrink-0 transition-transform" />
     </Accordion.Trigger>
   </Accordion.Header>
   <Accordion.Content class="overflow-hidden data-[state=closed]:animate-none">

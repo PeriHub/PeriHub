@@ -9,13 +9,13 @@ SPDX-License-Identifier: Apache-2.0
   import { Plus, Trash2 } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
-  import type { Parameter } from '$lib/client';
+  import type { Deviations, OldParameter, Parameter } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
 
-  const deviations = $derived(modelStore.modelData.deviations);
+  const deviations = $derived(modelStore.modelData.deviations ?? ({} as Deviations));
   let parameters = $state<string[]>(['materials[0].youngsModulus']);
 
   function isObject(val: unknown): val is Record<string, unknown> {
@@ -65,7 +65,9 @@ SPDX-License-Identifier: Apache-2.0
     const list = deviations.oldParameters;
     const len = list.length;
     const newItem =
-      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Parameter) : ({} as Parameter);
+      len > 0
+        ? (structuredClone($state.snapshot(list[len - 1])) as OldParameter)
+        : ({} as OldParameter);
     newItem.parameterId = len + 1;
     list.push(newItem);
   }

@@ -83,7 +83,7 @@ SPDX-License-Identifier: Apache-2.0
         onchange={(e) => {
           const file = (e.target as HTMLSelectElement).value;
           const m = modelStore.availableModels.find((x) => x.file === file);
-          if (m) modelStore.selectedModel = m;
+          if (m) modelStore.selectedModel = { title: m.title as string, file: m.file as string };
           onSelectedModelChange();
           selectMethod();
         }}
@@ -153,7 +153,7 @@ SPDX-License-Identifier: Apache-2.0
               </Select>
             </div>
           {:else if param.type === 'checkbox'}
-            <Toggle bind:checked={param.value} label={param.label} />
+            <Toggle bind:checked={param.value as boolean} label={param.label} />
           {/if}
         {/if}
       {/each}

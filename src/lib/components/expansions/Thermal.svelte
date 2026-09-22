@@ -7,14 +7,14 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { Plus, Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
-  import type { ThermalModel } from '$lib/client';
+  import type { ThermalModel, Thermal } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
 
-  const thermal = $derived(modelStore.modelData.thermal);
+  const thermal = $derived(modelStore.modelData.thermal ?? ({} as Thermal));
   const thermalModelNames = ['Thermal Flow', 'Heat Transfer', 'Thermal Expansion'];
   const thermalTypes = ['Bond based'];
 
@@ -23,7 +23,9 @@ SPDX-License-Identifier: Apache-2.0
     const list = thermal.thermalModels;
     const len = list.length;
     const newItem =
-      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as ThermalModel) : ({} as ThermalModel);
+      len > 0
+        ? (structuredClone($state.snapshot(list[len - 1])) as ThermalModel)
+        : ({} as ThermalModel);
     newItem.thermalModelsId = len + 1;
     newItem.name = `Thermal Model ${len + 1}`;
     list.push(newItem);
@@ -40,7 +42,7 @@ SPDX-License-Identifier: Apache-2.0
 
   {#if thermal.enabled}
     {#each thermal.thermalModels ?? [] as thermalModel, index (thermalModel.thermalModelsId ?? index)}
-      <div class="space-y-3 rounded-md border border-border p-3">
+      <div class="border-border space-y-3 rounded-md border p-3">
         <h4 class="font-medium">Thermal {thermalModel.thermalModelsId}</h4>
 
         <div class="flex flex-wrap items-end gap-3">
@@ -48,7 +50,12 @@ SPDX-License-Identifier: Apache-2.0
             <Label for={`th-name-${index}`}>Name</Label>
             <Input id={`th-name-${index}`} bind:value={thermalModel.name} />
           </div>
-          <Button variant="ghost" size="icon" onclick={() => removeThermalModel(index)} title="Remove Thermal Model">
+          <Button
+            variant="ghost"
+            size="icon"
+            onclick={() => removeThermalModel(index)}
+            title="Remove Thermal Model"
+          >
             <Trash2 class="h-4 w-4" />
           </Button>
         </div>
@@ -60,7 +67,7 @@ SPDX-License-Identifier: Apache-2.0
               id={`th-model-${index}`}
               multiple
               bind:value={thermalModel.thermalModel}
-              class="h-20 w-full rounded-md border border-input bg-background px-2 py-1 text-sm"
+              class="border-input bg-background h-20 w-full rounded-md border px-2 py-1 text-sm"
             >
               {#each thermalModelNames as name (name)}
                 <option value={name}>{name}</option>
@@ -80,34 +87,58 @@ SPDX-License-Identifier: Apache-2.0
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
             <Label for={`th-cond-${index}`}>Thermal Conductivity</Label>
-            <Input id={`th-cond-${index}`} type="number" bind:value={thermalModel.thermalConductivity} />
+            <Input
+              id={`th-cond-${index}`}
+              type="number"
+              bind:value={thermalModel.thermalConductivity}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`th-htc-${index}`}>Heat Transfer Coefficient</Label>
-            <Input id={`th-htc-${index}`} type="number" bind:value={thermalModel.heatTransferCoefficient} />
+            <Input
+              id={`th-htc-${index}`}
+              type="number"
+              bind:value={thermalModel.heatTransferCoefficient}
+            />
           </div>
         </div>
 
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
             <Label for={`th-exp-${index}`}>Thermal Expansion Coefficient</Label>
-            <Input id={`th-exp-${index}`} type="number" bind:value={thermalModel.thermalExpansionCoefficient} />
+            <Input
+              id={`th-exp-${index}`}
+              type="number"
+              bind:value={thermalModel.thermalExpansionCoefficient}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`th-env-${index}`}>Environmental Temperature</Label>
-            <Input id={`th-env-${index}`} type="number" bind:value={thermalModel.environmentalTemperature} />
+            <Input
+              id={`th-env-${index}`}
+              type="number"
+              bind:value={thermalModel.environmentalTemperature}
+            />
           </div>
         </div>
 
-        <h5 class="text-sm font-medium text-muted-foreground">Additive</h5>
+        <h5 class="text-muted-foreground text-sm font-medium">Additive</h5>
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
             <Label for={`th-pbt-${index}`}>Print Bed Temperature</Label>
-            <Input id={`th-pbt-${index}`} type="number" bind:value={thermalModel.printBedTemperature} />
+            <Input
+              id={`th-pbt-${index}`}
+              type="number"
+              bind:value={thermalModel.printBedTemperature}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`th-pbc-${index}`}>Thermal Conductivity Print Bed</Label>
-            <Input id={`th-pbc-${index}`} type="number" bind:value={thermalModel.thermalConductivityPrintBed} />
+            <Input
+              id={`th-pbc-${index}`}
+              type="number"
+              bind:value={thermalModel.thermalConductivityPrintBed}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`th-pbz-${index}`}>Print Bed Z Coordinate</Label>
@@ -115,7 +146,7 @@ SPDX-License-Identifier: Apache-2.0
           </div>
         </div>
 
-        <h5 class="text-sm font-medium text-muted-foreground">HETVAL</h5>
+        <h5 class="text-muted-foreground text-sm font-medium">HETVAL</h5>
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
             <Label for={`th-file-${index}`}>File</Label>

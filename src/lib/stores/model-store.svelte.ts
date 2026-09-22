@@ -15,7 +15,7 @@ class ModelStore {
   availableModels = $state<GetModelsResponse>([]);
   // @ts-expect-error the generated schema's `example` is typed loosely
   modelParams = $state<Valves>({ ...ValvesSchema.example });
-  selectedModel = $state({
+  selectedModel = $state<{ title: string; file: string }>({
     title: 'Compact Tenison',
     file: 'CompactTension'
   });
