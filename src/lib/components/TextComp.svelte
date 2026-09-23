@@ -10,7 +10,6 @@ SPDX-License-Identifier: Apache-2.0
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
   import ProgressBar from '$lib/components/ui/ProgressBar.svelte';
-
   import TextView from '$lib/components/views/TextView.svelte';
   import LogView from '$lib/components/views/LogView.svelte';
 
@@ -30,18 +29,19 @@ SPDX-License-Identifier: Apache-2.0
     'flex-1 px-3 py-2 text-center text-sm font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground';
 </script>
 
-<div class="flex h-full flex-col overflow-hidden rounded-lg border border-border">
+<div class="border-border flex h-full flex-col overflow-hidden rounded-lg border">
   <Tabs.Root bind:value={viewStore.textId} class="flex h-full flex-col">
-    <Tabs.List class="flex border-b border-border bg-muted/40">
+    <Tabs.List class="border-border bg-muted/40 flex border-b">
       <Tabs.Trigger value="input" class={tabClass}>Input</Tabs.Trigger>
       <Tabs.Trigger value="log" class={tabClass}>Log</Tabs.Trigger>
     </Tabs.List>
 
     {#if viewStore.logProgress}
-      <div class="border-b border-border px-3 py-1.5">
+      <div class="border-border border-b px-3 py-1.5">
         <ProgressBar
           value={viewStore.logProgress.percent}
-          label="Simulation step {viewStore.logProgress.currentStep} / {viewStore.logProgress.totalSteps}"
+          label="Simulation step {viewStore.logProgress.currentStep} / {viewStore.logProgress
+            .totalSteps}"
         />
       </div>
     {/if}

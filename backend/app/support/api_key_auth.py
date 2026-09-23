@@ -27,7 +27,6 @@ from fastapi import Request
 
 from .globals import api_keys_raw
 
-
 def _parse_api_keys() -> dict[str, str]:
     """Parses API_KEYS="name:key,name2:key2" into {key: name}."""
     keys: dict[str, str] = {}
