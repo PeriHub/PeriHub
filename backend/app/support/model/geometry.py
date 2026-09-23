@@ -220,16 +220,6 @@ class Geometry:
         # return (x - origin_x**2) + (y - origin_y**2) <= radius
 
     @staticmethod
-    def check_val_lower_new(array, limit):
-        """doc"""
-        return np.where(array <= limit)
-
-    @staticmethod
-    def check_val_greater_new(array, limit):
-        """doc"""
-        return np.where(array >= limit)
-
-    @staticmethod
     def check_val_lower(val, limit):
         """doc"""
         inside = False

@@ -4,8 +4,7 @@
 
 import ast
 import csv
-import importlib.machinery
-import importlib.util
+import importlib
 import json
 import math
 import os
@@ -88,9 +87,7 @@ def get_valves(model_name: str, source: bool = False) -> Valves:
 
     # if source:
     #     file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".py")
-    #     print(file_path)
     #     return Path(file_path).read_text()
-    print(parent_path + ".models." + model_name + "." + model_name)
     try:
         module = importlib.import_module(parent_path + ".models." + model_name + "." + model_name, package=".")
     except:
@@ -441,7 +438,6 @@ def add_model(model_name: str, description: str, request: Request = "") -> str:
     folder_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_slug)
     file_path = os.path.join(folder_path, model_slug + ".py")
     config_file_path = os.path.join(folder_path, model_slug + ".json")
-    print(file_path)
 
     source_code = f'''
 """

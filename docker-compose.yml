@@ -4,7 +4,7 @@
 
 services:
   perihub_backend:
-    image: perihub/backend
+    # image: perihub/backend
     build:
       context: ./backend
     container_name: perihub_backend
@@ -14,11 +14,16 @@ services:
       - ${VOLUME-./backend/app/simulations}:/app/simulations
       - ${RSA_VOLUME-./backend/app/rsaFiles}:/app/rsaFiles
       - ${OWN_MODELS-./backend/app/own_models}:/app/own_models
+      # Lets this container run commands directly inside perihub_perilab
+      # (docker exec, via the Docker SDK - see
+      # support/file_handler.py:get_perilab_container()) instead of
+      # needing an SSH server baked into the solver image.
+      - /var/run/docker.sock:/var/run/docker.sock
 
   perihub_frontend:
-    image: perihub/frontend
+    # image: perihub/frontend
     build:
-      context: ./frontend
+      context: .
     container_name: perihub_frontend
     env_file:
       - .env
@@ -30,7 +35,8 @@ services:
   perilab:
     image: perihub/perilab
     container_name: perihub_perilab
-    ports:
-      - 22:22
+    # No published port needed any more - perihub_backend reaches this
+    # container via `docker exec` over the Docker socket (see above),
+    # not SSH, so port 22 doesn't need to be exposed at all.
     volumes:
       - ${VOLUME-./backend/app/simulations}:/app/simulations

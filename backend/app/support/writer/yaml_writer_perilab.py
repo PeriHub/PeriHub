@@ -7,6 +7,8 @@ import numpy as np
 import yaml
 from fastapi import HTTPException
 
+from ..yaml_field import write_mapped_fields
+
 
 class YAMLcreatorPeriLab:
     def __init__(self, model_writer, block_def=None):
@@ -389,30 +391,20 @@ class YAMLcreatorPeriLab:
         if multistep:
             data["Step ID"] = self.solver_dict[id].stepId
 
-        data["Material Models"] = self.solver_dict[id].matEnabled
-        if self.check_if_defined(self.solver_dict[id].damEnabled):
-            data["Damage Models"] = self.solver_dict[id].damEnabled
-        if self.check_if_defined(self.solver_dict[id].tempEnabled):
-            data["Thermal Models"] = self.solver_dict[id].tempEnabled
-        if self.check_if_defined(self.solver_dict[id].addEnabled):
-            data["Additive Models"] = self.solver_dict[id].addEnabled
-
-        # data["Verbose"] = self.solver_dict[id].verbose
+        # Picks up matEnabled->"Material Models", damEnabled->"Damage Models",
+        # tempEnabled->"Thermal Models", addEnabled->"Additive Models",
+        # calculateCauchy/calculateVonMises/calculateStrain, and
+        # initialTime/finalTime/maximumDamage - see the yaml_field(...)
+        # declarations on Solver in support/base_models.py. Only fields that
+        # need real structural logic (the solvertype branch below, the
+        # additionalTime/initialTime XOR, Verlet's nested "Fixed dt"/"Safety
+        # Factor") stay hand-written past this point.
+        write_mapped_fields(self.solver_dict[id], data)
 
         if self.check_if_defined(self.solver_dict[id].additionalTime):
             data["Additional Time"] = float(self.solver_dict[id].additionalTime)
-        else:
-            data["Initial Time"] = float(self.solver_dict[id].initialTime)
-            data["Final Time"] = float(self.solver_dict[id].finalTime)
-
-        if self.check_if_defined(self.solver_dict[id].maximumDamage):
-            data["Maximum Damage"] = float(self.solver_dict[id].maximumDamage)
-
-        # if self.solver_dict[id].stopAfterCertainDamage and self.solver_dict[id].endStepAfterDamage:
-        #     data["End step after damage"] = self.solver_dict[id].endStepAfterDamage
-
-        # if self.solver_dict[id].stopAfterCertainDamage:
-        #     data["Stop after certain damage value"] = True
+            data.pop("Initial Time", None)
+            data.pop("Final Time", None)
 
         if self.solver_dict[id].stopBeforeDamageInitation:
             data["Stop before damage initiation"] = True
@@ -423,7 +415,8 @@ class YAMLcreatorPeriLab:
                 data["Verlet"]["Fixed dt"] = float(self.solver_dict[id].fixedDt)
 
             data["Verlet"]["Safety Factor"] = float(self.solver_dict[id].safetyFactor)
-            data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].verlet.numericalDamping)
+            if self.check_if_defined(self.solver_dict[id].verlet.numericalDamping):
+              data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].verlet.numericalDamping)
 
             if (
                 self.check_if_defined(self.solver_dict[id].adaptivetimeStepping)

@@ -103,11 +103,9 @@ source ~/.bashrc
 nvm install --lts
 ```
 
-- Now you can get the [quasar cli](https://quasar.dev/start/quick-start) and install the node packages
+- Install the node packages for the frontend (SvelteKit, at the repo root)
 
 ```
-cd frontend/app
-npm i -g @quasar/cli
 npm install
 ```
 
@@ -125,8 +123,7 @@ Now you are able to start the services
 ## Starting the services
 
 ```
-cd frontend/app
-quasar dev
+npm run dev
 ```
 
 ```

@@ -84,7 +84,12 @@ class SbatchCreator:
             if self.trial:
                 string += "timeout 600s "
             if docker:
-                string += "/app/PeriLab/bin/PeriLab -s "
+                # `run-perilab` is a thin wrapper installed on PATH inside
+                # the perihub_perilab image (exec's PeriLab with the given
+                # args) - using it instead of an absolute path means this
+                # script doesn't care exactly where/how that image built
+                # the actual PeriLab executable.
+                string += "PeriLab -s "
                 if verbose:
                     string += "-v "
                 string += filename

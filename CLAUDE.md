@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-PeriHub is a web platform for peridynamics simulations: a FastAPI backend (`backend/`) plus a Quasar/Vue 3 frontend (`frontend/`), deployed with docker-compose alongside a `perilab` container that runs the PeriLab.jl solver over SSH.
+PeriHub is a web platform for peridynamics simulations: a FastAPI backend (`backend/`) plus a Svelte 5/SvelteKit frontend (repo root — see `MIGRATION.md` for the history of its move from `frontend/app`, a Quasar/Vue 3 app), deployed with docker-compose alongside a `perilab` container that runs the PeriLab.jl solver over SSH.
 
 ## Commands
 
@@ -50,19 +50,19 @@ pre-commit run --all-files    # or: black . && isort --profile black .
 ### Frontend
 
 ```bash
-cd frontend/app
-npm i -g @quasar/cli
 npm install
-quasar dev                  # or: npm run dev
+npm run dev                 # http://localhost:9000, proxies /api to :8000
 npm run lint                # eslint
 npm run format              # prettier
-npx playwright test         # e2e; expects the full stack running at http://127.0.0.1:8080
+npm run check                # svelte-check (types)
+npm run test:unit           # vitest — pure logic (e.g. src/lib/utils/elastic-constants.ts)
+npx playwright test         # e2e; builds + previews on :4173 (see playwright.config.ts)
 ```
 
 Regenerate the typed API client after any backend endpoint change (needs the backend running on :8000):
 
 ```bash
-npm run client    # writes src/client/ via @hey-api/openapi-ts — never hand-edit those files
+npm run client    # writes src/lib/client/ via @hey-api/openapi-ts — never hand-edit those files
 ```
 
 ## Architecture
@@ -82,20 +82,23 @@ npm run client    # writes src/client/ via @hey-api/openapi-ts — never hand-ed
 
 - Each built-in model lives in `backend/app/models/<Name>/<Name>.py` exposing a `main` class, next to a `<Name>.json` holding its default `ModelData` config.
 - The model file defines a Pydantic `Valves` class whose fields are the UI-exposed parameters; `generate_model` imports `app.models.<Name>.<Name>.main` dynamically, instantiates it with the valve values, and builds geometry/discretization.
-- User-supplied models go into `own_models/` (a mounted volume, also mirrored at `frontend/app/own_models` for dev). They are loaded/reloaded via `load_or_reload_main()` and their frontmatter docstring (`title/description/author/requirements/version`) is parsed to register them in the UI; listed `requirements:` are pip-installed at startup when `FRONTMATTER_INSTALLATION` isn't False.
+- User-supplied models go into `own_models/` (a mounted volume, default `./backend/app/own_models` per `docker-compose.yml`). They are loaded/reloaded via `load_or_reload_main()` and their frontmatter docstring (`title/description/author/requirements/version`) is parsed to register them in the UI; listed `requirements:` are pip-installed at startup when `FRONTMATTER_INSTALLATION` isn't False.
 
-### Frontend (`frontend/app`)
+### Frontend (repo root)
 
-Quasar v2 + Vue 3 + TypeScript + Pinia + vue-i18n.
+Svelte 5 (runes) + SvelteKit + TypeScript + Tailwind v4 + `bits-ui`/shadcn-svelte, no Pinia
+(stores are plain `$state` classes) and no vue-i18n (uses `sveltekit-i18n` instead).
 
-- `src/client/` — generated axios client mirroring the backend OpenAPI schema; components/stores call these services directly.
-- `src/pages/PeriHub.vue` is the main workflow page; `src/components/expansions/` each map to one input-deck section (Discretization, BoundaryConditions, Material, Blocks, Output, ...), `src/components/views/` hold the viewers (VTK mesh, Plotly plots, text editor, log view, results).
-- `src/stores/` — `auth-store` (Keycloak login, bootstrapped in `src/boot/keycloak.ts`), `model-store`, `view-store`, `default-store`.
-- Boot files in `src/boot/` wire axios (API base URL from `process.env.API`), i18n, VTK, chartkick.
+- `src/lib/client/` — generated axios client mirroring the backend OpenAPI schema; components/stores call these services directly. Never hand-edit — regenerate with `npm run client`.
+- `src/routes/perihub/+page.svelte` is the main workflow page; `src/lib/components/expansions/` each map to one input-deck section (Discretization, BoundaryConditions, Material, Blocks, Output, ...), `src/lib/components/views/` hold the viewers (VTK mesh, Plotly plots, text editor, log view, results).
+- `src/lib/stores/` — `auth-store` (Keycloak login, bootstrapped in `src/lib/auth/keycloak.ts`), `model-store`, `view-store`, `default-store`. All are `*.svelte.ts` files exporting a singleton instance of a class with `$state` fields — import the instance, mutate its fields directly (deep reactivity works on nested objects/arrays without extra plumbing).
+- `src/lib/config.ts` — runtime config; in prod, values are `_VALUE` placeholders substituted by `entrypoint.sh` at container startup (same mechanism as before, just pointed at the new build output path).
+- Pure, testable logic (e.g. `src/lib/utils/elastic-constants.ts`) is kept out of `.svelte` files where practical — see `PROFESSIONALIZATION.md` for the rationale and what else is a good candidate.
+- Known gaps: `ModelView`/`ResultsView` (VTK.js 3D viewers) and a few advanced `ViewActions` dialogs are still `PendingMigration` placeholders — see `MIGRATION.md`.
 
 ### Versioning & release
 
-The version lives in three places that must be kept in sync: `backend/app/pyproject.toml`, `main.py`'s `FastAPI(version=...)`, and `frontend/app/package.json`. Tagging `vX.Y.Z` triggers the Deploy workflow, which reads the version from `pyproject.toml` and pushes `perihub/backend` / `perihub/frontend` images to Docker Hub.
+The version lives in three places that must be kept in sync: `backend/app/pyproject.toml`, `main.py`'s `FastAPI(version=...)`, and `package.json` (repo root). Tagging `vX.Y.Z` triggers the Deploy workflow, which reads the version from `pyproject.toml` and pushes `perihub/backend` / `perihub/frontend` images to Docker Hub.
 
 ### Conventions
 

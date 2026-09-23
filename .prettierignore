@@ -1,0 +1,9 @@
+.svelte-kit
+dist
+build
+node_modules
+package-lock.json
+src/lib/client
+playwright-report
+test-results
+static

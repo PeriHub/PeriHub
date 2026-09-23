@@ -4,21 +4,17 @@
 
 import asyncio
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
-from re import match
 
-import requests, json
-import paramiko
+import requests
 import toml
 from fastapi import (
     FastAPI,
-    HTTPException,
     Query,
     WebSocket,
     WebSocketDisconnect,
-    status,
 )
-from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -28,14 +24,19 @@ from .routers import (
     energy,
     generate,
     jobs,
+)
+from .routers import license as license_router
+from .routers import (
     model,
     results,
     translate,
     upload,
+    usage,
 )
 from .support.base_models import VersionData
 from .support.file_handler import FileHandler
-from .support.globals import dev, log, trial, frontmatter_installation
+from .support.globals import dev, frontmatter_installation, log, trial, ws_log_wait_timeout_seconds
+
 tags_metadata = [
     {
         "name": "Generate Methods",
@@ -54,7 +55,16 @@ tags_metadata = [
         "name": "Documentation Methods",
         "description": "Retrieve markdown documentation or bibtex files",
     },
+    {
+        "name": "Usage Methods",
+        "description": "Usage metering / job-submission analytics",
+    },
+    {
+        "name": "License Methods",
+        "description": "Plan & entitlement status from the license server",
+    },
 ]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -75,17 +85,18 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
 
+
 app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan, version="3.2.3")
 
 
 banner = rf"""
-██████╗ ███████╗██████╗ ██╗██╗  ██╗██╗   ██╗██████╗ 
+██████╗ ███████╗██████╗ ██╗██╗  ██╗██╗   ██╗██████╗
 ██╔══██╗██╔════╝██╔══██╗██║██║  ██║██║   ██║██╔══██╗
 ██████╔╝█████╗  ██████╔╝██║███████║██║   ██║██████╔╝
 ██╔═══╝ ██╔══╝  ██╔══██╗██║██╔══██║██║   ██║██╔══██╗
 ██║     ███████╗██║  ██║██║██║  ██║╚██████╔╝██████╔╝
-╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ 
-v{app.version} - PeriHub                                                
+╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝
+v{app.version} - PeriHub
 https://github.com/PeriHub/PeriHub.git
 """
 
@@ -113,6 +124,8 @@ app.include_router(results.router)
 app.include_router(delete.router)
 app.include_router(docs.router)
 app.include_router(energy.router)
+app.include_router(usage.router)
+app.include_router(license_router.router)
 
 if dev:
     log.info("--- Running in development mode ---")
@@ -151,6 +164,56 @@ async def log_reader(cluster, log_file, debug):
     return log_lines
 
 
+def _find_latest_log_file(cluster, user_name, model_name, model_folder_name, not_before):
+    """Looks for the job's .log file once, without raising if it isn't there
+    yet - the caller decides whether to keep polling. Returns (log_file_path
+    or None, remotepath) so callers can report *where* they're looking.
+    `not_before` filters out a log file left over from a previous run - see
+    FileHandler.write_run_marker_local/_remote.
+    """
+    if not cluster:
+        remotepath = FileHandler.get_local_model_folder_path(user_name, model_name, model_folder_name)
+        return FileHandler.find_latest_log_file_local(remotepath, not_before=not_before), remotepath
+
+    remotepath = FileHandler.get_remote_model_path(user_name, model_name, model_folder_name)
+    try:
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+    except Exception as e:
+        log.warning("Could not reach cluster while waiting for log file: %s", e)
+        return None, remotepath
+    try:
+        return FileHandler.find_latest_log_file_remote(sftp, remotepath, not_before=not_before), remotepath
+    finally:
+        sftp.close()
+        ssh.close()
+
+
+def _get_run_marker_time(cluster, user_name, model_name, model_folder_name):
+    """Reads the submission-time marker written by run_model, so the wait
+    loop below only accepts a .log file created at or after this run
+    started - otherwise an older log left in the same folder from a
+    previous run would look like "the" log right up until this run's log
+    file happens to overtake it. Returns None (meaning "don't filter") if
+    no marker is found, e.g. a job submitted before this existed, or the
+    cluster can't be reached right now.
+    """
+    if not cluster:
+        remotepath = FileHandler.get_local_model_folder_path(user_name, model_name, model_folder_name)
+        return FileHandler.get_run_marker_time_local(remotepath)
+
+    remotepath = FileHandler.get_remote_model_path(user_name, model_name, model_folder_name)
+    try:
+        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+    except Exception as e:
+        log.warning("Could not reach cluster to read run marker: %s", e)
+        return None
+    try:
+        return FileHandler.get_run_marker_time_remote(sftp, remotepath)
+    finally:
+        sftp.close()
+        ssh.close()
+
+
 @app.websocket("/ws")
 async def websocket_endpoint_log(
     websocket: WebSocket,
@@ -161,76 +224,73 @@ async def websocket_endpoint_log(
     user_name: str = Query(...),
     debug: bool = Query(...),
 ):
-    await websocket.accept()
+    """Streams a running job's log file over the socket.
 
-    # username = user_name
-    # if user_name == None or user_name == "" or user_name == "undefined":
-    #     username = "guest"
-    # username = FileHandler.get_user_name_from_token(token, dev)
+    Submitting a job and its .log file actually appearing on disk aren't the
+    same instant - starting a container or landing on a cluster node takes a
+    few seconds. Rather than requiring the file to already exist at connect
+    time (and forcing the frontend to guess how long to wait beforehand),
+    this endpoint accepts the connection immediately and polls for the file,
+    keeping the client informed with small JSON status messages so the user
+    sees *why* nothing has appeared yet instead of a blank log view.
+
+    Message shapes sent to the client:
+      {"status": "waiting",   "message": str, "elapsed": int}
+      {"status": "connected", "message": str}
+      {"status": "log",       "content": str}
+      {"status": "error",     "message": str}
+    """
+    await websocket.accept()
 
     if model_folder_name == "undefined":
         model_folder_name = "Default"
-    if not cluster:
-        remotepath = FileHandler.get_local_model_folder_path(user_name, model_name, model_folder_name)
-        try:
-            output_files = os.listdir(remotepath)
-            filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
-            if len(filtered_values) == 0:
-                log.error("LogFile can not be found in %s", remotepath)
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="LogFile can't be found in " + remotepath,
-                )
-            paths = [os.path.join(remotepath, basename) for basename in filtered_values]
-            latest_file = max(paths, key=os.path.getctime)
-        except IOError:
-            log.error("LogFile can not be found in %s", remotepath)
 
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="LogFile can't be found in " + remotepath,
-            )
-
-    else:
-        remotepath = FileHandler.get_remote_model_path(user_name, model_name, model_folder_name)
-        # log.info("remotepath: %s", remotepath)
-
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
-
-        try:
-            output_files = [x.filename for x in sorted(sftp.listdir_attr(remotepath), key=lambda f: f.st_mtime)]
-            # log.info("output_files: %s", output_files)
-            filtered_values = list(filter(lambda v: match(r"^.+\.log$", v), output_files))
-            # log.info("filtered_values: %s", filtered_values)
-            if len(filtered_values) == 0:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="LogFile can't be found in " + remotepath,
-                )
-            idx = 1
-            log_file = filtered_values[-1]
-            while model_name not in log_file:
-                idx += 1
-                log_file = filtered_values[-idx]
-            latest_file = os.path.join(remotepath, log_file)
-        except paramiko.SFTPError:
-            log.error("LogFile can not be found in %s", remotepath)
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="LogFile can't be found in " + remotepath,
-            )
-        if len(filtered_values) == 0:
-            log.error("LogFile can not be found in %s", remotepath)
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="LogFile can't be found in " + remotepath,
-            )
+    poll_interval = 1.0 if not cluster else 3.0
+    start_time = asyncio.get_event_loop().time()
+    latest_file = None
+    # Anchors "the log file for *this* run" - see _get_run_marker_time. None
+    # (no marker found) means don't filter, so an old-format/legacy folder
+    # still behaves exactly as before.
+    not_before = _get_run_marker_time(cluster, user_name, model_name, model_folder_name)
 
     try:
+        while latest_file is None:
+            latest_file, remotepath = _find_latest_log_file(
+                cluster, user_name, model_name, model_folder_name, not_before
+            )
+            if latest_file is not None:
+                break
+
+            elapsed = asyncio.get_event_loop().time() - start_time
+            if elapsed > ws_log_wait_timeout_seconds:
+                log.error("LogFile can not be found in %s after %.0fs", remotepath, elapsed)
+                await websocket.send_json(
+                    {
+                        "status": "error",
+                        "message": (
+                            f"No log file appeared in {remotepath} after {int(elapsed)}s. "
+                            "The job may have failed to start - check that a solver slot "
+                            "was available or that the cluster is reachable."
+                        ),
+                    }
+                )
+                return
+
+            await websocket.send_json(
+                {
+                    "status": "waiting",
+                    "message": "Job submitted - waiting for the simulation to start writing its log file...",
+                    "elapsed": int(elapsed),
+                }
+            )
+            await asyncio.sleep(poll_interval)
+
+        await websocket.send_json({"status": "connected", "message": f"Streaming {os.path.basename(latest_file)}"})
+
         while True:
             await asyncio.sleep(1)
             logs = await log_reader(cluster, latest_file, debug)
-            await websocket.send_text(logs)
+            await websocket.send_json({"status": "log", "content": "".join(logs)})
     except WebSocketDisconnect:
         print("websocket disconnect")
     except Exception as e:
@@ -241,15 +301,6 @@ async def websocket_endpoint_log(
         except RuntimeError as e:
             pass
 
-def get_latest_release(owner: str, repo: str, tag= False) -> dict:
-    """Return the JSON payload for the latest GitHub release."""
-    if tag:
-        url = f"https://api.github.com/repos/{owner}/{repo}/tags"
-    else:
-        url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
-    r = requests.get(url, timeout=10)            # <-- add headers if you hit rate‑limit
-    r.raise_for_status()                        # raise an HTTPError for 4xx/5xx
-    return r.json()                              # a Python dict
 
 @app.get("/updates", operation_id="get_version")
 async def get_app_latest_release_version() -> VersionData:
@@ -257,27 +308,23 @@ async def get_app_latest_release_version() -> VersionData:
     latest = "unknown"
     perilab_current = "unknown"
     perilab_latest = "unknown"
-    
-    ssh = FileHandler.ssh_to_perilab()
-    stdin, stdout, stderr = ssh.exec_command(
-        "cd /app \n awk -F'\"' '/version/{print $2}' Project.toml"
-    )
 
-    err = stderr.read().decode().strip()
-    if err:
-        print(f"❌ Error while reading Project.toml: {err}")
+    container = FileHandler.get_perilab_container()
+    exit_code, output = container.exec_run(["sh", "-c", "awk -F'\"' '/version/{print $2}' /PeriLab/Project.toml"])
+    if exit_code != 0:
+        print(f"❌ Error while reading Project.toml: {output.decode().strip()}")
     else:
-        perilab_current = stdout.read().decode().strip()
-
-    ssh.close()
+        perilab_current = output.decode().strip()
 
     try:
-        release = get_latest_release("PeriHub", "PeriHub", tag=True)
-        latest = release[0]["name"]
+        r = requests.get("https://api.github.com/repos/PeriHub/PeriHub/tags", timeout=10)
+        r.raise_for_status()
+        latest = r.json()[0]["name"]
 
-        release = get_latest_release("PeriHub", "PeriLab.jl")
-        perilab_latest = release["tag_name"]
+        r = requests.get("https://api.github.com/repos/PeriHub/PeriLab.jl/releases/latest", timeout=10)
+        r.raise_for_status()
+        perilab_latest = r.json()["tag_name"]
     except Exception as e:
         log.debug(e)
 
-    return  VersionData(current=current, latest=latest, perilab_current=perilab_current, perilab_latest=perilab_latest)
+    return VersionData(current=current, latest=latest, perilab_current=perilab_current, perilab_latest=perilab_latest)

@@ -1,0 +1,92 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""Solver backend seam.
+
+routers/jobs.py submits and cancels local jobs by running commands
+directly inside the bundled `perihub_perilab` docker container via
+FileHandler.get_perilab_container() (Docker Engine API `exec`, not SSH -
+see that method's docstring for why). get_solver_backend() is also a seam
+for the planned "point PeriHub at a customer-hosted PeriLab server"
+enterprise feature: ExternalSolverBackend is gated on SOLVER_BACKEND=external
+and raises intentionally (fail-loud instead of doing nothing) - see
+support/entitlements.py and the roadmap.
+"""
+
+import os
+
+from .file_handler import FileHandler
+from .globals import external_perilab_url, log, solver_backend_kind
+
+
+class SolverBackend:
+    """Interface both backends implement."""
+
+    def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        raise NotImplementedError
+
+    def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        raise NotImplementedError
+
+
+class LocalSolverBackend:
+    """Runs jobs directly inside the bundled `perihub_perilab` docker
+    container - the only backend PeriHub actually runs jobs through today."""
+
+    def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        del remotepath  # the container-side path is always under /app/simulations
+        container = FileHandler.get_perilab_container()
+        workdir = "/app/simulations/" + os.path.join(username, model_name, model_folder_name)
+        # detach=True: fire-and-forget, matching the old `sh runPerilab.sh &`
+        # backgrounding over SSH - we don't wait for the solver run to
+        # finish here, just for the script to start (it manages its own
+        # pid.txt, which the rest of the app polls for status/cancel).
+        container.exec_run(
+            ["sh", "-c", "sh runPerilab.sh > /dev/null 2>&1"],
+            workdir=workdir,
+            detach=True,
+        )
+
+    def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        del username, model_name, model_folder_name  # only remotepath is needed for the kill command
+        container = FileHandler.get_perilab_container()
+        command = FileHandler.wait_and_kill_shell_command("/app" + os.path.join(remotepath, "pid.txt"))
+        # detach=False (the default): blocks until the command - including
+        # its short wait-for-pid.txt loop - actually finishes.
+        container.exec_run(["sh", "-c", command])
+
+
+class ExternalSolverBackend(SolverBackend):
+    """Placeholder for the planned enterprise feature of running against a
+    customer-hosted PeriLab server instead of the bundled container.
+
+    NOT functionally complete: PeriHub has no documented protocol yet for
+    submitting/cancelling jobs against an arbitrary remote PeriLab HTTP(S)
+    endpoint (auth, payload shape, job-id correlation for later status/log
+    polling are all still open questions). Raising clearly here is
+    intentional so a misconfigured SOLVER_BACKEND=external fails loudly
+    instead of silently doing nothing.
+    """
+
+    def __init__(self, url: str):
+        self.url = url
+
+    def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        raise NotImplementedError(
+            "SOLVER_BACKEND=external is not implemented yet - "
+            f"EXTERNAL_PERILAB_URL={self.url!r} is configured but there is no client for it. "
+            "See support/solver_backend.py."
+        )
+
+    def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+        raise NotImplementedError("SOLVER_BACKEND=external is not implemented yet - see support/solver_backend.py.")
+
+
+def get_solver_backend() -> SolverBackend:
+    if solver_backend_kind == "external":
+        if not external_perilab_url:
+            log.warning("SOLVER_BACKEND=external but EXTERNAL_PERILAB_URL is not set; falling back to local")
+            return LocalSolverBackend()
+        return ExternalSolverBackend(external_perilab_url)
+    return LocalSolverBackend()

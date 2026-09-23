@@ -13,9 +13,7 @@
       "id": 1,
       "name": "PMMA",
       "density": 0.000008,
-      "matType": [
-        "Bond-based Elastic"
-      ],
+      "matType": ["Bond-based Elastic"],
       "bulkModulus": null,
       "poissonsRatio": "0.333",
       "properties": [
@@ -45,7 +43,7 @@
     {
       "id": 1,
       "name": "PMMADamage",
-      "damageModel": "Critical Stretch",
+      "damageModel": "Critical Energy",
       "criticalStretch": null,
       "criticalEnergy": "0.015",
       "interblockdamageEnergy": null,
@@ -159,13 +157,7 @@
       "id": 1,
       "name": "Output1",
       "selectedFileType": "Exodus",
-      "selectedOutputs": [
-        "Displacements",
-        "Forces",
-        "Damage",
-        "Velocity",
-        "Number of Neighbors"
-      ],
+      "selectedOutputs": ["Displacements", "Forces", "Damage", "Velocity", "Number of Neighbors"],
       "Write_After_Damage": false,
       "Frequency": "100",
       "numberOfOutputSteps": 100,

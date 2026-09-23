@@ -5,15 +5,23 @@ parent: Output
 nav_order: 2
 ---
 
-# Textview
+# Text view
 
-The Textview will show two different files:
+The **Text view** shows machine-readable text, in two different modes.
 
-- Input file:
-  - The input file which will be generated or uploaded. The file contains all necessary configurations needed for a peridynamic simulation. In the Textview the file can also be modified.
-- Log file:
-  - For a running simulation the log file can be retrieved manually or automatically.
+- **Input file** — the input deck for your simulation, a text file that lists
+  everything the solver needs. PeriHub writes this file for you from the settings
+  in the Setup panel, but you can also open it here and edit it directly if you
+  prefer to work with the raw file. Uploading your own input deck works the same
+  way.
 
-|                Input file                |                 Log file                 |
-| :--------------------------------------: | :--------------------------------------: |
+- **Log file** — the record of what your simulation did while it ran. A running
+  job updates the log live, so you can watch progress or diagnose a problem as it
+  happens. You can fetch the log automatically or on demand.
+
+Use the text view to inspect exactly what will be run, and to read the results
+and any messages the solver prints.
+
+| Input file | Log file |
+| :--------: | :------: |
 | ![drawing](/assets/images/textView1.PNG) | ![drawing](/assets/images/textView2.PNG) |

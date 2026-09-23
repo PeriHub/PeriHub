@@ -4,16 +4,17 @@
 
 import json
 import os
-import shutil
-import socket
 from typing import List, Optional
 
-import paramiko
 from fastapi import APIRouter, HTTPException, Request, status
 
+from ..support import audit_log, usage_metering
+from ..support.api_key_auth import get_user_name_with_api_key
 from ..support.base_models import Jobs, ModelData, Status
 from ..support.file_handler import FileHandler
-from ..support.globals import cluster_enabled, cluster_perilab_path, dev, log, trial
+from ..support.globals import cluster_enabled, cluster_perilab_path, dev, log, max_concurrent_local_jobs, trial
+from ..support.job_concurrency import count_active_local_jobs, has_capacity
+from ..support.solver_backend import get_solver_backend
 from ..support.writer.sbatch_writer import SbatchCreator
 
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
@@ -30,6 +31,7 @@ async def run_model(
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
+    username = get_user_name_with_api_key(request, dev, username)
     usermail = FileHandler.get_user_mail(request)
 
     material = model_data.materials
@@ -43,6 +45,22 @@ async def run_model(
     sbatch = model_data.job.sbatch
     disc_type = model_data.discretization.discType
 
+    # Back-pressure: local (non-cluster) jobs run on the single bundled
+    # perihub_perilab container, so cap how many can be in flight at once
+    # instead of silently piling them all on. Cluster/sbatch jobs are handed
+    # off to Slurm, which already queues, so they're not subject to this.
+    if not cluster and not has_capacity():
+        active = count_active_local_jobs()
+        log.warning("Rejecting %s: %d/%d local jobs already active", model_name, active, max_concurrent_local_jobs)
+        audit_log.record(username, "run_model", model_name, request, result="rejected_capacity")
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=(
+                f"{active}/{max_concurrent_local_jobs} local simulation slots are in use. "
+                "Please retry once a running job finishes, or submit to a cluster."
+            ),
+        )
+
     remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
     if os.path.exists(os.path.join(remotepath, "runPerilab.sh")):
@@ -51,6 +69,13 @@ async def run_model(
     FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster, disc_type)
 
     FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
+
+    # ModelData.discretization doesn't currently carry a node count field, so
+    # this is left None for now rather than guessed at; it's a placeholder in
+    # the schema this call already accepts for when that data is available.
+    node_count = getattr(model_data.discretization, "nodeCount", None)
+    usage_metering.record_job_submission(username, model_name, model_folder_name, cluster, sbatch, node_count)
+    audit_log.record(username, "run_model", model_name, request, extra={"cluster": cluster, "sbatch": sbatch})
 
     if cluster and sbatch:
         # initial_jobs = FileHandler.write_get_cara_job_id()
@@ -67,6 +92,10 @@ async def run_model(
         sbatch_string = sbatch.create_sbatch()
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        # Written before anything else so the /ws log-tail endpoint (and
+        # getStatus/getJobs progress parsing) can tell this run's .log file
+        # apart from one left behind by a previous run in the same folder.
+        FileHandler.write_run_marker_remote(sftp, remotepath)
         file = sftp.file(remotepath + "/" + model_name + ".sbatch", "w", -1)
         file.write(sbatch_string)
         file.flush()
@@ -96,6 +125,7 @@ async def run_model(
         )
         sh_string = sbatch.create_sh(verbose, False, cluster_perilab_path)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+        FileHandler.write_run_marker_remote(sftp, remotepath)
         file = sftp.file(remotepath + "/" + "runPerilab.sh", "w", -1)
         file.write(sh_string)
         file.flush()
@@ -125,6 +155,7 @@ async def run_model(
             job_ids=job_ids,
         )
         sh_string = sbatch.create_sh(verbose)
+        FileHandler.write_run_marker_local(remotepath)
         with open(
             os.path.join(remotepath, "runPerilab.sh"),
             "w",
@@ -133,18 +164,12 @@ async def run_model(
             file.write(sh_string)
         os.chmod(os.path.join(remotepath, "runPerilab.sh"), 0o0755)
 
-        ssh = FileHandler.ssh_to_perilab()
-        
-        command = (
-            "cd /app" + "/simulations/" + os.path.join(username, model_name, model_folder_name) + " \n sh runPerilab.sh > /dev/null 2>&1 &"
-        )
-        ssh.exec_command(command)
-        # stdin, stdout, stderr = ssh.exec_command('nohup python executefile.py >/dev/null 2>&1 &')
-        # stdout=stdout.readlines()
-        # stderr=stderr.readlines()
-        ssh.close()
+        # Delegates to the configured solver backend (local docker container
+        # by default; see support/solver_backend.py for the pluggability
+        # this enables - e.g. the planned external/remote PeriLab server
+        # enterprise feature).
+        get_solver_backend().submit(username, model_name, model_folder_name, remotepath)
 
-        # return stdout + stderr
         log.info("%s has been submitted", model_name)
         return
 
@@ -162,41 +187,18 @@ def cancel_job(
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
+    username = get_user_name_with_api_key(request, dev, username)
+
+    usage_metering.record_job_cancellation(username, model_name, model_folder_name, cluster)
+    audit_log.record(username, "cancel_job", model_name, request, extra={"cluster": cluster, "sbatch": sbatch})
 
     if not cluster:
-        server = "perihub_perilab"
         remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        while True:
-            try:
-                ssh.connect(
-                    server,
-                    username="root",
-                    allow_agent=False,
-                    password="root",
-                    timeout=5,
-                )
-            except socket.gaierror:
-                if server != "localhost":
-                    server = "localhost"
-                    continue
-                else:
-                    log.error("ssh connection to %s failed!", server)
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to " + server + " failed!"
-                    )
-            break
-        command = (
-            "kill -2 $(cat /app"
-            + os.path.join(remotepath, "pid.txt")
-            + ") \n rm /app"
-            + os.path.join(remotepath, "pid.txt")
-        )
-        _, stdout, stderr = ssh.exec_command(command)
-        stdout = stdout.readlines()
-        stderr = stderr.readlines()
-        ssh.close()
+        # Delegates to the configured solver backend (see
+        # support/solver_backend.py), which runs the kill command directly
+        # inside perihub_perilab via the Docker Engine API - see
+        # FileHandler.get_perilab_container().
+        get_solver_backend().cancel(username, model_name, model_folder_name, remotepath)
 
         log.info("Job has been canceled")
         return
@@ -218,9 +220,7 @@ def cancel_job(
         command = "scancel -n " + model_name + "_" + model_folder_name
         ssh.exec_command(command)
     else:
-        command = (
-            "kill -2 $(cat " + os.path.join(remotepath, "pid.txt") + ") \n rm " + os.path.join(remotepath, "pid.txt")
-        )
+        command = FileHandler.wait_and_kill_shell_command(os.path.join(remotepath, "pid.txt"))
         _, stdout, stderr = ssh.exec_command(command)
         stdout = stdout.readlines()
         stderr = stderr.readlines()
@@ -269,7 +269,7 @@ def get_jobs(
     if not os.path.exists(localpath):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="LogFile can't be found in " + remotepath,
+            detail="LogFile can't be found in " + localpath,
         )
 
     cluster_accesible = True
@@ -310,6 +310,16 @@ def get_jobs(
                             with open(filepath) as f:
                                 data = json.load(f)
                                 job.model = data
+
+                    log_file = FileHandler.find_latest_log_file_local(
+                        remotepath, not_before=FileHandler.get_run_marker_time_local(remotepath)
+                    )
+                    if log_file is not None:
+                        try:
+                            with open(log_file, "r") as f:
+                                job.progress, job.currentStep, job.totalSteps = FileHandler.parse_progress(f.read())
+                        except OSError:
+                            pass
                     # print(job.cluster)
                     jobs.append(job)
                     job = Jobs(
@@ -345,6 +355,16 @@ def get_jobs(
                         else:
                             if "pid.txt" in sftp.listdir(remotepath):
                                 job.submitted = True
+
+                        log_file = FileHandler.find_latest_log_file_remote(
+                            sftp, remotepath, not_before=FileHandler.get_run_marker_time_remote(sftp, remotepath)
+                        )
+                        if log_file is not None:
+                            try:
+                                with sftp.open(log_file, "r") as f:
+                                    job.progress, job.currentStep, job.totalSteps = FileHandler.parse_progress(f.read())
+                            except IOError:
+                                pass
 
                         # print(job.cluster)
                         jobs.append(job)
@@ -401,6 +421,17 @@ def get_status(
         else:
             if "pid.txt" in sftp.listdir(remotepath):
                 status.submitted = True
+
+        log_file = FileHandler.find_latest_log_file_remote(
+            sftp, remotepath, not_before=FileHandler.get_run_marker_time_remote(sftp, remotepath)
+        )
+        if log_file is not None:
+            try:
+                with sftp.open(log_file, "r") as f:
+                    status.progress, status.currentStep, status.totalSteps = FileHandler.parse_progress(f.read())
+            except IOError:
+                pass
+
         sftp.close()
         ssh.close()
 
@@ -415,4 +446,11 @@ def get_status(
                     status.results = True
                 if ".csv" in files:
                     status.csvResults = True
+
+            log_file = FileHandler.find_latest_log_file_local(
+                remotepath, not_before=FileHandler.get_run_marker_time_local(remotepath)
+            )
+            if log_file is not None:
+                with open(log_file, "r") as f:
+                    status.progress, status.currentStep, status.totalSteps = FileHandler.parse_progress(f.read())
     return status

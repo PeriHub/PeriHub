@@ -1,0 +1,138 @@
+/*
+ * SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/*
+ * Tailwind v4 excludes node_modules from its automatic class scanning by
+ * default. layerchart's own compiled Svelte components rely on utilities
+ * such as `fill-none` (without it, an SVG <path> falls back to the SVG
+ * spec's default solid black fill) that would otherwise never get
+ * generated, since our own source files never mention them literally.
+ */
+@source '../node_modules/layerchart/dist/**/*.{svelte,js}';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * PeriHub brand tokens — carried over from the old
+ * quasar.variables.scss ($primary/$secondary/$accent) and re-expressed
+ * as OKLCH so light/dark mode stay perceptually consistent.
+ */
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(0.99 0.002 240);
+  --foreground: oklch(0.17 0.01 240);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.17 0.01 240);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.17 0.01 240);
+
+  /* #00658b */
+  --primary: oklch(0.47 0.08 224);
+  --primary-foreground: oklch(0.99 0.005 240);
+
+  /* #82a043 */
+  --secondary: oklch(0.62 0.1 122);
+  --secondary-foreground: oklch(0.15 0.02 122);
+
+  /* #d2ae3d */
+  --accent: oklch(0.79 0.12 85);
+  --accent-foreground: oklch(0.2 0.03 85);
+
+  --muted: oklch(0.96 0.004 240);
+  --muted-foreground: oklch(0.48 0.01 240);
+
+  --destructive: oklch(0.52 0.19 25);
+  --destructive-foreground: oklch(0.99 0.005 240);
+
+  --success: oklch(0.6 0.15 145);
+  --warning: oklch(0.79 0.14 90);
+  --info: oklch(0.72 0.13 220);
+
+  --border: oklch(0.9 0.005 240);
+  --input: oklch(0.9 0.005 240);
+  --ring: oklch(0.47 0.08 224 / 0.5);
+}
+
+.dark {
+  --background: oklch(0.16 0.006 240);
+  --foreground: oklch(0.95 0.003 240);
+
+  --card: oklch(0.19 0.007 240);
+  --card-foreground: oklch(0.95 0.003 240);
+
+  --popover: oklch(0.19 0.007 240);
+  --popover-foreground: oklch(0.95 0.003 240);
+
+  --primary: oklch(0.68 0.1 224);
+  --primary-foreground: oklch(0.14 0.01 240);
+
+  --secondary: oklch(0.62 0.1 122);
+  --secondary-foreground: oklch(0.14 0.02 122);
+
+  --accent: oklch(0.79 0.12 85);
+  --accent-foreground: oklch(0.14 0.03 85);
+
+  --muted: oklch(0.24 0.006 240);
+  --muted-foreground: oklch(0.68 0.01 240);
+
+  --destructive: oklch(0.62 0.2 25);
+  --destructive-foreground: oklch(0.99 0.005 240);
+
+  --success: oklch(0.68 0.16 145);
+  --warning: oklch(0.79 0.14 90);
+  --info: oklch(0.72 0.13 220);
+
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.68 0.1 224 / 0.5);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+}

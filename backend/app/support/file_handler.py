@@ -7,6 +7,7 @@ doc
 """
 import ast
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -17,8 +18,8 @@ from pathlib import Path
 import jwt
 import paramiko
 from fastapi import HTTPException, status
-from random_username.generate import generate_username
 from natsort import natsorted
+from random_username.generate import generate_username
 
 from ..support.globals import (
     cluster_job_path,
@@ -121,17 +122,6 @@ class FileHandler:
         if user_name is not None and user_name != "" and user_name != "undefined":
             return user_name
         return "user"
-
-        # encoded_token = request.headers.get("Authorization")
-        # if encoded_token is None or encoded_token == "":
-        #     return "guest"
-
-        # decoded_token = jwt.decode(
-        #     encoded_token.split(" ")[1],
-        #     options={"verify_signature": False},
-        # )
-
-        # return decoded_token["preferred_username"]
 
     @staticmethod
     def get_max_nodes(username):
@@ -412,26 +402,7 @@ class FileHandler:
         log.info("Start copying")
 
         remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-        # log.info(remotepath)
         ssh, sftp = FileHandler.sftp_to_cluster(cluster)
-        # if tasks != 1:
-        #     try:
-        #         command = "module load netCDF" + "\n"
-        #         command += "module load GCCcore/10.2.0" + "\n"
-        #         command += (
-        #             "cd "
-        #             + remotepath
-        #             + "\n python /home/f_peridi/peridigm/build/scripts/MergeFiles.py "
-        #             + model_name
-        #             + "_"
-        #             + output
-        #             + " "
-        #             + str(tasks)
-        #         )
-        #         ssh.exec_command(command)
-        #     except Exception:
-        #         log.error("MergeFiles.py failed")
-        #         pass
         try:
             attrs = sftp.listdir_attr(remotepath)
 
@@ -439,7 +410,7 @@ class FileHandler:
                 filename = attr.filename
 
                 # Skip files that don't match the filter
-                if not (all_data or filename.endswith('.e') or filename.endswith('.csv') or filename.endswith('.log')):
+                if not (all_data or filename.endswith(".e") or filename.endswith(".csv") or filename.endswith(".log")):
                     continue
 
                 local_path = Path(resultpath) / filename
@@ -447,7 +418,7 @@ class FileHandler:
 
                 # If the file already exists locally, compare timestamps
                 if local_path.exists():
-                    remote_mtime = attr.st_mtime            # from listdir_attr
+                    remote_mtime = attr.st_mtime  # from listdir_attr
                     local_mtime = local_path.stat().st_mtime
 
                     if remote_mtime <= local_mtime:
@@ -509,7 +480,7 @@ class FileHandler:
                         username=username,
                         allow_agent=False,
                         password="root",
-                    timeout=5,
+                        timeout=5,
                     )
                 except paramiko.SSHException:
                     if server != "localhost":
@@ -538,55 +509,166 @@ class FileHandler:
             return False
 
     @staticmethod
-    def ssh_to_perilab():
-        """doc"""
+    def wait_and_kill_shell_command(pid_file_path, wait_seconds=10):
+        """Shell snippet used by cancel_job/LocalSolverBackend.cancel.
 
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        A job that was *just* submitted may not have written its pid.txt
+        yet - it's the first thing the run script does, but there can be a
+        beat before the container/shell actually starts executing it. This
+        waits up to `wait_seconds` for pid.txt to show up before sending the
+        kill signal, instead of silently doing nothing (the previous
+        `kill -2 $(cat pid.txt)` one-liner) if Cancel is clicked in that
+        window. If the file never appears, it's a no-op - there's nothing
+        running to kill.
+        """
+        return (
+            f"for i in $(seq 1 {wait_seconds}); do "
+            f'[ -f "{pid_file_path}" ] && break; '
+            "sleep 1; "
+            "done\n"
+            f'if [ -f "{pid_file_path}" ]; then '
+            f'kill -2 $(cat "{pid_file_path}") 2>/dev/null; '
+            f'rm -f "{pid_file_path}"; '
+            "fi"
+        )
 
-        server = "perihub_perilab"
-        
-        while True:
-            try:
-                ssh.connect(
-                    server,
-                    port=22,
-                    username="root",
-                    allow_agent=False,
-                    password="root",
-                    timeout=5,
-                )
-            except paramiko.SSHException:
-                log.error("ssh connection to %s failed!", server)
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to " + server + " failed!"
-                )
-            except socket.gaierror:
-                if server != "localhost":
-                    server = "localhost"
-                    log.info("retrying ssh connection to %s", server)
+    RUN_MARKER_FILENAME = ".run_marker"
+
+    @staticmethod
+    def write_run_marker_local(remotepath):
+        """Drops a small timestamp file the instant a job is submitted (see
+        routers/jobs.py:run_model), so log-file lookups below can tell a
+        genuinely new run's .log apart from an older one left over from a
+        previous run of the same model - without it, the /ws log-tail
+        endpoint (or getStatus/getJobs progress parsing) can pick up a
+        stale log file that already existed in the folder before this run
+        even started."""
+        os.makedirs(remotepath, exist_ok=True)
+        with open(os.path.join(remotepath, FileHandler.RUN_MARKER_FILENAME), "w", encoding="UTF-8") as f:
+            f.write(str(time.time()))
+
+    @staticmethod
+    def write_run_marker_remote(sftp, remotepath):
+        """Cluster equivalent of write_run_marker_local, over an open sftp session."""
+        with sftp.open(remotepath + "/" + FileHandler.RUN_MARKER_FILENAME, "w") as f:
+            f.write(str(time.time()))
+
+    @staticmethod
+    def get_run_marker_time_local(remotepath):
+        """Returns the submission time written by write_run_marker_local, or
+        None if there isn't one yet (e.g. a job submitted before this file
+        existed, or the folder was never run at all) - callers should treat
+        None as "don't filter by recency"."""
+        marker_path = os.path.join(remotepath, FileHandler.RUN_MARKER_FILENAME)
+        try:
+            with open(marker_path, "r", encoding="UTF-8") as f:
+                return float(f.read().strip())
+        except (OSError, ValueError):
+            return None
+
+    @staticmethod
+    def get_run_marker_time_remote(sftp, remotepath):
+        """Cluster equivalent of get_run_marker_time_local."""
+        try:
+            with sftp.open(remotepath + "/" + FileHandler.RUN_MARKER_FILENAME, "r") as f:
+                return float(f.read().strip())
+        except (IOError, ValueError):
+            return None
+
+    @staticmethod
+    def find_latest_log_file_local(remotepath, not_before=None):
+        """Same `.log` discovery rule used by the /ws log-tail endpoint in main.py,
+        factored out so getStatus/getJobs can read the same file for progress.
+
+        `not_before`, when given, excludes any .log file created before that
+        (epoch-seconds) time - see write_run_marker_local. Without it, an
+        older log file left over from a previous run can otherwise look like
+        "the" log file right up until the new run's log overtakes it.
+        """
+        if not os.path.exists(remotepath):
+            return None
+        candidates = [f for f in os.listdir(remotepath) if re.match(r"^.+\.log$", f)]
+        if not_before is not None:
+            candidates = [f for f in candidates if os.path.getctime(os.path.join(remotepath, f)) >= not_before]
+        if not candidates:
+            return None
+        paths = [os.path.join(remotepath, name) for name in candidates]
+        return max(paths, key=os.path.getctime)
+
+    @staticmethod
+    def find_latest_log_file_remote(sftp, remotepath, not_before=None):
+        """Cluster equivalent of find_latest_log_file_local. See its
+        docstring for `not_before`."""
+        try:
+            candidates = [f for f in sftp.listdir(remotepath) if re.match(r"^.+\.log$", f)]
+        except IOError:
+            return None
+        if not_before is not None:
+            still_valid = []
+            for name in candidates:
+                try:
+                    if sftp.stat(os.path.join(remotepath, name)).st_mtime >= not_before:
+                        still_valid.append(name)
+                except IOError:
                     continue
-                else:
-                    log.error(
-                        "ssh connection to %s failed! Is the PeriLab Service running?",
-                        server,
-                    )
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail="ssh connection to " + server + " failed! Is the PeriLab Service running?",
-                    )
-            except Exception as e:
-                log.error(type(e))
-                log.error(
-                    "ssh connection to %s failed! Is the PeriLab Service running?",
-                    server,
-                )
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="ssh connection to " + server + " failed! Is the PeriLab Service running?",
-                )
-            break
-        return ssh
+            candidates = still_valid
+        if not candidates:
+            return None
+        # sftp has no getctime; filenames from PeriLab embed the run timestamp,
+        # so the lexicographically-last one is also the most recent.
+        return os.path.join(remotepath, sorted(candidates)[-1])
+
+    @staticmethod
+    def parse_progress(log_text):
+        """Looks for the most recent line matching `[Progress] step <current>/<total>`
+        - one such line, printed once per output time step, is the minimal addition
+        needed on the PeriLab side (see docs/progress-reporting.md). Returns
+        (percent, current_step, total_steps), all None if no such line is present
+        yet, so this degrades harmlessly against logs from a PeriLab build that
+        doesn't emit it, or before the first output step has been written.
+        """
+        last_match = None
+        for line in log_text.splitlines():
+            found = re.search(r"\[Progress\]\s*step\s*(\d+)\s*/\s*(\d+)", line)
+            if found:
+                last_match = found
+        if last_match is None:
+            return None, None, None
+        current_step, total_steps = int(last_match.group(1)), int(last_match.group(2))
+        if total_steps <= 0:
+            return None, current_step, total_steps
+        percent = round(100 * current_step / total_steps, 1)
+        return percent, current_step, total_steps
+
+    @staticmethod
+    def get_perilab_container():
+        """Returns the bundled `perihub_perilab` docker container (see
+        docker-compose.yml) so callers can `container.exec_run(...)`
+        commands inside it directly over the Docker Engine API - instead of
+        the previous approach of SSHing in, which needed a full SSH server
+        with hardcoded root/root credentials baked into the solver image
+        just to run one command.
+
+        Requires /var/run/docker.sock to be mounted into this
+        (perihub_backend) container - see docker-compose.yml.
+        """
+        import docker  # local import: only the local (non-cluster) job path needs this
+
+        try:
+            client = docker.from_env()
+            return client.containers.get("perihub_perilab")
+        except docker.errors.NotFound as e:
+            log.error("perihub_perilab container not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="The perihub_perilab container isn't running. Is the PeriLab service up?",
+            ) from e
+        except docker.errors.DockerException as e:
+            log.error("Could not reach the Docker daemon: %s", e)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Could not reach the Docker daemon - is /var/run/docker.sock mounted into this container?",
+            ) from e
 
     @staticmethod
     def ssh_to_cluster(cluster):

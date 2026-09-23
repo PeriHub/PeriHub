@@ -194,12 +194,12 @@ def generate_model(
         k = [1e10]
     block_def = data.blocks
 
-    try:
+    # try:
         # deviations = {'sampleSize': 5, 'parameters': [{'id': "materials[0].youngsModulus", "mean": 0.1, "std": 10}]}
-        writer.create_file(block_def, max(k), data.deviations)
-    except TypeError as exception:
-        log.error(f"Failed to create file: {exception}")
-        return str(exception)
+    writer.create_file(block_def, max(k), data.deviations)
+    # except TypeError as exception:
+    #     log.error(f"Failed to create file: {exception}")
+    #     return str(exception)
 
     log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
 

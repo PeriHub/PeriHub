@@ -7,11 +7,23 @@ nav_order: 2
 
 # Job
 
-The job configuration panel specifies which Cluster will receive the job submission and who many processors are needed:
+The **Job** section decides _where_ your simulation runs and _how much
+compute_ it is allowed to use.
 
-| Configuration        | Sub-Configuration    | Description                                       |
-| -------------------- | -------------------- | ------------------------------------------------- |
-| Cluster              | `$\phantom{++++++}$` | Name of the cluster which will run the simulation |
-| Tasks                |                      | Number of processors used for the simulation      |
-| `$\phantom{++++++}$` | Time                 | Maximal allowed time                              |
-| `$\phantom{++++++}$` | Account              | Account number for simulation cost invoice        |
+## Choosing where to run
+
+The built-in models run on a local solver (the `perilab` container when you run
+PeriHub yourself, or the shared solver when you use a hosted version). If you have
+access to a remote **HPC cluster**, you can select it here to run larger
+simulations on more powerful hardware.
+
+| Setting | What it controls                                                        |
+| ------- | ----------------------------------------------------------------------- |
+| Cluster | The machine that will run the simulation — local, or a remote cluster.  |
+| Tasks   | The number of processors (cores) to use. More cores means a faster run. |
+| Time    | The maximum time the job may run before it is stopped.                  |
+| Account | The account number used to bill the compute time, for cluster jobs.     |
+
+> **Note:** if you are running PeriHub yourself for the first time, leave the
+> cluster at its default (the local solver) and make sure the `perilab` container
+> is running. See **[Getting Started](/GettingStarted.html)**.
