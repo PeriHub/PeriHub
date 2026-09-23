@@ -60,6 +60,7 @@ jobs:
           path: ./playwright-report/
           retention-days: 30
       - name: Build Docker image
+        if: github.ref_name == 'main'
         run: docker build -t perihub/frontend:dev .
       - name: Publish to Registry
         if: github.ref_name == 'main'
