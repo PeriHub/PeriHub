@@ -198,7 +198,7 @@ SPDX-License-Identifier: Apache-2.0
         cluster: modelData.job.cluster,
         output: plotOutput,
         tasks: modelData.job.tasks,
-        deviationsEnabled: modelData.deviations.enabled
+        deviationsEnabled: modelData.deviations?.enabled ?? false
       })) as Record<string, (number | string)[]>;
 
       notify.positive('Plot loaded');

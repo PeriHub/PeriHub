@@ -7,13 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { Accordion } from 'bits-ui';
   import { ChevronDown } from 'lucide-svelte';
-  import type { SvelteComponent as SvelteComponentType } from 'svelte';
+  import type { Component } from 'svelte';
   import { cn } from '$lib/utils';
 
   interface Props {
     value: string;
     label: string;
-    icon: SvelteComponentType;
+    icon: Component;
     /** Optional required-fields-filled-in indicator (see schemaValidation.ts). Omit to hide. */
     complete?: boolean;
     children?: import('svelte').Snippet;

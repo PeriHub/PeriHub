@@ -6,7 +6,6 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { Accordion } from 'bits-ui';
-  import { SvelteComponent } from 'svelte';
   import type { Component } from 'svelte';
   import {
     Box,
@@ -58,7 +57,7 @@ SPDX-License-Identifier: Apache-2.0
   interface PanelSection {
     key: string;
     label: string;
-    icon: typeof SvelteComponent;
+    icon: Component;
     component: Component;
     schema: string;
     schemaKind: 'object' | 'array';
@@ -83,7 +82,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'model',
           label: 'Model',
-          icon: Box,
+          icon: Box as unknown as Component,
           component: ModelSettings,
           schema: 'Model',
           schemaKind: 'object',
@@ -92,7 +91,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'discretization',
           label: 'Discretization',
-          icon: Grid3x3,
+          icon: Grid3x3 as unknown as Component,
           component: DiscretizationSettings,
           schema: 'Discretization',
           schemaKind: 'object',
@@ -101,7 +100,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'blocks',
           label: 'Blocks',
-          icon: Grid2x2,
+          icon: Grid2x2 as unknown as Component,
           component: BlocksSettings,
           schema: 'Block',
           schemaKind: 'array',
@@ -116,7 +115,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'material',
           label: 'Material',
-          icon: Wrench,
+          icon: Wrench as unknown as Component,
           component: MaterialSettings,
           schema: 'Material',
           schemaKind: 'array',
@@ -125,7 +124,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'thermal',
           label: 'Thermal',
-          icon: Flame,
+          icon: Flame as unknown as Component,
           component: ThermalSettings,
           schema: 'Thermal',
           schemaKind: 'object',
@@ -134,7 +133,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'additive',
           label: 'Additive',
-          icon: Layers,
+          icon: Layers as unknown as Component,
           component: AdditiveSettings,
           schema: 'Additive',
           schemaKind: 'object',
@@ -143,7 +142,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'damage',
           label: 'Damage Models',
-          icon: Scissors,
+          icon: Scissors as unknown as Component,
           component: DamageSettings,
           schema: 'Damage',
           schemaKind: 'array',
@@ -152,7 +151,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'contact',
           label: 'Contact',
-          icon: Boxes,
+          icon: Boxes as unknown as Component,
           component: ContactSettings,
           schema: 'Contact',
           schemaKind: 'object',
@@ -167,7 +166,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'boundaryConditions',
           label: 'Boundary Conditions',
-          icon: Waypoints,
+          icon: Waypoints as unknown as Component,
           component: BoundaryConditionsSettings,
           schema: 'BoundaryConditions',
           schemaKind: 'object',
@@ -176,7 +175,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'bondFilters',
           label: 'Bond Filters',
-          icon: Filter,
+          icon: Filter as unknown as Component,
           component: BondFilterSettings,
           schema: 'BondFilters',
           schemaKind: 'array',
@@ -185,7 +184,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'output',
           label: 'Output',
-          icon: LogOut,
+          icon: LogOut as unknown as Component,
           component: OutputSettings,
           schema: 'Output',
           schemaKind: 'array',
@@ -194,7 +193,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'solver',
           label: 'Solver',
-          icon: Calculator,
+          icon: Calculator as unknown as Component,
           component: SolverSettings,
           schema: 'Solver',
           schemaKind: 'array',
@@ -203,7 +202,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'job',
           label: 'Job',
-          icon: FlaskConical,
+          icon: FlaskConical as unknown as Component,
           component: JobSettings,
           schema: 'Job',
           schemaKind: 'object',
@@ -213,7 +212,7 @@ SPDX-License-Identifier: Apache-2.0
         {
           key: 'deviations',
           label: 'Deviations',
-          icon: BarChart3,
+          icon: BarChart3 as unknown as Component,
           component: DeviationsSettings,
           schema: 'Deviations',
           schemaKind: 'object',

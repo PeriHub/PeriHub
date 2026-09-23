@@ -120,7 +120,7 @@ SPDX-License-Identifier: Apache-2.0
               const file = (e.target as HTMLSelectElement).value;
               const m = modelList.find((x) => x.file === file);
               if (m) {
-                selectedModel = m;
+                selectedModel = m as { title: string; file: string };
                 selectModel();
               }
             }}
@@ -130,8 +130,8 @@ SPDX-License-Identifier: Apache-2.0
               <option value={model.file}>{model.title}</option>
             {/each}
           </Select>
-          <div class="my-4 border-t border-border"></div>
-          <p class="mb-3 text-sm text-muted-foreground">Or</p>
+          <div class="border-border my-4 border-t"></div>
+          <p class="text-muted-foreground mb-3 text-sm">Or</p>
         {/if}
         <Button
           class="w-full"
@@ -145,7 +145,12 @@ SPDX-License-Identifier: Apache-2.0
     </div>
   {:else}
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <Button variant="ghost" size="icon" disabled={defaultStore.trial} onclick={() => (dialogAddModel = true)}>
+      <Button
+        variant="ghost"
+        size="icon"
+        disabled={defaultStore.trial}
+        onclick={() => (dialogAddModel = true)}
+      >
         <Plus class="h-4 w-4" />
       </Button>
       <Select
@@ -155,7 +160,7 @@ SPDX-License-Identifier: Apache-2.0
           const file = (e.target as HTMLSelectElement).value;
           const m = modelList.find((x) => x.file === file);
           if (m) {
-            selectedModel = m;
+            selectedModel = m as { title: string; file: string };
             selectModel();
           }
         }}
@@ -173,7 +178,7 @@ SPDX-License-Identifier: Apache-2.0
             <Button onclick={saveModel}>Save</Button>
             <Button variant="destructive" onclick={() => (dialogDeleteModel = true)}>Delete</Button>
           </div>
-          <div class="h-[calc(100vh-320px)] overflow-auto rounded-md border border-border">
+          <div class="border-border h-[calc(100vh-320px)] overflow-auto rounded-md border">
             <CodeBlock bind:value={sourceCode} language="python" />
           </div>
         </div>
@@ -184,7 +189,7 @@ SPDX-License-Identifier: Apache-2.0
           <div class="mb-2">
             <Button onclick={saveModelConfig}>Save</Button>
           </div>
-          <div class="h-[calc(100vh-320px)] overflow-auto rounded-md border border-border">
+          <div class="border-border h-[calc(100vh-320px)] overflow-auto rounded-md border">
             <JsonView />
           </div>
         </div>
@@ -197,7 +202,7 @@ SPDX-License-Identifier: Apache-2.0
   <Dialog.Portal>
     <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
     <Dialog.Content
-      class="fixed left-1/2 top-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-5 shadow-lg"
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
       <Dialog.Title class="mb-3 text-lg font-semibold">Add Model</Dialog.Title>
       <div class="space-y-3">
@@ -222,7 +227,7 @@ SPDX-License-Identifier: Apache-2.0
   <Dialog.Portal>
     <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
     <Dialog.Content
-      class="fixed left-1/2 top-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-5 shadow-lg"
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
       <Dialog.Title class="mb-3 text-lg font-semibold">
         Are you sure you want to delete {selectedModel.title}?

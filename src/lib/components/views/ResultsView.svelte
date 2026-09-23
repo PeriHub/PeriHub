@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { onMount, onDestroy, tick } from 'svelte';
+  import type { Component } from 'svelte';
   import { Accordion } from 'bits-ui';
   import {
     RotateCw,
@@ -319,7 +320,7 @@ SPDX-License-Identifier: Apache-2.0
       </div>
 
       <Accordion.Root type="single" bind:value={expansionValue}>
-        <AccordionItem value="options" label="Options" icon={Settings}>
+        <AccordionItem value="options" label="Options" icon={Settings as unknown as Component}>
           <div class="flex flex-col gap-2">
             <div>
               <Label for="results-filter">Filter</Label>
