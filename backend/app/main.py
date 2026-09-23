@@ -29,7 +29,6 @@ from .routers import license as license_router
 from .routers import (
     model,
     results,
-    settings,
     translate,
     upload,
     usage,
@@ -63,10 +62,6 @@ tags_metadata = [
     {
         "name": "License Methods",
         "description": "Plan & entitlement status from the license server",
-    },
-    {
-        "name": "Settings Methods",
-        "description": "Read/edit the env-var configuration from support/globals.py",
     },
 ]
 
@@ -131,7 +126,6 @@ app.include_router(docs.router)
 app.include_router(energy.router)
 app.include_router(usage.router)
 app.include_router(license_router.router)
-app.include_router(settings.router)
 
 if dev:
     log.info("--- Running in development mode ---")
@@ -316,7 +310,7 @@ async def get_app_latest_release_version() -> VersionData:
     perilab_latest = "unknown"
 
     container = FileHandler.get_perilab_container()
-    exit_code, output = container.exec_run(["sh", "-c", "awk -F'\"' '/version/{print $2}' /app/Project.toml"])
+    exit_code, output = container.exec_run(["sh", "-c", "awk -F'\"' '/version/{print $2}' /PeriLab/Project.toml"])
     if exit_code != 0:
         print(f"❌ Error while reading Project.toml: {output.decode().strip()}")
     else:

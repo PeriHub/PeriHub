@@ -246,38 +246,6 @@ export type LicenseStatus = {
     license_server_configured: boolean;
 };
 
-/**
- * One entry from support/runtime_settings.py's SETTINGS_SCHEMA - see
- * that module's docstring for what `editable` actually means and why a
- * saved change needs a restart to take effect.
- */
-export type SettingInfo = {
-    key: string;
-    label: string;
-    description: string;
-    type: string;
-    default: string;
-    choices?: Array<(string)> | null;
-    editable: boolean;
-    is_set: boolean;
-    value: string;
-};
-
-export type SettingsResponse = {
-    settings: Array<SettingInfo>;
-    restart_required_note?: string;
-};
-
-/**
- * `values` maps a setting's `key` (env var name) to its new string
- * value. Only editable keys may be included - see PUT /settings.
- */
-export type SettingsUpdateRequest = {
-    values: {
-        [key: string]: (string);
-    };
-};
-
 export type Material = {
     materialsId?: number | null;
     name: string;
@@ -841,14 +809,6 @@ export type RefreshLicenseResponse = LicenseStatus;
 export type HealthcheckHealthGetResponse = unknown;
 
 export type GetVersionResponse = VersionData;
-
-export type GetSettingsResponse = SettingsResponse;
-
-export type UpdateSettingsData = {
-    requestBody: SettingsUpdateRequest;
-};
-
-export type UpdateSettingsResponse = SettingsResponse;
 
 export type $OpenApiTs = {
     '/generate/model': {
@@ -1429,29 +1389,6 @@ export type $OpenApiTs = {
                  * Successful Response
                  */
                 200: VersionData;
-            };
-        };
-    };
-    '/settings/': {
-        get: {
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: SettingsResponse;
-            };
-        };
-        put: {
-            req: UpdateSettingsData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: SettingsResponse;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
             };
         };
     };

@@ -21,21 +21,6 @@ log = logging.getLogger("rich")
 
 load_dotenv()
 
-# Snapshot of every key already present in the real process environment at
-# this point - i.e. provided by docker's `env_file`/`environment:`, or a real
-# `.env` just picked up by load_dotenv() above. The Settings dialog (see
-# routers/settings.py, support/runtime_settings.py) treats these as
-# read-only: a value someone edits in the UI is only ever allowed to fill in
-# a key nobody has actually configured, never override one that has.
-ENV_LOCKED_KEYS = frozenset(os.environ.keys())
-
-# Fill in anything previously saved from the Settings dialog - for any key
-# not already covered by ENV_LOCKED_KEYS above - so it's visible to the
-# os.getenv(...) calls below exactly as if it were a real env var.
-from .runtime_settings import apply_stored_overrides  # noqa: E402
-
-apply_stored_overrides(ENV_LOCKED_KEYS)
-
 # Access the variables using os.getenv
 trial = False
 dev = False

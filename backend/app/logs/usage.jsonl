@@ -16,5 +16,3 @@
 {"timestamp": "2026-09-22T09:44:47.922934+00:00", "event": "cancelled", "username": "user", "model_name": "CompactTension", "model_folder_name": "Default", "cluster": false}
 {"timestamp": "2026-09-22T12:32:59.264239+00:00", "event": "submitted", "username": "user", "model_name": "CompactTension", "model_folder_name": "Default", "cluster": false, "sbatch": false, "node_count": null}
 {"timestamp": "2026-09-22T12:33:52.195544+00:00", "event": "cancelled", "username": "user", "model_name": "CompactTension", "model_folder_name": "Default", "cluster": false}
-{"timestamp": "2026-09-22T21:14:46.695847+00:00", "event": "submitted", "username": "user", "model_name": "CompactTension", "model_folder_name": "Default", "cluster": false, "sbatch": false, "node_count": null}
-{"timestamp": "2026-09-22T21:15:00.729632+00:00", "event": "cancelled", "username": "user", "model_name": "CompactTension", "model_folder_name": "Default", "cluster": false}
