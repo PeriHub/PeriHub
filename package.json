@@ -68,7 +68,7 @@
     "svelte-sonner": "^0.3.28",
     "sveltekit-i18n": "^2.4.2",
     "tailwind-merge": "^2.6.0",
-    "tailwind-variants": "^0.3.1",
+    "tailwind-variants": "^3.3.1",
     "three": "^0.186.0",
     "uuid": "^13.0.0"
   },
