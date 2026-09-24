@@ -3,6 +3,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 services:
+  perihub_db:
+    image: postgres:16-alpine
+    container_name: perihub_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER-perihub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD-perihub}
+      POSTGRES_DB: ${POSTGRES_DB-perihub}
+    volumes:
+      - ${DB_VOLUME-perihub_db_data}:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
   perihub_backend:
     # image: perihub/backend
     build:
@@ -10,6 +23,8 @@ services:
     container_name: perihub_backend
     env_file:
       - .env
+    depends_on:
+      - perihub_db
     volumes:
       - ${VOLUME-./backend/app/simulations}:/app/simulations
       - ${RSA_VOLUME-./backend/app/rsaFiles}:/app/rsaFiles
@@ -33,10 +48,15 @@ services:
       - 8080:80
 
   perilab:
-    image: perihub/perilab
+    image: perihub/perilab:nightly
     container_name: perihub_perilab
     # No published port needed any more - perihub_backend reaches this
     # container via `docker exec` over the Docker socket (see above),
     # not SSH, so port 22 doesn't need to be exposed at all.
     volumes:
       - ${VOLUME-./backend/app/simulations}:/app/simulations
+    ports:
+      - 3000:8000
+
+volumes:
+  perihub_db_data:

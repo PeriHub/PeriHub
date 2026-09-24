@@ -7,7 +7,6 @@ matplotlib
 scipy
 numpy
 paramiko
-docker
 aiofiles
 python-multipart
 pyjwt
@@ -25,3 +24,8 @@ pandas
 toml
 magicattr
 natsort
+sqlalchemy
+alembic
+psycopg[binary]
+passlib
+argon2_cffi

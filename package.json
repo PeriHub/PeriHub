@@ -58,8 +58,6 @@
     "date-fns": "^4.1.0",
     "driver.js": "^0.9.8",
     "js-sha256": "^0.11.0",
-    "jwt-decode": "^4.0.0",
-    "keycloak-js": "^24.0.1",
     "layerchart": "^1.0.0",
     "lucide-svelte": "^0.469.0",
     "mathjs": "^11.9.1",

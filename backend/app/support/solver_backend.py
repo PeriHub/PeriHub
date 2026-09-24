@@ -4,89 +4,130 @@
 
 """Solver backend seam.
 
-routers/jobs.py submits and cancels local jobs by running commands
+routers/jobs.py used to submit/cancel local jobs by running commands
 directly inside the bundled `perihub_perilab` docker container via
-FileHandler.get_perilab_container() (Docker Engine API `exec`, not SSH -
-see that method's docstring for why). get_solver_backend() is also a seam
-for the planned "point PeriHub at a customer-hosted PeriLab server"
-enterprise feature: ExternalSolverBackend is gated on SOLVER_BACKEND=external
-and raises intentionally (fail-loud instead of doing nothing) - see
-support/entitlements.py and the roadmap.
+FileHandler.get_perilab_container() (Docker Engine API `exec`). That's
+gone now: both the bundled container and a customer-hosted server are
+reached the same way, over the PeriLab HTTP API (support/perilab_api_client.py,
+see project root openapi.json) - "local" vs "external" (SOLVER_BACKEND env
+var) only changes which URL is used and whether result/log files can be
+read straight off the shared docker volume or have to be downloaded
+through the API. See support/job_queue.py for how the returned job_id is
+persisted (JobQueueEntry.perilab_job_id) so later status/log/cancel calls
+know which PeriLab job to ask about - this requires DATABASE_URL to be
+configured; local (non-cluster) job submission is no longer supported
+without a database, since there is no longer a pid.txt-style filesystem
+signal to fall back on.
 """
 
 import os
 
-from .file_handler import FileHandler
-from .globals import external_perilab_url, log, solver_backend_kind
+from .globals import (
+    external_perilab_url,
+    local_perilab_api_url,
+    log,
+    solver_backend_kind,
+)
+from .perilab_api_client import PeriLabApiClient
 
 
 class SolverBackend:
-    """Interface both backends implement."""
+    """Interface both backends implement. `submit` returns the PeriLab
+    job_id (or several, comma-separated - see PeriLabSolverBackend.submit),
+    which callers (support/job_queue.py) are responsible for persisting -
+    this module has no storage of its own."""
 
-    def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+    #: True for the bundled local container, which shares docker-compose's
+    #: `perihub` volume with perihub_backend (see docker-stack-extern.yml) -
+    #: so result/log files can be read directly off disk at the same
+    #: `remotepath` PeriHub already uses, instead of downloaded through the
+    #: API. False for a remote/external PeriLab API with no shared disk.
+    shares_local_filesystem: bool = False
+
+    def submit(
+        self,
+        username: str,
+        model_name: str,
+        model_folder_name: str,
+        remotepath: str,
+        args: str = "",
+        num_procs: int = 1,
+        job_ids: str = "-1",
+    ) -> str:
+        """Submits the model already written to `remotepath` (see
+        FileHandler.get_local_model_folder_path) and returns the PeriLab
+        job_id (or comma-separated job_ids - see PeriLabSolverBackend.submit)."""
         raise NotImplementedError
 
-    def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
+    def cancel(self, perilab_job_id: str) -> None:
+        raise NotImplementedError
+
+    def client(self) -> PeriLabApiClient:
         raise NotImplementedError
 
 
-class LocalSolverBackend:
-    """Runs jobs directly inside the bundled `perihub_perilab` docker
-    container - the only backend PeriHub actually runs jobs through today."""
+class PeriLabSolverBackend(SolverBackend):
+    """Talks to a PeriLab API instance - either the bundled local container
+    or a customer-hosted external one, depending on `base_url`."""
 
-    def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
-        del remotepath  # the container-side path is always under /app/simulations
-        container = FileHandler.get_perilab_container()
-        workdir = "/app/simulations/" + os.path.join(username, model_name, model_folder_name)
-        # detach=True: fire-and-forget, matching the old `sh runPerilab.sh &`
-        # backgrounding over SSH - we don't wait for the solver run to
-        # finish here, just for the script to start (it manages its own
-        # pid.txt, which the rest of the app polls for status/cancel).
-        container.exec_run(
-            ["sh", "-c", "sh runPerilab.sh > /dev/null 2>&1"],
-            workdir=workdir,
-            detach=True,
-        )
+    def __init__(self, base_url: str, shares_local_filesystem: bool):
+        self._client = PeriLabApiClient(base_url)
+        self.shares_local_filesystem = shares_local_filesystem
 
-    def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
-        del username, model_name, model_folder_name  # only remotepath is needed for the kill command
-        container = FileHandler.get_perilab_container()
-        command = FileHandler.wait_and_kill_shell_command("/app" + os.path.join(remotepath, "pid.txt"))
-        # detach=False (the default): blocks until the command - including
-        # its short wait-for-pid.txt loop - actually finishes.
-        container.exec_run(["sh", "-c", command])
+    def client(self) -> PeriLabApiClient:
+        return self._client
 
+    def submit(
+        self,
+        username: str,
+        model_name: str,
+        model_folder_name: str,
+        remotepath: str,
+        args: str = "",
+        num_procs: int = 1,
+        job_ids: str = "-1",
+    ) -> str:
+        del username  # folder identity only, not needed once files live under remotepath
 
-class ExternalSolverBackend(SolverBackend):
-    """Placeholder for the planned enterprise feature of running against a
-    customer-hosted PeriLab server instead of the bundled container.
+        # PeriHub's old shell-script runner could launch several
+        # "<model>_<job_id>.yaml" variants back to back from one
+        # submission (see support/writer/sbatch_writer.py's job_ids
+        # handling) - the PeriLab API only takes one input_file per
+        # submission, so mirror that by submitting each variant
+        # separately. The single (non-batch) case is job_ids="-1".
+        variants = [jid for jid in (job_ids or "-1").split(",")]
+        job_ids_submitted = []
+        for jid in variants:
+            filename = f"{model_name}.yaml" if jid == "-1" else f"{model_name}_{jid}.yaml"
+            input_file_path = os.path.join(remotepath, filename)
+            extra_files = [
+                os.path.join(remotepath, f)
+                for f in os.listdir(remotepath)
+                if os.path.join(remotepath, f) != input_file_path and os.path.isfile(os.path.join(remotepath, f))
+            ]
+            job_id = self._client.submit_job(
+                input_file_path=input_file_path,
+                extra_file_paths=extra_files,
+                args=args,
+                num_procs=num_procs,
+            )
+            job_ids_submitted.append(job_id)
 
-    NOT functionally complete: PeriHub has no documented protocol yet for
-    submitting/cancelling jobs against an arbitrary remote PeriLab HTTP(S)
-    endpoint (auth, payload shape, job-id correlation for later status/log
-    polling are all still open questions). Raising clearly here is
-    intentional so a misconfigured SOLVER_BACKEND=external fails loudly
-    instead of silently doing nothing.
-    """
+        # Multiple variants -> caller (support/job_queue.py) stores a
+        # comma-separated list, same convention job_ids itself already uses.
+        return ",".join(job_ids_submitted)
 
-    def __init__(self, url: str):
-        self.url = url
-
-    def submit(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
-        raise NotImplementedError(
-            "SOLVER_BACKEND=external is not implemented yet - "
-            f"EXTERNAL_PERILAB_URL={self.url!r} is configured but there is no client for it. "
-            "See support/solver_backend.py."
-        )
-
-    def cancel(self, username: str, model_name: str, model_folder_name: str, remotepath: str) -> None:
-        raise NotImplementedError("SOLVER_BACKEND=external is not implemented yet - see support/solver_backend.py.")
+    def cancel(self, perilab_job_id: str) -> None:
+        for job_id in perilab_job_id.split(","):
+            job_id = job_id.strip()
+            if job_id:
+                self._client.cancel_job(job_id)
 
 
 def get_solver_backend() -> SolverBackend:
     if solver_backend_kind == "external":
         if not external_perilab_url:
             log.warning("SOLVER_BACKEND=external but EXTERNAL_PERILAB_URL is not set; falling back to local")
-            return LocalSolverBackend()
-        return ExternalSolverBackend(external_perilab_url)
-    return LocalSolverBackend()
+            return PeriLabSolverBackend(local_perilab_api_url, shares_local_filesystem=True)
+        return PeriLabSolverBackend(external_perilab_url, shares_local_filesystem=False)
+    return PeriLabSolverBackend(local_perilab_api_url, shares_local_filesystem=True)

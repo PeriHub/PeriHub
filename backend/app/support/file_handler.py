@@ -5,6 +5,7 @@
 """
 doc
 """
+
 import ast
 import os
 import re
@@ -274,13 +275,15 @@ class FileHandler:
         if not input_exist:
             log.warning("Inputfile of " + model_name + " has not been created yet")
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Inputfile of " + model_name + " has not been created yet"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Inputfile of " + model_name + " has not been created yet",
             )
 
         if not mesh_exist:
             log.warning("Meshfile of " + model_name + " has not been created yet")
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Meshfile of " + model_name + " has not been created yet"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Meshfile of " + model_name + " has not been created yet",
             )
 
         for root, _, files in os.walk(localpath):
@@ -306,13 +309,19 @@ class FileHandler:
             ssh, sftp = FileHandler.sftp_to_cluster(cluster)
         except paramiko.SFTPError:
             log.error("ssh connection to cluster failed!")
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ssh connection to cluster failed!")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="ssh connection to cluster failed!",
+            )
         except Exception as e:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
         if not os.path.exists(localpath):
             log.error("Shared libray can not been found")
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shared libray can not been found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Shared libray can not been found",
+            )
         for root, _, files in os.walk(localpath):
             if len(files) == 0:
                 log.error("Shared libray can not been found")
@@ -349,7 +358,10 @@ class FileHandler:
         ssh.close()
 
         log.error("Shared libray can not been found")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shared libray can not been found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Shared libray can not been found",
+        )
 
     @staticmethod
     def copy_file_to_from_peridigm_container(username, model_name, model_folder_name, file_name, to_or_from):
@@ -535,40 +547,26 @@ class FileHandler:
     RUN_MARKER_FILENAME = ".run_marker"
 
     @staticmethod
-    def write_run_marker_local(remotepath):
-        """Drops a small timestamp file the instant a job is submitted (see
-        routers/jobs.py:run_model), so log-file lookups below can tell a
-        genuinely new run's .log apart from an older one left over from a
-        previous run of the same model - without it, the /ws log-tail
-        endpoint (or getStatus/getJobs progress parsing) can pick up a
-        stale log file that already existed in the folder before this run
-        even started."""
-        os.makedirs(remotepath, exist_ok=True)
-        with open(os.path.join(remotepath, FileHandler.RUN_MARKER_FILENAME), "w", encoding="UTF-8") as f:
-            f.write(str(time.time()))
-
-    @staticmethod
     def write_run_marker_remote(sftp, remotepath):
-        """Cluster equivalent of write_run_marker_local, over an open sftp session."""
+        """Drops a small timestamp file the instant a cluster job is
+        submitted (see routers/jobs.py:run_model), so the cluster log-file
+        lookups below can tell a genuinely new run's .log apart from an
+        older one left over from a previous run of the same model -
+        without it, the /ws log-tail endpoint (or getStatus/getJobs
+        progress parsing) can pick up a stale log file that already
+        existed in the folder before this run even started. Local
+        (non-cluster) jobs no longer need this - see
+        support/solver_backend.py - progress/log for them comes from the
+        PeriLab API via a job_id instead of a file on disk."""
         with sftp.open(remotepath + "/" + FileHandler.RUN_MARKER_FILENAME, "w") as f:
             f.write(str(time.time()))
 
     @staticmethod
-    def get_run_marker_time_local(remotepath):
-        """Returns the submission time written by write_run_marker_local, or
-        None if there isn't one yet (e.g. a job submitted before this file
-        existed, or the folder was never run at all) - callers should treat
-        None as "don't filter by recency"."""
-        marker_path = os.path.join(remotepath, FileHandler.RUN_MARKER_FILENAME)
-        try:
-            with open(marker_path, "r", encoding="UTF-8") as f:
-                return float(f.read().strip())
-        except (OSError, ValueError):
-            return None
-
-    @staticmethod
     def get_run_marker_time_remote(sftp, remotepath):
-        """Cluster equivalent of get_run_marker_time_local."""
+        """Returns the submission time written by write_run_marker_remote,
+        or None if there isn't one yet (e.g. a job submitted before this
+        file existed, or the folder was never run at all) - callers should
+        treat None as "don't filter by recency"."""
         try:
             with sftp.open(remotepath + "/" + FileHandler.RUN_MARKER_FILENAME, "r") as f:
                 return float(f.read().strip())
@@ -576,29 +574,16 @@ class FileHandler:
             return None
 
     @staticmethod
-    def find_latest_log_file_local(remotepath, not_before=None):
-        """Same `.log` discovery rule used by the /ws log-tail endpoint in main.py,
-        factored out so getStatus/getJobs can read the same file for progress.
+    def find_latest_log_file_remote(sftp, remotepath, not_before=None):
+        """Same `.log` discovery rule the /ws log-tail endpoint in main.py
+        uses for cluster jobs, factored out so getStatus/getJobs can read
+        the same file for progress.
 
         `not_before`, when given, excludes any .log file created before that
-        (epoch-seconds) time - see write_run_marker_local. Without it, an
+        (epoch-seconds) time - see write_run_marker_remote. Without it, an
         older log file left over from a previous run can otherwise look like
         "the" log file right up until the new run's log overtakes it.
         """
-        if not os.path.exists(remotepath):
-            return None
-        candidates = [f for f in os.listdir(remotepath) if re.match(r"^.+\.log$", f)]
-        if not_before is not None:
-            candidates = [f for f in candidates if os.path.getctime(os.path.join(remotepath, f)) >= not_before]
-        if not candidates:
-            return None
-        paths = [os.path.join(remotepath, name) for name in candidates]
-        return max(paths, key=os.path.getctime)
-
-    @staticmethod
-    def find_latest_log_file_remote(sftp, remotepath, not_before=None):
-        """Cluster equivalent of find_latest_log_file_local. See its
-        docstring for `not_before`."""
         try:
             candidates = [f for f in sftp.listdir(remotepath) if re.match(r"^.+\.log$", f)]
         except IOError:
@@ -639,36 +624,6 @@ class FileHandler:
             return None, current_step, total_steps
         percent = round(100 * current_step / total_steps, 1)
         return percent, current_step, total_steps
-
-    @staticmethod
-    def get_perilab_container():
-        """Returns the bundled `perihub_perilab` docker container (see
-        docker-compose.yml) so callers can `container.exec_run(...)`
-        commands inside it directly over the Docker Engine API - instead of
-        the previous approach of SSHing in, which needed a full SSH server
-        with hardcoded root/root credentials baked into the solver image
-        just to run one command.
-
-        Requires /var/run/docker.sock to be mounted into this
-        (perihub_backend) container - see docker-compose.yml.
-        """
-        import docker  # local import: only the local (non-cluster) job path needs this
-
-        try:
-            client = docker.from_env()
-            return client.containers.get("perihub_perilab")
-        except docker.errors.NotFound as e:
-            log.error("perihub_perilab container not found")
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="The perihub_perilab container isn't running. Is the PeriLab service up?",
-            ) from e
-        except docker.errors.DockerException as e:
-            log.error("Could not reach the Docker daemon: %s", e)
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Could not reach the Docker daemon - is /var/run/docker.sock mounted into this container?",
-            ) from e
 
     @staticmethod
     def ssh_to_cluster(cluster):

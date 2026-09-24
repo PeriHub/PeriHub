@@ -1,30 +1,10 @@
 #!/bin/sh
-# @see https://stackoverflow.com/questions/18185305/storing-bash-output-into-a-variable-using-eval
-ROOT_DIR=/usr/share/nginx/html
-          
-# Replace env vars in JavaScript files
-echo "Replacing env constants in JS"
-
-keys="TRIAL
-CLUSTER_URL
-KEYCLOAK_URL
-REALM
-CLIENT_ID"
-
-for file in $(find $ROOT_DIR/_app -type f -name '*.js') ;
-do
-  # echo "Processing $file ...";
-  for key in $keys
-  do
-    value=$(eval echo \$$key)
-    # echo "$value"
-    if [ -z "$value" ]; then
-      continue
-    fi
-    # echo "replace $key by $value"
-    sed -i 's|'$key'_VALUE|'$value'|g' $file
-  done
-done
-
+# The frontend used to have TRIAL/CLUSTER_URL/KEYCLOAK_URL/REALM/CLIENT_ID
+# baked into the built JS as literal `..._VALUE` placeholders, substituted
+# here at container startup with sed. That's gone: the frontend now fetches
+# these from the backend's GET /config/public at page load instead (see
+# src/lib/config.ts), so the built bundle is the same regardless of
+# deployment and there's nothing left for this script to substitute.
 echo "Starting Nginx"
 nginx -g 'daemon off;'
+

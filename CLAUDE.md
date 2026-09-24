@@ -11,7 +11,7 @@ PeriHub is a web platform for peridynamics simulations: a FastAPI backend (`back
 ### Full stack
 
 ```bash
-cp .env.example .env   # configure (TRIAL, CLUSTER_*, KEYCLOAK_*, ...)
+cp .env.example .env   # configure (TRIAL, CLUSTER_*, OAUTH_*, ...)
 docker compose up      # frontend at http://localhost:8080
 ```
 
@@ -72,7 +72,7 @@ npm run client    # writes src/lib/client/ via @hey-api/openapi-ts — never han
 - `main.py` — FastAPI app; mounts routers, serves `/assets`, streams job logs over WebSocket `/ws`.
 - `routers/` — one module per API tag: `generate` (models/mesh), `model` (model/input-deck CRUD), `upload`, `translate`, `jobs` (run/cancel/status), `results`, `energy`, `delete`, `docs`. Each endpoint sets an `operation_id`; the OpenAPI schema is the contract for the frontend client.
 - `support/globals.py` — all configuration comes from env vars loaded from `.env`: `DEV`, `TRIAL`, `MAX_NODES`, `CLUSTER_URL/USER/PASSWORD/JOB_PATH/PERILAB_PATH` (cluster mode enabled when CLUSTER_URL is set).
-- `support/file_handler.py` — centralizes everything path- and auth-related: user data lives under `backend/app/simulations/<username>/<model>/<folder>` (mounted volume); usernames come from a Keycloak JWT or, in dev mode, a random guest name. Also owns SSH/SFTP connections (paramiko) to the cluster and to the `perihub_perilab` container.
+- `support/file_handler.py` — centralizes everything path- and auth-related: user data lives under `backend/app/simulations/<username>/<model>/<folder>` (mounted volume); usernames come from the `userName` header (set by an OAuth2/OIDC login, see `src/lib/auth/oauth.ts`) or, in dev mode, a random guest name. Also owns SSH/SFTP connections (paramiko) to the cluster and to the `perihub_perilab` container.
 - `support/writer/` — generates what the solver consumes: `model_writer.py` (input deck), `sbatch_writer.py` (`runPerilab.sh` / sbatch scripts), `yaml_writer_perilab.py`.
 - `support/model/` (geometry, meshing, material, rve) and `support/results/` (analysis, crack_analysis).
 
@@ -91,7 +91,7 @@ Svelte 5 (runes) + SvelteKit + TypeScript + Tailwind v4 + `bits-ui`/shadcn-svelt
 
 - `src/lib/client/` — generated axios client mirroring the backend OpenAPI schema; components/stores call these services directly. Never hand-edit — regenerate with `npm run client`.
 - `src/routes/perihub/+page.svelte` is the main workflow page; `src/lib/components/expansions/` each map to one input-deck section (Discretization, BoundaryConditions, Material, Blocks, Output, ...), `src/lib/components/views/` hold the viewers (VTK mesh, Plotly plots, text editor, log view, results).
-- `src/lib/stores/` — `auth-store` (Keycloak login, bootstrapped in `src/lib/auth/keycloak.ts`), `model-store`, `view-store`, `default-store`. All are `*.svelte.ts` files exporting a singleton instance of a class with `$state` fields — import the instance, mutate its fields directly (deep reactivity works on nested objects/arrays without extra plumbing).
+- `src/lib/stores/` — `auth-store` (OAuth2/OIDC login state, bootstrapped in `src/lib/auth/oauth.ts`), `model-store`, `view-store`, `default-store`. All are `*.svelte.ts` files exporting a singleton instance of a class with `$state` fields — import the instance, mutate its fields directly (deep reactivity works on nested objects/arrays without extra plumbing).
 - `src/lib/config.ts` — runtime config; in prod, values are `_VALUE` placeholders substituted by `entrypoint.sh` at container startup (same mechanism as before, just pointed at the new build output path).
 - Pure, testable logic (e.g. `src/lib/utils/elastic-constants.ts`) is kept out of `.svelte` files where practical — see `PROFESSIONALIZATION.md` for the rationale and what else is a good candidate.
 - Known gaps: `ModelView`/`ResultsView` (VTK.js 3D viewers) and a few advanced `ViewActions` dialogs are still `PendingMigration` placeholders — see `MIGRATION.md`.

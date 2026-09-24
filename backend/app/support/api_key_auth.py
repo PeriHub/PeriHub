@@ -5,9 +5,9 @@
 """API-key auth for programmatic/CI callers.
 
 FileHandler.get_user_name() identifies a user from the `userName` header,
-which the frontend sets after a Keycloak login (or a random guest name in
+which the frontend sets after an OAuth/OIDC login (or a random guest name in
 trial/dev mode). That's fine for browser sessions but awkward for CI or
-server-to-server callers that have no Keycloak session at all.
+server-to-server callers that have no browser session at all.
 
 This adds an *optional*, additive check: if the caller sends a valid
 `X-Api-Key` header, the configured name for that key is used as the
@@ -20,12 +20,13 @@ stable identity instead of "user"/a random guest name.
 
 NOTE: this is a shared-secret scheme sent as a plain header, so it only
 provides real protection over HTTPS; it is not a substitute for the
-Keycloak flow for interactive/browser users.
+OAuth/OIDC login flow for interactive/browser users.
 """
 
 from fastapi import Request
 
 from .globals import api_keys_raw
+
 
 def _parse_api_keys() -> dict[str, str]:
     """Parses API_KEYS="name:key,name2:key2" into {key: name}."""

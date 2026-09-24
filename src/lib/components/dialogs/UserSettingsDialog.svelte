@@ -29,11 +29,11 @@ SPDX-License-Identifier: Apache-2.0
   <Dialog.Portal>
     <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
     <Dialog.Content
-      class="fixed left-1/2 top-1/2 z-50 w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-card p-5 shadow-lg"
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
       <div class="mb-3 flex items-center justify-between">
         <Dialog.Title class="text-lg font-semibold">Settings</Dialog.Title>
-        <Dialog.Close class="rounded-full p-1.5 hover:bg-muted">
+        <Dialog.Close class="hover:bg-muted rounded-full p-1.5">
           <X class="h-4 w-4" />
         </Dialog.Close>
       </div>
@@ -44,7 +44,7 @@ SPDX-License-Identifier: Apache-2.0
           <dd class="font-medium">{defaultStore.username}</dd>
         </div>
         {#if defaultStore.trial}
-          <div class="rounded-md bg-warning/20 px-3 py-2 text-warning-foreground">
+          <div class="bg-warning/20 text-warning-foreground rounded-md px-3 py-2">
             Trial mode enabled — some features are disabled.
           </div>
         {/if}

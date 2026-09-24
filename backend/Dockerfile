@@ -31,8 +31,12 @@ COPY ./app/models /app/models
 COPY ./app/Publications /app/Publications
 COPY ./app/support /app/support
 COPY ./app/routers /app/routers
+COPY ./app/db /app/db
 COPY ./app/main.py /app/main.py
 COPY ./app/pyproject.toml /app/pyproject.toml
+
+COPY ./alembic.ini /alembic.ini
+COPY ./alembic /alembic
 
 RUN if [ "$CLUSTER_URL" != "" ]; then echo "Host $CLUSTER_URL\n\tStrictHostKeyChecking no\n" > /root/.ssh/config; fi
 

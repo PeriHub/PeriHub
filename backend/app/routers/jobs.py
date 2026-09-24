@@ -6,18 +6,111 @@ import json
 import os
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
+from ..db.base import get_db
+
+# db/models.py's JobQueueEntry powers all run-status tracking now (see
+# support/solver_backend.py's module docstring) - this router looks
+# entries up directly rather than only going through job_queue.py's
+# helpers, for the "does this user already have this model running" and
+# "what's my most recent submission of this model" lookups below.
+#
+# Model *configuration* (which model/model_folder_name combinations exist,
+# whether their input deck/mesh has been written) still lives on local
+# disk - models are generated into a shared volume mount and only the
+# resulting files are submitted to the PeriLab API, so that part of this
+# router keeps using FileHandler as before. Everything about a job's
+# actual run - submitted/running, progress, result files, logs, cancel,
+# delete - now goes exclusively through the PeriLab API (support/
+# perilab_api_client.py) plus the JobQueueEntry rows that record which
+# PeriLab job_id a submission became; there is no more cluster/sftp path.
+from ..db.models import JOB_QUEUED, JOB_RUNNING, JobQueueEntry
 from ..support import audit_log, usage_metering
 from ..support.api_key_auth import get_user_name_with_api_key
 from ..support.base_models import Jobs, ModelData, Status
+from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
-from ..support.globals import cluster_enabled, cluster_perilab_path, dev, log, max_concurrent_local_jobs, trial
+from ..support.globals import dev, log, max_concurrent_local_jobs
 from ..support.job_concurrency import count_active_local_jobs, has_capacity
+from ..support.job_cost import estimate_job_cost
+from ..support.job_queue import cancel_running, enforce_user_quota, submit_job
 from ..support.solver_backend import get_solver_backend
-from ..support.writer.sbatch_writer import SbatchCreator
 
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
+
+
+def _job_run_status(db: Session, request: Request, model_name: str, model_folder_name: str) -> dict:
+    """Run status for a model folder - submitted/running, result files,
+    and progress - sourced entirely from the DB (JobQueueEntry) and the
+    PeriLab API (support/perilab_api_client.py). No filesystem or cluster
+    access: whether a job has produced result files is answered by GET
+    /jobs/{job_id}/files, not by looking at disk. Returns all-false/None
+    if there's no logged-in DB user or no matching JobQueueEntry."""
+    empty = {
+        "submitted": False,
+        "results": False,
+        "csvResults": False,
+        "progress": None,
+        "currentStep": None,
+        "totalSteps": None,
+    }
+
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        return empty
+
+    entry = db.scalar(
+        select(JobQueueEntry)
+        .where(
+            JobQueueEntry.user_id == identity.user.id,
+            JobQueueEntry.model_name == model_name,
+            JobQueueEntry.model_folder_name == model_folder_name,
+        )
+        .order_by(JobQueueEntry.submitted_at.desc())
+    )
+    if entry is None:
+        return empty
+
+    result = dict(empty)
+    result["submitted"] = entry.status in (JOB_QUEUED, JOB_RUNNING)
+
+    if not entry.perilab_job_id:
+        return result
+
+    client = get_solver_backend().client()
+    # A comma-separated perilab_job_id (batch submission, see
+    # PeriLabSolverBackend.submit) reports progress for its first job
+    # only - good enough for a single progress bar.
+    job_ids = [jid.strip() for jid in entry.perilab_job_id.split(",") if jid.strip()]
+    if not job_ids:
+        return result
+
+    if entry.status == JOB_RUNNING:
+        try:
+            job = client.get_job(job_ids[0])
+            result["progress"] = job.progress
+            result["currentStep"] = job.current_step
+            result["totalSteps"] = job.total_steps
+        except HTTPException:
+            pass
+
+    # Result files only mean something once the job has actually started -
+    # skip the API call while it's still sitting in the queue.
+    if entry.status != JOB_QUEUED:
+        for job_id in job_ids:
+            try:
+                for filename in client.list_files(job_id):
+                    if filename.endswith(".e"):
+                        result["results"] = True
+                    if filename.endswith(".csv"):
+                        result["csvResults"] = True
+            except HTTPException:
+                continue
+
+    return result
 
 
 @router.post("/run", operation_id="run_model")
@@ -28,207 +121,154 @@ async def run_model(
     verbose: bool = False,
     job_ids: Optional[str] = "-1",
     request: Request = "",
+    db: Session = Depends(get_db),
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
     username = get_user_name_with_api_key(request, dev, username)
-    usermail = FileHandler.get_user_mail(request)
 
-    material = model_data.materials
-    user_mat = False
-    for mat in material:
-        if mat.matType == "User Correspondence":
-            user_mat = True
-            break
+    # ModelData.discretization doesn't currently carry a node count field,
+    # so this is best-effort and usually falls back to
+    # CostEstimate(tier="unknown") - see job_cost.py.
+    node_count = getattr(model_data.discretization, "nodeCount", None)
+    cost_estimate = estimate_job_cost(node_count)
 
-    cluster = model_data.job.cluster
-    sbatch = model_data.job.sbatch
-    disc_type = model_data.discretization.discType
+    # Fair-share queueing requires knowing which DB user is submitting -
+    # every submission now requires a database-backed account (see the
+    # 501 below), so this is always resolvable.
+    identity = resolve_user(request, dev, db)
+    db_user = identity.user
+    if db_user is not None:
+        try:
+            enforce_user_quota(db, db_user)
+        except ValueError as exc:
+            audit_log.record(username, "run_model", model_name, request, result="rejected_quota")
+            raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(exc)) from exc
 
-    # Back-pressure: local (non-cluster) jobs run on the single bundled
-    # perihub_perilab container, so cap how many can be in flight at once
-    # instead of silently piling them all on. Cluster/sbatch jobs are handed
-    # off to Slurm, which already queues, so they're not subject to this.
-    if not cluster and not has_capacity():
-        active = count_active_local_jobs()
-        log.warning("Rejecting %s: %d/%d local jobs already active", model_name, active, max_concurrent_local_jobs)
+    # Submitting a simulation always requires a database-backed account
+    # (DATABASE_URL configured, and a real login rather than an API
+    # key/trial session) - status, log streaming and cancel are tracked
+    # per-account, with no filesystem-only fallback.
+    if db_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail=(
+                "Submitting a simulation requires a database-backed account "
+                "(DATABASE_URL configured, and a real login rather than an API key/trial "
+                "session)."
+            ),
+        )
+
+    # Instance-wide back-pressure: jobs run through the PeriLab API, so cap
+    # how many can be in flight at once instead of silently piling them
+    # all on.
+    if not has_capacity(db):
+        active = count_active_local_jobs(db)
+        log.warning(
+            "Rejecting %s: %d/%d jobs already active",
+            model_name,
+            active,
+            max_concurrent_local_jobs,
+        )
         audit_log.record(username, "run_model", model_name, request, result="rejected_capacity")
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=(
-                f"{active}/{max_concurrent_local_jobs} local simulation slots are in use. "
-                "Please retry once a running job finishes, or submit to a cluster."
+                f"{active}/{max_concurrent_local_jobs} simulation slots are in use. "
+                "Please retry once a running job finishes."
             ),
         )
 
+    # The model/mesh files themselves are written to the shared volume
+    # mount by model.py/generate.py before this endpoint is called; this
+    # router no longer copies anything anywhere - the PeriLab API reads
+    # (or is handed, on submit) whatever already lives at remotepath.
     remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
-    if os.path.exists(os.path.join(remotepath, "runPerilab.sh")):
-        os.remove(os.path.join(remotepath, "runPerilab.sh"))
+    usage_metering.record_job_submission(username, model_name, model_folder_name, False, False, node_count)
+    audit_log.record(username, "run_model", model_name, request)
 
-    FileHandler.copy_model_to_cluster(username, model_name, model_folder_name, cluster, disc_type)
+    existing = db.scalar(
+        select(JobQueueEntry).where(
+            JobQueueEntry.user_id == db_user.id,
+            JobQueueEntry.model_name == model_name,
+            JobQueueEntry.model_folder_name == model_folder_name,
+            JobQueueEntry.status.in_((JOB_QUEUED, JOB_RUNNING)),
+        )
+    )
+    if existing is not None:
+        log.warning("%s already submitted", model_name)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=model_name + " already submitted",
+        )
 
-    FileHandler.copy_lib_to_cluster(username, model_name, model_folder_name, cluster, user_mat)
+    args = "-v" if verbose else ""
 
-    # ModelData.discretization doesn't currently carry a node count field, so
-    # this is left None for now rather than guessed at; it's a placeholder in
-    # the schema this call already accepts for when that data is available.
-    node_count = getattr(model_data.discretization, "nodeCount", None)
-    usage_metering.record_job_submission(username, model_name, model_folder_name, cluster, sbatch, node_count)
-    audit_log.record(username, "run_model", model_name, request, extra={"cluster": cluster, "sbatch": sbatch})
-
-    if cluster and sbatch:
-        # initial_jobs = FileHandler.write_get_cara_job_id()
-        # log.info(initial_jobs)
-        sbatch = SbatchCreator(
-            filename=model_name,
-            model_folder_name=model_folder_name,
-            output=model_data.outputs,
-            job=model_data.job,
-            usermail=usermail,
-            trial=trial,
+    # No queue: submit straight to the PeriLab API. If this fails (API
+    # unreachable, bad input deck, etc.) submit_job marks the entry FAILED
+    # and re-raises - let that propagate (HTTPException -> 502, or whatever
+    # the solver backend raised) rather than pretending the job is running.
+    try:
+        entry = submit_job(
+            db,
+            db_user,
+            model_name,
+            model_folder_name,
+            remotepath,
+            project_id=None,
+            node_count=node_count,
+            solver_args=args,
+            num_procs=model_data.job.tasks,
             job_ids=job_ids,
         )
-        sbatch_string = sbatch.create_sbatch()
-        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
-        # Written before anything else so the /ws log-tail endpoint (and
-        # getStatus/getJobs progress parsing) can tell this run's .log file
-        # apart from one left behind by a previous run in the same folder.
-        FileHandler.write_run_marker_remote(sftp, remotepath)
-        file = sftp.file(remotepath + "/" + model_name + ".sbatch", "w", -1)
-        file.write(sbatch_string)
-        file.flush()
-        sftp.close()
+    except Exception as exc:
+        audit_log.record(username, "run_model", model_name, request, result="rejected_submit_failed")
+        raise
 
-        command = "cd " + remotepath + " \n sbatch " + model_name + ".sbatch"
-        ssh.exec_command(command)
-        ssh.close()
-
-        log.info("%s has been submitted", model_name)
-        return
-
-    elif cluster:
-        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-        if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
-            log.warning("%s already submitted", model_name)
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=model_name + " already submitted")
-        sbatch = SbatchCreator(
-            filename=model_name,
-            model_folder_name=model_folder_name,
-            remotepath=remotepath,
-            output=model_data.outputs,
-            job=model_data.job,
-            usermail=usermail,
-            trial=trial,
-            job_ids=job_ids,
-        )
-        sh_string = sbatch.create_sh(verbose, False, cluster_perilab_path)
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
-        FileHandler.write_run_marker_remote(sftp, remotepath)
-        file = sftp.file(remotepath + "/" + "runPerilab.sh", "w", -1)
-        file.write(sh_string)
-        file.flush()
-        sftp.close()
-
-        command = 'bash --login -c "cd ' + remotepath + ' \n sh runPerilab.sh"'
-        ssh.exec_command(command)
-        ssh.close()
-
-        log.info("%s has been submitted", model_name)
-        return
-
-    elif not cluster:
-        server = "perihub_perilab"
-        log.info(remotepath)
-        if os.path.exists(os.path.join("." + remotepath, "pid.txt")):
-            log.warning("%s already submitted", model_name)
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=model_name + " already submitted")
-        sbatch = SbatchCreator(
-            filename=model_name,
-            model_folder_name=model_folder_name,
-            remotepath=remotepath,
-            output=model_data.outputs,
-            job=model_data.job,
-            usermail=usermail,
-            trial=trial,
-            job_ids=job_ids,
-        )
-        sh_string = sbatch.create_sh(verbose)
-        FileHandler.write_run_marker_local(remotepath)
-        with open(
-            os.path.join(remotepath, "runPerilab.sh"),
-            "w",
-            encoding="UTF-8",
-        ) as file:
-            file.write(sh_string)
-        os.chmod(os.path.join(remotepath, "runPerilab.sh"), 0o0755)
-
-        # Delegates to the configured solver backend (local docker container
-        # by default; see support/solver_backend.py for the pluggability
-        # this enables - e.g. the planned external/remote PeriLab server
-        # enterprise feature).
-        get_solver_backend().submit(username, model_name, model_folder_name, remotepath)
-
-        log.info("%s has been submitted", model_name)
-        return
-
-    log.error("%s unknown", cluster)
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=cluster + " unknown")
+    log.info("%s has been submitted", model_name)
+    return {
+        "status": "running",
+        "job_id": entry.id,
+        "perilab_job_id": entry.perilab_job_id,
+        "cost_estimate": cost_estimate.__dict__,
+    }
 
 
 @router.put("/cancel", operation_id="cancel_job")
 def cancel_job(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
-    cluster: bool = False,
-    sbatch: bool = False,
     request: Request = "",
+    db: Session = Depends(get_db),
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
     username = get_user_name_with_api_key(request, dev, username)
 
-    usage_metering.record_job_cancellation(username, model_name, model_folder_name, cluster)
-    audit_log.record(username, "cancel_job", model_name, request, extra={"cluster": cluster, "sbatch": sbatch})
+    usage_metering.record_job_cancellation(username, model_name, model_folder_name, False)
+    audit_log.record(username, "cancel_job", model_name, request)
 
-    if not cluster:
-        remotepath = "/simulations/" + os.path.join(username, model_name, model_folder_name)
-        # Delegates to the configured solver backend (see
-        # support/solver_backend.py), which runs the kill command directly
-        # inside perihub_perilab via the Docker Engine API - see
-        # FileHandler.get_perilab_container().
-        get_solver_backend().cancel(username, model_name, model_folder_name, remotepath)
+    # Cancelling a running job means telling the PeriLab API to cancel the
+    # job_id it gave us at submit time (see support/solver_backend.py) -
+    # which means finding the JobQueueEntry that holds that id.
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
 
-        log.info("Job has been canceled")
-        return
+    entry = db.scalar(
+        select(JobQueueEntry).where(
+            JobQueueEntry.user_id == identity.user.id,
+            JobQueueEntry.model_name == model_name,
+            JobQueueEntry.model_folder_name == model_folder_name,
+            JobQueueEntry.status.in_((JOB_QUEUED, JOB_RUNNING)),
+        )
+    )
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=model_name + " is not running")
 
-    remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-    ssh, sftp = FileHandler.sftp_to_cluster(cluster)
-    # try:
-    #     output_files = sftp.listdir(remotepath)
-    #     filtered_values = list(
-    #         filter(lambda v: match(r"^.+\.log$", v), output_files)
-    #     )
-    # except paramiko.SFTPError:
-    #     log.warning("LogFile can't be found")
-    # if len(filtered_values) == 0:
-    #     log.warning("LogFile can't be found")
-
-    # job_id = filtered_values[-1].split("-")[-1][:-4]
-    if sbatch:
-        command = "scancel -n " + model_name + "_" + model_folder_name
-        ssh.exec_command(command)
-    else:
-        command = FileHandler.wait_and_kill_shell_command(os.path.join(remotepath, "pid.txt"))
-        _, stdout, stderr = ssh.exec_command(command)
-        stdout = stdout.readlines()
-        stderr = stderr.readlines()
-        # print(stdout)
-        # print(stderr)
-    ssh.close()
-
-    log.info("Job: %s has been canceled", model_name + "_" + model_folder_name)
+    cancel_running(db, entry)
+    log.info("Job has been canceled")
 
 
 @router.get("/getJobFolders", operation_id="get_job_folders")
@@ -236,12 +276,13 @@ def get_job_folders(
     model_name: str = "Dogbone",
     request: Request = "",
 ) -> List[str]:
-    """doc"""
+    """Model-folder discovery: which model_folder_name variants exist for
+    this model. This is local model *configuration*, generated onto the
+    shared volume mount ahead of submission - the PeriLab API has no
+    concept of it, so it stays filesystem-based."""
     username = FileHandler.get_user_name(request, dev)
 
     localpath = FileHandler.get_local_model_path(username, model_name)
-
-    # print(localpath)
 
     if not os.path.exists(localpath):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No jobs")
@@ -254,8 +295,8 @@ def get_job_folders(
 @router.get("/getJobs", operation_id="get_jobs")
 def get_jobs(
     model_name: str = "Dogbone",
-    sbatch: bool = False,
     request: Request = "",
+    db: Session = Depends(get_db),
 ) -> List[Jobs]:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
@@ -264,23 +305,13 @@ def get_jobs(
 
     localpath = FileHandler.get_local_model_path(username, model_name)
 
-    # print(localpath)
-
     if not os.path.exists(localpath):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="LogFile can't be found in " + localpath,
         )
 
-    cluster_accesible = True
-    if cluster_enabled:
-        try:
-            ssh, sftp = FileHandler.sftp_to_cluster(True)
-        except:
-            cluster_accesible = False
-
     for _, dirs, _ in os.walk(localpath):
-        # log.info(dirs)
         for model_folder_name in dirs:
             modelpath = os.path.join(localpath, model_folder_name)
 
@@ -295,83 +326,25 @@ def get_jobs(
                     results=False,
                 )
 
+                # Model configuration (still local disk - see module
+                # docstring): pick up the saved model JSON if present.
                 remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-                if os.path.exists(os.path.join(remotepath)):
-                    job.cluster = False
-                    if os.path.exists(os.path.join(remotepath, "pid.txt")):
-                        job.submitted = True
-
+                if os.path.exists(remotepath):
                     for filename in os.listdir(remotepath):
-                        if filename.endswith(".e"):
-                            job.results = True
-
                         if filename.endswith(".json"):
                             filepath = os.path.join(remotepath, filename)
                             with open(filepath) as f:
                                 data = json.load(f)
                                 job.model = data
 
-                    log_file = FileHandler.find_latest_log_file_local(
-                        remotepath, not_before=FileHandler.get_run_marker_time_local(remotepath)
-                    )
-                    if log_file is not None:
-                        try:
-                            with open(log_file, "r") as f:
-                                job.progress, job.currentStep, job.totalSteps = FileHandler.parse_progress(f.read())
-                        except OSError:
-                            pass
-                    # print(job.cluster)
-                    jobs.append(job)
-                    job = Jobs(
-                        id=len(jobs) + 1,
-                        name=model_name,
-                        sub_name=model_folder_name,
-                        cluster=False,
-                        created=True,
-                        submitted=False,
-                        results=False,
-                    )
-
-                if cluster_enabled and cluster_accesible:
-                    remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-                    if FileHandler.sftp_exists(sftp=sftp, path=remotepath):
-                        job.cluster = True
-                        # try:
-                        for filename in sftp.listdir(remotepath):
-                            if filename.endswith(".e"):
-                                job.results = True
-                            if filename.endswith(".json"):
-                                filepath = os.path.join(remotepath, filename)
-                                with sftp.open(filepath) as f:
-                                    data = json.load(f)
-                                    job.model = data
-                        # except IOError:
-                        #     pass
-
-                        if sbatch:
-                            job.submitted = FileHandler.cluster_job_running(
-                                ssh, sftp, remotepath, model_name, model_folder_name
-                            )
-                        else:
-                            if "pid.txt" in sftp.listdir(remotepath):
-                                job.submitted = True
-
-                        log_file = FileHandler.find_latest_log_file_remote(
-                            sftp, remotepath, not_before=FileHandler.get_run_marker_time_remote(sftp, remotepath)
-                        )
-                        if log_file is not None:
-                            try:
-                                with sftp.open(log_file, "r") as f:
-                                    job.progress, job.currentStep, job.totalSteps = FileHandler.parse_progress(f.read())
-                            except IOError:
-                                pass
-
-                        # print(job.cluster)
-                        jobs.append(job)
-
-    if cluster_enabled and cluster_accesible:
-        sftp.close()
-        ssh.close()
+                # Actual run status - DB + PeriLab API only.
+                run_status = _job_run_status(db, request, model_name, model_folder_name)
+                job.submitted = run_status["submitted"]
+                job.results = run_status["results"]
+                job.progress = run_status["progress"]
+                job.currentStep = run_status["currentStep"]
+                job.totalSteps = run_status["totalSteps"]
+                jobs.append(job)
 
     return jobs
 
@@ -380,77 +353,35 @@ def get_jobs(
 def get_status(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
-    cluster: bool = False,
-    sbatch: bool = False,
     meshfile: Optional[str] = None,
-    own_mesh: Optional[bool] = False,
     request: Request = "",
+    db: Session = Depends(get_db),
 ) -> Status:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    status = Status()
+    job_status = Status()
 
+    # Model configuration existence (has this model_folder_name been
+    # generated onto the shared volume mount yet) - local disk, since the
+    # PeriLab API has no notion of it.
     localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
-    # log.info("localpath: %s", localpath)
-
     if os.path.exists(localpath):
-        status.created = True
+        job_status.created = True
 
-    if meshfile == None or os.path.exists(os.path.join(localpath, meshfile)):
-        status.meshfileExist = True
+    if meshfile is None or os.path.exists(os.path.join(localpath, meshfile)):
+        job_status.meshfileExist = True
 
-    if cluster:
-        remotepath = FileHandler.get_remote_model_path(username, model_name, model_folder_name)
-        ssh, sftp = FileHandler.sftp_to_cluster(cluster)
+    # Everything about the actual run - submitted/running, result files,
+    # progress - comes only from the DB + PeriLab API now. No more
+    # cluster/sbatch/sftp branch.
+    run_status = _job_run_status(db, request, model_name, model_folder_name)
+    job_status.submitted = run_status["submitted"]
+    job_status.results = run_status["results"]
+    job_status.csvResults = run_status["csvResults"]
+    job_status.progress = run_status["progress"]
+    job_status.currentStep = run_status["currentStep"]
+    job_status.totalSteps = run_status["totalSteps"]
 
-        try:
-            for filename in sftp.listdir(remotepath):
-                if ".e" in filename:
-                    status.results = True
-                if ".csv" in filename:
-                    status.csvResults = True
-        except IOError:
-            sftp.close()
-            ssh.close()
-            return status
-
-        if sbatch:
-            status.submitted = FileHandler.cluster_job_running(ssh, sftp, remotepath, model_name, model_folder_name)
-        else:
-            if "pid.txt" in sftp.listdir(remotepath):
-                status.submitted = True
-
-        log_file = FileHandler.find_latest_log_file_remote(
-            sftp, remotepath, not_before=FileHandler.get_run_marker_time_remote(sftp, remotepath)
-        )
-        if log_file is not None:
-            try:
-                with sftp.open(log_file, "r") as f:
-                    status.progress, status.currentStep, status.totalSteps = FileHandler.parse_progress(f.read())
-            except IOError:
-                pass
-
-        sftp.close()
-        ssh.close()
-
-    else:
-        remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-        # log.info(remotepath)
-        if os.path.exists(os.path.join(remotepath, "pid.txt")):
-            status.submitted = True
-        if os.path.exists(remotepath):
-            for files in os.listdir(remotepath):
-                if ".e" in files:
-                    status.results = True
-                if ".csv" in files:
-                    status.csvResults = True
-
-            log_file = FileHandler.find_latest_log_file_local(
-                remotepath, not_before=FileHandler.get_run_marker_time_local(remotepath)
-            )
-            if log_file is not None:
-                with open(log_file, "r") as f:
-                    status.progress, status.currentStep, status.totalSteps = FileHandler.parse_progress(f.read())
-    return status
+    return job_status
