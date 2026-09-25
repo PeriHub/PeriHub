@@ -46,7 +46,11 @@ def get_models() -> list[dict]:
             #     continue
             model_list.append(doc_dict)
 
-    model_list += get_own_models()
+    # getValves/getConfig resolve built-in models before own_models, so an own
+    # model sharing a built-in's name is shadowed anyway - and listing both
+    # would give the frontend duplicate keys.
+    built_in = {doc_dict["file"] for doc_dict in model_list}
+    model_list += [doc_dict for doc_dict in get_own_models() if doc_dict["file"] not in built_in]
 
     return model_list
 
@@ -114,7 +118,7 @@ def get_valves(model_name: str, source: bool = False) -> Valves:
             type = "select"
         response_key = "valves"
         if key.startswith("ANALYSIS_"):
-          response_key = "analysisValves"
+            response_key = "analysisValves"
         response[response_key].append(
             {
                 "name": key,
@@ -185,14 +189,15 @@ def save_config(config_file: str, config: ModelData, request: Request = ""):
     else:
         log.error("%s files can not be found", config_file)
         return
-    #remove first layer object if value null
+    # remove first layer object if value null
     config_dict = config.dict()
     remove_keys = []
     for key, value in config_dict.items():
         if not value:
             remove_keys.append(key)
-    for k in remove_keys: del config_dict[k]
-    #save config to file
+    for k in remove_keys:
+        del config_dict[k]
+    # save config to file
     with open(file_path, "w") as file:
         file.write(json.dumps(config_dict))
 
@@ -479,20 +484,20 @@ class Valves(BaseModel):
         description="Width",
     )
     ANALYSIS_CSV_OUTPUT: str = Field(
-        default= "CSV", 
+        default= "CSV",
         title='CSV Output',
         description='CSV Output',
         examples='outputs',
     )
     ANALYSIS_VARIABLE: str = Field(
-        default= "External_Displacements", 
+        default= "External_Displacements",
         title='Variable',
         description='Variable',
         examples='computes',
     )
 
 class main:
-    
+
     def __init__(self, valves, model_data, analysisValves = {{}}):
         self.xbegin = 0
         self.xend = valves["LENGTH"]
@@ -554,14 +559,14 @@ class main:
             k,
         )
         return k
-        
+
     def analysis(self,model_name,resultpath):
         variable = self.variable + "y"
         csv_output = self.csv_output
 
         file = os.path.join(resultpath, model_name + "_" + csv_output + ".csv")
         result_file = os.path.join(resultpath, model_name + "_results.png")
-        
+
         df = pd.read_csv(file)
 
         plt.clf()

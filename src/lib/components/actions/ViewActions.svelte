@@ -18,7 +18,7 @@ SPDX-License-Identifier: Apache-2.0
   import {
     getCurrentEnergy,
     runModel as runModelApi,
-    cancelJob as cancelJobApi,
+    cancelRun as cancelRunApi,
     getPlot,
     deleteModel as deleteModelApi,
     deleteModelFromCluster,
@@ -56,6 +56,11 @@ SPDX-License-Identifier: Apache-2.0
   let resultsLoading = $state(false);
   let timer: ReturnType<typeof setInterval> | null = null;
   let intervalCount = 0;
+  // Bridges the gap between submit and the next getStatus poll (up to 5s):
+  // status.run_id lags behind by one poll, so cancelling right after
+  // submit would otherwise have nothing to target yet.
+  let lastSubmittedRunId = $state<string | null>(null);
+  const activeRunId = $derived(status.run_id ?? lastSubmittedRunId);
 
   let dialogEnergySavings = $state(false);
   let dialogDownload = $state(false);
@@ -85,16 +90,22 @@ SPDX-License-Identifier: Apache-2.0
     viewStore.textLoading = true;
 
     try {
-      await runModelApi({
+      const response = await runModelApi({
         modelName: modelStore.selectedModel.file,
         modelFolderName: modelData.model.modelFolderName,
         verbose: modelData.job.verbose,
         jobIds,
         requestBody: modelData
       });
+      lastSubmittedRunId = (response as { run_id: string }).run_id;
+      // The log poll (TextActions.svelte) keys off status.run_id, which
+      // would otherwise still point at the previous run until the next
+      // getStatus call.
+      defaultStore.status = { ...status, run_id: lastSubmittedRunId, submitted: true };
       notify.positive('Job submitted');
       viewStore.textId = 'log';
       viewStore.viewId = 'jobs';
+      bus.emit('getJobs' as never);
 
       // Open the log stream right away instead of guessing a fixed delay:
       // the backend now waits for the .log file to appear on its own and
@@ -138,23 +149,23 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   async function cancelJob() {
+    if (!activeRunId) {
+      notify.negative('No active run to cancel');
+      return;
+    }
     submitLoading = true;
     if (timer) {
       clearInterval(timer);
       timer = null;
     }
     try {
-      await cancelJobApi({
-        modelName: modelStore.selectedModel.file,
-        modelFolderName: modelData.model.modelFolderName,
-        cluster: modelData.job.cluster,
-        sbatch: modelData.job.sbatch
-      });
+      await cancelRunApi({ runId: activeRunId });
       notify.positive('Job canceled');
       bus.emit('stopWebsocket' as never);
     } catch {
       notify.negative('Failed');
     }
+    lastSubmittedRunId = null;
     bus.emit('getStatus' as never);
     submitLoading = false;
   }

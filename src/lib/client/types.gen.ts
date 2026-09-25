@@ -18,6 +18,11 @@ export type AdditiveModel = {
     printTemp: number;
 };
 
+export type AuthorizationUrlResponse = {
+    authorization_url: string;
+    state: string;
+};
+
 export type Block = {
     blocksId: number;
     name: string;
@@ -37,11 +42,6 @@ export type BlockFunction = {
 };
 
 export type Body_generate_model = {
-    data: ModelData;
-    valves: Valves;
-};
-
-export type Body_run_own_analysis = {
     data: ModelData;
     valves: Valves;
 };
@@ -217,6 +217,13 @@ export type Job = {
     account?: number | null;
 };
 
+/**
+ * Folder-level summary row (one per model_folder_name variant that
+ * exists on disk). `run_id`/`run_count` describe the folder's run
+ * history at a glance; submitted/results/progress reflect only the
+ * *latest* run - see GET /jobs/{model_name}/{model_folder_name}/runs
+ * for the full history and GET /jobs/{run_id} for a specific run.
+ */
 export type Jobs = {
     id: number;
     name: string;
@@ -231,6 +238,45 @@ export type Jobs = {
     progress?: number | null;
     currentStep?: number | null;
     totalSteps?: number | null;
+    run_id?: string | null;
+    run_count?: number;
+};
+
+export type LibraryItemIn = {
+    name: string;
+    visibility?: 'private' | 'team' | 'org' | 'public';
+    tags?: Array<(string)>;
+    team_id?: string | null;
+    project_id?: string | null;
+    description?: string | null;
+    config?: {
+    [key: string]: unknown;
+} | null;
+    properties?: {
+    [key: string]: unknown;
+} | null;
+    source?: string | null;
+};
+
+export type visibility = 'private' | 'team' | 'org' | 'public';
+
+export type LibraryItemOut = {
+    id: string;
+    owner_id: string;
+    org_id: string | null;
+    team_id: string | null;
+    project_id: string | null;
+    name: string;
+    visibility: string;
+    tags: Array<(string)>;
+    description?: string | null;
+    config?: {
+    [key: string]: unknown;
+} | null;
+    properties?: {
+    [key: string]: unknown;
+} | null;
+    source?: string | null;
 };
 
 /**
@@ -244,6 +290,11 @@ export type LicenseStatus = {
     expires_at?: string | null;
     source: string;
     license_server_configured: boolean;
+};
+
+export type LoginRequest = {
+    email: string;
+    password: string;
 };
 
 export type Material = {
@@ -299,6 +350,25 @@ export type Matrix = {
     C55?: number | null;
     C56?: number | null;
     C66?: number | null;
+};
+
+export type MeResponse = {
+    user_id: string;
+    email: string | null;
+    display_name: string;
+    role: string;
+    auth_provider: string;
+    org_id: string | null;
+};
+
+export type MemberIn = {
+    user_id: string;
+    role?: string;
+};
+
+export type MemberOut = {
+    user_id: string;
+    role: string;
 };
 
 export type Model = {
@@ -382,6 +452,52 @@ export type PreCalculations = {
     bondAssociateDeformationGradient?: boolean | null;
 };
 
+export type ProjectIn = {
+    name: string;
+    description?: string | null;
+};
+
+export type ProjectOut = {
+    id: string;
+    org_id: string;
+    name: string;
+    description: string | null;
+    created_by: string;
+};
+
+/**
+ * Full status of a single run, keyed by its own id (JobQueueEntry.id -
+ * stable for the life of the run, independent of how many times its
+ * model_name/model_folder_name has been resubmitted before or since).
+ * This is the authoritative per-run detail; Status/Jobs only carry a
+ * same-shaped snapshot of the latest run for quick folder-level display.
+ */
+export type RunStatus = {
+    id: string;
+    model_name: string;
+    model_folder_name: string;
+    status: string;
+    perilab_job_id?: string | null;
+    submitted_at?: string | null;
+    started_at?: string | null;
+    finished_at?: string | null;
+    error?: string | null;
+    results?: boolean;
+    csvResults?: boolean;
+    progress?: number | null;
+    currentStep?: number | null;
+    totalSteps?: number | null;
+    model?: {
+    [key: string]: unknown;
+} | null;
+};
+
+export type SignupRequest = {
+    email: string;
+    password: string;
+    display_name: string;
+};
+
 export type Solver = {
     solverId?: number | null;
     name?: string | null;
@@ -423,6 +539,14 @@ export type Static = {
     m?: number | null;
 };
 
+/**
+ * Folder-level summary: model-config existence plus a snapshot of the
+ * *most recently submitted* run for this model_name/model_folder_name.
+ * A folder can have more than one run over time (re-submissions) - use
+ * `run_id` with GET /jobs/{run_id} for authoritative detail on that
+ * specific run, or GET /jobs/{model_name}/{model_folder_name}/runs for
+ * the full history, rather than assuming this is "the" run.
+ */
 export type Status = {
     created?: boolean | null;
     submitted?: boolean | null;
@@ -432,12 +556,23 @@ export type Status = {
     progress?: number | null;
     currentStep?: number | null;
     totalSteps?: number | null;
+    run_id?: string | null;
 };
 
 export type StiffnessMatrix = {
     calculateStiffnessMatrix?: boolean | null;
     engineeringConstants: EngineeringConstants;
     matrix: Matrix;
+};
+
+export type TeamIn = {
+    name: string;
+};
+
+export type TeamOut = {
+    id: string;
+    org_id: string;
+    name: string;
 };
 
 export type Thermal = {
@@ -461,6 +596,10 @@ export type ThermalModel = {
     file?: string | null;
     numStateVars?: number | null;
     predefinedFieldNames?: string | null;
+};
+
+export type TrialIdResponse = {
+    username: string;
 };
 
 /**
@@ -515,6 +654,13 @@ export type VersionData = {
     latest: string;
     perilab_current: string;
     perilab_latest: string;
+};
+
+export type app__routers__oauth__AuthResponse = {
+    token: string;
+    user_id: string;
+    display_name: string;
+    role: string;
 };
 
 export type properties = {
@@ -659,15 +805,6 @@ export type RunModelData = {
 
 export type RunModelResponse = unknown;
 
-export type CancelJobData = {
-    cluster?: boolean;
-    modelFolderName?: string;
-    modelName?: string;
-    sbatch?: boolean;
-};
-
-export type CancelJobResponse = unknown;
-
 export type GetJobFoldersData = {
     modelName?: string;
 };
@@ -676,28 +813,59 @@ export type GetJobFoldersResponse = Array<(string)>;
 
 export type GetJobsData = {
     modelName?: string;
-    sbatch?: boolean;
 };
 
 export type GetJobsResponse = Array<Jobs>;
 
 export type GetStatusData = {
-    cluster?: boolean;
     meshfile?: string | null;
     modelFolderName?: string;
     modelName?: string;
-    ownMesh?: boolean | null;
-    sbatch?: boolean;
 };
 
 export type GetStatusResponse = Status;
 
-export type RunOwnAnalysisData = {
-    modelName?: string;
-    requestBody: Body_run_own_analysis;
+export type ListAllRunsResponse = Array<RunStatus>;
+
+export type ListRunsData = {
+    modelFolderName: string;
+    modelName: string;
 };
 
-export type RunOwnAnalysisResponse = string;
+export type ListRunsResponse = Array<RunStatus>;
+
+export type GetRunData = {
+    runId: string;
+};
+
+export type GetRunResponse = RunStatus;
+
+export type DeleteRunData = {
+    runId: string;
+};
+
+export type DeleteRunResponse = unknown;
+
+export type GetRunLogData = {
+    debug?: boolean;
+    runId: string;
+    tail?: number | null;
+};
+
+export type GetRunLogResponse = string;
+
+export type StreamRunLogData = {
+    debug?: boolean;
+    runId: string;
+};
+
+export type StreamRunLogResponse = unknown;
+
+export type CancelRunData = {
+    runId: string;
+};
+
+export type CancelRunResponse = unknown;
 
 export type GetResultFileData = {
     file: string;
@@ -805,6 +973,121 @@ export type GetAllUsageResponse = UsageSummary;
 export type GetLicenseStatusResponse = LicenseStatus;
 
 export type RefreshLicenseResponse = LicenseStatus;
+
+export type GetTrialIdResponse = TrialIdResponse;
+
+export type SignupData = {
+    requestBody: SignupRequest;
+};
+
+export type SignupResponse = app__routers__oauth__AuthResponse;
+
+export type LoginData = {
+    requestBody: LoginRequest;
+};
+
+export type LoginResponse = app__routers__oauth__AuthResponse;
+
+export type GetCurrentUserInfoResponse = MeResponse;
+
+export type StartOidcLoginResponse = AuthorizationUrlResponse;
+
+export type OidcCallbackData = {
+    code: string;
+};
+
+export type OidcCallbackResponse = app__routers__oauth__AuthResponse;
+
+export type ListLibraryItemsData = {
+    kind: 'model-config' | 'material';
+    projectId?: string | null;
+    /**
+     * Case-insensitive substring match on name
+     */
+    search?: string | null;
+    /**
+     * Exact tag match
+     */
+    tag?: string | null;
+};
+
+export type ListLibraryItemsResponse = Array<LibraryItemOut>;
+
+export type CreateLibraryItemData = {
+    kind: 'model-config' | 'material';
+    requestBody: LibraryItemIn;
+};
+
+export type CreateLibraryItemResponse = LibraryItemOut;
+
+export type UpdateLibraryItemData = {
+    itemId: string;
+    kind: 'model-config' | 'material';
+    requestBody: LibraryItemIn;
+};
+
+export type UpdateLibraryItemResponse = LibraryItemOut;
+
+export type DeleteLibraryItemData = {
+    itemId: string;
+    kind: 'model-config' | 'material';
+};
+
+export type DeleteLibraryItemResponse = unknown;
+
+export type ListProjectsResponse = Array<ProjectOut>;
+
+export type CreateProjectData = {
+    requestBody: ProjectIn;
+};
+
+export type CreateProjectResponse = ProjectOut;
+
+export type ListProjectMembersData = {
+    projectId: string;
+};
+
+export type ListProjectMembersResponse = Array<MemberOut>;
+
+export type AddProjectMemberData = {
+    projectId: string;
+    requestBody: MemberIn;
+};
+
+export type AddProjectMemberResponse = MemberOut;
+
+export type RemoveProjectMemberData = {
+    projectId: string;
+    userId: string;
+};
+
+export type RemoveProjectMemberResponse = unknown;
+
+export type ListTeamsResponse = Array<TeamOut>;
+
+export type CreateTeamData = {
+    requestBody: TeamIn;
+};
+
+export type CreateTeamResponse = TeamOut;
+
+export type AddTeamMemberData = {
+    teamId: string;
+    userId: string;
+};
+
+export type AddTeamMemberResponse = unknown;
+
+export type RemoveTeamMemberData = {
+    teamId: string;
+    userId: string;
+};
+
+export type RemoveTeamMemberResponse = unknown;
+
+export type GetPublicConfigResponse = {
+    [key: string]: unknown;
+};
 
 export type HealthcheckHealthGetResponse = unknown;
 
@@ -1090,21 +1373,6 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/jobs/cancel': {
-        put: {
-            req: CancelJobData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
     '/jobs/getJobFolders': {
         get: {
             req: GetJobFoldersData;
@@ -1150,14 +1418,97 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/results/runOwnAnalysis': {
-        post: {
-            req: RunOwnAnalysisData;
+    '/jobs/runs': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<RunStatus>;
+            };
+        };
+    };
+    '/jobs/{model_name}/{model_folder_name}/runs': {
+        get: {
+            req: ListRunsData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<RunStatus>;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/jobs/{run_id}': {
+        get: {
+            req: GetRunData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: RunStatus;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+        delete: {
+            req: DeleteRunData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/jobs/{run_id}/log': {
+        get: {
+            req: GetRunLogData;
             res: {
                 /**
                  * Successful Response
                  */
                 200: string;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/jobs/{run_id}/log/stream': {
+        get: {
+            req: StreamRunLogData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/jobs/{run_id}/cancel': {
+        put: {
+            req: CancelRunData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
                 /**
                  * Validation Error
                  */
@@ -1369,6 +1720,266 @@ export type $OpenApiTs = {
                  * Successful Response
                  */
                 200: LicenseStatus;
+            };
+        };
+    };
+    '/auth/trial-id': {
+        post: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: TrialIdResponse;
+            };
+        };
+    };
+    '/auth/signup': {
+        post: {
+            req: SignupData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: app__routers__oauth__AuthResponse;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/auth/login': {
+        post: {
+            req: LoginData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: app__routers__oauth__AuthResponse;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/auth/me': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: MeResponse;
+            };
+        };
+    };
+    '/oauth/oidc/login': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: AuthorizationUrlResponse;
+            };
+        };
+    };
+    '/oauth/oidc/callback': {
+        get: {
+            req: OidcCallbackData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: app__routers__oauth__AuthResponse;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/library/{kind}': {
+        get: {
+            req: ListLibraryItemsData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<LibraryItemOut>;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+        post: {
+            req: CreateLibraryItemData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: LibraryItemOut;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/library/{kind}/{item_id}': {
+        put: {
+            req: UpdateLibraryItemData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: LibraryItemOut;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+        delete: {
+            req: DeleteLibraryItemData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/projects': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<ProjectOut>;
+            };
+        };
+        post: {
+            req: CreateProjectData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: ProjectOut;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/projects/{project_id}/members': {
+        get: {
+            req: ListProjectMembersData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<MemberOut>;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+        post: {
+            req: AddProjectMemberData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: MemberOut;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/projects/{project_id}/members/{user_id}': {
+        delete: {
+            req: RemoveProjectMemberData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/teams': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<TeamOut>;
+            };
+        };
+        post: {
+            req: CreateTeamData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: TeamOut;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/teams/{team_id}/members/{user_id}': {
+        post: {
+            req: AddTeamMemberData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+        delete: {
+            req: RemoveTeamMemberData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/config/public': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: {
+                    [key: string]: unknown;
+                };
             };
         };
     };

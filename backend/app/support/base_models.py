@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+from datetime import datetime
 from enum import Enum
 from typing import List, Literal, Optional, Union
 
@@ -167,6 +168,13 @@ class Valves(BaseModel):
 
 
 class Status(BaseModel):
+    """Folder-level summary: model-config existence plus a snapshot of the
+    *most recently submitted* run for this model_name/model_folder_name.
+    A folder can have more than one run over time (re-submissions) - use
+    `run_id` with GET /jobs/{run_id} for authoritative detail on that
+    specific run, or GET /jobs/{model_name}/{model_folder_name}/runs for
+    the full history, rather than assuming this is "the" run."""
+
     created: Optional[bool] = False
     submitted: Optional[bool] = False
     results: Optional[bool] = False
@@ -175,6 +183,33 @@ class Status(BaseModel):
     progress: Optional[float] = None
     currentStep: Optional[int] = None
     totalSteps: Optional[int] = None
+    run_id: Optional[str] = None
+
+
+class RunStatus(BaseModel):
+    """Full status of a single run, keyed by its own id (JobQueueEntry.id -
+    stable for the life of the run, independent of how many times its
+    model_name/model_folder_name has been resubmitted before or since).
+    This is the authoritative per-run detail; Status/Jobs only carry a
+    same-shaped snapshot of the latest run for quick folder-level display."""
+
+    id: str
+    model_name: str
+    model_folder_name: str
+    status: str
+    perilab_job_id: Optional[str] = None
+    submitted_at: Optional[datetime] = None
+    started_at: Optional[datetime] = None
+    finished_at: Optional[datetime] = None
+    error: Optional[str] = None
+    results: bool = False
+    csvResults: bool = False
+    progress: Optional[float] = None
+    currentStep: Optional[int] = None
+    totalSteps: Optional[int] = None
+    # Saved input deck (ModelData) of the run's model folder - only filled
+    # by GET /jobs/runs, so the job list can load a run back into the editor.
+    model: Optional[dict] = None
 
 
 class Model(BaseModel):
@@ -187,6 +222,12 @@ class Model(BaseModel):
 
 
 class Jobs(BaseModel):
+    """Folder-level summary row (one per model_folder_name variant that
+    exists on disk). `run_id`/`run_count` describe the folder's run
+    history at a glance; submitted/results/progress reflect only the
+    *latest* run - see GET /jobs/{model_name}/{model_folder_name}/runs
+    for the full history and GET /jobs/{run_id} for a specific run."""
+
     id: int
     name: str
     sub_name: str
@@ -198,6 +239,8 @@ class Jobs(BaseModel):
     progress: Optional[float] = None
     currentStep: Optional[int] = None
     totalSteps: Optional[int] = None
+    run_id: Optional[str] = None
+    run_count: int = 0
 
 
 class properties(BaseModel):
@@ -517,37 +560,17 @@ class Solver(BaseModel):
     name: Optional[str] = None
     stepId: int = 1
     matEnabled: bool = yaml_field(
-        True,
-        yaml_key="Material Models",
-        ui_label="Material Models",
-        ui_widget="toggle",
-        ui_group="Solver",
-        ui_order=1,
+        True, yaml_key="Material Models", ui_label="Material Models", ui_widget="toggle", ui_group="Solver", ui_order=1
     )
     damEnabled: Optional[bool] = yaml_field(
-        None,
-        yaml_key="Damage Models",
-        ui_label="Damage Models",
-        ui_widget="toggle",
-        ui_group="Solver",
-        ui_order=2,
+        None, yaml_key="Damage Models", ui_label="Damage Models", ui_widget="toggle", ui_group="Solver", ui_order=2
     )
     dispEnabled: Optional[bool] = None
     tempEnabled: Optional[bool] = yaml_field(
-        None,
-        yaml_key="Thermal Models",
-        ui_label="Thermal Models",
-        ui_widget="toggle",
-        ui_group="Solver",
-        ui_order=3,
+        None, yaml_key="Thermal Models", ui_label="Thermal Models", ui_widget="toggle", ui_group="Solver", ui_order=3
     )
     addEnabled: Optional[bool] = yaml_field(
-        None,
-        yaml_key="Additive Models",
-        ui_label="Additive Models",
-        ui_widget="toggle",
-        ui_group="Solver",
-        ui_order=4,
+        None, yaml_key="Additive Models", ui_label="Additive Models", ui_widget="toggle", ui_group="Solver", ui_order=4
     )
     initialTime: Optional[float] = yaml_field(
         None,
@@ -575,20 +598,10 @@ class Solver(BaseModel):
     additionalTime: Optional[float] = None
     fixedDt: Optional[float] = yaml_field(None, ui_label="Fixed dt", ui_widget="number", ui_group="Verlet", ui_order=0)
     solvertype: str = yaml_field(
-        ...,
-        ui_label="Solvertype",
-        ui_widget="select",
-        ui_options=["Verlet", "Static"],
-        ui_group="Solver",
-        ui_order=0,
+        ..., ui_label="Solvertype", ui_widget="select", ui_options=["Verlet", "Static"], ui_group="Solver", ui_order=0
     )
     safetyFactor: float = yaml_field(
-        ...,
-        yaml_cast="float",
-        ui_label="Safety Factor",
-        ui_widget="number",
-        ui_group="Verlet",
-        ui_order=1,
+        ..., yaml_cast="float", ui_label="Safety Factor", ui_widget="number", ui_group="Verlet", ui_order=1
     )
     verlet: Optional[Verlet] = None
     static: Optional[Static] = None
@@ -606,11 +619,7 @@ class Solver(BaseModel):
     )
     stopBeforeDamageInitation: Optional[bool] = None
     adaptivetimeStepping: Optional[bool] = yaml_field(
-        None,
-        ui_label="Adaptive Time Stepping",
-        ui_widget="toggle",
-        ui_group="Verlet",
-        ui_order=1,
+        None, ui_label="Adaptive Time Stepping", ui_widget="toggle", ui_group="Verlet", ui_order=1
     )
     adapt: Optional[Adapt] = None
     calculateCauchy: Optional[bool] = yaml_field(
@@ -652,18 +661,10 @@ class Job(BaseModel):
     tasks: int = yaml_field(..., ui_label="Tasks", ui_widget="number", ui_group="JobCluster", ui_order=0)
     tasksPerNode: Optional[int] = 1
     cpusPerTask: Optional[int] = yaml_field(
-        1,
-        ui_label="CPUs per Task",
-        ui_widget="number",
-        ui_group="JobSbatch",
-        ui_order=0,
+        1, ui_label="CPUs per Task", ui_widget="number", ui_group="JobSbatch", ui_order=0
     )
     multithread: Optional[bool] = yaml_field(
-        False,
-        ui_label="Multithreading",
-        ui_widget="toggle",
-        ui_group="JobSbatch",
-        ui_order=1,
+        False, ui_label="Multithreading", ui_widget="toggle", ui_group="JobSbatch", ui_order=1
     )
     time: Optional[str] = yaml_field(None, ui_label="Time", ui_widget="text", ui_group="JobSbatch", ui_order=2)
     account: Optional[int] = yaml_field(None, ui_label="Account", ui_widget="number", ui_group="JobSbatch", ui_order=3)
@@ -809,12 +810,7 @@ default_model = {
             "zValue": None,
         },
     ],
-    "contact": {
-        "contactModels": None,
-        "enabled": False,
-        "onlySurfaceContactNodes": None,
-        "searchFrequency": None,
-    },
+    "contact": {"contactModels": None, "enabled": False, "onlySurfaceContactNodes": None, "searchFrequency": None},
     "damages": [
         {
             "anistropicDamage": False,
@@ -824,10 +820,7 @@ default_model = {
             "criticalDamage": None,
             "criticalDamageToNeglect": None,
             "criticalEnergy": 5.714285714285715,
-            "criticalEnergyCalc": {
-                "calculateCriticalEnergy": True,
-                "k1c": 632.4555320336759,
-            },
+            "criticalEnergyCalc": {"calculateCriticalEnergy": True, "k1c": 632.4555320336759},
             "criticalStretch": None,
             "criticalVonMisesStress": None,
             "damageModel": "Critical Energy",
@@ -846,12 +839,7 @@ default_model = {
         "sampleSize": 10,
         "parameters": [{"id": ["materials[0].youngsModulus"], "std": 10}],
     },
-    "discretization": {
-        "discType": "txt",
-        "distributionType": "Neighbor based",
-        "gcode": None,
-        "nodeSets": None,
-    },
+    "discretization": {"discType": "txt", "distributionType": "Neighbor based", "gcode": None, "nodeSets": None},
     "job": {
         "account": 2263032,
         "cluster": False,
@@ -925,13 +913,7 @@ default_model = {
             "numberOfOutputSteps": 100,
             "outputsId": None,
             "selectedFileType": "Exodus",
-            "selectedOutputs": [
-                "Displacements",
-                "Damage",
-                "Cauchy Stress",
-                "Strain",
-                "Number of Neighbors",
-            ],
+            "selectedOutputs": ["Displacements", "Damage", "Cauchy Stress", "Strain", "Number of Neighbors"],
             "useOutputFrequency": False,
         },
         {
@@ -949,11 +931,7 @@ default_model = {
     "preCalculations": None,
     "solvers": [
         {
-            "adapt": {
-                "maximumBondDifference": 4,
-                "stableBondDifference": 1,
-                "stableStepDifference": 4,
-            },
+            "adapt": {"maximumBondDifference": 4, "stableBondDifference": 1, "stableStepDifference": 4},
             "adaptivetimeStepping": False,
             "addEnabled": None,
             "additionalTime": None,
@@ -978,11 +956,7 @@ default_model = {
             "stopAfterDamageInitation": False,
             "stopBeforeDamageInitation": False,
             "tempEnabled": False,
-            "verlet": {
-                "numericalDamping": 5e-06,
-                "outputFrequency": 100,
-                "safetyFactor": 0.95,
-            },
+            "verlet": {"numericalDamping": 5e-06, "outputFrequency": 100, "safetyFactor": 0.95},
         }
     ],
     "thermal": {"enabled": False, "thermalModels": None},

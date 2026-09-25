@@ -79,6 +79,22 @@ export const $AdditiveModel = {
     title: 'AdditiveModel'
 } as const;
 
+export const $AuthorizationUrlResponse = {
+    properties: {
+        authorization_url: {
+            type: 'string',
+            title: 'Authorization Url'
+        },
+        state: {
+            type: 'string',
+            title: 'State'
+        }
+    },
+    type: 'object',
+    required: ['authorization_url', 'state'],
+    title: 'AuthorizationUrlResponse'
+} as const;
+
 export const $Block = {
     properties: {
         blocksId: {
@@ -207,20 +223,6 @@ export const $Body_generate_model = {
     type: 'object',
     required: ['data', 'valves'],
     title: 'Body_generate_model'
-} as const;
-
-export const $Body_run_own_analysis = {
-    properties: {
-        data: {
-            '$ref': '#/components/schemas/ModelData'
-        },
-        valves: {
-            '$ref': '#/components/schemas/Valves'
-        }
-    },
-    type: 'object',
-    required: ['data', 'valves'],
-    title: 'Body_run_own_analysis'
 } as const;
 
 export const $Body_upload_files = {
@@ -1511,11 +1513,236 @@ export const $Jobs = {
                 }
             ],
             title: 'Totalsteps'
+        },
+        run_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Run Id'
+        },
+        run_count: {
+            type: 'integer',
+            title: 'Run Count',
+            default: 0
         }
     },
     type: 'object',
     required: ['id', 'name', 'sub_name', 'cluster', 'created', 'submitted', 'results'],
-    title: 'Jobs'
+    title: 'Jobs',
+    description: `Folder-level summary row (one per model_folder_name variant that
+exists on disk). \`run_id\`/\`run_count\` describe the folder's run
+history at a glance; submitted/results/progress reflect only the
+*latest* run - see GET /jobs/{model_name}/{model_folder_name}/runs
+for the full history and GET /jobs/{run_id} for a specific run.`
+} as const;
+
+export const $LibraryItemIn = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        visibility: {
+            type: 'string',
+            enum: ['private', 'team', 'org', 'public'],
+            title: 'Visibility',
+            default: 'private'
+        },
+        tags: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Tags',
+            default: []
+        },
+        team_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Team Id'
+        },
+        project_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Id'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        config: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Config'
+        },
+        properties: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Properties'
+        },
+        source: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Source'
+        }
+    },
+    type: 'object',
+    required: ['name'],
+    title: 'LibraryItemIn'
+} as const;
+
+export const $LibraryItemOut = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        owner_id: {
+            type: 'string',
+            title: 'Owner Id'
+        },
+        org_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Org Id'
+        },
+        team_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Team Id'
+        },
+        project_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Id'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        visibility: {
+            type: 'string',
+            title: 'Visibility'
+        },
+        tags: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Tags'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        config: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Config'
+        },
+        properties: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Properties'
+        },
+        source: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Source'
+        }
+    },
+    type: 'object',
+    required: ['id', 'owner_id', 'org_id', 'team_id', 'project_id', 'name', 'visibility', 'tags'],
+    title: 'LibraryItemOut'
 } as const;
 
 export const $LicenseStatus = {
@@ -1567,6 +1794,23 @@ export const $LicenseStatus = {
     title: 'LicenseStatus',
     description: `Current entitlement grant - see support/license_client.py and
 support/entitlements.py.`
+} as const;
+
+export const $LoginRequest = {
+    properties: {
+        email: {
+            type: 'string',
+            format: 'email',
+            title: 'Email'
+        },
+        password: {
+            type: 'string',
+            title: 'Password'
+        }
+    },
+    type: 'object',
+    required: ['email', 'password'],
+    title: 'LoginRequest'
 } as const;
 
 export const $Material = {
@@ -2077,6 +2321,85 @@ export const $Matrix = {
     },
     type: 'object',
     title: 'Matrix'
+} as const;
+
+export const $MeResponse = {
+    properties: {
+        user_id: {
+            type: 'string',
+            title: 'User Id'
+        },
+        email: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Email'
+        },
+        display_name: {
+            type: 'string',
+            title: 'Display Name'
+        },
+        role: {
+            type: 'string',
+            title: 'Role'
+        },
+        auth_provider: {
+            type: 'string',
+            title: 'Auth Provider'
+        },
+        org_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Org Id'
+        }
+    },
+    type: 'object',
+    required: ['user_id', 'email', 'display_name', 'role', 'auth_provider', 'org_id'],
+    title: 'MeResponse'
+} as const;
+
+export const $MemberIn = {
+    properties: {
+        user_id: {
+            type: 'string',
+            title: 'User Id'
+        },
+        role: {
+            type: 'string',
+            title: 'Role',
+            default: 'member'
+        }
+    },
+    type: 'object',
+    required: ['user_id'],
+    title: 'MemberIn'
+} as const;
+
+export const $MemberOut = {
+    properties: {
+        user_id: {
+            type: 'string',
+            title: 'User Id'
+        },
+        role: {
+            type: 'string',
+            title: 'Role'
+        }
+    },
+    type: 'object',
+    required: ['user_id', 'role'],
+    title: 'MemberOut'
 } as const;
 
 export const $Model = {
@@ -2859,6 +3182,227 @@ export const $PreCalculations = {
     title: 'PreCalculations'
 } as const;
 
+export const $ProjectIn = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        }
+    },
+    type: 'object',
+    required: ['name'],
+    title: 'ProjectIn'
+} as const;
+
+export const $ProjectOut = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        org_id: {
+            type: 'string',
+            title: 'Org Id'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        created_by: {
+            type: 'string',
+            title: 'Created By'
+        }
+    },
+    type: 'object',
+    required: ['id', 'org_id', 'name', 'description', 'created_by'],
+    title: 'ProjectOut'
+} as const;
+
+export const $RunStatus = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        model_name: {
+            type: 'string',
+            title: 'Model Name'
+        },
+        model_folder_name: {
+            type: 'string',
+            title: 'Model Folder Name'
+        },
+        status: {
+            type: 'string',
+            title: 'Status'
+        },
+        perilab_job_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Perilab Job Id'
+        },
+        submitted_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Submitted At'
+        },
+        started_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Started At'
+        },
+        finished_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Finished At'
+        },
+        error: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Error'
+        },
+        results: {
+            type: 'boolean',
+            title: 'Results',
+            default: false
+        },
+        csvResults: {
+            type: 'boolean',
+            title: 'Csvresults',
+            default: false
+        },
+        progress: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Progress'
+        },
+        currentStep: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Currentstep'
+        },
+        totalSteps: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Totalsteps'
+        },
+        model: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Model'
+        }
+    },
+    type: 'object',
+    required: ['id', 'model_name', 'model_folder_name', 'status'],
+    title: 'RunStatus',
+    description: `Full status of a single run, keyed by its own id (JobQueueEntry.id -
+stable for the life of the run, independent of how many times its
+model_name/model_folder_name has been resubmitted before or since).
+This is the authoritative per-run detail; Status/Jobs only carry a
+same-shaped snapshot of the latest run for quick folder-level display.`
+} as const;
+
+export const $SignupRequest = {
+    properties: {
+        email: {
+            type: 'string',
+            format: 'email',
+            title: 'Email'
+        },
+        password: {
+            type: 'string',
+            title: 'Password'
+        },
+        display_name: {
+            type: 'string',
+            title: 'Display Name'
+        }
+    },
+    type: 'object',
+    required: ['email', 'password', 'display_name'],
+    title: 'SignupRequest'
+} as const;
+
 export const $Solver = {
     properties: {
         solverId: {
@@ -3390,10 +3934,27 @@ export const $Status = {
                 }
             ],
             title: 'Totalsteps'
+        },
+        run_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Run Id'
         }
     },
     type: 'object',
-    title: 'Status'
+    title: 'Status',
+    description: `Folder-level summary: model-config existence plus a snapshot of the
+*most recently submitted* run for this model_name/model_folder_name.
+A folder can have more than one run over time (re-submissions) - use
+\`run_id\` with GET /jobs/{run_id} for authoritative detail on that
+specific run, or GET /jobs/{model_name}/{model_folder_name}/runs for
+the full history, rather than assuming this is "the" run.`
 } as const;
 
 export const $StiffnessMatrix = {
@@ -3419,6 +3980,38 @@ export const $StiffnessMatrix = {
     type: 'object',
     required: ['engineeringConstants', 'matrix'],
     title: 'StiffnessMatrix'
+} as const;
+
+export const $TeamIn = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        }
+    },
+    type: 'object',
+    required: ['name'],
+    title: 'TeamIn'
+} as const;
+
+export const $TeamOut = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        org_id: {
+            type: 'string',
+            title: 'Org Id'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        }
+    },
+    type: 'object',
+    required: ['id', 'org_id', 'name'],
+    title: 'TeamOut'
 } as const;
 
 export const $Thermal = {
@@ -3600,6 +4193,18 @@ export const $ThermalModel = {
     type: 'object',
     required: ['name', 'thermalModel', 'thermalType'],
     title: 'ThermalModel'
+} as const;
+
+export const $TrialIdResponse = {
+    properties: {
+        username: {
+            type: 'string',
+            title: 'Username'
+        }
+    },
+    type: 'object',
+    required: ['username'],
+    title: 'TrialIdResponse'
 } as const;
 
 export const $UsageSummary = {
@@ -3862,6 +4467,30 @@ export const $VersionData = {
     type: 'object',
     required: ['current', 'latest', 'perilab_current', 'perilab_latest'],
     title: 'VersionData'
+} as const;
+
+export const $app__routers__oauth__AuthResponse = {
+    properties: {
+        token: {
+            type: 'string',
+            title: 'Token'
+        },
+        user_id: {
+            type: 'string',
+            title: 'User Id'
+        },
+        display_name: {
+            type: 'string',
+            title: 'Display Name'
+        },
+        role: {
+            type: 'string',
+            title: 'Role'
+        }
+    },
+    type: 'object',
+    required: ['token', 'user_id', 'display_name', 'role'],
+    title: 'AuthResponse'
 } as const;
 
 export const $properties = {

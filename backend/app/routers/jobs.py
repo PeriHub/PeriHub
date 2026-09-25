@@ -4,19 +4,26 @@
 
 import json
 import os
-from typing import List, Optional
+from datetime import datetime, timezone
+from typing import Iterator, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import select
+from fastapi.responses import StreamingResponse
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..db.base import get_db
 
 # db/models.py's JobQueueEntry powers all run-status tracking now (see
-# support/solver_backend.py's module docstring) - this router looks
-# entries up directly rather than only going through job_queue.py's
-# helpers, for the "does this user already have this model running" and
-# "what's my most recent submission of this model" lookups below.
+# support/solver_backend.py's module docstring). A model_name/
+# model_folder_name pair is *not* a 1:1 stand-in for "the job" any more -
+# a folder can be resubmitted, and each submission gets its own durable
+# JobQueueEntry.id ("run_id"). That id, not the folder name, is what
+# GET /jobs/{run_id} and PUT /jobs/{run_id}/cancel key off; getJobs/
+# getStatus below still take a folder and summarize its *latest* run for
+# convenience, but GET /jobs/{model_name}/{model_folder_name}/runs exposes
+# the full history so nothing about an older run is lost once a folder is
+# resubmitted.
 #
 # Model *configuration* (which model/model_folder_name combinations exist,
 # whether their input deck/mesh has been written) still lives on local
@@ -24,79 +31,101 @@ from ..db.base import get_db
 # resulting files are submitted to the PeriLab API, so that part of this
 # router keeps using FileHandler as before. Everything about a job's
 # actual run - submitted/running, progress, result files, logs, cancel,
-# delete - now goes exclusively through the PeriLab API (support/
+# delete - goes exclusively through the PeriLab API (support/
 # perilab_api_client.py) plus the JobQueueEntry rows that record which
-# PeriLab job_id a submission became; there is no more cluster/sftp path.
-from ..db.models import JOB_QUEUED, JOB_RUNNING, JobQueueEntry
+# PeriLab job_id a submission became; there is no cluster/sftp path.
+from ..db.models import JOB_CANCELLED, JOB_DONE, JOB_FAILED, JOB_QUEUED, JOB_RUNNING, JobQueueEntry
 from ..support import audit_log, usage_metering
 from ..support.api_key_auth import get_user_name_with_api_key
-from ..support.base_models import Jobs, ModelData, Status
-from ..support.db_auth import resolve_user
+from ..support.base_models import Jobs, ModelData, RunStatus, Status
+from ..support.db_auth import ResolvedIdentity, resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_concurrent_local_jobs
 from ..support.job_concurrency import count_active_local_jobs, has_capacity
 from ..support.job_cost import estimate_job_cost
 from ..support.job_queue import cancel_running, enforce_user_quota, submit_job
+from ..support.perilab_api_client import PeriLabJob
 from ..support.solver_backend import get_solver_backend
 
 router = APIRouter(prefix="/jobs", tags=["Jobs Methods"])
 
 
-def _job_run_status(db: Session, request: Request, model_name: str, model_folder_name: str) -> dict:
-    """Run status for a model folder - submitted/running, result files,
-    and progress - sourced entirely from the DB (JobQueueEntry) and the
-    PeriLab API (support/perilab_api_client.py). No filesystem or cluster
-    access: whether a job has produced result files is answered by GET
-    /jobs/{job_id}/files, not by looking at disk. Returns all-false/None
-    if there's no logged-in DB user or no matching JobQueueEntry."""
+def _perilab_job_ids(entry: JobQueueEntry) -> List[str]:
+    return [jid.strip() for jid in (entry.perilab_job_id or "").split(",") if jid.strip()]
+
+
+def _sync_status(db: Session, entry: Optional[JobQueueEntry]) -> Optional[PeriLabJob]:
+    """Moves an active entry to done/failed/cancelled once the PeriLab API
+    reports its job(s) finished - nothing else ever does, so without this a
+    run would stay "running" forever. Returns the first PeriLab job (for
+    progress), or None if the entry isn't active or the API is unreachable."""
+    if entry is None or entry.status not in (JOB_QUEUED, JOB_RUNNING):
+        return None
+    job_ids = _perilab_job_ids(entry)
+    if not job_ids:
+        return None
+
+    client = get_solver_backend().client()
+    try:
+        jobs = [client.get_job(job_id) for job_id in job_ids]
+    except HTTPException:
+        return None
+
+    # A batch submission is only finished once every one of its jobs is.
+    if not any(job.is_active for job in jobs):
+        failed = [job for job in jobs if job.is_failed]
+        if not failed:
+            entry.status = JOB_DONE
+        elif all(job.status.lower() == "cancelled" for job in failed):
+            entry.status = JOB_CANCELLED
+        else:
+            entry.status = JOB_FAILED
+            error = failed[0].raw.get("error")
+            entry.error = str(error)[:1000] if error else f"PeriLab job {failed[0].job_id} {failed[0].status}"
+        entry.finished_at = datetime.now(timezone.utc)
+        db.commit()
+    return jobs[0]
+
+
+def _run_status_dict(
+    entry: Optional[JobQueueEntry], job: Optional[PeriLabJob] = None, check_files: bool = True
+) -> dict:
+    """Progress and result-file presence for one specific JobQueueEntry,
+    sourced entirely from the PeriLab API (support/perilab_api_client.py) -
+    no filesystem/cluster access. `job` is the entry's already-fetched
+    PeriLab job (see _sync_status), used for progress. With
+    check_files=False the result-file lookup (one API call per job) is
+    skipped and `results` just means the run finished successfully.
+    Returns all-false/None if `entry` is None or has no perilab_job_id yet
+    (not submitted, or submission failed before the API accepted it)."""
     empty = {
-        "submitted": False,
         "results": False,
         "csvResults": False,
         "progress": None,
         "currentStep": None,
         "totalSteps": None,
     }
-
-    identity = resolve_user(request, dev, db)
-    if identity.user is None:
-        return empty
-
-    entry = db.scalar(
-        select(JobQueueEntry)
-        .where(
-            JobQueueEntry.user_id == identity.user.id,
-            JobQueueEntry.model_name == model_name,
-            JobQueueEntry.model_folder_name == model_folder_name,
-        )
-        .order_by(JobQueueEntry.submitted_at.desc())
-    )
-    if entry is None:
+    if entry is None or not entry.perilab_job_id:
         return empty
 
     result = dict(empty)
-    result["submitted"] = entry.status in (JOB_QUEUED, JOB_RUNNING)
-
-    if not entry.perilab_job_id:
-        return result
-
-    client = get_solver_backend().client()
-    # A comma-separated perilab_job_id (batch submission, see
-    # PeriLabSolverBackend.submit) reports progress for its first job
-    # only - good enough for a single progress bar.
-    job_ids = [jid.strip() for jid in entry.perilab_job_id.split(",") if jid.strip()]
+    job_ids = _perilab_job_ids(entry)
     if not job_ids:
         return result
 
-    if entry.status == JOB_RUNNING:
-        try:
-            job = client.get_job(job_ids[0])
-            result["progress"] = job.progress
-            result["currentStep"] = job.current_step
-            result["totalSteps"] = job.total_steps
-        except HTTPException:
-            pass
+    # A comma-separated perilab_job_id (batch submission, see
+    # PeriLabSolverBackend.submit) reports progress for its first job
+    # only - good enough for a single progress bar.
+    if entry.status == JOB_RUNNING and job is not None:
+        result["progress"] = job.progress
+        result["currentStep"] = job.current_step
+        result["totalSteps"] = job.total_steps
 
+    if not check_files:
+        result["results"] = entry.status == JOB_DONE
+        return result
+
+    client = get_solver_backend().client()
     # Result files only mean something once the job has actually started -
     # skip the API call while it's still sitting in the queue.
     if entry.status != JOB_QUEUED:
@@ -110,6 +139,98 @@ def _job_run_status(db: Session, request: Request, model_name: str, model_folder
             except HTTPException:
                 continue
 
+    return result
+
+
+def _to_run_status(entry: JobQueueEntry, job: Optional[PeriLabJob] = None, check_files: bool = True) -> RunStatus:
+    run = _run_status_dict(entry, job, check_files)
+    return RunStatus(
+        id=entry.id,
+        model_name=entry.model_name,
+        model_folder_name=entry.model_folder_name,
+        status=entry.status,
+        perilab_job_id=entry.perilab_job_id,
+        submitted_at=entry.submitted_at,
+        started_at=entry.started_at,
+        finished_at=entry.finished_at,
+        error=entry.error,
+        results=run["results"],
+        csvResults=run["csvResults"],
+        progress=run["progress"],
+        currentStep=run["currentStep"],
+        totalSteps=run["totalSteps"],
+    )
+
+
+def _can_view_entry(identity: ResolvedIdentity, entry: JobQueueEntry) -> bool:
+    """Owner, or an org admin over the same org - the same owner-or-org-
+    admin pattern support.rbac.can_edit uses elsewhere for shared
+    resources."""
+    if entry.user_id == identity.user.id:
+        return True
+    return identity.user.role == "admin" and identity.user.org_id == entry.org_id
+
+
+def _latest_entry(db: Session, user_id: str, model_name: str, model_folder_name: str) -> Optional[JobQueueEntry]:
+    """The most recently submitted run for this folder, or None if it's
+    never been submitted. A folder can have many runs over time (see
+    module docstring) - this is only ever used for the folder-level
+    "quick glance" summary and the already-submitted duplicate guard, not
+    as a stand-in for "the" job."""
+    return db.scalar(
+        select(JobQueueEntry)
+        .where(
+            JobQueueEntry.user_id == user_id,
+            JobQueueEntry.model_name == model_name,
+            JobQueueEntry.model_folder_name == model_folder_name,
+        )
+        .order_by(JobQueueEntry.submitted_at.desc())
+    )
+
+
+def _folder_summary(db: Session, request: Request, model_name: str, model_folder_name: str) -> dict:
+    """Latest-run snapshot for a model folder, plus run_id/run_count so
+    callers can go fetch full detail/history instead of assuming this
+    snapshot is the only run that ever existed. Returns all-false/None
+    (run_count 0) if there's no logged-in DB user or no run has ever been
+    submitted for this folder."""
+    empty = {
+        "submitted": False,
+        "results": False,
+        "csvResults": False,
+        "progress": None,
+        "currentStep": None,
+        "totalSteps": None,
+        "run_id": None,
+        "run_count": 0,
+    }
+
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        return empty
+
+    run_count = (
+        db.scalar(
+            select(func.count())
+            .select_from(JobQueueEntry)
+            .where(
+                JobQueueEntry.user_id == identity.user.id,
+                JobQueueEntry.model_name == model_name,
+                JobQueueEntry.model_folder_name == model_folder_name,
+            )
+        )
+        or 0
+    )
+    if run_count == 0:
+        return empty
+
+    entry = _latest_entry(db, identity.user.id, model_name, model_folder_name)
+    job = _sync_status(db, entry)
+    result = dict(empty)
+    result["run_count"] = run_count
+    result["run_id"] = entry.id
+    result["submitted"] = entry.status in (JOB_QUEUED, JOB_RUNNING)
+    result.update(_run_status_dict(entry, job))
     return result
 
 
@@ -164,12 +285,7 @@ async def run_model(
     # all on.
     if not has_capacity(db):
         active = count_active_local_jobs(db)
-        log.warning(
-            "Rejecting %s: %d/%d jobs already active",
-            model_name,
-            active,
-            max_concurrent_local_jobs,
-        )
+        log.warning("Rejecting %s: %d/%d jobs already active", model_name, active, max_concurrent_local_jobs)
         audit_log.record(username, "run_model", model_name, request, result="rejected_capacity")
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -188,20 +304,14 @@ async def run_model(
     usage_metering.record_job_submission(username, model_name, model_folder_name, False, False, node_count)
     audit_log.record(username, "run_model", model_name, request)
 
-    existing = db.scalar(
-        select(JobQueueEntry).where(
-            JobQueueEntry.user_id == db_user.id,
-            JobQueueEntry.model_name == model_name,
-            JobQueueEntry.model_folder_name == model_folder_name,
-            JobQueueEntry.status.in_((JOB_QUEUED, JOB_RUNNING)),
-        )
-    )
-    if existing is not None:
+    # Only one *active* run per folder at a time - not one run ever, just
+    # one currently queued/running. Older, finished runs for this same
+    # folder stay in its history (see GET .../runs) rather than being
+    # overwritten or blocking a fresh submission.
+    existing = _latest_entry(db, db_user.id, model_name, model_folder_name)
+    if existing is not None and existing.status in (JOB_QUEUED, JOB_RUNNING):
         log.warning("%s already submitted", model_name)
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=model_name + " already submitted",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=model_name + " already submitted")
 
     args = "-v" if verbose else ""
 
@@ -222,53 +332,17 @@ async def run_model(
             num_procs=model_data.job.tasks,
             job_ids=job_ids,
         )
-    except Exception as exc:
+    except Exception:
         audit_log.record(username, "run_model", model_name, request, result="rejected_submit_failed")
         raise
 
-    log.info("%s has been submitted", model_name)
+    log.info("%s has been submitted (run_id=%s)", model_name, entry.id)
     return {
         "status": "running",
-        "job_id": entry.id,
+        "run_id": entry.id,
         "perilab_job_id": entry.perilab_job_id,
         "cost_estimate": cost_estimate.__dict__,
     }
-
-
-@router.put("/cancel", operation_id="cancel_job")
-def cancel_job(
-    model_name: str = "Dogbone",
-    model_folder_name: str = "Default",
-    request: Request = "",
-    db: Session = Depends(get_db),
-):
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-    username = get_user_name_with_api_key(request, dev, username)
-
-    usage_metering.record_job_cancellation(username, model_name, model_folder_name, False)
-    audit_log.record(username, "cancel_job", model_name, request)
-
-    # Cancelling a running job means telling the PeriLab API to cancel the
-    # job_id it gave us at submit time (see support/solver_backend.py) -
-    # which means finding the JobQueueEntry that holds that id.
-    identity = resolve_user(request, dev, db)
-    if identity.user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
-
-    entry = db.scalar(
-        select(JobQueueEntry).where(
-            JobQueueEntry.user_id == identity.user.id,
-            JobQueueEntry.model_name == model_name,
-            JobQueueEntry.model_folder_name == model_folder_name,
-            JobQueueEntry.status.in_((JOB_QUEUED, JOB_RUNNING)),
-        )
-    )
-    if entry is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=model_name + " is not running")
-
-    cancel_running(db, entry)
-    log.info("Job has been canceled")
 
 
 @router.get("/getJobFolders", operation_id="get_job_folders")
@@ -298,7 +372,10 @@ def get_jobs(
     request: Request = "",
     db: Session = Depends(get_db),
 ) -> List[Jobs]:
-    """doc"""
+    """Folder-level overview: one row per model_folder_name variant that
+    exists on disk, each carrying only its *latest* run's status plus
+    run_id/run_count. For full run history or a specific past run, use
+    GET .../runs or GET /jobs/{run_id}."""
     username = FileHandler.get_user_name(request, dev)
 
     jobs = []
@@ -337,13 +414,15 @@ def get_jobs(
                                 data = json.load(f)
                                 job.model = data
 
-                # Actual run status - DB + PeriLab API only.
-                run_status = _job_run_status(db, request, model_name, model_folder_name)
-                job.submitted = run_status["submitted"]
-                job.results = run_status["results"]
-                job.progress = run_status["progress"]
-                job.currentStep = run_status["currentStep"]
-                job.totalSteps = run_status["totalSteps"]
+                # Latest-run snapshot - DB + PeriLab API only.
+                summary = _folder_summary(db, request, model_name, model_folder_name)
+                job.submitted = summary["submitted"]
+                job.results = summary["results"]
+                job.progress = summary["progress"]
+                job.currentStep = summary["currentStep"]
+                job.totalSteps = summary["totalSteps"]
+                job.run_id = summary["run_id"]
+                job.run_count = summary["run_count"]
                 jobs.append(job)
 
     return jobs
@@ -357,7 +436,11 @@ def get_status(
     request: Request = "",
     db: Session = Depends(get_db),
 ) -> Status:
-    """doc"""
+    """Folder-level summary: model-config existence plus the *latest*
+    run's status for this model_name/model_folder_name. Carries run_id so
+    callers can switch to GET /jobs/{run_id} for authoritative detail on
+    that specific run, or GET .../runs for the full history, rather than
+    assuming this is "the" run."""
     username = FileHandler.get_user_name(request, dev)
 
     job_status = Status()
@@ -376,12 +459,291 @@ def get_status(
     # Everything about the actual run - submitted/running, result files,
     # progress - comes only from the DB + PeriLab API now. No more
     # cluster/sbatch/sftp branch.
-    run_status = _job_run_status(db, request, model_name, model_folder_name)
-    job_status.submitted = run_status["submitted"]
-    job_status.results = run_status["results"]
-    job_status.csvResults = run_status["csvResults"]
-    job_status.progress = run_status["progress"]
-    job_status.currentStep = run_status["currentStep"]
-    job_status.totalSteps = run_status["totalSteps"]
+    summary = _folder_summary(db, request, model_name, model_folder_name)
+    job_status.submitted = summary["submitted"]
+    job_status.results = summary["results"]
+    job_status.csvResults = summary["csvResults"]
+    job_status.progress = summary["progress"]
+    job_status.currentStep = summary["currentStep"]
+    job_status.totalSteps = summary["totalSteps"]
+    job_status.run_id = summary["run_id"]
 
     return job_status
+
+
+def _saved_model(username: str, model_name: str, model_folder_name: str) -> Optional[dict]:
+    """The input deck (ModelData JSON) last written into a model folder, if any."""
+    filepath = os.path.join(
+        FileHandler.get_local_model_folder_path(username, model_name, model_folder_name), model_name + ".json"
+    )
+    if not os.path.exists(filepath):
+        return None
+    try:
+        with open(filepath) as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+# Declared before GET /{run_id} so "runs" isn't captured as a run id.
+@router.get("/runs", operation_id="list_all_runs", response_model=List[RunStatus])
+def list_all_runs(request: Request, db: Session = Depends(get_db)):
+    """Every run the logged-in user has submitted, across all models,
+    ordered by model_name, model_folder_name and newest first. Each carries
+    its model folder's saved input deck (`model`) so the frontend can load
+    it back into the editor. Result files aren't looked up per run here -
+    `results` just means the run finished successfully."""
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+    username = FileHandler.get_user_name(request, dev)
+
+    # Materialized up front: _sync_status commits mid-loop.
+    entries = list(
+        db.scalars(
+            select(JobQueueEntry)
+            .where(JobQueueEntry.user_id == identity.user.id)
+            .order_by(
+                JobQueueEntry.model_name,
+                JobQueueEntry.model_folder_name,
+                JobQueueEntry.submitted_at.desc(),
+            )
+        )
+    )
+
+    models = {}
+    runs = []
+    for entry in entries:
+        run = _to_run_status(entry, _sync_status(db, entry), check_files=False)
+        key = (entry.model_name, entry.model_folder_name)
+        if key not in models:
+            models[key] = _saved_model(username, *key)
+        run.model = models[key]
+        runs.append(run)
+    return runs
+
+
+@router.get("/{model_name}/{model_folder_name}/runs", operation_id="list_runs", response_model=List[RunStatus])
+def list_runs(
+    model_name: str,
+    model_folder_name: str,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Full run history for a model folder - every JobQueueEntry ever
+    submitted for it, newest first. Use this (or GET /jobs/{run_id} for
+    one specific run) instead of assuming getJobs/getStatus's latest-run
+    snapshot is the only run that ever existed."""
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+
+    entries = list(
+        db.scalars(
+            select(JobQueueEntry)
+            .where(
+                JobQueueEntry.user_id == identity.user.id,
+                JobQueueEntry.model_name == model_name,
+                JobQueueEntry.model_folder_name == model_folder_name,
+            )
+            .order_by(JobQueueEntry.submitted_at.desc())
+        )
+    )
+    return [_to_run_status(entry, _sync_status(db, entry)) for entry in entries]
+
+
+@router.get("/{run_id}", operation_id="get_run", response_model=RunStatus)
+def get_run(run_id: str, request: Request, db: Session = Depends(get_db)):
+    """Authoritative detail for one specific run, keyed by its own id -
+    independent of whether its model folder has since been resubmitted."""
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+
+    entry = db.get(JobQueueEntry, run_id)
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found.")
+    if not _can_view_entry(identity, entry):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+
+    return _to_run_status(entry, _sync_status(db, entry))
+
+
+@router.get("/{run_id}/log", operation_id="get_run_log")
+def get_run_log(
+    run_id: str,
+    request: Request,
+    tail: Optional[int] = None,
+    debug: bool = False,
+    db: Session = Depends(get_db),
+) -> str:
+    """Fetch the log for a specific run from the PeriLab API.
+
+    This replaces the old WebSocket-based log streaming. The frontend
+    should poll this endpoint to get log updates.
+    """
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+
+    entry = db.get(JobQueueEntry, run_id)
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found.")
+    if not _can_view_entry(identity, entry):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+
+    if not entry.perilab_job_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No PeriLab job ID associated with this run yet. The job may still be queued.",
+        )
+
+    # Use the first job_id if there are multiple (batch submission)
+    first_job_id = entry.perilab_job_id.split(",")[0].strip()
+
+    client = get_solver_backend().client()
+    try:
+        content = client.get_log(first_job_id, tail=tail)
+    except HTTPException as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e.detail)) from e
+
+    if not debug:
+        content = "\n".join(line for line in content.splitlines() if "[Debug]" not in line)
+
+    return content
+
+
+def _without_debug_lines(chunks: Iterator[str]) -> Iterator[str]:
+    """Drops "[Debug]" lines from a chunked log. Chunks don't align with
+    lines, so the trailing partial line is held back until it's complete."""
+    pending = ""
+    for chunk in chunks:
+        pending += chunk
+        *lines, pending = pending.split("\n")
+        kept = [line + "\n" for line in lines if "[Debug]" not in line]
+        if kept:
+            yield "".join(kept)
+    if pending and "[Debug]" not in pending:
+        yield pending
+
+
+@router.get(
+    "/{run_id}/log/stream",
+    operation_id="stream_run_log",
+    response_class=StreamingResponse,
+    responses={200: {"content": {"text/plain": {}}}},
+)
+def stream_run_log(
+    run_id: str,
+    request: Request,
+    debug: bool = False,
+    db: Session = Depends(get_db),
+):
+    """Streams a run's log from the PeriLab API (GET /jobs/{job_id}/log/stream)
+    as plain text: everything logged so far, then new output as PeriLab
+    writes it. The response ends when the job finishes. 404 while the run
+    has no PeriLab job/log yet - the frontend retries."""
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+
+    entry = db.get(JobQueueEntry, run_id)
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found.")
+    if not _can_view_entry(identity, entry):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+
+    job_ids = _perilab_job_ids(entry)
+    if not job_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No PeriLab job ID associated with this run yet. The job may still be queued.",
+        )
+
+    # First job only for a batch submission, same as GET /{run_id}/log.
+    try:
+        chunks = get_solver_backend().client().stream_log(job_ids[0])
+    except HTTPException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.detail)) from e
+
+    if not debug:
+        chunks = _without_debug_lines(chunks)
+    # no-transform/X-Accel-Buffering keep proxies (vite, nginx) from
+    # buffering the stream until it ends.
+    return StreamingResponse(
+        chunks,
+        media_type="text/plain; charset=utf-8",
+        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
+    )
+
+
+@router.delete("/{run_id}", operation_id="delete_run")
+def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
+    """Deletes a finished run: its PeriLab job(s) - log and result files -
+    and its DB entry. Active runs have to be cancelled first. The model
+    folder (input deck) is left alone; it may be shared with other runs."""
+    username = FileHandler.get_user_name(request, dev)
+    username = get_user_name_with_api_key(request, dev, username)
+
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+
+    entry = db.get(JobQueueEntry, run_id)
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found.")
+    if not _can_view_entry(identity, entry):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+    _sync_status(db, entry)
+    if entry.status in (JOB_QUEUED, JOB_RUNNING):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Run is '{entry.status}' - cancel it before deleting.",
+        )
+
+    client = get_solver_backend().client()
+    for job_id in _perilab_job_ids(entry):
+        try:
+            client.delete_job(job_id)
+        except HTTPException as e:
+            # Already gone on the PeriLab side (or the API is down) - don't
+            # leave an undeletable entry behind because of it.
+            log.warning("Could not delete PeriLab job %s of run %s: %s", job_id, run_id, e.detail)
+
+    audit_log.record(username, "delete_run", entry.model_name, request)
+    db.delete(entry)
+    db.commit()
+    log.info("Run %s has been deleted", run_id)
+    return {"deleted": run_id}
+
+
+@router.put("/{run_id}/cancel", operation_id="cancel_run")
+def cancel_run(run_id: str, request: Request, db: Session = Depends(get_db)):
+    """Cancels one specific run by its own id. Replaces the old
+    model_name/model_folder_name-keyed PUT /jobs/cancel, which could only
+    ever mean "the currently active run for this folder" - now that a
+    folder can have run history, cancelling has to name which run."""
+    username = FileHandler.get_user_name(request, dev)
+    username = get_user_name_with_api_key(request, dev, username)
+
+    identity = resolve_user(request, dev, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+
+    entry = db.get(JobQueueEntry, run_id)
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found.")
+    if not _can_view_entry(identity, entry):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+    if entry.status not in (JOB_QUEUED, JOB_RUNNING):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Run is '{entry.status}', not active - nothing to cancel.",
+        )
+
+    usage_metering.record_job_cancellation(username, entry.model_name, entry.model_folder_name, False)
+    audit_log.record(username, "cancel_run", entry.model_name, request)
+
+    cancel_running(db, entry)
+    log.info("Run %s has been canceled", run_id)
+    return {"cancelled": run_id}

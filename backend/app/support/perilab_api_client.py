@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, BinaryIO, Optional
+from typing import Any, BinaryIO, Iterator, Optional
 
 import requests
 from fastapi import HTTPException, status
@@ -210,11 +210,22 @@ class PeriLabApiClient:
         response = self._request("GET", f"/jobs/{job_id}/log", params=params)
         return response.text
 
-    # /jobs/{job_id}/log/stream (server-sent events) is a natural fit for
-    # the frontend's /ws endpoint, but that endpoint currently just polls
-    # GET /log on a timer for the cluster case too - streaming support can
-    # be added here (using requests' streaming mode) if/when /ws is
-    # switched over to it for the "external" backend.
+    def stream_log(self, job_id: str) -> Iterator[str]:
+        """GET /jobs/{job_id}/log/stream: the log so far, then whatever is
+        appended, as plain text chunks - the response ends once the job
+        finishes. The request is opened eagerly, so an unknown job/missing
+        log raises HTTPException here rather than mid-iteration. No read
+        timeout: a running simulation can be silent for a long time."""
+        response = self._request("GET", f"/jobs/{job_id}/log/stream", stream=True, timeout=(self.timeout, None))
+        response.encoding = response.encoding or "utf-8"
+
+        def chunks() -> Iterator[str]:
+            try:
+                yield from response.iter_content(chunk_size=None, decode_unicode=True)
+            finally:
+                response.close()
+
+        return chunks()
 
     # --- result files -------------------------------------------------------------
 
