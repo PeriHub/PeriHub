@@ -1,0 +1,73 @@
+# ==============================================================================
+# .claudeignore - Produktions-Ausschlussmatrix für minimale Token-Nutzung
+# Verhindert, dass Claude Code bei Glob & Grep unnötige Artefakte lädt
+# ==============================================================================
+
+# Package Lockfiles (Enorme JSON/YAML-Dateien ohne AST-Nutzen)
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+composer.lock
+Gemfile.lock
+Cargo.lock
+poetry.lock
+
+# Build-Artefakte und Bundles
+dist/
+build/
+out/
+.next/
+.nuxt/
+.astro/
+.svelte-kit/
+storybook-static/
+target/
+*.min.js
+*.min.css
+*.map
+
+# Test-Coverage, Logs und Profiling
+coverage/
+.nyc_output/
+*.lcov
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.heapsnapshot
+*.cpuprofile
+
+# Medien, Grafiken und Binärdateien
+public/assets/
+public/images/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.avif
+*.ico
+*.pdf
+*.zip
+*.tar.gz
+*.wasm
+
+# Dokumentation und externe API-Spezifikationen
+docs/
+*.mdx
+specs/swagger/
+*.postman_collection.json
+
+# Lokale Umgebungsdateien und Zertifikate
+.env*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Datenbank-Migrationen und SQL-Dumps
+*.sql
+*.dump
+prisma/migrations/
