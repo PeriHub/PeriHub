@@ -24,6 +24,7 @@ SPDX-License-Identifier: Apache-2.0
   } from 'lucide-svelte';
   import { onMount } from 'svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
+  import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { isObjectSectionComplete, isArraySectionComplete } from '$lib/utils/schemaValidation';
   import AccordionItem from '$lib/components/ui/AccordionItem.svelte';
@@ -243,8 +244,17 @@ SPDX-License-Identifier: Apache-2.0
                   section.dataPath(modelStore.modelData as unknown as Record<string, unknown>)
                 )
         }))
-    })).filter((group) => group.sections.length > 0)
+    }))
+      .filter((group) => group.sections.length > 0)
+      .map((group) => ({
+        ...group,
+        completeCount: group.sections.filter((s) => s.complete).length
+      }))
   );
+
+  $effect(() => {
+    viewStore.setupComplete = panelGroups.every((g) => g.completeCount === g.sections.length);
+  });
 
   onMount(() => {
     const stored = localStorage.getItem('openPanels');
@@ -282,9 +292,17 @@ SPDX-License-Identifier: Apache-2.0
   <Accordion.Root type="multiple" bind:value={openPanels}>
     {#each panelGroups as group (group.key)}
       <div
-        class="border-border bg-muted/30 text-muted-foreground border-b px-4 py-1.5 text-xs font-semibold tracking-wide uppercase"
+        class="border-border bg-muted text-muted-foreground sticky top-0 z-10 flex items-center border-b px-4 py-1.5 text-xs font-semibold tracking-wide uppercase"
       >
-        {group.label}
+        <span class="flex-1">{group.label}</span>
+        <span
+          class="font-normal normal-case tabular-nums {group.completeCount === group.sections.length
+            ? 'text-success'
+            : ''}"
+          title="Sections with all required fields filled in"
+        >
+          {group.completeCount}/{group.sections.length} complete
+        </span>
       </div>
       {#each group.sections as section (section.key)}
         <AccordionItem

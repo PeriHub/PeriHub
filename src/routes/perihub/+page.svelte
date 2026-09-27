@@ -23,6 +23,7 @@ SPDX-License-Identifier: Apache-2.0
   import ViewActions from '$lib/components/actions/ViewActions.svelte';
   import TextActions from '$lib/components/actions/TextActions.svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
+  import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
 
   let mobileTab = $state('setup');
@@ -78,6 +79,35 @@ SPDX-License-Identifier: Apache-2.0
     localStorage.setItem('periHubSetupWidth', String(setupWidthPercent));
   }
 
+  // Arrow keys nudge a focused splitter, Enter toggles collapse - the
+  // keyboard equivalent of drag / double-click.
+  function splitterKey(
+    e: KeyboardEvent,
+    [less, more]: [string, string],
+    nudge: (delta: number) => void,
+    toggle: () => void
+  ) {
+    if (e.key === less || e.key === more) {
+      e.preventDefault();
+      nudge(e.key === more ? 2 : -2);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      toggle();
+    }
+  }
+
+  function nudgeSetup(delta: number) {
+    if (setupCollapsed) return;
+    setupWidthPercent = Math.min(65, Math.max(20, setupWidthPercent + delta));
+    localStorage.setItem('periHubSetupWidth', String(setupWidthPercent));
+  }
+
+  function nudgeOutput(delta: number) {
+    if (textCollapsed) return;
+    outputHeightPercent = Math.min(80, Math.max(20, outputHeightPercent + delta));
+    localStorage.setItem('periHubOutputHeight', String(outputHeightPercent));
+  }
+
   function toggleSetupCollapsed() {
     setupCollapsed = !setupCollapsed;
     localStorage.setItem('periHubSetupCollapsed', String(setupCollapsed));
@@ -121,6 +151,16 @@ SPDX-License-Identifier: Apache-2.0
     localStorage.setItem('periHubTextCollapsed', String(textCollapsed));
   }
 
+  // On mobile, Generate/Run switch viewStore.viewId to show their output -
+  // follow it to the Results tab, otherwise the user never sees it.
+  let lastViewId = viewStore.viewId;
+  $effect(() => {
+    if (viewStore.viewId !== lastViewId) {
+      lastViewId = viewStore.viewId;
+      if (!isDesktop) mobileTab = 'results';
+    }
+  });
+
   async function showTutorial() {
     const { default: Driver } = await import('driver.js');
     await import('driver.js/dist/driver.min.css');
@@ -135,49 +175,51 @@ SPDX-License-Identifier: Apache-2.0
       {
         element: '#ModelActions',
         popover: {
-          title: 'ModelActions',
-          description: 'Here you are able to upload, save, switch and generate models',
+          title: 'Model toolbar',
+          description:
+            'Generate the mesh for the current settings. Load, save and download models from here too.',
           position: 'right'
         }
       },
       {
         element: '#ExpansionComp',
         popover: {
-          title: 'ExpansionComp',
-          description: 'Here you can find the configuration for your simulation',
+          title: 'Simulation settings',
+          description:
+            'Geometry, material, boundary conditions and solver. A green dot means the section has everything it needs.',
           position: 'right'
         }
       },
       {
         element: '#ViewActions',
         popover: {
-          title: 'ViewActions',
+          title: 'Run and results',
           description:
-            'Here you are able to submit your simulation, view your results and download them',
+            'The progress bar shows what is left to do. Run the simulation, then view, plot or download the results.',
           position: 'left'
         }
       },
       {
         element: '#ViewComp',
         popover: {
-          title: 'ViewComp',
-          description: 'This is where your simulation results are displayed',
+          title: 'Viewer',
+          description: 'The mesh, results and plots appear here.',
           position: 'left'
         }
       },
       {
         element: '#TextActions',
         popover: {
-          title: 'TextActions',
-          description: 'If you want to edit your input-deck you can save it here',
+          title: 'Input deck toolbar',
+          description: 'Save edits you make to the input deck by hand.',
           position: 'left'
         }
       },
       {
         element: '#TextComp',
         popover: {
-          title: 'TextComp',
-          description: 'This is where your input-deck or log-file is displayed',
+          title: 'Input deck and log',
+          description: 'The generated input deck, and the solver log while a job runs.',
           position: 'left'
         }
       }
@@ -243,7 +285,12 @@ SPDX-License-Identifier: Apache-2.0
       role="separator"
       aria-orientation="vertical"
       aria-label="Resize setup panel"
+      aria-valuenow={Math.round(setupWidthPercent)}
+      aria-valuemin={20}
+      aria-valuemax={65}
       tabindex="0"
+      onkeydown={(e) =>
+        splitterKey(e, ['ArrowLeft', 'ArrowRight'], nudgeSetup, toggleSetupCollapsed)}
       class="group relative mx-1 flex items-center justify-center {setupCollapsed
         ? ''
         : 'cursor-col-resize'}"
@@ -275,7 +322,7 @@ SPDX-License-Identifier: Apache-2.0
       onpointermove={onDragV}
       onpointerup={stopDragV}
     >
-      <div class="flex min-h-0 flex-col overflow-hidden">
+      <div class="border-border flex min-h-0 flex-col overflow-hidden rounded-lg border">
         <div id="ViewActions"><ViewActions /></div>
         <div id="ViewComp" class="min-h-0 flex-1 overflow-hidden"><ViewComp /></div>
       </div>
@@ -284,7 +331,12 @@ SPDX-License-Identifier: Apache-2.0
         role="separator"
         aria-orientation="horizontal"
         aria-label="Resize input/log panel"
+        aria-valuenow={Math.round(outputHeightPercent)}
+        aria-valuemin={20}
+        aria-valuemax={80}
         tabindex="0"
+        onkeydown={(e) =>
+          splitterKey(e, ['ArrowUp', 'ArrowDown'], nudgeOutput, toggleTextCollapsed)}
         class="group relative my-1 flex items-center justify-center {textCollapsed
           ? ''
           : 'cursor-row-resize'}"
@@ -306,7 +358,7 @@ SPDX-License-Identifier: Apache-2.0
         </button>
       </div>
 
-      <div class="relative flex min-h-0 flex-col overflow-hidden">
+      <div class="border-border relative flex min-h-0 flex-col overflow-hidden rounded-lg border">
         <button
           type="button"
           onclick={toggleTextCollapsed}
@@ -358,17 +410,17 @@ SPDX-License-Identifier: Apache-2.0
       <div class="min-h-0 flex-1 overflow-hidden">
         <Tabs.Content value="setup" class="flex h-full flex-col overflow-hidden p-2">
           <ModelActions />
-          <div class="min-h-0 flex-1 overflow-hidden">
+          <div class="min-h-0 flex-1 overflow-y-auto">
             <ExpansionComp scrollable={false} />
           </div>
         </Tabs.Content>
         <Tabs.Content value="results" class="flex h-full flex-col overflow-hidden p-2">
           <ViewActions />
-          <ViewComp />
+          <div class="min-h-0 flex-1 overflow-hidden"><ViewComp /></div>
         </Tabs.Content>
         <Tabs.Content value="input" class="flex h-full flex-col overflow-hidden p-2">
           <TextActions />
-          <TextComp />
+          <div class="min-h-0 flex-1 overflow-hidden"><TextComp /></div>
         </Tabs.Content>
       </div>
     </Tabs.Root>

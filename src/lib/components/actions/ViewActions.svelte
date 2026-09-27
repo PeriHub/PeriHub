@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { Dialog } from 'bits-ui';
-  import { Play, X, Download, Eye, LineChart, Trash2 } from 'lucide-svelte';
+  import { Play, X, Download, Eye, LineChart, Trash2, Check } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
@@ -50,6 +50,25 @@ SPDX-License-Identifier: Apache-2.0
     status.submitted || viewStore.logStatus === 'waiting' || viewStore.logStatus === 'streaming'
   );
 
+  type StepState = 'done' | 'active' | 'todo';
+  const hasResults = $derived(Boolean(status.results || status.csvResults));
+  const meshReady = $derived(Boolean(status.created && status.meshfileExist));
+  const steps = $derived.by(() => {
+    const configured = viewStore.setupComplete;
+    const state = (done: boolean, active: boolean): StepState =>
+      done ? 'done' : active ? 'active' : 'todo';
+    return [
+      { label: 'Configure', state: state(configured, true), hint: 'fill in required fields' },
+      { label: 'Mesh', state: state(meshReady, configured), hint: 'generate the mesh' },
+      {
+        label: 'Run',
+        state: state(hasResults && !jobActive, jobActive || (meshReady && !hasResults)),
+        hint: jobActive ? 'running' : 'ready to run'
+      },
+      { label: 'Results', state: state(hasResults && !jobActive, false), hint: '' }
+    ];
+  });
+
   let submitLoading = $state(false);
   let resultsLoading = $state(false);
   let timer: ReturnType<typeof setInterval> | null = null;
@@ -64,7 +83,7 @@ SPDX-License-Identifier: Apache-2.0
   let dialogDownload = $state(false);
   let dialogPlot = $state(false);
   let dialogDelete = $state(false);
-  let dialogConfirm = $state<null | 'model' | 'cookies' | 'userData'>(null);
+  let dialogConfirm = $state<null | 'model' | 'localSettings' | 'userData'>(null);
 
   let energyPercent = $state(0);
   // let plotVariables = $state<string[]>([]);
@@ -161,7 +180,7 @@ SPDX-License-Identifier: Apache-2.0
       notify.positive('Job canceled');
       bus.emit('stopWebsocket' as never);
     } catch {
-      notify.negative('Failed');
+      notify.negative('Could not cancel the job');
     }
     lastSubmittedRunId = null;
     bus.emit('getStatus' as never);
@@ -184,7 +203,7 @@ SPDX-License-Identifier: Apache-2.0
         : `${modelStore.selectedModel.file}_${modelData.model.modelFolderName}_${outputs[0]?.name}.e`;
       downloadFile(filename, response.data);
     } catch {
-      notify.negative('Failed');
+      notify.negative('Could not download the results');
     }
     resultsLoading = false;
   }
@@ -236,7 +255,7 @@ SPDX-License-Identifier: Apache-2.0
       viewStore.viewId = 'plotly';
     } catch (error) {
       console.error(error);
-      notify.negative('Failed');
+      notify.negative('Could not load the plot');
     }
     viewStore.modelLoading = false;
   }
@@ -247,13 +266,13 @@ SPDX-License-Identifier: Apache-2.0
         modelName: modelStore.selectedModel.file,
         modelFolderName: modelData.model.modelFolderName
       });
-      notify.positive('Model deleted');
+      notify.positive('Model data deleted');
     } catch {
-      notify.negative('Failed');
+      notify.negative('Could not delete the model data');
     }
   }
 
-  function deleteCookies() {
+  function deleteLocalSettings() {
     localStorage.removeItem('darkMode');
     localStorage.removeItem('modelData');
     localStorage.removeItem('selectedModel');
@@ -266,14 +285,14 @@ SPDX-License-Identifier: Apache-2.0
       await deleteUserDataApi({ checkDate: false });
       notify.positive('User data deleted');
     } catch {
-      notify.negative('Failed');
+      notify.negative('Could not delete the user data');
     }
     bus.emit('getStatus' as never);
   }
 
   function confirmDelete() {
     if (dialogConfirm === 'model') deleteModelData();
-    else if (dialogConfirm === 'cookies') deleteCookies();
+    else if (dialogConfirm === 'localSettings') deleteLocalSettings();
     else if (dialogConfirm === 'userData') deleteUserData();
     dialogConfirm = null;
     dialogDelete = false;
@@ -282,30 +301,59 @@ SPDX-License-Identifier: Apache-2.0
   onDestroy(() => timer && clearInterval(timer));
 </script>
 
+<!-- Where this model stands in configure → mesh → run → results, derived from
+     the same flags that gate the buttons below, so a disabled button is
+     explained by the step that isn't done yet. -->
+<ol
+  class="border-border text-muted-foreground flex items-center gap-2 overflow-x-auto border-b px-3 py-1.5 text-xs whitespace-nowrap"
+  aria-label="Simulation progress"
+>
+  {#each steps as step, i (step.label)}
+    {#if i > 0}<li aria-hidden="true" class="bg-border h-px w-4 shrink-0 sm:w-8"></li>{/if}
+    <li
+      class="flex items-center gap-1.5 {step.state === 'todo' ? '' : 'text-foreground font-medium'}"
+      aria-current={step.state === 'active' ? 'step' : undefined}
+    >
+      <span
+        class="flex h-4 w-4 items-center justify-center rounded-full border {step.state === 'done'
+          ? 'border-success bg-success text-white'
+          : step.state === 'active'
+            ? 'border-primary'
+            : 'border-border'}"
+      >
+        {#if step.state === 'done'}
+          <Check class="h-3 w-3" />
+        {:else if step.state === 'active'}
+          <span class="bg-primary h-1.5 w-1.5 rounded-full motion-safe:animate-pulse"></span>
+        {/if}
+      </span>
+      {step.label}
+      {#if step.state === 'active' && step.hint}
+        <span class="text-muted-foreground font-normal">· {step.hint}</span>
+      {/if}
+    </li>
+  {/each}
+</ol>
+
 <div class="border-border bg-muted/30 flex flex-wrap items-center gap-1 border-b px-2 py-1">
   {#if !jobActive}
     <Button
-      variant="ghost"
-      size="icon"
+      size="sm"
       onclick={checkEnergy}
       disabled={submitLoading || !status.created || !status.meshfileExist}
       title={!status.created
-        ? 'Model not created yet'
+        ? 'Generate the mesh first'
         : !status.meshfileExist
-          ? 'Meshfile not created or uploaded yet'
-          : 'Submit Model'}
+          ? 'Generate or upload a mesh first'
+          : 'Run simulation'}
     >
       <Play class="h-4 w-4" />
+      Run simulation
     </Button>
   {:else}
-    <Button
-      variant="ghost"
-      size="icon"
-      onclick={cancelJob}
-      disabled={submitLoading}
-      title="Cancel Job"
-    >
+    <Button variant="outline" size="sm" onclick={cancelJob} disabled={submitLoading}>
       <X class="h-4 w-4" />
+      Cancel job
     </Button>
   {/if}
 
@@ -346,20 +394,21 @@ SPDX-License-Identifier: Apache-2.0
     <Dialog.Content
       class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
-      <Dialog.Title class="mb-2 text-lg font-semibold">Submit Model</Dialog.Title>
+      <Dialog.Title class="mb-2 text-lg font-semibold">Run simulation</Dialog.Title>
       <p class="text-muted-foreground text-sm">
-        Are you sure you want to submit the model? The current renewable energy share is {energyPercent}%.
+        Renewables currently supply {energyPercent}% of grid power. Run now, or wait for a greener
+        window.
       </p>
       <div class="my-3"><RenewableView /></div>
       <div class="flex justify-end gap-2">
-        <Button variant="ghost" onclick={() => (dialogEnergySavings = false)}>No</Button>
+        <Button variant="ghost" onclick={() => (dialogEnergySavings = false)}>Cancel</Button>
         <Button
           onclick={() => {
             dialogEnergySavings = false;
             _runModel();
           }}
         >
-          Yes
+          Run simulation
         </Button>
       </div>
     </Dialog.Content>
@@ -416,7 +465,9 @@ SPDX-License-Identifier: Apache-2.0
         <Dialog.Title class="mb-3 text-lg font-semibold">Delete data</Dialog.Title>
         <div class="flex flex-col gap-2">
           <Button variant="outline" onclick={() => (dialogConfirm = 'model')}>Model data</Button>
-          <Button variant="outline" onclick={() => (dialogConfirm = 'cookies')}>Cookies</Button>
+          <Button variant="outline" onclick={() => (dialogConfirm = 'localSettings')}>
+            Settings stored in this browser
+          </Button>
           <Button variant="outline" onclick={() => (dialogConfirm = 'userData')}>User data</Button>
           <Button variant="ghost" onclick={() => (dialogDelete = false)}>Cancel</Button>
         </div>
@@ -424,8 +475,8 @@ SPDX-License-Identifier: Apache-2.0
         <Dialog.Title class="mb-2 text-lg font-semibold">Are you sure?</Dialog.Title>
         <p class="text-muted-foreground text-sm">This action cannot be undone.</p>
         <div class="mt-4 flex justify-end gap-2">
-          <Button variant="ghost" onclick={() => (dialogConfirm = null)}>No</Button>
-          <Button variant="destructive" onclick={confirmDelete}>Yes</Button>
+          <Button variant="ghost" onclick={() => (dialogConfirm = null)}>Cancel</Button>
+          <Button variant="destructive" onclick={confirmDelete}>Delete</Button>
         </div>
       {/if}
     </Dialog.Content>

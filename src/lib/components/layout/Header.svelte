@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { page } from '$app/state';
   import { DropdownMenu } from 'bits-ui';
   import Button from '$lib/components/ui/Button.svelte';
   import {
@@ -45,6 +46,9 @@ SPDX-License-Identifier: Apache-2.0
     { href: '/api/docs', label: 'PeriHub API', icon: Zap },
     { href: 'https://www.youtube.com/@PeriHub', label: 'YouTube', icon: Youtube }
   ];
+
+  const isActive = (href: string) =>
+    page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
 
   let dialogOpen = $state(false);
   let dialogPlan = $state(false);
@@ -98,31 +102,33 @@ SPDX-License-Identifier: Apache-2.0
 <header
   class="border-primary/20 bg-primary text-primary-foreground sticky top-0 z-40 border-b shadow-sm"
 >
-  <div class="relative mx-auto flex h-16 max-w-7xl items-center gap-2 px-3 sm:px-6">
+  <div class="mx-auto grid h-12 grid-cols-[auto_1fr_auto] items-center gap-2 px-3">
     <!-- Logo -->
-    <a
-      href="/"
-      class="z-10 flex shrink-0 items-center gap-2 no-underline"
-      aria-label="PeriHub home"
-    >
+    <a href="/" class="flex shrink-0 items-center gap-2 no-underline" aria-label="PeriHub home">
       <img
         src="/PeriHubLogo2b.png"
         alt="PeriHub"
         width="44"
         height="44"
-        class="h-11 w-11 shrink-0 object-contain"
+        class="h-8 w-8 shrink-0 object-contain"
       />
     </a>
 
-    <nav class="absolute left-1/2 flex -translate-x-1/2 items-center gap-3 md:flex">
+    <!-- Below md the nav moves into the ⋮ menu instead of overlapping the logo/toolbar. -->
+    <nav class="hidden items-center justify-center gap-1 md:flex lg:gap-3">
       {#each navItems as item (item.href)}
-        <Button href={item.href} variant="ghost" size="lg">
+        <Button
+          href={item.href}
+          variant="ghost"
+          aria-current={isActive(item.href) ? 'page' : undefined}
+          class={isActive(item.href) ? 'bg-white/15' : ''}
+        >
           {item.label}
         </Button>
       {/each}
     </nav>
 
-    <div class="absolute right-0 ml-auto flex items-center gap-1.5">
+    <div class="col-start-3 flex items-center gap-1.5">
       <!-- Plan / licensing indicator, backed by the real /license/status endpoint. -->
       <Button
         type="button"
@@ -190,11 +196,7 @@ SPDX-License-Identifier: Apache-2.0
       <!-- Secondary/external links: grouped into one menu instead of four separate
            icon-only buttons, so the toolbar stays usable on narrow screens. -->
       <DropdownMenu.Root>
-        <DropdownMenu.Trigger
-          class={iconButtonClass}
-          title="Links & resources"
-          aria-label="Links & resources"
-        >
+        <DropdownMenu.Trigger class={iconButtonClass} title="Menu" aria-label="Menu">
           <MoreVertical class="h-5 w-5" />
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
@@ -202,6 +204,22 @@ SPDX-License-Identifier: Apache-2.0
             class="border-border bg-popover text-popover-foreground z-50 min-w-[200px] rounded-md border p-1 shadow-md"
             align="end"
           >
+            {#each navItems as item (item.href)}
+              <DropdownMenu.Item
+                class="hover:bg-muted flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-medium outline-none md:hidden"
+              >
+                {#snippet child({ props })}
+                  <a
+                    {...props}
+                    href={item.href}
+                    aria-current={isActive(item.href) ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </a>
+                {/snippet}
+              </DropdownMenu.Item>
+            {/each}
+            <DropdownMenu.Separator class="bg-border -mx-1 my-1 h-px md:hidden" />
             {#each links as link (link.href)}
               <DropdownMenu.Item
                 class="hover:bg-muted flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none"

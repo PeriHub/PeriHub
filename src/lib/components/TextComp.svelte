@@ -29,7 +29,7 @@ SPDX-License-Identifier: Apache-2.0
     'flex-1 px-3 py-2 text-center text-sm font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground';
 </script>
 
-<div class="border-border flex h-full flex-col overflow-hidden rounded-lg border">
+<div class="flex h-full flex-col overflow-hidden">
   <Tabs.Root bind:value={viewStore.textId} class="flex h-full flex-col">
     <Tabs.List class="border-border bg-muted/40 flex border-b">
       <Tabs.Trigger value="input" class={tabClass}>Input</Tabs.Trigger>

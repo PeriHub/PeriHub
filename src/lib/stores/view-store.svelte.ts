@@ -128,6 +128,9 @@ class ViewStore {
   // 'idle' before any job has been run this session.
   logStatus = $state<'idle' | 'waiting' | 'streaming' | 'error'>('idle');
   logStatusMessage = $state('');
+  // Every visible setup section has its required fields filled in - set by
+  // ExpansionComp, read by the workflow bar in ViewActions.
+  setupComplete = $state(false);
   // Parsed live from the streamed log text - see parseLogProgress. null
   // until PeriLab's log contains at least one recognized progress line.
   logProgress = $derived(parseLogProgress(this.logOutput));

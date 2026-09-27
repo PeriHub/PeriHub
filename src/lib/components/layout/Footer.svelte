@@ -5,8 +5,6 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import Button from '$lib/components/ui/Button.svelte';
-
   const links = [
     { label: 'About us', href: 'https://www.dlr.de/sy' },
     { label: 'Blog', href: 'https://leichtbau.dlr.de/' },
@@ -20,18 +18,17 @@ SPDX-License-Identifier: Apache-2.0
   const year = new Date().getFullYear();
 </script>
 
-<footer class="border-t border-primary/20 bg-primary text-primary-foreground">
-  <div class="mx-auto flex max-w-7xl flex-col items-center gap-2 px-4 py-4 text-center">
-    <nav class="flex flex-wrap items-center justify-center gap-3 text-[11px] font-medium sm:text-xs">
+<footer class="border-primary/20 bg-primary text-primary-foreground border-t">
+  <div
+    class="mx-auto flex max-w-7xl flex-col items-center gap-x-6 gap-y-2 px-4 py-4 text-xs md:flex-row md:justify-between"
+  >
+    <p class="opacity-80">
+      © {year} German Aerospace Center (DLR) · <strong>PeriHub</strong> · Jan-Timo Hesse, Christian Willberg
+    </p>
+    <nav class="flex flex-wrap justify-center gap-x-4 gap-y-1" aria-label="Footer">
       {#each links as link (link.href)}
-        <Button href={link.href} variant="ghost" size="sm" class="uppercase tracking-wide opacity-90 hover:opacity-100 hover:text-white">
-          {link.label}
-        </Button>
+        <a href={link.href} class="opacity-80 hover:underline hover:opacity-100">{link.label}</a>
       {/each}
     </nav>
-    <p class="text-xs opacity-90 sm:text-sm">
-      © {year} German Aerospace Center (DLR) — <strong>PeriHub</strong> | Jan-Timo Hesse | Christian
-      Willberg
-    </p>
   </div>
 </footer>
