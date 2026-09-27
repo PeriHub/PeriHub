@@ -33,12 +33,8 @@
       "youngsModulus": "191000"
     }
   ],
-  "thermal": {
-    "enabled": false
-  },
-  "additive": {
-    "enabled": false
-  },
+  "thermal": [],
+  "additive": [],
   "damages": [
     {
       "id": 1,
@@ -88,9 +84,7 @@
       "show": true
     }
   ],
-  "contact": {
-    "enabled": false
-  },
+  "contact": {},
   "boundaryConditions": {
     "conditions": [
       {

@@ -57,99 +57,95 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  <Toggle bind:checked={contact.enabled} label="Enabled" />
-
-  {#if contact.enabled}
-    <div class="border-border flex flex-wrap items-end gap-3 border-t pt-3">
-      <div class="w-40 space-y-1">
-        <Label for="contact-freq">Search Frequency</Label>
-        <Input id="contact-freq" type="number" bind:value={contact.searchFrequency} />
-      </div>
-      <Toggle bind:checked={contact.onlySurfaceContactNodes} label="Only Surface Contact Nodes" />
+  <div class="flex flex-wrap items-end gap-3">
+    <div class="w-40 space-y-1">
+      <Label for="contact-freq">Search Frequency</Label>
+      <Input id="contact-freq" type="number" bind:value={contact.searchFrequency} />
     </div>
+    <Toggle bind:checked={contact.onlySurfaceContactNodes} label="Only Surface Contact Nodes" />
+  </div>
 
-    {#each contactModels as model, index (index)}
-      <div class="border-border space-y-2 border-t pt-3">
-        <div class="flex flex-wrap items-end gap-3">
+  {#each contactModels as model, index (index)}
+    <div class="border-border space-y-2 border-t pt-3">
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="space-y-1">
+          <Label for={`cm-name-${index}`}>Name</Label>
+          <Input id={`cm-name-${index}`} bind:value={model.name} />
+        </div>
+        <div class="space-y-1">
+          <Label for={`cm-type-${index}`}>Type</Label>
+          <Select id={`cm-type-${index}`} bind:value={model.contactType}>
+            {#each contactTypes as type (type)}
+              <option value={type}>{type}</option>
+            {/each}
+          </Select>
+        </div>
+        <div class="w-32 space-y-1">
+          <Label for={`cm-radius-${index}`}>Contact Radius</Label>
+          <Input id={`cm-radius-${index}`} type="number" bind:value={model.contactRadius} />
+        </div>
+        <div class="w-32 space-y-1">
+          <Label for={`cm-stiff-${index}`}>Contact Stiffness</Label>
+          <Input id={`cm-stiff-${index}`} type="number" bind:value={model.contactStiffness} />
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={() => removeContactModel(index)}
+          title="Remove Contact Model"
+        >
+          <Trash2 class="h-4 w-4" />
+        </Button>
+      </div>
+
+      {#each model.contactGroups ?? [] as group, subindex (subindex)}
+        <div class="border-border ml-4 flex flex-wrap items-end gap-3 border-t pt-2">
           <div class="space-y-1">
-            <Label for={`cm-name-${index}`}>Name</Label>
-            <Input id={`cm-name-${index}`} bind:value={model.name} />
+            <Label for={`cg-name-${index}-${subindex}`}>Name</Label>
+            <Input id={`cg-name-${index}-${subindex}`} bind:value={group.name} />
           </div>
           <div class="space-y-1">
-            <Label for={`cm-type-${index}`}>Type</Label>
-            <Select id={`cm-type-${index}`} bind:value={model.contactType}>
-              {#each contactTypes as type (type)}
-                <option value={type}>{type}</option>
+            <Label for={`cg-master-${index}-${subindex}`}>Master Block Id</Label>
+            <Select id={`cg-master-${index}-${subindex}`} bind:value={group.masterBlockId}>
+              {#each blocks as block, blockIdx (blockIdx)}
+                <option value={block.blocksId}>{block.blocksId}</option>
+              {/each}
+            </Select>
+          </div>
+          <div class="space-y-1">
+            <Label for={`cg-slave-${index}-${subindex}`}>Slave Block Id</Label>
+            <Select id={`cg-slave-${index}-${subindex}`} bind:value={group.slaveBlockId}>
+              {#each blocks as block, blockIdx (blockIdx)}
+                <option value={block.blocksId}>{block.blocksId}</option>
               {/each}
             </Select>
           </div>
           <div class="w-32 space-y-1">
-            <Label for={`cm-radius-${index}`}>Contact Radius</Label>
-            <Input id={`cm-radius-${index}`} type="number" bind:value={model.contactRadius} />
-          </div>
-          <div class="w-32 space-y-1">
-            <Label for={`cm-stiff-${index}`}>Contact Stiffness</Label>
-            <Input id={`cm-stiff-${index}`} type="number" bind:value={model.contactStiffness} />
+            <Label for={`cg-radius-${index}-${subindex}`}>Search Radius</Label>
+            <Input
+              id={`cg-radius-${index}-${subindex}`}
+              type="number"
+              bind:value={group.searchRadius}
+            />
           </div>
           <Button
             variant="ghost"
             size="icon"
-            onclick={() => removeContactModel(index)}
-            title="Remove Contact Model"
+            onclick={() => removeContactGroup(index, subindex)}
+            title="Remove Contact Group"
           >
             <Trash2 class="h-4 w-4" />
           </Button>
         </div>
+      {/each}
 
-        {#each model.contactGroups ?? [] as group, subindex (subindex)}
-          <div class="border-border ml-4 flex flex-wrap items-end gap-3 border-t pt-2">
-            <div class="space-y-1">
-              <Label for={`cg-name-${index}-${subindex}`}>Name</Label>
-              <Input id={`cg-name-${index}-${subindex}`} bind:value={group.name} />
-            </div>
-            <div class="space-y-1">
-              <Label for={`cg-master-${index}-${subindex}`}>Master Block Id</Label>
-              <Select id={`cg-master-${index}-${subindex}`} bind:value={group.masterBlockId}>
-                {#each blocks as block, blockIdx (blockIdx)}
-                  <option value={block.blocksId}>{block.blocksId}</option>
-                {/each}
-              </Select>
-            </div>
-            <div class="space-y-1">
-              <Label for={`cg-slave-${index}-${subindex}`}>Slave Block Id</Label>
-              <Select id={`cg-slave-${index}-${subindex}`} bind:value={group.slaveBlockId}>
-                {#each blocks as block, blockIdx (blockIdx)}
-                  <option value={block.blocksId}>{block.blocksId}</option>
-                {/each}
-              </Select>
-            </div>
-            <div class="w-32 space-y-1">
-              <Label for={`cg-radius-${index}-${subindex}`}>Search Radius</Label>
-              <Input
-                id={`cg-radius-${index}-${subindex}`}
-                type="number"
-                bind:value={group.searchRadius}
-              />
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onclick={() => removeContactGroup(index, subindex)}
-              title="Remove Contact Group"
-            >
-              <Trash2 class="h-4 w-4" />
-            </Button>
-          </div>
-        {/each}
+      <Button variant="outline" size="sm" class="ml-4" onclick={() => addContactGroup(index)}>
+        <Plus class="h-4 w-4" /> Add Contact Group
+      </Button>
+    </div>
+  {/each}
 
-        <Button variant="outline" size="sm" class="ml-4" onclick={() => addContactGroup(index)}>
-          <Plus class="h-4 w-4" /> Add Contact Group
-        </Button>
-      </div>
-    {/each}
-
-    <Button variant="outline" size="sm" onclick={addContactModel}>
-      <Plus class="h-4 w-4" /> Add Contact Model
-    </Button>
-  {/if}
+  <Button variant="outline" size="sm" onclick={addContactModel}>
+    <Plus class="h-4 w-4" /> Add Contact Model
+  </Button>
 </div>

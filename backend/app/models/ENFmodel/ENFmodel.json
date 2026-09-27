@@ -13,9 +13,7 @@
       "id": 1,
       "name": "Aluminium",
       "density": "2.81e-9",
-      "matType": [
-        "Correspondence Elastic"
-      ],
+      "matType": ["Correspondence Elastic"],
       "youngsModulus": "71700",
       "poissonsRatio": "0.33",
       "tensionSeparation": false,
@@ -36,12 +34,8 @@
       ]
     }
   ],
-  "thermal": {
-    "enabled": false
-  },
-  "additive": {
-    "enabled": false
-  },
+  "thermal": [],
+  "additive": [],
   "damages": [
     {
       "damagesId": 1,
@@ -139,9 +133,7 @@
       "show": true
     }
   ],
-  "contact": {
-    "enabled": false
-  },
+  "contact": {},
   "boundaryConditions": {
     "conditions": [
       {

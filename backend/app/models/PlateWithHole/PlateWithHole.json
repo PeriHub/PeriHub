@@ -1,7 +1,5 @@
 {
-  "additive": {
-    "enabled": false
-  },
+  "additive": [],
   "blocks": [
     {
       "additiveModel": null,
@@ -60,9 +58,7 @@
     ]
   },
   "computes": [],
-  "contact": {
-    "enabled": false
-  },
+  "contact": {},
   "damages": [
     {
       "anistropicDamage": false,
@@ -194,7 +190,5 @@
       }
     }
   ],
-  "thermal": {
-    "enabled": false
-  }
+  "thermal": []
 }

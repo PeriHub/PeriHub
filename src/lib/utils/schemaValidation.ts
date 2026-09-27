@@ -16,7 +16,7 @@
  * panel need attention" indicator, not a submit-time validator.
  */
 
-import * as schemas from '$lib/client/schemas.gen';
+import * as schemas from '../client/schemas.gen';
 
 interface JsonSchemaLike {
   properties?: Record<string, unknown>;
@@ -66,5 +66,34 @@ export function isArraySectionComplete(schemaName: string, data: unknown): boole
   const schema = getSchema(schemaName);
   if (!schema) return true;
   if (!Array.isArray(data) || data.length === 0) return false;
-  return data.every((item) => item != null && typeof item === 'object' && requiredFieldsPresent(schema, item));
+  return data.every(
+    (item) => item != null && typeof item === 'object' && requiredFieldsPresent(schema, item)
+  );
+}
+
+export type SectionStatus = 'complete' | 'incomplete' | 'unused';
+
+/**
+ * Panel status for the ModelData field `field`. Sections that aren't in
+ * ModelData's `required` list (thermal, damages, contact, ...) are optional:
+ * when not in use they're 'unused' rather than incomplete. "In use" defaults
+ * to non-null and, for lists, non-empty; `isUsed` overrides that for object
+ * sections that are always present (e.g. Contact with no models).
+ */
+export function sectionStatus(
+  field: string,
+  schemaName: string,
+  kind: 'object' | 'array',
+  data: unknown,
+  isUsed?: (data: never) => boolean
+): SectionStatus {
+  const optional = !(getSchema('ModelData')?.required ?? []).includes(field);
+  const used =
+    data != null && (isUsed ? isUsed(data as never) : !(Array.isArray(data) && data.length === 0));
+  if (optional && !used) return 'unused';
+  const complete =
+    kind === 'array'
+      ? isArraySectionComplete(schemaName, data)
+      : isObjectSectionComplete(schemaName, data);
+  return complete ? 'complete' : 'incomplete';
 }

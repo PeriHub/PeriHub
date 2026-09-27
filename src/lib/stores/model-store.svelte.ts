@@ -4,6 +4,7 @@
 
 import type { ModelData, Valves, GetModelsResponse } from '$lib/client';
 import { $ModelData as ModelDataSchema, $Valves as ValvesSchema } from '$lib/client';
+import { normalizeModelData } from '$lib/utils/legacy-model-data';
 
 function browser() {
   return typeof window !== 'undefined';
@@ -34,7 +35,7 @@ class ModelStore {
 
     const modelData = localStorage.getItem('modelData');
     if (modelData) {
-      this.modelData = structuredClone(JSON.parse(modelData));
+      this.modelData = normalizeModelData(JSON.parse(modelData));
     }
     const selectedModel = localStorage.getItem('selectedModel');
     if (selectedModel) {

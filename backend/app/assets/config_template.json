@@ -1,8 +1,5 @@
 {
-  "additive": {
-    "additiveModels": null,
-    "enabled": false
-  },
+  "additive": [],
   "blocks": [
     {
       "additiveModel": "",
@@ -62,9 +59,7 @@
         "coordinate": "y",
         "name": "Top BC",
         "nodeSet": null,
-        "stepId": [
-          1
-        ],
+        "stepId": [1],
         "value": "100*t",
         "variable": "Displacements"
       },
@@ -75,9 +70,7 @@
         "coordinate": "y",
         "name": "Lower BC",
         "nodeSet": null,
-        "stepId": [
-          1
-        ],
+        "stepId": [1],
         "value": "-100*t",
         "variable": "Displacements"
       }
@@ -95,7 +88,6 @@
   ],
   "contact": {
     "contactModels": null,
-    "enabled": false,
     "onlySurfaceContactNodes": null,
     "searchFrequency": null
   },
@@ -129,9 +121,7 @@
     "enabled": false,
     "parameters": [
       {
-        "id": [
-          "materials[0].youngsModulus"
-        ],
+        "id": ["materials[0].youngsModulus"],
         "std": 10
       }
     ],
@@ -162,9 +152,7 @@
       "computePartialStress": null,
       "hourglassCoefficient": 1,
       "id": 1,
-      "matType": [
-        "Correspondence Elastic"
-      ],
+      "matType": ["Correspondence Elastic"],
       "materialSymmetry": "Isotropic",
       "name": "Aluminium",
       "numStateVars": null,
@@ -203,18 +191,13 @@
       "numberOfOutputSteps": 100,
       "outputsId": null,
       "selectedFileType": "Exodus",
-      "selectedOutputs": [
-        "Displacements",
-        "Damage"
-      ],
+      "selectedOutputs": ["Displacements", "Damage"],
       "useOutputFrequency": false
     },
     {
       "outputsId": 2,
       "name": "CSV",
-      "selectedOutputs": [
-        "External_Displacements"
-      ],
+      "selectedOutputs": ["External_Displacements"],
       "Write_After_Damage": false,
       "InitStep": 0,
       "selectedFileType": "CSV",
@@ -260,9 +243,6 @@
       }
     }
   ],
-  "thermal": {
-    "enabled": false,
-    "thermalModels": null
-  },
+  "thermal": [],
   "preCalculations": null
 }

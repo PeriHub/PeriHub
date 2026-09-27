@@ -22,32 +22,6 @@ export const $Adapt = {
     title: 'Adapt'
 } as const;
 
-export const $Additive = {
-    properties: {
-        enabled: {
-            type: 'boolean',
-            title: 'Enabled'
-        },
-        additiveModels: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/AdditiveModel'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Additivemodels'
-        }
-    },
-    type: 'object',
-    required: ['enabled'],
-    title: 'Additive'
-} as const;
-
 export const $AdditiveModel = {
     properties: {
         additiveModelId: {
@@ -650,10 +624,6 @@ export const $Compute = {
 
 export const $Contact = {
     properties: {
-        enabled: {
-            type: 'boolean',
-            title: 'Enabled'
-        },
         contactModels: {
             anyOf: [
                 {
@@ -692,7 +662,6 @@ export const $Contact = {
         }
     },
     type: 'object',
-    required: ['enabled'],
     title: 'Contact'
 } as const;
 
@@ -2374,12 +2343,16 @@ export const $ModelData = {
         additive: {
             anyOf: [
                 {
-                    '$ref': '#/components/schemas/Additive'
+                    items: {
+                        '$ref': '#/components/schemas/AdditiveModel'
+                    },
+                    type: 'array'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            title: 'Additive'
         },
         blocks: {
             items: {
@@ -2503,21 +2476,23 @@ export const $ModelData = {
         thermal: {
             anyOf: [
                 {
-                    '$ref': '#/components/schemas/Thermal'
+                    items: {
+                        '$ref': '#/components/schemas/ThermalModel'
+                    },
+                    type: 'array'
                 },
                 {
                     type: 'null'
                 }
-            ]
+            ],
+            title: 'Thermal'
         }
     },
     type: 'object',
     required: ['blocks', 'boundaryConditions', 'job', 'materials', 'model', 'outputs', 'solvers'],
     title: 'ModelData',
     example: {
-        additive: {
-            enabled: false
-        },
+        additive: [],
         blocks: [
             {
                 additiveModel: '',
@@ -2630,9 +2605,7 @@ export const $ModelData = {
                 variable: 'Displacements'
             }
         ],
-        contact: {
-            enabled: false
-        },
+        contact: {},
         damages: [
             {
                 anistropicDamage: false,
@@ -2766,9 +2739,7 @@ export const $ModelData = {
                 }
             }
         ],
-        thermal: {
-            enabled: false
-        }
+        thermal: []
     }
 } as const;
 
@@ -3968,32 +3939,6 @@ export const $TeamOut = {
     type: 'object',
     required: ['id', 'org_id', 'name'],
     title: 'TeamOut'
-} as const;
-
-export const $Thermal = {
-    properties: {
-        enabled: {
-            type: 'boolean',
-            title: 'Enabled'
-        },
-        thermalModels: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/ThermalModel'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Thermalmodels'
-        }
-    },
-    type: 'object',
-    required: ['enabled'],
-    title: 'Thermal'
 } as const;
 
 export const $ThermalModel = {

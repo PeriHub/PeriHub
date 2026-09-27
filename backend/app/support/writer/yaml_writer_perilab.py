@@ -262,7 +262,10 @@ class YAMLcreatorPeriLab:
     def thermal(self):
         data = {}
 
-        for therm in self.thermal_dict.thermalModels:
+        used = {block.thermalModel for block in self.block_def or []}
+        for therm in self.thermal_dict or []:
+            if therm.name not in used:
+                continue
             thermal = {}
             thermal["Thermal Model"] = " + ".join([str(x) for x in therm.thermalModel])
             # if self.check_if_defined(therm.thermalBondBased):
@@ -288,7 +291,10 @@ class YAMLcreatorPeriLab:
     def additive(self):
         data = {}
 
-        for add in self.additive_dict.additiveModels:
+        used = {block.additiveModel for block in self.block_def or []}
+        for add in self.additive_dict or []:
+            if add.name not in used:
+                continue
             additive = {}
             additive["Additive Model"] = add.additiveType
             additive["Print Temperature"] = float(add.printTemp)
@@ -416,7 +422,7 @@ class YAMLcreatorPeriLab:
 
             data["Verlet"]["Safety Factor"] = float(self.solver_dict[id].safetyFactor)
             if self.check_if_defined(self.solver_dict[id].verlet.numericalDamping):
-              data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].verlet.numericalDamping)
+                data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].verlet.numericalDamping)
 
             if (
                 self.check_if_defined(self.solver_dict[id].adaptivetimeStepping)
@@ -599,12 +605,10 @@ class YAMLcreatorPeriLab:
             data["PeriLab"]["Models"]["Pre Calculation"] = self.preCalculation()
         if self.check_if_defined(self.material_dict) and len(self.material_dict) > 0:
             data["PeriLab"]["Models"]["Material Models"] = self.materials()
-        if self.check_if_defined(self.thermal_dict):
-            if self.thermal_dict.enabled and len(self.thermal_dict.thermalModels) > 0:
-                data["PeriLab"]["Models"]["Thermal Models"] = self.thermal()
-        if self.check_if_defined(self.additive_dict):
-            if self.additive_dict.enabled and len(self.additive_dict.additiveModels) > 0:
-                data["PeriLab"]["Models"]["Additive Models"] = self.additive()
+        if thermal := self.thermal():
+            data["PeriLab"]["Models"]["Thermal Models"] = thermal
+        if additive := self.additive():
+            data["PeriLab"]["Models"]["Additive Models"] = additive
         data["PeriLab"]["Blocks"] = self.blocks(max_block_id)
         if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
             data["PeriLab"]["Models"]["Damage Models"] = self.damage(max_block_id)
@@ -615,7 +619,7 @@ class YAMLcreatorPeriLab:
         if self.check_if_defined(self.boundary_condition.conditions) and len(self.boundary_condition.conditions) > 0:
             data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions(multistep)
         if self.check_if_defined(self.contact_dict):
-            if self.contact_dict.enabled and len(self.contact_dict.contactModels) > 0:
+            if self.contact_dict.contactModels:
                 data["PeriLab"]["Contact"] = self.contact()
         if self.check_if_defined(self.compute_dict):
             if len(self.compute_dict) > 0:

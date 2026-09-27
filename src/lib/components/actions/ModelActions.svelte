@@ -29,6 +29,7 @@ SPDX-License-Identifier: Apache-2.0
   import { config } from '$lib/config';
   import { generateModel as generateModelApi, saveConfig } from '$lib/client';
   import type { Discretization, ModelData, Valves } from '$lib/client';
+  import { normalizeModelData } from '$lib/utils/legacy-model-data';
   import Button, { buttonVariants } from '$lib/components/ui/Button.svelte';
 
   const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
@@ -65,9 +66,15 @@ SPDX-License-Identifier: Apache-2.0
     fr.onload = (e) => {
       const result = JSON.parse(e.target?.result as string);
       if (result.modelData) {
-        modelStore.modelData = { ...modelStore.modelData, ...result.modelData } as ModelData;
+        modelStore.modelData = {
+          ...modelStore.modelData,
+          ...normalizeModelData(result.modelData)
+        } as ModelData;
       } else {
-        modelStore.modelData = { ...modelStore.modelData, ...result } as ModelData;
+        modelStore.modelData = {
+          ...modelStore.modelData,
+          ...normalizeModelData(result)
+        } as ModelData;
         console.log('Deprecated Json Format!');
       }
       if (result.modelParams) {

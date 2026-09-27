@@ -12,9 +12,7 @@
     {
       "id": 1,
       "name": "Aluminium",
-      "matType": [
-        "PD Solid Elastic"
-      ],
+      "matType": ["PD Solid Elastic"],
       "materialSymmetry": "Isotropic",
       "planeStress": true,
       "planeStrain": false,
@@ -73,37 +71,8 @@
       ]
     }
   ],
-  "thermal": {
-    "enabled": false,
-    "thermalModels": [
-      {
-        "thermalModelsId": 1,
-        "name": "Thermal Model 1",
-        "thermalModel": [
-          "Thermal Flow"
-        ],
-        "thermalType": "Bond based",
-        "thermalConductivity": null,
-        "heatTransferCoefficient": null,
-        "thermalExpansionCoefficient": null,
-        "environmentalTemperature": null,
-        "printTemp": 200.0,
-        "timeFactor": 1.0
-      }
-    ]
-  },
-  "additive": {
-    "additiveModels": [
-      {
-        "additiveType": "Simple Additive",
-        "id": null,
-        "name": "Additive Model 1",
-        "printTemp": 200,
-        "timeFactor": 1
-      }
-    ],
-    "enabled": false
-  },
+  "thermal": [],
+  "additive": [],
   "damages": [
     {
       "id": 1,
@@ -184,9 +153,7 @@
       "show": true
     }
   ],
-  "contact": {
-    "enabled": false
-  },
+  "contact": {},
   "boundaryConditions": {
     "conditions": [
       {
@@ -235,12 +202,7 @@
       "id": 1,
       "name": "Output1",
       "selectedFileType": "Exodus",
-      "selectedOutputs": [
-        "Displacements",
-        "Forces",
-        "Damage",
-        "von Mises Stress"
-      ],
+      "selectedOutputs": ["Displacements", "Forces", "Damage", "von Mises Stress"],
       "Write_After_Damage": false,
       "Frequency": "100",
       "numberOfOutputSteps": 100,
@@ -251,10 +213,7 @@
       "id": 2,
       "name": "Output2",
       "selectedFileType": "CSV",
-      "selectedOutputs": [
-        "External_Displacement",
-        "External_Force"
-      ],
+      "selectedOutputs": ["External_Displacement", "External_Force"],
       "Write_After_Damage": false,
       "Frequency": "100",
       "numberOfOutputSteps": 100,

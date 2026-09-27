@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from typing import List, Literal, Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from .yaml_field import yaml_field
 
@@ -336,7 +336,6 @@ class ContactModel(BaseModel):
 
 
 class Contact(BaseModel):
-    enabled: bool
     contactModels: Optional[List[ContactModel]] = None
     searchFrequency: Optional[int] = None
     onlySurfaceContactNodes: Optional[bool] = None
@@ -360,22 +359,12 @@ class ThermalModel(BaseModel):
     predefinedFieldNames: Optional[str] = None
 
 
-class Thermal(BaseModel):
-    enabled: bool
-    thermalModels: Optional[List[ThermalModel]] = None
-
-
 class AdditiveModel(BaseModel):
     additiveModelId: Optional[int] = None
     name: str
     additiveType: str
     printTemp: float
     # timeFactor: float
-
-
-class Additive(BaseModel):
-    enabled: bool
-    additiveModels: Optional[List[AdditiveModel]] = None
 
 
 class InterBlock(BaseModel):
@@ -650,7 +639,7 @@ class Job(BaseModel):
 
 
 default_model = {
-    "additive": {"additiveModels": None, "enabled": False},
+    "additive": [],
     "blocks": [
         {
             "additiveModel": "",
@@ -789,7 +778,7 @@ default_model = {
             "zValue": None,
         },
     ],
-    "contact": {"contactModels": None, "enabled": False, "onlySurfaceContactNodes": None, "searchFrequency": None},
+    "contact": {"contactModels": None, "onlySurfaceContactNodes": None, "searchFrequency": None},
     "damages": [
         {
             "anistropicDamage": False,
@@ -927,12 +916,12 @@ default_model = {
             "verlet": {"numericalDamping": 5e-06, "outputFrequency": 100, "safetyFactor": 0.95},
         }
     ],
-    "thermal": {"enabled": False, "thermalModels": None},
+    "thermal": [],
 }
 
 
 class ModelData(BaseModel):
-    additive: Optional[Additive] = None
+    additive: Optional[List[AdditiveModel]] = None
     blocks: List[Block]
     bondFilters: Optional[List[BondFilters]] = None
     boundaryConditions: BoundaryConditions
@@ -947,7 +936,22 @@ class ModelData(BaseModel):
     outputs: List[Output]
     preCalculations: Optional[PreCalculations] = None
     solvers: List[Solver]
-    thermal: Optional[Thermal] = None
+    thermal: Optional[List[ThermalModel]] = None
+
+    @field_validator("thermal", "additive", mode="before")
+    @classmethod
+    def unwrap_legacy_section(cls, value, info):
+        # Legacy configs stored {"enabled": bool, "<field>Models": [...]}; a disabled section maps to [].
+        if isinstance(value, dict):
+            return (value.get(f"{info.field_name}Models") or []) if value.get("enabled") else []
+        return value
+
+    @field_validator("contact", mode="before")
+    @classmethod
+    def unwrap_legacy_contact(cls, value):
+        if isinstance(value, dict) and value.get("enabled") is False:
+            return {**value, "contactModels": []}
+        return value
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

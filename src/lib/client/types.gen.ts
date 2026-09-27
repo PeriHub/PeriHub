@@ -6,11 +6,6 @@ export type Adapt = {
     stableBondDifference?: number;
 };
 
-export type Additive = {
-    enabled: boolean;
-    additiveModels?: Array<AdditiveModel> | null;
-};
-
 export type AdditiveModel = {
     additiveModelId?: number | null;
     name: string;
@@ -109,7 +104,6 @@ export type Compute = {
 };
 
 export type Contact = {
-    enabled: boolean;
     contactModels?: Array<ContactModel> | null;
     searchFrequency?: number | null;
     onlySurfaceContactNodes?: boolean | null;
@@ -377,7 +371,7 @@ export type Model = {
 };
 
 export type ModelData = {
-    additive?: Additive | null;
+    additive?: Array<AdditiveModel> | null;
     blocks: Array<Block>;
     bondFilters?: Array<BondFilters> | null;
     boundaryConditions: BoundaryConditions;
@@ -392,7 +386,7 @@ export type ModelData = {
     outputs: Array<Output>;
     preCalculations?: PreCalculations | null;
     solvers: Array<Solver>;
-    thermal?: Thermal | null;
+    thermal?: Array<ThermalModel> | null;
 };
 
 export type NodeSet = {
@@ -578,11 +572,6 @@ export type TeamOut = {
     id: string;
     org_id: string;
     name: string;
-};
-
-export type Thermal = {
-    enabled: boolean;
-    thermalModels?: Array<ThermalModel> | null;
 };
 
 export type ThermalModel = {

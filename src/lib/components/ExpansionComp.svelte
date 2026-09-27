@@ -26,7 +26,8 @@ SPDX-License-Identifier: Apache-2.0
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
-  import { isObjectSectionComplete, isArraySectionComplete } from '$lib/utils/schemaValidation';
+  import { sectionStatus } from '$lib/utils/schemaValidation';
+  import type { Contact, Deviations, ModelData } from '$lib/client';
   import AccordionItem from '$lib/components/ui/AccordionItem.svelte';
 
   import ModelSettings from '$lib/components/expansions/Model.svelte';
@@ -59,7 +60,9 @@ SPDX-License-Identifier: Apache-2.0
     component: Component;
     schema: string;
     schemaKind: 'object' | 'array';
-    dataPath: (modelData: Record<string, unknown>) => unknown;
+    field: keyof ModelData;
+    /** "In use" test for optional object sections that are always present (see sectionStatus). */
+    isUsed?: (data: never) => boolean;
     visible?: () => boolean;
   }
 
@@ -84,7 +87,7 @@ SPDX-License-Identifier: Apache-2.0
           component: ModelSettings,
           schema: 'Model',
           schemaKind: 'object',
-          dataPath: (m) => m.model
+          field: 'model'
         },
         {
           key: 'discretization',
@@ -93,7 +96,7 @@ SPDX-License-Identifier: Apache-2.0
           component: DiscretizationSettings,
           schema: 'Discretization',
           schemaKind: 'object',
-          dataPath: (m) => m.discretization
+          field: 'discretization'
         },
         {
           key: 'blocks',
@@ -102,7 +105,7 @@ SPDX-License-Identifier: Apache-2.0
           component: BlocksSettings,
           schema: 'Block',
           schemaKind: 'array',
-          dataPath: (m) => m.blocks
+          field: 'blocks'
         }
       ]
     },
@@ -117,25 +120,25 @@ SPDX-License-Identifier: Apache-2.0
           component: MaterialSettings,
           schema: 'Material',
           schemaKind: 'array',
-          dataPath: (m) => m.materials
+          field: 'materials'
         },
         {
           key: 'thermal',
           label: 'Thermal',
           icon: Flame as unknown as Component,
           component: ThermalSettings,
-          schema: 'Thermal',
-          schemaKind: 'object',
-          dataPath: (m) => m.thermal
+          schema: 'ThermalModel',
+          schemaKind: 'array',
+          field: 'thermal'
         },
         {
           key: 'additive',
           label: 'Additive',
           icon: Layers as unknown as Component,
           component: AdditiveSettings,
-          schema: 'Additive',
-          schemaKind: 'object',
-          dataPath: (m) => m.additive
+          schema: 'AdditiveModel',
+          schemaKind: 'array',
+          field: 'additive'
         },
         {
           key: 'damage',
@@ -144,7 +147,7 @@ SPDX-License-Identifier: Apache-2.0
           component: DamageSettings,
           schema: 'Damage',
           schemaKind: 'array',
-          dataPath: (m) => m.damages
+          field: 'damages'
         },
         {
           key: 'contact',
@@ -153,7 +156,8 @@ SPDX-License-Identifier: Apache-2.0
           component: ContactSettings,
           schema: 'Contact',
           schemaKind: 'object',
-          dataPath: (m) => m.contact
+          field: 'contact',
+          isUsed: (contact: Contact) => !!contact.contactModels?.length
         }
       ]
     },
@@ -168,7 +172,7 @@ SPDX-License-Identifier: Apache-2.0
           component: BoundaryConditionsSettings,
           schema: 'BoundaryConditions',
           schemaKind: 'object',
-          dataPath: (m) => m.boundaryConditions
+          field: 'boundaryConditions'
         },
         {
           key: 'bondFilters',
@@ -177,7 +181,7 @@ SPDX-License-Identifier: Apache-2.0
           component: BondFilterSettings,
           schema: 'BondFilters',
           schemaKind: 'array',
-          dataPath: (m) => m.bondFilters
+          field: 'bondFilters'
         },
         {
           key: 'output',
@@ -186,7 +190,7 @@ SPDX-License-Identifier: Apache-2.0
           component: OutputSettings,
           schema: 'Output',
           schemaKind: 'array',
-          dataPath: (m) => m.outputs
+          field: 'outputs'
         },
         {
           key: 'solver',
@@ -195,7 +199,7 @@ SPDX-License-Identifier: Apache-2.0
           component: SolverSettings,
           schema: 'Solver',
           schemaKind: 'array',
-          dataPath: (m) => m.solvers
+          field: 'solvers'
         },
         {
           key: 'deviations',
@@ -204,7 +208,8 @@ SPDX-License-Identifier: Apache-2.0
           component: DeviationsSettings,
           schema: 'Deviations',
           schemaKind: 'object',
-          dataPath: (m) => m.deviations
+          field: 'deviations',
+          isUsed: (deviations: Deviations) => deviations.enabled
         }
       ]
     }
@@ -233,27 +238,25 @@ SPDX-License-Identifier: Apache-2.0
         .filter((section) => !section.visible || section.visible())
         .map((section) => ({
           ...section,
-          complete:
-            section.schemaKind === 'array'
-              ? isArraySectionComplete(
-                  section.schema,
-                  section.dataPath(modelStore.modelData as unknown as Record<string, unknown>)
-                )
-              : isObjectSectionComplete(
-                  section.schema,
-                  section.dataPath(modelStore.modelData as unknown as Record<string, unknown>)
-                )
+          status: sectionStatus(
+            section.field,
+            section.schema,
+            section.schemaKind,
+            modelStore.modelData[section.field],
+            section.isUsed
+          )
         }))
     }))
       .filter((group) => group.sections.length > 0)
       .map((group) => ({
         ...group,
-        completeCount: group.sections.filter((s) => s.complete).length
+        completeCount: group.sections.filter((s) => s.status === 'complete').length,
+        usedCount: group.sections.filter((s) => s.status !== 'unused').length
       }))
   );
 
   $effect(() => {
-    viewStore.setupComplete = panelGroups.every((g) => g.completeCount === g.sections.length);
+    viewStore.setupComplete = panelGroups.every((g) => g.completeCount === g.usedCount);
   });
 
   onMount(() => {
@@ -296,12 +299,12 @@ SPDX-License-Identifier: Apache-2.0
       >
         <span class="flex-1">{group.label}</span>
         <span
-          class="font-normal normal-case tabular-nums {group.completeCount === group.sections.length
+          class="font-normal normal-case tabular-nums {group.completeCount === group.usedCount
             ? 'text-success'
             : ''}"
-          title="Sections with all required fields filled in"
+          title="Used sections with all required fields filled in (unused optional sections not counted)"
         >
-          {group.completeCount}/{group.sections.length} complete
+          {group.completeCount}/{group.usedCount} complete
         </span>
       </div>
       {#each group.sections as section (section.key)}
@@ -309,7 +312,7 @@ SPDX-License-Identifier: Apache-2.0
           value={section.key}
           label={section.label}
           icon={section.icon}
-          complete={section.complete}
+          status={section.status}
         >
           <section.component />
         </AccordionItem>

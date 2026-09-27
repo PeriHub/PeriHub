@@ -8,7 +8,6 @@ SPDX-License-Identifier: Apache-2.0
   import { Plus, Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
-  import type { Additive, Thermal } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
@@ -18,8 +17,8 @@ SPDX-License-Identifier: Apache-2.0
   const model = $derived(modelStore.modelData.model);
   const materials = $derived(modelStore.modelData.materials ?? []);
   const damages = $derived(modelStore.modelData.damages ?? []);
-  const thermal = $derived(modelStore.modelData.thermal ?? ({} as Thermal));
-  const additive = $derived(modelStore.modelData.additive ?? ({} as Additive));
+  const thermal = $derived(modelStore.modelData.thermal ?? []);
+  const additive = $derived(modelStore.modelData.additive ?? []);
   const blocks = $derived(modelStore.modelData.blocks ?? []);
 
   function showBlock() {
@@ -66,23 +65,23 @@ SPDX-License-Identifier: Apache-2.0
           {/each}
         </Select>
       </div>
-      {#if thermal.enabled}
+      {#if thermal.length}
         <div class="space-y-1">
           <Label for={`blk-therm-${index}`}>Thermal Model</Label>
           <Select id={`blk-therm-${index}`} bind:value={block.thermalModel}>
             <option value={undefined}>—</option>
-            {#each thermal.thermalModels ?? [] as t, tIdx (t.name ?? tIdx)}
+            {#each thermal as t, tIdx (t.name ?? tIdx)}
               <option value={t.name}>{t.name}</option>
             {/each}
           </Select>
         </div>
       {/if}
-      {#if additive.enabled}
+      {#if additive.length}
         <div class="space-y-1">
           <Label for={`blk-add-${index}`}>Additive Model</Label>
           <Select id={`blk-add-${index}`} bind:value={block.additiveModel}>
             <option value={undefined}>—</option>
-            {#each additive.additiveModels ?? [] as a, aIdx (a.name ?? aIdx)}
+            {#each additive as a, aIdx (a.name ?? aIdx)}
               <option value={a.name}>{a.name}</option>
             {/each}
           </Select>
