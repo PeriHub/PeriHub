@@ -686,6 +686,7 @@ export const getResultFile = (data: GetResultFileData): CancelablePromise<GetRes
  * @param data.yieldStress
  * @param data.output
  * @param data.step
+ * @param data.runId
  * @returns binary The image.
  * @throws ApiError
  */
@@ -701,7 +702,8 @@ export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): Cancela
         poissions_ratio: data.poissionsRatio,
         yield_stress: data.yieldStress,
         output: data.output,
-        step: data.step
+        step: data.step,
+        run_id: data.runId
     },
     errors: {
         422: 'Validation Error'
@@ -716,6 +718,7 @@ export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): Cancela
  * @param data.modelFolderName
  * @param data.output
  * @param data.deviationsEnabled
+ * @param data.runId
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -726,7 +729,8 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
         output: data.output,
-        deviations_enabled: data.deviationsEnabled
+        deviations_enabled: data.deviationsEnabled,
+        run_id: data.runId
     },
     errors: {
         422: 'Validation Error'
@@ -741,6 +745,7 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
  * @param data.modelFolderName
  * @param data.output
  * @param data.allData
+ * @param data.runId
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -751,7 +756,8 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
         output: data.output,
-        all_data: data.allData
+        all_data: data.allData,
+        run_id: data.runId
     },
     errors: {
         422: 'Validation Error'
@@ -772,6 +778,7 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
  * @param data.filter
  * @param data.colorBarMin
  * @param data.colorBarMax
+ * @param data.runId
  * @returns PointDataResults Successful Response
  * @throws ApiError
  */
@@ -788,7 +795,8 @@ export const getPointDataResults = (data: GetPointDataResultsData = {}): Cancela
         variable: data.variable,
         filter: data.filter,
         color_bar_min: data.colorBarMin,
-        color_bar_max: data.colorBarMax
+        color_bar_max: data.colorBarMax,
+        run_id: data.runId
     },
     errors: {
         422: 'Validation Error'

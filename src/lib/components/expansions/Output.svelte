@@ -14,7 +14,9 @@ SPDX-License-Identifier: Apache-2.0
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import Label from '$lib/components/ui/Label.svelte';
+  import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const blocks = $derived(modelStore.modelData.blocks ?? []);
   const nodeSets = $derived(modelStore.modelData.discretization?.nodeSets ?? []);
@@ -97,11 +99,11 @@ SPDX-License-Identifier: Apache-2.0
     <div class="border-border space-y-2 border-b pb-3">
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`cp-name-${index}`}>Output Label</Label>
+          <Label for={`cp-name-${index}`}>Output label</Label>
           <Input id={`cp-name-${index}`} bind:value={compute.name} />
         </div>
         <div class="space-y-1">
-          <Label for={`cp-class-${index}`}>Compute Class</Label>
+          <Label for={`cp-class-${index}`}>Compute class</Label>
           <Select id={`cp-class-${index}`} bind:value={compute.computeClass}>
             {#each computeClasses as c (c)}
               <option value={c}>{c}</option>
@@ -125,7 +127,7 @@ SPDX-License-Identifier: Apache-2.0
       {#if compute.computeClass === 'Block_Data'}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`cp-calc-${index}`}>Calculation Type</Label>
+            <Label for={`cp-calc-${index}`}>Calculation type</Label>
             <Select id={`cp-calc-${index}`} bind:value={compute.calculationType}>
               {#each calculationTypes as c (c)}
                 <option value={c}>{c}</option>
@@ -135,7 +137,7 @@ SPDX-License-Identifier: Apache-2.0
           <div class="space-y-1">
             <Label for={`cp-block-${index}`}>Block</Label>
             <Select id={`cp-block-${index}`} bind:value={compute.blockName}>
-              {#each blocks as block, blockIdx (block.name ?? blockIdx)}
+              {#each blocks as block, blockIdx (blockIdx)}
                 <option value={block.name}>{block.name}</option>
               {/each}
             </Select>
@@ -144,7 +146,7 @@ SPDX-License-Identifier: Apache-2.0
       {:else if compute.computeClass === 'Node_Set_Data'}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`cp-calc2-${index}`}>Calculation Type</Label>
+            <Label for={`cp-calc2-${index}`}>Calculation type</Label>
             <Select id={`cp-calc2-${index}`} bind:value={compute.calculationType}>
               {#each calculationTypes as c (c)}
                 <option value={c}>{c}</option>
@@ -152,7 +154,7 @@ SPDX-License-Identifier: Apache-2.0
             </Select>
           </div>
           <div class="space-y-1">
-            <Label for={`cp-ns-${index}`}>Node Set Id</Label>
+            <Label for={`cp-ns-${index}`}>Node set ID</Label>
             <Select id={`cp-ns-${index}`} bind:value={compute.nodeSetId}>
               {#each nodeSets as ns, nsIndex (nsIndex)}
                 <option value={ns.nodeSetId}>{ns.nodeSetId}</option>
@@ -188,9 +190,7 @@ SPDX-License-Identifier: Apache-2.0
     </div>
   {/each}
 
-  <Button variant="outline" size="sm" onclick={addCompute}>
-    <Plus class="h-4 w-4" /> Add Compute
-  </Button>
+  <AddButton noun="compute" items={computes} onclick={addCompute} />
 
   <div class="border-border border-t pt-3"></div>
 
@@ -200,7 +200,7 @@ SPDX-License-Identifier: Apache-2.0
 
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`out-name-${index}`}>Output Name</Label>
+          <Label for={`out-name-${index}`}>Output name</Label>
           <Input id={`out-name-${index}`} bind:value={output.name} />
         </div>
         <Button
@@ -214,27 +214,18 @@ SPDX-License-Identifier: Apache-2.0
       </div>
 
       <div class="flex flex-wrap items-end gap-3">
-        <div class="w-56 space-y-1">
-          <Label for={`out-sel-${index}`}>Selected Outputs</Label>
-          <select
-            id={`out-sel-${index}`}
-            multiple
+        <div class="space-y-1">
+          <Label>Selected outputs</Label>
+          <ChipGroup
+            ariaLabel="Selected outputs of {output.name}"
+            options={output.selectedFileType === 'CSV'
+              ? computes.flatMap((c) => (c.name ? [c.name] : []))
+              : outputKeys}
             bind:value={output.selectedOutputs}
-            class="border-input bg-background h-24 w-full rounded-md border px-2 py-1 text-sm"
-          >
-            {#if output.selectedFileType === 'CSV'}
-              {#each computes as c, cIdx (c.name ?? cIdx)}
-                <option value={c.name}>{c.name}</option>
-              {/each}
-            {:else}
-              {#each outputKeys as key (key)}
-                <option value={key}>{key}</option>
-              {/each}
-            {/if}
-          </select>
+          />
         </div>
         <div class="space-y-1">
-          <Label for={`out-type-${index}`}>File Type</Label>
+          <Label for={`out-type-${index}`}>File type</Label>
           <Select
             id={`out-type-${index}`}
             bind:value={output.selectedFileType}
@@ -245,15 +236,15 @@ SPDX-License-Identifier: Apache-2.0
             {/each}
           </Select>
         </div>
-        <Toggle bind:checked={output.useOutputFrequency} label="Use Output Frequency" />
+        <Toggle bind:checked={output.useOutputFrequency} label="Use output frequency" />
         {#if output.useOutputFrequency}
           <div class="space-y-1">
-            <Label for={`out-freq-${index}`}>Output Frequency</Label>
+            <Label for={`out-freq-${index}`}>Output frequency</Label>
             <Input id={`out-freq-${index}`} type="number" bind:value={output.Frequency} />
           </div>
         {:else}
           <div class="space-y-1">
-            <Label for={`out-numsteps-${index}`}>Number of Outputs</Label>
+            <Label for={`out-numsteps-${index}`}>Number of outputs</Label>
             <Input
               id={`out-numsteps-${index}`}
               type="number"
@@ -262,15 +253,15 @@ SPDX-License-Identifier: Apache-2.0
           </div>
         {/if}
         <div class="space-y-1">
-          <Label for={`out-init-${index}`}>Initial Output Step</Label>
+          <Label for={`out-init-${index}`}>Initial output step</Label>
           <Input id={`out-init-${index}`} type="number" bind:value={output.InitStep} />
         </div>
-        <Toggle bind:checked={output.Write_After_Damage} label="Write After Damage" />
+        <Toggle bind:checked={output.Write_After_Damage} label="Write after damage" />
       </div>
     </div>
   {/each}
 
   <Button variant="outline" size="sm" onclick={addOutput}>
-    <Plus class="h-4 w-4" /> Add Output
+    <Plus class="h-4 w-4" /> Add output
   </Button>
 </div>

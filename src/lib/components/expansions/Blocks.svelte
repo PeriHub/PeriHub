@@ -5,14 +5,13 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import { Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
-  import { bus } from '$lib/utils/bus';
-  import Toggle from '$lib/components/ui/Toggle.svelte';
+  import { previewHighlight } from '$lib/utils/preview-highlight';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
-  import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const model = $derived(modelStore.modelData.model);
   const materials = $derived(modelStore.modelData.materials ?? []);
@@ -20,10 +19,6 @@ SPDX-License-Identifier: Apache-2.0
   const thermal = $derived(modelStore.modelData.thermal ?? []);
   const additive = $derived(modelStore.modelData.additive ?? []);
   const blocks = $derived(modelStore.modelData.blocks ?? []);
-
-  function showBlock() {
-    bus.emit('resetData');
-  }
 
   function addBlock() {
     const len = blocks.length;
@@ -41,83 +36,134 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  {#each blocks as block, index (index)}
-    <div class="border-border flex flex-wrap items-end gap-3 border-b pb-3">
-      <div class="w-28 space-y-1">
-        <Label for={`blk-name-${index}`}>Block Name</Label>
-        <Input id={`blk-name-${index}`} bind:value={block.name} />
-      </div>
-      <div class="space-y-1">
-        <Label for={`blk-mat-${index}`}>Material</Label>
-        <Select id={`blk-mat-${index}`} bind:value={block.material}>
-          <option value={undefined}>—</option>
-          {#each materials as material, materialIdx (material.name ?? materialIdx)}
-            <option value={material.name}>{material.name}</option>
-          {/each}
-        </Select>
-      </div>
-      <div class="space-y-1">
-        <Label for={`blk-dmg-${index}`}>Damage Model</Label>
-        <Select id={`blk-dmg-${index}`} bind:value={block.damageModel}>
-          <option value={undefined}>—</option>
-          {#each damages as damage, damageIdx (damage.name ?? damageIdx)}
-            <option value={damage.name}>{damage.name}</option>
-          {/each}
-        </Select>
-      </div>
-      {#if thermal.length}
-        <div class="space-y-1">
-          <Label for={`blk-therm-${index}`}>Thermal Model</Label>
-          <Select id={`blk-therm-${index}`} bind:value={block.thermalModel}>
-            <option value={undefined}>—</option>
-            {#each thermal as t, tIdx (t.name ?? tIdx)}
-              <option value={t.name}>{t.name}</option>
-            {/each}
-          </Select>
-        </div>
-      {/if}
-      {#if additive.length}
-        <div class="space-y-1">
-          <Label for={`blk-add-${index}`}>Additive Model</Label>
-          <Select id={`blk-add-${index}`} bind:value={block.additiveModel}>
-            <option value={undefined}>—</option>
-            {#each additive as a, aIdx (a.name ?? aIdx)}
-              <option value={a.name}>{a.name}</option>
-            {/each}
-          </Select>
-        </div>
-      {/if}
-      <div class="w-28 space-y-1">
-        <Label for={`blk-dens-${index}`}>Density</Label>
-        <Input id={`blk-dens-${index}`} type="number" bind:value={block.density} />
-      </div>
-      <div class="w-32 space-y-1">
-        <Label for={`blk-shc-${index}`}>Specific Heat Capacity</Label>
-        <Input id={`blk-shc-${index}`} type="number" bind:value={block.specificHeatCapacity} />
-      </div>
-      {#if model.ownModel}
-        <div class="w-28 space-y-1">
-          <Label for={`blk-hor-${index}`}>Horizon</Label>
-          <Input id={`blk-hor-${index}`} type="number" bind:value={block.horizon} />
-        </div>
-      {/if}
-      <Toggle bind:checked={block.show} label="Show" onCheckedChange={showBlock} />
-      {#if model.ownModel}
-        <Button
-          variant="ghost"
-          size="icon"
-          onclick={() => removeBlock(block.blocksId - 1)}
-          title="Remove block"
-        >
-          <Trash2 class="h-4 w-4" />
-        </Button>
-      {/if}
-    </div>
-  {/each}
+  <div class="overflow-x-auto">
+    <table class="w-full min-w-[32rem] table-fixed border-collapse text-sm">
+      <thead>
+        <tr class="text-muted-foreground text-left text-xs">
+          <th class="px-1 pb-1 font-medium">Name</th>
+          <th class="px-1 pb-1 font-medium">Material</th>
+          <th class="px-1 pb-1 font-medium">Damage model</th>
+          {#if thermal.length}<th class="px-1 pb-1 font-medium">Thermal model</th>{/if}
+          {#if additive.length}<th class="px-1 pb-1 font-medium">Additive model</th>{/if}
+          <th class="px-1 pb-1 font-medium">Density</th>
+          {#if thermal.length}<th class="px-1 pb-1 font-medium">Specific heat</th>{/if}
+          {#if model.ownModel}<th class="px-1 pb-1 font-medium">Horizon</th>{/if}
+          {#if model.ownModel}<th class="w-11"><span class="sr-only">Remove</span></th>{/if}
+        </tr>
+      </thead>
+      <tbody>
+        {#each blocks as block, index (index)}
+          <tr
+            class="border-border hover:bg-muted/50 border-t"
+            {...previewHighlight(() => ({ block: block.blocksId }))}
+          >
+            <td class="p-0.5">
+              <Input
+                class="h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none"
+                aria-label="Name of block {block.blocksId}"
+                bind:value={block.name}
+              />
+            </td>
+            <td class="p-0.5">
+              <Select
+                class="h-8 pr-6 pl-2 text-[13px]"
+                aria-label="Material of {block.name}"
+                bind:value={block.material}
+              >
+                <option value={undefined}>—</option>
+                {#each materials as material, materialIdx (materialIdx)}
+                  <option value={material.name}>{material.name}</option>
+                {/each}
+              </Select>
+            </td>
+            <td class="p-0.5">
+              <Select
+                class="h-8 pr-6 pl-2 text-[13px]"
+                aria-label="Damage model of {block.name}"
+                bind:value={block.damageModel}
+              >
+                <option value={undefined}>—</option>
+                {#each damages as damage, damageIdx (damageIdx)}
+                  <option value={damage.name}>{damage.name}</option>
+                {/each}
+              </Select>
+            </td>
+            {#if thermal.length}
+              <td class="p-0.5">
+                <Select
+                  class="h-8 pr-6 pl-2 text-[13px]"
+                  aria-label="Thermal model of {block.name}"
+                  bind:value={block.thermalModel}
+                >
+                  <option value={undefined}>—</option>
+                  {#each thermal as t, tIdx (tIdx)}
+                    <option value={t.name}>{t.name}</option>
+                  {/each}
+                </Select>
+              </td>
+            {/if}
+            {#if additive.length}
+              <td class="p-0.5">
+                <Select
+                  class="h-8 pr-6 pl-2 text-[13px]"
+                  aria-label="Additive model of {block.name}"
+                  bind:value={block.additiveModel}
+                >
+                  <option value={undefined}>—</option>
+                  {#each additive as a, aIdx (aIdx)}
+                    <option value={a.name}>{a.name}</option>
+                  {/each}
+                </Select>
+              </td>
+            {/if}
+            <td class="p-0.5">
+              <Input
+                class="h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none"
+                type="number"
+                aria-label="Density of {block.name}"
+                bind:value={block.density}
+              />
+            </td>
+            {#if thermal.length}
+              <td class="p-0.5">
+                <Input
+                  class="h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none"
+                  type="number"
+                  aria-label="Specific heat capacity of {block.name}"
+                  title="Specific heat capacity"
+                  bind:value={block.specificHeatCapacity}
+                />
+              </td>
+            {/if}
+            {#if model.ownModel}
+              <td class="p-0.5">
+                <Input
+                  class="h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none"
+                  type="number"
+                  aria-label="Horizon of {block.name}"
+                  bind:value={block.horizon}
+                />
+              </td>
+            {/if}
+            {#if model.ownModel}
+              <td class="p-0.5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onclick={() => removeBlock(block.blocksId - 1)}
+                  title="Remove {block.name}"
+                >
+                  <Trash2 class="h-4 w-4" />
+                </Button>
+              </td>
+            {/if}
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
 
   {#if model.ownModel}
-    <Button variant="outline" size="sm" onclick={addBlock}>
-      <Plus class="h-4 w-4" /> Add block
-    </Button>
+    <AddButton noun="block" items={blocks} onclick={addBlock} />
   {/if}
 </div>

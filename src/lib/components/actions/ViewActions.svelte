@@ -195,7 +195,8 @@ SPDX-License-Identifier: Apache-2.0
         model_name: modelStore.selectedModel.file,
         model_folder_name: modelData.model.modelFolderName,
         output: plotOutput,
-        all_data: allData
+        all_data: allData,
+        run_id: status.run_id
       };
       const response = await api.get('/results/getResults', { params, responseType: 'blob' });
       const filename = allData
@@ -222,7 +223,8 @@ SPDX-License-Identifier: Apache-2.0
         modelName: modelStore.selectedModel.file,
         modelFolderName: modelData.model.modelFolderName,
         output: plotOutput,
-        deviationsEnabled: modelData.deviations?.enabled ?? false
+        deviationsEnabled: modelData.deviations?.enabled ?? false,
+        runId: status.run_id
       })) as Record<string, (number | string)[]>;
 
       notify.positive('Plot loaded');
@@ -443,7 +445,7 @@ SPDX-License-Identifier: Apache-2.0
     >
       <Dialog.Title class="mb-3 text-lg font-semibold">Plot results</Dialog.Title>
       <Select bind:value={plotOutput}>
-        {#each outputs as output, outputIdx (output.name ?? outputIdx)}
+        {#each outputs as output, outputIdx (outputIdx)}
           <option value={output.name}>{output.name}</option>
         {/each}
       </Select>

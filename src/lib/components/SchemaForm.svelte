@@ -129,13 +129,9 @@ SPDX-License-Identifier: Apache-2.0
         <Input
           id={fieldId(field.name)}
           type={field.widget === 'number' ? 'number' : 'text'}
-          value={data[field.name] as string | number}
+          bind:value={data[field.name]}
           disabled={disabledFields.includes(field.name)}
-          oninput={(e: Event) => {
-            const raw = (e.target as HTMLInputElement).value;
-            data[field.name] = field.widget === 'number' && raw !== '' ? Number(raw) : raw;
-            onchange?.();
-          }}
+          oninput={() => onchange?.()}
           clearable={field.widget === 'number'}
         />
       </div>

@@ -879,6 +879,7 @@ export type GetFractureAnalysisData = {
     modelName?: string;
     output?: string;
     poissionsRatio?: number;
+    runId?: string | null;
     step?: number;
     yieldStress?: number;
     youngModulus?: number;
@@ -891,6 +892,7 @@ export type GetPlotData = {
     modelFolderName?: string;
     modelName?: string;
     output?: string;
+    runId?: string | null;
 };
 
 export type GetPlotResponse = unknown;
@@ -900,6 +902,7 @@ export type GetResultsData = {
     modelFolderName?: string;
     modelName?: string;
     output?: string;
+    runId?: string | null;
 };
 
 export type GetResultsResponse = unknown;
@@ -913,6 +916,7 @@ export type GetPointDataResultsData = {
     modelFolderName?: string;
     modelName?: string;
     output?: string;
+    runId?: string | null;
     step?: number;
     variable?: string;
 };

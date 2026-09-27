@@ -16,12 +16,21 @@ SPDX-License-Identifier: Apache-2.0
   interface Props {
     checked?: boolean | null;
     label?: string;
+    /** Accessible name when there is no visible label (e.g. inside a table row). */
+    ariaLabel?: string;
     disabled?: boolean;
     id?: string;
     onCheckedChange?: (checked: boolean) => void;
   }
 
-  let { checked = $bindable(), label, disabled = false, id, onCheckedChange }: Props = $props();
+  let {
+    checked = $bindable(),
+    label,
+    ariaLabel,
+    disabled = false,
+    id,
+    onCheckedChange
+  }: Props = $props();
   const inputId = id ?? label?.replace(/\s+/g, '-').toLowerCase();
 
   // bits-ui's own Switch.Root has the same fallback-vs-bind restriction
@@ -39,15 +48,17 @@ SPDX-License-Identifier: Apache-2.0
   function handleCheckedChange(value: boolean) {
     localChecked = value;
     checked = value;
+    onCheckedChange?.(value);
   }
 </script>
 
 <div class="flex items-center gap-2">
   <Switch.Root
     checked={localChecked}
-    onCheckedChange={onCheckedChange ?? handleCheckedChange}
+    onCheckedChange={handleCheckedChange}
     {disabled}
     id={inputId}
+    aria-label={label ? undefined : ariaLabel}
     class="peer bg-muted data-[state=checked]:bg-primary inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
   >
     <Switch.Thumb

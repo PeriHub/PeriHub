@@ -5,13 +5,15 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import { Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { ThermalModel } from '$lib/client';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import Label from '$lib/components/ui/Label.svelte';
+  import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const thermal = $derived(modelStore.modelData.thermal ?? []);
   const thermalModelNames = ['Thermal Flow', 'Heat Transfer', 'Thermal Expansion'];
@@ -57,21 +59,16 @@ SPDX-License-Identifier: Apache-2.0
       </div>
 
       <div class="flex flex-wrap items-end gap-3">
-        <div class="w-56 space-y-1">
-          <Label for={`th-model-${index}`}>Type</Label>
-          <select
-            id={`th-model-${index}`}
-            multiple
+        <div class="space-y-1">
+          <Label>Type</Label>
+          <ChipGroup
+            ariaLabel="Type of {thermalModel.name}"
+            options={thermalModelNames}
             bind:value={thermalModel.thermalModel}
-            class="border-input bg-background h-20 w-full rounded-md border px-2 py-1 text-sm"
-          >
-            {#each thermalModelNames as name (name)}
-              <option value={name}>{name}</option>
-            {/each}
-          </select>
+          />
         </div>
         <div class="space-y-1">
-          <Label for={`th-type-${index}`}>Bond Type</Label>
+          <Label for={`th-type-${index}`}>Bond type</Label>
           <Select id={`th-type-${index}`} bind:value={thermalModel.thermalType}>
             {#each thermalTypes as type (type)}
               <option value={type}>{type}</option>
@@ -82,7 +79,7 @@ SPDX-License-Identifier: Apache-2.0
 
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`th-cond-${index}`}>Thermal Conductivity</Label>
+          <Label for={`th-cond-${index}`}>Thermal conductivity</Label>
           <Input
             id={`th-cond-${index}`}
             type="number"
@@ -90,7 +87,7 @@ SPDX-License-Identifier: Apache-2.0
           />
         </div>
         <div class="space-y-1">
-          <Label for={`th-htc-${index}`}>Heat Transfer Coefficient</Label>
+          <Label for={`th-htc-${index}`}>Heat transfer coefficient</Label>
           <Input
             id={`th-htc-${index}`}
             type="number"
@@ -101,7 +98,7 @@ SPDX-License-Identifier: Apache-2.0
 
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`th-exp-${index}`}>Thermal Expansion Coefficient</Label>
+          <Label for={`th-exp-${index}`}>Thermal expansion coefficient</Label>
           <Input
             id={`th-exp-${index}`}
             type="number"
@@ -109,7 +106,7 @@ SPDX-License-Identifier: Apache-2.0
           />
         </div>
         <div class="space-y-1">
-          <Label for={`th-env-${index}`}>Environmental Temperature</Label>
+          <Label for={`th-env-${index}`}>Environmental temperature</Label>
           <Input
             id={`th-env-${index}`}
             type="number"
@@ -121,7 +118,7 @@ SPDX-License-Identifier: Apache-2.0
       <h5 class="text-muted-foreground text-sm font-medium">Additive</h5>
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`th-pbt-${index}`}>Print Bed Temperature</Label>
+          <Label for={`th-pbt-${index}`}>Print bed temperature</Label>
           <Input
             id={`th-pbt-${index}`}
             type="number"
@@ -129,7 +126,7 @@ SPDX-License-Identifier: Apache-2.0
           />
         </div>
         <div class="space-y-1">
-          <Label for={`th-pbc-${index}`}>Thermal Conductivity Print Bed</Label>
+          <Label for={`th-pbc-${index}`}>Thermal conductivity print bed</Label>
           <Input
             id={`th-pbc-${index}`}
             type="number"
@@ -137,7 +134,7 @@ SPDX-License-Identifier: Apache-2.0
           />
         </div>
         <div class="space-y-1">
-          <Label for={`th-pbz-${index}`}>Print Bed Z Coordinate</Label>
+          <Label for={`th-pbz-${index}`}>Print bed Z coordinate</Label>
           <Input id={`th-pbz-${index}`} type="number" bind:value={thermalModel.printBedZCoord} />
         </div>
       </div>
@@ -149,18 +146,16 @@ SPDX-License-Identifier: Apache-2.0
           <Input id={`th-file-${index}`} bind:value={thermalModel.file} />
         </div>
         <div class="space-y-1">
-          <Label for={`th-nsv-${index}`}>Number of State Variables</Label>
+          <Label for={`th-nsv-${index}`}>Number of state variables</Label>
           <Input id={`th-nsv-${index}`} type="number" bind:value={thermalModel.numStateVars} />
         </div>
         <div class="space-y-1">
-          <Label for={`th-pfn-${index}`}>Predefined Field Names</Label>
+          <Label for={`th-pfn-${index}`}>Predefined field names</Label>
           <Input id={`th-pfn-${index}`} bind:value={thermalModel.predefinedFieldNames} />
         </div>
       </div>
     </div>
   {/each}
 
-  <Button variant="outline" size="sm" onclick={addThermalModel}>
-    <Plus class="h-4 w-4" /> Add Thermal Model
-  </Button>
+  <AddButton noun="thermal model" items={thermal} onclick={addThermalModel} />
 </div>

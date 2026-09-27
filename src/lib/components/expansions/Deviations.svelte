@@ -6,14 +6,16 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import { Trash2 } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { Deviations, OldParameter, Parameter } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
+  import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const deviations = $derived(modelStore.modelData.deviations ?? ({} as Deviations));
   let parameters = $state<string[]>(['materials[0].youngsModulus']);
@@ -85,11 +87,11 @@ SPDX-License-Identifier: Apache-2.0
 
   {#if deviations.enabled}
     <div class="space-y-1">
-      <Label for="dev-samplesize">sampleSize</Label>
+      <Label for="dev-samplesize">Sample size</Label>
       <Input id="dev-samplesize" type="number" bind:value={deviations.sampleSize} />
     </div>
 
-    <Toggle bind:checked={deviations.fileInput} label="Additional txt Input" />
+    <Toggle bind:checked={deviations.fileInput} label="Additional txt input" />
 
     {#if deviations.fileInput}
       <div class="space-y-1">
@@ -99,18 +101,9 @@ SPDX-License-Identifier: Apache-2.0
 
       {#each deviations.oldParameters ?? [] as parameter, index (index)}
         <div class="border-border flex flex-wrap items-end gap-3 border-b pb-2">
-          <div class="w-56 space-y-1">
-            <Label for={`dev-old-id-${index}`}>Id</Label>
-            <select
-              id={`dev-old-id-${index}`}
-              multiple
-              bind:value={parameter.id}
-              class="border-input bg-background h-20 w-full rounded-md border px-2 py-1 text-sm"
-            >
-              {#each parameters as p (p)}
-                <option value={p}>{p}</option>
-              {/each}
-            </select>
+          <div class="space-y-1">
+            <Label>Parameters</Label>
+            <ChipGroup ariaLabel="Parameters" options={parameters} bind:value={parameter.id} />
           </div>
           <div class="space-y-1">
             <Label for={`dev-old-factor-${index}`}>Factor</Label>
@@ -126,27 +119,16 @@ SPDX-License-Identifier: Apache-2.0
           </Button>
         </div>
       {/each}
-      <Button variant="outline" size="sm" onclick={addOldParameter}>
-        <Plus class="h-4 w-4" /> Add parameter
-      </Button>
+      <AddButton noun="parameter" items={deviations.oldParameters} onclick={addOldParameter} />
     {/if}
 
     <div class="border-border border-t pt-3"></div>
 
     {#each deviations.parameters ?? [] as parameter, index (index)}
       <div class="border-border flex flex-wrap items-end gap-3 border-b pb-2">
-        <div class="w-56 space-y-1">
-          <Label for={`dev-id-${index}`}>Id</Label>
-          <select
-            id={`dev-id-${index}`}
-            multiple
-            bind:value={parameter.id}
-            class="border-input bg-background h-20 w-full rounded-md border px-2 py-1 text-sm"
-          >
-            {#each parameters as p (p)}
-              <option value={p}>{p}</option>
-            {/each}
-          </select>
+        <div class="space-y-1">
+          <Label>Parameters</Label>
+          <ChipGroup ariaLabel="Parameters" options={parameters} bind:value={parameter.id} />
         </div>
         <div class="space-y-1">
           <Label for={`dev-std-${index}`}>Std</Label>
@@ -162,8 +144,6 @@ SPDX-License-Identifier: Apache-2.0
         </Button>
       </div>
     {/each}
-    <Button variant="outline" size="sm" onclick={addParameter}>
-      <Plus class="h-4 w-4" /> Add parameter
-    </Button>
+    <AddButton noun="parameter" items={deviations.parameters} onclick={addParameter} />
   {/if}
 </div>

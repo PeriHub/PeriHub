@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div
-  class={cn('rounded-xl border border-border bg-card text-card-foreground shadow-sm', className)}
+  class={cn('border-border bg-card text-card-foreground rounded-xl border shadow-sm', className)}
   {...rest}
 >
   {@render children?.()}

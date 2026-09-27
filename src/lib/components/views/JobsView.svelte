@@ -133,7 +133,7 @@ SPDX-License-Identifier: Apache-2.0
     }
     selectRun(run);
     modelStore.modelData = {
-      ...normalizeModelData(structuredClone(run.model) as ModelData),
+      ...normalizeModelData($state.snapshot(run.model as ModelData)),
       model: { ...(run.model as ModelData).model, modelFolderName: run.model_folder_name }
     };
     modelStore.modelDataFile = run.model_name;

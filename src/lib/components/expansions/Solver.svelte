@@ -5,13 +5,14 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import { Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { Solver } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
   import SchemaForm from '$lib/components/SchemaForm.svelte';
 
   const solvers = $derived(modelStore.modelData.solvers ?? []);
@@ -48,7 +49,7 @@ SPDX-License-Identifier: Apache-2.0
       </div>
 
       <div class="space-y-1">
-        <Label for={`sv-name-${index}`}>Solver Name</Label>
+        <Label for={`sv-name-${index}`}>Solver name</Label>
         <Input id={`sv-name-${index}`} bind:value={solver.name} />
       </div>
 
@@ -65,7 +66,7 @@ SPDX-License-Identifier: Apache-2.0
 
       {#if solver.stepId !== 1}
         <div class="max-w-xs space-y-1">
-          <Label for={`sv-add-${index}`}>Additional Time</Label>
+          <Label for={`sv-add-${index}`}>Additional time</Label>
           <Input id={`sv-add-${index}`} type="number" bind:value={solver.additionalTime} />
         </div>
       {/if}
@@ -73,7 +74,7 @@ SPDX-License-Identifier: Apache-2.0
       {#if solver.solvertype === 'Verlet' && solver.verlet != null}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`sv-damp-${index}`}>Numerical Damping</Label>
+            <Label for={`sv-damp-${index}`}>Numerical damping</Label>
             <Input
               id={`sv-damp-${index}`}
               type="number"
@@ -96,7 +97,7 @@ SPDX-License-Identifier: Apache-2.0
       {#if solver.solvertype === 'Static' && solver.static != null}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`sv-steps-${index}`}>Number of Steps</Label>
+            <Label for={`sv-steps-${index}`}>Number of steps</Label>
             <Input
               id={`sv-steps-${index}`}
               type="number"
@@ -111,9 +112,9 @@ SPDX-License-Identifier: Apache-2.0
               bind:value={solver.static.maximumNumberOfIterations}
             />
           </div>
-          <Toggle bind:checked={solver.static.showSolverIteration} label="Show Solver Iteration" />
+          <Toggle bind:checked={solver.static.showSolverIteration} label="Show solver iteration" />
           <div class="space-y-1">
-            <Label for={`sv-restol-${index}`}>Residual Tolerance</Label>
+            <Label for={`sv-restol-${index}`}>Residual tolerance</Label>
             <Input
               id={`sv-restol-${index}`}
               type="number"
@@ -121,7 +122,7 @@ SPDX-License-Identifier: Apache-2.0
             />
           </div>
           <div class="space-y-1">
-            <Label for={`sv-soltol-${index}`}>Solution Tolerance</Label>
+            <Label for={`sv-soltol-${index}`}>Solution tolerance</Label>
             <Input
               id={`sv-soltol-${index}`}
               type="number"
@@ -129,7 +130,7 @@ SPDX-License-Identifier: Apache-2.0
             />
           </div>
           <div class="space-y-1">
-            <Label for={`sv-resscale-${index}`}>Residual Scaling</Label>
+            <Label for={`sv-resscale-${index}`}>Residual scaling</Label>
             <Input
               id={`sv-resscale-${index}`}
               type="number"
@@ -145,7 +146,5 @@ SPDX-License-Identifier: Apache-2.0
     </div>
   {/each}
 
-  <Button variant="outline" size="sm" onclick={addSolver}>
-    <Plus class="h-4 w-4" /> Add Solver
-  </Button>
+  <AddButton noun="solver" items={solvers} onclick={addSolver} />
 </div>

@@ -21,6 +21,7 @@ SPDX-License-Identifier: Apache-2.0
     LoaderCircle
   } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
+  import { defaultStore } from '$lib/stores/default-store.svelte';
   import { notify } from '$lib/utils/notify';
   import { getPointDataResults } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
@@ -95,7 +96,8 @@ SPDX-License-Identifier: Apache-2.0
       variable: modelParams.variable,
       filter: modelParams.filter,
       colorBarMin: modelParams.colorBarMin,
-      colorBarMax: modelParams.colorBarMax
+      colorBarMax: modelParams.colorBarMax,
+      runId: defaultStore.status.run_id
     })
       .then((response) => {
         pointString = response.nodes;

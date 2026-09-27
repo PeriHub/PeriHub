@@ -77,7 +77,7 @@ SPDX-License-Identifier: Apache-2.0
 
   {#if !model.ownModel}
     <div class="max-w-xs space-y-1">
-      <Label for="model-select">Model Name</Label>
+      <Label for="model-select">Model name</Label>
       <Select
         id="model-select"
         value={modelStore.selectedModel.file}
@@ -96,7 +96,7 @@ SPDX-License-Identifier: Apache-2.0
     </div>
   {:else}
     <div class="max-w-xs space-y-1">
-      <Label for="model-name">Model Name</Label>
+      <Label for="model-name">Model name</Label>
       <Input
         id="model-name"
         bind:value={modelStore.selectedModel.file}
@@ -106,7 +106,7 @@ SPDX-License-Identifier: Apache-2.0
   {/if}
 
   <div class="max-w-xs space-y-1">
-    <Label for="model-subname">Model Subname</Label>
+    <Label for="model-subname">Model subname</Label>
     <input
       id="model-subname"
       list="model-folder-names"
@@ -123,12 +123,12 @@ SPDX-License-Identifier: Apache-2.0
 
   {#if model.ownModel}
     <div class="max-w-xs space-y-1">
-      <Label for="mesh-file">Mesh File</Label>
+      <Label for="mesh-file">Mesh file</Label>
       <Input id="mesh-file" bind:value={model.meshFile} />
     </div>
   {/if}
 
-  <Toggle bind:checked={model.twoDimensional} label="Two Dimensional" />
+  <Toggle bind:checked={model.twoDimensional} label="Two dimensional" />
 
   {#if !model.ownModel}
     <div class="border-border space-y-2 border-t pt-3">

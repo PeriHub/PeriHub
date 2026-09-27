@@ -29,22 +29,13 @@ SPDX-License-Identifier: Apache-2.0
 
   const sphereRadius = $derived((radius * multiplier) / 100);
 
+  // Blocks used to be hideable via a per-block "Show" toggle; that was
+  // removed in favour of the hover highlight in ModelPreview, so every
+  // block is always drawn (a saved `show: false` would otherwise hide one
+  // for good with no way to bring it back).
   function filterPointData() {
-    let idx = 0;
-    const filteredBlockIdStringTemp: number[] = [0];
-    const filteredPointStringTemp: number[] = [0];
-    const blocks = modelData.blocks;
-    for (let i = 0; i < blockIdString.length; i++) {
-      if (blocks[blockIdString[i]! * blocks.length - 1]?.show) {
-        filteredBlockIdStringTemp[idx] = blockIdString[i]!;
-        for (let j = 0; j < 3; j++) {
-          filteredPointStringTemp[idx * 3 + j] = pointString[i * 3 + j]!;
-        }
-        idx += 1;
-      }
-    }
-    viewStore.filteredBlockIdString = filteredBlockIdStringTemp;
-    viewStore.filteredPointString = filteredPointStringTemp;
+    viewStore.filteredBlockIdString = [...blockIdString];
+    viewStore.filteredPointString = [...pointString];
   }
 
   function updatePoints() {
@@ -100,7 +91,7 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="flex h-full flex-col">
-  <div class="flex items-center gap-1 border-b border-border bg-muted/30 px-2 py-1.5">
+  <div class="border-border bg-muted/30 flex items-center gap-1 border-b px-2 py-1.5">
     {#if !modelData.model.ownModel}
       <Button variant="ghost" size="icon" onclick={viewPointData} title="Reload Model">
         <RefreshCw class="h-4 w-4" />
@@ -111,7 +102,7 @@ SPDX-License-Identifier: Apache-2.0
     {/if}
 
     <div class="mx-2 flex min-w-[140px] flex-1 items-center gap-2">
-      <label for="model-view-radius" class="whitespace-nowrap text-xs text-muted-foreground">
+      <label for="model-view-radius" class="text-muted-foreground text-xs whitespace-nowrap">
         Radius: {multiplier}%
       </label>
       <input
@@ -122,12 +113,12 @@ SPDX-License-Identifier: Apache-2.0
         step="1"
         bind:value={multiplier}
         onchange={updatePoints}
-        class="flex-1 accent-primary"
+        class="accent-primary flex-1"
       />
     </div>
 
     <div class="mx-2 flex min-w-[140px] flex-1 items-center gap-2">
-      <label for="model-view-resolution" class="whitespace-nowrap text-xs text-muted-foreground">
+      <label for="model-view-resolution" class="text-muted-foreground text-xs whitespace-nowrap">
         Resolution: {resolution}
       </label>
       <input
@@ -137,7 +128,7 @@ SPDX-License-Identifier: Apache-2.0
         max="20"
         step="1"
         bind:value={resolution}
-        class="flex-1 accent-primary"
+        class="accent-primary flex-1"
       />
     </div>
   </div>

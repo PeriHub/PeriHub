@@ -5,8 +5,12 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { orthotropicStiffness } from '$lib/utils/elastic-constants';
-  import { Plus, Trash2, Upload } from 'lucide-svelte';
+  import {
+    convertElasticConstants,
+    emptyElasticConstants,
+    orthotropicStiffness
+  } from '$lib/utils/elastic-constants';
+  import { Trash2, Upload } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
@@ -17,6 +21,9 @@ SPDX-License-Identifier: Apache-2.0
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
+  import Select from '$lib/components/ui/Select.svelte';
+  import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
 
   const materials = $derived(modelStore.modelData.materials ?? []);
   const materialModelNames = [
@@ -31,6 +38,23 @@ SPDX-License-Identifier: Apache-2.0
 
   let multiSoInput: HTMLInputElement;
   let propsInput: HTMLInputElement;
+
+  // Any two isotropic constants determine the other two - shown as
+  // placeholders so an empty field reads as "calculated", not "missing".
+  function derivedElastic(m: Material) {
+    const set = (v: number | null | undefined) => (v == null || (v as unknown) === '' ? null : v);
+    return convertElasticConstants({
+      ...emptyElasticConstants(),
+      poissonsRatio: set(m.poissonsRatio),
+      bulkModulus: set(m.bulkModulus),
+      shearModulus: set(m.shearModulus),
+      youngsModulus: set(m.youngsModulus)
+    });
+  }
+
+  function hint(v: number | null) {
+    return v != null && Number.isFinite(v) ? `≈ ${+v.toPrecision(4)}` : undefined;
+  }
 
   function editNumStateVars(numStateVars: number) {
     bus.emit('addStateVarsToOutput' as never, numStateVars as never);
@@ -181,35 +205,30 @@ SPDX-License-Identifier: Apache-2.0
 <div class="space-y-3 p-3">
   {#each materials as material, index (index)}
     <div class="border-border space-y-3 rounded-md border p-3">
-      <h4 class="font-medium">Material {material.materialsId}</h4>
-
-      <div class="flex flex-wrap items-end gap-3">
-        <div class="space-y-1">
-          <Label for={`mat-name-${index}`}>name</Label>
-          <Input id={`mat-name-${index}`} bind:value={material.name} />
-        </div>
+      <div class="flex items-center justify-between gap-3">
+        <h4 class="truncate font-medium">{material.name || `Material ${material.materialsId}`}</h4>
         <Button
           variant="ghost"
           size="icon"
           onclick={() => removeMaterial(index)}
-          title="Remove Material"
+          title="Remove {material.name}"
         >
           <Trash2 class="h-4 w-4" />
         </Button>
       </div>
 
-      <div class="w-64 space-y-1">
-        <Label for={`mat-type-${index}`}>Material Models</Label>
-        <select
-          id={`mat-type-${index}`}
-          multiple
+      <div class="max-w-xs space-y-1">
+        <Label for={`mat-name-${index}`}>Name</Label>
+        <Input id={`mat-name-${index}`} bind:value={material.name} />
+      </div>
+
+      <div class="space-y-1">
+        <Label>Material models</Label>
+        <ChipGroup
+          ariaLabel="Material models of {material.name}"
+          options={materialModelNames}
           bind:value={material.matType}
-          class="border-input bg-background h-24 w-full rounded-md border px-2 py-1 text-sm"
-        >
-          {#each materialModelNames as name (name)}
-            <option value={name}>{name}</option>
-          {/each}
-        </select>
+        />
       </div>
 
       {#if material.matType?.includes('User')}
@@ -231,9 +250,7 @@ SPDX-License-Identifier: Apache-2.0
             </div>
           {/each}
           <div class="flex flex-wrap items-end gap-2">
-            <Button variant="outline" size="sm" onclick={() => addProp(index)}>
-              <Plus class="h-4 w-4" /> Add Property
-            </Button>
+            <AddButton noun="property" items={material.properties} onclick={() => addProp(index)} />
             <Button variant="outline" size="sm" onclick={() => uploadProps()}>
               <Upload class="h-4 w-4" /> Upload Property
             </Button>
@@ -241,7 +258,7 @@ SPDX-License-Identifier: Apache-2.0
               <Upload class="h-4 w-4" /> Upload shared Library
             </Button>
             <div class="space-y-1">
-              <Label for={`mat-nsv-${index}`}>Number of State Vars</Label>
+              <Label for={`mat-nsv-${index}`}>Number of state variables</Label>
               <Input
                 id={`mat-nsv-${index}`}
                 type="number"
@@ -254,45 +271,62 @@ SPDX-License-Identifier: Apache-2.0
       {/if}
 
       {#if material.materialSymmetry === 'Isotropic'}
+        {@const calc = derivedElastic(material)}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`mat-pr-${index}`}>Poisson's Ratio</Label>
-            <Input id={`mat-pr-${index}`} type="number" bind:value={material.poissonsRatio} />
+            <Label for={`mat-pr-${index}`}>Poisson's ratio</Label>
+            <Input
+              id={`mat-pr-${index}`}
+              type="number"
+              placeholder={hint(calc.poissonsRatio)}
+              bind:value={material.poissonsRatio}
+            />
           </div>
           <div class="space-y-1">
-            <Label for={`mat-bulk-${index}`}>Bulk Modulus</Label>
-            <Input id={`mat-bulk-${index}`} type="number" bind:value={material.bulkModulus} />
+            <Label for={`mat-bulk-${index}`}>Bulk modulus</Label>
+            <Input
+              id={`mat-bulk-${index}`}
+              type="number"
+              placeholder={hint(calc.bulkModulus)}
+              bind:value={material.bulkModulus}
+            />
           </div>
           <div class="space-y-1">
-            <Label for={`mat-shear-${index}`}>Shear Modulus</Label>
-            <Input id={`mat-shear-${index}`} type="number" bind:value={material.shearModulus} />
+            <Label for={`mat-shear-${index}`}>Shear modulus</Label>
+            <Input
+              id={`mat-shear-${index}`}
+              type="number"
+              placeholder={hint(calc.shearModulus)}
+              bind:value={material.shearModulus}
+            />
           </div>
           <div class="space-y-1">
-            <Label for={`mat-young-${index}`}>Young's Modulus</Label>
-            <Input id={`mat-young-${index}`} type="number" bind:value={material.youngsModulus} />
+            <Label for={`mat-young-${index}`}>Young's modulus</Label>
+            <Input
+              id={`mat-young-${index}`}
+              type="number"
+              placeholder={hint(calc.youngsModulus)}
+              bind:value={material.youngsModulus}
+            />
           </div>
         </div>
       {/if}
 
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`mat-sym-${index}`}>Material Symmetry</Label>
-          <select
-            id={`mat-sym-${index}`}
-            bind:value={material.materialSymmetry}
-            class="border-input bg-background flex h-9 rounded-md border px-3 py-1 text-sm shadow-sm"
-          >
+          <Label for={`mat-sym-${index}`}>Material symmetry</Label>
+          <Select id={`mat-sym-${index}`} bind:value={material.materialSymmetry}>
             {#each materialSymmetries as sym (sym)}
               <option value={sym}>{sym}</option>
             {/each}
-          </select>
+          </Select>
         </div>
-        <Toggle bind:checked={material.planeStress} label="Plane Stress" />
-        <Toggle bind:checked={material.planeStrain} label="Plane Strain" />
+        <Toggle bind:checked={material.planeStress} label="Plane stress" />
+        <Toggle bind:checked={material.planeStrain} label="Plane strain" />
         {#if material.stiffnessMatrix && material.materialSymmetry === 'Anisotropic' && material.matType?.includes('Correspondence')}
           <Toggle
             bind:checked={material.stiffnessMatrix.calculateStiffnessMatrix}
-            label="Calculate Stiffness Matrix"
+            label="Calculate stiffness matrix"
           />
         {/if}
       </div>
@@ -300,46 +334,46 @@ SPDX-License-Identifier: Apache-2.0
       {#if material.materialSymmetry === 'Transverse Isotropic' || material.materialSymmetry === 'Orthotropic'}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`mat-ex-${index}`}>Young's Modulus X</Label>
+            <Label for={`mat-ex-${index}`}>Young's modulus X</Label>
             <Input id={`mat-ex-${index}`} type="number" bind:value={material.youngsModulusX} />
           </div>
           <div class="space-y-1">
-            <Label for={`mat-ey-${index}`}>Young's Modulus Y</Label>
+            <Label for={`mat-ey-${index}`}>Young's modulus Y</Label>
             <Input id={`mat-ey-${index}`} type="number" bind:value={material.youngsModulusY} />
           </div>
           {#if material.materialSymmetry === 'Orthotropic'}
             <div class="space-y-1">
-              <Label for={`mat-ez-${index}`}>Young's Modulus Z</Label>
+              <Label for={`mat-ez-${index}`}>Young's modulus Z</Label>
               <Input id={`mat-ez-${index}`} type="number" bind:value={material.youngsModulusZ} />
             </div>
           {/if}
           <div class="space-y-1">
-            <Label for={`mat-pxy-${index}`}>Poisson's Ratio XY</Label>
+            <Label for={`mat-pxy-${index}`}>Poisson's ratio XY</Label>
             <Input id={`mat-pxy-${index}`} type="number" bind:value={material.poissonsRatioXY} />
           </div>
           {#if material.planeStrain || material.materialSymmetry === 'Orthotropic'}
             <div class="space-y-1">
-              <Label for={`mat-pyz-${index}`}>Poisson's Ratio YZ</Label>
+              <Label for={`mat-pyz-${index}`}>Poisson's ratio YZ</Label>
               <Input id={`mat-pyz-${index}`} type="number" bind:value={material.poissonsRatioYZ} />
             </div>
           {/if}
           {#if material.materialSymmetry === 'Orthotropic'}
             <div class="space-y-1">
-              <Label for={`mat-pxz-${index}`}>Poisson's Ratio XZ</Label>
+              <Label for={`mat-pxz-${index}`}>Poisson's ratio XZ</Label>
               <Input id={`mat-pxz-${index}`} type="number" bind:value={material.poissonsRatioXZ} />
             </div>
           {/if}
           <div class="space-y-1">
-            <Label for={`mat-gxy-${index}`}>Shear Modulus XY</Label>
+            <Label for={`mat-gxy-${index}`}>Shear modulus XY</Label>
             <Input id={`mat-gxy-${index}`} type="number" bind:value={material.shearModulusXY} />
           </div>
           {#if material.materialSymmetry === 'Orthotropic'}
             <div class="space-y-1">
-              <Label for={`mat-gyz-${index}`}>Shear Modulus YZ</Label>
+              <Label for={`mat-gyz-${index}`}>Shear modulus YZ</Label>
               <Input id={`mat-gyz-${index}`} type="number" bind:value={material.shearModulusYZ} />
             </div>
             <div class="space-y-1">
-              <Label for={`mat-gxz-${index}`}>Shear Modulus XZ</Label>
+              <Label for={`mat-gxz-${index}`}>Shear modulus XZ</Label>
               <Input id={`mat-gxz-${index}`} type="number" bind:value={material.shearModulusXZ} />
             </div>
           {/if}
@@ -387,31 +421,25 @@ SPDX-License-Identifier: Apache-2.0
         </div>
       {/if}
 
-      <div class="space-y-1">
-        <Label for={`mat-stab-${index}`}>Stabilization Type</Label>
-        <select
-          id={`mat-stab-${index}`}
-          bind:value={material.stabilizationType}
-          class="border-input bg-background flex h-9 rounded-md border px-3 py-1 text-sm shadow-sm"
-        >
+      <div class="max-w-xs space-y-1">
+        <Label for={`mat-stab-${index}`}>Stabilization type</Label>
+        <Select id={`mat-stab-${index}`} bind:value={material.stabilizationType}>
           {#each stabilizationTypes as type (type)}
             <option value={type}>{type}</option>
           {/each}
-        </select>
+        </Select>
       </div>
 
       {#if material.matType?.some((t) => t.includes('Plastic'))}
         <div class="space-y-1">
-          <Label for={`mat-yield-${index}`}>Yield Stress</Label>
+          <Label for={`mat-yield-${index}`}>Yield stress</Label>
           <Input id={`mat-yield-${index}`} type="number" bind:value={material.yieldStress} />
         </div>
       {/if}
     </div>
   {/each}
 
-  <Button variant="outline" size="sm" onclick={addMaterial}>
-    <Plus class="h-4 w-4" /> Add Material
-  </Button>
+  <AddButton noun="material" items={materials} onclick={addMaterial} />
 
   <input
     bind:this={multiSoInput}

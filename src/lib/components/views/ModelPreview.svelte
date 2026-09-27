@@ -11,6 +11,7 @@ SPDX-License-Identifier: Apache-2.0
   // point cloud (debounced); BC/block edits only redraw.
   import { previewModel, type PreviewResponse } from '$lib/client';
   import { modelStore } from '$lib/stores/model-store.svelte';
+  import { viewStore } from '$lib/stores/view-store.svelte';
   import { modelNeedsRefresh } from '$lib/utils/modelSync';
   import { blockIdToColor } from '$lib/components/three/colorTransfer';
   import {
@@ -86,6 +87,14 @@ SPDX-License-Identifier: Apache-2.0
   );
 
   const blocks = $derived(cloud ? blockInfo(cloud.x, cloud.y, cloud.block) : []);
+  const pointsByBlock = $derived.by(() => {
+    const groups = new Map<number, number[]>();
+    cloud?.block.forEach((id, i) => {
+      if (!groups.has(id)) groups.set(id, []);
+      groups.get(id)!.push(i);
+    });
+    return [...groups];
+  });
   const maxBlock = $derived(Math.max(1, ...blocks.map((b) => b.id)));
   const colors = $derived(
     new Map(blocks.map((b) => [b.id, `#${blockIdToColor(b.id / maxBlock).getHexString()}`]))
@@ -111,6 +120,15 @@ SPDX-License-Identifier: Apache-2.0
       return marker ? [{ name: bc.name ?? '', marker }] : [];
     });
   });
+
+  const highlight = $derived(viewStore.previewHighlight);
+  const DIM = 0.25;
+  function blockOpacity(id: number) {
+    return highlight?.block == null || highlight.block === id ? 1 : DIM;
+  }
+  function markerOpacity(name: string) {
+    return highlight == null || highlight.bc === name ? 1 : DIM;
+  }
 
   // Markers and text are sized in screen pixels (4 px per unit), whatever the model's scale.
   const unit = $derived(box ? 4 * box.px : 1);
@@ -176,14 +194,19 @@ SPDX-License-Identifier: Apache-2.0
       </defs>
 
       <g shape-rendering="crispEdges">
-        {#each cloud.x as x, i (i)}
-          <rect
-            x={x - cell / 2}
-            y={-cloud.y[i]! - cell / 2}
-            width={cell}
-            height={cell}
-            fill={colors.get(cloud.block[i]!)}
-          />
+        <!-- One group per block: opacity on the group composites it as a whole,
+             so the overlapping squares don't show seams when dimmed. -->
+        {#each pointsByBlock as [id, points] (id)}
+          <g fill={colors.get(id)} opacity={blockOpacity(id)}>
+            {#each points as i (i)}
+              <rect
+                x={cloud.x[i]! - cell / 2}
+                y={-cloud.y[i]! - cell / 2}
+                width={cell}
+                height={cell}
+              />
+            {/each}
+          </g>
         {/each}
       </g>
 
@@ -195,51 +218,57 @@ SPDX-License-Identifier: Apache-2.0
         stroke-linecap="round"
       >
         {#each markers as { name, marker } (name + marker.x + marker.y)}
-          {#if marker.kind === 'arrow'}
-            {@const e = arrowEnds(marker)}
-            <line {...e} marker-end="url(#preview-arrow)" />
-          {:else if marker.kind === 'fixed'}
-            {@const px = marker.outY}
-            {@const py = marker.outX}
-            {@const cx = marker.x + marker.outX * unit}
-            {@const cy = -(marker.y + marker.outY * unit)}
-            <line
-              x1={cx - px * 4 * unit}
-              y1={cy + py * 4 * unit}
-              x2={cx + px * 4 * unit}
-              y2={cy - py * 4 * unit}
-            />
-            {#each [-3, -1, 1, 3] as t (t)}
-              <line
-                x1={cx + px * t * unit}
-                y1={cy - py * t * unit}
-                x2={cx + px * (t - 1.5) * unit + marker.outX * 2 * unit}
-                y2={cy - py * (t - 1.5) * unit - marker.outY * 2 * unit}
-              />
-            {/each}
-          {:else if marker.kind === 'outOfPlane'}
-            <circle cx={marker.x} cy={-marker.y} r={2.5 * unit} />
-            {#if marker.toward}
-              <circle cx={marker.x} cy={-marker.y} r={0.6 * unit} fill="currentColor" />
-            {:else}
-              <path
-                d="M{marker.x - 1.6 * unit},{-marker.y - 1.6 * unit} l{3.2 * unit},{3.2 *
-                  unit} m0,{-3.2 * unit} l{-3.2 * unit},{3.2 * unit}"
-              />
-            {/if}
-          {:else}
-            <circle cx={marker.x} cy={-marker.y} r={1.5 * unit} />
-          {/if}
           {@const l = labelPos(marker)}
-          <text
-            x={l.x}
-            y={l.y}
-            fill="currentColor"
-            stroke="none"
-            font-size={3.2 * unit}
-            text-anchor="middle"
-            dominant-baseline="middle">{name}</text
+          <g
+            opacity={markerOpacity(name)}
+            stroke-width={highlight?.bc === name ? 0.8 * unit : undefined}
+            class="transition-opacity"
           >
+            {#if marker.kind === 'arrow'}
+              {@const e = arrowEnds(marker)}
+              <line {...e} marker-end="url(#preview-arrow)" />
+            {:else if marker.kind === 'fixed'}
+              {@const px = marker.outY}
+              {@const py = marker.outX}
+              {@const cx = marker.x + marker.outX * unit}
+              {@const cy = -(marker.y + marker.outY * unit)}
+              <line
+                x1={cx - px * 4 * unit}
+                y1={cy + py * 4 * unit}
+                x2={cx + px * 4 * unit}
+                y2={cy - py * 4 * unit}
+              />
+              {#each [-3, -1, 1, 3] as t (t)}
+                <line
+                  x1={cx + px * t * unit}
+                  y1={cy - py * t * unit}
+                  x2={cx + px * (t - 1.5) * unit + marker.outX * 2 * unit}
+                  y2={cy - py * (t - 1.5) * unit - marker.outY * 2 * unit}
+                />
+              {/each}
+            {:else if marker.kind === 'outOfPlane'}
+              <circle cx={marker.x} cy={-marker.y} r={2.5 * unit} />
+              {#if marker.toward}
+                <circle cx={marker.x} cy={-marker.y} r={0.6 * unit} fill="currentColor" />
+              {:else}
+                <path
+                  d="M{marker.x - 1.6 * unit},{-marker.y - 1.6 * unit} l{3.2 * unit},{3.2 *
+                    unit} m0,{-3.2 * unit} l{-3.2 * unit},{3.2 * unit}"
+                />
+              {/if}
+            {:else}
+              <circle cx={marker.x} cy={-marker.y} r={1.5 * unit} />
+            {/if}
+            <text
+              x={l.x}
+              y={l.y}
+              fill="currentColor"
+              stroke="none"
+              font-size={3.2 * unit}
+              text-anchor="middle"
+              dominant-baseline="middle">{name}</text
+            >
+          </g>
         {/each}
       </g>
 
@@ -253,7 +282,12 @@ SPDX-License-Identifier: Apache-2.0
         paint-order="stroke"
       >
         {#each blocks as b (b.id)}
-          <text x={b.labelX} y={-b.labelY} font-size={labelSize(b.bounds)}>{b.id}</text>
+          <text
+            x={b.labelX}
+            y={-b.labelY}
+            font-size={labelSize(b.bounds)}
+            opacity={blockOpacity(b.id)}>{b.id}</text
+          >
         {/each}
       </g>
     </svg>

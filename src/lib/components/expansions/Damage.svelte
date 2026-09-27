@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import { Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { Damage, InterBlock } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
   import Select from '$lib/components/ui/Select.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const damages = $derived(modelStore.modelData.damages ?? []);
   const blocks = $derived(modelStore.modelData.blocks ?? []);
@@ -91,7 +92,7 @@ SPDX-License-Identifier: Apache-2.0
 
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`dm-name-${index}`}>name</Label>
+          <Label for={`dm-name-${index}`}>Name</Label>
           <Input id={`dm-name-${index}`} bind:value={damage.name} />
         </div>
         <Button
@@ -105,7 +106,7 @@ SPDX-License-Identifier: Apache-2.0
       </div>
 
       <div class="space-y-1">
-        <Label for={`dm-model-${index}`}>Damage Model</Label>
+        <Label for={`dm-model-${index}`}>Damage model</Label>
         <Select id={`dm-model-${index}`} bind:value={damage.damageModel}>
           {#each damageModelNames as name (name)}
             <option value={name}>{name}</option>
@@ -116,11 +117,11 @@ SPDX-License-Identifier: Apache-2.0
       {#if damage.damageModel !== 'Von Mises Stress'}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`dm-cs-${index}`}>Critical Stretch</Label>
+            <Label for={`dm-cs-${index}`}>Critical stretch</Label>
             <Input id={`dm-cs-${index}`} type="number" bind:value={damage.criticalStretch} />
           </div>
           <div class="space-y-1">
-            <Label for={`dm-ce-${index}`}>Critical Energy</Label>
+            <Label for={`dm-ce-${index}`}>Critical energy</Label>
             <Input
               id={`dm-ce-${index}`}
               type="number"
@@ -132,7 +133,7 @@ SPDX-License-Identifier: Apache-2.0
       {:else}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`dm-vms-${index}`}>Critical Von Mises Stress</Label>
+            <Label for={`dm-vms-${index}`}>Critical von Mises stress</Label>
             <Input
               id={`dm-vms-${index}`}
               type="number"
@@ -140,17 +141,17 @@ SPDX-License-Identifier: Apache-2.0
             />
           </div>
           <div class="space-y-1">
-            <Label for={`dm-cd-${index}`}>Critical Damage</Label>
+            <Label for={`dm-cd-${index}`}>Critical damage</Label>
             <Input id={`dm-cd-${index}`} type="number" bind:value={damage.criticalDamage} />
           </div>
         </div>
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`dm-td-${index}`}>Threshold Damage</Label>
+            <Label for={`dm-td-${index}`}>Threshold damage</Label>
             <Input id={`dm-td-${index}`} type="number" bind:value={damage.thresholdDamage} />
           </div>
           <div class="space-y-1">
-            <Label for={`dm-cdn-${index}`}>Critical Damage To Neglect Material Point</Label>
+            <Label for={`dm-cdn-${index}`}>Critical damage to neglect material point</Label>
             <Input
               id={`dm-cdn-${index}`}
               type="number"
@@ -170,7 +171,7 @@ SPDX-License-Identifier: Apache-2.0
       />
       {#if damage.criticalEnergyCalc?.calculateCriticalEnergy}
         <div class="space-y-1">
-          <Label for={`dm-k1c-${index}`}>Fracture Toughness (K1C)</Label>
+          <Label for={`dm-k1c-${index}`}>Fracture toughness (K1C)</Label>
           <Input
             id={`dm-k1c-${index}`}
             type="number"
@@ -180,12 +181,12 @@ SPDX-License-Identifier: Apache-2.0
         </div>
       {/if}
 
-      <Toggle bind:checked={damage.interBlockDamage} label="Inter Block Damage" />
+      <Toggle bind:checked={damage.interBlockDamage} label="Inter block damage" />
       {#if damage.interBlockDamage}
         {#each damage.interBlocks ?? [] as prop, subindex (prop.interBlockid ?? subindex)}
           <div class="flex flex-wrap items-end gap-3">
             <div class="space-y-1">
-              <Label for={`ib-first-${index}-${subindex}`}>First Block Id</Label>
+              <Label for={`ib-first-${index}-${subindex}`}>First block ID</Label>
               <Select id={`ib-first-${index}-${subindex}`} bind:value={prop.firstBlockId}>
                 {#each blocks as block, blockIdx (blockIdx)}
                   <option value={block.blocksId}>{block.blocksId}</option>
@@ -193,7 +194,7 @@ SPDX-License-Identifier: Apache-2.0
               </Select>
             </div>
             <div class="space-y-1">
-              <Label for={`ib-second-${index}-${subindex}`}>Second Block Id</Label>
+              <Label for={`ib-second-${index}-${subindex}`}>Second block ID</Label>
               <Select id={`ib-second-${index}-${subindex}`} bind:value={prop.secondBlockId}>
                 {#each blocks as block, blockIdx (blockIdx)}
                   <option value={block.blocksId}>{block.blocksId}</option>
@@ -201,7 +202,7 @@ SPDX-License-Identifier: Apache-2.0
               </Select>
             </div>
             <div class="space-y-1">
-              <Label for={`ib-value-${index}-${subindex}`}>Critical Energy</Label>
+              <Label for={`ib-value-${index}-${subindex}`}>Critical energy</Label>
               <Input id={`ib-value-${index}-${subindex}`} type="number" bind:value={prop.value} />
             </div>
             <Button
@@ -214,32 +215,34 @@ SPDX-License-Identifier: Apache-2.0
             </Button>
           </div>
         {/each}
-        <Button variant="outline" size="sm" onclick={() => addInterBlock(index)}>
-          <Plus class="h-4 w-4" /> Add InterBlock
-        </Button>
+        <AddButton
+          noun="inter-block damage"
+          items={damage.interBlocks}
+          onclick={() => addInterBlock(index)}
+        />
       {/if}
 
-      <Toggle bind:checked={damage.anistropicDamage} label="Anistropic Damage" />
+      <Toggle bind:checked={damage.anistropicDamage} label="Anisotropic damage" />
       {#if damage.anistropicDamage}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`ad-x-${index}`}>Anistropic Damage X</Label>
+            <Label for={`ad-x-${index}`}>Anisotropic damage X</Label>
             <Input id={`ad-x-${index}`} type="number" bind:value={damage.anistropicDamageX} />
           </div>
           <div class="space-y-1">
-            <Label for={`ad-y-${index}`}>Anistropic Damage Y</Label>
+            <Label for={`ad-y-${index}`}>Anisotropic damage Y</Label>
             <Input id={`ad-y-${index}`} type="number" bind:value={damage.anistropicDamageY} />
           </div>
           {#if !twoDimensional}
             <div class="space-y-1">
-              <Label for={`ad-z-${index}`}>Anistropic Damage Z</Label>
+              <Label for={`ad-z-${index}`}>Anisotropic damage Z</Label>
               <Input id={`ad-z-${index}`} type="number" bind:value={damage.anistropicDamageZ} />
             </div>
           {/if}
         </div>
       {/if}
 
-      <Toggle bind:checked={damage.onlyTension} label="Only Tension" />
+      <Toggle bind:checked={damage.onlyTension} label="Only tension" />
 
       <div class="space-y-1">
         <Label for={`dm-thick-${index}`}>Thickness</Label>
@@ -248,7 +251,5 @@ SPDX-License-Identifier: Apache-2.0
     </div>
   {/each}
 
-  <Button variant="outline" size="sm" onclick={addDamage}>
-    <Plus class="h-4 w-4" /> Add Damage Model
-  </Button>
+  <AddButton noun="damage model" items={damages} onclick={addDamage} />
 </div>

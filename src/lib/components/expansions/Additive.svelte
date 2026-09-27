@@ -5,13 +5,14 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import { Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { AdditiveModel } from '$lib/client';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const additive = $derived(modelStore.modelData.additive ?? []);
   const additiveTypes = ['Simple'];
@@ -52,7 +53,7 @@ SPDX-License-Identifier: Apache-2.0
           </Select>
         </div>
         <div class="space-y-1">
-          <Label for={`add-temp-${index}`}>Print Temperature</Label>
+          <Label for={`add-temp-${index}`}>Print temperature</Label>
           <Input id={`add-temp-${index}`} type="number" bind:value={model.printTemp} />
         </div>
         <Button
@@ -66,8 +67,6 @@ SPDX-License-Identifier: Apache-2.0
       </div>
     {/each}
 
-    <Button variant="outline" size="sm" onclick={addAdditiveModel}>
-      <Plus class="h-4 w-4" /> Add additive model
-    </Button>
+    <AddButton noun="additive model" items={additive} onclick={addAdditiveModel} />
   </div>
 </div>

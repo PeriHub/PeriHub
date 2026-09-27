@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import { Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { BondFilters } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
   import Select from '$lib/components/ui/Select.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const bondFilters = $derived(modelStore.modelData.bondFilters ?? []);
   const bondFilterTypes = ['Rectangular_Plane', 'Disk'];
@@ -38,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0
     <div class="border-border space-y-2 border-b pb-3">
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`bf-name-${index}`}>name</Label>
+          <Label for={`bf-name-${index}`}>Name</Label>
           <Input id={`bf-name-${index}`} bind:value={bondFilter.name} />
         </div>
         <div class="space-y-1">
@@ -51,7 +52,7 @@ SPDX-License-Identifier: Apache-2.0
         </div>
         {#if bondFilter.type === 'Rectangular_Plane'}
           <div class="space-y-1">
-            <Label for={`bf-bottomlen-${index}`}>Bottom_Length</Label>
+            <Label for={`bf-bottomlen-${index}`}>Bottom length</Label>
             <Input
               id={`bf-bottomlen-${index}`}
               type="number"
@@ -59,7 +60,7 @@ SPDX-License-Identifier: Apache-2.0
             />
           </div>
           <div class="space-y-1">
-            <Label for={`bf-sidelen-${index}`}>Side_Length</Label>
+            <Label for={`bf-sidelen-${index}`}>Side length</Label>
             <Input id={`bf-sidelen-${index}`} type="number" bind:value={bondFilter.sideLength} />
           </div>
         {:else if bondFilter.type === 'Disk'}
@@ -68,7 +69,7 @@ SPDX-License-Identifier: Apache-2.0
             <Input id={`bf-radius-${index}`} type="number" bind:value={bondFilter.radius} />
           </div>
         {/if}
-        <Toggle bind:checked={bondFilter.allow_contact} label="Allow Contact" />
+        <Toggle bind:checked={bondFilter.allow_contact} label="Allow contact" />
         <Button
           variant="ghost"
           size="icon"
@@ -81,15 +82,15 @@ SPDX-License-Identifier: Apache-2.0
 
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`bf-nx-${index}`}>Normal_X</Label>
+          <Label for={`bf-nx-${index}`}>Normal X</Label>
           <Input id={`bf-nx-${index}`} type="number" bind:value={bondFilter.normalX} />
         </div>
         <div class="space-y-1">
-          <Label for={`bf-ny-${index}`}>Normal_Y</Label>
+          <Label for={`bf-ny-${index}`}>Normal Y</Label>
           <Input id={`bf-ny-${index}`} type="number" bind:value={bondFilter.normalY} />
         </div>
         <div class="space-y-1">
-          <Label for={`bf-nz-${index}`}>Normal_Z</Label>
+          <Label for={`bf-nz-${index}`}>Normal Z</Label>
           <Input id={`bf-nz-${index}`} type="number" bind:value={bondFilter.normalZ} />
         </div>
         <Toggle bind:checked={bondFilter.show} label="Show" />
@@ -98,44 +99,44 @@ SPDX-License-Identifier: Apache-2.0
       {#if bondFilter.type === 'Rectangular_Plane'}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`bf-llx-${index}`}>Lower_Left_Corner_X</Label>
+            <Label for={`bf-llx-${index}`}>Lower left corner X</Label>
             <Input id={`bf-llx-${index}`} type="number" bind:value={bondFilter.lowerLeftCornerX} />
           </div>
           <div class="space-y-1">
-            <Label for={`bf-lly-${index}`}>Lower_Left_Corner_Y</Label>
+            <Label for={`bf-lly-${index}`}>Lower left corner Y</Label>
             <Input id={`bf-lly-${index}`} type="number" bind:value={bondFilter.lowerLeftCornerY} />
           </div>
           <div class="space-y-1">
-            <Label for={`bf-llz-${index}`}>Lower_Left_Corner_Z</Label>
+            <Label for={`bf-llz-${index}`}>Lower left corner Z</Label>
             <Input id={`bf-llz-${index}`} type="number" bind:value={bondFilter.lowerLeftCornerZ} />
           </div>
         </div>
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`bf-bux-${index}`}>Bottom_Unit_Vector_X</Label>
+            <Label for={`bf-bux-${index}`}>Bottom unit vector X</Label>
             <Input id={`bf-bux-${index}`} type="number" bind:value={bondFilter.bottomUnitVectorX} />
           </div>
           <div class="space-y-1">
-            <Label for={`bf-buy-${index}`}>Bottom_Unit_Vector_Y</Label>
+            <Label for={`bf-buy-${index}`}>Bottom unit vector Y</Label>
             <Input id={`bf-buy-${index}`} type="number" bind:value={bondFilter.bottomUnitVectorY} />
           </div>
           <div class="space-y-1">
-            <Label for={`bf-buz-${index}`}>Bottom_Unit_Vector_Z</Label>
+            <Label for={`bf-buz-${index}`}>Bottom unit vector Z</Label>
             <Input id={`bf-buz-${index}`} type="number" bind:value={bondFilter.bottomUnitVectorZ} />
           </div>
         </div>
       {:else if bondFilter.type === 'Disk'}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
-            <Label for={`bf-cx-${index}`}>Center_X</Label>
+            <Label for={`bf-cx-${index}`}>Center X</Label>
             <Input id={`bf-cx-${index}`} type="number" bind:value={bondFilter.centerX} />
           </div>
           <div class="space-y-1">
-            <Label for={`bf-cy-${index}`}>Center_Y</Label>
+            <Label for={`bf-cy-${index}`}>Center Y</Label>
             <Input id={`bf-cy-${index}`} type="number" bind:value={bondFilter.centerY} />
           </div>
           <div class="space-y-1">
-            <Label for={`bf-cz-${index}`}>Center_Z</Label>
+            <Label for={`bf-cz-${index}`}>Center Z</Label>
             <Input id={`bf-cz-${index}`} type="number" bind:value={bondFilter.centerZ} />
           </div>
         </div>
@@ -143,7 +144,5 @@ SPDX-License-Identifier: Apache-2.0
     </div>
   {/each}
 
-  <Button variant="outline" size="sm" onclick={addBondFilter}>
-    <Plus class="h-4 w-4" /> Add Bond Filter
-  </Button>
+  <AddButton noun="bond filter" items={bondFilters} onclick={addBondFilter} />
 </div>

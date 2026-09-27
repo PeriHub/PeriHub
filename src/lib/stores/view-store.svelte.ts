@@ -129,6 +129,9 @@ class ViewStore {
   // Every visible setup section has its required fields filled in - set by
   // ExpansionComp, read by the workflow bar in ViewActions.
   setupComplete = $state(false);
+  // Block / boundary condition the user is hovering or editing in the
+  // setup panels - ModelPreview dims everything else.
+  previewHighlight = $state<{ block?: number; bc?: string } | null>(null);
   // Parsed live from the streamed log text - see parseLogProgress. null
   // until PeriLab's log contains at least one recognized progress line.
   logProgress = $derived(parseLogProgress(this.logOutput));

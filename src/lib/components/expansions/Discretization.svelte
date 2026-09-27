@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Plus, Trash2 } from 'lucide-svelte';
+  import { Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { BlockFunction, Discretization, Gcode, NodeSet } from '$lib/client';
   import Input from '$lib/components/ui/Input.svelte';
@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
   import Select from '$lib/components/ui/Select.svelte';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Button from '$lib/components/ui/Button.svelte';
+  import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const discretization = $derived(modelStore.modelData.discretization ?? ({} as Discretization));
   const distributionTypes = ['Neighbor based', 'Node based'];
@@ -55,7 +56,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <div class="space-y-3 p-3">
   <div class="max-w-xs space-y-1">
-    <Label for="disc-type">Distribution Type</Label>
+    <Label for="disc-type">Distribution type</Label>
     <Select id="disc-type" bind:value={discretization.distributionType}>
       {#each distributionTypes as type (type)}
         <option value={type}>{type}</option>
@@ -66,7 +67,7 @@ SPDX-License-Identifier: Apache-2.0
   {#each discretization.nodeSets ?? [] as nodeSet, index (index)}
     <div class="border-border flex items-end gap-2 border-b pb-2">
       <div class="flex-1 space-y-1">
-        <Label for={`nodeset-${index}`}>Nodeset</Label>
+        <Label for={`nodeset-${index}`}>Node set</Label>
         <Input id={`nodeset-${index}`} bind:value={nodeSet.file} />
       </div>
       <Button
@@ -79,13 +80,11 @@ SPDX-License-Identifier: Apache-2.0
       </Button>
     </div>
   {/each}
-  <Button variant="outline" size="sm" onclick={addNodeSet}>
-    <Plus class="h-4 w-4" /> Add Nodeset
-  </Button>
+  <AddButton noun="node set" items={discretization.nodeSets} onclick={addNodeSet} />
 
   {#if discretization.discType === 'gcode' && discretization.gcode != null}
     <div class="border-border space-y-3 border-t pt-3">
-      <Toggle bind:checked={discretization.gcode.overwriteMesh} label="Overwrite Mesh" />
+      <Toggle bind:checked={discretization.gcode.overwriteMesh} label="Overwrite mesh" />
       <div class="space-y-1">
         <Label for="gcode-sampling">Sampling</Label>
         <Input id="gcode-sampling" type="number" bind:value={discretization.gcode.sampling} />
@@ -106,7 +105,7 @@ SPDX-License-Identifier: Apache-2.0
       {#each discretization.gcode.blockFunctions ?? [] as block, index (block.id ?? index)}
         <div class="border-border flex flex-wrap items-end gap-2 border-b pb-2">
           <div class="space-y-1">
-            <Label for={`bf-id-${index}`}>id</Label>
+            <Label for={`bf-id-${index}`}>ID</Label>
             <Input id={`bf-id-${index}`} type="number" bind:value={block.id} />
           </div>
           <div class="flex-1 space-y-1">
@@ -123,9 +122,11 @@ SPDX-License-Identifier: Apache-2.0
           </Button>
         </div>
       {/each}
-      <Button variant="outline" size="sm" onclick={addBlockFunction}>
-        <Plus class="h-4 w-4" /> Add Block Function
-      </Button>
+      <AddButton
+        noun="block function"
+        items={discretization.gcode.blockFunctions}
+        onclick={addBlockFunction}
+      />
     </div>
   {/if}
 </div>

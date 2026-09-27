@@ -12,12 +12,46 @@ from exodusreader import exodusreader
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 
+from ..db import base as db_base
+from ..db.models import JobQueueEntry
 from ..support.base_models import PointDataResults
+from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
 from ..support.results.crack_analysis import CrackAnalysis
+from ..support.solver_backend import get_solver_backend
+from .jobs import _can_view_entry, _latest_entry, _perilab_job_ids
 
 router = APIRouter(prefix="/results", tags=["Results Methods"])
+
+
+def _result_folder(request: Request, model_name: str, model_folder_name: str, run_id: Optional[str]) -> str:
+    """PeriLab writes a job's output to simulations/<perilab_job_id>/. That
+    folder is only readable here when the solver runs locally (shared volume);
+    `run_id` picks the run, else the folder's latest run is used."""
+
+    def not_found(detail: str):
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+
+    if db_base.SessionLocal is None or not get_solver_backend().shares_local_filesystem:
+        raise not_found("Results are only available when PeriLab runs locally.")
+    with db_base.SessionLocal() as db:
+        identity = resolve_user(request, dev, db)
+        if identity.user is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+        if run_id:
+            entry = db.get(JobQueueEntry, run_id)
+            if entry is not None and not _can_view_entry(identity, entry):
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+        else:
+            entry = _latest_entry(db, identity.user.id, model_name, model_folder_name)
+        job_ids = _perilab_job_ids(entry) if entry else []
+    if not job_ids:
+        raise not_found("No run found for this model.")
+    job_folder = os.path.join(FileHandler.get_local_simulation_path(), job_ids[0])
+    if not os.path.isdir(job_folder):
+        raise not_found("Results can not be found, maybe they are not generated yet.")
+    return job_folder
 
 
 @router.get("/getResultFile", operation_id="get_result_file", response_class=FileResponse)
@@ -46,12 +80,11 @@ def get_fracture_analysis(
     yield_stress: float = 74,
     output: str = "Output1",
     step: int = -1,
+    run_id: Optional[str] = None,
     request: Request = "",
 ):
     """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+    resultpath = _result_folder(request, model_name, model_folder_name, run_id)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     file_name, filepath = CrackAnalysis.write_nodemap(file, step)
@@ -84,12 +117,11 @@ def get_plot(
     # y_variable: str = "External_Displacement",
     # y_axis: str = "X",
     # y_absolute: bool = True,
+    run_id: Optional[str] = None,
     request: Request = "",
 ) -> JSONResponse:
     """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+    resultpath = _result_folder(request, model_name, model_folder_name, run_id)
 
     matching_files = FileHandler.get_all_output_files_with_extension(
         resultpath, model_name, output, ".csv", deviations_enabled
@@ -145,24 +177,24 @@ def get_results(
     model_folder_name: str = "Default",
     output: str = "Output1",
     all_data: bool = False,
+    run_id: Optional[str] = None,
     request: Request = "",
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    # resultpath = './simulations/' + os.path.join(username, model_name)
     resultpath = FileHandler.get_local_model_path(username, model_name)
     zip_file = os.path.join(resultpath, model_name + "_" + model_folder_name)
+    result_folder = _result_folder(request, model_name, model_folder_name, run_id)
 
     # check if folder contains only one .e file
     if not all_data:
-        for file in os.listdir(os.path.join(resultpath, model_folder_name)):
+        for file in os.listdir(result_folder):
             if file.endswith(".e"):
-                return FileResponse(os.path.join(resultpath, model_folder_name, file))
+                return FileResponse(os.path.join(result_folder, file))
 
     try:
-        print(zip_file)
-        shutil.make_archive(zip_file, "zip", os.path.join(resultpath, model_folder_name))
+        shutil.make_archive(zip_file, "zip", result_folder)
 
         response = FileResponse(
             zip_file + ".zip",
@@ -301,12 +333,11 @@ def get_data(
     filter: str = "",
     color_bar_min: Optional[float] = None,
     color_bar_max: Optional[float] = None,
+    run_id: Optional[str] = None,
     request: Request = "",
 ) -> PointDataResults:
     """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+    resultpath = _result_folder(request, model_name, model_folder_name, run_id)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     if not os.path.exists(file):

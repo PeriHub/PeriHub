@@ -12,6 +12,7 @@
 id_rsa_*
 *.dcv
 graphify-out/
+.playwright-mcp/
 
 # Model Files
 Files/

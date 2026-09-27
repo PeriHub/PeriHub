@@ -14,6 +14,6 @@ SPDX-License-Identifier: Apache-2.0
   }: { class?: string; children?: import('svelte').Snippet } & Record<string, unknown> = $props();
 </script>
 
-<label class={cn('text-sm font-medium leading-none', className)} {...rest}>
+<label class={cn('text-sm leading-none font-medium', className)} {...rest}>
   {@render children?.()}
 </label>
