@@ -165,3 +165,50 @@ export function convertElasticConstants(input: ElasticConstants): ElasticConstan
 
   return calculated;
 }
+
+/**
+ * Orthotropic stiffness matrix C = S⁻¹ from engineering constants (Voigt notation). The
+ * compliance S is block-diagonal: the shear block inverts to G23/G13/G12 and the normal
+ * 3×3 block is inverted in closed form (adjugate / determinant), so no general matrix
+ * library is needed.
+ */
+export function orthotropicStiffness(
+  E1: number,
+  E2: number,
+  E3: number,
+  G12: number,
+  G13: number,
+  G23: number,
+  nu12: number,
+  nu13: number,
+  nu23: number
+): Record<string, number> {
+  const [a, b, c] = [1 / E1, -nu12 / E1, -nu13 / E1];
+  const [d, e] = [1 / E2, -nu23 / E2];
+  const f = 1 / E3;
+  // symmetric S = [[a, b, c], [b, d, e], [c, e, f]]
+  const det = a * (d * f - e * e) - b * (b * f - e * c) + c * (b * e - d * c);
+  return {
+    C11: (d * f - e * e) / det,
+    C12: (c * e - b * f) / det,
+    C13: (b * e - c * d) / det,
+    C14: 0,
+    C15: 0,
+    C16: 0,
+    C22: (a * f - c * c) / det,
+    C23: (b * c - a * e) / det,
+    C24: 0,
+    C25: 0,
+    C26: 0,
+    C33: (a * d - b * b) / det,
+    C34: 0,
+    C35: 0,
+    C36: 0,
+    C44: G23,
+    C45: 0,
+    C46: 0,
+    C55: G13,
+    C56: 0,
+    C66: G12
+  };
+}

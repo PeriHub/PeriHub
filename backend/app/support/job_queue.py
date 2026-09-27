@@ -5,7 +5,7 @@
 """Job submission bookkeeping for locally-submitted (non-cluster) jobs.
 
 There is no queue any more: routers/jobs.py checks capacity
-(support/job_concurrency.has_capacity) and the per-user cap
+(support/job_concurrency.count_active_local_jobs) and the per-user cap
 (enforce_user_quota) up front and rejects with a 429 if either is exceeded,
 then calls submit_job() below to submit straight to the PeriLab API
 (support/perilab_api_client.py, see project root openapi.json) and record
@@ -86,7 +86,7 @@ def submit_job(
 ) -> JobQueueEntry:
     """Submits a job to the PeriLab API immediately and records it.
 
-    Callers are expected to have already checked has_capacity()/
+    Callers are expected to have already checked count_active_local_jobs()/
     enforce_user_quota() and rejected with a 429 rather than calling this
     when the instance is full - there's no queue to fall back to any more.
     Raises (and marks the entry FAILED) if the PeriLab API submission

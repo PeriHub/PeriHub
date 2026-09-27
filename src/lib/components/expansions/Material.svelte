@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { inv, matrix } from 'mathjs';
+  import { orthotropicStiffness } from '$lib/utils/elastic-constants';
   import { Plus, Trash2, Upload } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
@@ -59,39 +59,7 @@ SPDX-License-Identifier: Apache-2.0
     if (nu23 == null) nu23 = nu12;
     if (G23 == null) G23 = E2 / (2 * (1 + nu23));
 
-    const compliance = matrix([
-      [1 / E1, -nu12 / E1, -nu13 / E1, 0, 0, 0],
-      [-nu12 / E1, 1 / E2, -nu23 / E2, 0, 0, 0],
-      [-nu13 / E1, -nu23 / E2, 1 / E3, 0, 0, 0],
-      [0, 0, 0, 1 / G23, 0, 0],
-      [0, 0, 0, 0, 1 / G13, 0],
-      [0, 0, 0, 0, 0, 1 / G12]
-    ]);
-    const s = inv(compliance).toArray() as number[][];
-
-    sm.matrix = {
-      C11: s[0]![0]!,
-      C12: s[0]![1]!,
-      C13: s[0]![2]!,
-      C14: s[0]![3]!,
-      C15: s[0]![4]!,
-      C16: s[0]![5]!,
-      C22: s[1]![1]!,
-      C23: s[1]![2]!,
-      C24: s[1]![3]!,
-      C25: s[1]![4]!,
-      C26: s[1]![5]!,
-      C33: s[2]![2]!,
-      C34: s[2]![3]!,
-      C35: s[2]![4]!,
-      C36: s[2]![5]!,
-      C44: s[3]![3]!,
-      C45: s[3]![4]!,
-      C46: s[3]![5]!,
-      C55: s[4]![4]!,
-      C56: s[4]![5]!,
-      C66: s[5]![5]!
-    };
+    sm.matrix = orthotropicStiffness(E1, E2, E3, G12, G13, G23, nu12, nu13, nu23);
   }
 
   function uploadSo() {

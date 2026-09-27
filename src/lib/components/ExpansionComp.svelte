@@ -20,11 +20,9 @@ SPDX-License-Identifier: Apache-2.0
     Filter,
     LogOut,
     Calculator,
-    FlaskConical,
     BarChart3
   } from 'lucide-svelte';
   import { onMount } from 'svelte';
-  import { defaultStore } from '$lib/stores/default-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { isObjectSectionComplete, isArraySectionComplete } from '$lib/utils/schemaValidation';
@@ -42,7 +40,6 @@ SPDX-License-Identifier: Apache-2.0
   import BondFilterSettings from '$lib/components/expansions/BondFilters.svelte';
   import OutputSettings from '$lib/components/expansions/Output.svelte';
   import SolverSettings from '$lib/components/expansions/Solver.svelte';
-  import JobSettings from '$lib/components/expansions/Job.svelte';
   import DeviationsSettings from '$lib/components/expansions/Deviations.svelte';
 
   // Data-driven panel config instead of 14 hand-copied AccordionItems with a
@@ -198,16 +195,6 @@ SPDX-License-Identifier: Apache-2.0
           schema: 'Solver',
           schemaKind: 'array',
           dataPath: (m) => m.solvers
-        },
-        {
-          key: 'job',
-          label: 'Job',
-          icon: FlaskConical as unknown as Component,
-          component: JobSettings,
-          schema: 'Job',
-          schemaKind: 'object',
-          dataPath: (m) => m.job,
-          visible: () => defaultStore.cluster !== ''
         },
         {
           key: 'deviations',

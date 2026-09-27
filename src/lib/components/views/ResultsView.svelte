@@ -88,9 +88,7 @@ SPDX-License-Identifier: Apache-2.0
     await getPointDataResults({
       modelName: modelStore.selectedModel.file,
       modelFolderName: modelData.model.modelFolderName!,
-      cluster: modelData.job.cluster,
       output: modelData.outputs[0]!.name,
-      tasks: modelData.job.tasks,
       axis: modelParams.axis,
       step: modelParams.step,
       displFactor: modelParams.displFactor,

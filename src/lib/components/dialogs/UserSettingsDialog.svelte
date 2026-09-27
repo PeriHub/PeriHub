@@ -179,7 +179,7 @@ SPDX-License-Identifier: Apache-2.0
           {@render statRow('Active jobs', activeJobs)}
           {@render statRow('Jobs submitted', usage?.total_jobs_submitted)}
           {@render statRow('Jobs cancelled', usage?.total_jobs_cancelled)}
-          {#if usage && Object.keys(usage.jobs_per_model).length}
+          {#if usage?.jobs_per_model && Object.keys(usage.jobs_per_model).length}
             <div class="flex justify-between gap-4">
               <dt class="text-muted-foreground">Most used model</dt>
               <dd class="font-medium">
@@ -200,9 +200,6 @@ SPDX-License-Identifier: Apache-2.0
         <dl class="space-y-1.5 text-sm">
           {@render versionRow('PeriHub', version.current, version.latest)}
           {@render versionRow('PeriLab', version.perilab_current, version.perilab_latest)}
-          {#if defaultStore.cluster}
-            {@render statRow('Cluster', defaultStore.cluster)}
-          {/if}
         </dl>
       </section>
 

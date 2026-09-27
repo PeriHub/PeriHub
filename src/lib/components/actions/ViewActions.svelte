@@ -21,9 +21,7 @@ SPDX-License-Identifier: Apache-2.0
     cancelRun as cancelRunApi,
     getPlot,
     deleteModel as deleteModelApi,
-    deleteModelFromCluster,
-    deleteUserData as deleteUserDataApi,
-    deleteUserDataFromCluster
+    deleteUserData as deleteUserDataApi
   } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import Select from '$lib/components/ui/Select.svelte';
@@ -178,8 +176,6 @@ SPDX-License-Identifier: Apache-2.0
         model_name: modelStore.selectedModel.file,
         model_folder_name: modelData.model.modelFolderName,
         output: plotOutput,
-        tasks: modelData.job.tasks,
-        cluster: modelData.job.cluster,
         all_data: allData
       };
       const response = await api.get('/results/getResults', { params, responseType: 'blob' });
@@ -206,9 +202,7 @@ SPDX-License-Identifier: Apache-2.0
       const plotRawData = (await getPlot({
         modelName: modelStore.selectedModel.file,
         modelFolderName: modelData.model.modelFolderName,
-        cluster: modelData.job.cluster,
         output: plotOutput,
-        tasks: modelData.job.tasks,
         deviationsEnabled: modelData.deviations?.enabled ?? false
       })) as Record<string, (number | string)[]>;
 
@@ -257,16 +251,6 @@ SPDX-License-Identifier: Apache-2.0
     } catch {
       notify.negative('Failed');
     }
-    try {
-      await deleteModelFromCluster({
-        modelName: modelStore.selectedModel.file,
-        modelFolderName: modelData.model.modelFolderName,
-        cluster: modelData.job.cluster
-      });
-      notify.positive('Model deleted from cluster');
-    } catch {
-      notify.negative('Failed');
-    }
   }
 
   function deleteCookies() {
@@ -281,12 +265,6 @@ SPDX-License-Identifier: Apache-2.0
     try {
       await deleteUserDataApi({ checkDate: false });
       notify.positive('User data deleted');
-    } catch {
-      notify.negative('Failed');
-    }
-    try {
-      await deleteUserDataFromCluster({ cluster: modelData.job.cluster, checkDate: false });
-      notify.positive('User data deleted from cluster');
     } catch {
       notify.negative('Failed');
     }

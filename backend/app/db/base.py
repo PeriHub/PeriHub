@@ -62,18 +62,3 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
-
-
-def get_db_optional() -> Generator[Session | None, None, None]:
-    """Like get_db(), but yields None instead of raising when DATABASE_URL
-    isn't configured - for endpoints (e.g. routers/jobs.py's fair-share
-    queue) that have a degraded-but-working fallback for DB-less trial
-    mode rather than requiring a database outright."""
-    if SessionLocal is None:
-        yield None
-        return
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()

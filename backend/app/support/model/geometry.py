@@ -5,6 +5,7 @@
 """
 doc
 """
+
 import math
 import time
 
@@ -54,83 +55,6 @@ class Geometry:
             grid_z_value = np.concatenate((grid_z_value, grid_z_value))
 
         log.info(f"Points created  in {(time.time() - start_time):.2f} seconds")
-        return grid_x_value, grid_y_value, grid_z_value
-
-    @staticmethod
-    def create_cylinder(coor, dx_value, inner_radius, outer_radius):
-        """doc"""
-        start_time = time.time()
-
-        if inner_radius == 0:
-            gridx = [coor[0]]
-            gridy = [coor[1]]
-            gridz = [coor[2]]
-        else:
-            gridx = []
-            gridy = []
-            gridz = []
-
-        radius_diff = outer_radius - inner_radius
-        max_number_of_nodes = (2 * np.pi * outer_radius) / dx_value[0]
-
-        max_number_of_nodes = 2 * int(max_number_of_nodes / 2) + 1
-
-        number_of_circles = int(radius_diff / dx_value[1])
-
-        for i in range(0, number_of_circles):
-            current_outer_radius = inner_radius + radius_diff * (i + 1) / number_of_circles
-
-            number_of_nodes = int(max_number_of_nodes * (i + 1) / number_of_circles)
-            theta = np.linspace(0, 2 * np.pi, number_of_nodes)
-            gridx.extend(coor[0] + current_outer_radius * np.cos(theta[:-1]))
-            gridy.extend(coor[1] + current_outer_radius * np.sin(theta[:-1]))
-            gridz.extend(0 * theta[:-1])
-
-        if coor[2] == 0:
-            grid_x_value = np.array(gridx).ravel()
-            grid_y_value = np.array(gridy).ravel()
-            grid_z_value = np.array(gridz).ravel()
-
-        else:
-            gridx_3d = []
-            gridy_3d = []
-            gridz_3d = []
-
-            dx = dx_value[2]
-            if dx == 0:
-                dx = dx_value[0]
-            for z in np.arange(coor[2], coor[2] + dx, dx):
-                gridx_3d.extend(gridx)
-                gridy_3d.extend(gridy)
-                gridz_3d.extend(np.full_like(gridx, z))
-
-            grid_x_value = np.array(gridx_3d).ravel()
-            grid_y_value = np.array(gridy_3d).ravel()
-            grid_z_value = np.array(gridz_3d).ravel()
-
-        log.info(f"Points created  in {(time.time() - start_time):.2f} seconds")
-        return grid_x_value, grid_y_value, grid_z_value
-
-    @staticmethod
-    def create_sphere(coor, dx_value, radius):
-
-        # Create the 3D grid
-        gridx, gridy, gridz = np.meshgrid(
-            np.arange(coor[0] - radius, coor[0] + radius + dx_value[0], dx_value[0]),
-            np.arange(coor[1] - radius, coor[1] + radius + dx_value[1], dx_value[1]),
-            np.arange(coor[2] - radius, coor[2] + radius + dx_value[2], dx_value[2]),
-        )
-
-        # Compute distance from the center
-        distance = np.sqrt((gridx - coor[0]) ** 2 + (gridy - coor[1]) ** 2 + (gridz - coor[2]) ** 2)
-
-        # Filter points inside the sphere
-        mask = distance <= radius
-
-        # Extract the coordinates of points inside the sphere
-        grid_x_value = gridx[mask]
-        grid_y_value = gridy[mask]
-        grid_z_value = gridz[mask]
         return grid_x_value, grid_y_value, grid_z_value
 
     @staticmethod

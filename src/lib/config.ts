@@ -8,7 +8,7 @@
  * `config` covers the two things that genuinely have to be decided at
  * build/dev time (are we in `npm run dev`, and what's the API base URL).
  * Everything else that used to be duplicated here as its own VITE_* env
- * var (TRIAL, CLUSTER_URL, OAUTH_ENABLED) is now fetched once from the
+ * var (TRIAL, OAUTH_ENABLED) is now fetched once from the
  * backend's single source of truth (GET /config/public, see
  * backend/app/routers/config.py) via `loadPublicConfig()` - see
  * $lib/auth/oauth.ts's initAuth(), which awaits it before anything else
@@ -26,7 +26,6 @@ export const config = {
 interface PublicConfigResponse {
   deployment_mode: string;
   trial: boolean;
-  cluster_url: string;
   oauth_enabled: boolean;
 }
 
@@ -38,7 +37,6 @@ interface PublicConfigResponse {
  */
 export const publicConfig = {
   trial: false,
-  clusterUrl: '',
   oauthEnabled: false
 };
 
@@ -59,7 +57,6 @@ export async function loadPublicConfig(): Promise<void> {
     }
     const data = (await response.json()) as PublicConfigResponse;
     publicConfig.trial = data.trial;
-    publicConfig.clusterUrl = data.cluster_url ?? '';
     publicConfig.oauthEnabled = data.oauth_enabled ?? false;
     loaded = true;
   } catch (error) {

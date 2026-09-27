@@ -9,44 +9,10 @@ import os
 import numpy as np
 from exodusreader import exodusreader
 
-from ..base_models import Material, Model
 from ..file_handler import FileHandler
-from ..globals import log
 
 
 class Analysis:
-    @staticmethod
-    def calculate_calibration_factor_f(alpha):
-        f = ((2 + alpha) / math.pow((1 - alpha), 3 / 2)) * (
-            0.886
-            + (4.64 * alpha)
-            - (13.32 * math.pow(alpha, 2))
-            + (14.72 * math.pow(alpha, 3))
-            - (5.6 * math.pow(alpha, 4))
-        )
-
-        return f
-
-    @staticmethod
-    def calculate_calibration_factor_phi(alpha):
-        A = (
-            1.9118
-            + (19.118 * alpha)
-            - (2.5122 * math.pow(alpha, 2))
-            - (23.226 * math.pow(alpha, 3))
-            + (20.54 * math.pow(alpha, 4))
-        )
-        B = (
-            19.118
-            - (5.0244 * alpha)
-            - (69.678 * math.pow(alpha, 2))
-            + (82.16 * math.pow(alpha, 3))
-        ) * (1 - alpha)
-
-        phi = (A * (1 - alpha)) / (B + (2 * A))
-
-        return phi
-
     @staticmethod
     def calculate_k1(P, B, W, f):
         k1 = f * (P / (B * math.sqrt(W)))
@@ -121,9 +87,7 @@ class Analysis:
                     block_ids = block_data[block_id][:, 0]
                     block_points = points[block_ids]
                     filter = damage_blocks[block_id] > 0.0
-                    current_points = (
-                        block_points + point_data["Displacement"][block_ids]
-                    )
+                    current_points = block_points + point_data["Displacement"][block_ids]
 
                     filtered_points = current_points[filter]
 

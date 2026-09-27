@@ -1318,22 +1318,6 @@ export const $InterBlock = {
 
 export const $Job = {
     properties: {
-        cluster: {
-            type: 'boolean',
-            title: 'Cluster',
-            ui_group: 'Job',
-            ui_label: 'Cluster',
-            ui_order: 1,
-            ui_widget: 'toggle'
-        },
-        sbatch: {
-            type: 'boolean',
-            title: 'Sbatch',
-            ui_group: 'Job',
-            ui_label: 'Sbatch',
-            ui_order: 2,
-            ui_widget: 'toggle'
-        },
         verbose: {
             type: 'boolean',
             title: 'Verbose',
@@ -1341,101 +1325,21 @@ export const $Job = {
             ui_label: 'Verbose',
             ui_widget: 'toggle'
         },
-        nodes: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Nodes',
-            default: 1
-        },
         tasks: {
-            type: 'integer',
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Tasks',
-            ui_group: 'JobCluster',
-            ui_label: 'Tasks',
-            ui_widget: 'number'
-        },
-        tasksPerNode: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Taskspernode',
             default: 1
-        },
-        cpusPerTask: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Cpuspertask',
-            default: 1,
-            ui_group: 'JobSbatch',
-            ui_label: 'CPUs per Task',
-            ui_widget: 'number'
-        },
-        multithread: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Multithread',
-            default: false,
-            ui_group: 'JobSbatch',
-            ui_label: 'Multithreading',
-            ui_order: 1,
-            ui_widget: 'toggle'
-        },
-        time: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Time',
-            ui_group: 'JobSbatch',
-            ui_label: 'Time',
-            ui_order: 2,
-            ui_widget: 'text'
-        },
-        account: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Account',
-            ui_group: 'JobSbatch',
-            ui_label: 'Account',
-            ui_order: 3,
-            ui_widget: 'number'
         }
     },
     type: 'object',
-    required: ['cluster', 'sbatch', 'verbose', 'tasks'],
+    required: ['verbose'],
     title: 'Job'
 } as const;
 
@@ -1452,10 +1356,6 @@ export const $Jobs = {
         sub_name: {
             type: 'string',
             title: 'Sub Name'
-        },
-        cluster: {
-            type: 'boolean',
-            title: 'Cluster'
         },
         created: {
             type: 'boolean',
@@ -1532,7 +1432,7 @@ export const $Jobs = {
         }
     },
     type: 'object',
-    required: ['id', 'name', 'sub_name', 'cluster', 'created', 'submitted', 'results'],
+    required: ['id', 'name', 'sub_name', 'created', 'submitted', 'results'],
     title: 'Jobs',
     description: `Folder-level summary row (one per model_folder_name variant that
 exists on disk). \`run_id\`/\`run_count\` describe the folder's run
@@ -2751,15 +2651,7 @@ export const $ModelData = {
             distributionType: 'Neighbor based'
         },
         job: {
-            account: 2263032,
-            cluster: false,
-            cpusPerTask: 1,
-            multithread: false,
-            nodes: 1,
-            sbatch: false,
             tasks: 1,
-            tasksPerNode: 1,
-            time: '00:20:00',
             verbose: false
         },
         materials: [
@@ -4211,35 +4103,34 @@ export const $UsageSummary = {
     properties: {
         total_jobs_submitted: {
             type: 'integer',
-            title: 'Total Jobs Submitted'
+            title: 'Total Jobs Submitted',
+            default: 0
         },
         total_jobs_cancelled: {
             type: 'integer',
-            title: 'Total Jobs Cancelled'
-        },
-        cluster_jobs: {
-            type: 'integer',
-            title: 'Cluster Jobs'
-        },
-        local_jobs: {
-            type: 'integer',
-            title: 'Local Jobs'
+            title: 'Total Jobs Cancelled',
+            default: 0
         },
         jobs_per_user: {
-            additionalProperties: true,
+            additionalProperties: {
+                type: 'integer'
+            },
             type: 'object',
-            title: 'Jobs Per User'
+            title: 'Jobs Per User',
+            default: {}
         },
         jobs_per_model: {
-            additionalProperties: true,
+            additionalProperties: {
+                type: 'integer'
+            },
             type: 'object',
-            title: 'Jobs Per Model'
+            title: 'Jobs Per Model',
+            default: {}
         }
     },
     type: 'object',
-    required: ['total_jobs_submitted', 'total_jobs_cancelled', 'cluster_jobs', 'local_jobs', 'jobs_per_user', 'jobs_per_model'],
     title: 'UsageSummary',
-    description: 'Aggregate usage stats - see support/usage_metering.py.'
+    description: 'Aggregate usage stats - see routers/usage.py.'
 } as const;
 
 export const $ValidationError = {

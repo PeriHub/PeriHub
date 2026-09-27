@@ -23,12 +23,7 @@ only calls PeriHub's own /oauth/oidc/login and /oauth/oidc/callback.
 from fastapi import APIRouter
 
 from ..support.entitlements import has_feature
-from ..support.globals import (
-    cluster_enabled,
-    cluster_url,
-    deployment_mode,
-    oauth_discovery_url,
-)
+from ..support.globals import deployment_mode, oauth_discovery_url
 
 router = APIRouter(prefix="/config", tags=["Config Methods"])
 
@@ -38,7 +33,6 @@ def get_public_config() -> dict:
     return {
         "deployment_mode": deployment_mode,
         "trial": deployment_mode == "trial",
-        "cluster_url": cluster_url if cluster_enabled else "",
         # Only advertise OAuth login to the frontend if it's both
         # configured AND actually licensed - a community/trial deployment
         # that happens to have OAUTH_DISCOVERY_URL set (e.g. copied from an

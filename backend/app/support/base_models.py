@@ -4,7 +4,6 @@
 
 import json
 from datetime import datetime
-from enum import Enum
 from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel
@@ -20,14 +19,12 @@ class VersionData(BaseModel):
 
 
 class UsageSummary(BaseModel):
-    """Aggregate usage stats - see support/usage_metering.py."""
+    """Aggregate usage stats - see routers/usage.py."""
 
-    total_jobs_submitted: int
-    total_jobs_cancelled: int
-    cluster_jobs: int
-    local_jobs: int
-    jobs_per_user: dict
-    jobs_per_model: dict
+    total_jobs_submitted: int = 0
+    total_jobs_cancelled: int = 0
+    jobs_per_user: dict[str, int] = {}
+    jobs_per_model: dict[str, int] = {}
 
 
 class LicenseStatus(BaseModel):
@@ -231,7 +228,6 @@ class Jobs(BaseModel):
     id: int
     name: str
     sub_name: str
-    cluster: bool
     created: bool
     submitted: bool
     results: bool
@@ -649,25 +645,8 @@ class Solver(BaseModel):
 
 
 class Job(BaseModel):
-    # ui_group intentionally splits these into "always shown" vs "shown only
-    # when cluster/sbatch is enabled" - that visibility rule is genuine
-    # component logic (see Job.svelte), not something a generic field
-    # renderer should have to know about, so it's expressed here as separate
-    # groups the frontend conditionally renders rather than a single flat one.
-    cluster: bool = yaml_field(..., ui_label="Cluster", ui_widget="toggle", ui_group="Job", ui_order=1)
-    sbatch: bool = yaml_field(..., ui_label="Sbatch", ui_widget="toggle", ui_group="Job", ui_order=2)
     verbose: bool = yaml_field(..., ui_label="Verbose", ui_widget="toggle", ui_group="Job", ui_order=0)
-    nodes: Optional[int] = 1
-    tasks: int = yaml_field(..., ui_label="Tasks", ui_widget="number", ui_group="JobCluster", ui_order=0)
-    tasksPerNode: Optional[int] = 1
-    cpusPerTask: Optional[int] = yaml_field(
-        1, ui_label="CPUs per Task", ui_widget="number", ui_group="JobSbatch", ui_order=0
-    )
-    multithread: Optional[bool] = yaml_field(
-        False, ui_label="Multithreading", ui_widget="toggle", ui_group="JobSbatch", ui_order=1
-    )
-    time: Optional[str] = yaml_field(None, ui_label="Time", ui_widget="text", ui_group="JobSbatch", ui_order=2)
-    account: Optional[int] = yaml_field(None, ui_label="Account", ui_widget="number", ui_group="JobSbatch", ui_order=3)
+    tasks: Optional[int] = 1
 
 
 default_model = {
@@ -840,18 +819,7 @@ default_model = {
         "parameters": [{"id": ["materials[0].youngsModulus"], "std": 10}],
     },
     "discretization": {"discType": "txt", "distributionType": "Neighbor based", "gcode": None, "nodeSets": None},
-    "job": {
-        "account": 2263032,
-        "cluster": False,
-        "cpusPerTask": 1,
-        "multithread": False,
-        "nodes": 1,
-        "sbatch": False,
-        "tasks": 1,
-        "tasksPerNode": 1,
-        "time": "00:20:00",
-        "verbose": False,
-    },
+    "job": {"tasks": 1, "verbose": False},
     "materials": [
         {
             "actualHorizon": None,
@@ -986,14 +954,3 @@ class ModelData(BaseModel):
 
     class Config:
         json_schema_extra = {"example": default_model}
-
-
-class SmetanaData(BaseModel):
-    dx_value: List[float]
-    angleList: List[float]
-    damage: Optional[List[Damage]]
-    contact: Optional[Contact]
-    boundary_condition: BoundaryConditions
-    compute: Optional[List[Compute]]
-    output: List[Output]
-    solver: Solver

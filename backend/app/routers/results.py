@@ -7,31 +7,23 @@ import os
 import shutil
 from typing import Optional
 
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from exodusreader import exodusreader
 from fastapi import APIRouter, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 
-from ..support.base_models import ModelData, PointDataResults, Valves
+from ..support.base_models import PointDataResults
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
-from ..support.results.analysis import Analysis
 from ..support.results.crack_analysis import CrackAnalysis
 
 router = APIRouter(prefix="/results", tags=["Results Methods"])
 
 
-@router.get(
-    "/getResultFile",
-    operation_id="get_result_file",
-    response_class=FileResponse
-)
-def get_result_file(
-    file: str
-):
+@router.get("/getResultFile", operation_id="get_result_file", response_class=FileResponse)
+def get_result_file(file: str):
     return FileResponse(file)
+
 
 @router.get(
     "/getFractureAnalysis",
@@ -52,19 +44,12 @@ def get_fracture_analysis(
     young_modulus: float = 5000,
     poissions_ratio: float = 0.33,
     yield_stress: float = 74,
-    cluster: bool = False,
-    tasks: int = 1,
     output: str = "Output1",
     step: int = -1,
     request: Request = "",
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks
-    ):
-        raise IOError  # NotFoundException(name=model_name)
 
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
@@ -86,13 +71,12 @@ def get_fracture_analysis(
 
     return FileResponse(filepath, media_type="image/png")
 
+
 @router.get("/getPlot", operation_id="get_plot")
 def get_plot(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
-    cluster: bool = False,
     output: str = "Output1",
-    tasks: int = 1,
     deviations_enabled: bool = False,
     # x_variable: str = "Time",
     # x_axis: str = "X",
@@ -105,15 +89,11 @@ def get_plot(
     """doc"""
     username = FileHandler.get_user_name(request, dev)
 
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks
-    ):
-        log.warning("Results not found")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Results not found")
-
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
-    matching_files = FileHandler.get_all_output_files_with_extension(resultpath, model_name, output, ".csv", deviations_enabled)
+    matching_files = FileHandler.get_all_output_files_with_extension(
+        resultpath, model_name, output, ".csv", deviations_enabled
+    )
 
     # x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
     # y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
@@ -164,21 +144,11 @@ def get_results(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     output: str = "Output1",
-    tasks: int = 1,
-    cluster: bool = False,
     all_data: bool = False,
     request: Request = "",
 ):
     """doc"""
     username = FileHandler.get_user_name(request, dev)
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, all_data, tasks
-    ):
-        raise HTTPException(
-            status_code=404,
-            detail=model_name + " results can not be found on",
-        )
 
     # resultpath = './simulations/' + os.path.join(username, model_name)
     resultpath = FileHandler.get_local_model_path(username, model_name)
@@ -204,7 +174,7 @@ def get_results(
         # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
         return response
     except IOError:
-        log.error("%s results can not be found on %s", model_name, cluster)
+        log.error("%s results can not be found", model_name)
         return model_name + " results can not be found"
 
 
@@ -324,8 +294,6 @@ def get_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     output: str = "Output1",
-    tasks: int = 1,
-    cluster: bool = False,
     axis: str = "Magnitude",
     step: int = 78,
     displ_factor: float = 100,
@@ -337,11 +305,6 @@ def get_data(
 ) -> PointDataResults:
     """doc"""
     username = FileHandler.get_user_name(request, dev)
-
-    if not FileHandler.copy_results_from_cluster(
-        username, model_name, model_folder_name, cluster, False, tasks
-    ):
-        raise IOError  # NotFoundException(name=model_name)
 
     resultpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")

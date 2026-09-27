@@ -2,13 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-poetry
 pytest
 pytest-cov
 requests
 flake8
 black
 isort
-bandit
 httpx
 pyproject-flake8

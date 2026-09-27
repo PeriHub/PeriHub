@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Get version from Project.toml
         id: get_version
-        run: echo "PERIHUB_VERSION=$(awk -F'"' '/version/{print $2}' backend/app/pyproject.toml)" >> $GITHUB_OUTPUT
+        run: echo "PERIHUB_VERSION=$(awk -F'"' '/^version =/{print $2; exit}' pyproject.toml)" >> $GITHUB_OUTPUT
       - name: Build Docker image
         run: docker build -t perihub/backend:${{ steps.get_version.outputs.PERIHUB_VERSION }} ./backend
       - name: Build Docker image

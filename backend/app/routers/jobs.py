@@ -35,14 +35,13 @@ from ..db.base import get_db
 # perilab_api_client.py) plus the JobQueueEntry rows that record which
 # PeriLab job_id a submission became; there is no cluster/sftp path.
 from ..db.models import JOB_CANCELLED, JOB_DONE, JOB_FAILED, JOB_QUEUED, JOB_RUNNING, JobQueueEntry
-from ..support import audit_log, usage_metering
+from ..support import audit_log
 from ..support.api_key_auth import get_user_name_with_api_key
 from ..support.base_models import Jobs, ModelData, RunStatus, Status
 from ..support.db_auth import ResolvedIdentity, resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_concurrent_local_jobs
-from ..support.job_concurrency import count_active_local_jobs, has_capacity
-from ..support.job_cost import estimate_job_cost
+from ..support.job_concurrency import count_active_local_jobs
 from ..support.job_queue import cancel_running, enforce_user_quota, submit_job
 from ..support.perilab_api_client import PeriLabJob
 from ..support.solver_backend import get_solver_backend
@@ -248,12 +247,6 @@ async def run_model(
     username = FileHandler.get_user_name(request, dev)
     username = get_user_name_with_api_key(request, dev, username)
 
-    # ModelData.discretization doesn't currently carry a node count field,
-    # so this is best-effort and usually falls back to
-    # CostEstimate(tier="unknown") - see job_cost.py.
-    node_count = getattr(model_data.discretization, "nodeCount", None)
-    cost_estimate = estimate_job_cost(node_count)
-
     # Fair-share queueing requires knowing which DB user is submitting -
     # every submission now requires a database-backed account (see the
     # 501 below), so this is always resolvable.
@@ -283,8 +276,8 @@ async def run_model(
     # Instance-wide back-pressure: jobs run through the PeriLab API, so cap
     # how many can be in flight at once instead of silently piling them
     # all on.
-    if not has_capacity(db):
-        active = count_active_local_jobs(db)
+    active = count_active_local_jobs(db)
+    if active >= max_concurrent_local_jobs:
         log.warning("Rejecting %s: %d/%d jobs already active", model_name, active, max_concurrent_local_jobs)
         audit_log.record(username, "run_model", model_name, request, result="rejected_capacity")
         raise HTTPException(
@@ -301,7 +294,6 @@ async def run_model(
     # (or is handed, on submit) whatever already lives at remotepath.
     remotepath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
-    usage_metering.record_job_submission(username, model_name, model_folder_name, False, False, node_count)
     audit_log.record(username, "run_model", model_name, request)
 
     # Only one *active* run per folder at a time - not one run ever, just
@@ -315,6 +307,15 @@ async def run_model(
 
     args = "-v" if verbose else ""
 
+    # Fail fast while the PeriLab API is down, before submit_job records a
+    # FAILED run for what is only an outage.
+    if not get_solver_backend().client().health():
+        audit_log.record(username, "run_model", model_name, request, result="rejected_perilab_offline")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="The PeriLab API is not online. Please try again later.",
+        )
+
     # No queue: submit straight to the PeriLab API. If this fails (API
     # unreachable, bad input deck, etc.) submit_job marks the entry FAILED
     # and re-raises - let that propagate (HTTPException -> 502, or whatever
@@ -327,7 +328,6 @@ async def run_model(
             model_folder_name,
             remotepath,
             project_id=None,
-            node_count=node_count,
             solver_args=args,
             num_procs=model_data.job.tasks,
             job_ids=job_ids,
@@ -341,7 +341,6 @@ async def run_model(
         "status": "running",
         "run_id": entry.id,
         "perilab_job_id": entry.perilab_job_id,
-        "cost_estimate": cost_estimate.__dict__,
     }
 
 
@@ -397,7 +396,6 @@ def get_jobs(
                     id=len(jobs) + 1,
                     name=model_name,
                     sub_name=model_folder_name,
-                    cluster=False,
                     created=True,
                     submitted=False,
                     results=False,
@@ -601,11 +599,7 @@ def get_run_log(
     # Use the first job_id if there are multiple (batch submission)
     first_job_id = entry.perilab_job_id.split(",")[0].strip()
 
-    client = get_solver_backend().client()
-    try:
-        content = client.get_log(first_job_id, tail=tail)
-    except HTTPException as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e.detail)) from e
+    content = get_solver_backend().client().get_log(first_job_id, tail=tail)
 
     if not debug:
         content = "\n".join(line for line in content.splitlines() if "[Debug]" not in line)
@@ -664,6 +658,10 @@ def stream_run_log(
     try:
         chunks = get_solver_backend().client().stream_log(job_ids[0])
     except HTTPException as e:
+        # 503 = PeriLab API offline; keep it distinct from "no log yet" so the
+        # frontend doesn't wait for a start that can't happen.
+        if e.status_code == status.HTTP_503_SERVICE_UNAVAILABLE:
+            raise
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.detail)) from e
 
     if not debug:
@@ -741,7 +739,6 @@ def cancel_run(run_id: str, request: Request, db: Session = Depends(get_db)):
             detail=f"Run is '{entry.status}', not active - nothing to cancel.",
         )
 
-    usage_metering.record_job_cancellation(username, entry.model_name, entry.model_folder_name, False)
     audit_log.record(username, "cancel_run", entry.model_name, request)
 
     cancel_running(db, entry)

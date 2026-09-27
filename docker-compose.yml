@@ -27,13 +27,7 @@ services:
       - perihub_db
     volumes:
       - ${VOLUME-./backend/app/simulations}:/app/simulations
-      - ${RSA_VOLUME-./backend/app/rsaFiles}:/app/rsaFiles
       - ${OWN_MODELS-./backend/app/own_models}:/app/own_models
-      # Lets this container run commands directly inside perihub_perilab
-      # (docker exec, via the Docker SDK - see
-      # support/file_handler.py:get_perilab_container()) instead of
-      # needing an SSH server baked into the solver image.
-      - /var/run/docker.sock:/var/run/docker.sock
 
   perihub_frontend:
     # image: perihub/frontend

@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { sha256 } from 'js-sha256';
 import { publicConfig, config, loadPublicConfig } from '$lib/config';
 import { api } from '$lib/api/client';
 import { OpenAPI } from '$lib/client';
@@ -188,9 +187,13 @@ export async function initAuth() {
 
     uuid = profile.display_name;
 
-    if (profile.email) {
+    // crypto.subtle only exists in secure contexts (https/localhost) - skip Gravatar otherwise.
+    if (profile.email && crypto.subtle) {
       const email = profile.email;
-      const emailHash = sha256(email);
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(email));
+      const emailHash = Array.from(new Uint8Array(digest), (b) =>
+        b.toString(16).padStart(2, '0')
+      ).join('');
       gravatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=404`;
 
       try {
@@ -223,6 +226,5 @@ export async function initAuth() {
   api.defaults.headers.common['userName'] = uuid;
   defaultStore.username = uuid;
   defaultStore.gravatarUrl = gravatarUrl;
-  defaultStore.cluster = publicConfig.clusterUrl;
   OpenAPI.HEADERS = { ...((OpenAPI.HEADERS as object) ?? {}), userName: uuid };
 }

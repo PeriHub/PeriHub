@@ -157,6 +157,10 @@ SPDX-License-Identifier: Apache-2.0
         scheduleRetry('Waiting for the simulation to start...');
         return;
       }
+      if (response.status === 503) {
+        scheduleRetry('PeriLab API is not online, retrying...');
+        return;
+      }
       if (!response.ok || !response.body) {
         throw new Error(`HTTP ${response.status}`);
       }

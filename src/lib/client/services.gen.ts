@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, ListRunsData, ListRunsResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, StreamRunLogData, StreamRunLogResponse, CancelRunData, CancelRunResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteModelFromClusterData, DeleteModelFromClusterResponse, DeleteUserDataData, DeleteUserDataResponse, DeleteUserDataFromClusterData, DeleteUserDataFromClusterResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, ListRunsData, ListRunsResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, StreamRunLogData, StreamRunLogResponse, CancelRunData, CancelRunResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataData, DeleteUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -659,8 +659,6 @@ export const getResultFile = (data: GetResultFileData): CancelablePromise<GetRes
  * @param data.youngModulus
  * @param data.poissionsRatio
  * @param data.yieldStress
- * @param data.cluster
- * @param data.tasks
  * @param data.output
  * @param data.step
  * @returns binary The image.
@@ -677,8 +675,6 @@ export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): Cancela
         young_modulus: data.youngModulus,
         poissions_ratio: data.poissionsRatio,
         yield_stress: data.yieldStress,
-        cluster: data.cluster,
-        tasks: data.tasks,
         output: data.output,
         step: data.step
     },
@@ -693,9 +689,7 @@ export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): Cancela
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
- * @param data.cluster
  * @param data.output
- * @param data.tasks
  * @param data.deviationsEnabled
  * @returns unknown Successful Response
  * @throws ApiError
@@ -706,9 +700,7 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
-        cluster: data.cluster,
         output: data.output,
-        tasks: data.tasks,
         deviations_enabled: data.deviationsEnabled
     },
     errors: {
@@ -723,8 +715,6 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
  * @param data.modelName
  * @param data.modelFolderName
  * @param data.output
- * @param data.tasks
- * @param data.cluster
  * @param data.allData
  * @returns unknown Successful Response
  * @throws ApiError
@@ -736,8 +726,6 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
         output: data.output,
-        tasks: data.tasks,
-        cluster: data.cluster,
         all_data: data.allData
     },
     errors: {
@@ -752,8 +740,6 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
  * @param data.modelName
  * @param data.modelFolderName
  * @param data.output
- * @param data.tasks
- * @param data.cluster
  * @param data.axis
  * @param data.step
  * @param data.displFactor
@@ -771,8 +757,6 @@ export const getPointDataResults = (data: GetPointDataResultsData = {}): Cancela
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
         output: data.output,
-        tasks: data.tasks,
-        cluster: data.cluster,
         axis: data.axis,
         step: data.step,
         displ_factor: data.displFactor,
@@ -808,29 +792,6 @@ export const deleteModel = (data: DeleteModelData = {}): CancelablePromise<Delet
 }); };
 
 /**
- * Delete Model From Cluster
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.modelFolderName
- * @param data.cluster
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const deleteModelFromCluster = (data: DeleteModelFromClusterData = {}): CancelablePromise<DeleteModelFromClusterResponse> => { return __request(OpenAPI, {
-    method: 'DELETE',
-    url: '/delete/modelFromCluster',
-    query: {
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName,
-        cluster: data.cluster
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
  * Delete User Data
  * doc
  * @param data The data for the request.
@@ -843,29 +804,6 @@ export const deleteUserData = (data: DeleteUserDataData): CancelablePromise<Dele
     method: 'DELETE',
     url: '/delete/userData',
     query: {
-        check_date: data.checkDate,
-        days: data.days
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Delete User Data From Cluster
- * doc
- * @param data The data for the request.
- * @param data.cluster
- * @param data.checkDate
- * @param data.days
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const deleteUserDataFromCluster = (data: DeleteUserDataFromClusterData): CancelablePromise<DeleteUserDataFromClusterResponse> => { return __request(OpenAPI, {
-    method: 'DELETE',
-    url: '/delete/userDataFromCluster',
-    query: {
-        cluster: data.cluster,
         check_date: data.checkDate,
         days: data.days
     },
@@ -909,8 +847,7 @@ export const getCurrentEnergy = (): CancelablePromise<GetCurrentEnergyResponse> 
 
 /**
  * Get My Usage
- * Usage summary (jobs submitted/cancelled, cluster vs local, per model)
- * scoped to the calling user.
+ * Usage summary (jobs submitted/cancelled, per model) scoped to the calling user.
  * @returns UsageSummary Successful Response
  * @throws ApiError
  */

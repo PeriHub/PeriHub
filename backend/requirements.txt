@@ -6,14 +6,10 @@ fastapi[standard]
 matplotlib
 scipy
 numpy
-paramiko
-aiofiles
 python-multipart
 pyjwt
 requests
-zipfile2
 python-dotenv
-asyncio
 rich
 exodusreader
 random-username

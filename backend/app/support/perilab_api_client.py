@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, BinaryIO, Iterator, Optional
+from typing import BinaryIO, Iterator, Optional
 
 import requests
 from fastapi import HTTPException, status
@@ -92,6 +92,12 @@ class PeriLabApiClient:
         kwargs.setdefault("timeout", self.timeout)
         try:
             response = requests.request(method, self._url(path), **kwargs)
+        except (requests.ConnectionError, requests.Timeout) as exc:
+            log.error("PeriLab API %s %s unreachable: %s", method, path, exc)
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"The PeriLab API at {self.base_url} is not online. Please try again later.",
+            ) from exc
         except requests.RequestException as exc:
             log.error("PeriLab API %s %s failed: %s", method, path, exc)
             raise HTTPException(
@@ -192,11 +198,6 @@ class PeriLabApiClient:
         job_status = str(payload.get("status", payload.get("state", "unknown")))
         return PeriLabJob(job_id=job_id, status=job_status, raw=payload)
 
-    def list_jobs(self, user_id: Optional[str] = None) -> list[dict]:
-        params = {"user_id": user_id} if user_id else None
-        payload = self._request("GET", "/jobs", params=params).json()
-        return payload if isinstance(payload, list) else payload.get("jobs", [])
-
     def cancel_job(self, job_id: str) -> None:
         self._request("POST", f"/jobs/{job_id}/cancel")
 
@@ -234,10 +235,3 @@ class PeriLabApiClient:
         if isinstance(payload, list):
             return payload
         return payload.get("files", [])
-
-    def download_file(self, job_id: str, file_path: str, destination_path: str) -> None:
-        response = self._request("GET", f"/jobs/{job_id}/files/{file_path}", stream=True)
-        os.makedirs(os.path.dirname(destination_path), exist_ok=True)
-        with open(destination_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=1024 * 256):
-                f.write(chunk)

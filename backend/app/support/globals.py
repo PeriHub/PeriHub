@@ -34,15 +34,6 @@ if os.getenv("DEV") == "True":
 if os.getenv("FRONTMATTER_INSTALLATION") == "False":
     frontmatter_installation = False
 max_nodes = int(os.getenv("MAX_NODES", default="50000"))
-cluster_url = os.getenv("CLUSTER_URL", default="")
-cluster_user = os.getenv("CLUSTER_USER", default="")
-cluster_password = os.getenv("CLUSTER_PASSWORD", default="")
-cluster_job_path = os.getenv("CLUSTER_JOB_PATH", default="./PeridigmJobs/apiModels/")  # "./PeridigmJobs/apiModels/"
-cluster_perilab_path = os.getenv("CLUSTER_PERILAB_PATH", default="/PeriLab/")  # "./PeridigmJobs/apiModels/"
-cluster_enabled = False
-if cluster_url != "":
-    cluster_enabled = True
-    log.info(f"Cluster with url {cluster_url} is enabled")
 
 # --- Multi-user database (Phase 0) -------------------------------------------
 # Postgres connection for accounts, org settings, and (Phase 1) shared model
@@ -78,19 +69,6 @@ audit_log_path = os.getenv(
     default=os.path.join(os.path.dirname(__file__), "..", "logs", "audit.log"),
 )
 
-# --- Usage metering -------------------------------------------------------
-usage_log_path = os.getenv(
-    "USAGE_LOG_PATH",
-    default=os.path.join(os.path.dirname(__file__), "..", "logs", "usage.jsonl"),
-)
-
-# --- Log-stream websocket ----------------------------------------------------
-# How long the /ws log-tail endpoint waits for a job's .log file to show up
-# before giving up and reporting an error to the client, instead of failing
-# immediately if the job hasn't written anything yet (containers/clusters can
-# take a while to actually start the solver process).
-ws_log_wait_timeout_seconds = int(os.getenv("WS_LOG_WAIT_TIMEOUT_SECONDS", default="300"))
-
 # --- Job back-pressure -----------------------------------------------------
 # Simple in-process concurrency cap on locally-submitted jobs. This is a
 # stop-gap, not a replacement for a real distributed queue (Celery/RQ) with
@@ -105,16 +83,6 @@ max_concurrent_local_jobs = int(os.getenv("MAX_CONCURRENT_LOCAL_JOBS", default="
 # lives in job_queue_entries); without a DB, only the flat instance-wide
 # cap above applies (support/job_concurrency.py falls back automatically).
 max_concurrent_jobs_per_user = int(os.getenv("MAX_CONCURRENT_JOBS_PER_USER", default="2"))
-
-# How often the background scheduler (support/job_queue.py, started from
-# main.py's lifespan) checks for free capacity and dequeues the next job.
-job_scheduler_interval_seconds = float(os.getenv("JOB_SCHEDULER_INTERVAL_SECONDS", default="5"))
-
-# Node-count thresholds for the pre-submit cost estimate (support/job_cost.py).
-# Purely advisory - never blocks a submission, just returns a warning string
-# the frontend can show the user before they confirm.
-job_cost_warn_node_count = int(os.getenv("JOB_COST_WARN_NODE_COUNT", default="100000"))
-job_cost_block_confirm_node_count = int(os.getenv("JOB_COST_CONFIRM_NODE_COUNT", default="500000"))
 
 # --- Solver backend selection ------------------------------
 # Both "local" and "external" now talk to a PeriLab API server (see

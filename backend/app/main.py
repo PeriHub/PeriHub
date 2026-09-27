@@ -7,11 +7,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import requests
-import toml
 from fastapi import (
     FastAPI,
     HTTPException,
-    Query,
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -121,7 +119,7 @@ async def lifespan(app: FastAPI):
     # Shutdown
 
 
-app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan, version="3.2.3")
+app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan, version="4.0.0")
 
 
 banner = rf"""

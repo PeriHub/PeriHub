@@ -24,15 +24,9 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..db.models import JOB_RUNNING, JobQueueEntry
-from .globals import max_concurrent_local_jobs
 
 
 def count_active_local_jobs(db: Session) -> int:
     """Counts JobQueueEntry rows currently RUNNING (i.e. submitted to the
     PeriLab API and not yet finished/failed/cancelled)."""
     return db.scalar(select(func.count()).select_from(JobQueueEntry).where(JobQueueEntry.status == JOB_RUNNING)) or 0
-
-
-def has_capacity(db: Session) -> bool:
-    """True if another local job can be accepted right now."""
-    return count_active_local_jobs(db) < max_concurrent_local_jobs

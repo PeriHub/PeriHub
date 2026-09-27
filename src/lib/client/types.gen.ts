@@ -205,16 +205,8 @@ export type InterBlock = {
 };
 
 export type Job = {
-    cluster: boolean;
-    sbatch: boolean;
     verbose: boolean;
-    nodes?: number | null;
-    tasks: number;
-    tasksPerNode?: number | null;
-    cpusPerTask?: number | null;
-    multithread?: boolean | null;
-    time?: string | null;
-    account?: number | null;
+    tasks?: number | null;
 };
 
 /**
@@ -228,7 +220,6 @@ export type Jobs = {
     id: number;
     name: string;
     sub_name: string;
-    cluster: boolean;
     created: boolean;
     submitted: boolean;
     results: boolean;
@@ -603,18 +594,16 @@ export type TrialIdResponse = {
 };
 
 /**
- * Aggregate usage stats - see support/usage_metering.py.
+ * Aggregate usage stats - see routers/usage.py.
  */
 export type UsageSummary = {
-    total_jobs_submitted: number;
-    total_jobs_cancelled: number;
-    cluster_jobs: number;
-    local_jobs: number;
-    jobs_per_user: {
-        [key: string]: unknown;
+    total_jobs_submitted?: number;
+    total_jobs_cancelled?: number;
+    jobs_per_user?: {
+        [key: string]: (number);
     };
-    jobs_per_model: {
-        [key: string]: unknown;
+    jobs_per_model?: {
+        [key: string]: (number);
     };
 };
 
@@ -874,7 +863,6 @@ export type GetResultFileData = {
 export type GetResultFileResponse = unknown;
 
 export type GetFractureAnalysisData = {
-    cluster?: boolean;
     crackLength?: number;
     height?: number;
     modelFolderName?: string;
@@ -882,7 +870,6 @@ export type GetFractureAnalysisData = {
     output?: string;
     poissionsRatio?: number;
     step?: number;
-    tasks?: number;
     yieldStress?: number;
     youngModulus?: number;
 };
@@ -890,30 +877,25 @@ export type GetFractureAnalysisData = {
 export type GetFractureAnalysisResponse = (Blob | File);
 
 export type GetPlotData = {
-    cluster?: boolean;
     deviationsEnabled?: boolean;
     modelFolderName?: string;
     modelName?: string;
     output?: string;
-    tasks?: number;
 };
 
 export type GetPlotResponse = unknown;
 
 export type GetResultsData = {
     allData?: boolean;
-    cluster?: boolean;
     modelFolderName?: string;
     modelName?: string;
     output?: string;
-    tasks?: number;
 };
 
 export type GetResultsResponse = unknown;
 
 export type GetPointDataResultsData = {
     axis?: string;
-    cluster?: boolean;
     colorBarMax?: number | null;
     colorBarMin?: number | null;
     displFactor?: number;
@@ -922,7 +904,6 @@ export type GetPointDataResultsData = {
     modelName?: string;
     output?: string;
     step?: number;
-    tasks?: number;
     variable?: string;
 };
 
@@ -935,28 +916,12 @@ export type DeleteModelData = {
 
 export type DeleteModelResponse = unknown;
 
-export type DeleteModelFromClusterData = {
-    cluster?: boolean;
-    modelFolderName?: string;
-    modelName?: string;
-};
-
-export type DeleteModelFromClusterResponse = unknown;
-
 export type DeleteUserDataData = {
     checkDate: boolean;
     days?: number | null;
 };
 
 export type DeleteUserDataResponse = unknown;
-
-export type DeleteUserDataFromClusterData = {
-    checkDate: boolean;
-    cluster: boolean;
-    days?: number | null;
-};
-
-export type DeleteUserDataFromClusterResponse = unknown;
 
 export type GetPublicationsResponse = string;
 
@@ -1606,39 +1571,9 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/delete/modelFromCluster': {
-        delete: {
-            req: DeleteModelFromClusterData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
     '/delete/userData': {
         delete: {
             req: DeleteUserDataData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/delete/userDataFromCluster': {
-        delete: {
-            req: DeleteUserDataFromClusterData;
             res: {
                 /**
                  * Successful Response

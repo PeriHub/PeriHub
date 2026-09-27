@@ -11,7 +11,6 @@ function browser() {
 
 class DefaultStore {
   username = $state('');
-  cluster = $state('');
   gravatarUrl = $state('US');
   useGravatar = $state(false);
   darkMode = $state(false);
