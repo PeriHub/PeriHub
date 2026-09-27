@@ -39,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0
 
   {#if additive.enabled}
     <div class="border-border space-y-3 border-t pt-3">
-      {#each additive.additiveModels ?? [] as model, index (model.additiveModelId ?? index)}
+      {#each additive.additiveModels ?? [] as model, index (index)}
         <div class="border-border flex flex-wrap items-end gap-3 border-b pb-3">
           <div class="space-y-1">
             <Label for={`add-name-${index}`}>Name</Label>

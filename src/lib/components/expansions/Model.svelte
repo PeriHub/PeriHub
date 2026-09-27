@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   import { onMount } from 'svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
+  import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
   import { getModels, getJobFolders } from '$lib/client';
@@ -48,7 +49,7 @@ SPDX-License-Identifier: Apache-2.0
       localStorage.setItem('selectedModel', JSON.stringify(modelStore.selectedModel));
     }
     if (!modelStore.modelData.model.ownModel) {
-      bus.emit('showModelImg' as never, modelStore.selectedModel.file as never);
+      viewStore.viewId = 'image';
     }
     bus.emit('getStatus' as never);
   }

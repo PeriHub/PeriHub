@@ -46,6 +46,11 @@ export type Body_generate_model = {
     valves: Valves;
 };
 
+export type Body_preview_model = {
+    data: ModelData;
+    valves: Valves;
+};
+
 export type Body_upload_files = {
     files: Array<((Blob | File))>;
 };
@@ -443,6 +448,15 @@ export type PreCalculations = {
     bondAssociateDeformationGradient?: boolean | null;
 };
 
+export type PreviewResponse = {
+    x: Array<(number)>;
+    y: Array<(number)>;
+    z: Array<(number)>;
+    block: Array<(number)>;
+    bounds_min: Array<(number)>;
+    bounds_max: Array<(number)>;
+};
+
 export type ProjectIn = {
     name: string;
     description?: string | null;
@@ -665,6 +679,13 @@ export type GenerateModelData = {
 };
 
 export type GenerateModelResponse = unknown;
+
+export type PreviewModelData = {
+    modelName?: string;
+    requestBody: Body_preview_model;
+};
+
+export type PreviewModelResponse = PreviewResponse;
 
 export type GenerateMeshData = {
     modelFolderName?: string;
@@ -1067,6 +1088,21 @@ export type $OpenApiTs = {
                  * Successful Response
                  */
                 200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/generate/preview': {
+        post: {
+            req: PreviewModelData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: PreviewResponse;
                 /**
                  * Validation Error
                  */

@@ -31,7 +31,7 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  {#each solvers as solver, index (solver.solverId ?? index)}
+  {#each solvers as solver, index (index)}
     <div class="border-border space-y-3 rounded-md border p-3">
       <div class="flex items-center justify-between">
         <h4 class="font-medium">Solver {solver.solverId}</h4>

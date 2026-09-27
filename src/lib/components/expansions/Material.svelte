@@ -179,7 +179,7 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  {#each materials as material, index (material.materialsId ?? index)}
+  {#each materials as material, index (index)}
     <div class="border-border space-y-3 rounded-md border p-3">
       <h4 class="font-medium">Material {material.materialsId}</h4>
 
@@ -214,7 +214,7 @@ SPDX-License-Identifier: Apache-2.0
 
       {#if material.matType?.includes('User')}
         <div class="border-border space-y-2 border-t pt-2">
-          {#each material.properties ?? [] as prop, subindex (prop.materialsPropId ?? subindex)}
+          {#each material.properties ?? [] as prop, subindex (subindex)}
             <div class="flex flex-wrap items-end gap-3">
               <div class="space-y-1">
                 <Label for={`mat-prop-${index}-${subindex}`}>{prop.name}</Label>

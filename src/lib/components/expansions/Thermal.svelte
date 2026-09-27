@@ -41,7 +41,7 @@ SPDX-License-Identifier: Apache-2.0
   <Toggle bind:checked={thermal.enabled} label="Enabled" />
 
   {#if thermal.enabled}
-    {#each thermal.thermalModels ?? [] as thermalModel, index (thermalModel.thermalModelsId ?? index)}
+    {#each thermal.thermalModels ?? [] as thermalModel, index (index)}
       <div class="border-border space-y-3 rounded-md border p-3">
         <h4 class="font-medium">Thermal {thermalModel.thermalModelsId}</h4>
 

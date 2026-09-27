@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, ListRunsData, ListRunsResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, StreamRunLogData, StreamRunLogResponse, CancelRunData, CancelRunResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataData, DeleteUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, ListRunsData, ListRunsResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, StreamRunLogData, StreamRunLogResponse, CancelRunData, CancelRunResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataData, DeleteUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -21,6 +21,31 @@ export const generateModel = (data: GenerateModelData): CancelablePromise<Genera
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName
+    },
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Preview Model
+ * Coarse point cloud with block ids, drawn by the frontend as the model preview.
+ *
+ * Runs the generator exactly like /generate/model but with DISCRETIZATION capped and
+ * without writing anything, so it needs no user folder and works in trial mode.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @param data.modelName
+ * @returns PreviewResponse Successful Response
+ * @throws ApiError
+ */
+export const previewModel = (data: PreviewModelData): CancelablePromise<PreviewModelResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/generate/preview',
+    query: {
+        model_name: data.modelName
     },
     body: data.requestBody,
     mediaType: 'application/json',

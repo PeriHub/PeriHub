@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { config } from '$lib/config';
 import { modelStore } from './model-store.svelte';
 import { parseLogProgress } from '$lib/utils/progress';
 import type { BondFilters } from '$lib/client';
@@ -118,7 +117,6 @@ function computeBondFilterPoints(bondFilters: BondFilters[]): BondFilterPoint[] 
 class ViewStore {
   viewId = $state('image');
   textId = $state('input');
-  modelImg = $state(`${config.apiBase}/assets/images/Dogbone.jpg`);
   modelLoading = $state(false);
   textLoading = $state(false);
   textOutput = $state('');

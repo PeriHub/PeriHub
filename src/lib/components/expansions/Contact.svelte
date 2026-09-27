@@ -68,7 +68,7 @@ SPDX-License-Identifier: Apache-2.0
       <Toggle bind:checked={contact.onlySurfaceContactNodes} label="Only Surface Contact Nodes" />
     </div>
 
-    {#each contactModels as model, index (model.contactModelId ?? index)}
+    {#each contactModels as model, index (index)}
       <div class="border-border space-y-2 border-t pt-3">
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
@@ -101,7 +101,7 @@ SPDX-License-Identifier: Apache-2.0
           </Button>
         </div>
 
-        {#each model.contactGroups ?? [] as group, subindex (group.contactGroupId ?? subindex)}
+        {#each model.contactGroups ?? [] as group, subindex (subindex)}
           <div class="border-border ml-4 flex flex-wrap items-end gap-3 border-t pt-2">
             <div class="space-y-1">
               <Label for={`cg-name-${index}-${subindex}`}>Name</Label>
@@ -110,7 +110,7 @@ SPDX-License-Identifier: Apache-2.0
             <div class="space-y-1">
               <Label for={`cg-master-${index}-${subindex}`}>Master Block Id</Label>
               <Select id={`cg-master-${index}-${subindex}`} bind:value={group.masterBlockId}>
-                {#each blocks as block, blockIdx (block.blocksId ?? blockIdx)}
+                {#each blocks as block, blockIdx (blockIdx)}
                   <option value={block.blocksId}>{block.blocksId}</option>
                 {/each}
               </Select>
@@ -118,7 +118,7 @@ SPDX-License-Identifier: Apache-2.0
             <div class="space-y-1">
               <Label for={`cg-slave-${index}-${subindex}`}>Slave Block Id</Label>
               <Select id={`cg-slave-${index}-${subindex}`} bind:value={group.slaveBlockId}>
-                {#each blocks as block, blockIdx (block.blocksId ?? blockIdx)}
+                {#each blocks as block, blockIdx (blockIdx)}
                   <option value={block.blocksId}>{block.blocksId}</option>
                 {/each}
               </Select>

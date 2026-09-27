@@ -2,17 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import importlib
 import io
 import json
 import os
-import sys
 import time
 from re import match
 
 import numpy as np
 import requests
 from fastapi import APIRouter, HTTPException, Request, status
+from pydantic import BaseModel
 
 # from ..models.PlateWithHole.plate_with_hole import PlateWithHole
 # from ..models.PlateWithOpening.plate_with_opening import PlateWithOpening
@@ -21,6 +20,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from ..support.base_models import Block, Deviations, ModelData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log
+from ..support.model.point_cloud import build_point_cloud, valves_to_dict
 from ..support.writer.model_writer import ModelWriter
 
 # from ..models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
@@ -34,24 +34,6 @@ from ..support.writer.model_writer import ModelWriter
 
 
 router = APIRouter(prefix="/generate", tags=["Generate Methods"])
-
-
-def load_or_reload_main(model_name: str):
-    """
-    Dynamically import/reload `app.own_models.<model_name>.<model_name>`
-    and return the `main` attribute from that module.
-    """
-    # Build the fully‑qualified module path
-    module_name = f"app.own_models.{model_name}.{model_name}"
-
-    # If the module is already loaded, reload it; otherwise, import it.
-    if module_name in sys.modules:
-        mod = importlib.reload(sys.modules[module_name])
-    else:
-        mod = importlib.import_module(module_name)
-
-    # Pull the attribute you care about.
-    return getattr(mod, "main")
 
 
 @router.post("/model", operation_id="generate_model")
@@ -96,37 +78,13 @@ def generate_model(
 
     if not data.model.ownModel:
 
-        valves_dict = {valve["name"]: eval(valve["value_type"])(valve["value"]) for valve in valves.model_dump()["valves"]}
-
+        valves_dict = valves_to_dict(valves)
         try:
-            module = getattr(
-                __import__("app.models." + model_name + "." + model_name, fromlist=[model_name]),
-                "main",
-            )
-        except:
-            try:
-                module = load_or_reload_main(model_name)
-            except Exception as e:
-                log.error(e)
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Model not found",
-                )
+            dx_value, x_value, y_value, z_value, vol, k = build_point_cloud(model_name, data, valves_dict)
+        except LookupError as e:
+            log.error(e)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
-        model = module(valves_dict, data)
-
-        dx_value = model.get_discretization()
-
-        x_value, y_value, z_value, vol = model.create_geometry()
-
-        try:
-            model.edit_model_data(data)
-        except:
-            pass
-
-        k = np.ones(len(x_value))
-
-        k = model.crate_block_definition(x_value, y_value, z_value, k)
         if len(x_value) > max_nodes:
             log.error("The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes))
             raise HTTPException(
@@ -195,13 +153,65 @@ def generate_model(
     block_def = data.blocks
 
     # try:
-        # deviations = {'sampleSize': 5, 'parameters': [{'id': "materials[0].youngsModulus", "mean": 0.1, "std": 10}]}
+    # deviations = {'sampleSize': 5, 'parameters': [{'id': "materials[0].youngsModulus", "mean": 0.1, "std": 10}]}
     writer.create_file(block_def, max(k), data.deviations)
     # except TypeError as exception:
     #     log.error(f"Failed to create file: {exception}")
     #     return str(exception)
 
     log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
+
+
+PREVIEW_MAX_DISCRETIZATION = 30
+PREVIEW_MAX_POINTS = 5000
+
+
+class PreviewResponse(BaseModel):
+    x: list[float]
+    y: list[float]
+    z: list[float]
+    block: list[int]
+    bounds_min: list[float]
+    bounds_max: list[float]
+
+
+@router.post("/preview", operation_id="preview_model")
+def preview_model(data: ModelData, valves: Valves, model_name: str = "Dogbone") -> PreviewResponse:
+    """Coarse point cloud with block ids, drawn by the frontend as the model preview.
+
+    Runs the generator exactly like /generate/model but with DISCRETIZATION capped and
+    without writing anything, so it needs no user folder and works in trial mode.
+    """
+    valves_dict = valves_to_dict(valves)
+    if "DISCRETIZATION" in valves_dict:
+        valves_dict["DISCRETIZATION"] = min(valves_dict["DISCRETIZATION"], PREVIEW_MAX_DISCRETIZATION)
+
+    try:
+        _, x, y, z, _, k = build_point_cloud(model_name, data, valves_dict)
+    except LookupError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        log.warning("Preview of %s failed: %s", model_name, e)
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e) or type(e).__name__)
+
+    x, y, z, k = (np.asarray(a).ravel() for a in (x, y, z, k))
+    if len(x) > PREVIEW_MAX_POINTS:
+        # Even stride rather than random, so every block keeps proportional coverage.
+        idx = np.linspace(0, len(x) - 1, PREVIEW_MAX_POINTS).astype(int)
+        x, y, z, k = x[idx], y[idx], z[idx], k[idx]
+
+    points = np.vstack([x, y, z]).astype(float)
+    if points.size == 0:
+        return PreviewResponse(x=[], y=[], z=[], block=[], bounds_min=[0, 0, 0], bounds_max=[0, 0, 0])
+    rounded = [[float(f"{v:.4g}") for v in row] for row in points]
+    return PreviewResponse(
+        x=rounded[0],
+        y=rounded[1],
+        z=rounded[2],
+        block=k.astype(int).tolist(),
+        bounds_min=points.min(axis=1).tolist(),
+        bounds_max=points.max(axis=1).tolist(),
+    )
 
 
 @router.get("/mesh", operation_id="generate_mesh")

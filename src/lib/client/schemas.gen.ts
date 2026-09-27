@@ -225,6 +225,20 @@ export const $Body_generate_model = {
     title: 'Body_generate_model'
 } as const;
 
+export const $Body_preview_model = {
+    properties: {
+        data: {
+            '$ref': '#/components/schemas/ModelData'
+        },
+        valves: {
+            '$ref': '#/components/schemas/Valves'
+        }
+    },
+    type: 'object',
+    required: ['data', 'valves'],
+    title: 'Body_preview_model'
+} as const;
+
 export const $Body_upload_files = {
     properties: {
         files: {
@@ -3072,6 +3086,56 @@ export const $PreCalculations = {
     },
     type: 'object',
     title: 'PreCalculations'
+} as const;
+
+export const $PreviewResponse = {
+    properties: {
+        x: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'X'
+        },
+        y: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Y'
+        },
+        z: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Z'
+        },
+        block: {
+            items: {
+                type: 'integer'
+            },
+            type: 'array',
+            title: 'Block'
+        },
+        bounds_min: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Bounds Min'
+        },
+        bounds_max: {
+            items: {
+                type: 'number'
+            },
+            type: 'array',
+            title: 'Bounds Max'
+        }
+    },
+    type: 'object',
+    required: ['x', 'y', 'z', 'block', 'bounds_min', 'bounds_max'],
+    title: 'PreviewResponse'
 } as const;
 
 export const $ProjectIn = {

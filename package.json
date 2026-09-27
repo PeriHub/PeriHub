@@ -57,7 +57,6 @@
     "driver.js": "^0.9.8",
     "layerchart": "^1.0.0",
     "lucide-svelte": "^0.469.0",
-    "medium-zoom": "^1.1.0",
     "prismjs": "^1.30.0",
     "svelte-jsoneditor": "^3.10.0",
     "svelte-sonner": "^0.3.28",

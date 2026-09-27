@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
 
-  import ImageView from '$lib/components/views/ImageView.svelte';
+  import ModelPreview from '$lib/components/views/ModelPreview.svelte';
   import ModelView from '$lib/components/views/ModelView.svelte';
   import ResultsView from '$lib/components/views/ResultsView.svelte';
   import CadView from '$lib/components/views/CadView.svelte';
@@ -29,7 +29,7 @@ SPDX-License-Identifier: Apache-2.0
 <div class="flex h-full flex-col overflow-hidden">
   <Tabs.Root bind:value={viewStore.viewId} class="flex h-full flex-col">
     <Tabs.List class="border-border bg-muted/40 flex flex-wrap justify-between border-b">
-      <Tabs.Trigger value="image" class={tabClass}>Image</Tabs.Trigger>
+      <Tabs.Trigger value="image" class={tabClass}>Preview</Tabs.Trigger>
       <Tabs.Trigger value="model" class={tabClass}>Model</Tabs.Trigger>
       <Tabs.Trigger value="cad" class={tabClass}>CAD</Tabs.Trigger>
       <Tabs.Trigger value="jobs" class={tabClass}>Jobs</Tabs.Trigger>
@@ -45,7 +45,7 @@ SPDX-License-Identifier: Apache-2.0
     </Tabs.List>
 
     <div class="flex-1 overflow-auto">
-      <Tabs.Content value="image" class="h-full"><ImageView /></Tabs.Content>
+      <Tabs.Content value="image" class="h-full"><ModelPreview /></Tabs.Content>
       <Tabs.Content value="model" class="h-full"><ModelView /></Tabs.Content>
       <Tabs.Content value="cad" class="h-full"><CadView /></Tabs.Content>
       <Tabs.Content value="jobs" class="h-full"><JobsView /></Tabs.Content>

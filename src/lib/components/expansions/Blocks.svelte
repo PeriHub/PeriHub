@@ -42,7 +42,7 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  {#each blocks as block, index (block.blocksId ?? index)}
+  {#each blocks as block, index (index)}
     <div class="border-border flex flex-wrap items-end gap-3 border-b pb-3">
       <div class="w-28 space-y-1">
         <Label for={`blk-name-${index}`}>Block Name</Label>

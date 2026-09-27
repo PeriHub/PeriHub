@@ -20,7 +20,9 @@ SPDX-License-Identifier: Apache-2.0
   function addBondFilter() {
     const len = bondFilters.length;
     const newItem =
-      len > 0 ? (structuredClone($state.snapshot(bondFilters[len - 1])) as BondFilters) : ({} as BondFilters);
+      len > 0
+        ? (structuredClone($state.snapshot(bondFilters[len - 1])) as BondFilters)
+        : ({} as BondFilters);
     newItem.bondFiltersId = len + 1;
     newItem.name = `bf_${len + 1}`;
     bondFilters.push(newItem);
@@ -32,8 +34,8 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  {#each bondFilters as bondFilter, index (bondFilter.bondFiltersId ?? index)}
-    <div class="space-y-2 border-b border-border pb-3">
+  {#each bondFilters as bondFilter, index (index)}
+    <div class="border-border space-y-2 border-b pb-3">
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
           <Label for={`bf-name-${index}`}>name</Label>
@@ -50,7 +52,11 @@ SPDX-License-Identifier: Apache-2.0
         {#if bondFilter.type === 'Rectangular_Plane'}
           <div class="space-y-1">
             <Label for={`bf-bottomlen-${index}`}>Bottom_Length</Label>
-            <Input id={`bf-bottomlen-${index}`} type="number" bind:value={bondFilter.bottomLength} />
+            <Input
+              id={`bf-bottomlen-${index}`}
+              type="number"
+              bind:value={bondFilter.bottomLength}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`bf-sidelen-${index}`}>Side_Length</Label>
@@ -63,7 +69,12 @@ SPDX-License-Identifier: Apache-2.0
           </div>
         {/if}
         <Toggle bind:checked={bondFilter.allow_contact} label="Allow Contact" />
-        <Button variant="ghost" size="icon" onclick={() => removeBondFilter(index)} title="Remove Bond Filter">
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={() => removeBondFilter(index)}
+          title="Remove Bond Filter"
+        >
           <Trash2 class="h-4 w-4" />
         </Button>
       </div>

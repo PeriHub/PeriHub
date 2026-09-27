@@ -25,7 +25,8 @@ SPDX-License-Identifier: Apache-2.0
     if (!modelStore.modelData.damages) modelStore.modelData.damages = [];
     const list = modelStore.modelData.damages;
     const len = list.length;
-    const newItem = len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Damage) : ({} as Damage);
+    const newItem =
+      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Damage) : ({} as Damage);
     newItem.damagesId = len + 1;
     newItem.name = `Damage${len + 1}`;
     newItem.criticalEnergyCalc = {};
@@ -46,7 +47,9 @@ SPDX-License-Identifier: Apache-2.0
     const list = damage.interBlocks;
     const len = list.length;
     const newItem =
-      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as InterBlock) : ({} as InterBlock);
+      len > 0
+        ? (structuredClone($state.snapshot(list[len - 1])) as InterBlock)
+        : ({} as InterBlock);
     newItem.interBlockid = len + 1;
     newItem.firstBlockId = 1;
     newItem.secondBlockId = len + 1;
@@ -82,8 +85,8 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  {#each damages as damage, index (damage.damagesId ?? index)}
-    <div class="space-y-3 rounded-md border border-border p-3">
+  {#each damages as damage, index (index)}
+    <div class="border-border space-y-3 rounded-md border p-3">
       <h4 class="font-medium">Damage Model {damage.damagesId}</h4>
 
       <div class="flex flex-wrap items-end gap-3">
@@ -91,7 +94,12 @@ SPDX-License-Identifier: Apache-2.0
           <Label for={`dm-name-${index}`}>name</Label>
           <Input id={`dm-name-${index}`} bind:value={damage.name} />
         </div>
-        <Button variant="ghost" size="icon" onclick={() => removeDamage(index)} title="Remove Damage Model">
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={() => removeDamage(index)}
+          title="Remove Damage Model"
+        >
           <Trash2 class="h-4 w-4" />
         </Button>
       </div>
@@ -125,7 +133,11 @@ SPDX-License-Identifier: Apache-2.0
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
             <Label for={`dm-vms-${index}`}>Critical Von Mises Stress</Label>
-            <Input id={`dm-vms-${index}`} type="number" bind:value={damage.criticalVonMisesStress} />
+            <Input
+              id={`dm-vms-${index}`}
+              type="number"
+              bind:value={damage.criticalVonMisesStress}
+            />
           </div>
           <div class="space-y-1">
             <Label for={`dm-cd-${index}`}>Critical Damage</Label>
@@ -139,7 +151,11 @@ SPDX-License-Identifier: Apache-2.0
           </div>
           <div class="space-y-1">
             <Label for={`dm-cdn-${index}`}>Critical Damage To Neglect Material Point</Label>
-            <Input id={`dm-cdn-${index}`} type="number" bind:value={damage.criticalDamageToNeglect} />
+            <Input
+              id={`dm-cdn-${index}`}
+              type="number"
+              bind:value={damage.criticalDamageToNeglect}
+            />
           </div>
         </div>
       {/if}
@@ -171,7 +187,7 @@ SPDX-License-Identifier: Apache-2.0
             <div class="space-y-1">
               <Label for={`ib-first-${index}-${subindex}`}>First Block Id</Label>
               <Select id={`ib-first-${index}-${subindex}`} bind:value={prop.firstBlockId}>
-                {#each blocks as block, blockIdx (block.blocksId ?? blockIdx)}
+                {#each blocks as block, blockIdx (blockIdx)}
                   <option value={block.blocksId}>{block.blocksId}</option>
                 {/each}
               </Select>
@@ -179,7 +195,7 @@ SPDX-License-Identifier: Apache-2.0
             <div class="space-y-1">
               <Label for={`ib-second-${index}-${subindex}`}>Second Block Id</Label>
               <Select id={`ib-second-${index}-${subindex}`} bind:value={prop.secondBlockId}>
-                {#each blocks as block, blockIdx (block.blocksId ?? blockIdx)}
+                {#each blocks as block, blockIdx (blockIdx)}
                   <option value={block.blocksId}>{block.blocksId}</option>
                 {/each}
               </Select>

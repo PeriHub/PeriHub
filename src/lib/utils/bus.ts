@@ -6,7 +6,6 @@ export type AppEvents = {
   resetData: void;
   openHidePanels: void;
   showTutorial: void;
-  showModelImg: string;
 };
 
 type Handler<T> = (payload: T) => void;

@@ -97,7 +97,7 @@ SPDX-License-Identifier: Apache-2.0
         <Input id="dev-file" bind:value={deviations.file} />
       </div>
 
-      {#each deviations.oldParameters ?? [] as parameter, index (parameter.parameterId ?? index)}
+      {#each deviations.oldParameters ?? [] as parameter, index (index)}
         <div class="border-border flex flex-wrap items-end gap-3 border-b pb-2">
           <div class="w-56 space-y-1">
             <Label for={`dev-old-id-${index}`}>Id</Label>
@@ -133,7 +133,7 @@ SPDX-License-Identifier: Apache-2.0
 
     <div class="border-border border-t pt-3"></div>
 
-    {#each deviations.parameters ?? [] as parameter, index (parameter.parameterId ?? index)}
+    {#each deviations.parameters ?? [] as parameter, index (index)}
       <div class="border-border flex flex-wrap items-end gap-3 border-b pb-2">
         <div class="w-56 space-y-1">
           <Label for={`dev-id-${index}`}>Id</Label>

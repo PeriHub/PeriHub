@@ -27,9 +27,22 @@ SPDX-License-Identifier: Apache-2.0
   const variables = ['Forces', 'Displacements', 'Damage', 'Temperature'];
 
   let outputKeys = $state([
-    'Displacements', 'Damage', 'Forces', 'Number of Neighbors', 'Number of Filtered Neighbors',
-    'Activation_Time', 'Temperature', 'Heat Flow', 'Active', 'Specific Volume', 'Strain',
-    'Cauchy Stress', 'von Mises Stress', 'Angles', 'Orientations', 'Contact Nodes'
+    'Displacements',
+    'Damage',
+    'Forces',
+    'Number of Neighbors',
+    'Number of Filtered Neighbors',
+    'Activation_Time',
+    'Temperature',
+    'Heat Flow',
+    'Active',
+    'Specific Volume',
+    'Strain',
+    'Cauchy Stress',
+    'von Mises Stress',
+    'Angles',
+    'Orientations',
+    'Contact Nodes'
   ]);
 
   function addStateVarsToOutput(numStateVars: number) {
@@ -43,7 +56,8 @@ SPDX-License-Identifier: Apache-2.0
     if (!modelStore.modelData.computes) modelStore.modelData.computes = [];
     const list = modelStore.modelData.computes;
     const len = list.length;
-    const newItem = len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Compute) : ({} as Compute);
+    const newItem =
+      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Compute) : ({} as Compute);
     newItem.computesId = len + 1;
     newItem.name = `Compute${len + 1}`;
     list.push(newItem);
@@ -77,10 +91,10 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  <h4 class="text-sm font-medium text-muted-foreground">Compute Parameters (Global Variables)</h4>
+  <h4 class="text-muted-foreground text-sm font-medium">Compute Parameters (Global Variables)</h4>
 
-  {#each computes as compute, index (compute.computesId ?? index)}
-    <div class="space-y-2 border-b border-border pb-3">
+  {#each computes as compute, index (index)}
+    <div class="border-border space-y-2 border-b pb-3">
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
           <Label for={`cp-name-${index}`}>Output Label</Label>
@@ -140,7 +154,7 @@ SPDX-License-Identifier: Apache-2.0
           <div class="space-y-1">
             <Label for={`cp-ns-${index}`}>Node Set Id</Label>
             <Select id={`cp-ns-${index}`} bind:value={compute.nodeSetId}>
-              {#each nodeSets as ns, nsIndex (ns.nodeSetId ?? nsIndex)}
+              {#each nodeSets as ns, nsIndex (nsIndex)}
                 <option value={ns.nodeSetId}>{ns.nodeSetId}</option>
               {/each}
             </Select>
@@ -163,7 +177,12 @@ SPDX-License-Identifier: Apache-2.0
         </div>
       {/if}
 
-      <Button variant="ghost" size="icon" onclick={() => removeCompute(index)} title="Remove Compute">
+      <Button
+        variant="ghost"
+        size="icon"
+        onclick={() => removeCompute(index)}
+        title="Remove Compute"
+      >
         <Trash2 class="h-4 w-4" />
       </Button>
     </div>
@@ -173,10 +192,10 @@ SPDX-License-Identifier: Apache-2.0
     <Plus class="h-4 w-4" /> Add Compute
   </Button>
 
-  <div class="border-t border-border pt-3"></div>
+  <div class="border-border border-t pt-3"></div>
 
-  {#each outputs as output, index (output.outputsId ?? index)}
-    <div class="space-y-2 rounded-md border border-border p-3">
+  {#each outputs as output, index (index)}
+    <div class="border-border space-y-2 rounded-md border p-3">
       <h4 class="font-medium">Output {output.outputsId}</h4>
 
       <div class="flex flex-wrap items-end gap-3">
@@ -184,7 +203,12 @@ SPDX-License-Identifier: Apache-2.0
           <Label for={`out-name-${index}`}>Output Name</Label>
           <Input id={`out-name-${index}`} bind:value={output.name} />
         </div>
-        <Button variant="ghost" size="icon" onclick={() => removeOutput(index)} title="Remove Output">
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={() => removeOutput(index)}
+          title="Remove Output"
+        >
           <Trash2 class="h-4 w-4" />
         </Button>
       </div>
@@ -196,7 +220,7 @@ SPDX-License-Identifier: Apache-2.0
             id={`out-sel-${index}`}
             multiple
             bind:value={output.selectedOutputs}
-            class="h-24 w-full rounded-md border border-input bg-background px-2 py-1 text-sm"
+            class="border-input bg-background h-24 w-full rounded-md border px-2 py-1 text-sm"
           >
             {#if output.selectedFileType === 'CSV'}
               {#each computes as c, cIdx (c.name ?? cIdx)}
@@ -230,7 +254,11 @@ SPDX-License-Identifier: Apache-2.0
         {:else}
           <div class="space-y-1">
             <Label for={`out-numsteps-${index}`}>Number of Outputs</Label>
-            <Input id={`out-numsteps-${index}`} type="number" bind:value={output.numberOfOutputSteps} />
+            <Input
+              id={`out-numsteps-${index}`}
+              type="number"
+              bind:value={output.numberOfOutputSteps}
+            />
           </div>
         {/if}
         <div class="space-y-1">

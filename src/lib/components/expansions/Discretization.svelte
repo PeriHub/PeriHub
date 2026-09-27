@@ -63,7 +63,7 @@ SPDX-License-Identifier: Apache-2.0
     </Select>
   </div>
 
-  {#each discretization.nodeSets ?? [] as nodeSet, index (nodeSet.nodeSetId ?? index)}
+  {#each discretization.nodeSets ?? [] as nodeSet, index (index)}
     <div class="border-border flex items-end gap-2 border-b pb-2">
       <div class="flex-1 space-y-1">
         <Label for={`nodeset-${index}`}>Nodeset</Label>

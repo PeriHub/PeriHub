@@ -58,7 +58,7 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  {#each boundaryConditions.conditions ?? [] as condition, index (condition.conditionsId ?? index)}
+  {#each boundaryConditions.conditions ?? [] as condition, index (index)}
     <div class="border-border space-y-2 border-b pb-3">
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
@@ -77,7 +77,7 @@ SPDX-License-Identifier: Apache-2.0
           <div class="w-28 space-y-1">
             <Label for={`bc-nodeset-${index}`}>Node Set</Label>
             <Select id={`bc-nodeset-${index}`} bind:value={condition.nodeSet}>
-              {#each discretization.nodeSets as nodeSet, nsIndex (nodeSet.nodeSetId ?? nsIndex)}
+              {#each discretization.nodeSets as nodeSet, nsIndex (nsIndex)}
                 <option value={nodeSet.nodeSetId}>{nodeSet.nodeSetId}</option>
               {/each}
             </Select>
@@ -87,7 +87,7 @@ SPDX-License-Identifier: Apache-2.0
           <div class="w-28 space-y-1">
             <Label for={`bc-block-${index}`}>Block Id</Label>
             <Select id={`bc-block-${index}`} bind:value={condition.blockId}>
-              {#each blocks as block, blockIndex (block.blocksId ?? blockIndex)}
+              {#each blocks as block, blockIndex (blockIndex)}
                 <option value={block.blocksId}>{block.blocksId}</option>
               {/each}
             </Select>
@@ -102,7 +102,7 @@ SPDX-License-Identifier: Apache-2.0
               bind:value={condition.stepId}
               class="border-input bg-background h-20 w-full rounded-md border px-2 py-1 text-sm"
             >
-              {#each solvers as solver, solverIndex (solver.stepId ?? solverIndex)}
+              {#each solvers as solver, solverIndex (solverIndex)}
                 <option value={solver.stepId}>{solver.stepId}</option>
               {/each}
             </select>
