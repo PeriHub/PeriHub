@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Trash2 } from 'lucide-svelte';
+  import { Maximize2, Minimize2, Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { previewHighlight } from '$lib/utils/preview-highlight';
@@ -34,6 +34,16 @@ SPDX-License-Identifier: Apache-2.0
   ];
   const coordinates = ['x', 'y', 'z'];
 
+  // Rows whose value is edited in the large textarea (long equations).
+  let expanded = $state<boolean[]>([]);
+  // Must match the header: an oversized colspan adds phantom columns to the table-fixed grid.
+  const columnCount = $derived(
+    6 +
+      (discretization.nodeSets?.length ? 1 : 0) +
+      (model.ownModel ? 0 : 1) +
+      (solvers.length > 1 ? 1 : 0)
+  );
+
   function addCondition() {
     if (!boundaryConditions.conditions) boundaryConditions.conditions = [];
     const list = boundaryConditions.conditions;
@@ -50,6 +60,7 @@ SPDX-License-Identifier: Apache-2.0
 
   function removeCondition(index: number) {
     boundaryConditions.conditions.splice(index, 1);
+    expanded.splice(index, 1);
     boundaryConditions.conditions.forEach((c, i) => (c.conditionsId = i + 1));
   }
 
@@ -162,11 +173,27 @@ SPDX-License-Identifier: Apache-2.0
               </Select>
             </td>
             <td class="p-0.5">
-              <Input
-                class="h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none"
-                aria-label="Value of {condition.name}"
-                bind:value={condition.value}
-              />
+              <div class="flex items-center gap-0.5">
+                <Input
+                  class="h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none"
+                  aria-label="Value of {condition.name}"
+                  bind:value={condition.value}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  class="h-8 w-8 shrink-0"
+                  onclick={() => (expanded[index] = !expanded[index])}
+                  title={expanded[index] ? 'Collapse value editor' : 'Expand value editor'}
+                  aria-expanded={expanded[index] ?? false}
+                >
+                  {#if expanded[index]}
+                    <Minimize2 class="h-4 w-4" />
+                  {:else}
+                    <Maximize2 class="h-4 w-4" />
+                  {/if}
+                </Button>
+              </div>
             </td>
             <td class="p-0.5">
               <Button
@@ -179,6 +206,18 @@ SPDX-License-Identifier: Apache-2.0
               </Button>
             </td>
           </tr>
+          {#if expanded[index]}
+            <tr>
+              <td colspan={columnCount} class="p-0.5">
+                <textarea
+                  class="border-input bg-background focus-visible:ring-ring min-h-20 w-full resize-y rounded-md border px-2 py-1 font-mono text-[13px] shadow-sm focus-visible:ring-2 focus-visible:outline-none"
+                  aria-label="Value equation of {condition.name}"
+                  placeholder="e.g. 0.01 * t"
+                  bind:value={condition.value}
+                ></textarea>
+              </td>
+            </tr>
+          {/if}
         {/each}
       </tbody>
     </table>

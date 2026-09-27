@@ -6,6 +6,9 @@
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/archivo/wdth.css';
 
 /*
  * Tailwind v4 excludes node_modules from its automatic class scanning by
@@ -125,6 +128,7 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-display: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {

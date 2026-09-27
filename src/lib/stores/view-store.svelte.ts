@@ -163,7 +163,6 @@ class ViewStore {
     font: { color: 'white' },
     modebar: { color: 'white' }
   });
-  jsonData = $state({});
 }
 
 export const viewStore = new ViewStore();

@@ -39,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0
 
   async function switchOwnModels() {
     if (!model.ownModel) {
-      modelStore.selectedModel = { title: 'Compact Tenison', file: 'CompactTension' };
+      modelStore.selectedModel = { title: 'Compact Tension', file: 'CompactTension' };
     }
     await selectMethod();
   }

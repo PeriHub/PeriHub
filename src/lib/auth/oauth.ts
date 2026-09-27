@@ -59,6 +59,18 @@ interface LocalAuthResponse {
   role: string;
 }
 
+// A page's onMount runs before the root layout's, so generated-client calls made on mount would
+// otherwise go out before initAuth() has attached the session/userName headers - and the backend
+// would answer as the anonymous "user". Every generated-client request waits for initAuth() instead.
+const authHeaders: Record<string, string> = {};
+let markAuthReady = () => {};
+const authReady = new Promise<void>((resolve) => (markAuthReady = resolve));
+
+/** The auth headers, once initAuth() has finished - for requests made outside the generated client. */
+export const getAuthHeaders = () => authReady.then(() => authHeaders);
+
+OpenAPI.HEADERS = getAuthHeaders;
+
 function browser() {
   return typeof window !== 'undefined';
 }
@@ -66,7 +78,7 @@ function browser() {
 /** Attaches the PeriHub session token as a Bearer token to every request. */
 function applySessionToken(token: string) {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  OpenAPI.HEADERS = { ...((OpenAPI.HEADERS as object) ?? {}), Authorization: `Bearer ${token}` };
+  authHeaders.Authorization = `Bearer ${token}`;
 }
 
 /**
@@ -140,6 +152,15 @@ export async function signupWithPassword(
  *   on a missing/invalid token instead of /auth/login
  */
 export async function initAuth() {
+  try {
+    await setUpAuth();
+  } finally {
+    // Also on failure or a login redirect, so requests never hang on it.
+    markAuthReady();
+  }
+}
+
+async function setUpAuth() {
   await loadPublicConfig();
 
   let uuid = 'user';
@@ -226,5 +247,5 @@ export async function initAuth() {
   api.defaults.headers.common['userName'] = uuid;
   defaultStore.username = uuid;
   defaultStore.gravatarUrl = gravatarUrl;
-  OpenAPI.HEADERS = { ...((OpenAPI.HEADERS as object) ?? {}), userName: uuid };
+  authHeaders.userName = uuid;
 }

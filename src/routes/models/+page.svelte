@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Dialog } from 'bits-ui';
-  import { Plus } from 'lucide-svelte';
+  import { Dialog, Tabs } from 'bits-ui';
+  import { Plus, Trash2 } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { notify } from '$lib/utils/notify';
   import {
@@ -19,18 +19,25 @@ SPDX-License-Identifier: Apache-2.0
     addModel,
     deleteModelFile
   } from '$lib/client';
-  import type { GetOwnModelsResponse, ModelData } from '$lib/client';
+  import type { ModelData } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
-  import Select from '$lib/components/ui/Select.svelte';
-  import Card from '$lib/components/ui/Card.svelte';
   import CodeBlock from '$lib/components/views/CodeBlock.svelte';
-  import JsonView from '$lib/components/views/JsonView.svelte';
-  import { viewStore } from '$lib/stores/view-store.svelte';
 
-  let modelList = $state<GetOwnModelsResponse>([]);
-  let selectedModel = $state({ title: '', file: '' });
+  // Frontmatter parsed from each model's docstring (see FileHandler.doc_to_dict).
+  type OwnModel = {
+    file: string;
+    title: string;
+    description?: string;
+    version?: string;
+    requirements?: string;
+  };
+
+  let modelList = $state<OwnModel[]>([]);
+  let loaded = $state(false);
+  let selected = $state<OwnModel | null>(null);
+  let tab = $state('source');
 
   let dialogAddModel = $state(false);
   let dialogDeleteModel = $state(false);
@@ -38,18 +45,20 @@ SPDX-License-Identifier: Apache-2.0
   let description = $state('');
 
   let sourceCode = $state('');
-  let config = $state<ModelData | Record<string, never>>({});
+  let configText = $state('');
+
+  const editorClass = 'h-[calc(100vh-22rem)] min-h-[24rem]';
 
   async function fetchModels() {
-    modelList = await getOwnModels({ verify: true });
+    modelList = (await getOwnModels({ verify: true })) as OwnModel[];
+    loaded = true;
   }
 
-  async function selectModel() {
-    if (!selectedModel.file) return;
+  async function selectModel(model: OwnModel) {
+    selected = model;
     try {
-      sourceCode = (await getOwnModelFile({ modelFile: selectedModel.file })) as unknown as string;
-      config = (await getConfig({ configFile: selectedModel.file })) as ModelData;
-      viewStore.jsonData = config;
+      sourceCode = (await getOwnModelFile({ modelFile: model.file })) as unknown as string;
+      configText = JSON.stringify(await getConfig({ configFile: model.file }), null, 2);
     } catch (error) {
       notify.apiError(error);
     }
@@ -58,43 +67,54 @@ SPDX-License-Identifier: Apache-2.0
   async function addNewModel() {
     dialogAddModel = false;
     try {
-      const response = await addModel({ modelName: newModelName, description });
-      selectedModel = { title: newModelName, file: response as unknown as string };
+      const file = (await addModel({ modelName: newModelName, description })) as unknown as string;
       await fetchModels();
-      await selectModel();
+      await selectModel(modelList.find((m) => m.file === file) ?? { title: newModelName, file });
+      notify.positive(`Created ${newModelName}`);
+      newModelName = '';
+      description = '';
     } catch (error) {
       notify.apiError(error);
     }
   }
 
-  async function saveModel() {
+  async function saveSource() {
+    if (!selected) return;
     try {
-      await saveModelFile({ modelFile: selectedModel.file, sourceCode });
-      notify.positive('Model saved');
+      await saveModelFile({ modelFile: selected.file, sourceCode });
+      notify.positive('Source saved');
     } catch (error) {
       notify.apiError(error);
     }
   }
 
   async function saveModelConfig() {
+    if (!selected) return;
+    let config: ModelData;
     try {
-      await saveConfig({ configFile: selectedModel.file, requestBody: config as ModelData });
+      config = JSON.parse(configText);
+    } catch (error) {
+      notify.negative(`Config not saved — invalid JSON: ${(error as Error).message}`);
+      return;
+    }
+    try {
+      await saveConfig({ configFile: selected.file, requestBody: config });
       notify.positive('Config saved');
     } catch (error: unknown) {
-      const err = error as { body?: { detail?: { msg: string; loc: string[] }[] } };
-      for (const d of err.body?.detail ?? []) {
-        notify.negative(`${d.msg}\n${d.loc}`);
-      }
+      const detail = (error as { body?: { detail?: { msg: string; loc: string[] }[] } }).body
+        ?.detail;
+      if (!Array.isArray(detail)) return notify.apiError(error);
+      for (const d of detail) notify.negative(`${d.msg} at ${d.loc.join('.')}`);
     }
   }
 
   async function confirmDeleteModel() {
     dialogDeleteModel = false;
+    if (!selected) return;
     try {
-      await deleteModelFile({ modelName: selectedModel.file });
-      notify.positive('Model deleted');
-      sourceCode = '';
-      config = {};
+      await deleteModelFile({ modelName: selected.file });
+      notify.positive(`Deleted ${selected.title}`);
+      selected = null;
     } catch (error) {
       notify.apiError(error);
     }
@@ -105,97 +125,144 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <svelte:head>
-  <title>Models — PeriHub</title>
+  <title>Own models — PeriHub</title>
 </svelte:head>
 
-<div class="mx-auto max-w-6xl px-4 py-8">
-  {#if !selectedModel.file}
-    <div class="flex justify-center">
-      <Card class="w-full max-w-md p-6 text-center">
-        {#if modelList.length > 0}
-          <h2 class="mb-3 text-lg font-semibold">Select existing model</h2>
-          <Select
-            value={selectedModel.file}
-            onchange={(e) => {
-              const file = (e.target as HTMLSelectElement).value;
-              const m = modelList.find((x) => x.file === file);
-              if (m) {
-                selectedModel = m as { title: string; file: string };
-                selectModel();
-              }
-            }}
-          >
-            <option value="">— choose a model —</option>
-            {#each modelList as model, modelIdx (model.file ?? modelIdx)}
-              <option value={model.file}>{model.title}</option>
-            {/each}
-          </Select>
-          <div class="border-border my-4 border-t"></div>
-          <p class="text-muted-foreground mb-3 text-sm">Or</p>
+{#snippet newModelButton(variant: 'default' | 'outline')}
+  <Button
+    {variant}
+    class="w-full"
+    disabled={defaultStore.trial}
+    title={defaultStore.trial ? 'Not available in the trial' : undefined}
+    onclick={() => (dialogAddModel = true)}
+  >
+    <Plus /> New model
+  </Button>
+{/snippet}
+
+<div class="bg-background text-foreground">
+  <div class="mx-auto max-w-6xl px-6 pt-12 pb-20 sm:pt-16">
+    <header class="max-w-2xl">
+      <h1
+        class="font-display text-3xl leading-none font-extrabold tracking-tight sm:text-4xl"
+        style="font-stretch: 125%"
+      >
+        Own models
+      </h1>
+      <p class="text-muted-foreground mt-3 text-balance">
+        Write a model generator in Python and give it a default config. It then shows up in the
+        editor's model list next to the built-in specimens.
+      </p>
+    </header>
+
+    {#if loaded && modelList.length === 0}
+      <div class="border-border mt-10 max-w-md rounded-xl border border-dashed p-6">
+        <h2 class="font-semibold">No own models yet</h2>
+        <p class="text-muted-foreground mt-1 mb-4 text-sm">
+          A new model starts from a template: a working Python class and a default config you can
+          edit here.
+        </p>
+        {@render newModelButton('default')}
+        {#if defaultStore.trial}
+          <p class="text-muted-foreground mt-2 text-xs">
+            Creating models isn't available in the trial.
+          </p>
         {/if}
-        <Button
-          class="w-full"
-          disabled={defaultStore.trial}
-          onclick={() => (dialogAddModel = true)}
-          title={defaultStore.trial ? 'Disabled in trial version' : undefined}
-        >
-          <Plus class="h-4 w-4" /> Add a new Model
-        </Button>
-      </Card>
-    </div>
-  {:else}
-    <div class="mb-4 flex flex-wrap items-center gap-3">
-      <Button
-        variant="ghost"
-        size="icon"
-        disabled={defaultStore.trial}
-        onclick={() => (dialogAddModel = true)}
-      >
-        <Plus class="h-4 w-4" />
-      </Button>
-      <Select
-        class="max-w-xs"
-        value={selectedModel.file}
-        onchange={(e) => {
-          const file = (e.target as HTMLSelectElement).value;
-          const m = modelList.find((x) => x.file === file);
-          if (m) {
-            selectedModel = m as { title: string; file: string };
-            selectModel();
-          }
-        }}
-      >
-        {#each modelList as model, modelIdx (model.file ?? modelIdx)}
-          <option value={model.file}>{model.title}</option>
-        {/each}
-      </Select>
-    </div>
+      </div>
+    {:else}
+      <div class="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[14rem_minmax(0,1fr)]">
+        <nav aria-label="Own models" class="space-y-4 lg:sticky lg:top-6 lg:self-start">
+          {@render newModelButton('outline')}
+          <ul
+            class="border-border flex gap-x-6 gap-y-3 overflow-x-auto border-b pb-3 lg:flex-col lg:border-b-0 lg:border-l lg:pb-0"
+          >
+            {#each modelList as m (m.file)}
+              <li class="shrink-0">
+                <button
+                  type="button"
+                  aria-current={selected?.file === m.file ? 'true' : undefined}
+                  onclick={() => selectModel(m)}
+                  class="group block text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00658B] lg:-ml-px lg:border-l-2 lg:pl-4 {selected?.file ===
+                  m.file
+                    ? 'border-primary text-primary'
+                    : 'hover:border-primary border-transparent'}"
+                >
+                  <span class="group-hover:text-primary font-medium">{m.title}</span>
+                  {#if m.version}
+                    <span class="text-muted-foreground block font-mono text-xs">v{m.version}</span>
+                  {/if}
+                </button>
+              </li>
+            {/each}
+          </ul>
+        </nav>
 
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-      {#if sourceCode !== ''}
-        <div>
-          <div class="mb-2 flex gap-2">
-            <Button onclick={saveModel}>Save</Button>
-            <Button variant="destructive" onclick={() => (dialogDeleteModel = true)}>Delete</Button>
-          </div>
-          <div class="border-border h-[calc(100vh-320px)] overflow-auto rounded-md border">
-            <CodeBlock bind:value={sourceCode} language="python" />
-          </div>
-        </div>
-      {/if}
+        {#if selected}
+          <section aria-labelledby="model-heading">
+            <div class="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+              <div class="min-w-0">
+                <h2 id="model-heading" class="text-2xl font-semibold tracking-tight">
+                  {selected.title}
+                  {#if selected.version}
+                    <span class="text-muted-foreground ml-1 font-mono text-sm font-normal"
+                      >v{selected.version}</span
+                    >
+                  {/if}
+                </h2>
+                {#if selected.description}
+                  <p class="text-muted-foreground mt-1">{selected.description}</p>
+                {/if}
+                {#if selected.requirements}
+                  <p class="text-muted-foreground mt-1 font-mono text-xs">
+                    Requires {selected.requirements}
+                  </p>
+                {/if}
+              </div>
+              <Button
+                variant="ghost"
+                class="text-destructive hover:text-destructive"
+                onclick={() => (dialogDeleteModel = true)}
+              >
+                <Trash2 /> Delete
+              </Button>
+            </div>
 
-      {#if Object.keys(config).length !== 0}
-        <div>
-          <div class="mb-2">
-            <Button onclick={saveModelConfig}>Save</Button>
-          </div>
-          <div class="border-border h-[calc(100vh-320px)] overflow-auto rounded-md border">
-            <JsonView />
-          </div>
-        </div>
-      {/if}
-    </div>
-  {/if}
+            <Tabs.Root bind:value={tab} class="mt-6">
+              <div class="border-border flex items-end justify-between gap-3 border-b">
+                <Tabs.List class="flex gap-1">
+                  {#each [['source', 'Source'], ['config', 'Config']] as [value, label] (value)}
+                    <Tabs.Trigger
+                      {value}
+                      class="text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground -mb-px border-b-2 border-transparent px-3 py-2 text-sm font-medium whitespace-nowrap"
+                    >
+                      {label}
+                    </Tabs.Trigger>
+                  {/each}
+                </Tabs.List>
+                <Button
+                  size="sm"
+                  class="mb-1.5"
+                  onclick={tab === 'source' ? saveSource : saveModelConfig}
+                >
+                  {tab === 'source' ? 'Save source' : 'Save config'}
+                </Button>
+              </div>
+              <Tabs.Content value="source" class="pt-3">
+                <CodeBlock bind:value={sourceCode} language="python" class={editorClass} />
+              </Tabs.Content>
+              <Tabs.Content value="config" class="pt-3">
+                <CodeBlock bind:value={configText} language="javascript" class={editorClass} />
+              </Tabs.Content>
+            </Tabs.Root>
+          </section>
+        {:else if loaded}
+          <p class="text-muted-foreground self-center">
+            Pick a model on the left to edit its source and default config.
+          </p>
+        {/if}
+      </div>
+    {/if}
+  </div>
 </div>
 
 <Dialog.Root bind:open={dialogAddModel}>
@@ -204,21 +271,32 @@ SPDX-License-Identifier: Apache-2.0
     <Dialog.Content
       class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
-      <Dialog.Title class="mb-3 text-lg font-semibold">Add Model</Dialog.Title>
-      <div class="space-y-3">
+      <Dialog.Title class="text-lg font-semibold">New model</Dialog.Title>
+      <Dialog.Description class="text-muted-foreground mb-4 text-sm">
+        Starts from a template you can edit afterwards.
+      </Dialog.Description>
+      <form
+        class="space-y-3"
+        onsubmit={(e) => {
+          e.preventDefault();
+          addNewModel();
+        }}
+      >
         <div class="space-y-1">
-          <Label for="new-model-name">Model Name</Label>
-          <Input id="new-model-name" bind:value={newModelName} />
+          <Label for="new-model-name">Name</Label>
+          <Input id="new-model-name" required bind:value={newModelName} />
         </div>
         <div class="space-y-1">
           <Label for="new-model-desc">Description</Label>
           <Input id="new-model-desc" bind:value={description} />
         </div>
-      </div>
-      <div class="mt-4 flex justify-end gap-2">
-        <Button variant="ghost" onclick={() => (dialogAddModel = false)}>Cancel</Button>
-        <Button onclick={addNewModel}>Create</Button>
-      </div>
+        <div class="flex justify-end gap-2 pt-1">
+          <Button type="button" variant="ghost" onclick={() => (dialogAddModel = false)}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={!newModelName.trim()}>Create model</Button>
+        </div>
+      </form>
     </Dialog.Content>
   </Dialog.Portal>
 </Dialog.Root>
@@ -229,12 +307,13 @@ SPDX-License-Identifier: Apache-2.0
     <Dialog.Content
       class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
     >
-      <Dialog.Title class="mb-3 text-lg font-semibold">
-        Are you sure you want to delete {selectedModel.title}?
-      </Dialog.Title>
-      <div class="flex justify-end gap-2">
+      <Dialog.Title class="text-lg font-semibold">Delete {selected?.title}?</Dialog.Title>
+      <Dialog.Description class="text-muted-foreground mt-1 text-sm">
+        This removes its source and default config. It can't be undone.
+      </Dialog.Description>
+      <div class="mt-4 flex justify-end gap-2">
         <Button variant="ghost" onclick={() => (dialogDeleteModel = false)}>Cancel</Button>
-        <Button variant="destructive" onclick={confirmDeleteModel}>Delete</Button>
+        <Button variant="destructive" onclick={confirmDeleteModel}>Delete model</Button>
       </div>
     </Dialog.Content>
   </Dialog.Portal>

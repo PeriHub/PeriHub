@@ -114,23 +114,42 @@ SPDX-License-Identifier: Apache-2.0
         </Select>
       </div>
 
-      {#if damage.damageModel !== 'Von Mises Stress'}
-        <div class="flex flex-wrap items-end gap-3">
+      {#if damage.damageModel === 'Critical Stretch'}
+        <div class="space-y-1">
+          <Label for={`dm-cs-${index}`}>Critical stretch</Label>
+          <Input id={`dm-cs-${index}`} type="number" bind:value={damage.criticalStretch} />
+        </div>
+      {:else if damage.damageModel === 'Critical Energy'}
+        <div class="space-y-1">
+          <Label for={`dm-ce-${index}`}>Critical energy</Label>
+          <Input
+            id={`dm-ce-${index}`}
+            type="number"
+            bind:value={damage.criticalEnergy}
+            readonly={damage.criticalEnergyCalc?.calculateCriticalEnergy}
+          />
+        </div>
+
+        <Toggle
+          checked={damage.criticalEnergyCalc?.calculateCriticalEnergy ?? false}
+          onCheckedChange={(v: boolean) => {
+            if (!damage.criticalEnergyCalc) damage.criticalEnergyCalc = {};
+            damage.criticalEnergyCalc.calculateCriticalEnergy = v;
+          }}
+          label="Calculate Critical Energy"
+        />
+        {#if damage.criticalEnergyCalc?.calculateCriticalEnergy}
           <div class="space-y-1">
-            <Label for={`dm-cs-${index}`}>Critical stretch</Label>
-            <Input id={`dm-cs-${index}`} type="number" bind:value={damage.criticalStretch} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`dm-ce-${index}`}>Critical energy</Label>
+            <Label for={`dm-k1c-${index}`}>Fracture toughness (K1C)</Label>
             <Input
-              id={`dm-ce-${index}`}
+              id={`dm-k1c-${index}`}
               type="number"
-              bind:value={damage.criticalEnergy}
-              readonly={damage.criticalEnergyCalc?.calculateCriticalEnergy}
+              bind:value={damage.criticalEnergyCalc.k1c}
+              oninput={() => calculateCriticalEnergy(index)}
             />
           </div>
-        </div>
-      {:else}
+        {/if}
+      {:else if damage.damageModel === 'Von Mises Stress'}
         <div class="flex flex-wrap items-end gap-3">
           <div class="space-y-1">
             <Label for={`dm-vms-${index}`}>Critical von Mises stress</Label>
@@ -161,26 +180,6 @@ SPDX-License-Identifier: Apache-2.0
         </div>
       {/if}
 
-      <Toggle
-        checked={damage.criticalEnergyCalc?.calculateCriticalEnergy ?? false}
-        onCheckedChange={(v: boolean) => {
-          if (!damage.criticalEnergyCalc) damage.criticalEnergyCalc = {};
-          damage.criticalEnergyCalc.calculateCriticalEnergy = v;
-        }}
-        label="Calculate Critical Energy"
-      />
-      {#if damage.criticalEnergyCalc?.calculateCriticalEnergy}
-        <div class="space-y-1">
-          <Label for={`dm-k1c-${index}`}>Fracture toughness (K1C)</Label>
-          <Input
-            id={`dm-k1c-${index}`}
-            type="number"
-            bind:value={damage.criticalEnergyCalc.k1c}
-            oninput={() => calculateCriticalEnergy(index)}
-          />
-        </div>
-      {/if}
-
       <Toggle bind:checked={damage.interBlockDamage} label="Inter block damage" />
       {#if damage.interBlockDamage}
         {#each damage.interBlocks ?? [] as prop, subindex (prop.interBlockid ?? subindex)}
@@ -202,7 +201,7 @@ SPDX-License-Identifier: Apache-2.0
               </Select>
             </div>
             <div class="space-y-1">
-              <Label for={`ib-value-${index}-${subindex}`}>Critical energy</Label>
+              <Label for={`ib-value-${index}-${subindex}`}>Critical value</Label>
               <Input id={`ib-value-${index}-${subindex}`} type="number" bind:value={prop.value} />
             </div>
             <Button

@@ -5,11 +5,8 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Copy } from 'lucide-svelte';
-  import Card from '$lib/components/ui/Card.svelte';
   import Input from '$lib/components/ui/Input.svelte';
-  import Label from '$lib/components/ui/Label.svelte';
-  import { notify } from '$lib/utils/notify';
+  import CopyValue from './CopyValue.svelte';
 
   // ---------------------------------------------------------------------
   // Generic dimensional conversion system
@@ -50,7 +47,9 @@ SPDX-License-Identifier: Apache-2.0
     | 'density'
     | 'energy'
     | 'energyReleaseRate'
-    | 'fractureToughness';
+    | 'fractureToughness'
+    | 'heatCapacity'
+    | 'thermalConductivity';
 
   interface QuantityDef {
     key: QuantityKey;
@@ -59,6 +58,8 @@ SPDX-License-Identifier: Apache-2.0
     forceExp: number;
     lengthExp: number;
     massExp: number;
+    // Temperature stays in kelvin, so thermal quantities only convert between SI and SI (mm).
+    siOnly?: boolean;
   }
 
   const quantities: QuantityDef[] = [
@@ -149,8 +150,30 @@ SPDX-License-Identifier: Apache-2.0
       forceExp: 1,
       lengthExp: -1.5,
       massExp: 0
+    },
+    {
+      key: 'heatCapacity',
+      label: 'Specific Heat Capacity',
+      units: { si: 'J/kg·K', mm: 'mJ/t·K', ft: '', in: '' },
+      forceExp: 1,
+      lengthExp: 1,
+      massExp: -1,
+      siOnly: true
+    },
+    {
+      key: 'thermalConductivity',
+      label: 'Thermal Conductivity',
+      units: { si: 'W/m·K', mm: 'mW/mm·K', ft: '', in: '' },
+      forceExp: 1,
+      lengthExp: 0,
+      massExp: 0,
+      siOnly: true
     }
   ];
+
+  // The column a row is typed in: the chosen system, or SI for thermal rows when a US system is chosen.
+  const inCol = (q: QuantityDef): ColKey =>
+    q.siOnly && (from === 'ft' || from === 'in') ? 'si' : from;
 
   const cols: { key: ColKey; heading: string }[] = [
     { key: 'si', heading: 'SI' },
@@ -159,228 +182,121 @@ SPDX-License-Identifier: Apache-2.0
     { key: 'in', heading: 'US Unit (in)' }
   ];
 
-  // Canonical value (in SI base units) per quantity, plus the text currently
-  // shown in each of the four columns.
+  // Canonical value (in SI base units) per quantity; `text` is what the input shows in the
+  // chosen system, kept separately so typing "1e" or "0." isn't reformatted mid-keystroke.
+  let from = $state<ColKey>('si');
   let si = $state<Record<QuantityKey, number | null>>(
     Object.fromEntries(quantities.map((q) => [q.key, null])) as Record<QuantityKey, number | null>
   );
-  let display = $state<Record<QuantityKey, Record<ColKey, string>>>(
-    Object.fromEntries(
-      quantities.map((q) => [q.key, { si: '', mm: '', ft: '', in: '' }])
-    ) as Record<QuantityKey, Record<ColKey, string>>
+  let text = $state<Record<QuantityKey, string>>(
+    Object.fromEntries(quantities.map((q) => [q.key, ''])) as Record<QuantityKey, string>
   );
 
   function fmt(value: number): string {
     if (!Number.isFinite(value)) return '';
     const abs = Math.abs(value);
-    if (abs !== 0 && (abs < 1e-4 || abs >= 1e8)) return value.toExponential(6);
-    return parseFloat(value.toPrecision(10)).toString();
+    if (abs !== 0 && (abs < 1e-4 || abs >= 1e8))
+      return Number(value.toPrecision(6)).toExponential();
+    return parseFloat(value.toPrecision(6)).toString();
   }
 
-  function syncRow(qKey: QuantityKey, activeCol: ColKey) {
-    const def = quantities.find((q) => q.key === qKey)!;
-    const value = si[qKey];
-    for (const c of cols) {
-      if (c.key === activeCol) continue;
-      display[qKey][c.key] =
-        value == null ? '' : fmt(value * factor(def.forceExp, def.lengthExp, def.massExp, c.key));
-    }
-  }
+  const convert = (q: QuantityDef, col: ColKey) =>
+    si[q.key] == null ? '' : fmt(si[q.key]! * factor(q.forceExp, q.lengthExp, q.massExp, col));
 
-  function handleInput(qKey: QuantityKey, col: ColKey, raw: string) {
-    display[qKey][col] = raw;
-    const def = quantities.find((q) => q.key === qKey)!;
-
-    if (raw.trim() === '') {
-      si[qKey] = null;
-      for (const c of cols) if (c.key !== col) display[qKey][c.key] = '';
-      persist();
-      return;
-    }
-
+  function handleInput(q: QuantityDef, raw: string) {
+    text[q.key] = raw;
     const num = Number(raw);
-    if (Number.isNaN(num)) return;
-
-    si[qKey] = num / factor(def.forceExp, def.lengthExp, def.massExp, col);
-    syncRow(qKey, col);
-    persist();
+    if (raw.trim() === '') si[q.key] = null;
+    else if (!Number.isNaN(num))
+      si[q.key] = num / factor(q.forceExp, q.lengthExp, q.massExp, inCol(q));
+    localStorage.setItem('conversion-si', JSON.stringify(si));
   }
 
-  function persist() {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('conversion-si', JSON.stringify(si));
-    }
+  function setFrom(col: ColKey) {
+    from = col;
+    for (const q of quantities) text[q.key] = convert(q, inCol(q));
   }
 
-  $effect(() => {
-    if (typeof window === 'undefined') return;
-    const saved = localStorage.getItem('conversion-si');
-    if (!saved) return;
+  if (typeof window !== 'undefined') {
     try {
-      const parsed = JSON.parse(saved) as Record<QuantityKey, number | null>;
-      for (const q of quantities) {
-        const value = parsed[q.key];
-        if (value != null) {
-          si[q.key] = value;
-          for (const c of cols) {
-            display[q.key][c.key] = fmt(value * factor(q.forceExp, q.lengthExp, q.massExp, c.key));
-          }
-        }
-      }
+      const saved = JSON.parse(localStorage.getItem('conversion-si') ?? '{}');
+      for (const q of quantities) if (saved[q.key] != null) si[q.key] = saved[q.key];
+      setFrom('si');
     } catch {
       // ignore malformed storage
-    }
-  });
-
-  async function copyText(qKey: QuantityKey, col: ColKey) {
-    const value = display[qKey][col];
-    if (!value) return;
-    try {
-      await navigator.clipboard.writeText(value);
-      notify.info('Copied to clipboard');
-    } catch {
-      console.log('Error copying to clipboard');
-    }
-  }
-
-  // ---------------------------------------------------------------------
-  // Thermal quantities are kept as simple SI -> SI(mm) conversions, as
-  // before. Temperature (K) is not converted between unit systems, so a
-  // rigorous US-customary column is intentionally left out here.
-  // ---------------------------------------------------------------------
-  type ThermalKey = 'heatCapacity' | 'thermalConductivity';
-  const thermalFields: { key: ThermalKey; inLabel: string; outLabel: string }[] = [
-    {
-      key: 'heatCapacity',
-      inLabel: 'Specific Heat Capacity [J/kg·K]',
-      outLabel: 'Specific Heat Capacity [kJ/t·K]'
-    },
-    {
-      key: 'thermalConductivity',
-      inLabel: 'Thermal Conductivity [W/m·K]',
-      outLabel: 'Thermal Conductivity [kW/mm·K]'
-    }
-  ];
-  let thermalIn = $state<Record<ThermalKey, number | null>>({
-    heatCapacity: null,
-    thermalConductivity: null
-  });
-  let thermalOut = $state<Record<ThermalKey, number | string | null>>({
-    heatCapacity: null,
-    thermalConductivity: null
-  });
-
-  function convertThermal() {
-    if (thermalIn.heatCapacity != null) thermalOut.heatCapacity = thermalIn.heatCapacity * 1e9;
-    if (thermalIn.thermalConductivity != null)
-      thermalOut.thermalConductivity = thermalIn.thermalConductivity;
-  }
-
-  $effect(() => {
-    const num = Object.values(thermalIn).filter((v) => v != null).length;
-    if (num > 0) convertThermal();
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('conversion-thermal', JSON.stringify(thermalIn));
-    }
-  });
-
-  async function copyThermal(key: ThermalKey) {
-    const value = thermalOut[key];
-    if (value == null) return;
-    try {
-      await navigator.clipboard.writeText(String(value));
-      notify.info('Copied to clipboard');
-    } catch {
-      console.log('Error copying to clipboard');
     }
   }
 </script>
 
-<Card class="w-full max-w-5xl p-5">
-  <h2 class="text-lg font-semibold">Typical Conversions</h2>
-  <p class="text-muted-foreground text-sm">
-    Enter a value in any column — the other three update automatically.
-  </p>
-
-  <div class="border-border my-4 border-t"></div>
-
-  <div class="overflow-x-auto">
-    <div class="min-w-[860px]">
-      <div
-        class="text-muted-foreground grid grid-cols-[11rem_repeat(4,1fr)] gap-3 pb-2 text-sm font-medium"
-      >
-        <div>Quantity</div>
+<div class="overflow-x-auto">
+  <table class="w-full min-w-[48rem] table-fixed border-collapse text-sm">
+    <caption class="text-muted-foreground pb-2 text-left text-xs">
+      Click a system to type in it. Thermal rows keep temperature in kelvin, so they only convert
+      between SI and SI (mm).
+    </caption>
+    <colgroup>
+      <col class="w-40" />
+      {#each cols as c (c.key)}
+        <col class={c.key === from ? 'w-64' : ''} />
+      {/each}
+    </colgroup>
+    <thead>
+      <tr class="border-border border-b">
+        <th scope="col" class=" py-2 pr-3 text-left font-medium">Quantity</th>
         {#each cols as c (c.key)}
-          <div>{c.heading}</div>
-        {/each}
-      </div>
-
-      <div class="max-h-[32rem] space-y-3 overflow-y-auto pr-1">
-        {#each quantities as q (q.key)}
-          <div class="grid grid-cols-[11rem_repeat(4,1fr)] items-center gap-3">
-            <div class="text-sm font-medium">{q.label}</div>
-            {#each cols as c (c.key)}
-              <div class="space-y-1">
-                <Label for={`${q.key}-${c.key}`} class="text-muted-foreground text-xs">
-                  {q.units[c.key]}
-                </Label>
-                <div class="relative">
-                  <Input
-                    id={`${q.key}-${c.key}`}
-                    type="number"
-                    class="pr-9"
-                    value={display[q.key][c.key]}
-                    oninput={(e: Event) =>
-                      handleInput(q.key, c.key, (e.currentTarget as HTMLInputElement).value)}
-                  />
-                  <button
-                    type="button"
-                    class="text-muted-foreground hover:text-foreground absolute inset-y-0 right-2 flex items-center"
-                    onclick={() => copyText(q.key, c.key)}
-                    title="Copy"
-                  >
-                    <Copy class="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            {/each}
-          </div>
-        {/each}
-      </div>
-    </div>
-  </div>
-</Card>
-
-<Card class="mt-4 w-full max-w-2xl p-5">
-  <h2 class="text-lg font-semibold">Thermal Conversions (SI only)</h2>
-  <p class="text-muted-foreground text-sm">
-    Temperature (K) is not converted, so only SI and SI (mm) are shown here.
-  </p>
-
-  <div class="border-border my-4 border-t"></div>
-
-  <div class="space-y-3">
-    {#each thermalFields as f (f.key)}
-      <div class="grid grid-cols-2 items-end gap-4">
-        <div class="space-y-1">
-          <Label for={`th-in-${f.key}`}>{f.inLabel}</Label>
-          <Input id={`th-in-${f.key}`} type="number" bind:value={thermalIn[f.key]} />
-        </div>
-        <div class="space-y-1">
-          <Label for={`th-out-${f.key}`}>{f.outLabel}</Label>
-          <div class="relative">
-            <Input id={`th-out-${f.key}`} readonly value={thermalOut[f.key] ?? ''} class="pr-9" />
+          <th scope="col" class="px-2 py-1 text-left font-medium">
             <button
               type="button"
-              class="text-muted-foreground hover:text-foreground absolute inset-y-0 right-2 flex items-center"
-              onclick={() => copyThermal(f.key)}
-              title="Copy"
+              aria-pressed={from === c.key}
+              onclick={() => setFrom(c.key)}
+              class="focus-visible:ring-ring -mx-2 rounded-md px-2 py-1 transition-colors focus-visible:ring-2 focus-visible:outline-none {from ===
+              c.key
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground'}"
             >
-              <Copy class="h-4 w-4" />
+              {c.heading}
             </button>
-          </div>
-        </div>
-      </div>
-    {/each}
-  </div>
-</Card>
+          </th>
+        {/each}
+      </tr>
+    </thead>
+    <tbody>
+      {#each quantities as q (q.key)}
+        <tr class="border-border border-b last:border-b-0">
+          <th scope="row" class="py-1.5 pr-3 text-left font-medium">
+            <label for={`unit-${q.key}`}>{q.label}</label>
+          </th>
+          {#each cols as c (c.key)}
+            <td class="px-2 py-1.5 align-middle">
+              {#if q.siOnly && (c.key === 'ft' || c.key === 'in')}
+                <span class="text-muted-foreground/60" aria-label="not converted">—</span>
+              {:else if c.key === inCol(q)}
+                <div class="flex items-center gap-1.5">
+                  <Input
+                    id={`unit-${q.key}`}
+                    type="number"
+                    class="min-w-0"
+                    value={text[q.key]}
+                    oninput={(e: Event) =>
+                      handleInput(q, (e.currentTarget as HTMLInputElement).value)}
+                  />
+                  <span class="text-muted-foreground w-[4.5rem] shrink-0 font-mono text-xs"
+                    >{q.units[c.key]}</span
+                  >
+                </div>
+              {:else if si[q.key] != null}
+                <CopyValue
+                  value={convert(q, c.key)}
+                  unit={q.units[c.key]}
+                  label={`${q.label} in ${q.units[c.key]}`}
+                />
+              {:else}
+                <span class="text-muted-foreground/60 font-mono text-xs">{q.units[c.key]}</span>
+              {/if}
+            </td>
+          {/each}
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+</div>

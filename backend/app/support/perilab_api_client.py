@@ -39,7 +39,7 @@ from .globals import log, perilab_api_timeout_seconds
 # Exact statuses the PeriLab API's JobStatus enum uses (support/jobs.py).
 # "completed" is neither active nor failed - it's the success terminal state.
 _ACTIVE_JOB_STATUSES = {"queued", "running"}
-_FAILED_JOB_STATUSES = {"failed", "cancelled", "interrupted"}
+_FAILED_JOB_STATUSES = {"failed", "cancelled", "interrupted", "lost"}
 
 
 class PeriLabApiError(RuntimeError):
@@ -88,7 +88,7 @@ class PeriLabApiClient:
     def _url(self, path: str) -> str:
         return f"{self.base_url}{path}"
 
-    def _request(self, method: str, path: str, **kwargs) -> requests.Response:
+    def _request(self, method: str, path: str, allow_404: bool = False, **kwargs) -> requests.Response:
         kwargs.setdefault("timeout", self.timeout)
         try:
             response = requests.request(method, self._url(path), **kwargs)
@@ -104,6 +104,8 @@ class PeriLabApiClient:
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"Could not reach the PeriLab API at {self.base_url}: {exc}",
             ) from exc
+        if response.status_code == 404 and allow_404:
+            return response
         if response.status_code >= 400:
             log.error(
                 "PeriLab API %s %s -> %s: %s",
@@ -192,7 +194,12 @@ class PeriLabApiClient:
     # --- job control / status --------------------------------------------------
 
     def get_job(self, job_id: str) -> PeriLabJob:
-        payload = self._request("GET", f"/jobs/{job_id}").json()
+        response = self._request("GET", f"/jobs/{job_id}", allow_404=True)
+        if response.status_code == 404:
+            # The API forgot the job (e.g. its container restarted) - report it
+            # as finished so the run doesn't stay "running" forever.
+            return PeriLabJob(job_id=job_id, status="lost", raw={"error": "PeriLab API no longer knows this job"})
+        payload = response.json()
         if not isinstance(payload, dict):
             payload = {}
         job_status = str(payload.get("status", payload.get("state", "unknown")))

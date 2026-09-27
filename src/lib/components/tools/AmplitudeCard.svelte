@@ -6,14 +6,21 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { Tabs } from 'bits-ui';
-  import Card from '$lib/components/ui/Card.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import SeriesLineChart from '$lib/components/views/SeriesLineChart.svelte';
   import CodeBlock from '$lib/components/views/CodeBlock.svelte';
+  import { Copy } from 'lucide-svelte';
+  import Button from '$lib/components/ui/Button.svelte';
+  import { copyText } from '$lib/utils/clipboard';
 
-  const amplitudeTypes = ['Type 1', 'Type 2', 'Sinus'];
+  // Stored values stay 'Type 1' / 'Type 2' / 'Sinus' so saved settings keep working.
+  const amplitudeTypes = [
+    { value: 'Type 1', label: 'Triangle' },
+    { value: 'Type 2', label: 'Ramp and hold' },
+    { value: 'Sinus', label: 'Sine' }
+  ];
 
   let amplitude = $state({
     max: 10,
@@ -185,13 +192,17 @@ SPDX-License-Identifier: Apache-2.0
   }
 </script>
 
-<Card class="w-full max-w-4xl p-5">
-  <h2 class="text-lg font-semibold">Amplitude Generator</h2>
-
-  <div class="border-border my-4 border-t"></div>
-
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,16rem)_1fr]">
+<div>
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,14rem)_minmax(0,1fr)]">
     <div class="space-y-3">
+      <div class="space-y-1">
+        <Label for="amp-type">Shape</Label>
+        <Select id="amp-type" bind:value={amplitude.type}>
+          {#each amplitudeTypes as type (type.value)}
+            <option value={type.value}>{type.label}</option>
+          {/each}
+        </Select>
+      </div>
       <div class="space-y-1">
         <Label for="amp-max">Max</Label>
         <Input id="amp-max" type="number" bind:value={amplitude.max} />
@@ -207,16 +218,8 @@ SPDX-License-Identifier: Apache-2.0
         <Input id="amp-freq" type="number" bind:value={amplitude.frequency} />
       </div>
       <div class="space-y-1">
-        <Label for="amp-end">Time</Label>
+        <Label for="amp-end">End time</Label>
         <Input id="amp-end" type="number" bind:value={amplitude.end} />
-      </div>
-      <div class="space-y-1">
-        <Label for="amp-type">Type of Amplitude</Label>
-        <Select id="amp-type" bind:value={amplitude.type}>
-          {#each amplitudeTypes as type (type)}
-            <option value={type}>{type}</option>
-          {/each}
-        </Select>
       </div>
     </div>
 
@@ -232,15 +235,18 @@ SPDX-License-Identifier: Apache-2.0
           value="output"
           class="text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground rounded-t-md px-3 py-2 text-sm font-medium data-[state=active]:border-b-2"
         >
-          Output
+          Expression
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="plotly" class="pt-3">
         <SeriesLineChart series={plotData} />
       </Tabs.Content>
-      <Tabs.Content value="output" class="pt-3">
+      <Tabs.Content value="output" class="space-y-2 pt-3">
+        <Button variant="ghost" onclick={() => copyText(valueOutput)}
+          ><Copy class="h-4 w-4" /> Copy expression</Button
+        >
         <CodeBlock bind:value={valueOutput} editable={false} />
       </Tabs.Content>
     </Tabs.Root>
   </div>
-</Card>
+</div>

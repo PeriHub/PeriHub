@@ -12,6 +12,7 @@ SPDX-License-Identifier: Apache-2.0
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
+  import { getAuthHeaders } from '$lib/auth/oauth';
   import {
     getStatus,
     viewInputFile as viewInputFileApi,
@@ -85,6 +86,8 @@ SPDX-License-Identifier: Apache-2.0
   function finishRun(message: string, ok: boolean) {
     const wasSubmitted = defaultStore.status.submitted;
     closeStream();
+    // Otherwise logStatus stays 'streaming' and ViewActions keeps showing Cancel.
+    viewStore.logStatus = 'idle';
     _getStatus();
     bus.emit('getJobs' as never);
     if (wasSubmitted) {
@@ -148,12 +151,21 @@ SPDX-License-Identifier: Apache-2.0
       const response = await fetch(
         `${OpenAPI.BASE}/jobs/${encodeURIComponent(runId)}/log/stream?debug=${debug}`,
         {
-          headers: (OpenAPI.HEADERS ?? {}) as Record<string, string>,
+          headers: await getAuthHeaders(),
           signal: controller.signal
         }
       );
       if (response.status === 404) {
-        // No PeriLab job/log yet - the run is still starting.
+        // No PeriLab job/log yet - either still starting, or already over
+        // (e.g. failed before writing a log): only retry in the first case.
+        await _getStatus();
+        if (abortController !== controller) return;
+        if (!defaultStore.status.submitted) {
+          // finishRun only notifies for runs still marked submitted.
+          notify.negative('The run ended without a log - see the Jobs view');
+          finishRun('', false);
+          return;
+        }
         scheduleRetry('Waiting for the simulation to start...');
         return;
       }

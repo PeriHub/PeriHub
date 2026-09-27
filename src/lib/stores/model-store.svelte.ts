@@ -17,7 +17,7 @@ class ModelStore {
   // @ts-expect-error the generated schema's `example` is typed loosely
   modelParams = $state<Valves>({ ...ValvesSchema.example });
   selectedModel = $state<{ title: string; file: string }>({
-    title: 'Compact Tenison',
+    title: 'Compact Tension',
     file: 'CompactTension'
   });
   // Which model's config/valves are currently loaded into modelData /
