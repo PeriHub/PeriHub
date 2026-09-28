@@ -2,22 +2,50 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-version: "3"
-
 services:
+  perihub_db:
+    image: postgres:16-alpine
+    container_name: perihub_db
+    environment:
+      - POSTGRES_USER=perihub
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?}
+      - POSTGRES_DB=perihub
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U perihub -d perihub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/db:/var/lib/postgresql/data
+    networks:
+      - web_network
+
   perihub_backend:
     image: perihub/backend:dev
     container_name: perihub_backend
     environment:
-      - TRIAL=${TRIAL}
-      - CLUSTER_URL=${CLUSTER_URL}
-      - CLUSTER_USER=${CLUSTER_USER}
-      - CLUSTER_JOB_PATH=${CLUSTER_JOB_PATH}
-      - CLUSTER_PERILAB_PATH=${CLUSTER_PERILAB_PATH}
-      - CLUSTER_PASSWORD=${CLUSTER_PASSWORD}
+      - TRIAL=${TRIAL:-False}
+      - DEPLOYMENT_MODE=${DEPLOYMENT_MODE:-community}
+      - MAX_NODES=${MAX_NODES:-50000}
+      - DATABASE_URL=postgresql+psycopg://perihub:${POSTGRES_PASSWORD:?}@perihub_db:5432/perihub
+      - SESSION_SECRET=${SESSION_SECRET:?}
+      - API_KEYS=${API_KEYS:-}
+      - SOLVER_BACKEND=local
+      - LOCAL_PERILAB_API_URL=http://perilab:3000
+      - MAX_CONCURRENT_LOCAL_JOBS=${MAX_CONCURRENT_LOCAL_JOBS:-4}
+      - MAX_CONCURRENT_JOBS_PER_USER=${MAX_CONCURRENT_JOBS_PER_USER:-2}
+      - OAUTH_DISCOVERY_URL=${OAUTH_DISCOVERY_URL:-}
+      - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID:-}
+      - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET:-}
+      - OAUTH_REDIRECT_URI=${OAUTH_REDIRECT_URI:-}
+      - LICENSE_SERVER_URL=${LICENSE_SERVER_URL:-}
+      - LICENSE_KEY=${LICENSE_KEY:-}
+      - LICENSE_INSTANCE_ID=${LICENSE_INSTANCE_ID:-}
     volumes:
       - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/peridigmJobs:/app/simulations
-      - /mnt/ceph_data/filebrowser/users/hess_ja/perihub/rsaFiles:/app/rsaFiles
+    depends_on:
+      - perihub_db
+      - perilab
     networks:
       - web_network
 

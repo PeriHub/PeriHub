@@ -20,7 +20,7 @@ const dev = import.meta.env.DEV;
 
 export const config = {
   dev,
-  apiBase: dev ? 'http://localhost:8000' : 'api'
+  apiBase: dev ? 'http://localhost:8000' : '/api'
 };
 
 interface PublicConfigResponse {

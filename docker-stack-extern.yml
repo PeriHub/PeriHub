@@ -2,19 +2,56 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-version: "3.7"
-
 services:
+  perihub_db:
+    image: postgres:16-alpine
+    container_name: perihub_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=perihub
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?}
+      - POSTGRES_DB=perihub
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U perihub -d perihub"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - perihub_db_data:/var/lib/postgresql/data
+    networks:
+      - perihub_network
+
   perihub_backend:
     image: perihub/backend
     container_name: perihub_backend
     restart: unless-stopped
+    environment:
+      - TRIAL=${TRIAL:-False}
+      - DEPLOYMENT_MODE=${DEPLOYMENT_MODE:-community}
+      - MAX_NODES=${MAX_NODES:-50000}
+      - DATABASE_URL=postgresql+psycopg://perihub:${POSTGRES_PASSWORD:?}@perihub_db:5432/perihub
+      - SESSION_SECRET=${SESSION_SECRET:?}
+      - API_KEYS=${API_KEYS:-}
+      - SOLVER_BACKEND=local
+      - LOCAL_PERILAB_API_URL=http://perilab:3000
+      - MAX_CONCURRENT_LOCAL_JOBS=${MAX_CONCURRENT_LOCAL_JOBS:-4}
+      - MAX_CONCURRENT_JOBS_PER_USER=${MAX_CONCURRENT_JOBS_PER_USER:-2}
+      - OAUTH_DISCOVERY_URL=${OAUTH_DISCOVERY_URL:-}
+      - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID:-}
+      - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET:-}
+      - OAUTH_REDIRECT_URI=${OAUTH_REDIRECT_URI:-}
+      - LICENSE_SERVER_URL=${LICENSE_SERVER_URL:-}
+      - LICENSE_KEY=${LICENSE_KEY:-}
+      - LICENSE_INSTANCE_ID=${LICENSE_INSTANCE_ID:-}
     volumes:
       - perihub:/app/simulations
+    depends_on:
+      perihub_db:
+        condition: service_healthy
+      perilab:
+        condition: service_started
     networks:
       - perihub_network
-    environment:
-      - TRIAL=${TRIAL}
 
   perihub_frontend:
     image: perihub/frontend
@@ -33,14 +70,11 @@ services:
     networks:
       - perihub_network
       - dlr-internal
-    environment:
-      - TRIAL=${TRIAL}
 
   perilab:
     image: perihub/perilab
     container_name: perihub_perilab
-    ports:
-      - 6000:80
+    restart: unless-stopped
     volumes:
       - perihub:/app/simulations
     networks:
@@ -48,6 +82,7 @@ services:
 
 volumes:
   perihub:
+  perihub_db_data:
 
 networks:
   dlr-internal:
