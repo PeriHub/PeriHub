@@ -31,4 +31,5 @@ COPY ./app/main.py /app/main.py
 COPY ./alembic.ini /alembic.ini
 COPY ./alembic /alembic
 
-CMD ["fastapi", "run", "main.py", "--port", "8000", "--root-path", "/api"]
+# Apply pending DB migrations before starting; skipped without DATABASE_URL (trial mode)
+CMD ["sh", "-c", "[ -z \"$DATABASE_URL\" ] || alembic -c /alembic.ini upgrade head && exec fastapi run main.py --port 8000 --root-path /api"]
