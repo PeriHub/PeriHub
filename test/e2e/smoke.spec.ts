@@ -4,17 +4,37 @@
 
 import { expect, test } from '@playwright/test';
 
+// No backend in e2e: pretend to be a trial deployment so initAuth() doesn't redirect to /auth/login.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/config/public', (route) =>
+    route.fulfill({ json: { deployment_mode: 'trial', trial: true, oauth_enabled: false } })
+  );
+});
+
 test('landing page renders and links to main sections', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Welcome to PeriHub' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'PeriHub' }).first()).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /Peridynamics/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Open the editor' })).toHaveAttribute(
+    'href',
+    '/perihub'
+  );
+  const nav = page.getByRole('navigation').first();
+  for (const name of ['PeriHub', 'Models', 'Tools', 'Publications']) {
+    await expect(nav.getByRole('link', { name })).toBeVisible();
+  }
 });
 
 test('tools page renders all four calculators', async ({ page }) => {
   await page.goto('/tools');
-  await expect(page.getByText('Conversion of elastic isotropic constants').first()).toBeVisible();
-  await expect(page.getByText('Typical Conversions')).toBeVisible();
-  await expect(page.getByText('Amplitude Generator')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Tools' })).toBeVisible();
+  for (const name of [
+    'Unit systems',
+    'Isotropic elastic constants',
+    'Orthotropic matrix',
+    'Load amplitude'
+  ]) {
+    await expect(page.getByRole('heading', { level: 2, name })).toBeVisible();
+  }
 });
 
 test('legal pages render without crashing', async ({ page }) => {
