@@ -152,16 +152,22 @@ default_valves = {
             "depends": None,
         },
     ],
-    "analysisValves": [],
 }
 
 
 class Valves(BaseModel):
     valves: List[Valve]
-    analysisValves: List[Valve]
 
     class Config:
         json_schema_extra = {"example": default_valves}
+
+
+class AnalysisInfo(BaseModel):
+    """One @analysis function of a model (GET /model/analyses)."""
+
+    id: str
+    label: str
+    params: List[Valve]
 
 
 class Status(BaseModel):
@@ -958,3 +964,9 @@ class ModelData(BaseModel):
 
     class Config:
         json_schema_extra = {"example": default_model}
+
+
+class AnalysisRequest(BaseModel):
+    data: ModelData
+    valves: Valves
+    analysis_params: dict[str, Union[int, float, bool, str]] = {}

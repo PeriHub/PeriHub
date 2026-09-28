@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+title: Compact Tension
+description: Carbon fibre reinforced plastics - Test method - Determination of interlaminar fracture toughness energy - Mode I - GIC
+author: hess_ja
+version: 0.1.0
+
+parameters:
+  DISCRETIZATION: {default: 100, label: Discretization, description: Points along the length}
+  LENGTH: {default: 75, label: Length}
+  WIDTH: {default: 10, label: Width}
+  NOTCH_ENABLED: {default: true, label: Notch enabled}
+
+geometry:
+  spacing: 1.25 * LENGTH / (2 * int(DISCRETIZATION / 2) + 1)
+  # Offset by half a spacing so no point row lies on the crack plane y = 0.
+  grid_origin: [0, spacing / 2, -WIDTH / 2]
+  add:
+    - box: {min: [0, -0.6 * LENGTH, -WIDTH / 2], max: [1.25 * LENGTH, 0.6 * LENGTH, WIDTH / 2]}
+  remove:
+    # Notch: 1.6 wide, tapering to its tip at 0.45 * LENGTH. The taper starts at
+    # 0.45 * LENGTH + sin(60) * 1.6 (60 in radians, as in the original model).
+    - if: NOTCH_ENABLED
+      polygon:
+        points:
+          - [-1, 0.8]
+          - [0.45 * LENGTH + sin(60) * 1.6, 0.8]
+          - [0.45 * LENGTH, 0]
+          - [0.45 * LENGTH + sin(60) * 1.6, -0.8]
+          - [-1, -0.8]
+
+blocks:
+  - {id: 4, where: "0 <= x <= 0.45 * LENGTH and y >= 0"}
+  - {id: 5, where: "0 <= x <= 0.45 * LENGTH and y <= 0"}
+  # Load pins
+  - {id: 2, cylinder: {start: [0.25 * LENGTH, 0.275 * LENGTH, -WIDTH], end: [0.25 * LENGTH, 0.275 * LENGTH, WIDTH], radius: 0.125 * LENGTH}}
+  - {id: 3, cylinder: {start: [0.25 * LENGTH, -0.275 * LENGTH, -WIDTH], end: [0.25 * LENGTH, -0.275 * LENGTH, WIDTH], radius: 0.125 * LENGTH}}

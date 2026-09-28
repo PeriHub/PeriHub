@@ -6,42 +6,48 @@ name: CI
 on:
   push:
     branches: [main]
-    paths:
+    paths: &paths
       - "src/**"
       - "static/**"
       - "backend/**"
+      - "test/**"
       - "package.json"
       - "package-lock.json"
+      - "playwright.config.ts"
+      - ".github/workflows/CI.yml"
   pull_request:
     branches: [main]
-    paths:
-      - "src/**"
-      - "static/**"
-      - "backend/**"
-      - "package.json"
-      - "package-lock.json"
+    paths: *paths
 jobs:
-  build:
-    timeout-minutes: 60
+  backend-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend/app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements*.txt
+      - name: Install dependencies
+        run: pip install -r ../requirements.txt -r ../requirements-dev.txt
+      - name: Run unit tests
+        run: python -m pytest tests/unit
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+  frontend-checks:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
-      - name: Login to Docker Hub
-        uses: docker/login-action@v4
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build Docker image
-        run: docker build -t perihub/backend:dev ./backend
-      - name: Run Docker container
-        run: docker run -d -p 8000:8000 -v ./test:/app/simulations perihub/backend:dev
-      - env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: lts/*
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: ./package-lock.json
       - name: Install dependencies
         run: npm ci
@@ -49,6 +55,27 @@ jobs:
         run: npm run lint
       - name: Type check
         run: npm run check
+      - name: Unit tests
+        run: npm run test:unit
+
+  e2e:
+    needs: [backend-tests, frontend-checks]
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Build Docker image
+        run: docker build -t perihub/backend:dev ./backend
+      - name: Run Docker container
+        run: docker run -d -p 8000:8000 -v ./test:/app/simulations perihub/backend:dev
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: ./package-lock.json
+      - name: Install dependencies
+        run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
@@ -59,34 +86,24 @@ jobs:
           name: playwright-report
           path: ./playwright-report/
           retention-days: 30
-      - name: Build Docker image
-        if: github.ref_name == 'main'
-        run: docker build -t perihub/frontend:dev .
+
+  publish:
+    needs: e2e
+    if: github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build Docker images
+        run: |
+          docker build -t perihub/backend:dev ./backend
+          docker build -t perihub/frontend:dev .
       - name: Publish to Registry
-        if: github.ref_name == 'main'
-        run: docker push perihub/backend:dev
-      - name: Publish to Registry
-        if: github.ref_name == 'main'
-        run: docker push perihub/frontend:dev
-  # ci:
-  #   defaults:
-  #     run:
-  #       working-directory: ./backend/app
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       python-version: ["3.11"]
-  #       poetry-version: ["1.7.1"]
-  #       os: [ubuntu-22.04]
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - uses: actions/checkout@v7
-  #     - uses: actions/setup-python@v4
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - name: Run image
-  #       uses: abatilo/actions-poetry@v2
-  #       with:
-  #         poetry-version: ${{ matrix.poetry-version }}
-  #     - name: View poetry --help
-  #       run: poetry --help
+        run: |
+          docker push perihub/backend:dev
+          docker push perihub/frontend:dev

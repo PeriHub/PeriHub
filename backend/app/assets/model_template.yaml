@@ -1,0 +1,21 @@
+title: "{title}"
+description: "{description}"
+author: "{author}"
+version: 0.1.0
+
+parameters:
+  DISCRETIZATION: {default: 21, label: Points over the height}
+  LENGTH: {default: 20, label: Length (mm)}
+  HEIGHT: {default: 10, label: Height (mm)}
+  WIDTH: {default: 5, label: Width (mm), description: Thickness in 3D; ignored in 2D}
+
+geometry:
+  spacing: HEIGHT / DISCRETIZATION
+  add:
+    - box: {min: [0, 0, -WIDTH / 2], max: [LENGTH, HEIGHT, WIDTH / 2]}
+  remove:
+    - cylinder: {start: [LENGTH / 2, HEIGHT / 2, -WIDTH], end: [LENGTH / 2, HEIGHT / 2, WIDTH], radius: HEIGHT / 5}
+
+blocks:
+  - {id: 2, where: "x < 3 * spacing"}
+  - {id: 3, where: "x > LENGTH - 3 * spacing"}

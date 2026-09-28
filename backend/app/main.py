@@ -33,6 +33,7 @@ from .support.globals import (
     log,
     trial,
 )
+from .support.model import loader
 from .support.solver_backend import get_solver_backend
 
 tags_metadata = [
@@ -85,17 +86,11 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown of the application."""
     # Startup
     if frontmatter_installation:
-        file_path = str(Path(__file__).parent.resolve())
-        try:
-            for model in os.listdir(file_path + "/own_models"):
-                if model.startswith("__"):
-                    continue
-                doc_string = FileHandler.get_docstring(os.path.join(file_path, "own_models", model, model + ".py"))
-                if doc_string:
-                    doc_dict = FileHandler.doc_to_dict(doc_string)
-                    FileHandler.install_frontmatter_requirements(doc_dict.get("requirements", ""))
-        except FileNotFoundError as e:
-            print(e)
+        for model in loader.list_models("own"):
+            try:
+                FileHandler.install_frontmatter_requirements(model.get("requirements", ""))
+            except Exception as e:  # noqa: BLE001 - one bad requirement mustn't stop startup
+                log.warning("Installing requirements of %s failed: %s", model["file"], e)
 
     if database_url:
         from sqlalchemy import text

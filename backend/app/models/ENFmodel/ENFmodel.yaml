@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+title: ENFmodel
+description: Carbon fibre reinforced plastics - Test method - Determination of interlaminar fracture toughness energy - Mode II - GIIC
+author: hess_ja
+version: 0.1.0
+
+parameters:
+  DISCRETIZATION: {default: 21, label: Discretization, description: Points over the height}
+  LENGTH: {default: 13, label: Length}
+  HEIGHT: {default: 2, label: Height}
+  WIDTH: {default: 10, label: Width}
+
+geometry:
+  spacing: HEIGHT / (2 * int(DISCRETIZATION / 2) + 1)
+  add:
+    - box: {min: [0, 0, -WIDTH / 2], max: [LENGTH, HEIGHT, WIDTH / 2]}
+
+blocks:
+  - {id: 2, where: "y <= HEIGHT / 2"}
+  # Loading nose (3: contact zone, 4: load application)
+  - {id: 3, where: "LENGTH / 2 - 4 * spacing <= x <= LENGTH / 2 + 4 * spacing and y >= HEIGHT - 4 * spacing"}
+  - {id: 4, where: "LENGTH / 2 - spacing <= x <= LENGTH / 2 + spacing and y >= HEIGHT - spacing"}
+  # Left support
+  - {id: 5, where: "x <= 4 * spacing and y <= 4 * spacing"}
+  - {id: 6, where: "x < spacing and y < spacing"}
+  # Right support
+  - {id: 7, where: "x >= LENGTH - 4 * spacing and y <= 4 * spacing"}
+  - {id: 8, where: "x > LENGTH - spacing and y < spacing"}

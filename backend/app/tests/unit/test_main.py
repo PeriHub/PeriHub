@@ -6,8 +6,9 @@ import json
 import os
 
 import pytest
-from backend.app.main import app
 from fastapi.testclient import TestClient
+
+from backend.app.main import app
 
 client = TestClient(app)
 
@@ -34,7 +35,6 @@ def test_generate_model(model_name):
         encoding="UTF-8",
     ) as file:
         params = json.load(file)
-    response = client.post("/generate/model?model_name=" + model_name, json=params)
-    print(json.dumps(json.loads(response.text), sort_keys=True, indent=4, separators=(",", ": ")))
-    assert response.status_code == 200
-    assert response.json()["data"]
+    valves = client.get("/model/getValves", params={"model_name": model_name}).json()
+    response = client.post("/generate/model?model_name=" + model_name, json={"data": params, "valves": valves})
+    assert response.status_code == 200, response.text

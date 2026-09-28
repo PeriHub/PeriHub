@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+title: Kalthoff-Winkler
+description: Crack propagation
+author: hess_ja
+version: 0.1.0
+
+parameters:
+  DISCRETIZATION: {default: 100, label: Discretization, description: Points over half the height}
+  LENGTH: {default: 100, label: Length}
+  HEIGHT: {default: 200, label: Height}
+  WIDTH: {default: 9, label: Width}
+
+geometry:
+  spacing: HEIGHT / 2 / (2 * int(DISCRETIZATION / 2) + 1)
+  # Offset by half a spacing so no point row lies on y = 0.
+  grid_origin: [0, spacing / 2, -WIDTH / 2]
+  add:
+    - box: {min: [0, -HEIGHT / 2, -WIDTH / 2], max: [LENGTH, HEIGHT / 2, WIDTH / 2]}
+  remove:  # the two notches, 50 long and 1.5 wide, at y = +-25
+    - box: {min: [0, 25 - 0.75, -WIDTH], max: [50, 25 + 0.75, WIDTH]}
+    - box: {min: [0, -25 - 0.75, -WIDTH], max: [50, -25 + 0.75, WIDTH]}
+
+blocks:
+  - {id: 2, where: "x < 5 * spacing and -25 <= y <= 25"}  # impactor contact
+  - {id: 3, where: "x >= LENGTH - 3 * spacing"}
+
+# Put the notch bond filters between two point rows.
+set:
+  bondFilters[0].lowerLeftCornerY: int(25 / spacing) * spacing + spacing / 2
+  bondFilters[1].lowerLeftCornerY: -(int(25 / spacing) * spacing + spacing / 2)

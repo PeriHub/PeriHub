@@ -3,24 +3,32 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import csv
+import io
 import os
 import shutil
 from typing import Optional
 
+import matplotlib
 import numpy as np
 from exodusreader import exodusreader
 from fastapi import APIRouter, HTTPException, Request, status
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 
 from ..db import base as db_base
 from ..db.models import JobQueueEntry
-from ..support.base_models import PointDataResults
+from ..support.base_models import AnalysisRequest, PointDataResults
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
+from ..support.model import loader
+from ..support.model.model_api import AnalysisContext
+from ..support.model.point_cloud import valves_to_dict
 from ..support.results.crack_analysis import CrackAnalysis
 from ..support.solver_backend import get_solver_backend
 from .jobs import _can_view_entry, _latest_entry, _perilab_job_ids
+
+matplotlib.use("Agg")  # analyses render in worker threads; never an interactive backend
+import matplotlib.pyplot as plt  # noqa: E402
 
 router = APIRouter(prefix="/results", tags=["Results Methods"])
 
@@ -52,6 +60,65 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
     if not os.path.isdir(job_folder):
         raise not_found("Results can not be found, maybe they are not generated yet.")
     return job_folder
+
+
+@router.post(
+    "/analysis",
+    operation_id="run_analysis",
+    response_class=Response,
+    responses={200: {"content": {"image/png": {}}, "description": "The analysis image"}},
+)
+def run_analysis(
+    body: AnalysisRequest,
+    model_name: str,
+    analysis_id: str,
+    model_folder_name: str = "Default",
+    run_id: Optional[str] = None,
+    request: Request = "",
+):
+    """Run one of the model's @analysis functions on a run's results; returns the image as PNG."""
+    try:
+        analyses = loader.load_analyses(model_name)
+        param_list = loader.load_model(model_name).params()
+    except LookupError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    fn = analyses.get(analysis_id)
+    if fn is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{model_name} has no analysis {analysis_id}")
+
+    result_dir = _result_folder(request, model_name, model_folder_name, run_id)
+    params = valves_to_dict(body.valves)
+    params = {p.name: p.cast(params[p.name]) if p.name in params else p.default for p in param_list}
+    analysis_params = {
+        p.name: p.cast(body.analysis_params[p.name]) if p.name in body.analysis_params else p.default
+        for p in fn.perihub_analysis["params"]
+    }
+    ctx = AnalysisContext(params, analysis_params, result_dir, model_name, body.data)
+    try:
+        return Response(content=analysis_png(fn(ctx), result_dir), media_type="image/png")
+    except Exception as e:
+        log.warning("Analysis %s of %s failed: %s", analysis_id, model_name, e)
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=f"{type(e).__name__}: {e}")
+
+
+def analysis_png(result, result_dir: str) -> bytes:
+    """PNG bytes of what an @analysis function returned: a matplotlib Figure, or the path of
+    an image it wrote — which must be inside the run's result folder."""
+    if hasattr(result, "savefig"):
+        buffer = io.BytesIO()
+        result.savefig(buffer, format="png", dpi=150, bbox_inches="tight")
+        plt.close(result)  # no-op for Figure(), frees pyplot figures
+        return buffer.getvalue()
+    if isinstance(result, (str, os.PathLike)):
+        path = os.path.realpath(result if os.path.isabs(result) else os.path.join(result_dir, result))
+        root = os.path.realpath(result_dir)
+        if os.path.commonpath([path, root]) != root:
+            raise ValueError("the analysis returned a file outside the result folder")
+        if not os.path.isfile(path):
+            raise ValueError(f"the analysis returned {os.path.basename(path)}, which does not exist")
+        with open(path, "rb") as file:
+            return file.read()
+    raise ValueError(f"an analysis must return a matplotlib Figure or an image path, not {type(result).__name__}")
 
 
 @router.get("/getResultFile", operation_id="get_result_file", response_class=FileResponse)

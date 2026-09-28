@@ -58,7 +58,7 @@ services:
     volumes:
       - ${VOLUME-./backend/app/simulations}:/app/simulations
     ports:
-      - 3001:8000
+      - 3000:3000
 
 volumes:
   perihub_db_data:

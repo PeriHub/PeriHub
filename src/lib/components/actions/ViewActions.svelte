@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { Dialog } from 'bits-ui';
-  import { Play, X, Download, Eye, LineChart, Trash2, Check } from 'lucide-svelte';
+  import { Play, X, Download, Eye, LineChart, Trash2, Check, ImageIcon } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
@@ -20,11 +20,17 @@ SPDX-License-Identifier: Apache-2.0
     runModel as runModelApi,
     cancelRun as cancelRunApi,
     getPlot,
+    getAnalyses,
     deleteModel as deleteModelApi,
-    deleteUserData as deleteUserDataApi
+    deleteUserData as deleteUserDataApi,
+    type AnalysisInfo,
+    type Valve
   } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import Select from '$lib/components/ui/Select.svelte';
+  import Input from '$lib/components/ui/Input.svelte';
+  import Label from '$lib/components/ui/Label.svelte';
+  import Toggle from '$lib/components/ui/Toggle.svelte';
   import RenewableView from '$lib/components/views/RenewableView.svelte';
 
   const PALETTE = [
@@ -262,6 +268,83 @@ SPDX-License-Identifier: Apache-2.0
     viewStore.modelLoading = false;
   }
 
+  // The model's @analysis functions (result images), refetched when the model changes.
+  let analyses = $state<AnalysisInfo[]>([]);
+  let dialogAnalysis = $state(false);
+  let analysisId = $state('');
+  let analysisValues = $state<Record<string, string | number | boolean>>({});
+  let analysisLoading = $state(false);
+  const selectedAnalysis = $derived(analyses.find((a) => a.id === analysisId));
+
+  $effect(() => {
+    const modelName = modelStore.selectedModel.file;
+    getAnalyses({ modelName })
+      .then((list) => {
+        if (modelStore.selectedModel.file === modelName) analyses = list;
+      })
+      .catch(() => (analyses = []));
+  });
+
+  /** "computes" / "outputs" mean: the names configured in this model. */
+  function analysisOptions(param: Valve): string[] {
+    if (Array.isArray(param.options)) return param.options;
+    if (param.options === 'computes') return (modelData.computes ?? []).map((c) => c.name ?? '');
+    if (param.options === 'outputs') return outputs.map((o) => o.name ?? '');
+    return param.options ? [param.options] : [];
+  }
+
+  function selectAnalysis(id: string) {
+    analysisId = id;
+    const analysis = analyses.find((a) => a.id === id);
+    analysisValues = Object.fromEntries((analysis?.params ?? []).map((p) => [p.name, p.value]));
+  }
+
+  function openAnalysisDialog() {
+    if (!analyses.some((a) => a.id === analysisId)) selectAnalysis(analyses[0]?.id ?? '');
+    dialogAnalysis = true;
+  }
+
+  async function runAnalysis() {
+    const analysis = selectedAnalysis;
+    if (!analysis) return;
+    dialogAnalysis = false;
+    analysisLoading = true;
+    try {
+      const response = await api.post(
+        '/results/analysis',
+        { data: modelData, valves: modelStore.modelParams, analysis_params: analysisValues },
+        {
+          params: {
+            model_name: modelStore.selectedModel.file,
+            analysis_id: analysis.id,
+            model_folder_name: modelData.model.modelFolderName,
+            run_id: status.run_id
+          },
+          responseType: 'blob'
+        }
+      );
+      viewStore.setAnalysisImage({
+        label: analysis.label,
+        blob: response.data,
+        filename: `${modelStore.selectedModel.file}_${analysis.id}.png`
+      });
+      viewStore.viewId = 'analysis';
+    } catch (error) {
+      // With responseType blob, the JSON error body arrives as a Blob too.
+      const body = (error as { response?: { data?: unknown } }).response?.data;
+      let detail = '';
+      if (body instanceof Blob) {
+        try {
+          detail = JSON.parse(await body.text()).detail ?? '';
+        } catch {
+          /* not JSON */
+        }
+      }
+      notify.negative(`Analysis failed${detail ? `: ${detail}` : ''}`);
+    }
+    analysisLoading = false;
+  }
+
   async function deleteModelData() {
     try {
       await deleteModelApi({
@@ -383,6 +466,18 @@ SPDX-License-Identifier: Apache-2.0
     <LineChart class="h-4 w-4" />
   </Button>
 
+  {#if analyses.length}
+    <Button
+      variant="ghost"
+      size="icon"
+      onclick={openAnalysisDialog}
+      disabled={analysisLoading || !hasResults}
+      title={!hasResults ? 'Results not generated yet' : 'Run an analysis'}
+    >
+      <ImageIcon class="h-4 w-4" />
+    </Button>
+  {/if}
+
   <div class="flex-1"></div>
 
   <Button variant="ghost" size="icon" onclick={() => (dialogDelete = true)} title="Delete data">
@@ -453,6 +548,74 @@ SPDX-License-Identifier: Apache-2.0
         <Button variant="ghost" onclick={() => (dialogPlot = false)}>Cancel</Button>
         <Button onclick={_getPlot}>Show</Button>
       </div>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
+
+<Dialog.Root bind:open={dialogAnalysis}>
+  <Dialog.Portal>
+    <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
+    <Dialog.Content
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
+    >
+      <Dialog.Title class="mb-3 text-lg font-semibold">Run analysis</Dialog.Title>
+      <form
+        class="space-y-3"
+        onsubmit={(e) => {
+          e.preventDefault();
+          runAnalysis();
+        }}
+      >
+        {#if analyses.length > 1}
+          <div class="space-y-1">
+            <Label for="analysis-id">Analysis</Label>
+            <Select
+              id="analysis-id"
+              value={analysisId}
+              onchange={(e) => selectAnalysis((e.currentTarget as HTMLSelectElement).value)}
+            >
+              {#each analyses as analysis (analysis.id)}
+                <option value={analysis.id}>{analysis.label}</option>
+              {/each}
+            </Select>
+          </div>
+        {:else if selectedAnalysis}
+          <p class="text-sm font-medium">{selectedAnalysis.label}</p>
+        {/if}
+        {#each selectedAnalysis?.params ?? [] as param (param.name)}
+          {#if param.type === 'checkbox'}
+            <Toggle bind:checked={analysisValues[param.name] as boolean} label={param.label} />
+          {:else}
+            <div class="space-y-1">
+              <Label for={`analysis-${param.name}`}>{param.label}</Label>
+              {#if param.type === 'select'}
+                <Select
+                  id={`analysis-${param.name}`}
+                  bind:value={analysisValues[param.name]}
+                  title={param.description}
+                >
+                  {#each new Set([String(param.value), ...analysisOptions(param)]) as opt (opt)}
+                    <option value={opt}>{opt}</option>
+                  {/each}
+                </Select>
+              {:else}
+                <Input
+                  id={`analysis-${param.name}`}
+                  type={param.type === 'number' ? 'number' : 'text'}
+                  bind:value={analysisValues[param.name]}
+                  title={param.description}
+                />
+              {/if}
+            </div>
+          {/if}
+        {/each}
+        <div class="flex justify-end gap-2 pt-1">
+          <Button type="button" variant="ghost" onclick={() => (dialogAnalysis = false)}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={!selectedAnalysis}>Run</Button>
+        </div>
+      </form>
     </Dialog.Content>
   </Dialog.Portal>
 </Dialog.Root>

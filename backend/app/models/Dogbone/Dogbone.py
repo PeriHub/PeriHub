@@ -2,183 +2,137 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""
-title: Dogbone
-description: Tensile dogbone
-author: hess_ja
-requirements:
-version: 0.1.0
-"""
+"""Tensile dogbone. The "structured" point layout follows the curved flanks row by row, which
+no grid of shapes can express — so this model overrides points() instead of geometry()."""
+
 import numpy as np
-from pydantic import BaseModel, Field
+from perihub import Param, PeriHubModel
+from scipy.interpolate import interp1d
 
-from ...support.model.geometry import Geometry
-
-
-class Valves(BaseModel):
-    DISCRETIZATION: float = Field(
-        default=21,
-        title="Discretization",
-        description="Discretization",
-    )
-    LENGTH: float = Field(
-        default=13,
-        title="Length",
-        description="Length",
-    )
-    HEIGHT1: float = Field(
-        default=1,
-        title="Inner Height",
-        description="Inner Height",
-    )
-    HEIGHT2: float = Field(
-        default=2,
-        title="Outer Height",
-        description="Outer Height",
-    )
-    WIDTH: float = Field(
-        default=0.1,
-        title="Width",
-        description="Width",
-    )
-    STRUCTURED: bool = Field(
-        default=True,
-        title="Structured",
-        description="Structured",
-    )
+RADIUS = 7.6  # flank radius
+LENGTH2 = 5.7  # length of the narrow middle section
 
 
-class main:
-    def __init__(self, valves, model_data):
-        self.xend = valves["LENGTH"]
-        self.height1 = valves["HEIGHT1"]
-        self.height2 = valves["HEIGHT2"]
-        self.discretization = valves["DISCRETIZATION"]
-        self.structured = valves["STRUCTURED"]
-        self.twoDimensional = model_data.model.twoDimensional
-        self.zend = valves["WIDTH"]
+def boundary_curve(height, length1, radius, length2, alpha_max, alpha_max1, delta_length, delta_height):
+    """Upper/lower outline y(x) of the dogbone: flat grip, flank arc, narrow middle, flank arc, grip."""
+    dalpha = 0.025
+    alpha = np.arange(0, alpha_max, dalpha)
+    if alpha_max1 == 0:
+        alpha1 = np.zeros_like(alpha)
+    elif alpha_max == alpha_max1:
+        alpha1 = np.arange(0, alpha_max, dalpha)
+    else:
+        dalpha1 = alpha_max1 / len(alpha)
+        alpha1 = np.arange(0, alpha_max1, dalpha1)
+        if len(alpha1) > len(alpha):
+            alpha1 = np.arange(0, alpha_max1 - dalpha1 / 2, dalpha1)
 
-        self.radius = 7.6
-        self.length2 = 5.7
-        self.delta_height = (self.height2 - self.height1) / 2
-        self.delta_length = np.sqrt(self.radius * self.radius - (self.radius - self.delta_height) ** 2)
-        self.length1 = (self.xend - 2 * self.delta_length - self.length2) / 2
-        self.alpha = np.arccos((self.radius - self.delta_height) / self.radius) * 180 / np.pi
-
-    def get_discretization(self):
-        number_nodes = 2 * int(self.discretization / 2)
-        dx_value = [
-            self.height2 / number_nodes,
-            self.height2 / number_nodes,
-            self.height2 / number_nodes,
-        ]
-        self.dx_value = dx_value
-        return dx_value
-
-    def create_geometry(self):
-        """doc"""
-
-        geo = Geometry()
-
-        x_value_0 = np.arange(0, self.xend, self.dx_value[0])
-        y_value_0 = np.arange(
-            -self.height2 / 2 - self.dx_value[1],
-            self.height2 / 2 + self.dx_value[1],
-            self.dx_value[1],
+    x_value = np.concatenate(
+        (
+            [0],
+            length1 + delta_length + radius * np.sin(-alpha / 180 * np.pi),
+            length1 + delta_length + length2 + radius * np.sin(alpha / 180 * np.pi),
+            [2 * delta_length + 2 * length1 + length2 + 0.01],
         )
-        z_value_0 = [0]
-        if not self.twoDimensional:
-            z_value_0 = np.arange(0, self.zend, self.dx_value[2])
+    )
+    y_value = np.concatenate(
+        (
+            [height],
+            height - delta_height + radius - radius * np.cos(-alpha1 / 180 * np.pi),
+            height - delta_height + radius - radius * np.cos(alpha1 / 180 * np.pi),
+            [height],
+        )
+    )
+    return interp1d(x_value, y_value), interp1d(x_value, -y_value)
 
-        if self.structured:
-            number_nodes = 2 * int((self.height2 / self.dx_value[1]) / 2) + 1
-            num_rows = int((number_nodes - 1) / 2)
-            fh2 = (2 * self.dx_value[1] * (num_rows) + self.height1 - self.height2) / (self.dx_value[1] * (num_rows))
-            x_value = np.array([])
-            y_value = np.array([])
-            z_value = np.array([])
-            for zval in z_value_0:
-                for i in range(0, num_rows):
-                    height1 = self.height1 - self.dx_value[1] * i * fh2
-                    height2 = self.height2 - self.dx_value[1] * i * 2
-                    # R1 = radius+0.03*i
-                    dh1 = (height2 - height1) / 2
 
-                    alpha1 = np.arccos((self.radius - dh1) / self.radius) * 180 / np.pi
+def unstructured_boundary_curve(height, length1, radius, length2, alpha_max, delta_length, delta_height):
+    """The outline used for the unstructured grid (arcs include their end angle)."""
+    alpha = np.arange(0, alpha_max + 0.025, 0.025)
+    x_value = np.concatenate(
+        (
+            [0],
+            length1 + delta_length + radius * np.sin(-alpha / 180 * np.pi),
+            length1 + delta_length + length2 + radius * np.sin(alpha / 180 * np.pi),
+            [2 * delta_length + 2 * length1 + length2 + 0.01],
+        )
+    )
+    y_value = np.concatenate(
+        (
+            [height],
+            height + radius - delta_height - radius * np.cos(-alpha / 180 * np.pi),
+            height - delta_height + radius - radius * np.cos(alpha / 180 * np.pi),
+            [height],
+        )
+    )
+    return interp1d(x_value, y_value), interp1d(x_value, -y_value)
 
-                    (
-                        top_surf,
-                        bottom_surf,
-                    ) = geo.create_boundary_curve(
-                        height=height2 / 2,
-                        length1=self.length1,
-                        radius=self.radius,
-                        length2=self.length2,
-                        alpha_max=self.alpha,
-                        alpha_max1=alpha1,
-                        delta_length=self.delta_length,
-                        delta_height=dh1,
-                    )
-                    upper_y_value = top_surf(x_value_0)
-                    lower_y_value = bottom_surf(x_value_0)
-                    x_value = np.concatenate((x_value, x_value_0))
-                    x_value = np.concatenate((x_value, x_value_0))
-                    y_value = np.concatenate((y_value, upper_y_value))
-                    y_value = np.concatenate((y_value, lower_y_value))
-                    z_value = np.concatenate((z_value, np.full_like(x_value_0, zval)))
-                    z_value = np.concatenate((z_value, np.full_like(x_value_0, zval)))
 
-                x_value = np.concatenate((x_value, x_value_0))
-                y_value = np.concatenate((y_value, np.zeros_like(x_value_0)))
-                z_value = np.concatenate((z_value, np.full_like(x_value_0, zval)))
+class Model(PeriHubModel):
+    title = "Dogbone"
+    description = "Tensile dogbone"
+    author = "hess_ja"
+    version = "0.1.0"
 
-        else:
-            top_surf, bottom_surf = geo.create_boundary_curve_old(
-                height=self.height2 / 2,
-                length1=self.length1,
-                radius=self.radius,
-                length2=self.length2,
-                alpha_max=self.alpha,
-                delta_length=self.delta_length,
-                delta_height=self.delta_height,
+    DISCRETIZATION = Param(21, "Discretization", "Points over the outer height")
+    LENGTH = Param(13.0, "Length")
+    HEIGHT1 = Param(1.0, "Inner Height")
+    HEIGHT2 = Param(2.0, "Outer Height")
+    WIDTH = Param(0.1, "Width")
+    STRUCTURED = Param(True, "Structured", "Point rows follow the curved flanks")
+
+    @property
+    def spacing(self):
+        return self.HEIGHT2 / (2 * int(self.DISCRETIZATION / 2))
+
+    @property
+    def _layout(self):
+        delta_height = (self.HEIGHT2 - self.HEIGHT1) / 2
+        delta_length = np.sqrt(RADIUS**2 - (RADIUS - delta_height) ** 2)
+        length1 = (self.LENGTH - 2 * delta_length - LENGTH2) / 2
+        alpha = np.arccos((RADIUS - delta_height) / RADIUS) * 180 / np.pi
+        return delta_height, delta_length, length1, alpha
+
+    def points(self):
+        dx = self.spacing
+        delta_height, delta_length, length1, alpha = self._layout
+        x_row = np.arange(0, self.LENGTH, dx)
+        z_layers = [0] if self.two_d else np.arange(0, self.WIDTH, dx)
+
+        if not self.STRUCTURED:
+            top, bottom = unstructured_boundary_curve(
+                self.HEIGHT2 / 2, length1, RADIUS, LENGTH2, alpha, delta_length, delta_height
             )
+            y_col = np.arange(-self.HEIGHT2 / 2 - dx, self.HEIGHT2 / 2 + dx, dx)
+            gx, gy, gz = (g.ravel() for g in np.meshgrid(x_row, y_col, z_layers, indexing="ij"))
+            keep = (gy >= bottom(gx)) & (gy <= top(gx))
+            return gx[keep], gy[keep], gz[keep], None
 
-            x_value = []
-            y_value = []
-            z_value = []
-            for xval in x_value_0:
-                for yval in y_value_0:
-                    for zval in z_value_0:
-                        if geo.check_val_greater(yval, bottom_surf(xval)) and geo.check_val_lower(yval, top_surf(xval)):
-                            x_value.append(xval)
-                            y_value.append(yval)
-                            z_value.append(zval)
+        # Each row pair is a scaled copy of the outline, so rows bunch up in the narrow middle.
+        num_rows = int((2 * int((self.HEIGHT2 / dx) / 2) + 1 - 1) / 2)
+        fh2 = (2 * dx * num_rows + self.HEIGHT1 - self.HEIGHT2) / (dx * num_rows)
+        xs, ys, zs = [], [], []
+        for z in z_layers:
+            for i in range(num_rows):
+                height1 = self.HEIGHT1 - dx * i * fh2
+                height2 = self.HEIGHT2 - dx * i * 2
+                dh1 = (height2 - height1) / 2
+                alpha1 = np.arccos((RADIUS - dh1) / RADIUS) * 180 / np.pi
+                top, bottom = boundary_curve(height2 / 2, length1, RADIUS, LENGTH2, alpha, alpha1, delta_length, dh1)
+                xs += [x_row, x_row]
+                ys += [top(x_row), bottom(x_row)]
+                zs += [np.full_like(x_row, z)] * 2
+            xs.append(x_row)
+            ys.append(np.zeros_like(x_row))
+            zs.append(np.full_like(x_row, z))
+        return np.concatenate(xs), np.concatenate(ys), np.concatenate(zs), None
 
-        return (x_value, y_value, z_value, None)
-
-    def crate_block_definition(self, x_value, y_value, z_value, k):
-        """doc"""
-
-        boundary_condition = 0.2
-
-        k = np.where(
-            x_value >= boundary_condition,
-            2,
-            k,
-        )
-        k = np.where(
-            x_value >= self.length1,
-            3,
-            k,
-        )
-        k = np.where(
-            x_value >= self.length1 + 2 * self.delta_length + self.length2,
-            4,
-            k,
-        )
-        k = np.where(
-            x_value >= self.xend - boundary_condition,
-            5,
-            k,
-        )
-        return k
+    def blocks(self, x, y, z):
+        _, delta_length, length1, _ = self._layout
+        grip = 0.2  # clamped length at each end
+        return {
+            2: x >= grip,
+            3: x >= length1,
+            4: x >= length1 + 2 * delta_length + LENGTH2,
+            5: x >= self.LENGTH - grip,
+        }

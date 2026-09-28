@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, ListRunsData, ListRunsResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, StreamRunLogData, StreamRunLogResponse, CancelRunData, CancelRunResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataData, DeleteUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, ListRunsData, ListRunsResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, StreamRunLogData, StreamRunLogResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataData, DeleteUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -34,7 +34,8 @@ export const generateModel = (data: GenerateModelData): CancelablePromise<Genera
  * Coarse point cloud with block ids, drawn by the frontend as the model preview.
  *
  * Runs the generator exactly like /generate/model but with DISCRETIZATION capped and
- * without writing anything, so it needs no user folder and works in trial mode.
+ * without writing anything, so it needs no user folder and works in trial mode. With
+ * `source`, the model comes from that YAML text instead of the saved file.
  * @param data The data for the request.
  * @param data.requestBody
  * @param data.modelName
@@ -79,7 +80,8 @@ export const generateMesh = (data: GenerateMeshData): CancelablePromise<Generate
 
 /**
  * Get Models
- * doc
+ * Built-in models, then own models (an own model named like a built-in one is shadowed
+ * by it everywhere, so it isn't listed twice).
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -90,7 +92,7 @@ export const getModels = (): CancelablePromise<GetModelsResponse> => { return __
 
 /**
  * Get Own Models
- * doc
+ * Own models; broken or legacy-format ones are included with an `error` message.
  * @param data The data for the request.
  * @param data.verify
  * @returns unknown Successful Response
@@ -109,10 +111,9 @@ export const getOwnModels = (data: GetOwnModelsData = {}): CancelablePromise<Get
 
 /**
  * Get Valves
- * doc
+ * The model's parameters as UI fields.
  * @param data The data for the request.
  * @param data.modelName
- * @param data.source
  * @returns Valves Successful Response
  * @throws ApiError
  */
@@ -120,8 +121,26 @@ export const getValves = (data: GetValvesData): CancelablePromise<GetValvesRespo
     method: 'GET',
     url: '/model/getValves',
     query: {
-        model_name: data.modelName,
-        source: data.source
+        model_name: data.modelName
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Analyses
+ * The model's @analysis functions (result images) and their parameters; [] if none.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @returns AnalysisInfo Successful Response
+ * @throws ApiError
+ */
+export const getAnalyses = (data: GetAnalysesData): CancelablePromise<GetAnalysesResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/model/analyses',
+    query: {
+        model_name: data.modelName
     },
     errors: {
         422: 'Validation Error'
@@ -252,10 +271,11 @@ export const viewInputFile = (data: ViewInputFileData = {}): CancelablePromise<V
 
 /**
  * Add Model
- * doc
+ * Create an own model from the YAML (default) or Python template; returns its folder name.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.description
+ * @param data.modelFormat
  * @returns string Successful Response
  * @throws ApiError
  */
@@ -264,7 +284,8 @@ export const addModel = (data: AddModelData): CancelablePromise<AddModelResponse
     url: '/model/add',
     query: {
         model_name: data.modelName,
-        description: data.description
+        description: data.description,
+        model_format: data.modelFormat
     },
     errors: {
         422: 'Validation Error'
@@ -273,9 +294,10 @@ export const addModel = (data: AddModelData): CancelablePromise<AddModelResponse
 
 /**
  * Get Own Model File
- * doc
+ * Source of an own model (`part=analysis`: a YAML model's analysis.py, "" if it has none).
  * @param data The data for the request.
  * @param data.modelFile
+ * @param data.part
  * @returns string Successful Response
  * @throws ApiError
  */
@@ -283,7 +305,8 @@ export const getOwnModelFile = (data: GetOwnModelFileData = {}): CancelablePromi
     method: 'GET',
     url: '/model/getOwnModelFile',
     query: {
-        model_file: data.modelFile
+        model_file: data.modelFile,
+        part: data.part
     },
     errors: {
         422: 'Validation Error'
@@ -292,9 +315,11 @@ export const getOwnModelFile = (data: GetOwnModelFileData = {}): CancelablePromi
 
 /**
  * Save Model
+ * Save an own model's source after a syntax check (YAML: full model validation).
  * @param data The data for the request.
  * @param data.modelFile
- * @param data.sourceCode
+ * @param data.requestBody
+ * @param data.part
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -303,8 +328,10 @@ export const saveModelFile = (data: SaveModelFileData): CancelablePromise<SaveMo
     url: '/model/save',
     query: {
         model_file: data.modelFile,
-        source_code: data.sourceCode
+        part: data.part
     },
+    body: data.requestBody,
+    mediaType: 'application/json',
     errors: {
         422: 'Validation Error'
     }
@@ -656,6 +683,34 @@ export const cancelRun = (data: CancelRunData): CancelablePromise<CancelRunRespo
 }); };
 
 /**
+ * Run Analysis
+ * Run one of the model's @analysis functions on a run's results; returns the image as PNG.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @param data.analysisId
+ * @param data.requestBody
+ * @param data.modelFolderName
+ * @param data.runId
+ * @returns unknown The analysis image
+ * @throws ApiError
+ */
+export const runAnalysis = (data: RunAnalysisData): CancelablePromise<RunAnalysisResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/results/analysis',
+    query: {
+        model_name: data.modelName,
+        analysis_id: data.analysisId,
+        model_folder_name: data.modelFolderName,
+        run_id: data.runId
+    },
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
  * Get Result File
  * @param data The data for the request.
  * @param data.file
@@ -960,7 +1015,7 @@ export const getTrialId = (): CancelablePromise<GetTrialIdResponse> => { return 
  * Signup
  * @param data The data for the request.
  * @param data.requestBody
- * @returns app__routers__oauth__AuthResponse Successful Response
+ * @returns backend__app__routers__oauth__AuthResponse Successful Response
  * @throws ApiError
  */
 export const signup = (data: SignupData): CancelablePromise<SignupResponse> => { return __request(OpenAPI, {
@@ -977,7 +1032,7 @@ export const signup = (data: SignupData): CancelablePromise<SignupResponse> => {
  * Login
  * @param data The data for the request.
  * @param data.requestBody
- * @returns app__routers__oauth__AuthResponse Successful Response
+ * @returns backend__app__routers__oauth__AuthResponse Successful Response
  * @throws ApiError
  */
 export const login = (data: LoginData): CancelablePromise<LoginResponse> => { return __request(OpenAPI, {
@@ -1020,7 +1075,7 @@ export const startOidcLogin = (): CancelablePromise<StartOidcLoginResponse> => {
  * before calling this - see support/oidc_client.py's docstring.
  * @param data The data for the request.
  * @param data.code
- * @returns app__routers__oauth__AuthResponse Successful Response
+ * @returns backend__app__routers__oauth__AuthResponse Successful Response
  * @throws ApiError
  */
 export const oidcCallback = (data: OidcCallbackData): CancelablePromise<OidcCallbackResponse> => { return __request(OpenAPI, {

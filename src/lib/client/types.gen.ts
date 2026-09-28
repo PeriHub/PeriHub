@@ -13,6 +13,23 @@ export type AdditiveModel = {
     printTemp: number;
 };
 
+/**
+ * One @analysis function of a model (GET /model/analyses).
+ */
+export type AnalysisInfo = {
+    id: string;
+    label: string;
+    params: Array<Valve>;
+};
+
+export type AnalysisRequest = {
+    data: ModelData;
+    valves: Valves;
+    analysis_params?: {
+        [key: string]: (number | boolean | string);
+    };
+};
+
 export type AuthorizationUrlResponse = {
     authorization_url: string;
     state: string;
@@ -44,6 +61,14 @@ export type Body_generate_model = {
 export type Body_preview_model = {
     data: ModelData;
     valves: Valves;
+    /**
+     * Unsaved YAML model text (editor preview)
+     */
+    source?: string | null;
+};
+
+export type Body_save_model_file = {
+    source_code: string;
 };
 
 export type Body_upload_files = {
@@ -442,6 +467,15 @@ export type PreCalculations = {
     bondAssociateDeformationGradient?: boolean | null;
 };
 
+export type PreviewBlock = {
+    id: number;
+    bounds: {
+        [key: string]: (number);
+    };
+    labelX: number;
+    labelY: number;
+};
+
 export type PreviewResponse = {
     x: Array<(number)>;
     y: Array<(number)>;
@@ -449,6 +483,13 @@ export type PreviewResponse = {
     block: Array<(number)>;
     bounds_min: Array<(number)>;
     bounds_max: Array<(number)>;
+    shapes?: Array<{
+        [key: string]: unknown;
+    }>;
+    blocks?: Array<PreviewBlock>;
+    regions?: {
+    [key: string]: unknown;
+} | null;
 };
 
 export type ProjectIn = {
@@ -633,7 +674,6 @@ export type value_type = 'int' | 'float' | 'bool' | 'str';
 
 export type Valves = {
     valves: Array<Valve>;
-    analysisValves: Array<Valve>;
 };
 
 export type Verlet = {
@@ -648,7 +688,7 @@ export type VersionData = {
     perilab_latest: string;
 };
 
-export type app__routers__oauth__AuthResponse = {
+export type backend__app__routers__oauth__AuthResponse = {
     token: string;
     user_id: string;
     display_name: string;
@@ -698,10 +738,15 @@ export type GetOwnModelsResponse = Array<{
 
 export type GetValvesData = {
     modelName: string;
-    source?: boolean;
 };
 
 export type GetValvesResponse = Valves;
+
+export type GetAnalysesData = {
+    modelName: string;
+};
+
+export type GetAnalysesResponse = Array<AnalysisInfo>;
 
 export type GetConfigData = {
     configFile?: string;
@@ -745,6 +790,7 @@ export type ViewInputFileResponse = string;
 
 export type AddModelData = {
     description: string;
+    modelFormat?: 'yaml' | 'python';
     modelName: string;
 };
 
@@ -752,13 +798,15 @@ export type AddModelResponse = string;
 
 export type GetOwnModelFileData = {
     modelFile?: string;
+    part?: 'model' | 'analysis';
 };
 
 export type GetOwnModelFileResponse = string;
 
 export type SaveModelFileData = {
     modelFile: string;
-    sourceCode: string;
+    part?: 'model' | 'analysis';
+    requestBody: Body_save_model_file;
 };
 
 export type SaveModelFileResponse = unknown;
@@ -866,6 +914,16 @@ export type CancelRunData = {
 
 export type CancelRunResponse = unknown;
 
+export type RunAnalysisData = {
+    analysisId: string;
+    modelFolderName?: string;
+    modelName: string;
+    requestBody: AnalysisRequest;
+    runId?: string | null;
+};
+
+export type RunAnalysisResponse = unknown;
+
 export type GetResultFileData = {
     file: string;
 };
@@ -959,13 +1017,13 @@ export type SignupData = {
     requestBody: SignupRequest;
 };
 
-export type SignupResponse = app__routers__oauth__AuthResponse;
+export type SignupResponse = backend__app__routers__oauth__AuthResponse;
 
 export type LoginData = {
     requestBody: LoginRequest;
 };
 
-export type LoginResponse = app__routers__oauth__AuthResponse;
+export type LoginResponse = backend__app__routers__oauth__AuthResponse;
 
 export type GetCurrentUserInfoResponse = MeResponse;
 
@@ -975,7 +1033,7 @@ export type OidcCallbackData = {
     code: string;
 };
 
-export type OidcCallbackResponse = app__routers__oauth__AuthResponse;
+export type OidcCallbackResponse = backend__app__routers__oauth__AuthResponse;
 
 export type ListLibraryItemsData = {
     kind: 'model-config' | 'material';
@@ -1155,6 +1213,21 @@ export type $OpenApiTs = {
                  * Successful Response
                  */
                 200: Valves;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/model/analyses': {
+        get: {
+            req: GetAnalysesData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<AnalysisInfo>;
                 /**
                  * Validation Error
                  */
@@ -1510,6 +1583,21 @@ export type $OpenApiTs = {
             };
         };
     };
+    '/results/analysis': {
+        post: {
+            req: RunAnalysisData;
+            res: {
+                /**
+                 * The analysis image
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
     '/results/getResultFile': {
         get: {
             req: GetResultFileData;
@@ -1704,7 +1792,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: app__routers__oauth__AuthResponse;
+                200: backend__app__routers__oauth__AuthResponse;
                 /**
                  * Validation Error
                  */
@@ -1719,7 +1807,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: app__routers__oauth__AuthResponse;
+                200: backend__app__routers__oauth__AuthResponse;
                 /**
                  * Validation Error
                  */
@@ -1754,7 +1842,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: app__routers__oauth__AuthResponse;
+                200: backend__app__routers__oauth__AuthResponse;
                 /**
                  * Validation Error
                  */

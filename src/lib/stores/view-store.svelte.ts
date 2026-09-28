@@ -132,6 +132,17 @@ class ViewStore {
   // Block / boundary condition the user is hovering or editing in the
   // setup panels - ModelPreview dims everything else.
   previewHighlight = $state<{ block?: number; bc?: string } | null>(null);
+  // Last image from a model's @analysis function (ViewActions -> AnalysisView).
+  // `url` is an object URL; replace it via setAnalysisImage so the old one is revoked.
+  analysisImage = $state<{ label: string; url: string; filename: string } | null>(null);
+  setAnalysisImage(image: { label: string; blob: Blob; filename: string } | null) {
+    if (this.analysisImage) URL.revokeObjectURL(this.analysisImage.url);
+    this.analysisImage = image && {
+      label: image.label,
+      url: URL.createObjectURL(image.blob),
+      filename: image.filename
+    };
+  }
   // Parsed live from the streamed log text - see parseLogProgress. null
   // until PeriLab's log contains at least one recognized progress line.
   logProgress = $derived(parseLogProgress(this.logOutput));

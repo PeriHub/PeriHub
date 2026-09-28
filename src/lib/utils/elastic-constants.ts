@@ -60,7 +60,7 @@ export function convertElasticConstants(input: ElasticConstants): ElasticConstan
       calculated.youngsModulus = (9 * +K * +G) / (3 * +K + +G);
       calculated.lameFirst = +K - (2 * +G) / 3;
       calculated.shearModulus = +G;
-      calculated.poissonsRatio = (3 * +K - 2 * +G) / (2 * (3 * +K - +G));
+      calculated.poissonsRatio = (3 * +K - 2 * +G) / (2 * (3 * +K + +G));
       calculated.pWaveModulus = +K + (4 * +G) / 3;
     }
     if (v != null) {

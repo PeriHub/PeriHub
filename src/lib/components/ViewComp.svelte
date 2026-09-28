@@ -17,6 +17,8 @@ SPDX-License-Identifier: Apache-2.0
   import JobsView from '$lib/components/views/JobsView.svelte';
   import ChartView from '$lib/components/views/ChartView.svelte';
   import RenewableView from '$lib/components/views/RenewableView.svelte';
+  import AnalysisView from '$lib/components/views/AnalysisView.svelte';
+  import { modelNeedsRefresh } from '$lib/utils/modelSync';
 
   const outputs = $derived(modelStore.modelData.outputs ?? []);
   const showResults = $derived(outputs.some((o) => o.selectedFileType === 'Exodus'));
@@ -39,18 +41,30 @@ SPDX-License-Identifier: Apache-2.0
       {#if showChart}
         <Tabs.Trigger value="plotly" class={tabClass}>Plot</Tabs.Trigger>
       {/if}
+      {#if viewStore.analysisImage}
+        <Tabs.Trigger value="analysis" class={tabClass}>Analysis</Tabs.Trigger>
+      {/if}
       {#if defaultStore.saveEnergy}
         <Tabs.Trigger value="renewable" class={tabClass}>Renewable</Tabs.Trigger>
       {/if}
     </Tabs.List>
 
     <div class="flex-1 overflow-auto">
-      <Tabs.Content value="image" class="h-full"><ModelPreview /></Tabs.Content>
+      <Tabs.Content value="image" class="h-full">
+        <!-- Mid-switch, config/valves may still belong to the previous model. -->
+        <ModelPreview
+          modelName={modelStore.selectedModel.file}
+          data={modelStore.modelData}
+          valves={modelStore.modelParams}
+          paused={modelNeedsRefresh(modelStore.selectedModel.file)}
+        />
+      </Tabs.Content>
       <Tabs.Content value="model" class="h-full"><ModelView /></Tabs.Content>
       <Tabs.Content value="cad" class="h-full"><CadView /></Tabs.Content>
       <Tabs.Content value="jobs" class="h-full"><JobsView /></Tabs.Content>
       <Tabs.Content value="results" class="h-full"><ResultsView /></Tabs.Content>
       <Tabs.Content value="plotly" class="h-full"><ChartView /></Tabs.Content>
+      <Tabs.Content value="analysis" class="h-full"><AnalysisView /></Tabs.Content>
       <Tabs.Content value="renewable" class="h-full"><RenewableView /></Tabs.Content>
     </div>
   </Tabs.Root>

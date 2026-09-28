@@ -53,6 +53,65 @@ export const $AdditiveModel = {
     title: 'AdditiveModel'
 } as const;
 
+export const $AnalysisInfo = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        label: {
+            type: 'string',
+            title: 'Label'
+        },
+        params: {
+            items: {
+                '$ref': '#/components/schemas/Valve'
+            },
+            type: 'array',
+            title: 'Params'
+        }
+    },
+    type: 'object',
+    required: ['id', 'label', 'params'],
+    title: 'AnalysisInfo',
+    description: 'One @analysis function of a model (GET /model/analyses).'
+} as const;
+
+export const $AnalysisRequest = {
+    properties: {
+        data: {
+            '$ref': '#/components/schemas/ModelData'
+        },
+        valves: {
+            '$ref': '#/components/schemas/Valves'
+        },
+        analysis_params: {
+            additionalProperties: {
+                anyOf: [
+                    {
+                        type: 'integer'
+                    },
+                    {
+                        type: 'number'
+                    },
+                    {
+                        type: 'boolean'
+                    },
+                    {
+                        type: 'string'
+                    }
+                ]
+            },
+            type: 'object',
+            title: 'Analysis Params',
+            default: {}
+        }
+    },
+    type: 'object',
+    required: ['data', 'valves'],
+    title: 'AnalysisRequest'
+} as const;
+
 export const $AuthorizationUrlResponse = {
     properties: {
         authorization_url: {
@@ -206,11 +265,35 @@ export const $Body_preview_model = {
         },
         valves: {
             '$ref': '#/components/schemas/Valves'
+        },
+        source: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Source',
+            description: 'Unsaved YAML model text (editor preview)'
         }
     },
     type: 'object',
     required: ['data', 'valves'],
     title: 'Body_preview_model'
+} as const;
+
+export const $Body_save_model_file = {
+    properties: {
+        source_code: {
+            type: 'string',
+            title: 'Source Code'
+        }
+    },
+    type: 'object',
+    required: ['source_code'],
+    title: 'Body_save_model_file'
 } as const;
 
 export const $Body_upload_files = {
@@ -3059,6 +3142,33 @@ export const $PreCalculations = {
     title: 'PreCalculations'
 } as const;
 
+export const $PreviewBlock = {
+    properties: {
+        id: {
+            type: 'integer',
+            title: 'Id'
+        },
+        bounds: {
+            additionalProperties: {
+                type: 'number'
+            },
+            type: 'object',
+            title: 'Bounds'
+        },
+        labelX: {
+            type: 'number',
+            title: 'Labelx'
+        },
+        labelY: {
+            type: 'number',
+            title: 'Labely'
+        }
+    },
+    type: 'object',
+    required: ['id', 'bounds', 'labelX', 'labelY'],
+    title: 'PreviewBlock'
+} as const;
+
 export const $PreviewResponse = {
     properties: {
         x: {
@@ -3102,6 +3212,35 @@ export const $PreviewResponse = {
             },
             type: 'array',
             title: 'Bounds Max'
+        },
+        shapes: {
+            items: {
+                additionalProperties: true,
+                type: 'object'
+            },
+            type: 'array',
+            title: 'Shapes',
+            default: []
+        },
+        blocks: {
+            items: {
+                '$ref': '#/components/schemas/PreviewBlock'
+            },
+            type: 'array',
+            title: 'Blocks',
+            default: []
+        },
+        regions: {
+            anyOf: [
+                {
+                    additionalProperties: true,
+                    type: 'object'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Regions'
         }
     },
     type: 'object',
@@ -4255,20 +4394,12 @@ export const $Valves = {
             },
             type: 'array',
             title: 'Valves'
-        },
-        analysisValves: {
-            items: {
-                '$ref': '#/components/schemas/Valve'
-            },
-            type: 'array',
-            title: 'Analysisvalves'
         }
     },
     type: 'object',
-    required: ['valves', 'analysisValves'],
+    required: ['valves'],
     title: 'Valves',
     example: {
-        analysisValves: [],
         valves: [
             {
                 description: 'Discretization',
@@ -4369,7 +4500,7 @@ export const $VersionData = {
     title: 'VersionData'
 } as const;
 
-export const $app__routers__oauth__AuthResponse = {
+export const $backend__app__routers__oauth__AuthResponse = {
     properties: {
         token: {
             type: 'string',

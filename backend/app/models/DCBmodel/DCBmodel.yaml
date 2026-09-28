@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+title: DCB Model
+description: DCB Model
+author: hess_ja
+version: 0.1.0
+
+parameters:
+  DISCRETIZATION: {default: 100, label: Discretization, description: Points along the length}
+  LENGTH: {default: 50, label: Length}
+  HEIGHT: {default: 20, label: Height}
+  WIDTH: {default: 6, label: Width}
+
+geometry:
+  spacing: LENGTH / (2 * int(DISCRETIZATION / 2) + 1)
+  # Offset by half a spacing so no point row lies on the crack plane y = 0.
+  grid_origin: [0, spacing / 2, -WIDTH / 2]
+  add:
+    - box: {min: [0, -HEIGHT / 2, -WIDTH / 2], max: [LENGTH, HEIGHT / 2, WIDTH / 2]}
+
+blocks:
+  - {id: 2, where: "y > 0"}
+  - {id: 3, where: "x < 2 and y > 0"}
+  - {id: 4, where: "x < 2 and y < 0"}

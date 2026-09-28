@@ -7,10 +7,11 @@ import json
 import os
 import time
 from re import match
+from typing import Optional
 
 import numpy as np
 import requests
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Body, HTTPException, Request, status
 from pydantic import BaseModel
 
 # from ..models.PlateWithHole.plate_with_hole import PlateWithHole
@@ -21,6 +22,7 @@ from ..support.base_models import Block, Deviations, ModelData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log
 from ..support.model.point_cloud import build_point_cloud, valves_to_dict
+from ..support.model.yaml_model import ModelSpecError
 from ..support.writer.model_writer import ModelWriter
 
 # from ..models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
@@ -80,10 +82,14 @@ def generate_model(
 
         valves_dict = valves_to_dict(valves)
         try:
-            dx_value, x_value, y_value, z_value, vol, k = build_point_cloud(model_name, data, valves_dict)
+            cloud = build_point_cloud(model_name, data, valves_dict)
         except LookupError as e:
             log.error(e)
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        except ModelSpecError as e:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
+        dx_value, vol, k = cloud["dx"], cloud["volume"], cloud["block"]
+        x_value, y_value, z_value = cloud["x"], cloud["y"], cloud["z"]
 
         if len(x_value) > max_nodes:
             log.error("The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes))
@@ -166,6 +172,13 @@ PREVIEW_MAX_DISCRETIZATION = 30
 PREVIEW_MAX_POINTS = 5000
 
 
+class PreviewBlock(BaseModel):
+    id: int
+    bounds: dict[str, float]
+    labelX: float
+    labelY: float
+
+
 class PreviewResponse(BaseModel):
     x: list[float]
     y: list[float]
@@ -173,44 +186,73 @@ class PreviewResponse(BaseModel):
     block: list[int]
     bounds_min: list[float]
     bounds_max: list[float]
+    # Outlines of the model's primitives (see shapes.flatten) and per-block bounds/label anchor,
+    # computed from the full-resolution cloud before it is thinned for the response.
+    shapes: list[dict] = []
+    blocks: list[PreviewBlock] = []
+    # Exact drawing (support/model/regions.py): the body and each block as a region tree.
+    # Null for models that make their own point cloud; the frontend then draws the points.
+    regions: Optional[dict] = None
 
 
 @router.post("/preview", operation_id="preview_model")
-def preview_model(data: ModelData, valves: Valves, model_name: str = "Dogbone") -> PreviewResponse:
+def preview_model(
+    data: ModelData,
+    valves: Valves,
+    model_name: str = "Dogbone",
+    source: Optional[str] = Body(default=None, description="Unsaved YAML model text (editor preview)"),
+) -> PreviewResponse:
     """Coarse point cloud with block ids, drawn by the frontend as the model preview.
 
     Runs the generator exactly like /generate/model but with DISCRETIZATION capped and
-    without writing anything, so it needs no user folder and works in trial mode.
+    without writing anything, so it needs no user folder and works in trial mode. With
+    `source`, the model comes from that YAML text instead of the saved file.
     """
-    valves_dict = valves_to_dict(valves)
+    full_valves = valves_to_dict(valves)
+    valves_dict = dict(full_valves)
     if "DISCRETIZATION" in valves_dict:
         valves_dict["DISCRETIZATION"] = min(valves_dict["DISCRETIZATION"], PREVIEW_MAX_DISCRETIZATION)
 
     try:
-        _, x, y, z, _, k = build_point_cloud(model_name, data, valves_dict)
+        cloud = build_point_cloud(model_name, data, valves_dict, source=source, region_valves=full_valves)
     except LookupError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
         log.warning("Preview of %s failed: %s", model_name, e)
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e) or type(e).__name__)
 
-    x, y, z, k = (np.asarray(a).ravel() for a in (x, y, z, k))
+    x, y, z, k = (np.asarray(cloud[key]).ravel() for key in ("x", "y", "z", "block"))
+    if len(x) == 0:
+        return PreviewResponse(x=[], y=[], z=[], block=[], bounds_min=[0, 0, 0], bounds_max=[0, 0, 0])
+    points = np.vstack([x, y, z]).astype(float)
+    bounds_min, bounds_max = points.min(axis=1).tolist(), points.max(axis=1).tolist()
+
+    if not data.model.twoDimensional:
+        # The preview is a view from +z: keep the top-most point per x/y position, so thinning
+        # below doesn't mix layers into stripes and the visible blocks are the top ones.
+        order = np.lexsort((-points[2], np.round(points[1], 6), np.round(points[0], 6)))
+        xy = np.round(points[:2, order], 6)
+        first = np.ones(len(order), dtype=bool)
+        first[1:] = np.any(xy[:, 1:] != xy[:, :-1], axis=0)
+        points, k = points[:, order[first]], k[order[first]]
+        x = points[0]
+
     if len(x) > PREVIEW_MAX_POINTS:
         # Even stride rather than random, so every block keeps proportional coverage.
         idx = np.linspace(0, len(x) - 1, PREVIEW_MAX_POINTS).astype(int)
-        x, y, z, k = x[idx], y[idx], z[idx], k[idx]
+        points, k = points[:, idx], k[idx]
 
-    points = np.vstack([x, y, z]).astype(float)
-    if points.size == 0:
-        return PreviewResponse(x=[], y=[], z=[], block=[], bounds_min=[0, 0, 0], bounds_max=[0, 0, 0])
     rounded = [[float(f"{v:.4g}") for v in row] for row in points]
     return PreviewResponse(
         x=rounded[0],
         y=rounded[1],
         z=rounded[2],
         block=k.astype(int).tolist(),
-        bounds_min=points.min(axis=1).tolist(),
-        bounds_max=points.max(axis=1).tolist(),
+        bounds_min=bounds_min,
+        bounds_max=bounds_max,
+        shapes=cloud["shapes"],
+        blocks=cloud["blocks"],
+        regions=cloud["regions"],
     )
 
 

@@ -4,134 +4,81 @@
 
 import ast
 import csv
-import importlib
 import json
 import math
 import os
 import shutil
 from pathlib import Path
 from re import findall
-from typing import Optional
+from typing import Literal, Optional
 
 import numpy as np
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Body, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 from slugify import slugify
 
-from ..support.base_models import ModelData, PointData, Valves
+from ..support.base_models import AnalysisInfo, ModelData, PointData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
+from ..support.model import loader
+from ..support.model.yaml_model import ModelSpecError
+from ..support.model.yaml_model import model_class as yaml_model_class
 
 router = APIRouter(prefix="/model", tags=["Model Methods"])
+
+OWN_MODELS = loader.MODEL_DIRS["own"]
+ASSETS = loader.APP_DIR / "assets"
 
 
 @router.get("/getModels", operation_id="get_models")
 def get_models() -> list[dict]:
-    """doc"""
-
-    model_list = []
-    file_path = str(Path(__file__).parent.parent.resolve())
-    # print(file_path)
-    for model in os.listdir(os.path.join(file_path, "models")):
-        if model.startswith("__"):
-            continue
-        doc_string = FileHandler.get_docstring(os.path.join(file_path, "models", model, model + ".py"))
-        if doc_string:
-            doc_dict = FileHandler.doc_to_dict(doc_string)
-            doc_dict["file"] = os.path.join(model)
-            # doc_dict["config"] = os.path.join(model, model + ".json")
-            # if doc_dict["input"] != input_type and input_type != "Any":
-            #     continue
-            # if own_models and username not in doc_dict["author"].replace(" ", "").split(","):
-            #     continue
-            model_list.append(doc_dict)
-
-    # getValves/getConfig resolve built-in models before own_models, so an own
-    # model sharing a built-in's name is shadowed anyway - and listing both
-    # would give the frontend duplicate keys.
-    built_in = {doc_dict["file"] for doc_dict in model_list}
-    model_list += [doc_dict for doc_dict in get_own_models() if doc_dict["file"] not in built_in]
-
-    return model_list
+    """Built-in models, then own models (an own model named like a built-in one is shadowed
+    by it everywhere, so it isn't listed twice)."""
+    model_list = loader.list_models("built_in")
+    built_in = {model["file"] for model in model_list}
+    return model_list + [model for model in loader.list_models("own") if model["file"] not in built_in]
 
 
 @router.get("/getOwnModels", operation_id="get_own_models")
 def get_own_models(verify: bool = False, request: Request = "") -> list[dict]:
-    """doc"""
-
-    model_list = []
-    file_path = str(Path(__file__).parent.parent.resolve())
-    file_path = os.path.join(file_path, "own_models")
-    if not os.path.exists(file_path):
-        return model_list
-    # print(file_path)
-    for model in os.listdir(file_path):
-        if model.startswith("__"):
-            continue
-        doc_string = FileHandler.get_docstring(os.path.join(file_path, model, model + ".py"))
-        if doc_string:
-            doc_dict = FileHandler.doc_to_dict(doc_string)
-            doc_dict["file"] = os.path.join(model)
-            # doc_dict["config"] = os.path.join(model, model + ".json")
-            # if doc_dict["input"] != input_type and input_type != "Any":
-            #     continue
-            if verify:
-                username = FileHandler.get_user_name(request, dev)
-                if username not in doc_dict["author"].replace(" ", "").split(",") and username != "dev":
-                    continue
-            model_list.append(doc_dict)
-
+    """Own models; broken or legacy-format ones are included with an `error` message."""
+    model_list = loader.list_models("own")
+    if verify:
+        username = FileHandler.get_user_name(request, dev)
+        model_list = [
+            model
+            for model in model_list
+            if username == "dev" or username in model["author"].replace(" ", "").split(",")
+        ]
     return model_list
 
 
 @router.get("/getValves", operation_id="get_valves")
-def get_valves(model_name: str, source: bool = False) -> Valves:
-    """doc"""
-    parent_path = str(Path(__file__).parent.parent.name)
-
-    # if source:
-    #     file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name + ".py")
-    #     return Path(file_path).read_text()
+def get_valves(model_name: str) -> Valves:
+    """The model's parameters as UI fields."""
     try:
-        module = importlib.import_module(parent_path + ".models." + model_name + "." + model_name, package=".")
-    except:
-        try:
-            module = importlib.import_module(parent_path + ".own_models." + model_name + "." + model_name, package=".")
-        except:
-            return {"valves": [], "analysisValves": []}
-    if not hasattr(module, "Valves"):
-        return {"valves": [], "analysisValves": []}
-    my_class = getattr(module, "Valves")
-    my_instance = my_class()
+        model_class = loader.load_model(model_name)
+    except LookupError:
+        return {"valves": []}
+    return {"valves": [param.valve() for param in model_class.params()]}
 
-    fields = my_instance.model_fields
-    response = {"valves": [], "analysisValves": []}
-    for key in fields:
-        type = "text"
-        if fields[key].annotation == bool:
-            type = "checkbox"
-        # elif fields[key].annotation == Any:
-        #     type = "data"
-        elif fields[key].annotation in [float, int]:
-            type = "number"
-        elif fields[key].annotation == str and fields[key].examples:
-            type = "select"
-        response_key = "valves"
-        if key.startswith("ANALYSIS_"):
-            response_key = "analysisValves"
-        response[response_key].append(
-            {
-                "name": key,
-                "type": type,
-                "value": fields[key].default,
-                "value_type": fields[key].annotation.__name__,
-                "label": fields[key].title,
-                "description": fields[key].description,
-                "options": fields[key].examples,
-                "depends": fields[key].alias,
-            }
-        )
-    return response
+
+@router.get("/analyses", operation_id="get_analyses")
+def get_analyses(model_name: str) -> list[AnalysisInfo]:
+    """The model's @analysis functions (result images) and their parameters; [] if none."""
+    try:
+        analyses = loader.load_analyses(model_name)
+    except LookupError as e:
+        log.warning(e)
+        return []
+    return [
+        {
+            "id": fn.perihub_analysis["id"],
+            "label": fn.perihub_analysis["label"],
+            "params": [param.valve() for param in fn.perihub_analysis["params"]],
+        }
+        for fn in analyses.values()
+    ]
 
 
 @router.get("/getConfig", operation_id="get_config")
@@ -432,190 +379,76 @@ def view_input_file(
         )
 
 
+def _own_model_path(model_file: str, part: str) -> Path:
+    """The editable file of an own model: its generator, or a YAML model's analysis.py."""
+    folder = OWN_MODELS / model_file
+    if not model_file or folder.resolve().parent != OWN_MODELS.resolve() or not folder.is_dir():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Own model {model_file} not found")
+    if part == "analysis":
+        return folder / "analysis.py"
+    for suffix in (".yaml", ".py"):
+        if (folder / (model_file + suffix)).is_file():
+            return folder / (model_file + suffix)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Own model {model_file} has no model file")
+
+
 @router.post("/add", operation_id="add_model")
-def add_model(model_name: str, description: str, request: Request = "") -> str:
-    """doc"""
-
+def add_model(
+    model_name: str, description: str, model_format: Literal["yaml", "python"] = "yaml", request: Request = ""
+) -> str:
+    """Create an own model from the YAML (default) or Python template; returns its folder name."""
     username = FileHandler.get_user_name(request, dev)
-
     model_slug = slugify(model_name, separator="_")
+    folder_path = OWN_MODELS / model_slug
+    if folder_path.exists():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Model {model_slug} already exists")
 
-    folder_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_slug)
-    file_path = os.path.join(folder_path, model_slug + ".py")
-    config_file_path = os.path.join(folder_path, model_slug + ".json")
+    suffix = ".yaml" if model_format == "yaml" else ".py"
+    template = (ASSETS / ("model_template" + suffix)).read_text(encoding="utf-8")
+    for key, value in (("title", model_name), ("description", description), ("author", username)):
+        template = template.replace("{" + key + "}", value.replace('"', "'"))
 
-    source_code = f'''
-"""
-title: {model_name}
-description: {description}
-author: {username}
-requirements:
-analysis: Get Analysis Plot
-version: 0.1.0
-"""
-import numpy as np
-from pydantic import BaseModel, Field
-
-import os
-import pandas as pd
-import matplotlib.pyplot as plt
-
-from ...support.model.geometry import Geometry
-
-class Valves(BaseModel):
-    DISCRETIZATION: float = Field(
-        default=21,
-        title="Discretization",
-        description="Discretization",
-    )
-    LENGTH: float = Field(
-        default=20,
-        title="Length",
-        description="Length",
-    )
-    HEIGHT: float = Field(
-        default=10,
-        title="Height",
-        description="Height",
-    )
-    WIDTH: float = Field(
-        default=25,
-        title="Width",
-        description="Width",
-    )
-    ANALYSIS_CSV_OUTPUT: str = Field(
-        default= "CSV",
-        title='CSV Output',
-        description='CSV Output',
-        examples='outputs',
-    )
-    ANALYSIS_VARIABLE: str = Field(
-        default= "External_Displacements",
-        title='Variable',
-        description='Variable',
-        examples='computes',
-    )
-
-class main:
-
-    def __init__(self, valves, model_data, analysisValves = {{}}):
-        self.xbegin = 0
-        self.xend = valves["LENGTH"]
-        self.ybegin = 0
-        self.yend = valves["HEIGHT"]
-        self.discretization = valves["DISCRETIZATION"]
-        self.two_d = model_data.model.twoDimensional
-
-        if self.two_d:
-            self.zbegin = 0
-            self.zend = 0
-        else:
-            self.zbegin = -valves["WIDTH"] / 2
-            self.zend = valves["WIDTH"] / 2
-
-        if analysisValves:
-            self.variable = analysisValves["ANALYSIS_VARIABLE"]
-            self.csv_output = analysisValves["ANALYSIS_CSV_OUTPUT"]
-
-    def get_discretization(self):
-        number_nodes = 2 * int(self.discretization / 2) + 1
-        dx_value = [
-            self.yend / number_nodes,
-            self.yend / number_nodes,
-            self.yend / number_nodes,
-        ]
-        self.dx_value = dx_value
-        return dx_value
-
-    def create_geometry(self):
-        geo = Geometry()
-
-        x_value, y_value, z_value = geo.create_rectangle(
-            coor=[
-                self.xbegin,
-                self.xend,
-                self.ybegin,
-                self.yend,
-                self.zbegin,
-                self.zend,
-            ],
-            dx_value=self.dx_value,
-        )
-
-        return (
-            x_value,
-            y_value,
-            z_value,
-            None
-        )
-
-    def edit_model_data(self, model_data):
-        return model_data
-
-    def crate_block_definition(self, x_value, y_value, z_value, k):
-        k = np.where(
-            y_value <= self.yend / 2,
-            2,
-            k,
-        )
-        return k
-
-    def analysis(self,model_name,resultpath):
-        variable = self.variable + "y"
-        csv_output = self.csv_output
-
-        file = os.path.join(resultpath, model_name + "_" + csv_output + ".csv")
-        result_file = os.path.join(resultpath, model_name + "_results.png")
-
-        df = pd.read_csv(file)
-
-        plt.clf()
-        plt.plot(df["Time"], df[variable], label="Original data")
-
-        # Display the plot
-        plt.savefig(result_file)
-
-        return result_file
-        '''
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-    with open(file_path, "w") as file:
-        file.write(source_code)
-
-    shutil.copy(
-        os.path.join(str(Path(__file__).parent.parent.resolve()), "assets", "config_template.json"), config_file_path
-    )
-
+    folder_path.mkdir(parents=True)
+    (folder_path / (model_slug + suffix)).write_text(template, encoding="utf-8")
+    shutil.copy(ASSETS / "config_template.json", folder_path / (model_slug + ".json"))
     return model_slug
 
 
 @router.get("/getOwnModelFile", operation_id="get_own_model_file")
-def get_own_model_file(model_file: str = "Dogbone") -> str:
-    """doc"""
-
-    folder_path = str(Path(__file__).parent.parent.resolve())
-
-    file_path = os.path.join(folder_path, "own_models", model_file, model_file + ".py")
-
-    return Path(file_path).read_text()
+def get_own_model_file(model_file: str = "Dogbone", part: Literal["model", "analysis"] = "model") -> str:
+    """Source of an own model (`part=analysis`: a YAML model's analysis.py, "" if it has none)."""
+    path = _own_model_path(model_file, part)
+    return path.read_text(encoding="utf-8") if path.is_file() else ""
 
 
 @router.post("/save", operation_id="save_model_file")
-def save_model(model_file: str, source_code: str, request: Request = ""):
-    username = FileHandler.get_user_name(request, dev)
-
-    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_file, model_file + ".py")
-
+def save_model(
+    model_file: str,
+    source_code: str = Body(embed=True),
+    part: Literal["model", "analysis"] = "model",
+    request: Request = "",
+):
+    """Save an own model's source after a syntax check (YAML: full model validation)."""
+    FileHandler.get_user_name(request, dev)
+    path = _own_model_path(model_file, part)
     try:
-        ast.parse(source_code)
+        if path.suffix == ".yaml":
+            yaml_model_class(source_code, model_file)
+        else:
+            ast.parse(source_code)
     except SyntaxError as e:
-        print(e)
-        raise HTTPException(status_code=400, detail=e.msg)
-    with open(file_path, "w") as file:
-        file.write(source_code)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"line {e.lineno}: {e.msg}")
+    except ModelSpecError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    if part == "analysis" and not source_code.strip():
+        path.unlink(missing_ok=True)
+        return
+    path.write_text(source_code, encoding="utf-8")
 
 
 @router.delete("/delete", operation_id="delete_model_file")
 def delete_model(model_name: str):
-    file_path = os.path.join(str(Path(__file__).parent.parent.resolve()), "own_models", model_name)
-    shutil.rmtree(file_path, ignore_errors=True)
+    folder = OWN_MODELS / model_name
+    if not model_name or folder.resolve().parent != OWN_MODELS.resolve():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Own model {model_name} not found")
+    shutil.rmtree(folder, ignore_errors=True)

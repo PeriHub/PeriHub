@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+title: Plate with Hole
+description: Crack propagation
+author: hess_ja
+version: 0.1.0
+
+parameters:
+  DISCRETIZATION: {default: 100, label: Discretization, description: Points over half the height}
+  LENGTH: {default: 100, label: Length}
+  HEIGHT: {default: 100, label: Height}
+  WIDTH: {default: 10, label: Width}
+  RADIUS: {default: 10, label: Radius}
+
+geometry:
+  spacing: HEIGHT / 2 / (2 * int(DISCRETIZATION / 2) + 1)
+  # Offset by half a spacing so no point row lies on y = 0.
+  grid_origin: [-LENGTH / 2, spacing / 2, -WIDTH / 2]
+  add:
+    - box: {min: [-LENGTH / 2, -HEIGHT / 2, -WIDTH / 2], max: [LENGTH / 2, HEIGHT / 2, WIDTH / 2]}
+  remove:
+    - cylinder: {start: [0, 0, -WIDTH], end: [0, 0, WIDTH], radius: RADIUS}
+
+blocks:
+  - {id: 2, where: "y < -HEIGHT / 2 + 3 * spacing"}
+  - {id: 3, where: "y > HEIGHT / 2 - 3 * spacing"}
