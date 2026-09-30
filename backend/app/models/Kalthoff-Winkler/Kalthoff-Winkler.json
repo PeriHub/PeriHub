@@ -1,70 +1,15 @@
 {
-  "model": {
-    "modelFolderName": "Default",
-    "twoDimensional": true,
-    "ownModel": false,
-    "gcode": false
-  },
-  "discretization": {
-    "distributionType": "Neighbor based"
-  },
-  "materials": [
-    {
-      "id": 1,
-      "name": "PMMA",
-      "density": 0.000008,
-      "matType": ["Bond-based Elastic"],
-      "bulkModulus": null,
-      "poissonsRatio": "0.333",
-      "properties": [
-        {
-          "id": 1,
-          "name": "Prop_1"
-        }
-      ],
-      "tensionSeparation": false,
-      "nonLinear": false,
-      "planeStress": true,
-      "planeStrain": false,
-      "materialSymmetry": "Isotropic",
-      "stabilizationType": "Global Stiffness",
-      "thickness": 10,
-      "hourglassCoefficient": 1,
-      "youngsModulus": "191000"
-    }
-  ],
-  "thermal": [],
-  "additive": [],
-  "damages": [
-    {
-      "id": 1,
-      "name": "PMMADamage",
-      "damageModel": "Critical Energy",
-      "criticalStretch": null,
-      "criticalEnergy": "0.015",
-      "interblockdamageEnergy": null,
-      "planeStress": true,
-      "onlyTension": true,
-      "detachedNodesCheck": true,
-      "thickness": 10,
-      "hourglassCoefficient": 1,
-      "stabilizationType": "Global Stiffness",
-      "criticalEnergyCalc": {
-        "calculateCriticalEnergy": false,
-        "k1c": null,
-        "youngsModulus": null
-      },
-      "interBlockDamage": false,
-      "anistropicDamage": false
-    }
-  ],
   "blocks": [
     {
       "blocksId": 1,
       "name": "block_1",
       "material": "PMMA",
       "damageModel": "PMMADamage",
-      "density": "8e-9",
+      "thermalModel": null,
+      "additiveModel": null,
+      "horizon": null,
+      "density": 8e-9,
+      "specificHeatCapacity": null,
       "show": true
     },
     {
@@ -72,7 +17,11 @@
       "name": "block_2",
       "material": "PMMA",
       "damageModel": "",
-      "density": "8e-9",
+      "thermalModel": null,
+      "additiveModel": null,
+      "horizon": null,
+      "density": 8e-9,
+      "specificHeatCapacity": null,
       "show": true
     },
     {
@@ -80,80 +29,164 @@
       "name": "block_3",
       "material": "PMMA",
       "damageModel": "",
-      "density": "8e-9",
+      "thermalModel": null,
+      "additiveModel": null,
+      "horizon": null,
+      "density": 8e-9,
+      "specificHeatCapacity": null,
       "show": true
     }
   ],
-  "contact": {},
+  "bondFilters": [
+    {
+      "bondFiltersId": null,
+      "name": "bf_1",
+      "type": "Rectangular_Plane",
+      "allow_contact": false,
+      "normalX": 0.0,
+      "normalY": 1.0,
+      "normalZ": 0.0,
+      "lowerLeftCornerX": -0.5,
+      "lowerLeftCornerY": 25.24,
+      "lowerLeftCornerZ": -10.0,
+      "bottomUnitVectorX": 1.0,
+      "bottomUnitVectorY": 0.0,
+      "bottomUnitVectorZ": 0.0,
+      "bottomLength": 50.1,
+      "sideLength": 20.0,
+      "centerX": 0.0,
+      "centerY": 1.0,
+      "centerZ": 0.0,
+      "radius": 1.0,
+      "show": true
+    },
+    {
+      "bondFiltersId": null,
+      "name": "bf_2",
+      "type": "Rectangular_Plane",
+      "allow_contact": false,
+      "normalX": 0.0,
+      "normalY": 1.0,
+      "normalZ": 0.0,
+      "lowerLeftCornerX": -0.5,
+      "lowerLeftCornerY": -25.24,
+      "lowerLeftCornerZ": -10.0,
+      "bottomUnitVectorX": 1.0,
+      "bottomUnitVectorY": 0.0,
+      "bottomUnitVectorZ": 0.0,
+      "bottomLength": 50.1,
+      "sideLength": 20.0,
+      "centerX": 0.0,
+      "centerY": 1.0,
+      "centerZ": 0.0,
+      "radius": 1.0,
+      "show": true
+    }
+  ],
   "boundaryConditions": {
     "conditions": [
       {
         "conditionsId": 1,
+        "stepId": [1],
         "name": "BC_1",
         "nodeSet": null,
         "boundarytype": "Dirichlet",
         "variable": "Velocity",
         "blockId": 2,
         "coordinate": "x",
-        "value": "32e+3"
+        "value": "20e+3"
       }
     ]
   },
-  "bondFilters": [
+  "contact": { "contactModels": null, "searchFrequency": null, "onlySurfaceContactNodes": null },
+  "damages": [
     {
-      "id": 1,
-      "name": "bf_1",
-      "type": "Rectangular_Plane",
-      "normalX": 0,
-      "normalY": 1,
-      "normalZ": 0,
-      "lowerLeftCornerX": -0.5,
-      "lowerLeftCornerY": "25.24",
-      "lowerLeftCornerZ": "-10",
-      "bottomUnitVectorX": 1,
-      "bottomUnitVectorY": 0,
-      "bottomUnitVectorZ": 0,
-      "bottomLength": "50.1",
-      "sideLength": "20",
-      "centerX": 0,
-      "centerY": 1,
-      "centerZ": 0,
-      "radius": 1,
-      "show": true,
-      "allow_contact": false
-    },
-    {
-      "id": 2,
-      "name": "bf_2",
-      "type": "Rectangular_Plane",
-      "normalX": 0,
-      "normalY": 1,
-      "normalZ": 0,
-      "lowerLeftCornerX": -0.5,
-      "lowerLeftCornerY": "-25.24",
-      "lowerLeftCornerZ": "-10",
-      "bottomUnitVectorX": 1,
-      "bottomUnitVectorY": 0,
-      "bottomUnitVectorZ": 0,
-      "bottomLength": "50.1",
-      "sideLength": "20",
-      "centerX": 0,
-      "centerY": 1,
-      "centerZ": 0,
-      "radius": 1,
-      "show": true,
-      "allow_contact": false
+      "damagesId": null,
+      "name": "PMMADamage",
+      "damageModel": "Critical Stretch",
+      "criticalStretch": 0.01,
+      "criticalVonMisesStress": null,
+      "criticalDamage": null,
+      "thresholdDamage": null,
+      "criticalDamageToNeglect": null,
+      "criticalEnergy": 0.015,
+      "criticalEnergyCalc": { "calculateCriticalEnergy": false, "k1c": null },
+      "interBlockDamage": false,
+      "numberOfBlocks": null,
+      "interBlocks": null,
+      "anistropicDamage": false,
+      "anistropicDamageX": null,
+      "anistropicDamageY": null,
+      "anistropicDamageZ": null,
+      "onlyTension": true,
+      "thickness": 10.0
     }
   ],
-  "computes": [],
+  "discretization": {
+    "distributionType": "Neighbor based",
+    "discType": "txt",
+    "gcode": null,
+    "nodeSets": null
+  },
+  "deviations": {
+    "enabled": false,
+    "fileInput": null,
+    "sampleSize": 10,
+    "parameters": [{ "parameterId": null, "id": ["materials[0].youngsModulus"], "std": 10.0 }],
+    "oldParameters": [],
+    "file": null,
+    "mean": null,
+    "std": null
+  },
+  "job": { "verbose": false, "tasks": 1 },
+  "materials": [
+    {
+      "materialsId": null,
+      "name": "PMMA",
+      "matType": ["Bond-based Elastic"],
+      "bulkModulus": null,
+      "shearModulus": null,
+      "shearModulusXY": null,
+      "shearModulusYZ": null,
+      "shearModulusXZ": null,
+      "youngsModulus": 191000.0,
+      "youngsModulusX": null,
+      "youngsModulusY": null,
+      "youngsModulusZ": null,
+      "poissonsRatio": 0.333,
+      "poissonsRatioXY": null,
+      "poissonsRatioYZ": null,
+      "poissonsRatioXZ": null,
+      "planeStress": true,
+      "planeStrain": false,
+      "materialSymmetry": "Isotropic",
+      "stabilizationType": "Global Stiffness",
+      "hourglassCoefficient": 1.0,
+      "actualHorizon": null,
+      "yieldStress": null,
+      "stiffnessMatrix": null,
+      "properties": [{ "materialsPropId": null, "name": "Prop_1", "value": null }],
+      "numStateVars": null,
+      "computePartialStress": null,
+      "useCollocationNodes": null
+    }
+  ],
+  "model": {
+    "modelFolderName": "Default",
+    "ownModel": false,
+    "twoDimensional": true,
+    "ownMesh": null,
+    "horizon": null,
+    "meshFile": null
+  },
   "outputs": [
     {
-      "id": 1,
+      "outputsId": null,
       "name": "Output1",
       "selectedFileType": "Exodus",
       "selectedOutputs": ["Displacements", "Forces", "Damage", "Velocity", "Number of Neighbors"],
       "Write_After_Damage": false,
-      "Frequency": "100",
+      "Frequency": 100,
       "numberOfOutputSteps": 100,
       "useOutputFrequency": false,
       "InitStep": 0
@@ -161,46 +194,32 @@
   ],
   "solvers": [
     {
-      "verbose": false,
-      "initialTime": 0,
-      "finalTime": "0.0001",
-      "fixedDT": null,
+      "solverId": null,
+      "name": null,
+      "stepId": 1,
+      "matEnabled": true,
+      "damEnabled": true,
+      "dispEnabled": true,
+      "tempEnabled": false,
+      "addEnabled": null,
+      "initialTime": 0.0,
+      "finalTime": 0.0001,
+      "additionalTime": null,
+      "fixedDt": null,
       "solvertype": "Verlet",
       "safetyFactor": 0.95,
-      "numericalDamping": 0.000005,
-      "verlet": {
-        "safetyFactor": 0.95,
-        "numericalDamping": 0.000005,
-        "outputFrequency": 7500
-      },
+      "verlet": { "numericalDamping": 5e-6, "outputFrequency": 7500 },
+      "static": null,
       "stopAfterDamageInitation": false,
+      "endStepAfterDamage": null,
+      "stopAfterCertainDamage": null,
+      "maximumDamage": null,
       "stopBeforeDamageInitation": false,
       "adaptivetimeStepping": false,
-      "adapt": {
-        "stableStepDifference": 4,
-        "maximumBondDifference": 4,
-        "stableBondDifference": 1
-      },
-      "dispEnabled": true,
-      "damEnabled": true,
-      "matEnabled": true,
-      "tempEnabled": false,
+      "adapt": { "stableStepDifference": 4, "maximumBondDifference": 4, "stableBondDifference": 1 },
       "calculateCauchy": false,
       "calculateVonMises": false,
       "calculateStrain": false
     }
-  ],
-  "job": {
-    "software": "PeriLab",
-    "cluster": false,
-    "sbatch": false,
-    "verbose": false,
-    "nodes": 1,
-    "tasks": 1,
-    "tasksPerNode": 1,
-    "cpusPerTask": 1,
-    "multithread": false,
-    "time": "00:20:00",
-    "account": 2263032
-  }
+  ]
 }
