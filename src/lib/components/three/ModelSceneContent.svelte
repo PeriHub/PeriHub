@@ -8,6 +8,7 @@ planes.
 <script lang="ts">
   import { T } from '@threlte/core';
   import * as THREE from 'three';
+  import { viewStore } from '$lib/stores/view-store.svelte';
   import CameraRig from './CameraRig.svelte';
   import SphereCloud from './SphereCloud.svelte';
   import BondFilterPlanes from './BondFilterPlanes.svelte';
@@ -35,8 +36,8 @@ planes.
     cameraRig?.resetCamera();
   }
 
-  export function fitToPoints() {
-    cameraRig?.fitToPoints();
+  export function fitToPoints(direction?: [number, number, number]) {
+    cameraRig?.fitToPoints(direction);
   }
 
   // Backend normalizes block_ids to [0, 1] already (block_id / max_block_id),
@@ -52,8 +53,7 @@ planes.
 <T.AmbientLight intensity={0.7} />
 <T.DirectionalLight position={[10, 10, 10]} intensity={0.9} />
 
-<!-- Matches the original's background: [45/255, 45/255, 45/255] -->
-<T.Color attach="background" args={['#2d2d2d']} />
+<T.Color attach="background" args={[viewStore.sceneBackground]} />
 
 <SphereCloud {points} values={blockIds} {radius} {resolution} {colorFor} />
 <BondFilterPlanes {bondFilterPoints} />

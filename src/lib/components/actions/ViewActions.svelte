@@ -56,6 +56,10 @@ SPDX-License-Identifier: Apache-2.0
     status.submitted || viewStore.logStatus === 'waiting' || viewStore.logStatus === 'streaming'
   );
 
+  // Step count parsed from the streamed log; only meaningful while the job
+  // runs (the log of a finished run keeps its last value).
+  const runProgress = $derived(jobActive ? viewStore.logProgress : null);
+
   type StepState = 'done' | 'active' | 'todo';
   const hasResults = $derived(Boolean(status.results || status.csvResults));
   const meshReady = $derived(Boolean(status.created && status.meshfileExist));
@@ -69,7 +73,11 @@ SPDX-License-Identifier: Apache-2.0
       {
         label: 'Run',
         state: state(hasResults && !jobActive, jobActive || (meshReady && !hasResults)),
-        hint: jobActive ? 'running' : 'ready to run'
+        hint: runProgress
+          ? `step ${runProgress.currentStep} / ${runProgress.totalSteps} · ${runProgress.percent}%`
+          : jobActive
+            ? 'running'
+            : 'ready to run'
       },
       { label: 'Results', state: state(hasResults && !jobActive, false), hint: '' }
     ];
@@ -204,7 +212,7 @@ SPDX-License-Identifier: Apache-2.0
         all_data: allData,
         run_id: status.run_id
       };
-      const response = await api.get('/results/getResults', { params, responseType: 'blob' });
+      const response = await api.get('/results/download', { params, responseType: 'blob' });
       const filename = allData
         ? `${modelStore.selectedModel.file}_${modelData.model.modelFolderName}.zip`
         : `${modelStore.selectedModel.file}_${modelData.model.modelFolderName}_${outputs[0]?.name}.e`;
@@ -367,7 +375,7 @@ SPDX-License-Identifier: Apache-2.0
 
   async function deleteUserData() {
     try {
-      await deleteUserDataApi({ checkDate: false });
+      await deleteUserDataApi();
       notify.positive('User data deleted');
     } catch {
       notify.negative('Could not delete the user data');
@@ -394,7 +402,20 @@ SPDX-License-Identifier: Apache-2.0
   aria-label="Simulation progress"
 >
   {#each steps as step, i (step.label)}
-    {#if i > 0}<li aria-hidden="true" class="bg-border h-px w-4 shrink-0 sm:w-8"></li>{/if}
+    {#if step.label === 'Results' && runProgress}
+      <!-- The Run → Results connector doubles as the progress bar while running. -->
+      <li
+        aria-hidden="true"
+        class="bg-border h-1 w-24 shrink-0 overflow-hidden rounded-full sm:w-40"
+      >
+        <div
+          class="bg-primary h-full rounded-full transition-[width] duration-500 ease-out"
+          style:width="{runProgress.percent}%"
+        ></div>
+      </li>
+    {:else if i > 0}
+      <li aria-hidden="true" class="bg-border h-px w-4 shrink-0 sm:w-8"></li>
+    {/if}
     <li
       class="flex items-center gap-1.5 {step.state === 'todo' ? '' : 'text-foreground font-medium'}"
       aria-current={step.state === 'active' ? 'step' : undefined}

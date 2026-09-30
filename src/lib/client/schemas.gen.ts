@@ -74,7 +74,7 @@ export const $AnalysisInfo = {
     type: 'object',
     required: ['id', 'label', 'params'],
     title: 'AnalysisInfo',
-    description: 'One @analysis function of a model (GET /model/analyses).'
+    description: 'One @analysis function of a model (GET /models/{name}/analyses).'
 } as const;
 
 export const $AnalysisRequest = {
@@ -139,7 +139,14 @@ export const $Block = {
             title: 'Name'
         },
         material: {
-            type: 'string',
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Material'
         },
         damageModel: {
@@ -1409,104 +1416,6 @@ export const $Job = {
     title: 'Job'
 } as const;
 
-export const $Jobs = {
-    properties: {
-        id: {
-            type: 'integer',
-            title: 'Id'
-        },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        sub_name: {
-            type: 'string',
-            title: 'Sub Name'
-        },
-        created: {
-            type: 'boolean',
-            title: 'Created'
-        },
-        submitted: {
-            type: 'boolean',
-            title: 'Submitted'
-        },
-        results: {
-            type: 'boolean',
-            title: 'Results'
-        },
-        model: {
-            anyOf: [
-                {
-                    additionalProperties: true,
-                    type: 'object'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Model'
-        },
-        progress: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Progress'
-        },
-        currentStep: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Currentstep'
-        },
-        totalSteps: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Totalsteps'
-        },
-        run_id: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Run Id'
-        },
-        run_count: {
-            type: 'integer',
-            title: 'Run Count',
-            default: 0
-        }
-    },
-    type: 'object',
-    required: ['id', 'name', 'sub_name', 'created', 'submitted', 'results'],
-    title: 'Jobs',
-    description: `Folder-level summary row (one per model_folder_name variant that
-exists on disk). \`run_id\`/\`run_count\` describe the folder's run
-history at a glance; submitted/results/progress reflect only the
-*latest* run - see GET /jobs/{model_name}/{model_folder_name}/runs
-for the full history and GET /jobs/{run_id} for a specific run.`
-} as const;
-
 export const $LibraryItemIn = {
     properties: {
         name: {
@@ -2523,10 +2432,17 @@ export const $ModelData = {
             '$ref': '#/components/schemas/Job'
         },
         materials: {
-            items: {
-                '$ref': '#/components/schemas/Material'
-            },
-            type: 'array',
+            anyOf: [
+                {
+                    items: {
+                        '$ref': '#/components/schemas/Material'
+                    },
+                    type: 'array'
+                },
+                {
+                    type: 'null'
+                }
+            ],
             title: 'Materials'
         },
         model: {
@@ -2572,7 +2488,7 @@ export const $ModelData = {
         }
     },
     type: 'object',
-    required: ['blocks', 'boundaryConditions', 'job', 'materials', 'model', 'outputs', 'solvers'],
+    required: ['blocks', 'boundaryConditions', 'job', 'model', 'outputs', 'solvers'],
     title: 'ModelData',
     example: {
         additive: [],
@@ -4500,7 +4416,7 @@ export const $VersionData = {
     title: 'VersionData'
 } as const;
 
-export const $backend__app__routers__oauth__AuthResponse = {
+export const $app__routers__oauth__AuthResponse = {
     properties: {
         token: {
             type: 'string',

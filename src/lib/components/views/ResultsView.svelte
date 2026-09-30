@@ -22,6 +22,7 @@ SPDX-License-Identifier: Apache-2.0
   } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
+  import { viewStore } from '$lib/stores/view-store.svelte';
   import { notify } from '$lib/utils/notify';
   import { getPointDataResults } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
@@ -31,6 +32,7 @@ SPDX-License-Identifier: Apache-2.0
   import AccordionItem from '$lib/components/ui/AccordionItem.svelte';
   import VerticalColoredLegend from '$lib/components/views/VerticalColoredLegend.svelte';
   import ResultsScene from '$lib/components/views/ResultsScene.svelte';
+  import CameraViewMenu from '$lib/components/three/CameraViewMenu.svelte';
 
   const modelData = $derived(modelStore.modelData);
 
@@ -53,6 +55,11 @@ SPDX-License-Identifier: Apache-2.0
   let radius = $state(0.2);
   let dxValue = $state(0.2);
   let multiplier = $state(100);
+  // Dark legend labels on light backgrounds (Rec. 709 luma of the hex).
+  const legendLabelColor = $derived.by(() => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(viewStore.sceneBackground.slice(i, i + 2), 16));
+    return 0.2126 * r! + 0.7152 * g! + 0.0722 * b! > 140 ? '#1f2328' : 'white';
+  });
   let pointString = $state<number[]>([1, 0, 0]);
   let blockIdString = $state<number[]>([0]);
   let modelLoading = $state(false);
@@ -184,6 +191,7 @@ SPDX-License-Identifier: Apache-2.0
       <Button variant="ghost" size="icon" onclick={() => scene?.resetCamera()} title="Reset Camera">
         <Maximize class="h-4 w-4" />
       </Button>
+      <CameraViewMenu onSelect={(direction) => scene?.fitToPoints(direction)} />
       <Button
         variant="ghost"
         size="icon"
@@ -229,39 +237,12 @@ SPDX-License-Identifier: Apache-2.0
           onchange={() => viewPointData(true)}
           class="accent-primary flex-1"
         />
-        <span class="text-muted-foreground w-10 shrink-0 text-right text-xs whitespace-nowrap"
-          >{time.toExponential(2)}</span
+        <span
+          class="text-muted-foreground shrink-0 text-xs whitespace-nowrap tabular-nums"
+          title="Simulation time of this step"
         >
-      </div>
-      <div class="flex min-w-[160px] items-center gap-2">
-        <label for="results-node-size" class="text-muted-foreground text-xs whitespace-nowrap">
-          Node Size: {multiplier}%
-        </label>
-        <input
-          id="results-node-size"
-          type="range"
-          min="1"
-          max="200"
-          step="1"
-          bind:value={multiplier}
-          onchange={updatePoints}
-          class="accent-primary w-24"
-        />
-      </div>
-
-      <div class="flex min-w-[160px] items-center gap-2">
-        <label for="results-resolution" class="text-muted-foreground text-xs whitespace-nowrap">
-          Resolution: {resolution}
-        </label>
-        <input
-          id="results-resolution"
-          type="range"
-          min="3"
-          max="20"
-          step="1"
-          bind:value={resolution}
-          class="accent-primary w-24"
-        />
+          t = {+time.toPrecision(3)}
+        </span>
       </div>
     </div>
   </div>
@@ -353,13 +334,47 @@ SPDX-License-Identifier: Apache-2.0
                 oninput={debouncedReload}
               />
             </div>
+            <div>
+              <Label for="results-node-size">Node size: {multiplier}%</Label>
+              <input
+                id="results-node-size"
+                type="range"
+                min="1"
+                max="200"
+                step="1"
+                bind:value={multiplier}
+                onchange={updatePoints}
+                class="accent-primary w-full"
+              />
+            </div>
+            <div>
+              <Label for="results-resolution">Resolution: {resolution}</Label>
+              <input
+                id="results-resolution"
+                type="range"
+                min="3"
+                max="20"
+                step="1"
+                bind:value={resolution}
+                class="accent-primary w-full"
+              />
+            </div>
+            <div class="flex items-center justify-between gap-2">
+              <Label for="results-background">Background</Label>
+              <input
+                id="results-background"
+                type="color"
+                bind:value={viewStore.sceneBackground}
+                class="border-border h-7 w-12 cursor-pointer rounded border bg-transparent"
+              />
+            </div>
           </div>
         </AccordionItem>
       </Accordion.Root>
     </div>
 
-    <div class="absolute bottom-2 left-2">
-      <VerticalColoredLegend min={minValue} max={maxValue} />
+    <div class="absolute right-2 bottom-2">
+      <VerticalColoredLegend min={minValue} max={maxValue} labelColor={legendLabelColor} />
     </div>
 
     {#if modelLoading}

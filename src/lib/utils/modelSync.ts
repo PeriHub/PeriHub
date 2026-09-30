@@ -18,7 +18,7 @@ import { normalizeModelData } from '$lib/utils/legacy-model-data';
  * leaving the previous model's config in place until a manual reset.
  */
 export function refreshModelFromBackend(modelFile: string) {
-  getConfig({ configFile: modelFile })
+  getConfig({ modelName: modelFile })
     .then((response) => {
       const data = JSON.parse(JSON.stringify(response));
       modelStore.modelData = { ...modelStore.modelData, ...normalizeModelData(data) } as ModelData;

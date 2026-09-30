@@ -19,13 +19,13 @@ BUILT_IN = sorted(d for d in os.listdir("./models") if os.path.isfile(os.path.jo
 def _body(model_name):
     with open(os.path.join("./models", model_name, model_name + ".json"), encoding="UTF-8") as file:
         data = json.load(file)
-    valves = client.get("/model/getValves", params={"model_name": model_name}).json()
+    valves = client.get(f"/models/{model_name}/params").json()
     return {"data": data, "valves": valves}
 
 
 @pytest.mark.parametrize("model_name", BUILT_IN)
 def test_preview_built_in_models(model_name):
-    response = client.post("/generate/preview", params={"model_name": model_name}, json=_body(model_name))
+    response = client.post(f"/models/{model_name}/preview", json=_body(model_name))
     assert response.status_code == 200, response.text
     body = response.json()
     n = len(body["x"])
@@ -52,7 +52,7 @@ def test_preview_caps_discretization(monkeypatch):
     for valve in body["valves"]["valves"]:
         if valve["name"] == "DISCRETIZATION":
             valve["value"] = 500
-    assert client.post("/generate/preview", params={"model_name": "Dogbone"}, json=body).status_code == 200
+    assert client.post("/models/Dogbone/preview", json=body).status_code == 200
     assert seen["DISCRETIZATION"] == generate.PREVIEW_MAX_DISCRETIZATION
 
 
@@ -61,13 +61,13 @@ def test_preview_generator_error_is_422(monkeypatch):
         raise ValueError("notch longer than part")
 
     monkeypatch.setattr(generate, "build_point_cloud", boom)
-    response = client.post("/generate/preview", params={"model_name": "Dogbone"}, json=_body("Dogbone"))
+    response = client.post("/models/Dogbone/preview", json=_body("Dogbone"))
     assert response.status_code == 422
     assert response.json()["detail"] == "notch longer than part"
 
 
 def test_preview_unknown_model_is_404():
-    response = client.post("/generate/preview", params={"model_name": "NoSuchModel"}, json=_body("Dogbone"))
+    response = client.post("/models/NoSuchModel/preview", json=_body("Dogbone"))
     assert response.status_code == 404
 
 
@@ -86,7 +86,7 @@ blocks:
   - {id: 2, box: {min: [8, 0, 0], max: [10, 4, 0]}}
 """
     body = {**_body("Dogbone"), "source": source}
-    response = client.post("/generate/preview", params={"model_name": "Draft"}, json=body)
+    response = client.post("/models/Draft/preview", json=body)
     assert response.status_code == 200, response.text
     result = response.json()
     assert result["bounds_min"][:2] == [0, 0] and result["bounds_max"][:2] == [10, 4]
@@ -101,7 +101,7 @@ blocks:
 
 def test_preview_bad_yaml_source_is_422_with_path():
     body = {**_body("Dogbone"), "source": "geometry:\n  spacing: 1\n  add:\n    - sphere: {center: [0, 0, 0]}\n"}
-    response = client.post("/generate/preview", params={"model_name": "Draft"}, json=body)
+    response = client.post("/models/Draft/preview", json=body)
     assert response.status_code == 422
     assert response.json()["detail"].startswith("geometry.add[0].sphere: wrong arguments")
 
@@ -109,7 +109,7 @@ def test_preview_bad_yaml_source_is_422_with_path():
 def test_3d_preview_is_a_top_view():
     body = _body("PlateWithHole")
     body["data"]["model"]["twoDimensional"] = False
-    response = client.post("/generate/preview", params={"model_name": "PlateWithHole"}, json=body)
+    response = client.post("/models/PlateWithHole/preview", json=body)
     assert response.status_code == 200, response.text
     result = response.json()
     xy = list(zip(result["x"], result["y"]))

@@ -14,12 +14,13 @@ SPDX-License-Identifier: Apache-2.0
   import { getPointData } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import ModelScene from '$lib/components/three/ModelScene.svelte';
+  import CameraViewMenu from '$lib/components/three/CameraViewMenu.svelte';
 
   const modelData = $derived(modelStore.modelData);
 
   // Local view controls - mirrors the old component's own `data()`, not
   // shared app state (only the filtered results below live in viewStore).
-  let resolution = $state(6);
+  let resolution = $state(8);
   let radius = $state(0.2);
   let multiplier = $state(100);
   let pointString = $state<number[]>([1, 0, 0]);
@@ -99,6 +100,7 @@ SPDX-License-Identifier: Apache-2.0
       <Button variant="ghost" size="icon" onclick={() => scene?.resetCamera()} title="Reset Camera">
         <Maximize class="h-4 w-4" />
       </Button>
+      <CameraViewMenu onSelect={(direction) => scene?.fitToPoints(direction)} />
     {/if}
 
     <div class="mx-2 flex min-w-[140px] flex-1 items-center gap-2">

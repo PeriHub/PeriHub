@@ -63,12 +63,12 @@ def bar_model(tmp_path, monkeypatch):
 def _body():
     with open(loader.APP_DIR / "assets" / "config_template.json", encoding="UTF-8") as file:
         data = json.load(file)
-    valves = client.get("/model/getValves", params={"model_name": "Bar"}).json()
+    valves = client.get("/models/Bar/params").json()
     return {"data": data, "valves": valves, "analysis_params": {"SCALE": 3}}
 
 
 def test_lists_analyses_with_their_params(bar_model):
-    analyses = client.get("/model/analyses", params={"model_name": "Bar"}).json()
+    analyses = client.get("/models/Bar/analyses").json()
     assert [a["id"] for a in analyses] == ["force", "escape", "broken"]
     assert [(p["name"], p["type"], p["options"]) for p in analyses[0]["params"]] == [
         ("OUTPUT", "select", "outputs"),
@@ -77,7 +77,7 @@ def test_lists_analyses_with_their_params(bar_model):
 
 
 def test_model_without_analyses_lists_none():
-    assert client.get("/model/analyses", params={"model_name": "DCBmodel"}).json() == []
+    assert client.get("/models/DCBmodel/analyses").json() == []
 
 
 def test_runs_analysis_and_returns_png(bar_model):

@@ -29,11 +29,18 @@ SPDX-License-Identifier: Apache-2.0
     content?.resetCamera();
   }
 
-  export function fitToPoints() {
-    content?.fitToPoints();
+  export function fitToPoints(direction?: [number, number, number]) {
+    content?.fitToPoints(direction);
   }
 </script>
 
 <Canvas>
-  <ModelSceneContent bind:this={content} {points} {blockIds} {radius} {resolution} {bondFilterPoints} />
+  <ModelSceneContent
+    bind:this={content}
+    {points}
+    {blockIds}
+    {radius}
+    {resolution}
+    {bondFilterPoints}
+  />
 </Canvas>

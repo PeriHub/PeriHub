@@ -14,7 +14,7 @@ export type AdditiveModel = {
 };
 
 /**
- * One @analysis function of a model (GET /model/analyses).
+ * One @analysis function of a model (GET /models/{name}/analyses).
  */
 export type AnalysisInfo = {
     id: string;
@@ -38,7 +38,7 @@ export type AuthorizationUrlResponse = {
 export type Block = {
     blocksId: number;
     name: string;
-    material?: string;
+    material?: string | null;
     damageModel?: string | null;
     thermalModel?: string | null;
     additiveModel?: string | null;
@@ -233,30 +233,6 @@ export type Job = {
     tasks?: number | null;
 };
 
-/**
- * Folder-level summary row (one per model_folder_name variant that
- * exists on disk). `run_id`/`run_count` describe the folder's run
- * history at a glance; submitted/results/progress reflect only the
- * *latest* run - see GET /jobs/{model_name}/{model_folder_name}/runs
- * for the full history and GET /jobs/{run_id} for a specific run.
- */
-export type Jobs = {
-    id: number;
-    name: string;
-    sub_name: string;
-    created: boolean;
-    submitted: boolean;
-    results: boolean;
-    model?: {
-    [key: string]: unknown;
-} | null;
-    progress?: number | null;
-    currentStep?: number | null;
-    totalSteps?: number | null;
-    run_id?: string | null;
-    run_count?: number;
-};
-
 export type LibraryItemIn = {
     name: string;
     visibility?: 'private' | 'team' | 'org' | 'public';
@@ -406,7 +382,7 @@ export type ModelData = {
     discretization?: Discretization | null;
     deviations?: Deviations | null;
     job: Job;
-    materials: Array<Material>;
+    materials?: Array<Material> | null;
     model: Model;
     outputs: Array<Output>;
     preCalculations?: PreCalculations | null;
@@ -688,7 +664,7 @@ export type VersionData = {
     perilab_latest: string;
 };
 
-export type backend__app__routers__oauth__AuthResponse = {
+export type app__routers__oauth__AuthResponse = {
     token: string;
     user_id: string;
     display_name: string;
@@ -702,39 +678,36 @@ export type properties = {
 };
 
 export type GenerateModelData = {
-    modelFolderName?: string;
-    modelName?: string;
+    modelFolderName: string;
+    modelName: string;
     requestBody: Body_generate_model;
 };
 
 export type GenerateModelResponse = unknown;
 
 export type PreviewModelData = {
-    modelName?: string;
+    modelName: string;
     requestBody: Body_preview_model;
 };
 
 export type PreviewModelResponse = PreviewResponse;
 
-export type GenerateMeshData = {
-    modelFolderName?: string;
-    modelName: string;
-    param: string;
+export type GetModelsData = {
+    ownOnly?: boolean;
+    verify?: boolean;
 };
-
-export type GenerateMeshResponse = unknown;
 
 export type GetModelsResponse = Array<{
     [key: string]: unknown;
 }>;
 
-export type GetOwnModelsData = {
-    verify?: boolean;
+export type AddModelData = {
+    description: string;
+    modelFormat?: 'yaml' | 'python';
+    modelName: string;
 };
 
-export type GetOwnModelsResponse = Array<{
-    [key: string]: unknown;
-}>;
+export type AddModelResponse = string;
 
 export type GetValvesData = {
     modelName: string;
@@ -749,31 +722,29 @@ export type GetAnalysesData = {
 export type GetAnalysesResponse = Array<AnalysisInfo>;
 
 export type GetConfigData = {
-    configFile?: string;
+    modelName: string;
 };
 
 export type GetConfigResponse = unknown;
 
 export type SaveConfigData = {
-    configFile: string;
+    modelName: string;
     requestBody: ModelData;
 };
 
 export type SaveConfigResponse = unknown;
 
-export type GetMaxFeSizeResponse = number;
-
 export type GetModelData = {
-    modelFolderName?: string;
-    modelName?: string;
+    modelFolderName: string;
+    modelName: string;
 };
 
 export type GetModelResponse = unknown;
 
 export type GetPointDataData = {
     meshFile?: string | null;
-    modelFolderName?: string;
-    modelName?: string;
+    modelFolderName: string;
+    modelName: string;
     ownMesh?: boolean | null;
     ownModel?: boolean;
     twoD?: boolean | null;
@@ -782,29 +753,29 @@ export type GetPointDataData = {
 export type GetPointDataResponse = PointData;
 
 export type ViewInputFileData = {
-    modelFolderName?: string;
-    modelName?: string;
+    modelFolderName: string;
+    modelName: string;
 };
 
 export type ViewInputFileResponse = string;
 
-export type AddModelData = {
-    description: string;
-    modelFormat?: 'yaml' | 'python';
+export type WriteInputFileData = {
+    inputString: string;
+    modelFolderName: string;
     modelName: string;
 };
 
-export type AddModelResponse = string;
+export type WriteInputFileResponse = unknown;
 
 export type GetOwnModelFileData = {
-    modelFile?: string;
+    modelName: string;
     part?: 'model' | 'analysis';
 };
 
 export type GetOwnModelFileResponse = string;
 
 export type SaveModelFileData = {
-    modelFile: string;
+    modelName: string;
     part?: 'model' | 'analysis';
     requestBody: Body_save_model_file;
 };
@@ -819,28 +790,11 @@ export type DeleteModelFileResponse = unknown;
 
 export type UploadFilesData = {
     formData: Body_upload_files;
-    modelFolderName?: string;
+    modelFolderName: string;
     modelName: string;
 };
 
 export type UploadFilesResponse = string;
-
-export type WriteInputFileData = {
-    inputString: string;
-    modelFolderName?: string;
-    modelName: string;
-};
-
-export type WriteInputFileResponse = unknown;
-
-export type TranslateModelData = {
-    discretization?: number;
-    file: string;
-    modelFolderName?: string;
-    modelName: string;
-};
-
-export type TranslateModelResponse = unknown;
 
 export type RunModelData = {
     jobIds?: string | null;
@@ -853,53 +807,20 @@ export type RunModelData = {
 export type RunModelResponse = unknown;
 
 export type GetJobFoldersData = {
-    modelName?: string;
+    modelName: string;
 };
 
 export type GetJobFoldersResponse = Array<(string)>;
 
-export type GetJobsData = {
-    modelName?: string;
-};
-
-export type GetJobsResponse = Array<Jobs>;
-
 export type GetStatusData = {
     meshfile?: string | null;
-    modelFolderName?: string;
-    modelName?: string;
+    modelFolderName: string;
+    modelName: string;
 };
 
 export type GetStatusResponse = Status;
 
 export type ListAllRunsResponse = Array<RunStatus>;
-
-export type ListRunsData = {
-    modelFolderName: string;
-    modelName: string;
-};
-
-export type ListRunsResponse = Array<RunStatus>;
-
-export type GetRunData = {
-    runId: string;
-};
-
-export type GetRunResponse = RunStatus;
-
-export type DeleteRunData = {
-    runId: string;
-};
-
-export type DeleteRunResponse = unknown;
-
-export type GetRunLogData = {
-    debug?: boolean;
-    runId: string;
-    tail?: number | null;
-};
-
-export type GetRunLogResponse = string;
 
 export type StreamRunLogData = {
     debug?: boolean;
@@ -907,6 +828,12 @@ export type StreamRunLogData = {
 };
 
 export type StreamRunLogResponse = unknown;
+
+export type DeleteRunData = {
+    runId: string;
+};
+
+export type DeleteRunResponse = unknown;
 
 export type CancelRunData = {
     runId: string;
@@ -923,27 +850,6 @@ export type RunAnalysisData = {
 };
 
 export type RunAnalysisResponse = unknown;
-
-export type GetResultFileData = {
-    file: string;
-};
-
-export type GetResultFileResponse = unknown;
-
-export type GetFractureAnalysisData = {
-    crackLength?: number;
-    height?: number;
-    modelFolderName?: string;
-    modelName?: string;
-    output?: string;
-    poissionsRatio?: number;
-    runId?: string | null;
-    step?: number;
-    yieldStress?: number;
-    youngModulus?: number;
-};
-
-export type GetFractureAnalysisResponse = (Blob | File);
 
 export type GetPlotData = {
     deviationsEnabled?: boolean;
@@ -982,18 +888,19 @@ export type GetPointDataResultsData = {
 export type GetPointDataResultsResponse = PointDataResults;
 
 export type DeleteModelData = {
-    modelFolderName?: string;
-    modelName?: string;
+    modelFolderName: string;
+    modelName: string;
 };
 
 export type DeleteModelResponse = unknown;
 
-export type DeleteUserDataData = {
-    checkDate: boolean;
+export type DeleteUserDataResponse = unknown;
+
+export type DeleteStaleUserDataData = {
     days?: number | null;
 };
 
-export type DeleteUserDataResponse = unknown;
+export type DeleteStaleUserDataResponse = unknown;
 
 export type GetPublicationsResponse = string;
 
@@ -1017,13 +924,13 @@ export type SignupData = {
     requestBody: SignupRequest;
 };
 
-export type SignupResponse = backend__app__routers__oauth__AuthResponse;
+export type SignupResponse = app__routers__oauth__AuthResponse;
 
 export type LoginData = {
     requestBody: LoginRequest;
 };
 
-export type LoginResponse = backend__app__routers__oauth__AuthResponse;
+export type LoginResponse = app__routers__oauth__AuthResponse;
 
 export type GetCurrentUserInfoResponse = MeResponse;
 
@@ -1033,7 +940,7 @@ export type OidcCallbackData = {
     code: string;
 };
 
-export type OidcCallbackResponse = backend__app__routers__oauth__AuthResponse;
+export type OidcCallbackResponse = app__routers__oauth__AuthResponse;
 
 export type ListLibraryItemsData = {
     kind: 'model-config' | 'material';
@@ -1131,7 +1038,7 @@ export type HealthcheckHealthGetResponse = unknown;
 export type GetVersionResponse = VersionData;
 
 export type $OpenApiTs = {
-    '/generate/model': {
+    '/workspaces/{model_name}/{model_folder_name}/generate': {
         post: {
             req: GenerateModelData;
             res: {
@@ -1146,7 +1053,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/generate/preview': {
+    '/models/{model_name}/preview': {
         post: {
             req: PreviewModelData;
             res: {
@@ -1161,36 +1068,9 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/generate/mesh': {
+    '/models': {
         get: {
-            req: GenerateMeshData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/model/getModels': {
-        get: {
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: Array<{
-                    [key: string]: unknown;
-                }>;
-            };
-        };
-    };
-    '/model/getOwnModels': {
-        get: {
-            req: GetOwnModelsData;
+            req: GetModelsData;
             res: {
                 /**
                  * Successful Response
@@ -1204,123 +1084,6 @@ export type $OpenApiTs = {
                 422: HTTPValidationError;
             };
         };
-    };
-    '/model/getValves': {
-        get: {
-            req: GetValvesData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: Valves;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/model/analyses': {
-        get: {
-            req: GetAnalysesData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: Array<AnalysisInfo>;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/model/getConfig': {
-        get: {
-            req: GetConfigData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/model/saveConfig': {
-        post: {
-            req: SaveConfigData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/model/getMaxFeSize': {
-        get: {
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: number;
-            };
-        };
-    };
-    '/model/getModel': {
-        get: {
-            req: GetModelData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/model/getPointData': {
-        get: {
-            req: GetPointDataData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: PointData;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/model/viewInputFile': {
-        get: {
-            req: ViewInputFileData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: string;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/model/add': {
         post: {
             req: AddModelData;
             res: {
@@ -1335,14 +1098,14 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/model/getOwnModelFile': {
+    '/models/{model_name}/params': {
         get: {
-            req: GetOwnModelFileData;
+            req: GetValvesData;
             res: {
                 /**
                  * Successful Response
                  */
-                200: string;
+                200: Valves;
                 /**
                  * Validation Error
                  */
@@ -1350,9 +1113,37 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/model/save': {
-        post: {
-            req: SaveModelFileData;
+    '/models/{model_name}/analyses': {
+        get: {
+            req: GetAnalysesData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<AnalysisInfo>;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/models/{model_name}/config': {
+        get: {
+            req: GetConfigData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+        put: {
+            req: SaveConfigData;
             res: {
                 /**
                  * Successful Response
@@ -1365,9 +1156,9 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/model/delete': {
-        delete: {
-            req: DeleteModelFileData;
+    '/workspaces/{model_name}/{model_folder_name}/download': {
+        get: {
+            req: GetModelData;
             res: {
                 /**
                  * Successful Response
@@ -1380,9 +1171,24 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/upload/files': {
-        post: {
-            req: UploadFilesData;
+    '/workspaces/{model_name}/{model_folder_name}/points': {
+        get: {
+            req: GetPointDataData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: PointData;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/workspaces/{model_name}/{model_folder_name}/input-deck': {
+        get: {
+            req: ViewInputFileData;
             res: {
                 /**
                  * Successful Response
@@ -1394,8 +1200,6 @@ export type $OpenApiTs = {
                 422: HTTPValidationError;
             };
         };
-    };
-    '/upload/inputFile': {
         put: {
             req: WriteInputFileData;
             res: {
@@ -1410,9 +1214,22 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/translate/model': {
-        post: {
-            req: TranslateModelData;
+    '/models/{model_name}/source': {
+        get: {
+            req: GetOwnModelFileData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: string;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+        put: {
+            req: SaveModelFileData;
             res: {
                 /**
                  * Successful Response
@@ -1425,7 +1242,37 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/jobs/run': {
+    '/models/{model_name}': {
+        delete: {
+            req: DeleteModelFileData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/workspaces/{model_name}/{model_folder_name}/files': {
+        post: {
+            req: UploadFilesData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: string;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/jobs': {
         post: {
             req: RunModelData;
             res: {
@@ -1440,7 +1287,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/jobs/getJobFolders': {
+    '/workspaces/{model_name}': {
         get: {
             req: GetJobFoldersData;
             res: {
@@ -1455,22 +1302,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/jobs/getJobs': {
-        get: {
-            req: GetJobsData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: Array<Jobs>;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/jobs/getStatus': {
+    '/workspaces/{model_name}/{model_folder_name}/status': {
         get: {
             req: GetStatusData;
             res: {
@@ -1495,37 +1327,9 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/jobs/{model_name}/{model_folder_name}/runs': {
+    '/jobs/{run_id}/log/stream': {
         get: {
-            req: ListRunsData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: Array<RunStatus>;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/jobs/{run_id}': {
-        get: {
-            req: GetRunData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: RunStatus;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-        delete: {
-            req: DeleteRunData;
+            req: StreamRunLogData;
             res: {
                 /**
                  * Successful Response
@@ -1538,24 +1342,9 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/jobs/{run_id}/log': {
-        get: {
-            req: GetRunLogData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: string;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/jobs/{run_id}/log/stream': {
-        get: {
-            req: StreamRunLogData;
+    '/jobs/{run_id}': {
+        delete: {
+            req: DeleteRunData;
             res: {
                 /**
                  * Successful Response
@@ -1598,37 +1387,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/results/getResultFile': {
-        get: {
-            req: GetResultFileData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/results/getFractureAnalysis': {
-        get: {
-            req: GetFractureAnalysisData;
-            res: {
-                /**
-                 * The image.
-                 */
-                200: (Blob | File);
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/results/getPlot': {
+    '/results/plot': {
         get: {
             req: GetPlotData;
             res: {
@@ -1643,7 +1402,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/results/getResults': {
+    '/results/download': {
         get: {
             req: GetResultsData;
             res: {
@@ -1658,7 +1417,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/results/getPointDataResults': {
+    '/results/points': {
         get: {
             req: GetPointDataResultsData;
             res: {
@@ -1673,7 +1432,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/delete/model': {
+    '/workspaces/{model_name}/{model_folder_name}': {
         delete: {
             req: DeleteModelData;
             res: {
@@ -1688,9 +1447,19 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/delete/userData': {
+    '/users/me/data': {
         delete: {
-            req: DeleteUserDataData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
+            };
+        };
+    };
+    '/admin/user-data': {
+        delete: {
+            req: DeleteStaleUserDataData;
             res: {
                 /**
                  * Successful Response
@@ -1703,7 +1472,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/docs/getPublications': {
+    '/publications': {
         get: {
             res: {
                 /**
@@ -1792,7 +1561,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: backend__app__routers__oauth__AuthResponse;
+                200: app__routers__oauth__AuthResponse;
                 /**
                  * Validation Error
                  */
@@ -1807,7 +1576,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: backend__app__routers__oauth__AuthResponse;
+                200: app__routers__oauth__AuthResponse;
                 /**
                  * Validation Error
                  */
@@ -1842,7 +1611,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: backend__app__routers__oauth__AuthResponse;
+                200: app__routers__oauth__AuthResponse;
                 /**
                  * Validation Error
                  */
@@ -2045,7 +1814,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/updates': {
+    '/version': {
         get: {
             res: {
                 /**

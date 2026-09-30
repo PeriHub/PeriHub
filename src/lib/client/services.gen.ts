@@ -3,22 +3,24 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GenerateMeshData, GenerateMeshResponse, GetModelsResponse, GetOwnModelsData, GetOwnModelsResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetMaxFeSizeResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, AddModelData, AddModelResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, WriteInputFileData, WriteInputFileResponse, TranslateModelData, TranslateModelResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetJobsData, GetJobsResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, ListRunsData, ListRunsResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, StreamRunLogData, StreamRunLogResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetResultFileData, GetResultFileResponse, GetFractureAnalysisData, GetFractureAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataData, DeleteUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, DeleteRunData, DeleteRunResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
- * doc
+ * Generate the model into its folder: save the ModelData JSON, build the point cloud with the model's generator
+ * (skipped for `ownModel`, which brings its own mesh), then write mesh, node sets and the PeriLab input deck.
+ * 404 if the generator is missing or the point count exceeds the caller's node limit.
  * @param data The data for the request.
- * @param data.requestBody
  * @param data.modelName
  * @param data.modelFolderName
+ * @param data.requestBody
  * @returns unknown Successful Response
  * @throws ApiError
  */
 export const generateModel = (data: GenerateModelData): CancelablePromise<GenerateModelResponse> => { return __request(OpenAPI, {
     method: 'POST',
-    url: '/generate/model',
-    query: {
+    url: '/workspaces/{model_name}/{model_folder_name}/generate',
+    path: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName
     },
@@ -33,46 +35,23 @@ export const generateModel = (data: GenerateModelData): CancelablePromise<Genera
  * Preview Model
  * Coarse point cloud with block ids, drawn by the frontend as the model preview.
  *
- * Runs the generator exactly like /generate/model but with DISCRETIZATION capped and
+ * Runs the generator exactly like /workspaces/{model}/{folder}/generate but with DISCRETIZATION capped and
  * without writing anything, so it needs no user folder and works in trial mode. With
  * `source`, the model comes from that YAML text instead of the saved file.
  * @param data The data for the request.
- * @param data.requestBody
  * @param data.modelName
+ * @param data.requestBody
  * @returns PreviewResponse Successful Response
  * @throws ApiError
  */
 export const previewModel = (data: PreviewModelData): CancelablePromise<PreviewModelResponse> => { return __request(OpenAPI, {
     method: 'POST',
-    url: '/generate/preview',
-    query: {
+    url: '/models/{model_name}/preview',
+    path: {
         model_name: data.modelName
     },
     body: data.requestBody,
     mediaType: 'application/json',
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Generate Mesh
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.param
- * @param data.modelFolderName
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const generateMesh = (data: GenerateMeshData): CancelablePromise<GenerateMeshResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/generate/mesh',
-    query: {
-        model_name: data.modelName,
-        param: data.param,
-        model_folder_name: data.modelFolderName
-    },
     errors: {
         422: 'Validation Error'
     }
@@ -82,187 +61,21 @@ export const generateMesh = (data: GenerateMeshData): CancelablePromise<Generate
  * Get Models
  * Built-in models, then own models (an own model named like a built-in one is shadowed
  * by it everywhere, so it isn't listed twice).
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const getModels = (): CancelablePromise<GetModelsResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/model/getModels'
-}); };
-
-/**
- * Get Own Models
- * Own models; broken or legacy-format ones are included with an `error` message.
+ *
+ * `own_only`: just the own models, shadowed ones included; broken or legacy-format ones
+ * carry an `error` message. `verify` (with `own_only`): only those the caller authored.
  * @param data The data for the request.
+ * @param data.ownOnly
  * @param data.verify
  * @returns unknown Successful Response
  * @throws ApiError
  */
-export const getOwnModels = (data: GetOwnModelsData = {}): CancelablePromise<GetOwnModelsResponse> => { return __request(OpenAPI, {
+export const getModels = (data: GetModelsData = {}): CancelablePromise<GetModelsResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/model/getOwnModels',
+    url: '/models',
     query: {
+        own_only: data.ownOnly,
         verify: data.verify
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Valves
- * The model's parameters as UI fields.
- * @param data The data for the request.
- * @param data.modelName
- * @returns Valves Successful Response
- * @throws ApiError
- */
-export const getValves = (data: GetValvesData): CancelablePromise<GetValvesResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/model/getValves',
-    query: {
-        model_name: data.modelName
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Analyses
- * The model's @analysis functions (result images) and their parameters; [] if none.
- * @param data The data for the request.
- * @param data.modelName
- * @returns AnalysisInfo Successful Response
- * @throws ApiError
- */
-export const getAnalyses = (data: GetAnalysesData): CancelablePromise<GetAnalysesResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/model/analyses',
-    query: {
-        model_name: data.modelName
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Config
- * doc
- * @param data The data for the request.
- * @param data.configFile
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const getConfig = (data: GetConfigData = {}): CancelablePromise<GetConfigResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/model/getConfig',
-    query: {
-        config_file: data.configFile
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Save Config
- * @param data The data for the request.
- * @param data.configFile
- * @param data.requestBody
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const saveConfig = (data: SaveConfigData): CancelablePromise<SaveConfigResponse> => { return __request(OpenAPI, {
-    method: 'POST',
-    url: '/model/saveConfig',
-    query: {
-        config_file: data.configFile
-    },
-    body: data.requestBody,
-    mediaType: 'application/json',
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Max Fe Size
- * doc
- * @returns number Successful Response
- * @throws ApiError
- */
-export const getMaxFeSize = (): CancelablePromise<GetMaxFeSizeResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/model/getMaxFeSize'
-}); };
-
-/**
- * Get Model
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.modelFolderName
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const getModel = (data: GetModelData = {}): CancelablePromise<GetModelResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/model/getModel',
-    query: {
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Point Data
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.modelFolderName
- * @param data.ownModel
- * @param data.ownMesh
- * @param data.meshFile
- * @param data.twoD
- * @returns PointData Successful Response
- * @throws ApiError
- */
-export const getPointData = (data: GetPointDataData = {}): CancelablePromise<GetPointDataResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/model/getPointData',
-    query: {
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName,
-        own_model: data.ownModel,
-        own_mesh: data.ownMesh,
-        mesh_file: data.meshFile,
-        two_d: data.twoD
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * View Input File
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.modelFolderName
- * @returns string Successful Response
- * @throws ApiError
- */
-export const viewInputFile = (data: ViewInputFileData = {}): CancelablePromise<ViewInputFileResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/model/viewInputFile',
-    query: {
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName
     },
     errors: {
         422: 'Validation Error'
@@ -281,7 +94,7 @@ export const viewInputFile = (data: ViewInputFileData = {}): CancelablePromise<V
  */
 export const addModel = (data: AddModelData): CancelablePromise<AddModelResponse> => { return __request(OpenAPI, {
     method: 'POST',
-    url: '/model/add',
+    url: '/models',
     query: {
         model_name: data.modelName,
         description: data.description,
@@ -293,19 +106,202 @@ export const addModel = (data: AddModelData): CancelablePromise<AddModelResponse
 }); };
 
 /**
+ * Get Valves
+ * The model's parameters as UI fields.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @returns Valves Successful Response
+ * @throws ApiError
+ */
+export const getValves = (data: GetValvesData): CancelablePromise<GetValvesResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/models/{model_name}/params',
+    path: {
+        model_name: data.modelName
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Analyses
+ * The model's @analysis functions (result images) and their parameters; [] if none.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @returns AnalysisInfo Successful Response
+ * @throws ApiError
+ */
+export const getAnalyses = (data: GetAnalysesData): CancelablePromise<GetAnalysesResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/models/{model_name}/analyses',
+    path: {
+        model_name: data.modelName
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Config
+ * A model's default ModelData config (`<Name>.json`); a built-in model wins over an own model of the same name.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getConfig = (data: GetConfigData): CancelablePromise<GetConfigResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/models/{model_name}/config',
+    path: {
+        model_name: data.modelName
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Save Config
+ * Overwrite a model's default config with `config`, dropping empty top-level sections. Does nothing if the model
+ * has no config file.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @param data.requestBody
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const saveConfig = (data: SaveConfigData): CancelablePromise<SaveConfigResponse> => { return __request(OpenAPI, {
+    method: 'PUT',
+    url: '/models/{model_name}/config',
+    path: {
+        model_name: data.modelName
+    },
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Model
+ * Download a model folder (input deck, mesh, uploads) as a zip.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @param data.modelFolderName
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getModel = (data: GetModelData): CancelablePromise<GetModelResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/workspaces/{model_name}/{model_folder_name}/download',
+    path: {
+        model_name: data.modelName,
+        model_folder_name: data.modelFolderName
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Point Data
+ * Point cloud of a generated model for the 3D view: flat xyz coordinates plus block ids normalized to (0, 1].
+ * Read from the Exodus ASCII mesh (`own_mesh`), the uploaded text mesh `mesh_file` (`own_model`) or the
+ * generated `<model>.txt`; text meshes above the node limit are thinned.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @param data.modelFolderName
+ * @param data.ownModel
+ * @param data.ownMesh
+ * @param data.meshFile
+ * @param data.twoD
+ * @returns PointData Successful Response
+ * @throws ApiError
+ */
+export const getPointData = (data: GetPointDataData): CancelablePromise<GetPointDataResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/workspaces/{model_name}/{model_folder_name}/points',
+    path: {
+        model_name: data.modelName,
+        model_folder_name: data.modelFolderName
+    },
+    query: {
+        own_model: data.ownModel,
+        own_mesh: data.ownMesh,
+        mesh_file: data.meshFile,
+        two_d: data.twoD
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * View Input File
+ * The model folder's PeriLab input deck (`<model>.yaml`) as text; 400 if it hasn't been generated yet.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @param data.modelFolderName
+ * @returns string Successful Response
+ * @throws ApiError
+ */
+export const viewInputFile = (data: ViewInputFileData): CancelablePromise<ViewInputFileResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/workspaces/{model_name}/{model_folder_name}/input-deck',
+    path: {
+        model_name: data.modelName,
+        model_folder_name: data.modelFolderName
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Write Input File
+ * Overwrite the model folder's input deck (`<model>.yaml`) with `input_string`, e.g. after editing it in the
+ * text view.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @param data.modelFolderName
+ * @param data.inputString
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const writeInputFile = (data: WriteInputFileData): CancelablePromise<WriteInputFileResponse> => { return __request(OpenAPI, {
+    method: 'PUT',
+    url: '/workspaces/{model_name}/{model_folder_name}/input-deck',
+    path: {
+        model_name: data.modelName,
+        model_folder_name: data.modelFolderName
+    },
+    query: {
+        input_string: data.inputString
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
  * Get Own Model File
  * Source of an own model (`part=analysis`: a YAML model's analysis.py, "" if it has none).
  * @param data The data for the request.
- * @param data.modelFile
+ * @param data.modelName
  * @param data.part
  * @returns string Successful Response
  * @throws ApiError
  */
-export const getOwnModelFile = (data: GetOwnModelFileData = {}): CancelablePromise<GetOwnModelFileResponse> => { return __request(OpenAPI, {
+export const getOwnModelFile = (data: GetOwnModelFileData): CancelablePromise<GetOwnModelFileResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/model/getOwnModelFile',
+    url: '/models/{model_name}/source',
+    path: {
+        model_name: data.modelName
+    },
     query: {
-        model_file: data.modelFile,
         part: data.part
     },
     errors: {
@@ -317,17 +313,19 @@ export const getOwnModelFile = (data: GetOwnModelFileData = {}): CancelablePromi
  * Save Model
  * Save an own model's source after a syntax check (YAML: full model validation).
  * @param data The data for the request.
- * @param data.modelFile
+ * @param data.modelName
  * @param data.requestBody
  * @param data.part
  * @returns unknown Successful Response
  * @throws ApiError
  */
 export const saveModelFile = (data: SaveModelFileData): CancelablePromise<SaveModelFileResponse> => { return __request(OpenAPI, {
-    method: 'POST',
-    url: '/model/save',
+    method: 'PUT',
+    url: '/models/{model_name}/source',
+    path: {
+        model_name: data.modelName
+    },
     query: {
-        model_file: data.modelFile,
         part: data.part
     },
     body: data.requestBody,
@@ -339,6 +337,7 @@ export const saveModelFile = (data: SaveModelFileData): CancelablePromise<SaveMo
 
 /**
  * Delete Model
+ * Delete an own model's folder (generator, default config, analysis.py).
  * @param data The data for the request.
  * @param data.modelName
  * @returns unknown Successful Response
@@ -346,8 +345,8 @@ export const saveModelFile = (data: SaveModelFileData): CancelablePromise<SaveMo
  */
 export const deleteModelFile = (data: DeleteModelFileData): CancelablePromise<DeleteModelFileResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
-    url: '/model/delete',
-    query: {
+    url: '/models/{model_name}',
+    path: {
         model_name: data.modelName
     },
     errors: {
@@ -357,18 +356,20 @@ export const deleteModelFile = (data: DeleteModelFileData): CancelablePromise<De
 
 /**
  * Upload Files
- * doc
+ * Upload files (mesh, input deck, material, ...) into a model folder, checked by MIME type; 2 MB per file in
+ * trial mode. Returns the name of an uploaded `.txt` point mesh (recognized by its `header: x y` line), or "" if
+ * there is none.
  * @param data The data for the request.
  * @param data.modelName
- * @param data.formData
  * @param data.modelFolderName
+ * @param data.formData
  * @returns string Successful Response
  * @throws ApiError
  */
 export const uploadFiles = (data: UploadFilesData): CancelablePromise<UploadFilesResponse> => { return __request(OpenAPI, {
     method: 'POST',
-    url: '/upload/files',
-    query: {
+    url: '/workspaces/{model_name}/{model_folder_name}/files',
+    path: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName
     },
@@ -380,56 +381,10 @@ export const uploadFiles = (data: UploadFilesData): CancelablePromise<UploadFile
 }); };
 
 /**
- * Write Input File
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.inputString
- * @param data.modelFolderName
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const writeInputFile = (data: WriteInputFileData): CancelablePromise<WriteInputFileResponse> => { return __request(OpenAPI, {
-    method: 'PUT',
-    url: '/upload/inputFile',
-    query: {
-        model_name: data.modelName,
-        input_string: data.inputString,
-        model_folder_name: data.modelFolderName
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Translate Model
- * doc
- * @param data The data for the request.
- * @param data.file
- * @param data.modelName
- * @param data.modelFolderName
- * @param data.discretization
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const translateModel = (data: TranslateModelData): CancelablePromise<TranslateModelResponse> => { return __request(OpenAPI, {
-    method: 'POST',
-    url: '/translate/model',
-    query: {
-        file: data.file,
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName,
-        discretization: data.discretization
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
  * Run Model
- * doc
+ * Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. Requires a
+ * database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
+ * offline, 404 when this folder already has an active run.
  * @param data The data for the request.
  * @param data.requestBody
  * @param data.modelName
@@ -441,7 +396,7 @@ export const translateModel = (data: TranslateModelData): CancelablePromise<Tran
  */
 export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse> => { return __request(OpenAPI, {
     method: 'POST',
-    url: '/jobs/run',
+    url: '/jobs',
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
@@ -457,41 +412,17 @@ export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse
 
 /**
  * Get Job Folders
- * Model-folder discovery: which model_folder_name variants exist for
- * this model. This is local model *configuration*, generated onto the
- * shared volume mount ahead of submission - the PeriLab API has no
- * concept of it, so it stays filesystem-based.
+ * The caller's model folders (workspaces) of this model; 404 if there are none. Read from the
+ * simulations volume - PeriLab doesn't know about folders, only about submitted runs.
  * @param data The data for the request.
  * @param data.modelName
  * @returns string Successful Response
  * @throws ApiError
  */
-export const getJobFolders = (data: GetJobFoldersData = {}): CancelablePromise<GetJobFoldersResponse> => { return __request(OpenAPI, {
+export const getJobFolders = (data: GetJobFoldersData): CancelablePromise<GetJobFoldersResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/jobs/getJobFolders',
-    query: {
-        model_name: data.modelName
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Jobs
- * Folder-level overview: one row per model_folder_name variant that
- * exists on disk, each carrying only its *latest* run's status plus
- * run_id/run_count. For full run history or a specific past run, use
- * GET .../runs or GET /jobs/{run_id}.
- * @param data The data for the request.
- * @param data.modelName
- * @returns Jobs Successful Response
- * @throws ApiError
- */
-export const getJobs = (data: GetJobsData = {}): CancelablePromise<GetJobsResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/jobs/getJobs',
-    query: {
+    url: '/workspaces/{model_name}',
+    path: {
         model_name: data.modelName
     },
     errors: {
@@ -501,11 +432,8 @@ export const getJobs = (data: GetJobsData = {}): CancelablePromise<GetJobsRespon
 
 /**
  * Get Status
- * Folder-level summary: model-config existence plus the *latest*
- * run's status for this model_name/model_folder_name. Carries run_id so
- * callers can switch to GET /jobs/{run_id} for authoritative detail on
- * that specific run, or GET .../runs for the full history, rather than
- * assuming this is "the" run.
+ * Folder-level summary: model-config existence plus the *latest* run's status for this
+ * model_name/model_folder_name. Carries run_id; the full run history is in GET /jobs/runs.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
@@ -513,12 +441,14 @@ export const getJobs = (data: GetJobsData = {}): CancelablePromise<GetJobsRespon
  * @returns Status Successful Response
  * @throws ApiError
  */
-export const getStatus = (data: GetStatusData = {}): CancelablePromise<GetStatusResponse> => { return __request(OpenAPI, {
+export const getStatus = (data: GetStatusData): CancelablePromise<GetStatusResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/jobs/getStatus',
-    query: {
+    url: '/workspaces/{model_name}/{model_folder_name}/status',
+    path: {
         model_name: data.modelName,
-        model_folder_name: data.modelFolderName,
+        model_folder_name: data.modelFolderName
+    },
+    query: {
         meshfile: data.meshfile
     },
     errors: {
@@ -542,43 +472,24 @@ export const listAllRuns = (): CancelablePromise<ListAllRunsResponse> => { retur
 }); };
 
 /**
- * List Runs
- * Full run history for a model folder - every JobQueueEntry ever
- * submitted for it, newest first. Use this (or GET /jobs/{run_id} for
- * one specific run) instead of assuming getJobs/getStatus's latest-run
- * snapshot is the only run that ever existed.
- * @param data The data for the request.
- * @param data.modelName
- * @param data.modelFolderName
- * @returns RunStatus Successful Response
- * @throws ApiError
- */
-export const listRuns = (data: ListRunsData): CancelablePromise<ListRunsResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/jobs/{model_name}/{model_folder_name}/runs',
-    path: {
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Run
- * Authoritative detail for one specific run, keyed by its own id -
- * independent of whether its model folder has since been resubmitted.
+ * Stream Run Log
+ * Streams a run's log as plain text (proxied from PeriLab's own log stream): everything logged so far,
+ * then new output as PeriLab writes it; the response ends when the job finishes. `debug=false` drops
+ * "[Debug]" lines. 404 while the run has no PeriLab job/log yet - the frontend retries.
  * @param data The data for the request.
  * @param data.runId
- * @returns RunStatus Successful Response
+ * @param data.debug
+ * @returns unknown Successful Response
  * @throws ApiError
  */
-export const getRun = (data: GetRunData): CancelablePromise<GetRunResponse> => { return __request(OpenAPI, {
+export const streamRunLog = (data: StreamRunLogData): CancelablePromise<StreamRunLogResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/jobs/{run_id}',
+    url: '/jobs/{run_id}/log/stream',
     path: {
         run_id: data.runId
+    },
+    query: {
+        debug: data.debug
     },
     errors: {
         422: 'Validation Error'
@@ -607,65 +518,9 @@ export const deleteRun = (data: DeleteRunData): CancelablePromise<DeleteRunRespo
 }); };
 
 /**
- * Get Run Log
- * Fetch the log for a specific run from the PeriLab API.
- *
- * This replaces the old WebSocket-based log streaming. The frontend
- * should poll this endpoint to get log updates.
- * @param data The data for the request.
- * @param data.runId
- * @param data.tail
- * @param data.debug
- * @returns string Successful Response
- * @throws ApiError
- */
-export const getRunLog = (data: GetRunLogData): CancelablePromise<GetRunLogResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/jobs/{run_id}/log',
-    path: {
-        run_id: data.runId
-    },
-    query: {
-        tail: data.tail,
-        debug: data.debug
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Stream Run Log
- * Streams a run's log from the PeriLab API (GET /jobs/{job_id}/log/stream)
- * as plain text: everything logged so far, then new output as PeriLab
- * writes it. The response ends when the job finishes. 404 while the run
- * has no PeriLab job/log yet - the frontend retries.
- * @param data The data for the request.
- * @param data.runId
- * @param data.debug
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const streamRunLog = (data: StreamRunLogData): CancelablePromise<StreamRunLogResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/jobs/{run_id}/log/stream',
-    path: {
-        run_id: data.runId
-    },
-    query: {
-        debug: data.debug
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
  * Cancel Run
- * Cancels one specific run by its own id. Replaces the old
- * model_name/model_folder_name-keyed PUT /jobs/cancel, which could only
- * ever mean "the currently active run for this folder" - now that a
- * folder can have run history, cancelling has to name which run.
+ * Cancels a queued or running run by its id (a model folder can have several runs, so cancelling
+ * names the run, not the folder). 409 if the run is no longer active.
  * @param data The data for the request.
  * @param data.runId
  * @returns unknown Successful Response
@@ -711,63 +566,9 @@ export const runAnalysis = (data: RunAnalysisData): CancelablePromise<RunAnalysi
 }); };
 
 /**
- * Get Result File
- * @param data The data for the request.
- * @param data.file
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const getResultFile = (data: GetResultFileData): CancelablePromise<GetResultFileResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/results/getResultFile',
-    query: {
-        file: data.file
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Get Fracture Analysis
- * doc
- * @param data The data for the request.
- * @param data.modelName
- * @param data.modelFolderName
- * @param data.height
- * @param data.crackLength
- * @param data.youngModulus
- * @param data.poissionsRatio
- * @param data.yieldStress
- * @param data.output
- * @param data.step
- * @param data.runId
- * @returns binary The image.
- * @throws ApiError
- */
-export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): CancelablePromise<GetFractureAnalysisResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/results/getFractureAnalysis',
-    query: {
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName,
-        height: data.height,
-        crack_length: data.crackLength,
-        young_modulus: data.youngModulus,
-        poissions_ratio: data.poissionsRatio,
-        yield_stress: data.yieldStress,
-        output: data.output,
-        step: data.step,
-        run_id: data.runId
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
  * Get Plot
- * doc
+ * A run's global CSV output as `{column: values}` for the charts. With `deviations_enabled`, every deviation
+ * run's CSV is included and its columns are suffixed with the run's number.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
@@ -779,7 +580,7 @@ export const getFractureAnalysis = (data: GetFractureAnalysisData = {}): Cancela
  */
 export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/results/getPlot',
+    url: '/results/plot',
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
@@ -794,7 +595,8 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
 
 /**
  * Get Results
- * doc
+ * Download a run's results: the Exodus `.e` file, or with `all_data` (or when there is none) the whole result
+ * folder as a zip.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
@@ -806,7 +608,7 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
  */
 export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResultsResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/results/getResults',
+    url: '/results/download',
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
@@ -821,7 +623,10 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
 
 /**
  * Get Data
- * doc
+ * One time step of a run's Exodus output for the 3D view: points displaced by `displ_factor` and the values of
+ * `variable`/`axis`, optionally clamped to the color-bar range and restricted to points where the `filter`
+ * variable is non-zero. Falls back to the last step when `step` is out of range, and to the first available
+ * variable when `variable` doesn't exist.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
@@ -839,7 +644,7 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
  */
 export const getPointDataResults = (data: GetPointDataResultsData = {}): CancelablePromise<GetPointDataResultsResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/results/getPointDataResults',
+    url: '/results/points',
     query: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
@@ -860,17 +665,17 @@ export const getPointDataResults = (data: GetPointDataResultsData = {}): Cancela
 
 /**
  * Delete Model
- * doc
+ * Delete one of the caller's model folders (input deck, mesh, uploads).
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
  * @returns unknown Successful Response
  * @throws ApiError
  */
-export const deleteModel = (data: DeleteModelData = {}): CancelablePromise<DeleteModelResponse> => { return __request(OpenAPI, {
+export const deleteModel = (data: DeleteModelData): CancelablePromise<DeleteModelResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
-    url: '/delete/model',
-    query: {
+    url: '/workspaces/{model_name}/{model_folder_name}',
+    path: {
         model_name: data.modelName,
         model_folder_name: data.modelFolderName
     },
@@ -881,18 +686,27 @@ export const deleteModel = (data: DeleteModelData = {}): CancelablePromise<Delet
 
 /**
  * Delete User Data
- * doc
+ * Delete all of the caller's simulation data.
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const deleteUserData = (): CancelablePromise<DeleteUserDataResponse> => { return __request(OpenAPI, {
+    method: 'DELETE',
+    url: '/users/me/data'
+}); };
+
+/**
+ * Delete Stale User Data
+ * Housekeeping: delete every user folder older than `days`; admins only.
  * @param data The data for the request.
- * @param data.checkDate
  * @param data.days
  * @returns unknown Successful Response
  * @throws ApiError
  */
-export const deleteUserData = (data: DeleteUserDataData): CancelablePromise<DeleteUserDataResponse> => { return __request(OpenAPI, {
+export const deleteStaleUserData = (data: DeleteStaleUserDataData = {}): CancelablePromise<DeleteStaleUserDataResponse> => { return __request(OpenAPI, {
     method: 'DELETE',
-    url: '/delete/userData',
+    url: '/admin/user-data',
     query: {
-        check_date: data.checkDate,
         days: data.days
     },
     errors: {
@@ -902,18 +716,18 @@ export const deleteUserData = (data: DeleteUserDataData): CancelablePromise<Dele
 
 /**
  * Get Publications
- * doc
+ * PeriHub/PeriLab publications as BibTeX (`Publications/papers.bib`).
  * @returns string Successful Response
  * @throws ApiError
  */
 export const getPublications = (): CancelablePromise<GetPublicationsResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/docs/getPublications'
+    url: '/publications'
 }); };
 
 /**
  * Energy
- * doc
+ * Forecast share of renewable power in the German grid from energy-charts.info, as `{local time: share}`.
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -924,7 +738,7 @@ export const getPrognosisEnergy = (): CancelablePromise<GetPrognosisEnergyRespon
 
 /**
  * Energy
- * doc
+ * Current German grid traffic-light signal from energy-charts.info (the value nearest to now).
  * @returns number Successful Response
  * @throws ApiError
  */
@@ -1013,9 +827,11 @@ export const getTrialId = (): CancelablePromise<GetTrialIdResponse> => { return 
 
 /**
  * Signup
+ * Create a local email/password account in the default organization (seat limit applies) and return a session
+ * token. 409 if the email is taken, 422 for passwords under 8 characters.
  * @param data The data for the request.
  * @param data.requestBody
- * @returns backend__app__routers__oauth__AuthResponse Successful Response
+ * @returns app__routers__oauth__AuthResponse Successful Response
  * @throws ApiError
  */
 export const signup = (data: SignupData): CancelablePromise<SignupResponse> => { return __request(OpenAPI, {
@@ -1030,9 +846,11 @@ export const signup = (data: SignupData): CancelablePromise<SignupResponse> => {
 
 /**
  * Login
+ * Local email/password login; returns a session token to send as `Authorization: Bearer`. 401 on wrong
+ * credentials, 403 for deactivated accounts.
  * @param data The data for the request.
  * @param data.requestBody
- * @returns backend__app__routers__oauth__AuthResponse Successful Response
+ * @returns app__routers__oauth__AuthResponse Successful Response
  * @throws ApiError
  */
 export const login = (data: LoginData): CancelablePromise<LoginResponse> => { return __request(OpenAPI, {
@@ -1047,6 +865,7 @@ export const login = (data: LoginData): CancelablePromise<LoginResponse> => { re
 
 /**
  * Me
+ * The logged-in user's account (id, email, name, role, auth provider, organization); 401 if not logged in.
  * @returns MeResponse Successful Response
  * @throws ApiError
  */
@@ -1075,7 +894,7 @@ export const startOidcLogin = (): CancelablePromise<StartOidcLoginResponse> => {
  * before calling this - see support/oidc_client.py's docstring.
  * @param data The data for the request.
  * @param data.code
- * @returns backend__app__routers__oauth__AuthResponse Successful Response
+ * @returns app__routers__oauth__AuthResponse Successful Response
  * @throws ApiError
  */
 export const oidcCallback = (data: OidcCallbackData): CancelablePromise<OidcCallbackResponse> => { return __request(OpenAPI, {
@@ -1091,6 +910,7 @@ export const oidcCallback = (data: OidcCallbackData): CancelablePromise<OidcCall
 
 /**
  * List Items
+ * Shared model configs or materials (`kind`) visible to the caller, optionally filtered by name, tag or project.
  * @param data The data for the request.
  * @param data.kind
  * @param data.search Case-insensitive substring match on name
@@ -1117,6 +937,7 @@ export const listLibraryItems = (data: ListLibraryItemsData): CancelablePromise<
 
 /**
  * Create Item
+ * Share a model config or material at the given visibility; project-scoped items require project membership.
  * @param data The data for the request.
  * @param data.kind
  * @param data.requestBody
@@ -1138,6 +959,7 @@ export const createLibraryItem = (data: CreateLibraryItemData): CancelablePromis
 
 /**
  * Update Item
+ * Replace a library item's metadata and content; only users who may edit it.
  * @param data The data for the request.
  * @param data.kind
  * @param data.itemId
@@ -1161,6 +983,7 @@ export const updateLibraryItem = (data: UpdateLibraryItemData): CancelablePromis
 
 /**
  * Delete Item
+ * Delete a library item; only users who may edit it.
  * @param data The data for the request.
  * @param data.kind
  * @param data.itemId
@@ -1181,6 +1004,7 @@ export const deleteLibraryItem = (data: DeleteLibraryItemData): CancelablePromis
 
 /**
  * List Projects
+ * Projects the caller is a member of or that belong to their organization.
  * @returns ProjectOut Successful Response
  * @throws ApiError
  */
@@ -1191,6 +1015,7 @@ export const listProjects = (): CancelablePromise<ListProjectsResponse> => { ret
 
 /**
  * Create Project
+ * Create a project in the caller's organization, with the caller as owner.
  * @param data The data for the request.
  * @param data.requestBody
  * @returns ProjectOut Successful Response
@@ -1208,6 +1033,7 @@ export const createProject = (data: CreateProjectData): CancelablePromise<Create
 
 /**
  * List Members
+ * A project's members and their roles; members only.
  * @param data The data for the request.
  * @param data.projectId
  * @returns MemberOut Successful Response
@@ -1226,6 +1052,7 @@ export const listProjectMembers = (data: ListProjectMembersData): CancelableProm
 
 /**
  * Add Member
+ * Add a user to a project or change their role; owners only.
  * @param data The data for the request.
  * @param data.projectId
  * @param data.requestBody
@@ -1247,6 +1074,7 @@ export const addProjectMember = (data: AddProjectMemberData): CancelablePromise<
 
 /**
  * Remove Member
+ * Remove a user from a project; owners only.
  * @param data The data for the request.
  * @param data.projectId
  * @param data.userId
@@ -1267,6 +1095,7 @@ export const removeProjectMember = (data: RemoveProjectMemberData): CancelablePr
 
 /**
  * List Teams
+ * Teams in the caller's organization.
  * @returns TeamOut Successful Response
  * @throws ApiError
  */
@@ -1277,6 +1106,7 @@ export const listTeams = (): CancelablePromise<ListTeamsResponse> => { return __
 
 /**
  * Create Team
+ * Create a team in the caller's organization; admins only.
  * @param data The data for the request.
  * @param data.requestBody
  * @returns TeamOut Successful Response
@@ -1294,6 +1124,7 @@ export const createTeam = (data: CreateTeamData): CancelablePromise<CreateTeamRe
 
 /**
  * Add Team Member
+ * Add a user to a team (no-op if already a member); admins only.
  * @param data The data for the request.
  * @param data.teamId
  * @param data.userId
@@ -1314,6 +1145,7 @@ export const addTeamMember = (data: AddTeamMemberData): CancelablePromise<AddTea
 
 /**
  * Remove Team Member
+ * Remove a user from a team; admins only.
  * @param data The data for the request.
  * @param data.teamId
  * @param data.userId
@@ -1334,6 +1166,8 @@ export const removeTeamMember = (data: RemoveTeamMemberData): CancelablePromise<
 
 /**
  * Get Public Config
+ * Deployment settings the frontend needs before login: deployment mode, trial flag and whether OIDC login is
+ * available (configured and licensed).
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -1344,6 +1178,7 @@ export const getPublicConfig = (): CancelablePromise<GetPublicConfigResponse> =>
 
 /**
  * Healthcheck
+ * Liveness probe.
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -1354,10 +1189,12 @@ export const healthcheckHealthGet = (): CancelablePromise<HealthcheckHealthGetRe
 
 /**
  * Get App Latest Release Version
+ * Running and latest released versions of PeriHub and PeriLab; "unknown" where PeriLab or GitHub can't be
+ * reached.
  * @returns VersionData Successful Response
  * @throws ApiError
  */
 export const getVersion = (): CancelablePromise<GetVersionResponse> => { return __request(OpenAPI, {
     method: 'GET',
-    url: '/updates'
+    url: '/version'
 }); };

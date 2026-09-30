@@ -8,6 +8,7 @@ gradient.
 <script lang="ts">
   import { T } from '@threlte/core';
   import * as THREE from 'three';
+  import { viewStore } from '$lib/stores/view-store.svelte';
   import CameraRig from './CameraRig.svelte';
   import SphereCloud from './SphereCloud.svelte';
   import { valueToColor } from './colorTransfer';
@@ -30,11 +31,13 @@ gradient.
     cameraRig?.resetCamera();
   }
 
-  export function fitToPoints() {
-    cameraRig?.fitToPoints();
+  export function fitToPoints(direction?: [number, number, number]) {
+    cameraRig?.fitToPoints(direction);
   }
 
-  const colorFor = $derived((value: number, target: THREE.Color) => valueToColor(value, minValue, maxValue, target));
+  const colorFor = $derived((value: number, target: THREE.Color) =>
+    valueToColor(value, minValue, maxValue, target)
+  );
 </script>
 
 <CameraRig bind:this={cameraRig} {points} />
@@ -42,7 +45,6 @@ gradient.
 <T.AmbientLight intensity={0.7} />
 <T.DirectionalLight position={[10, 10, 10]} intensity={0.9} />
 
-<!-- Matches the original's background: [45/255, 45/255, 45/255] -->
-<T.Color attach="background" args={['#2d2d2d']} />
+<T.Color attach="background" args={[viewStore.sceneBackground]} />
 
 <SphereCloud {points} {values} {radius} {resolution} {colorFor} />

@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { notify } from '$lib/utils/notify';
   import {
-    getOwnModels,
+    getModels,
     getOwnModelFile,
     getConfig,
     saveConfig,
@@ -27,7 +27,7 @@ SPDX-License-Identifier: Apache-2.0
   import ModelPreview from '$lib/components/views/ModelPreview.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
 
-  // Model metadata from GET /model/getOwnModels (support/model/loader.py).
+  // Model metadata from GET /models?own_only=true (support/model/loader.py).
   type OwnModel = {
     file: string;
     title: string;
@@ -69,7 +69,7 @@ SPDX-License-Identifier: Apache-2.0
   const editorClass = 'h-[calc(100vh-14rem)] max-h-[45rem] min-h-[24rem]';
 
   async function fetchModels() {
-    modelList = (await getOwnModels({ verify: true })) as OwnModel[];
+    modelList = (await getModels({ ownOnly: true, verify: true })) as OwnModel[];
     loaded = true;
   }
 
@@ -77,11 +77,11 @@ SPDX-License-Identifier: Apache-2.0
     selected = model;
     if (tab === 'analysis' && model.format !== 'yaml') tab = 'source';
     try {
-      sourceCode = (await getOwnModelFile({ modelFile: model.file })) as unknown as string;
+      sourceCode = (await getOwnModelFile({ modelName: model.file })) as unknown as string;
       analysisCode =
         model.format === 'yaml'
           ? ((await getOwnModelFile({
-              modelFile: model.file,
+              modelName: model.file,
               part: 'analysis'
             })) as unknown as string)
           : '';
@@ -89,7 +89,7 @@ SPDX-License-Identifier: Apache-2.0
       notify.apiError(error);
     }
     try {
-      configText = JSON.stringify(await getConfig({ configFile: model.file }), null, 2);
+      configText = JSON.stringify(await getConfig({ modelName: model.file }), null, 2);
     } catch {
       configText = '';
     }
@@ -117,7 +117,7 @@ SPDX-License-Identifier: Apache-2.0
     if (!selected) return;
     try {
       await saveModelFile({
-        modelFile: selected.file,
+        modelName: selected.file,
         part,
         requestBody: { source_code: part === 'model' ? sourceCode : analysisCode }
       });
@@ -141,7 +141,7 @@ SPDX-License-Identifier: Apache-2.0
       return;
     }
     try {
-      await saveConfig({ configFile: selected.file, requestBody: config });
+      await saveConfig({ modelName: selected.file, requestBody: config });
       notify.positive('Config saved');
     } catch (error: unknown) {
       const detail = (error as { body?: { detail?: { msg: string; loc: string[] }[] } }).body

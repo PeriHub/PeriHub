@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  // Drawn from the model itself (POST /generate/preview) instead of a
+  // Drawn from the model itself (POST /models/{name}/preview) instead of a
   // hand-made image per model: blocks coloured and numbered, boundary
   // conditions as arrows/supports, and the outlines of the shapes the
   // model is built from. Parameter changes refetch the coarse point cloud

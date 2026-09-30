@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // Geometry for the model preview (ModelPreview.svelte): turns the coarse
-// point cloud, block bounds and shape outlines from POST /generate/preview
+// point cloud, block bounds and shape outlines from POST /models/{name}/preview
 // plus the model's boundary conditions into what gets drawn. Kept out of the component so it can be
 // unit-tested (test/unit/model-preview.test.ts).
 
@@ -51,7 +51,7 @@ export function parseBcValue(value: string | number | null | undefined): number 
   return m ? Number(m[1]) : null;
 }
 
-/** One primitive of the model's geometry, as POST /generate/preview describes it (shapes.py). */
+/** One primitive of the model's geometry, as POST /models/{name}/preview describes it (shapes.py). */
 export interface PreviewShape {
   role: 'add' | 'remove' | 'block';
   block_id?: number;
@@ -245,7 +245,7 @@ export function previewViewBox(
   };
 }
 
-/** A preview region from POST /generate/preview (support/model/regions.py). */
+/** A preview region from POST /models/{name}/preview (support/model/regions.py). */
 export type Region =
   | { type: 'all' }
   | { type: 'none' }

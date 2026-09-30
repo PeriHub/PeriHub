@@ -35,6 +35,6 @@ def test_generate_model(model_name):
         encoding="UTF-8",
     ) as file:
         params = json.load(file)
-    valves = client.get("/model/getValves", params={"model_name": model_name}).json()
-    response = client.post("/generate/model?model_name=" + model_name, json={"data": params, "valves": valves})
+    valves = client.get(f"/models/{model_name}/params").json()
+    response = client.post(f"/workspaces/{model_name}/Default/generate", json={"data": params, "valves": valves})
     assert response.status_code == 200, response.text

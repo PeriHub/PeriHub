@@ -22,7 +22,7 @@ def test_getPointData():
         os.path.join(remote_path, file_name),
     )
 
-    response = client.get("/results/getPointData")
+    response = client.get("/results/points")
     assert response.json()["number_of_steps"] == 46
     shutil.rmtree("./simulations")
 
@@ -39,7 +39,7 @@ def test_getPlot():
     )
 
     response = client.get(
-        "/results/getPlot",
+        "/results/plot",
         params={
             "model_name": "Dogbone",
             "model_folder_name": "Default",

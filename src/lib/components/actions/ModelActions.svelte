@@ -26,7 +26,6 @@ SPDX-License-Identifier: Apache-2.0
   import { notify } from '$lib/utils/notify';
   import { downloadFile } from '$lib/utils/download';
   import { api } from '$lib/api/client';
-  import { config } from '$lib/config';
   import { generateModel as generateModelApi, saveConfig } from '$lib/client';
   import type { Discretization, ModelData, Valves } from '$lib/client';
   import { normalizeModelData } from '$lib/utils/legacy-model-data';
@@ -35,7 +34,6 @@ SPDX-License-Identifier: Apache-2.0
   const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
   const modelData = $derived(modelStore.modelData);
-  const uploadPath = `${config.apiBase}/upload/files`;
 
   let dialogUpload = $state(false);
   let modelLoading = $state(false);
@@ -103,7 +101,7 @@ SPDX-License-Identifier: Apache-2.0
 
   async function _saveConfig() {
     try {
-      await saveConfig({ configFile: modelStore.selectedModel.file, requestBody: modelData });
+      await saveConfig({ modelName: modelStore.selectedModel.file, requestBody: modelData });
       notify.positive('Config saved');
     } catch (error) {
       notify.apiError(error);
@@ -113,11 +111,8 @@ SPDX-License-Identifier: Apache-2.0
   async function saveModel() {
     modelLoading = true;
     try {
-      const params = {
-        model_name: modelStore.selectedModel.file,
-        model_folder_name: modelData.model.modelFolderName
-      };
-      const response = await api.get('/model/getModel', { params, responseType: 'blob' });
+      const url = `/workspaces/${encodeURIComponent(modelStore.selectedModel.file)}/${encodeURIComponent(modelData.model.modelFolderName)}/download`;
+      const response = await api.get(url, { responseType: 'blob' });
       const filename = `${modelStore.selectedModel.file}_${modelData.model.modelFolderName}.zip`;
       downloadFile(filename, response.data);
     } catch (error) {
@@ -172,7 +167,7 @@ SPDX-License-Identifier: Apache-2.0
 
     try {
       const response = await api.post(
-        `${uploadPath}?model_name=${modelStore.selectedModel.file}&model_folder_name=${modelData.model.modelFolderName}`,
+        `/workspaces/${encodeURIComponent(modelStore.selectedModel.file)}/${encodeURIComponent(modelData.model.modelFolderName)}/files`,
         formData,
         { headers: { username: defaultStore.username } }
       );

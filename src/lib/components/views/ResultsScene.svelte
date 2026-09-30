@@ -30,8 +30,8 @@ is not one - it's Canvas's parent.
     scene?.resetCamera();
   }
 
-  export function fitToPoints() {
-    scene?.fitToPoints();
+  export function fitToPoints(direction?: [number, number, number]) {
+    scene?.fitToPoints(direction);
   }
 </script>
 

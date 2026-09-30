@@ -114,6 +114,18 @@ function computeBondFilterPoints(bondFilters: BondFilters[]): BondFilterPoint[] 
   return result;
 }
 
+const SCENE_BACKGROUND_KEY = 'sceneBackground';
+
+function loadSceneBackground() {
+  try {
+    const saved = localStorage.getItem(SCENE_BACKGROUND_KEY);
+    if (saved && /^#[0-9a-f]{6}$/i.test(saved)) return saved;
+  } catch {
+    // No storage (SSR, private mode) - use the default.
+  }
+  return '#dde1e6';
+}
+
 class ViewStore {
   viewId = $state('image');
   textId = $state('input');
@@ -146,6 +158,19 @@ class ViewStore {
   // Parsed live from the streamed log text - see parseLogProgress. null
   // until PeriLab's log contains at least one recognized progress line.
   logProgress = $derived(parseLogProgress(this.logOutput));
+  // Background of the 3D Model/Results scenes, remembered per browser.
+  #sceneBackground = $state(loadSceneBackground());
+  get sceneBackground() {
+    return this.#sceneBackground;
+  }
+  set sceneBackground(color: string) {
+    this.#sceneBackground = color;
+    try {
+      localStorage.setItem(SCENE_BACKGROUND_KEY, color);
+    } catch {
+      // Not persisted - still applies for this session.
+    }
+  }
   // Derived from modelStore.modelData.bondFilters - no manual mutation needed
   bondFilterPoints = $derived<BondFilterPoint[]>(
     computeBondFilterPoints(modelStore.modelData.bondFilters ?? [])

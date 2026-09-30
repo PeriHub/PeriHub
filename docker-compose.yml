@@ -52,9 +52,8 @@ services:
   perilab:
     image: perihub/perilab:nightly
     container_name: perihub_perilab
-    # No published port needed any more - perihub_backend reaches this
-    # container via `docker exec` over the Docker socket (see above),
-    # not SSH, so port 22 doesn't need to be exposed at all.
+    env_file:
+      - .env
     volumes:
       - ${VOLUME-./backend/app/simulations}:/app/simulations
     ports:

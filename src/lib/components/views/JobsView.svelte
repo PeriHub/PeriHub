@@ -175,15 +175,23 @@ SPDX-License-Identifier: Apache-2.0
     fetchJobs();
   }
 
+  // Tabs.Content keeps this view mounted while hidden, so only fetch/poll
+  // while the Jobs tab is shown. Not gated on "any active run in the list":
+  // a run submitted after the last fetch isn't in `runs` yet (submitting
+  // switches to this tab, which refetches).
+  const shown = () => viewStore.viewId === 'jobs';
+
+  $effect(() => {
+    if (shown()) fetchJobs();
+  });
+
   onMount(() => {
-    fetchJobs();
     bus.on('resetData', fetchJobs);
     bus.on('getJobs' as never, fetchJobs);
 
-    // Keep status/progress live. Unconditional on purpose: a run submitted
-    // after the last fetch isn't in `runs` yet, so gating on "any active run
-    // in the list" would never pick it up. Idle polls are a single DB query.
-    pollTimer = setInterval(refreshJobsSilently, 3000);
+    pollTimer = setInterval(() => {
+      if (shown() && !document.hidden) refreshJobsSilently();
+    }, 3000);
 
     return () => {
       bus.off('resetData', fetchJobs);
