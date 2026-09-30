@@ -173,9 +173,8 @@
   ],
   "model": {
     "modelFolderName": "Default",
-    "ownModel": false,
+    "meshSource": "model",
     "twoDimensional": true,
-    "ownMesh": null,
     "horizon": null,
     "meshFile": null
   },

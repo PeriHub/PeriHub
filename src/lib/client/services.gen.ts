@@ -3,13 +3,14 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, DeleteRunData, DeleteRunResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, DeleteRunData, DeleteRunResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
  * Generate the model into its folder: save the ModelData JSON, build the point cloud with the model's generator
- * (skipped for `ownModel`, which brings its own mesh), then write mesh, node sets and the PeriLab input deck.
- * 404 if the generator is missing or the point count exceeds the caller's node limit.
+ * (skipped for `meshSource == "upload"`, which brings its own mesh), then write mesh, node sets and the PeriLab
+ * input deck. 404 if the generator is missing or the point count exceeds the caller's node limit, 422 if an
+ * uploaded mesh is expected but missing from the folder.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
@@ -208,14 +209,12 @@ export const getModel = (data: GetModelData): CancelablePromise<GetModelResponse
 
 /**
  * Get Point Data
- * Point cloud of a generated model for the 3D view: flat xyz coordinates plus block ids normalized to (0, 1].
- * Read from the Exodus ASCII mesh (`own_mesh`), the uploaded text mesh `mesh_file` (`own_model`) or the
- * generated `<model>.txt`; text meshes above the node limit are thinned.
+ * Point cloud of a model for the 3D view: flat xyz coordinates plus block ids normalized to (0, 1].
+ * Read from the uploaded mesh `mesh_file` (text or Exodus) or else the generated `<model>.txt`; meshes above
+ * the node limit are thinned.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
- * @param data.ownModel
- * @param data.ownMesh
  * @param data.meshFile
  * @param data.twoD
  * @returns PointData Successful Response
@@ -229,10 +228,31 @@ export const getPointData = (data: GetPointDataData): CancelablePromise<GetPoint
         model_folder_name: data.modelFolderName
     },
     query: {
-        own_model: data.ownModel,
-        own_mesh: data.ownMesh,
         mesh_file: data.meshFile,
         two_d: data.twoD
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Workspace File
+ * A single file of a model folder, e.g. an uploaded G-code mesh for the browser preview.
+ * @param data The data for the request.
+ * @param data.modelName
+ * @param data.modelFolderName
+ * @param data.filename
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const getWorkspaceFile = (data: GetWorkspaceFileData): CancelablePromise<GetWorkspaceFileResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/workspaces/{model_name}/{model_folder_name}/files/{filename}',
+    path: {
+        model_name: data.modelName,
+        model_folder_name: data.modelFolderName,
+        filename: data.filename
     },
     errors: {
         422: 'Validation Error'

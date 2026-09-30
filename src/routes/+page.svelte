@@ -87,7 +87,7 @@ SPDX-License-Identifier: Apache-2.0
   function openModel(m: { file: string; title: string }) {
     modelStore.selectedModel = { title: m.title, file: m.file };
     localStorage.setItem('selectedModel', JSON.stringify(modelStore.selectedModel));
-    modelStore.modelData.model.ownModel = false;
+    modelStore.modelData.model.meshSource = 'model';
     refreshModelFromBackend(m.file);
     goto('/perihub');
   }

@@ -2283,24 +2283,15 @@ export const $Model = {
             type: 'string',
             title: 'Modelfoldername'
         },
-        ownModel: {
-            type: 'boolean',
-            title: 'Ownmodel'
+        meshSource: {
+            type: 'string',
+            enum: ['model', 'upload'],
+            title: 'Meshsource',
+            default: 'model'
         },
         twoDimensional: {
             type: 'boolean',
             title: 'Twodimensional'
-        },
-        ownMesh: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Ownmesh'
         },
         horizon: {
             anyOf: [
@@ -2326,7 +2317,7 @@ export const $Model = {
         }
     },
     type: 'object',
-    required: ['modelFolderName', 'ownModel', 'twoDimensional'],
+    required: ['modelFolderName', 'twoDimensional'],
     title: 'Model'
 } as const;
 
@@ -2680,8 +2671,8 @@ export const $ModelData = {
             }
         ],
         model: {
+            meshSource: 'model',
             modelFolderName: 'Default',
-            ownModel: false,
             twoDimensional: true
         },
         outputs: [

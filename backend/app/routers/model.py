@@ -3,13 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import ast
-import csv
 import json
-import math
 import os
 import shutil
 from pathlib import Path
-from re import findall
 from typing import Literal, Optional
 
 import numpy as np
@@ -20,7 +17,7 @@ from slugify import slugify
 from ..support.base_models import AnalysisInfo, ModelData, PointData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, max_nodes
-from ..support.model import loader
+from ..support.model import loader, mesh_readers
 from ..support.model.yaml_model import ModelSpecError
 from ..support.model.yaml_model import model_class as yaml_model_class
 
@@ -178,164 +175,44 @@ def get_model(
 def get_point_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
-    own_model: bool = False,
-    own_mesh: Optional[bool] = False,
-    mesh_file: Optional[str] = "Dogbone.txt",
+    mesh_file: Optional[str] = None,
     two_d: Optional[bool] = True,
     request: Request = "",
 ) -> PointData:
-    """Point cloud of a generated model for the 3D view: flat xyz coordinates plus block ids normalized to (0, 1].
-    Read from the Exodus ASCII mesh (`own_mesh`), the uploaded text mesh `mesh_file` (`own_model`) or the
-    generated `<model>.txt`; text meshes above the node limit are thinned."""
+    """Point cloud of a model for the 3D view: flat xyz coordinates plus block ids normalized to (0, 1].
+    Read from the uploaded mesh `mesh_file` (text or Exodus) or else the generated `<model>.txt`; meshes above
+    the node limit are thinned."""
     username = FileHandler.get_user_name(request, dev)
+    folder = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+    try:
+        xyz, block = mesh_readers.read_points(os.path.join(folder, mesh_file or model_name + ".txt"), two_d)
+    except FileNotFoundError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{mesh_file or model_name} not found")
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    if len(xyz) == 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The mesh has no points")
 
-    points = []
-    block_ids = []
-    if own_mesh:
-        try:
-            with open(
-                FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-                + "/"
-                + model_name
-                + ".g.ascii",
-                "r",
-                encoding="UTF-8",
-            ) as file:
-                model_data = file.read()
-                num_of_blocks = findall(r"num_el_blk\s=\s\d*\s;", model_data)
-                num_of_blocks = int(num_of_blocks[0][13:][:2])
-                coords = findall(r"coord.\s=\s[-\d.,\se]{1,}", model_data)
-                nodes = findall(r"node_ns[\d]*\s=\s[\d,\s]*", model_data)
-                block_id = [1] * len(coords[0])
-                for i in range(0, 3):
-                    coords[i] = coords[i][8:].replace(" ", "").split(",")
-                for i in range(0, num_of_blocks):
-                    nodes[i] = nodes[i * 2][8:].replace(" ", "").split("=")[1].split(",")
-                    for node in nodes[i]:
-                        block_id[int(node) - 1] = i + 1
-                for i in range(0, len(coords[0])):
-                    # points += coords[0][i] + "," + coords[1][i] + "," + coords[2][i] + ","
-                    points.append(coords[0][i])
-                    points.append(coords[1][i])
-                    points.append(coords[2][i])
-                    # block_id_string += block_id[i] / num_of_blocks) + ","
-                    block_ids.append(block_id[i] / num_of_blocks)
-            response = PointData(points, block_ids)
-            return response
-        except IOError:
-            log.error("%s results can not be found", model_name)
-            return model_name + " results can not be found"
-    else:
-        max_block_id = 1
-        # try:
-        if own_model:
-            mesh_path = "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + mesh_file
-        else:
-            mesh_path = (
-                "./simulations/" + os.path.join(username, model_name, model_folder_name) + "/" + model_name + ".txt"
-            )
+    # Mean distance between consecutive points, as a sphere radius for the view.
+    dx_value = float(np.linalg.norm(np.diff(xyz, axis=0), axis=1).mean()) if len(xyz) > 1 else 1.0
+    if len(xyz) > max_nodes:
+        reduce_factor = len(xyz) // max_nodes
+        log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
+        xyz, block = xyz[::reduce_factor], block[::reduce_factor]
+    max_block_id = int(block.max())
+    block_ids = np.full(len(block), 0.1) if max_block_id == 1 else block / max_block_id
+    return PointData(points=xyz.ravel().tolist(), block_ids=block_ids.tolist(), dx_value=dx_value)
 
-        with open(
-            mesh_path,
-            "r",
-            encoding="UTF-8",
-        ) as file:
-            reader = csv.reader(file)
-            rows = list(reader)
-            reduce_factor = 1
-            counter = 0
-            if len(rows) > max_nodes:
-                reduce_factor = int(len(rows) / max_nodes)
-                log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
-            for row in rows:
-                str1 = "".join(row)
-                if str1.startswith("#") or str1.startswith("header") or len(str1) == 0:
-                    continue
-                counter += 1
-                if counter == reduce_factor:
-                    counter = 0
-                else:
-                    continue
-                parts = str1.split()
-                if two_d:
-                    try:
-                        block_id = int(parts[2])
-                    except ValueError:
-                        log.error("Model don't support 2D model, switch two dimensional model off")
-                        raise HTTPException(
-                            status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Model don't support 2D model, switch two dimensional model off",
-                        )
-                    # points += parts[0] + "," + parts[1] + ",0.0,"
-                    points.append(parts[0])
-                    points.append(parts[1])
-                    points.append("0.0")
-                else:
-                    if len(parts) < 3:
-                        log.error("Model don't support 3D model, switch to two dimensional model")
-                        raise HTTPException(
-                            status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Model don't support 3D model, switch to two dimensional model",
-                        )
-                    try:
-                        block_id = int(parts[3])
-                    except ValueError:
-                        log.error("Model don't support 3D model, switch to two dimensional model")
-                        raise HTTPException(
-                            status_code=status.HTTP_400_BAD_REQUEST,
-                            detail="Model don't support 3D model, switch to two dimensional model",
-                        )
-                    # points += parts[0] + "," + parts[1] + "," + parts[2] + ","
-                    points.append(parts[0])
-                    points.append(parts[1])
-                    points.append(parts[2])
-                if block_id > max_block_id:
-                    max_block_id = block_id
-            dx = []
-            x_previous = None
-            y_previous = None
-            z_previous = None
-            counter = 0
-            for row in rows:
-                str1 = "".join(row)
-                if str1.startswith("#") or str1.startswith("header") or len(str1) == 0:
-                    continue
-                parts = str1.split()
-                if two_d:
-                    block_id = int(parts[2])
-                    x = float(parts[0])
-                    y = float(parts[1])
-                    if x_previous != None:
-                        dx.append(math.hypot(x - x_previous, y - y_previous))
-                    x_previous = x
-                    y_previous = y
-                else:
-                    block_id = int(parts[3])
-                    x = float(parts[0])
-                    y = float(parts[1])
-                    z = float(parts[2])
-                    if x_previous != None:
-                        dx.append(math.hypot(x - x_previous, y - y_previous, z - z_previous))
-                    x_previous = x
-                    y_previous = y
-                    z_previous = z
-                counter += 1
-                if counter == reduce_factor:
-                    counter = 0
-                else:
-                    continue
-                if max_block_id == 1:
-                    # block_id_string += str(0.1) + ","
-                    block_ids.append(0.1)
-                else:
-                    # block_id_string += block_id / max_block_id + ","
-                    block_ids.append(block_id / max_block_id)
-        dx_value = np.average(dx)
-        response = PointData(points=points, block_ids=block_ids, dx_value=dx_value)
-        return response
-        # except IOError:
-        #     log.error("%s results can not be found", model_name)
-        #     return model_name + " results can not be found"
+
+@router.get("/workspaces/{model_name}/{model_folder_name}/files/{filename}", operation_id="get_workspace_file")
+def get_workspace_file(model_name: str, model_folder_name: str, filename: str, request: Request = ""):
+    """A single file of a model folder, e.g. an uploaded G-code mesh for the browser preview."""
+    username = FileHandler.get_user_name(request, dev)
+    folder = Path(FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)).resolve()
+    path = (folder / filename).resolve()
+    if path.parent != folder or not path.is_file():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{filename} not found")
+    return FileResponse(path)
 
 
 @router.get("/workspaces/{model_name}/{model_folder_name}/input-deck", operation_id="view_input_file")

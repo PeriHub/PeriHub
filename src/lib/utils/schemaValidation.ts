@@ -79,13 +79,15 @@ export type SectionStatus = 'complete' | 'incomplete' | 'unused';
  * when not in use they're 'unused' rather than incomplete. "In use" defaults
  * to non-null and, for lists, non-empty; `isUsed` overrides that for object
  * sections that are always present (e.g. Contact with no models).
+ * `isReady` adds a check the schema can't express (e.g. an uploaded mesh).
  */
 export function sectionStatus(
   field: string,
   schemaName: string,
   kind: 'object' | 'array',
   data: unknown,
-  isUsed?: (data: never) => boolean
+  isUsed?: (data: never) => boolean,
+  isReady?: (data: never) => boolean
 ): SectionStatus {
   const optional = !(getSchema('ModelData')?.required ?? []).includes(field);
   const used =
@@ -95,5 +97,5 @@ export function sectionStatus(
     kind === 'array'
       ? isArraySectionComplete(schemaName, data)
       : isObjectSectionComplete(schemaName, data);
-  return complete ? 'complete' : 'incomplete';
+  return complete && (!isReady || isReady(data as never)) ? 'complete' : 'incomplete';
 }

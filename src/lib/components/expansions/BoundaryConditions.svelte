@@ -18,6 +18,7 @@ SPDX-License-Identifier: Apache-2.0
   import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
 
   const model = $derived(modelStore.modelData.model);
+  const uploaded = $derived(model.meshSource === 'upload');
   const blocks = $derived(modelStore.modelData.blocks ?? []);
   const solvers = $derived(modelStore.modelData.solvers ?? []);
   const boundaryConditions = $derived(modelStore.modelData.boundaryConditions);
@@ -40,7 +41,7 @@ SPDX-License-Identifier: Apache-2.0
   const columnCount = $derived(
     6 +
       (discretization.nodeSets?.length ? 1 : 0) +
-      (model.ownModel ? 0 : 1) +
+      (uploaded ? 0 : 1) +
       (solvers.length > 1 ? 1 : 0)
   );
 
@@ -80,7 +81,7 @@ SPDX-License-Identifier: Apache-2.0
           {#if discretization.nodeSets && discretization.nodeSets.length > 0}
             <th class="w-16 px-1 pb-1 font-medium">Node set</th>
           {/if}
-          {#if !model.ownModel}<th class="w-16 px-1 pb-1 font-medium">Block ID</th>{/if}
+          {#if !uploaded}<th class="w-16 px-1 pb-1 font-medium">Block ID</th>{/if}
           {#if solvers.length > 1}<th class="px-1 pb-1 font-medium">Steps</th>{/if}
           <th class="w-32 px-1 pb-1 font-medium">Variable</th>
           <th class="w-14 px-1 pb-1 font-medium">Axis</th>
@@ -128,7 +129,7 @@ SPDX-License-Identifier: Apache-2.0
                 </Select>
               </td>
             {/if}
-            {#if !model.ownModel}
+            {#if !uploaded}
               <td class="p-0.5">
                 <Select
                   class="h-8 pr-6 pl-2 text-[13px]"

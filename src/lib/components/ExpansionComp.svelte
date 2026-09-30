@@ -27,7 +27,7 @@ SPDX-License-Identifier: Apache-2.0
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { sectionStatus } from '$lib/utils/schemaValidation';
-  import type { Contact, Deviations, ModelData } from '$lib/client';
+  import type { Contact, Deviations, Model, ModelData } from '$lib/client';
   import AccordionItem from '$lib/components/ui/AccordionItem.svelte';
 
   import ModelSettings from '$lib/components/expansions/Model.svelte';
@@ -63,6 +63,8 @@ SPDX-License-Identifier: Apache-2.0
     field: keyof ModelData;
     /** "In use" test for optional object sections that are always present (see sectionStatus). */
     isUsed?: (data: never) => boolean;
+    /** Extra completeness check beyond the schema's required fields (see sectionStatus). */
+    isReady?: (data: never) => boolean;
     visible?: () => boolean;
   }
 
@@ -87,7 +89,9 @@ SPDX-License-Identifier: Apache-2.0
           component: ModelSettings,
           schema: 'Model',
           schemaKind: 'object',
-          field: 'model'
+          field: 'model',
+          // An uploaded-mesh model is only complete once the mesh is there.
+          isReady: (m: Model) => m.meshSource !== 'upload' || !!m.meshFile
         },
         {
           key: 'discretization',
@@ -243,7 +247,8 @@ SPDX-License-Identifier: Apache-2.0
             section.schema,
             section.schemaKind,
             modelStore.modelData[section.field],
-            section.isUsed
+            section.isUsed,
+            section.isReady
           )
         }))
     }))

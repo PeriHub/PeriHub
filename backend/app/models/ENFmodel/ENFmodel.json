@@ -2,7 +2,7 @@
   "model": {
     "modelFolderName": "Default",
     "twoDimensional": true,
-    "ownModel": false,
+    "meshSource": "model",
     "gcode": false
   },
   "discretization": {

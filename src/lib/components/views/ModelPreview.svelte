@@ -50,7 +50,7 @@ SPDX-License-Identifier: Apache-2.0
   let widthPx = $state(0);
   let heightPx = $state(0);
 
-  const ownModel = $derived(data.model.ownModel);
+  const uploaded = $derived(data.model.meshSource === 'upload');
 
   // Only inputs the generator reads trigger a request.
   const geometryKey = $derived(
@@ -59,7 +59,7 @@ SPDX-License-Identifier: Apache-2.0
 
   $effect(() => {
     void geometryKey;
-    if (ownModel || paused) return;
+    if (uploaded || paused) return;
     const timer = setTimeout(load, 500);
     return () => clearTimeout(timer);
   });
@@ -276,9 +276,9 @@ SPDX-License-Identifier: Apache-2.0
   bind:clientWidth={widthPx}
   bind:clientHeight={heightPx}
 >
-  {#if ownModel}
+  {#if uploaded}
     <p class="text-muted-foreground text-sm">
-      Uploaded meshes have no preview. Upload the mesh, then open the Model tab to view it.
+      Uploaded meshes have no preview here — see the Model tab.
     </p>
   {:else if cloud && box && cloud.x.length}
     <svg
@@ -473,7 +473,7 @@ SPDX-License-Identifier: Apache-2.0
     <p class="text-muted-foreground text-sm">Drawing preview…</p>
   {/if}
 
-  {#if error && !ownModel}
+  {#if error && !uploaded}
     <p
       class="border-destructive/40 bg-destructive/10 text-destructive absolute top-2 right-2 left-2 rounded-md border px-3 py-1.5 text-xs"
       role="status"

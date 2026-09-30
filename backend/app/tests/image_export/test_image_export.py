@@ -5,48 +5,36 @@
 import os
 import shutil
 
-from app.main import app
+import pytest
 from fastapi.testclient import TestClient
+
+from backend.app.main import app
+from backend.app.routers import results
 
 client = TestClient(app)
 
+FIXTURE = os.path.join(os.path.dirname(__file__), "Dogbone_Output1.e")
 
-def test_getPointData():
-    test_path = "./tests/image_export/"
-    file_name = "Dogbone_Output1.e"
-    remote_path = "./simulations/guest/Dogbone/Default"
 
-    os.makedirs(remote_path, exist_ok=True)
-    shutil.copy(
-        os.path.join(test_path, file_name),
-        os.path.join(remote_path, file_name),
-    )
+@pytest.fixture
+def result_folder(tmp_path, monkeypatch):
+    """A run folder in tmp_path. Finding the run (DB + local PeriLab) is bypassed, so the tests never touch the
+    real simulations volume."""
+    monkeypatch.setattr(results, "_result_folder", lambda *args: str(tmp_path))
+    return tmp_path
 
+
+def test_getPointData(result_folder):
+    shutil.copy(FIXTURE, result_folder / "Dogbone_Output1.e")
     response = client.get("/results/points")
-    assert response.json()["number_of_steps"] == 46
-    shutil.rmtree("./simulations")
+    assert response.status_code == 200, response.text
+    assert response.json()["number_of_steps"] == 49
 
 
-def test_getPlot():
-    test_path = "./tests/image_export/"
-    file_name = "Dogbone_Output1.e"
-    remote_path = "./simulations/guest/Dogbone/Default"
-
-    os.makedirs(remote_path, exist_ok=True)
-    shutil.copy(
-        os.path.join(test_path, file_name),
-        os.path.join(remote_path, file_name),
-    )
-
+def test_getPlot(result_folder):
+    (result_folder / "Dogbone_Output1.csv").write_text("Time,Force\n0.0,1.5\n1.0,2.5\n")
     response = client.get(
-        "/results/plot",
-        params={
-            "model_name": "Dogbone",
-            "model_folder_name": "Default",
-            "output": "Output1",
-            "tasks": 1,
-        },
+        "/results/plot", params={"model_name": "Dogbone", "model_folder_name": "Default", "output": "Output1"}
     )
-    assert response.status_code == 200
-    assert "Time" in response.json()
-    shutil.rmtree("./simulations")
+    assert response.status_code == 200, response.text
+    assert response.json() == {"Time": [0.0, 1.0], "Force": [1.5, 2.5]}

@@ -364,12 +364,13 @@ export type MemberOut = {
 
 export type Model = {
     modelFolderName: string;
-    ownModel: boolean;
+    meshSource?: 'model' | 'upload';
     twoDimensional: boolean;
-    ownMesh?: boolean | null;
     horizon?: number | null;
     meshFile?: string | null;
 };
+
+export type meshSource = 'model' | 'upload';
 
 export type ModelData = {
     additive?: Array<AdditiveModel> | null;
@@ -745,12 +746,18 @@ export type GetPointDataData = {
     meshFile?: string | null;
     modelFolderName: string;
     modelName: string;
-    ownMesh?: boolean | null;
-    ownModel?: boolean;
     twoD?: boolean | null;
 };
 
 export type GetPointDataResponse = PointData;
+
+export type GetWorkspaceFileData = {
+    filename: string;
+    modelFolderName: string;
+    modelName: string;
+};
+
+export type GetWorkspaceFileResponse = unknown;
 
 export type ViewInputFileData = {
     modelFolderName: string;
@@ -1179,6 +1186,21 @@ export type $OpenApiTs = {
                  * Successful Response
                  */
                 200: PointData;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/workspaces/{model_name}/{model_folder_name}/files/{filename}': {
+        get: {
+            req: GetWorkspaceFileData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: unknown;
                 /**
                  * Validation Error
                  */

@@ -11,7 +11,8 @@ type LegacySection = { enabled?: boolean; [key: string]: unknown };
  * `thermal`/`additive` as `{ enabled, thermalModels/additiveModels }` and
  * `contact` with an `enabled` flag. Sections are now plain arrays (empty =
  * off), so convert on load; a disabled legacy section maps to `[]`.
- * Mirrors ModelData's validators in backend/app/support/base_models.py.
+ * `model.ownModel` (= uploaded mesh) became `model.meshSource`; `ownMesh` was unused.
+ * Mirrors the validators in backend/app/support/base_models.py.
  */
 export function normalizeModelData<T extends Partial<ModelData>>(data: T): T {
   for (const key of ['thermal', 'additive'] as const) {
@@ -27,6 +28,12 @@ export function normalizeModelData<T extends Partial<ModelData>>(data: T): T {
     data.contact = (
       enabled === false ? { ...rest, contactModels: [] } : rest
     ) as ModelData['contact'];
+  }
+  const model = data.model as (Record<string, unknown> & { meshSource?: string }) | undefined;
+  if (model && ('ownModel' in model || 'ownMesh' in model)) {
+    model.meshSource ??= model.ownModel ? 'upload' : 'model';
+    delete model.ownModel;
+    delete model.ownMesh;
   }
   return data;
 }

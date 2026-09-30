@@ -5,16 +5,13 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Dialog, DropdownMenu } from 'bits-ui';
+  import { DropdownMenu } from 'bits-ui';
   import {
-    Upload,
     Save,
     Undo2,
     Cog,
     Download,
-    Rewind,
     ArrowUpDown,
-    X,
     FolderOpen,
     MoreHorizontal,
     FileCog
@@ -27,24 +24,16 @@ SPDX-License-Identifier: Apache-2.0
   import { downloadFile } from '$lib/utils/download';
   import { api } from '$lib/api/client';
   import { generateModel as generateModelApi, saveConfig } from '$lib/client';
-  import type { Discretization, ModelData, Valves } from '$lib/client';
+  import type { ModelData, Valves } from '$lib/client';
   import { normalizeModelData } from '$lib/utils/legacy-model-data';
   import Button, { buttonVariants } from '$lib/components/ui/Button.svelte';
 
-  const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
   const modelData = $derived(modelStore.modelData);
+  const uploaded = $derived(modelData.model.meshSource === 'upload');
+  const missingMesh = $derived(uploaded && !modelData.model.meshFile);
 
-  let dialogUpload = $state(false);
   let modelLoading = $state(false);
   let fileInput: HTMLInputElement;
-  let uploadInput: HTMLInputElement;
-  let uploadBusy = $state(false);
-
-  function switchModels() {
-    modelStore.modelData.model.ownMesh = false;
-    modelStore.modelData.model.ownModel = false;
-  }
 
   function readData() {
     fileInput.click();
@@ -57,9 +46,6 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   function loadJsonFile(file: Blob) {
-    modelStore.modelData.model.ownMesh = false;
-    modelStore.modelData.model.ownModel = false;
-
     const fr = new FileReader();
     fr.onload = (e) => {
       const result = JSON.parse(e.target?.result as string);
@@ -123,7 +109,7 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   async function generateModel() {
-    if (!modelData.model.ownModel) {
+    if (!uploaded) {
       viewStore.modelLoading = true;
     }
     viewStore.textLoading = true;
@@ -140,9 +126,7 @@ SPDX-License-Identifier: Apache-2.0
       notify.positive('Model generated');
       bus.emit('updateTextView' as never);
       bus.emit('viewInputFile' as never);
-      if (!modelData.model.ownModel) {
-        bus.emit('viewPointData' as never);
-      }
+      bus.emit('viewPointData' as never);
       bus.emit('getStatus' as never);
       bus.emit('getJobFolders' as never);
     } catch (error: unknown) {
@@ -160,75 +144,8 @@ SPDX-License-Identifier: Apache-2.0
     viewStore.textLoading = false;
   }
 
-  async function uploadFiles(files: FileList) {
-    uploadBusy = true;
-    const formData = new FormData();
-    Array.from(files).forEach((f) => formData.append('files', f));
-
-    try {
-      const response = await api.post(
-        `/workspaces/${encodeURIComponent(modelStore.selectedModel.file)}/${encodeURIComponent(modelData.model.modelFolderName)}/files`,
-        formData,
-        { headers: { username: defaultStore.username } }
-      );
-      notify.positive('Files uploaded');
-      dialogUpload = false;
-
-      const first = files[0]!;
-      const type = first.name.split('.')[1];
-      if (type === 'gcode') {
-        modelStore.modelData.model.meshFile = first.name;
-        if (!modelStore.modelData.discretization) {
-          modelStore.modelData.discretization = {} as Discretization;
-        }
-        modelStore.modelData.discretization.discType = 'gcode';
-        if (!modelStore.modelData.discretization.gcode) {
-          modelStore.modelData.discretization.gcode = {
-            overwriteMesh: true,
-            sampling: 1,
-            width: 0.4,
-            height: 0.2,
-            scale: 1
-          };
-        }
-      } else if (type === 'g') {
-        viewStore.modelLoading = true;
-        viewStore.viewId = 'model';
-        await sleep(500);
-        bus.emit('viewPointData' as never);
-      } else if (type === 'txt' || type === 'e') {
-        if (response.data?.message) {
-          modelStore.modelData.model.meshFile = first.name;
-          if (!modelStore.modelData.discretization) {
-            modelStore.modelData.discretization = {} as Discretization;
-          }
-          modelStore.modelData.discretization.discType = type as 'txt' | 'e';
-        }
-        if (type === 'txt') {
-          viewStore.modelLoading = true;
-          viewStore.viewId = 'model';
-          await sleep(500);
-          bus.emit('viewPointData' as never);
-        }
-      }
-      bus.emit('getStatus' as never);
-    } catch (error) {
-      console.error(error);
-      notify.negative('Upload failed, file type not supported!');
-    }
-    viewStore.modelLoading = false;
-    uploadBusy = false;
-  }
-
   const menuItems = $derived(
     [
-      {
-        label: 'Upload model files',
-        icon: Upload,
-        action: () => (dialogUpload = true),
-        disabled: defaultStore.trial,
-        show: modelData.model.ownModel
-      },
       {
         label: 'Download model files',
         icon: Download,
@@ -241,14 +158,7 @@ SPDX-License-Identifier: Apache-2.0
         icon: Undo2,
         action: () => bus.emit('resetData'),
         disabled: false,
-        show: !modelData.model.ownModel
-      },
-      {
-        label: 'Use predefined models',
-        icon: Rewind,
-        action: switchModels,
-        disabled: false,
-        show: modelData.model.ownModel
+        show: !uploaded
       },
       {
         label: 'Save as default config',
@@ -259,18 +169,16 @@ SPDX-License-Identifier: Apache-2.0
       }
     ].filter((item) => item.show)
   );
-
-  function onUploadPicked(event: Event) {
-    const files = (event.target as HTMLInputElement).files;
-    if (files && files.length > 0) uploadFiles(files);
-  }
 </script>
 
 <div class="border-border bg-muted/30 flex flex-wrap items-center gap-1 border-b px-2 py-1">
-  <Button size="sm" onclick={generateModel} id="button-runModel">
-    <Cog class="h-4 w-4" />
-    Generate mesh
-  </Button>
+  <!-- Uploaded meshes only need the input deck; the span carries the tooltip, since a disabled button gets no hover. -->
+  <span title={missingMesh ? 'Upload a mesh first' : undefined}>
+    <Button size="sm" onclick={generateModel} id="button-runModel" disabled={missingMesh}>
+      <Cog class="h-4 w-4" />
+      {uploaded ? 'Generate input deck' : 'Generate mesh'}
+    </Button>
+  </span>
 
   <Button
     variant="ghost"
@@ -333,25 +241,3 @@ SPDX-License-Identifier: Apache-2.0
     <ArrowUpDown class="h-4 w-4" />
   </Button>
 </div>
-
-<Dialog.Root bind:open={dialogUpload}>
-  <Dialog.Portal>
-    <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
-    <Dialog.Content
-      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
-    >
-      <div class="mb-3 flex items-center justify-between">
-        <Dialog.Title class="text-lg font-semibold">Upload Data</Dialog.Title>
-        <Dialog.Close class="hover:bg-muted rounded-full p-1.5"><X class="h-4 w-4" /></Dialog.Close>
-      </div>
-      <input
-        bind:this={uploadInput}
-        type="file"
-        multiple
-        onchange={onUploadPicked}
-        disabled={uploadBusy}
-        class="text-muted-foreground file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:px-3 file:py-1.5"
-      />
-    </Dialog.Content>
-  </Dialog.Portal>
-</Dialog.Root>

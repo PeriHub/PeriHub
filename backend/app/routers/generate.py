@@ -44,8 +44,9 @@ def generate_model(
     request: Request = "",
 ):  # material: dict, Output: dict):
     """Generate the model into its folder: save the ModelData JSON, build the point cloud with the model's generator
-    (skipped for `ownModel`, which brings its own mesh), then write mesh, node sets and the PeriLab input deck.
-    404 if the generator is missing or the point count exceeds the caller's node limit."""
+    (skipped for `meshSource == "upload"`, which brings its own mesh), then write mesh, node sets and the PeriLab
+    input deck. 404 if the generator is missing or the point count exceeds the caller's node limit, 422 if an
+    uploaded mesh is expected but missing from the folder."""
 
     username = FileHandler.get_user_name(request, dev)
 
@@ -55,6 +56,10 @@ def generate_model(
 
     if not os.path.exists(localpath):
         os.makedirs(localpath)
+
+    uploaded_mesh = data.model.meshSource == "upload"
+    if uploaded_mesh and (not data.model.meshFile or not os.path.isfile(os.path.join(localpath, data.model.meshFile))):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="No mesh uploaded for this model")
 
     json_file = os.path.join(localpath, model_name + ".json")
     ignore_mesh = False
@@ -77,7 +82,7 @@ def generate_model(
 
     log.info("Create %s", model_name)
 
-    if not data.model.ownModel:
+    if not uploaded_mesh:
 
         valves_dict = valves_to_dict(valves)
         try:
@@ -133,7 +138,7 @@ def generate_model(
     #     )
     #     writer.write_mesh_with_angles(model, two_d)
     # else:
-    if not data.model.ownModel:
+    if not uploaded_mesh:
         model = np.transpose(
             np.vstack(
                 [

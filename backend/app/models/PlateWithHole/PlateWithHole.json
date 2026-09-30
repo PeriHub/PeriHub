@@ -138,8 +138,7 @@
     "horizon": null,
     "meshFile": null,
     "modelFolderName": "Default",
-    "ownMesh": null,
-    "ownModel": false,
+    "meshSource": "model",
     "gcode": false,
     "twoDimensional": true
   },

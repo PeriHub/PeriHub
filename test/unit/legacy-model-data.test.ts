@@ -22,4 +22,13 @@ describe('normalizeModelData', () => {
     const data = { thermal: [{ name: 'T1' }], additive: [], contact: { contactModels: [] } };
     expect(normalizeModelData(structuredClone(data) as unknown as ModelData)).toEqual(data);
   });
+
+  it('maps the legacy ownModel flag to meshSource', () => {
+    const own = normalizeModelData({
+      model: { modelFolderName: 'D', twoDimensional: true, ownModel: true, ownMesh: null }
+    } as unknown as ModelData);
+    expect(own.model).toEqual({ modelFolderName: 'D', twoDimensional: true, meshSource: 'upload' });
+    const predefined = normalizeModelData({ model: { ownModel: false } } as unknown as ModelData);
+    expect(predefined.model).toEqual({ meshSource: 'model' });
+  });
 });

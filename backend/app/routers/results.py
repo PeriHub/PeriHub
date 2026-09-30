@@ -291,9 +291,7 @@ def get_cell_data(variable, points, point_data, cell_data, block_data, displ_fac
 
 
 def get_point_data(variable, axis, displ_factor, use_multi_data, points, point_data):
-    """Point cloud of a generated model for the 3D view: flat xyz coordinates plus block ids normalized to (0, 1].
-    Read from the Exodus ASCII mesh (`own_mesh`), the uploaded text mesh `mesh_file` (`own_model`) or the
-    generated `<model>.txt`; text meshes above the node limit are thinned."""
+    """Result points displaced by `displ_factor` times the displacements, plus the values of `variable`."""
     np_first_points_x = np.array(points[:, 0])
     np_first_points_y = np.array(points[:, 1])
     np_first_points_z = np.array(points[:, 2])

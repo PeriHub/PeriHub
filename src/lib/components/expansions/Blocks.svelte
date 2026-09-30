@@ -14,6 +14,7 @@ SPDX-License-Identifier: Apache-2.0
   import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const model = $derived(modelStore.modelData.model);
+  const uploaded = $derived(model.meshSource === 'upload');
   const materials = $derived(modelStore.modelData.materials ?? []);
   const damages = $derived(modelStore.modelData.damages ?? []);
   const thermal = $derived(modelStore.modelData.thermal ?? []);
@@ -47,8 +48,8 @@ SPDX-License-Identifier: Apache-2.0
           {#if additive.length}<th class="px-1 pb-1 font-medium">Additive model</th>{/if}
           <th class="px-1 pb-1 font-medium">Density</th>
           {#if thermal.length}<th class="px-1 pb-1 font-medium">Specific heat</th>{/if}
-          {#if model.ownModel}<th class="px-1 pb-1 font-medium">Horizon</th>{/if}
-          {#if model.ownModel}<th class="w-11"><span class="sr-only">Remove</span></th>{/if}
+          {#if uploaded}<th class="px-1 pb-1 font-medium">Horizon</th>{/if}
+          {#if uploaded}<th class="w-11"><span class="sr-only">Remove</span></th>{/if}
         </tr>
       </thead>
       <tbody>
@@ -135,7 +136,7 @@ SPDX-License-Identifier: Apache-2.0
                 />
               </td>
             {/if}
-            {#if model.ownModel}
+            {#if uploaded}
               <td class="p-0.5">
                 <Input
                   class="h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none"
@@ -145,7 +146,7 @@ SPDX-License-Identifier: Apache-2.0
                 />
               </td>
             {/if}
-            {#if model.ownModel}
+            {#if uploaded}
               <td class="p-0.5">
                 <Button
                   variant="ghost"
@@ -163,7 +164,7 @@ SPDX-License-Identifier: Apache-2.0
     </table>
   </div>
 
-  {#if model.ownModel}
+  {#if uploaded}
     <AddButton noun="block" items={blocks} onclick={addBlock} />
   {/if}
 </div>

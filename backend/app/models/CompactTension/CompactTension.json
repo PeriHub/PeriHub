@@ -247,8 +247,7 @@
     "horizon": null,
     "meshFile": null,
     "modelFolderName": "Default",
-    "ownMesh": null,
-    "ownModel": false,
+    "meshSource": "model",
     "twoDimensional": true
   },
   "outputs": [

@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from typing import List, Literal, Optional, Union
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 from .yaml_field import yaml_field
 
@@ -217,11 +217,22 @@ class RunStatus(BaseModel):
 
 class Model(BaseModel):
     modelFolderName: str
-    ownModel: bool
+    # "model": points come from the selected model's generator; "upload": the user uploads `meshFile`.
+    meshSource: Literal["model", "upload"] = "model"
     twoDimensional: bool
-    ownMesh: Optional[bool] = None
     horizon: Optional[float] = None
     meshFile: Optional[str] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def migrate_own_model(cls, value):
+        # Legacy configs stored `ownModel` (= uploaded mesh) and an unused `ownMesh` flag.
+        if isinstance(value, dict) and ("ownModel" in value or "ownMesh" in value):
+            value = dict(value)
+            own_model = value.pop("ownModel", False)
+            value.pop("ownMesh", None)
+            value.setdefault("meshSource", "upload" if own_model else "model")
+        return value
 
 
 class Jobs(BaseModel):
@@ -862,9 +873,8 @@ default_model = {
     "model": {
         "horizon": None,
         "meshFile": None,
+        "meshSource": "model",
         "modelFolderName": "Default",
-        "ownMesh": None,
-        "ownModel": False,
         "twoDimensional": True,
     },
     "outputs": [
