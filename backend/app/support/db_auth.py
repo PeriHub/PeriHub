@@ -59,15 +59,15 @@ def _user_from_bearer_token(request: Request, db: Session | None) -> User | None
     return db.scalar(select(User).where(User.id == user_id, User.is_active.is_(True)))
 
 
-def resolve_user(request: Request, dev: bool, db: Session | None = None) -> ResolvedIdentity:
+def resolve_user(request: Request, db: Session | None = None) -> ResolvedIdentity:
     """Resolves the caller's identity for the current request.
 
     `db` is optional so this still works in DB-less trial mode; pass it
     whenever a session is available (i.e. DATABASE_URL is configured) to
     get real account resolution instead of just the legacy header.
     """
-    legacy_username = FileHandler.get_user_name(request, dev)
-    legacy_username = get_user_name_with_api_key(request, dev, legacy_username)
+    legacy_username = FileHandler.get_user_name(request)
+    legacy_username = get_user_name_with_api_key(request, legacy_username)
 
     db_user = _user_from_bearer_token(request, db)
     if db_user is not None:

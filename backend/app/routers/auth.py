@@ -19,9 +19,11 @@ from sqlalchemy.orm import Session
 
 from ..db.base import get_db
 from ..db.models import Organization, User
+from ..support.admin_settings import enforce_signup_open, instance_setting
 from ..support.db_auth import resolve_user
-from ..support.globals import deployment_mode, dev
+from ..support.globals import deployment_mode
 from ..support.local_auth import create_session_token, hash_password, verify_password
+from ..support.rbac import ensure_first_admin
 from ..support.seats import enforce_seat_limit
 from ..support.trial_identity import generate_trial_username
 
@@ -112,6 +114,7 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> AuthRespons
             detail="Password must be at least 8 characters.",
         )
 
+    enforce_signup_open(db)
     org = _get_or_create_default_org(db)
     enforce_seat_limit(db, org)
     user = User(
@@ -119,12 +122,13 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> AuthRespons
         password_hash=hash_password(payload.password),
         display_name=payload.display_name,
         auth_provider="local",
-        role="member",
+        role=instance_setting(db, "default_role"),
         org_id=org.id,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
+    ensure_first_admin(db, user)
 
     token = create_session_token(user.id)
     return AuthResponse(token=token, user_id=user.id, display_name=user.display_name, role=user.role)
@@ -148,6 +152,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
 
     user.last_login_at = datetime.now(timezone.utc)
     db.commit()
+    ensure_first_admin(db, user)
 
     token = create_session_token(user.id)
     return AuthResponse(token=token, user_id=user.id, display_name=user.display_name, role=user.role)
@@ -156,7 +161,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
 @router.get("/me", operation_id="get_current_user_info", response_model=MeResponse)
 def me(request: Request, db: Session = Depends(get_db)) -> MeResponse:
     """The logged-in user's account (id, email, name, role, auth provider, organization); 401 if not logged in."""
-    identity = resolve_user(request, dev, db)
+    identity = resolve_user(request, db)
     if identity.user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not logged in.")
     user = identity.user

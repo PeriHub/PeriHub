@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, DeleteRunData, DeleteRunResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetAllUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, DeleteRunData, DeleteRunResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -779,23 +779,6 @@ export const getMyUsage = (): CancelablePromise<GetMyUsageResponse> => { return 
 }); };
 
 /**
- * Get All Usage
- * Instance-wide usage summary.
- *
- * NOTE: unauthenticated/unrestricted for now, matching the rest of this
- * router set. Before exposing this beyond a trusted operator, it should be
- * gated the same way the admin/audit-log endpoints eventually are (see the
- * security and licensing roadmap items) so one user can't see another
- * tenant's aggregate usage.
- * @returns UsageSummary Successful Response
- * @throws ApiError
- */
-export const getAllUsage = (): CancelablePromise<GetAllUsageResponse> => { return __request(OpenAPI, {
-    method: 'GET',
-    url: '/usage/all'
-}); };
-
-/**
  * Get License Status
  * Current plan and unlocked features for this instance. Safe to expose
  * to any authenticated user (it doesn't reveal the license key itself) -
@@ -1194,6 +1177,117 @@ export const removeTeamMember = (data: RemoveTeamMemberData): CancelablePromise<
 export const getPublicConfig = (): CancelablePromise<GetPublicConfigResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/config/public'
+}); };
+
+/**
+ * List Users
+ * All users of the admin's organization with their job count.
+ * @returns AdminUser Successful Response
+ * @throws ApiError
+ */
+export const adminListUsers = (): CancelablePromise<AdminListUsersResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/admin/users'
+}); };
+
+/**
+ * Update User
+ * Change a user's role and/or active flag. 409 if this would leave the org without an active admin.
+ * @param data The data for the request.
+ * @param data.userId
+ * @param data.requestBody
+ * @returns AdminUser Successful Response
+ * @throws ApiError
+ */
+export const adminUpdateUser = (data: AdminUpdateUserData): CancelablePromise<AdminUpdateUserResponse> => { return __request(OpenAPI, {
+    method: 'PATCH',
+    url: '/admin/users/{user_id}',
+    path: {
+        user_id: data.userId
+    },
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * List Jobs
+ * The organization's runs across all users, newest first (max 500). Cancel via `cancel_run`.
+ * @param data The data for the request.
+ * @param data.activeOnly
+ * @returns AdminJob Successful Response
+ * @throws ApiError
+ */
+export const adminListJobs = (data: AdminListJobsData = {}): CancelablePromise<AdminListJobsResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/admin/jobs',
+    query: {
+        active_only: data.activeOnly
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Usage
+ * Usage summary (jobs per user/model) for the admin's organization.
+ * @returns UsageSummary Successful Response
+ * @throws ApiError
+ */
+export const adminGetUsage = (): CancelablePromise<AdminGetUsageResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/admin/usage'
+}); };
+
+/**
+ * Get Settings
+ * Instance-wide settings; values not in `overridden` come from env vars / defaults.
+ * @returns AdminSettingsResponse Successful Response
+ * @throws ApiError
+ */
+export const adminGetSettings = (): CancelablePromise<AdminGetSettingsResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/admin/settings'
+}); };
+
+/**
+ * Update Settings
+ * Save the instance-wide settings (takes effect immediately, no restart).
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns AdminSettingsResponse Successful Response
+ * @throws ApiError
+ */
+export const adminUpdateSettings = (data: AdminUpdateSettingsData): CancelablePromise<AdminUpdateSettingsResponse> => { return __request(OpenAPI, {
+    method: 'PUT',
+    url: '/admin/settings',
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Audit Log
+ * The last `limit` audit-log entries, newest first.
+ * @param data The data for the request.
+ * @param data.limit
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const adminGetAuditLog = (data: AdminGetAuditLogData = {}): CancelablePromise<AdminGetAuditLogResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/admin/audit-log',
+    query: {
+        limit: data.limit
+    },
+    errors: {
+        422: 'Validation Error'
+    }
 }); };
 
 /**

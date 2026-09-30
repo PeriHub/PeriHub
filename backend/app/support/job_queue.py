@@ -32,7 +32,8 @@ from ..db.models import (
     JobQueueEntry,
     User,
 )
-from .globals import log, max_concurrent_jobs_per_user
+from .admin_settings import instance_setting
+from .globals import log
 from .solver_backend import get_solver_backend
 
 _ACTIVE_STATUSES = (JOB_QUEUED, JOB_RUNNING)
@@ -55,12 +56,13 @@ def count_active_for_user(db: Session, user_id: str) -> int:
 def enforce_user_quota(db: Session, user: User) -> None:
     """Raises ValueError if `user` is already at max_concurrent_jobs_per_user
     active (running) jobs. Callers (routers/jobs.py) turn this into a 429."""
-    if max_concurrent_jobs_per_user <= 0:
+    limit = instance_setting(db, "max_concurrent_jobs_per_user")
+    if limit <= 0:
         return  # 0 or negative disables the per-user cap
     current = count_active_for_user(db, user.id)
-    if current >= max_concurrent_jobs_per_user:
+    if current >= limit:
         raise ValueError(
-            f"You already have {current}/{max_concurrent_jobs_per_user} jobs running. "
+            f"You already have {current}/{limit} jobs running. "
             "Wait for one to finish, or cancel one, before submitting another."
         )
 

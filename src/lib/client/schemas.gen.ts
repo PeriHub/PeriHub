@@ -53,6 +53,213 @@ export const $AdditiveModel = {
     title: 'AdditiveModel'
 } as const;
 
+export const $AdminJob = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        owner: {
+            type: 'string',
+            title: 'Owner'
+        },
+        model_name: {
+            type: 'string',
+            title: 'Model Name'
+        },
+        model_folder_name: {
+            type: 'string',
+            title: 'Model Folder Name'
+        },
+        status: {
+            type: 'string',
+            title: 'Status'
+        },
+        submitted_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Submitted At'
+        },
+        finished_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Finished At'
+        }
+    },
+    type: 'object',
+    required: ['id', 'owner', 'model_name', 'model_folder_name', 'status', 'submitted_at', 'finished_at'],
+    title: 'AdminJob'
+} as const;
+
+export const $AdminSettings = {
+    properties: {
+        max_concurrent_local_jobs: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Max Concurrent Local Jobs'
+        },
+        max_concurrent_jobs_per_user: {
+            type: 'integer',
+            minimum: 0,
+            title: 'Max Concurrent Jobs Per User',
+            description: '0 disables the per-user cap'
+        },
+        signup_open: {
+            type: 'boolean',
+            title: 'Signup Open'
+        },
+        default_role: {
+            type: 'string',
+            enum: ['member', 'viewer'],
+            title: 'Default Role'
+        },
+        external_perilab_url: {
+            type: 'string',
+            title: 'External Perilab Url'
+        }
+    },
+    type: 'object',
+    required: ['max_concurrent_local_jobs', 'max_concurrent_jobs_per_user', 'signup_open', 'default_role', 'external_perilab_url'],
+    title: 'AdminSettings'
+} as const;
+
+export const $AdminSettingsResponse = {
+    properties: {
+        max_concurrent_local_jobs: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Max Concurrent Local Jobs'
+        },
+        max_concurrent_jobs_per_user: {
+            type: 'integer',
+            minimum: 0,
+            title: 'Max Concurrent Jobs Per User',
+            description: '0 disables the per-user cap'
+        },
+        signup_open: {
+            type: 'boolean',
+            title: 'Signup Open'
+        },
+        default_role: {
+            type: 'string',
+            enum: ['member', 'viewer'],
+            title: 'Default Role'
+        },
+        external_perilab_url: {
+            type: 'string',
+            title: 'External Perilab Url'
+        },
+        overridden: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Overridden',
+            description: 'Keys saved in the DB; the rest use env/default values'
+        }
+    },
+    type: 'object',
+    required: ['max_concurrent_local_jobs', 'max_concurrent_jobs_per_user', 'signup_open', 'default_role', 'external_perilab_url', 'overridden'],
+    title: 'AdminSettingsResponse'
+} as const;
+
+export const $AdminUser = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        display_name: {
+            type: 'string',
+            title: 'Display Name'
+        },
+        email: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Email'
+        },
+        auth_provider: {
+            type: 'string',
+            title: 'Auth Provider'
+        },
+        role: {
+            type: 'string',
+            title: 'Role'
+        },
+        is_active: {
+            type: 'boolean',
+            title: 'Is Active'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        last_login_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Last Login At'
+        },
+        job_count: {
+            type: 'integer',
+            title: 'Job Count'
+        }
+    },
+    type: 'object',
+    required: ['id', 'display_name', 'email', 'auth_provider', 'role', 'is_active', 'created_at', 'last_login_at', 'job_count'],
+    title: 'AdminUser'
+} as const;
+
+export const $AdminUserUpdate = {
+    properties: {
+        role: {
+            anyOf: [
+                {
+                    type: 'string',
+                    enum: ['admin', 'developer', 'member', 'viewer']
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Role'
+        },
+        is_active: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Active'
+        }
+    },
+    type: 'object',
+    title: 'AdminUserUpdate'
+} as const;
+
 export const $AnalysisInfo = {
     properties: {
         id: {

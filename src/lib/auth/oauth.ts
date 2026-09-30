@@ -187,6 +187,7 @@ async function setUpAuth() {
         const response = await api.get<MeResponse>('/auth/me');
         profile = response.data;
         authStore.authenticated = true;
+        authStore.role = profile.role;
       } catch (e) {
         console.log('Stored session token is no longer valid, starting a new login:', e);
         localStorage.removeItem(TOKEN_STORAGE_KEY);

@@ -77,7 +77,6 @@ Requirements: Python 3.11, Node.js (LTS, for example via [nvm](https://github.co
    ```bash
    pip install "fastapi[standard]"
    pip install -r backend/requirements.txt -r backend/requirements-dev.txt
-   pip install git+https://github.com/JTHesse/crackpy.git
    cd backend && alembic upgrade head
    ```
 

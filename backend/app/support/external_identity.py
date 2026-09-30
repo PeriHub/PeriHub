@@ -14,6 +14,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db.models import OAuthIdentity, Organization, User
+from .admin_settings import enforce_signup_open, instance_setting
 from .seats import enforce_seat_limit
 
 
@@ -36,13 +37,14 @@ def get_or_create_external_user(
 
     # New external identity: enforce the seat limit before creating a row,
     # not after - never let a signup succeed and then get "un-created".
+    enforce_signup_open(db)
     enforce_seat_limit(db, org)
 
     user = User(
         email=email,
         display_name=display_name,
         auth_provider="oauth",
-        role="member",
+        role=instance_setting(db, "default_role"),
         org_id=org.id,
     )
     db.add(user)

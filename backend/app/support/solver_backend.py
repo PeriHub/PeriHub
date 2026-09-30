@@ -22,6 +22,8 @@ signal to fall back on.
 
 import os
 
+from ..db import base
+from .admin_settings import instance_setting
 from .globals import (
     external_perilab_url,
     local_perilab_api_url,
@@ -124,8 +126,17 @@ class PeriLabSolverBackend(SolverBackend):
                 self._client.cancel_job(job_id)
 
 
+def _external_perilab_url() -> str:
+    """Admin-page override (admin_settings) if a DB is configured, else the env var."""
+    if base.SessionLocal is None:
+        return external_perilab_url
+    with base.SessionLocal() as db:
+        return instance_setting(db, "external_perilab_url")
+
+
 def get_solver_backend() -> SolverBackend:
     if solver_backend_kind == "external":
+        external_perilab_url = _external_perilab_url()
         if not external_perilab_url:
             log.warning("SOLVER_BACKEND=external but EXTERNAL_PERILAB_URL is not set; falling back to local")
             return PeriLabSolverBackend(local_perilab_api_url, shares_local_filesystem=True)

@@ -32,7 +32,6 @@ from ..db.models import (
     ModelConfig,
 )
 from ..support.db_auth import resolve_user
-from ..support.globals import dev
 from ..support.rbac import (
     list_visible_materials,
     list_visible_model_configs,
@@ -79,7 +78,7 @@ class LibraryItemOut(BaseModel):
 
 
 def _require_db_user(request: Request, db: Session):
-    identity = resolve_user(request, dev, db)
+    identity = resolve_user(request, db)
     if identity.user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

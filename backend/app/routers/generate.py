@@ -17,7 +17,7 @@ from pydantic import BaseModel
 # from ..models.Smetana.smetana import Smetana
 from ..support.base_models import Block, Deviations, ModelData, Valves
 from ..support.file_handler import FileHandler
-from ..support.globals import dev, log
+from ..support.globals import log
 from ..support.model.point_cloud import build_point_cloud, valves_to_dict
 from ..support.model.yaml_model import ModelSpecError
 from ..support.writer.model_writer import ModelWriter
@@ -48,7 +48,7 @@ def generate_model(
     input deck. 404 if the generator is missing or the point count exceeds the caller's node limit, 422 if an
     uploaded mesh is expected but missing from the folder."""
 
-    username = FileHandler.get_user_name(request, dev)
+    username = FileHandler.get_user_name(request)
 
     max_nodes = FileHandler.get_max_nodes(username)
 

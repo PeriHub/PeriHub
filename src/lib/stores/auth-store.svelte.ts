@@ -12,6 +12,10 @@ const TOKEN_STORAGE_KEY = 'periHubSessionToken';
  */
 class AuthStore {
   authenticated = $state(false);
+  /** Account role from /auth/me ('admin' | 'member' | 'viewer'); null for trial/anonymous. */
+  role = $state<string | null>(null);
+  /** May create/edit own models and save default configs - mirrors the backend's require_model_author. */
+  canAuthorModels = $derived(this.role === 'admin' || this.role === 'developer');
 
   /**
    * Clears the stored PeriHub session token and reloads the page. With
@@ -23,6 +27,7 @@ class AuthStore {
     if (typeof window === 'undefined') return;
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     this.authenticated = false;
+    this.role = null;
     window.location.href = '/';
   }
 }

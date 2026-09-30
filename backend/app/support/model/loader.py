@@ -190,4 +190,6 @@ def list_models(kind: str) -> list[dict]:
         return []
     folders = sorted(directory / entry for entry in os.listdir(directory) if not entry.startswith(("_", ".")))
     # A folder without a generator file (e.g. only a leftover config) isn't a model.
-    return [metadata(folder) for folder in folders if folder.is_dir() and _generator_file(folder)]
+    return [
+        {**metadata(folder), "own": kind == "own"} for folder in folders if folder.is_dir() and _generator_file(folder)
+    ]

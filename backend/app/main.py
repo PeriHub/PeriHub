@@ -14,6 +14,7 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from .routers import admin as admin_router
 from .routers import auth as auth_router
 from .routers import config as config_router
 from .routers import delete, docs, energy, generate, jobs, library
@@ -28,7 +29,6 @@ from .support.base_models import VersionData
 from .support.file_handler import FileHandler
 from .support.globals import (
     database_url,
-    dev,
     frontmatter_installation,
     log,
     trial,
@@ -159,9 +159,8 @@ app.include_router(library.router)
 app.include_router(projects_router.router)
 app.include_router(teams_router.router)
 app.include_router(config_router.router)
+app.include_router(admin_router.router)
 
-if dev:
-    log.info("--- Running in development mode ---")
 if trial:
     log.info("--- Running in trial mode ---")
 

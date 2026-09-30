@@ -17,6 +17,7 @@ SPDX-License-Identifier: Apache-2.0
     FileCog
   } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
+  import { authStore } from '$lib/stores/auth-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
@@ -31,6 +32,9 @@ SPDX-License-Identifier: Apache-2.0
   const modelData = $derived(modelStore.modelData);
   const uploaded = $derived(modelData.model.meshSource === 'upload');
   const missingMesh = $derived(uploaded && !modelData.model.meshFile);
+  const isOwnModel = $derived(
+    modelStore.availableModels.find((m) => m.file === modelStore.selectedModel.file)?.own === true
+  );
 
   let modelLoading = $state(false);
   let fileInput: HTMLInputElement;
@@ -165,7 +169,8 @@ SPDX-License-Identifier: Apache-2.0
         icon: FileCog,
         action: _saveConfig,
         disabled: false,
-        show: defaultStore.dev
+        // Built-in defaults ship with the repo, so only offer them while developing PeriHub itself.
+        show: authStore.canAuthorModels && (isOwnModel || defaultStore.dev)
       }
     ].filter((item) => item.show)
   );

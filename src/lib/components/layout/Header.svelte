@@ -27,15 +27,18 @@ SPDX-License-Identifier: Apache-2.0
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { getLicenseStatus } from '$lib/client';
+  import { authStore } from '$lib/stores/auth-store.svelte';
   import UserSettingsDialog from '$lib/components/dialogs/UserSettingsDialog.svelte';
   import PlanDialog from '$lib/components/dialogs/PlanDialog.svelte';
 
-  const navItems = [
+  const navItems = $derived([
     { href: '/perihub', label: 'PeriHub' },
     { href: '/models', label: 'Models' },
     { href: '/tools', label: 'Tools' },
-    { href: '/publications', label: 'Publications' }
-  ];
+    { href: '/publications', label: 'Publications' },
+    // Only hides the link - the /admin endpoints enforce the role.
+    ...(authStore.role === 'admin' ? [{ href: '/admin', label: 'Admin' }] : [])
+  ]);
 
   // External/secondary links, consolidated into one menu instead of four
   // separate icon-only buttons so the toolbar stays usable on narrow

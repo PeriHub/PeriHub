@@ -19,7 +19,7 @@ from ..db.models import JobQueueEntry
 from ..support.base_models import AnalysisRequest, PointDataResults
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
-from ..support.globals import dev, log, max_nodes
+from ..support.globals import log, max_nodes
 from ..support.model import loader
 from ..support.model.model_api import AnalysisContext
 from ..support.model.point_cloud import valves_to_dict
@@ -43,7 +43,7 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
     if db_base.SessionLocal is None or not get_solver_backend().shares_local_filesystem:
         raise not_found("Results are only available when PeriLab runs locally.")
     with db_base.SessionLocal() as db:
-        identity = resolve_user(request, dev, db)
+        identity = resolve_user(request, db)
         if identity.user is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
         if run_id:
@@ -198,7 +198,7 @@ def get_results(
 ):
     """Download a run's results: the Exodus `.e` file, or with `all_data` (or when there is none) the whole result
     folder as a zip."""
-    username = FileHandler.get_user_name(request, dev)
+    username = FileHandler.get_user_name(request)
 
     resultpath = FileHandler.get_local_model_path(username, model_name)
     zip_file = os.path.join(resultpath, model_name + "_" + model_folder_name)

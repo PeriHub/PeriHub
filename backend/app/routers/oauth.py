@@ -18,6 +18,8 @@ other paid features. Local email/password (routers/auth.py) is unaffected
 either way.
 """
 
+from datetime import datetime, timezone
+
 import requests
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
@@ -31,6 +33,7 @@ from ..support.external_identity import get_or_create_external_user
 from ..support.license_client import get_status
 from ..support.local_auth import create_session_token
 from ..support.oidc_client import build_authorization_url, exchange_code_for_userinfo
+from ..support.rbac import ensure_first_admin
 
 router = APIRouter(prefix="/oauth", tags=["Auth Methods"])
 
@@ -110,5 +113,11 @@ def oidc_callback(code: str = Query(...), db: Session = Depends(get_db)) -> Auth
         display_name=userinfo.get("preferred_username") or userinfo.get("name") or userinfo["sub"],
         org=org,
     )
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This account has been deactivated.")
+    user.last_login_at = datetime.now(timezone.utc)
+    db.commit()
+    ensure_first_admin(db, user)
+
     token = create_session_token(user.id)
     return AuthResponse(token=token, user_id=user.id, display_name=user.display_name, role=user.role)

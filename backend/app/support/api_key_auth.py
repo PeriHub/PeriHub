@@ -6,7 +6,7 @@
 
 FileHandler.get_user_name() identifies a user from the `userName` header,
 which the frontend sets after an OAuth/OIDC login (or a random guest name in
-trial/dev mode). That's fine for browser sessions but awkward for CI or
+trial mode). That's fine for browser sessions but awkward for CI or
 server-to-server callers that have no browser session at all.
 
 This adds an *optional*, additive check: if the caller sends a valid
@@ -48,16 +48,10 @@ def _parse_api_keys() -> dict[str, str]:
 _API_KEYS = _parse_api_keys()
 
 
-def get_user_name_with_api_key(request: Request, dev: bool, fallback_username: str) -> str:
+def get_user_name_with_api_key(request: Request, fallback_username: str) -> str:
     """Returns the username associated with a valid X-Api-Key header, or
     `fallback_username` (the result of FileHandler.get_user_name()) if no
-    key is configured/presented/valid.
-
-    `dev` is currently unused but kept in the signature to match every call
-    site (`get_user_name_with_api_key(request, dev, username)`); it's a
-    natural hook if dev-mode ever needs to bypass key validation.
-    """
-    del dev
+    key is configured/presented/valid."""
     if not _API_KEYS:
         return fallback_username
 

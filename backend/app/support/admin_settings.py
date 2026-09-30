@@ -18,10 +18,12 @@ never touch the new admin settings UI.
 
 from typing import Any
 
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ..db.models import AdminSetting
+from ..db.models import AdminSetting, User
+from .globals import external_perilab_url, max_concurrent_jobs_per_user, max_concurrent_local_jobs
 
 
 def get_setting(
@@ -56,3 +58,29 @@ def set_setting(db: Session, key: str, value: Any, org_id: str | None = None) ->
     db.commit()
     db.refresh(row)
     return row
+
+
+# Instance-wide settings editable on the admin page (routers/admin.py). The
+# env vars in globals.py stay the defaults until an admin saves a value.
+INSTANCE_DEFAULTS = {
+    "max_concurrent_local_jobs": max_concurrent_local_jobs,
+    "max_concurrent_jobs_per_user": max_concurrent_jobs_per_user,
+    "signup_open": True,
+    "default_role": "member",
+    "external_perilab_url": external_perilab_url,
+}
+
+
+def instance_setting(db: Session, key: str) -> Any:
+    return get_setting(db, key, default=INSTANCE_DEFAULTS[key])
+
+
+def overridden_instance_settings(db: Session) -> list[str]:
+    return list(db.scalars(select(AdminSetting.key).where(AdminSetting.org_id.is_(None))))
+
+
+def enforce_signup_open(db: Session) -> None:
+    """403 for new accounts while signup is closed. The very first account is
+    always allowed so a fresh install can't lock itself out."""
+    if not instance_setting(db, "signup_open") and db.scalar(select(User.id).limit(1)) is not None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Signup is closed.")

@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   import { onMount } from 'svelte';
   import { Dialog, Tabs } from 'bits-ui';
   import { Plus, Trash2 } from 'lucide-svelte';
-  import { defaultStore } from '$lib/stores/default-store.svelte';
+  import { authStore } from '$lib/stores/auth-store.svelte';
   import { notify } from '$lib/utils/notify';
   import {
     getModels,
@@ -57,6 +57,7 @@ SPDX-License-Identifier: Apache-2.0
   let savedVersion = $state(0);
 
   const isYaml = $derived(selected?.format === 'yaml');
+  const canAuthor = $derived(authStore.canAuthorModels);
   // The preview needs a ModelData; fall back to the editor's while the config is invalid.
   const previewData = $derived.by<ModelData>(() => {
     try {
@@ -175,8 +176,8 @@ SPDX-License-Identifier: Apache-2.0
   <Button
     {variant}
     class="w-full"
-    disabled={defaultStore.trial}
-    title={defaultStore.trial ? 'Not available in the trial' : undefined}
+    disabled={!canAuthor}
+    title={canAuthor ? undefined : 'Requires the developer or admin role'}
     onclick={() => (dialogAddModel = true)}
   >
     <Plus /> New model
@@ -207,9 +208,9 @@ SPDX-License-Identifier: Apache-2.0
           you can edit here, with a live preview.
         </p>
         {@render newModelButton('default')}
-        {#if defaultStore.trial}
+        {#if !canAuthor}
           <p class="text-muted-foreground mt-2 text-xs">
-            Creating models isn't available in the trial.
+            Creating models requires the developer or admin role.
           </p>
         {/if}
       </div>
@@ -272,13 +273,15 @@ SPDX-License-Identifier: Apache-2.0
                   </p>
                 {/if}
               </div>
-              <Button
-                variant="ghost"
-                class="text-destructive hover:text-destructive"
-                onclick={() => (dialogDeleteModel = true)}
-              >
-                <Trash2 /> Delete
-              </Button>
+              {#if canAuthor}
+                <Button
+                  variant="ghost"
+                  class="text-destructive hover:text-destructive"
+                  onclick={() => (dialogDeleteModel = true)}
+                >
+                  <Trash2 /> Delete
+                </Button>
+              {/if}
             </div>
 
             <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -297,6 +300,7 @@ SPDX-License-Identifier: Apache-2.0
                   <Button
                     size="sm"
                     class="mb-1.5"
+                    disabled={!canAuthor}
                     onclick={() =>
                       tab === 'config'
                         ? saveModelConfig()

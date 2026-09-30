@@ -13,6 +13,61 @@ export type AdditiveModel = {
     printTemp: number;
 };
 
+export type AdminJob = {
+    id: string;
+    owner: string;
+    model_name: string;
+    model_folder_name: string;
+    status: string;
+    submitted_at: string;
+    finished_at: string | null;
+};
+
+export type AdminSettings = {
+    max_concurrent_local_jobs: number;
+    /**
+     * 0 disables the per-user cap
+     */
+    max_concurrent_jobs_per_user: number;
+    signup_open: boolean;
+    default_role: 'member' | 'viewer';
+    external_perilab_url: string;
+};
+
+export type default_role = 'member' | 'viewer';
+
+export type AdminSettingsResponse = {
+    max_concurrent_local_jobs: number;
+    /**
+     * 0 disables the per-user cap
+     */
+    max_concurrent_jobs_per_user: number;
+    signup_open: boolean;
+    default_role: 'member' | 'viewer';
+    external_perilab_url: string;
+    /**
+     * Keys saved in the DB; the rest use env/default values
+     */
+    overridden: Array<(string)>;
+};
+
+export type AdminUser = {
+    id: string;
+    display_name: string;
+    email: string | null;
+    auth_provider: string;
+    role: string;
+    is_active: boolean;
+    created_at: string;
+    last_login_at: string | null;
+    job_count: number;
+};
+
+export type AdminUserUpdate = {
+    role?: 'admin' | 'developer' | 'member' | 'viewer' | null;
+    is_active?: boolean | null;
+};
+
 /**
  * One @analysis function of a model (GET /models/{name}/analyses).
  */
@@ -919,8 +974,6 @@ export type GetCurrentEnergyResponse = number;
 
 export type GetMyUsageResponse = UsageSummary;
 
-export type GetAllUsageResponse = UsageSummary;
-
 export type GetLicenseStatusResponse = LicenseStatus;
 
 export type RefreshLicenseResponse = LicenseStatus;
@@ -1039,6 +1092,39 @@ export type RemoveTeamMemberResponse = unknown;
 export type GetPublicConfigResponse = {
     [key: string]: unknown;
 };
+
+export type AdminListUsersResponse = Array<AdminUser>;
+
+export type AdminUpdateUserData = {
+    requestBody: AdminUserUpdate;
+    userId: string;
+};
+
+export type AdminUpdateUserResponse = AdminUser;
+
+export type AdminListJobsData = {
+    activeOnly?: boolean;
+};
+
+export type AdminListJobsResponse = Array<AdminJob>;
+
+export type AdminGetUsageResponse = UsageSummary;
+
+export type AdminGetSettingsResponse = AdminSettingsResponse;
+
+export type AdminUpdateSettingsData = {
+    requestBody: AdminSettings;
+};
+
+export type AdminUpdateSettingsResponse = AdminSettingsResponse;
+
+export type AdminGetAuditLogData = {
+    limit?: number;
+};
+
+export type AdminGetAuditLogResponse = Array<{
+    [key: string]: unknown;
+}>;
 
 export type HealthcheckHealthGetResponse = unknown;
 
@@ -1536,16 +1622,6 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/usage/all': {
-        get: {
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: UsageSummary;
-            };
-        };
-    };
     '/license/status': {
         get: {
             res: {
@@ -1823,6 +1899,96 @@ export type $OpenApiTs = {
                 200: {
                     [key: string]: unknown;
                 };
+            };
+        };
+    };
+    '/admin/users': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<AdminUser>;
+            };
+        };
+    };
+    '/admin/users/{user_id}': {
+        patch: {
+            req: AdminUpdateUserData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: AdminUser;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/admin/jobs': {
+        get: {
+            req: AdminListJobsData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<AdminJob>;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/admin/usage': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: UsageSummary;
+            };
+        };
+    };
+    '/admin/settings': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: AdminSettingsResponse;
+            };
+        };
+        put: {
+            req: AdminUpdateSettingsData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: AdminSettingsResponse;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/admin/audit-log': {
+        get: {
+            req: AdminGetAuditLogData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<{
+                    [key: string]: unknown;
+                }>;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
             };
         };
     };

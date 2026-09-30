@@ -35,11 +35,12 @@ from ..db.base import get_db
 # PeriLab job_id a submission became; there is no cluster/sftp path.
 from ..db.models import JOB_CANCELLED, JOB_DONE, JOB_FAILED, JOB_QUEUED, JOB_RUNNING, JobQueueEntry
 from ..support import audit_log
+from ..support.admin_settings import instance_setting
 from ..support.api_key_auth import get_user_name_with_api_key
 from ..support.base_models import ModelData, RunStatus, Status
 from ..support.db_auth import ResolvedIdentity, resolve_user
 from ..support.file_handler import FileHandler
-from ..support.globals import dev, log, max_concurrent_local_jobs
+from ..support.globals import log
 from ..support.job_concurrency import count_active_local_jobs
 from ..support.job_queue import cancel_running, enforce_user_quota, submit_job
 from ..support.perilab_api_client import PeriLabJob
@@ -203,7 +204,7 @@ def _folder_summary(db: Session, request: Request, model_name: str, model_folder
         "run_count": 0,
     }
 
-    identity = resolve_user(request, dev, db)
+    identity = resolve_user(request, db)
     if identity.user is None:
         return empty
 
@@ -245,13 +246,13 @@ async def run_model(
     """Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. Requires a
     database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
     offline, 404 when this folder already has an active run."""
-    username = FileHandler.get_user_name(request, dev)
-    username = get_user_name_with_api_key(request, dev, username)
+    username = FileHandler.get_user_name(request)
+    username = get_user_name_with_api_key(request, username)
 
     # Fair-share queueing requires knowing which DB user is submitting -
     # every submission now requires a database-backed account (see the
     # 501 below), so this is always resolvable.
-    identity = resolve_user(request, dev, db)
+    identity = resolve_user(request, db)
     db_user = identity.user
     if db_user is not None:
         try:
@@ -278,6 +279,7 @@ async def run_model(
     # how many can be in flight at once instead of silently piling them
     # all on.
     active = count_active_local_jobs(db)
+    max_concurrent_local_jobs = instance_setting(db, "max_concurrent_local_jobs")
     if active >= max_concurrent_local_jobs:
         log.warning("Rejecting %s: %d/%d jobs already active", model_name, active, max_concurrent_local_jobs)
         audit_log.record(username, "run_model", model_name, request, result="rejected_capacity")
@@ -352,7 +354,7 @@ def get_job_folders(
 ) -> List[str]:
     """The caller's model folders (workspaces) of this model; 404 if there are none. Read from the
     simulations volume - PeriLab doesn't know about folders, only about submitted runs."""
-    username = FileHandler.get_user_name(request, dev)
+    username = FileHandler.get_user_name(request)
 
     localpath = FileHandler.get_local_model_path(username, model_name)
 
@@ -374,7 +376,7 @@ def get_status(
 ) -> Status:
     """Folder-level summary: model-config existence plus the *latest* run's status for this
     model_name/model_folder_name. Carries run_id; the full run history is in GET /jobs/runs."""
-    username = FileHandler.get_user_name(request, dev)
+    username = FileHandler.get_user_name(request)
 
     job_status = Status()
 
@@ -426,10 +428,10 @@ def list_all_runs(request: Request, db: Session = Depends(get_db)):
     its model folder's saved input deck (`model`) so the frontend can load
     it back into the editor. Result files aren't looked up per run here -
     `results` just means the run finished successfully."""
-    identity = resolve_user(request, dev, db)
+    identity = resolve_user(request, db)
     if identity.user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
-    username = FileHandler.get_user_name(request, dev)
+    username = FileHandler.get_user_name(request)
 
     # Materialized up front: _sync_status commits mid-loop.
     entries = list(
@@ -485,7 +487,7 @@ def stream_run_log(
     """Streams a run's log as plain text (proxied from PeriLab's own log stream): everything logged so far,
     then new output as PeriLab writes it; the response ends when the job finishes. `debug=false` drops
     "[Debug]" lines. 404 while the run has no PeriLab job/log yet - the frontend retries."""
-    identity = resolve_user(request, dev, db)
+    identity = resolve_user(request, db)
     if identity.user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
 
@@ -528,10 +530,10 @@ def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     """Deletes a finished run: its PeriLab job(s) - log and result files -
     and its DB entry. Active runs have to be cancelled first. The model
     folder (input deck) is left alone; it may be shared with other runs."""
-    username = FileHandler.get_user_name(request, dev)
-    username = get_user_name_with_api_key(request, dev, username)
+    username = FileHandler.get_user_name(request)
+    username = get_user_name_with_api_key(request, username)
 
-    identity = resolve_user(request, dev, db)
+    identity = resolve_user(request, db)
     if identity.user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
 
@@ -567,10 +569,10 @@ def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
 def cancel_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     """Cancels a queued or running run by its id (a model folder can have several runs, so cancelling
     names the run, not the folder). 409 if the run is no longer active."""
-    username = FileHandler.get_user_name(request, dev)
-    username = get_user_name_with_api_key(request, dev, username)
+    username = FileHandler.get_user_name(request)
+    username = get_user_name_with_api_key(request, username)
 
-    identity = resolve_user(request, dev, db)
+    identity = resolve_user(request, db)
     if identity.user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
 
