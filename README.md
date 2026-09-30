@@ -4,138 +4,123 @@ SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# PeriHub - Empowering Research with Peridynamic Modeling
+# PeriHub
 
-[![Pipeline Status](https://img.shields.io/github/actions/workflow/status/PeriHub/PeriHub/CI.yml?branch=main)](https://github.com/PeriHub/PeriLab.jl/actions)
+[![Pipeline Status](https://img.shields.io/github/actions/workflow/status/PeriHub/PeriHub/CI.yml?branch=main)](https://github.com/PeriHub/PeriHub/actions)
 [![docs](https://img.shields.io/badge/docs-v1-blue.svg)](https://perihub.github.io/PeriHub/)
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](https://github.com/PeriHub/PeriHub/blob/main/LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8159334.svg)](https://doi.org/10.5281/zenodo.8159334)
 [![Docker Image](https://img.shields.io/docker/pulls/perihub/frontend)](https://hub.docker.com/r/perihub/frontend)
 [![YouTube](https://img.shields.io/youtube/channel/subscribers/UCeky7HtUGlOJ2OKknvl6YnQ)](https://www.youtube.com/@PeriHub)
 
-PeriHub is a powerful software solution that can significantly benefit research in various fields. It is an extension of the open-source PeriLab software, providing a numerical implementation of the peridynamic theory. With PeriHub, researchers gain access to a valuable tool for addressing specific challenges and exploring diverse use cases in materials science, engineering, and related disciplines.
+PeriHub is a web application for setting up, running and analysing peridynamic simulations. You configure a
+model in the browser, PeriHub generates the mesh and input deck, and the simulation runs on the
+[PeriLab](https://github.com/PeriHub/PeriLab.jl) solver. PeriHub is developed at the German Aerospace Center (DLR).
 
-## Key Features
+![PeriHub: model setup on the left, simulation results on the right](docs/assets/images/PeriHub_demo.png)
 
-- **Peridynamic Modeling:** PeriHub excels at facilitating peridynamic modeling, enabling researchers to analyze material behavior and complex systems. Its unique approach empowers users to explore new frontiers and deepen their understanding of material behavior.
+## What you can do
 
-- **User-Friendly Interface:** PeriHub offers a user-friendly interface, making it accessible to both experienced researchers and newcomers in the field. The platform's ease of use ensures efficient simulations, analysis of results, and gaining valuable insights into material behavior.
+- **Start from a built-in model** and adjust its parameters, with a live preview of geometry and blocks.
+- **Describe your own models** in YAML, or in Python when you need custom logic. See
+  [Own models](docs/OwnModels.md).
+- **Run simulations** on the bundled PeriLab container or on an external PeriLab server, and follow progress and
+  logs while they run.
+- **Analyse results** in a 3D viewer, as plots, and with crack analysis.
+- **Work in teams:** user accounts, projects, and shared models and materials.
+- **Automate** through the REST API. The interactive API docs are at `/docs` on the backend.
 
-- **REST API and GUI Support:** Researchers can seamlessly interact with PeriHub using its REST API and GUI support, providing flexibility and convenience in conducting simulations and research tasks.
+## Quick start
 
-- **High-Quality and Reliable:** Developed collaboratively by a dedicated group of experts, PeriHub adheres to high standards of quality, reliability, and FAIRness (Findability, Accessibility, Interoperability, and Reusability). The German Aerospace Center (DLR) has played a significant role in fostering an environment that encourages innovation and interdisciplinary collaboration throughout the software's development process.
+You need [Docker](https://docs.docker.com/get-docker/) with Docker Compose.
 
-- **Portability and Scalability:** PeriHub utilizes Docker containers, ensuring seamless integration and deployment across various computing environments. This approach enhances the software's portability, scalability, and ease of use, making it even more practical for research purposes.
-
-### Overview
-
-![](docs/assets/images/PeriHub.svg)
-
-### Generate model
-
-![](docs/assets/gif/generateModel.gif)
-
-### View generated mesh
-
-![](docs/assets/gif/viewMesh.gif)
-
-### Edit input deck
-
-![](docs/assets/gif/editInputDeck.gif)
-
-### Submit model
-
-![](docs/assets/gif/runModel.gif)
-
-### Analyse results
-
-![](docs/assets/gif/analyseResults.gif)
-
-### Plot results
-
-![](docs/assets/gif/plotResults.gif)
-
-### Analyse fracture
-
-![](docs/assets/gif/analyseFracture.gif)
-
-# Getting Started with PeriHub Services
-
-To get started with PeriHub, you can use Docker Compose to easily set up the required services. Here's a step-by-step guide:
-
-- Clone the repository
-
-```
+```bash
 git clone https://github.com/PeriHub/PeriHub.git
-```
-
-- Go into the PeriHub folder.
-
-```
 cd PeriHub
-```
-
-- Copy the .env file and edit its contents (Optional).
-
-```
 cp .env.example .env
+docker compose up
 ```
 
-- Run docker-compose.
+Then open http://localhost:8080.
 
+All settings live in `.env`. [`.env.example`](.env.example) documents them. The ones you are most likely to change:
+`TRIAL` and `DEPLOYMENT_MODE` (trial, community or enterprise), `DATABASE_URL`, and `SOLVER_BACKEND`. Set
+`SOLVER_BACKEND=external` together with `EXTERNAL_PERILAB_URL` to run simulations on your own PeriLab server
+instead of the bundled container.
+
+## Documentation
+
+- User guide: https://perihub.github.io/PeriHub/
+- Video tutorials: https://www.youtube.com/@PeriHub
+
+## Development
+
+PeriHub has a FastAPI backend (`backend/`) and a SvelteKit frontend (repository root). For development, run both
+locally and use Docker only for the database and the solver.
+
+Requirements: Python 3.11, Node.js (LTS, for example via [nvm](https://github.com/nvm-sh/nvm)) and Docker.
+
+1. Start the database and the solver:
+
+   ```bash
+   docker compose up perihub_db perilab -d
+   ```
+
+2. In `.env`, point the backend at the database:
+
+   ```bash
+   DATABASE_URL=postgresql+psycopg://perihub:perihub@localhost:5432/perihub
+   ```
+
+3. Install the backend and create the database schema:
+
+   ```bash
+   pip install "fastapi[standard]"
+   pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+   pip install git+https://github.com/JTHesse/crackpy.git
+   cd backend && alembic upgrade head
+   ```
+
+4. Start the backend. It runs at http://localhost:8000, with API docs at http://localhost:8000/docs:
+
+   ```bash
+   cd backend/app
+   fastapi dev main.py
+   ```
+
+5. Start the frontend. It runs at http://localhost:9000 and forwards `/api` to the backend:
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+### Tests and checks
+
+```bash
+# Backend (from backend/app)
+PYTHONPATH=$(pwd)/../.. python -m pytest tests
+
+# Frontend
+npm run lint
+npm run check
+npm run test:unit
+npx playwright test
+
+# Formatting (pre-commit hooks)
+pre-commit run --all-files
 ```
-docker-compose up
+
+After changing a backend endpoint, regenerate the typed API client while the backend is running:
+
+```bash
+npm run client
 ```
 
-- If docker finished starting PeriHub, go to http://localhost:8080
+## Citation
 
-# Contributing
-
-If you like to start PeriHub in a development mode, you will need to install following requirements
-
-## Requirements
-
-- Install the [node version manager](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) and node itself
-
-```
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-source ~/.bashrc
-nvm install --lts
-```
-
-- Install the node packages for the frontend (SvelteKit, at the repo root)
-
-```
-npm install
-```
-
-- For the python backend we need to make sure that [pip](https://pip.pypa.io/en/stable/installation/), [fastapi](https://fastapi.tiangolo.com/) and further dependencies are installed
-
-```
-cd backend
-pip install "fastapi[standard]"
-pip install -r requirements.txt
-pip install git+https://github.com/JTHesse/crackpy.git
-```
-
-Now you are able to start the services
-
-## Starting the services
-
-```
-npm run dev
-```
-
-```
-cd backend/app
-fastapi dev main.py
-```
-
-> If you also want to submit any simulations, make sure to start the perilab container:
-
-```
-docker compose up perilab -d
-```
+If you use PeriHub in your research, please cite it via Zenodo:
+[doi.org/10.5281/zenodo.8159334](https://doi.org/10.5281/zenodo.8159334).
 
 ## Contact
 
@@ -143,4 +128,4 @@ docker compose up perilab -d
 
 ## License
 
-Please see the file [LICENSE.md](LICENSE.md) for further information about how the content is licensed.
+See [LICENSE.md](LICENSE.md) for how the content is licensed.
