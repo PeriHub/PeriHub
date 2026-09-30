@@ -14,7 +14,7 @@ router = APIRouter(prefix="/energy", tags=["Upload Methods"])
 
 @router.get("/prognosis", operation_id="get_prognosis_energy")
 async def energy() -> dict:
-    """doc"""
+    """Forecast share of renewable power in the German grid from energy-charts.info, as `{local time: share}`."""
     # Define the URL and query parameters
     url = "https://api.energy-charts.info/signal"
     params = {"country": "de"}
@@ -51,7 +51,7 @@ async def energy() -> dict:
 
 @router.get("/current", operation_id="get_current_energy")
 async def energy() -> float:
-    """doc"""
+    """Current German grid traffic-light signal from energy-charts.info (the value nearest to now)."""
     # Define the URL and query parameters
     url = "https://api.energy-charts.info/traffic_signal"
     params = {"country": "de"}

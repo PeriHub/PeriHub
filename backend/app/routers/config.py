@@ -30,6 +30,8 @@ router = APIRouter(prefix="/config", tags=["Config Methods"])
 
 @router.get("/public", operation_id="get_public_config")
 def get_public_config() -> dict:
+    """Deployment settings the frontend needs before login: deployment mode, trial flag and whether OIDC login is
+    available (configured and licensed)."""
     return {
         "deployment_mode": deployment_mode,
         "trial": deployment_mode == "trial",

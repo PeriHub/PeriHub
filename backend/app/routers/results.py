@@ -23,7 +23,6 @@ from ..support.globals import dev, log, max_nodes
 from ..support.model import loader
 from ..support.model.model_api import AnalysisContext
 from ..support.model.point_cloud import valves_to_dict
-from ..support.results.crack_analysis import CrackAnalysis
 from ..support.solver_backend import get_solver_backend
 from .jobs import _can_view_entry, _latest_entry, _perilab_job_ids
 
@@ -121,58 +120,7 @@ def analysis_png(result, result_dir: str) -> bytes:
     raise ValueError(f"an analysis must return a matplotlib Figure or an image path, not {type(result).__name__}")
 
 
-@router.get("/getResultFile", operation_id="get_result_file", response_class=FileResponse)
-def get_result_file(file: str):
-    return FileResponse(file)
-
-
-@router.get(
-    "/getFractureAnalysis",
-    operation_id="get_fracture_analysis",
-    response_class=FileResponse,
-    responses={
-        200: {
-            "description": "The image.",
-            "content": {"image/png": {"schema": {"type": "string", "format": "binary"}}},
-        }
-    },
-)
-def get_fracture_analysis(
-    model_name: str = "Dogbone",
-    model_folder_name: str = "Default",
-    height: float = 10,
-    crack_length: float = 17.5,
-    young_modulus: float = 5000,
-    poissions_ratio: float = 0.33,
-    yield_stress: float = 74,
-    output: str = "Output1",
-    step: int = -1,
-    run_id: Optional[str] = None,
-    request: Request = "",
-):
-    """doc"""
-    resultpath = _result_folder(request, model_name, model_folder_name, run_id)
-    file = os.path.join(resultpath, model_name + "_" + output + ".e")
-
-    file_name, filepath = CrackAnalysis.write_nodemap(file, step)
-
-    crack_coordinate = CrackAnalysis.get_crack_end(file, step)
-
-    filepath = CrackAnalysis.fracture_analysis(
-        model_name,
-        height,
-        crack_coordinate,
-        young_modulus,
-        poissions_ratio,
-        yield_stress,
-        file_name,
-        filepath,
-    )
-
-    return FileResponse(filepath, media_type="image/png")
-
-
-@router.get("/getPlot", operation_id="get_plot")
+@router.get("/plot", operation_id="get_plot")
 def get_plot(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -187,7 +135,8 @@ def get_plot(
     run_id: Optional[str] = None,
     request: Request = "",
 ) -> JSONResponse:
-    """doc"""
+    """A run's global CSV output as `{column: values}` for the charts. With `deviations_enabled`, every deviation
+    run's CSV is included and its columns are suffixed with the run's number."""
     resultpath = _result_folder(request, model_name, model_folder_name, run_id)
 
     matching_files = FileHandler.get_all_output_files_with_extension(
@@ -238,7 +187,7 @@ def get_plot(
     #     return ResponseModel(data=data, message=model_name + " results can not be found on " + cluster)
 
 
-@router.get("/getResults", operation_id="get_results")
+@router.get("/download", operation_id="get_results")
 def get_results(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -247,7 +196,8 @@ def get_results(
     run_id: Optional[str] = None,
     request: Request = "",
 ):
-    """doc"""
+    """Download a run's results: the Exodus `.e` file, or with `all_data` (or when there is none) the whole result
+    folder as a zip."""
     username = FileHandler.get_user_name(request, dev)
 
     resultpath = FileHandler.get_local_model_path(username, model_name)
@@ -341,6 +291,9 @@ def get_cell_data(variable, points, point_data, cell_data, block_data, displ_fac
 
 
 def get_point_data(variable, axis, displ_factor, use_multi_data, points, point_data):
+    """Point cloud of a generated model for the 3D view: flat xyz coordinates plus block ids normalized to (0, 1].
+    Read from the Exodus ASCII mesh (`own_mesh`), the uploaded text mesh `mesh_file` (`own_model`) or the
+    generated `<model>.txt`; text meshes above the node limit are thinned."""
     np_first_points_x = np.array(points[:, 0])
     np_first_points_y = np.array(points[:, 1])
     np_first_points_z = np.array(points[:, 2])
@@ -388,7 +341,7 @@ def get_point_data(variable, axis, displ_factor, use_multi_data, points, point_d
     return np_points_all_x, np_points_all_y, np_points_all_z, cell_value
 
 
-@router.get("/getPointDataResults", operation_id="get_point_data_results")
+@router.get("/points", operation_id="get_point_data_results")
 def get_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -403,7 +356,10 @@ def get_data(
     run_id: Optional[str] = None,
     request: Request = "",
 ) -> PointDataResults:
-    """doc"""
+    """One time step of a run's Exodus output for the 3D view: points displaced by `displ_factor` and the values of
+    `variable`/`axis`, optionally clamped to the color-bar range and restricted to points where the `filter`
+    variable is non-zero. Falls back to the last step when `step` is out of range, and to the first available
+    variable when `variable` doesn't exist."""
     resultpath = _result_folder(request, model_name, model_folder_name, run_id)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 

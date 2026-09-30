@@ -23,7 +23,7 @@ from .routers import oauth as oauth_router
 from .routers import projects as projects_router
 from .routers import results
 from .routers import teams as teams_router
-from .routers import translate, upload, usage
+from .routers import upload, usage
 from .support.base_models import VersionData
 from .support.file_handler import FileHandler
 from .support.globals import (
@@ -146,7 +146,6 @@ app.add_middleware(
 app.include_router(generate.router)
 app.include_router(model.router)
 app.include_router(upload.router)
-app.include_router(translate.router)
 app.include_router(jobs.router)
 app.include_router(results.router)
 app.include_router(delete.router)
@@ -169,11 +168,14 @@ if trial:
 
 @app.get("/health")
 async def healthcheck():
+    """Liveness probe."""
     return {"status": True}
 
 
-@app.get("/updates", operation_id="get_version")
+@app.get("/version", operation_id="get_version")
 async def get_app_latest_release_version() -> VersionData:
+    """Running and latest released versions of PeriHub and PeriLab; "unknown" where PeriLab or GitHub can't be
+    reached."""
     current = app.version
     latest = "unknown"
     perilab_current = "unknown"

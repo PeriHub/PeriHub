@@ -13,17 +13,19 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
 from ..support.file_handler import FileHandler
 from ..support.globals import dev, log, trial
 
-router = APIRouter(prefix="/upload", tags=["Upload Methods"])
+router = APIRouter(prefix="/workspaces", tags=["Upload Methods"])
 
 
-@router.post("/files", operation_id="upload_files")
+@router.post("/{model_name}/{model_folder_name}/files", operation_id="upload_files")
 async def upload_files(
     model_name: str,
     model_folder_name: str = "Default",
     request: Request = "",
     files: List[UploadFile] = File(...),
 ) -> str:
-    """doc"""
+    """Upload files (mesh, input deck, material, ...) into a model folder, checked by MIME type; 2 MB per file in
+    trial mode. Returns the name of an uploaded `.txt` point mesh (recognized by its `header: x y` line), or "" if
+    there is none."""
 
     # Check file size
     if trial:
@@ -92,14 +94,15 @@ async def upload_files(
     return meshfile_name
 
 
-@router.put("/inputFile", operation_id="write_input_file")
+@router.put("/{model_name}/{model_folder_name}/input-deck", operation_id="write_input_file")
 def write_input_file(
     model_name: str,
     input_string: str,
     model_folder_name: str = "Default",
     request: Request = "",
 ):
-    """doc"""
+    """Overwrite the model folder's input deck (`<model>.yaml`) with `input_string`, e.g. after editing it in the
+    text view."""
     username = FileHandler.get_user_name(request, dev)
 
     with open(

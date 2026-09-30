@@ -42,6 +42,7 @@ def _require_db_user(request: Request, db: Session) -> User:
 
 @router.get("", operation_id="list_teams", response_model=list[TeamOut])
 def list_teams(request: Request, db: Session = Depends(get_db)):
+    """Teams in the caller's organization."""
     user = _require_db_user(request, db)
     rows = db.scalars(select(Team).where(Team.org_id == user.org_id))
     return list(rows)
@@ -49,6 +50,7 @@ def list_teams(request: Request, db: Session = Depends(get_db)):
 
 @router.post("", operation_id="create_team", response_model=TeamOut)
 def create_team(payload: TeamIn, request: Request, db: Session = Depends(get_db)):
+    """Create a team in the caller's organization; admins only."""
     user = _require_db_user(request, db)
     require_role(user, "admin")
     if user.org_id is None:
@@ -65,6 +67,7 @@ def create_team(payload: TeamIn, request: Request, db: Session = Depends(get_db)
 
 @router.post("/{team_id}/members/{user_id}", operation_id="add_team_member")
 def add_team_member(team_id: str, user_id: str, request: Request, db: Session = Depends(get_db)):
+    """Add a user to a team (no-op if already a member); admins only."""
     user = _require_db_user(request, db)
     require_role(user, "admin")
     team = db.get(Team, team_id)
@@ -82,6 +85,7 @@ def add_team_member(team_id: str, user_id: str, request: Request, db: Session = 
 
 @router.delete("/{team_id}/members/{user_id}", operation_id="remove_team_member")
 def remove_team_member(team_id: str, user_id: str, request: Request, db: Session = Depends(get_db)):
+    """Remove a user from a team; admins only."""
     user = _require_db_user(request, db)
     require_role(user, "admin")
     membership = db.scalar(

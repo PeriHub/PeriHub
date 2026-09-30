@@ -4,7 +4,7 @@
 
 """Run a model generator up to (but not including) writing files.
 
-Shared by POST /generate/model (the real mesh) and POST /generate/preview
+Shared by POST /workspaces/{model}/{folder}/generate (the real mesh) and POST /models/{name}/preview
 (a coarse point cloud the frontend draws instead of a hand-made preview
 image), so the preview can never drift from what actually gets generated.
 """

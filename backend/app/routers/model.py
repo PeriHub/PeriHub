@@ -24,36 +24,31 @@ from ..support.model import loader
 from ..support.model.yaml_model import ModelSpecError
 from ..support.model.yaml_model import model_class as yaml_model_class
 
-router = APIRouter(prefix="/model", tags=["Model Methods"])
+router = APIRouter(tags=["Model Methods"])
 
 OWN_MODELS = loader.MODEL_DIRS["own"]
 ASSETS = loader.APP_DIR / "assets"
 
 
-@router.get("/getModels", operation_id="get_models")
-def get_models() -> list[dict]:
+@router.get("/models", operation_id="get_models")
+def get_models(own_only: bool = False, verify: bool = False, request: Request = "") -> list[dict]:
     """Built-in models, then own models (an own model named like a built-in one is shadowed
-    by it everywhere, so it isn't listed twice)."""
-    model_list = loader.list_models("built_in")
-    built_in = {model["file"] for model in model_list}
-    return model_list + [model for model in loader.list_models("own") if model["file"] not in built_in]
+    by it everywhere, so it isn't listed twice).
 
-
-@router.get("/getOwnModels", operation_id="get_own_models")
-def get_own_models(verify: bool = False, request: Request = "") -> list[dict]:
-    """Own models; broken or legacy-format ones are included with an `error` message."""
-    model_list = loader.list_models("own")
+    `own_only`: just the own models, shadowed ones included; broken or legacy-format ones
+    carry an `error` message. `verify` (with `own_only`): only those the caller authored."""
+    own = loader.list_models("own")
+    if not own_only:
+        model_list = loader.list_models("built_in")
+        built_in = {model["file"] for model in model_list}
+        return model_list + [model for model in own if model["file"] not in built_in]
     if verify:
         username = FileHandler.get_user_name(request, dev)
-        model_list = [
-            model
-            for model in model_list
-            if username == "dev" or username in model["author"].replace(" ", "").split(",")
-        ]
-    return model_list
+        own = [model for model in own if username == "dev" or username in model["author"].replace(" ", "").split(",")]
+    return own
 
 
-@router.get("/getValves", operation_id="get_valves")
+@router.get("/models/{model_name}/params", operation_id="get_valves")
 def get_valves(model_name: str) -> Valves:
     """The model's parameters as UI fields."""
     try:
@@ -63,7 +58,7 @@ def get_valves(model_name: str) -> Valves:
     return {"valves": [param.valve() for param in model_class.params()]}
 
 
-@router.get("/analyses", operation_id="get_analyses")
+@router.get("/models/{model_name}/analyses", operation_id="get_analyses")
 def get_analyses(model_name: str) -> list[AnalysisInfo]:
     """The model's @analysis functions (result images) and their parameters; [] if none."""
     try:
@@ -81,21 +76,21 @@ def get_analyses(model_name: str) -> list[AnalysisInfo]:
     ]
 
 
-@router.get("/getConfig", operation_id="get_config")
-def get_config(config_file: str = "Dogbone") -> JSONResponse:
-    """doc"""
+@router.get("/models/{model_name}/config", operation_id="get_config")
+def get_config(model_name: str = "Dogbone") -> JSONResponse:
+    """A model's default ModelData config (`<Name>.json`); a built-in model wins over an own model of the same name."""
 
     config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "models",
-        config_file,
-        config_file + ".json",
+        model_name,
+        model_name + ".json",
     )
     own_config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "own_models",
-        config_file,
-        config_file + ".json",
+        model_name,
+        model_name + ".json",
     )
     if os.path.exists(config_path):
         with open(config_path, "r") as file:
@@ -106,35 +101,37 @@ def get_config(config_file: str = "Dogbone") -> JSONResponse:
             data = json.load(file)
             return JSONResponse(content=data)
 
-    log.error("%s files can not be found", config_file)
+    log.error("%s files can not be found", model_name)
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail=config_file + " files can not be found",
+        detail=model_name + " files can not be found",
     )
 
 
-@router.post("/saveConfig", operation_id="save_config")
-def save_config(config_file: str, config: ModelData, request: Request = ""):
+@router.put("/models/{model_name}/config", operation_id="save_config")
+def save_config(model_name: str, config: ModelData, request: Request = ""):
+    """Overwrite a model's default config with `config`, dropping empty top-level sections. Does nothing if the model
+    has no config file."""
     username = FileHandler.get_user_name(request, dev)
 
     config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "models",
-        config_file,
-        config_file + ".json",
+        model_name,
+        model_name + ".json",
     )
     own_config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "own_models",
-        config_file,
-        config_file + ".json",
+        model_name,
+        model_name + ".json",
     )
     if os.path.exists(config_path):
         file_path = config_path
     elif os.path.exists(own_config_path):
         file_path = own_config_path
     else:
-        log.error("%s files can not be found", config_file)
+        log.error("%s files can not be found", model_name)
         return
     # remove first layer object if value null
     config_dict = config.dict()
@@ -149,22 +146,13 @@ def save_config(config_file: str, config: ModelData, request: Request = ""):
         file.write(json.dumps(config_dict))
 
 
-@router.get("/getMaxFeSize", operation_id="get_max_fe_size")
-def get_max_fe_size(request: Request = "") -> int:
-    """doc"""
-
-    username = FileHandler.get_user_name(request, dev)
-
-    return FileHandler.get_max_fe_size(username)
-
-
-@router.get("/getModel", operation_id="get_model")
+@router.get("/workspaces/{model_name}/{model_folder_name}/download", operation_id="get_model")
 def get_model(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     request: Request = "",
 ):
-    """doc"""
+    """Download a model folder (input deck, mesh, uploads) as a zip."""
     username = FileHandler.get_user_name(request, dev)
 
     folder_path = os.path.join(FileHandler.get_local_user_path(username), model_name)
@@ -186,7 +174,7 @@ def get_model(
         return model_name + " files can not be found"
 
 
-@router.get("/getPointData", operation_id="get_point_data")
+@router.get("/workspaces/{model_name}/{model_folder_name}/points", operation_id="get_point_data")
 def get_point_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -196,7 +184,9 @@ def get_point_data(
     two_d: Optional[bool] = True,
     request: Request = "",
 ) -> PointData:
-    """doc"""
+    """Point cloud of a generated model for the 3D view: flat xyz coordinates plus block ids normalized to (0, 1].
+    Read from the Exodus ASCII mesh (`own_mesh`), the uploaded text mesh `mesh_file` (`own_model`) or the
+    generated `<model>.txt`; text meshes above the node limit are thinned."""
     username = FileHandler.get_user_name(request, dev)
 
     points = []
@@ -348,13 +338,13 @@ def get_point_data(
         #     return model_name + " results can not be found"
 
 
-@router.get("/viewInputFile", operation_id="view_input_file")
+@router.get("/workspaces/{model_name}/{model_folder_name}/input-deck", operation_id="view_input_file")
 def view_input_file(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     request: Request = "",
 ) -> str:
-    """doc"""
+    """The model folder's PeriLab input deck (`<model>.yaml`) as text; 400 if it hasn't been generated yet."""
     username = FileHandler.get_user_name(request, dev)
 
     file_path = (
@@ -392,7 +382,7 @@ def _own_model_path(model_file: str, part: str) -> Path:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Own model {model_file} has no model file")
 
 
-@router.post("/add", operation_id="add_model")
+@router.post("/models", operation_id="add_model")
 def add_model(
     model_name: str, description: str, model_format: Literal["yaml", "python"] = "yaml", request: Request = ""
 ) -> str:
@@ -414,26 +404,26 @@ def add_model(
     return model_slug
 
 
-@router.get("/getOwnModelFile", operation_id="get_own_model_file")
-def get_own_model_file(model_file: str = "Dogbone", part: Literal["model", "analysis"] = "model") -> str:
+@router.get("/models/{model_name}/source", operation_id="get_own_model_file")
+def get_own_model_file(model_name: str = "Dogbone", part: Literal["model", "analysis"] = "model") -> str:
     """Source of an own model (`part=analysis`: a YAML model's analysis.py, "" if it has none)."""
-    path = _own_model_path(model_file, part)
+    path = _own_model_path(model_name, part)
     return path.read_text(encoding="utf-8") if path.is_file() else ""
 
 
-@router.post("/save", operation_id="save_model_file")
+@router.put("/models/{model_name}/source", operation_id="save_model_file")
 def save_model(
-    model_file: str,
+    model_name: str,
     source_code: str = Body(embed=True),
     part: Literal["model", "analysis"] = "model",
     request: Request = "",
 ):
     """Save an own model's source after a syntax check (YAML: full model validation)."""
     FileHandler.get_user_name(request, dev)
-    path = _own_model_path(model_file, part)
+    path = _own_model_path(model_name, part)
     try:
         if path.suffix == ".yaml":
-            yaml_model_class(source_code, model_file)
+            yaml_model_class(source_code, model_name)
         else:
             ast.parse(source_code)
     except SyntaxError as e:
@@ -446,8 +436,9 @@ def save_model(
     path.write_text(source_code, encoding="utf-8")
 
 
-@router.delete("/delete", operation_id="delete_model_file")
+@router.delete("/models/{model_name}", operation_id="delete_model_file")
 def delete_model(model_name: str):
+    """Delete an own model's folder (generator, default config, analysis.py)."""
     folder = OWN_MODELS / model_name
     if not model_name or folder.resolve().parent != OWN_MODELS.resolve():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Own model {model_name} not found")

@@ -97,6 +97,8 @@ def get_trial_id() -> TrialIdResponse:
 
 @router.post("/signup", operation_id="signup", response_model=AuthResponse)
 def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> AuthResponse:
+    """Create a local email/password account in the default organization (seat limit applies) and return a session
+    token. 409 if the email is taken, 422 for passwords under 8 characters."""
     existing = db.scalar(select(User).where(User.email == payload.email))
     if existing is not None:
         raise HTTPException(
@@ -130,6 +132,8 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> AuthRespons
 
 @router.post("/login", operation_id="login", response_model=AuthResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
+    """Local email/password login; returns a session token to send as `Authorization: Bearer`. 401 on wrong
+    credentials, 403 for deactivated accounts."""
     user = db.scalar(select(User).where(User.email == payload.email, User.auth_provider == "local"))
     if user is None or not user.password_hash or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
@@ -151,6 +155,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
 
 @router.get("/me", operation_id="get_current_user_info", response_model=MeResponse)
 def me(request: Request, db: Session = Depends(get_db)) -> MeResponse:
+    """The logged-in user's account (id, email, name, role, auth provider, organization); 401 if not logged in."""
     identity = resolve_user(request, dev, db)
     if identity.user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not logged in.")

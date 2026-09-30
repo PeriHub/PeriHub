@@ -128,6 +128,7 @@ def list_items(
     tag: str | None = Query(default=None, description="Exact tag match"),
     project_id: str | None = Query(default=None),
 ):
+    """Shared model configs or materials (`kind`) visible to the caller, optionally filtered by name, tag or project."""
     user = _require_db_user(request, db)
     lister = list_visible_model_configs if kind == "model-config" else list_visible_materials
     rows = lister(db, user, search=search, tag=tag, project_id=project_id)
@@ -141,6 +142,7 @@ def create_item(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Share a model config or material at the given visibility; project-scoped items require project membership."""
     user = _require_db_user(request, db)
     _validate_scope(payload, user)
     model = _MODEL_BY_KIND[kind]
@@ -188,6 +190,7 @@ def update_item(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Replace a library item's metadata and content; only users who may edit it."""
     user = _require_db_user(request, db)
     row = _get_owned_or_404(db, kind, item_id)
     require_can_edit(user, row)
@@ -217,6 +220,7 @@ def delete_item(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """Delete a library item; only users who may edit it."""
     user = _require_db_user(request, db)
     row = _get_owned_or_404(db, kind, item_id)
     require_can_edit(user, row)

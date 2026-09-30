@@ -163,7 +163,7 @@ class Valves(BaseModel):
 
 
 class AnalysisInfo(BaseModel):
-    """One @analysis function of a model (GET /model/analyses)."""
+    """One @analysis function of a model (GET /models/{name}/analyses)."""
 
     id: str
     label: str
@@ -413,7 +413,7 @@ class Damage(BaseModel):
 class Block(BaseModel):
     blocksId: int
     name: str
-    material: str = None
+    material: Optional[str] = None
     damageModel: Optional[str] = None
     thermalModel: Optional[str] = None
     additiveModel: Optional[str] = None
@@ -937,7 +937,7 @@ class ModelData(BaseModel):
     discretization: Optional[Discretization] = None
     deviations: Optional[Deviations] = None
     job: Job
-    materials: List[Material]
+    materials: Optional[List[Material]] = None
     model: Model
     outputs: List[Output]
     preCalculations: Optional[PreCalculations] = None

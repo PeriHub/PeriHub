@@ -55,6 +55,7 @@ def _require_db_user(request: Request, db: Session) -> User:
 
 @router.get("", operation_id="list_projects", response_model=list[ProjectOut])
 def list_projects(request: Request, db: Session = Depends(get_db)):
+    """Projects the caller is a member of or that belong to their organization."""
     user = _require_db_user(request, db)
     member_project_ids = select(ProjectMembership.project_id).where(ProjectMembership.user_id == user.id)
     rows = db.scalars(select(Project).where(Project.id.in_(member_project_ids) | (Project.org_id == user.org_id)))
@@ -63,6 +64,7 @@ def list_projects(request: Request, db: Session = Depends(get_db)):
 
 @router.post("", operation_id="create_project", response_model=ProjectOut)
 def create_project(payload: ProjectIn, request: Request, db: Session = Depends(get_db)):
+    """Create a project in the caller's organization, with the caller as owner."""
     user = _require_db_user(request, db)
     if user.org_id is None:
         raise HTTPException(
@@ -90,6 +92,7 @@ def create_project(payload: ProjectIn, request: Request, db: Session = Depends(g
     response_model=list[MemberOut],
 )
 def list_members(project_id: str, request: Request, db: Session = Depends(get_db)):
+    """A project's members and their roles; members only."""
     user = _require_db_user(request, db)
     require_project_role(db, user, project_id, minimum="member")
     rows = db.scalars(select(ProjectMembership).where(ProjectMembership.project_id == project_id))
@@ -98,6 +101,7 @@ def list_members(project_id: str, request: Request, db: Session = Depends(get_db
 
 @router.post("/{project_id}/members", operation_id="add_project_member", response_model=MemberOut)
 def add_member(project_id: str, payload: MemberIn, request: Request, db: Session = Depends(get_db)):
+    """Add a user to a project or change their role; owners only."""
     user = _require_db_user(request, db)
     require_project_role(db, user, project_id, minimum="owner")
 
@@ -118,6 +122,7 @@ def add_member(project_id: str, payload: MemberIn, request: Request, db: Session
 
 @router.delete("/{project_id}/members/{user_id}", operation_id="remove_project_member")
 def remove_member(project_id: str, user_id: str, request: Request, db: Session = Depends(get_db)):
+    """Remove a user from a project; owners only."""
     user = _require_db_user(request, db)
     require_project_role(db, user, project_id, minimum="owner")
     membership = db.scalar(

@@ -51,7 +51,7 @@ class Param:
         return kind(value)
 
     def valve(self) -> dict:
-        """The dict shape GET /model/getValves has always returned."""
+        """The dict shape GET /models/{name}/params has always returned."""
         if isinstance(self.default, bool):
             kind = "checkbox"
         elif isinstance(self.default, (int, float)):
@@ -161,7 +161,7 @@ class PeriHubModel:
     # --- what the platform calls ----------------------------------------------------------
 
     def build(self, summary: bool = True) -> dict:
-        """Run the generator; everything /generate/model and /generate/preview need. `summary`:
+        """Run the generator; everything /workspaces/{model}/{folder}/generate and /models/{name}/preview need. `summary`:
         also shape outlines and per-block bounds/labels (preview only; costs time on big meshes)."""
         dx = self.spacing
         x, y, z, vol = (np.asarray(a) if a is not None else None for a in self.points())

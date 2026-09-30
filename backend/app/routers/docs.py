@@ -4,12 +4,12 @@
 
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/docs", tags=["Documentation Methods"])
+router = APIRouter(tags=["Documentation Methods"])
 
 
-@router.get("/getPublications", operation_id="get_publications")
+@router.get("/publications", operation_id="get_publications")
 def get_publications() -> str:
-    """doc"""
+    """PeriHub/PeriLab publications as BibTeX (`Publications/papers.bib`)."""
 
     remotepath = "./Publications/papers.bib"
 

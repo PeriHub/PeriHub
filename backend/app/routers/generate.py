@@ -2,15 +2,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import io
 import json
 import os
 import time
-from re import match
 from typing import Optional
 
 import numpy as np
-import requests
 from fastapi import APIRouter, Body, HTTPException, Request, status
 from pydantic import BaseModel
 
@@ -35,10 +32,10 @@ from ..support.writer.model_writer import ModelWriter
 # from ..models.G1Cmodel.g1c_model import G1Cmodel
 
 
-router = APIRouter(prefix="/generate", tags=["Generate Methods"])
+router = APIRouter(tags=["Generate Methods"])
 
 
-@router.post("/model", operation_id="generate_model")
+@router.post("/workspaces/{model_name}/{model_folder_name}/generate", operation_id="generate_model")
 def generate_model(
     data: ModelData,
     valves: Valves,
@@ -46,7 +43,9 @@ def generate_model(
     model_folder_name: str = "Default",
     request: Request = "",
 ):  # material: dict, Output: dict):
-    """doc"""
+    """Generate the model into its folder: save the ModelData JSON, build the point cloud with the model's generator
+    (skipped for `ownModel`, which brings its own mesh), then write mesh, node sets and the PeriLab input deck.
+    404 if the generator is missing or the point count exceeds the caller's node limit."""
 
     username = FileHandler.get_user_name(request, dev)
 
@@ -195,7 +194,7 @@ class PreviewResponse(BaseModel):
     regions: Optional[dict] = None
 
 
-@router.post("/preview", operation_id="preview_model")
+@router.post("/models/{model_name}/preview", operation_id="preview_model")
 def preview_model(
     data: ModelData,
     valves: Valves,
@@ -204,7 +203,7 @@ def preview_model(
 ) -> PreviewResponse:
     """Coarse point cloud with block ids, drawn by the frontend as the model preview.
 
-    Runs the generator exactly like /generate/model but with DISCRETIZATION capped and
+    Runs the generator exactly like /workspaces/{model}/{folder}/generate but with DISCRETIZATION capped and
     without writing anything, so it needs no user folder and works in trial mode. With
     `source`, the model comes from that YAML text instead of the saved file.
     """
@@ -254,51 +253,3 @@ def preview_model(
         blocks=cloud["blocks"],
         regions=cloud["regions"],
     )
-
-
-@router.get("/mesh", operation_id="generate_mesh")
-def generate_mesh(
-    model_name: str,
-    param: str,
-    model_folder_name: str = "Default",
-    request: Request = "",
-):
-    """doc"""
-    username = FileHandler.get_user_name(request, dev)
-
-    # json=param,
-    # print(param)
-
-    request = requests.patch(
-        "https://129.247.54.235:5000/1/PyCODAC/api/micofam/{zip}",
-        verify=False,
-    )
-    try:
-        with zipfile.ZipFile(io.BytesIO(request.content)) as zip_file:
-            localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-
-            if not os.path.exists(localpath):
-                os.makedirs(localpath)
-
-            zip_file.extractall(localpath)
-
-    except IOError:
-        log.error("Micofam request failed")
-        return "Micofam request failed"
-
-    output_files = os.listdir(localpath)
-    filtered_values = list(filter(lambda v: match(r"^.+\.inp$", v), output_files))
-    os.rename(
-        os.path.join(localpath, filtered_values[0]),
-        os.path.join(localpath, model_name + ".inp"),
-    )
-
-    # return requests.patch('https://localhost:5000/1/PyCODAC/api/micofam/%7Bzip%7D', headers=headers, files=files)
-
-    # file_path = './simulations/' + os.path.join(username, model_name) + '/'  + model_name + '.' + file_type
-    # if not os.path.exists(file_path):
-    #     return 'Inputfile can\'t be found'
-    # try:
-    #     return FileResponse(file_path)
-    # except Exception:
-    log.info("Mesh generated")
