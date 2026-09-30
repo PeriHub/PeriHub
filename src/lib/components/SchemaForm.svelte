@@ -47,7 +47,7 @@ SPDX-License-Identifier: Apache-2.0
     group?: string;
     /** Extra callback fired after any field in this form changes, for components that need to react (e.g. re-deriving a value). */
     onchange?: () => void;
-    /** Field names to render disabled (e.g. trial-mode restrictions) - a real per-instance UX concern, so it's passed in rather than inferred from the schema. */
+    /** Field names to render disabled (e.g. restrictions for guests) - a real per-instance UX concern, so it's passed in rather than inferred from the schema. */
     disabledFields?: string[];
   }
 

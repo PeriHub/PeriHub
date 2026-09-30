@@ -17,6 +17,20 @@ SPDX-License-Identifier: Apache-2.0
 
   let settings = $state<AdminSettingsResponse | null>(null);
 
+  type GuestLimitKey =
+    | 'guest_max_nodes'
+    | 'guest_max_output_steps'
+    | 'guest_max_job_minutes'
+    | 'guest_max_concurrent_jobs'
+    | 'guest_retention_days';
+  const guestLimitFields: [GuestLimitKey, string, string][] = [
+    ['guest_max_nodes', 'Max. nodes per model', ''],
+    ['guest_max_output_steps', 'Max. output steps', 'Bounds the result size.'],
+    ['guest_max_job_minutes', 'Max. job duration (minutes)', 'Longer guest jobs are cancelled.'],
+    ['guest_max_concurrent_jobs', 'Max. concurrent jobs per guest', ''],
+    ['guest_retention_days', 'Delete guests after (days)', 'Removes the account and its data.']
+  ];
+
   async function save() {
     if (!settings) return;
     try {
@@ -89,6 +103,21 @@ SPDX-License-Identifier: Apache-2.0
       />
       <p class="text-muted-foreground text-xs">Only used when SOLVER_BACKEND=external.</p>
     </div>
+    <h3 class="mt-4 text-base font-semibold">Guest access</h3>
+    <div class="flex items-center gap-2">
+      <Toggle
+        label="Let visitors use PeriHub without an account"
+        bind:checked={settings.guest_access}
+      />
+      {@render source('guest_access')}
+    </div>
+    {#each guestLimitFields as [key, label, hint] (key)}
+      <div class="grid gap-1.5">
+        <Label for={key}>{label} {@render source(key)}</Label>
+        <Input id={key} type="number" min="1" bind:value={settings[key]} />
+        {#if hint}<p class="text-muted-foreground text-xs">{hint}</p>{/if}
+      </div>
+    {/each}
     <div>
       <Button type="submit">Save</Button>
     </div>

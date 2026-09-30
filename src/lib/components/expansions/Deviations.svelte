@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Trash2 } from 'lucide-svelte';
-  import { defaultStore } from '$lib/stores/default-store.svelte';
+  import { authStore } from '$lib/stores/auth-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { Deviations, OldParameter, Parameter } from '$lib/client';
   import Toggle from '$lib/components/ui/Toggle.svelte';
@@ -83,7 +83,7 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  <Toggle bind:checked={deviations.enabled} label="Enabled" disabled={defaultStore.trial} />
+  <Toggle bind:checked={deviations.enabled} label="Enabled" disabled={authStore.isGuest} />
 
   {#if deviations.enabled}
     <div class="space-y-1">

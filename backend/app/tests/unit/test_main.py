@@ -26,7 +26,7 @@ client = TestClient(app)
         # "RingOnRing",
     ],
 )
-def test_generate_model(model_name):
+def test_generate_model(model_name, no_db):
     assets_path = "./models"
 
     with open(

@@ -15,9 +15,11 @@ from pydantic import BaseModel
 # from ..models.PlateWithOpening.plate_with_opening import PlateWithOpening
 # from ..models.RingOnRing.ring_on_ring import RingOnRing
 # from ..models.Smetana.smetana import Smetana
+from ..db import base
 from ..support.base_models import Block, Deviations, ModelData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import log
+from ..support.guest import GUEST_DENIED, apply_guest_limits, current_user, guest_limits
 from ..support.model.point_cloud import build_point_cloud, valves_to_dict
 from ..support.model.yaml_model import ModelSpecError
 from ..support.writer.model_writer import ModelWriter
@@ -33,6 +35,8 @@ from ..support.writer.model_writer import ModelWriter
 
 
 router = APIRouter(tags=["Generate Methods"])
+
+ACCOUNT_MAX_NODES = 1_000_000  # node cap for real accounts; guests use the guest_max_nodes setting
 
 
 @router.post("/workspaces/{model_name}/{model_folder_name}/generate", operation_id="generate_model")
@@ -50,7 +54,22 @@ def generate_model(
 
     username = FileHandler.get_user_name(request)
 
-    max_nodes = FileHandler.get_max_nodes(username)
+    # With a DB every caller must be logged in, else the guest limits could be skipped by leaving out the token.
+    # Without a DB (local dev, no accounts) the userName header alone still works.
+    user = current_user(request)
+    if base.SessionLocal is not None and user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+    limits = None
+    if user is not None and user.role == "guest":
+        if username != user.display_name:  # guests only ever write into their own folder
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=GUEST_DENIED)
+        with base.SessionLocal() as db:
+            limits = guest_limits(db)
+    max_nodes = limits["max_nodes"] if limits else ACCOUNT_MAX_NODES
+    if limits:
+        if data.deviations is not None and data.deviations.enabled:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=GUEST_DENIED)
+        apply_guest_limits(data, limits)
 
     localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
@@ -209,7 +228,7 @@ def preview_model(
     """Coarse point cloud with block ids, drawn by the frontend as the model preview.
 
     Runs the generator exactly like /workspaces/{model}/{folder}/generate but with DISCRETIZATION capped and
-    without writing anything, so it needs no user folder and works in trial mode. With
+    without writing anything, so it needs no user folder and works without an account. With
     `source`, the model comes from that YAML text instead of the saved file.
     """
     full_valves = valves_to_dict(valves)

@@ -26,7 +26,7 @@ HEADERS = {"userName": USER}
 
 
 @pytest.fixture
-def folder():
+def folder(no_db):
     path = FileHandler.get_local_model_folder_path(USER, MODEL, "Default")
     os.makedirs(path, exist_ok=True)
     yield path

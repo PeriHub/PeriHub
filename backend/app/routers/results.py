@@ -11,7 +11,7 @@ from typing import Optional
 import matplotlib
 import numpy as np
 from exodusreader import exodusreader
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse, Response
 
 from ..db import base as db_base
@@ -20,11 +20,13 @@ from ..support.base_models import AnalysisRequest, PointDataResults
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import log, max_nodes
+from ..support.guest import require_non_guest
+from ..support.job_queue import perilab_job_ids
 from ..support.model import loader
 from ..support.model.model_api import AnalysisContext
 from ..support.model.point_cloud import valves_to_dict
 from ..support.solver_backend import get_solver_backend
-from .jobs import _can_view_entry, _latest_entry, _perilab_job_ids
+from .jobs import _can_view_entry, _latest_entry
 
 matplotlib.use("Agg")  # analyses render in worker threads; never an interactive backend
 import matplotlib.pyplot as plt  # noqa: E402
@@ -52,7 +54,7 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
         else:
             entry = _latest_entry(db, identity.user.id, model_name, model_folder_name)
-        job_ids = _perilab_job_ids(entry) if entry else []
+        job_ids = perilab_job_ids(entry) if entry else []
     if not job_ids:
         raise not_found("No run found for this model.")
     job_folder = os.path.join(FileHandler.get_local_simulation_path(), job_ids[0])
@@ -66,6 +68,7 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
     operation_id="run_analysis",
     response_class=Response,
     responses={200: {"content": {"image/png": {}}, "description": "The analysis image"}},
+    dependencies=[Depends(require_non_guest)],
 )
 def run_analysis(
     body: AnalysisRequest,

@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <!--
   Local email/password login + signup (backend: routers/auth.py). This is
-  what community deployments (no OAuth configured, not a trial build) use
+  what community deployments (no OAuth configured) use
   instead of the OIDC redirect flow in $lib/auth/oauth.ts - see
   initAuth()'s community branch, which sends the browser here when there's
   no valid session token.

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import asyncio
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -30,8 +31,8 @@ from .support.file_handler import FileHandler
 from .support.globals import (
     database_url,
     frontmatter_installation,
+    guest_access,
     log,
-    trial,
 )
 from .support.model import loader
 from .support.solver_backend import get_solver_backend
@@ -76,7 +77,7 @@ tags_metadata = [
     },
     {
         "name": "Config Methods",
-        "description": "Public deployment config the frontend reads at startup (trial flag, OAuth availability, etc.)",
+        "description": "Public deployment config the frontend reads at startup (guest access, OAuth availability, etc.)",
     },
 ]
 
@@ -110,8 +111,18 @@ async def lifespan(app: FastAPI):
                 exc,
             )
 
+    sweeper = None
+    if database_url:
+        from .support import guest_sweeper
+
+        sweeper = asyncio.create_task(guest_sweeper.run_forever())
+    elif guest_access:
+        log.warning("GUEST_ACCESS=True is ignored: guest accounts need DATABASE_URL.")
+
     yield
     # Shutdown
+    if sweeper is not None:
+        sweeper.cancel()
 
 
 app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan, version="4.0.0")
@@ -160,9 +171,6 @@ app.include_router(projects_router.router)
 app.include_router(teams_router.router)
 app.include_router(config_router.router)
 app.include_router(admin_router.router)
-
-if trial:
-    log.info("--- Running in trial mode ---")
 
 
 @app.get("/health")

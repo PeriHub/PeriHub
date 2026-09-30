@@ -13,13 +13,13 @@ own any more.
 This module adds `resolve_user()`, layered the same additive way
 api_key_auth.get_user_name_with_api_key() already is: each check either
 returns a resolved User or falls through to the next one, so nothing that
-already works (API keys, OAuth header flow, trial guests) breaks while
+already works (API keys, OAuth header flow) breaks while
 routers migrate to this over time.
 
 Resolution order:
   1. X-Api-Key            (existing behaviour, unchanged - service accounts)
   2. Authorization Bearer (local-auth session JWT, see support/local_auth.py)
-  3. `userName` header    (legacy/OAuth/trial path via FileHandler)
+  3. `userName` header    (legacy/OAuth path via FileHandler)
 
 Full migration of every router call site from FileHandler.get_user_name()
 to resolve_user() is Phase 1 work (it needs a DB session threaded through
@@ -35,7 +35,6 @@ from sqlalchemy.orm import Session
 from ..db.models import User
 from .api_key_auth import get_user_name_with_api_key
 from .file_handler import FileHandler
-from .globals import deployment_mode
 from .local_auth import decode_session_token
 
 
@@ -43,7 +42,6 @@ from .local_auth import decode_session_token
 class ResolvedIdentity:
     username: str  # display/folder identity - unchanged meaning from before
     user: User | None = None  # DB row, when auth resolved to a real account
-    is_trial: bool = False
 
 
 def _user_from_bearer_token(request: Request, db: Session | None) -> User | None:
@@ -62,7 +60,7 @@ def _user_from_bearer_token(request: Request, db: Session | None) -> User | None
 def resolve_user(request: Request, db: Session | None = None) -> ResolvedIdentity:
     """Resolves the caller's identity for the current request.
 
-    `db` is optional so this still works in DB-less trial mode; pass it
+    `db` is optional so this still works without a DB session; pass it
     whenever a session is available (i.e. DATABASE_URL is configured) to
     get real account resolution instead of just the legacy header.
     """
@@ -71,10 +69,6 @@ def resolve_user(request: Request, db: Session | None = None) -> ResolvedIdentit
 
     db_user = _user_from_bearer_token(request, db)
     if db_user is not None:
-        return ResolvedIdentity(username=db_user.id, user=db_user, is_trial=False)
+        return ResolvedIdentity(username=db_user.id, user=db_user)
 
-    return ResolvedIdentity(
-        username=legacy_username,
-        user=None,
-        is_trial=(deployment_mode == "trial"),
-    )
+    return ResolvedIdentity(username=legacy_username, user=None)

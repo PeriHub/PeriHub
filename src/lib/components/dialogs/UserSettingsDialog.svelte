@@ -9,6 +9,8 @@ SPDX-License-Identifier: Apache-2.0
   import { LogOut, X } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { authStore } from '$lib/stores/auth-store.svelte';
+  import { publicConfig } from '$lib/config';
+  import { leaveGuestSession } from '$lib/auth/oauth';
   import {
     getCurrentUserInfo,
     getLicenseStatus,
@@ -34,8 +36,8 @@ SPDX-License-Identifier: Apache-2.0
 
   // Everything here can change while the app is open (jobs, plan, a new
   // release), so reload on every open rather than once on mount. Each
-  // request is independent - one failing (e.g. no DB-backed account in
-  // trial mode) just leaves its section empty.
+  // request is independent - one failing (e.g. an endpoint that is
+  // not available for guests) just leaves its section empty.
   async function load() {
     const [me, myUsage, licenseStatus, versionData, runs] = await Promise.allSettled([
       authStore.authenticated ? getCurrentUserInfo() : Promise.reject(),
@@ -151,9 +153,22 @@ SPDX-License-Identifier: Apache-2.0
         </div>
       </div>
 
-      {#if defaultStore.trial}
+      {#if authStore.isGuest}
         <div class="bg-warning/20 text-warning-foreground mt-3 rounded-md px-3 py-2 text-sm">
-          Trial mode enabled — some features are disabled.
+          <p>
+            You're using PeriHub as a guest: built-in models only, no uploads, and your data is
+            deleted after {publicConfig.guestLimits?.retention_days ?? 1} day(s).
+          </p>
+          {#if publicConfig.guestLimits}
+            <p class="mt-1 text-xs">
+              Limits: {publicConfig.guestLimits.max_nodes} nodes, {publicConfig.guestLimits
+                .max_output_steps} output steps, {publicConfig.guestLimits.max_job_minutes} min per job,
+              {publicConfig.guestLimits.max_concurrent_jobs} job(s) at a time.
+            </p>
+          {/if}
+          <Button size="sm" variant="outline" class="mt-2" onclick={leaveGuestSession}
+            >Log in</Button
+          >
         </div>
       {/if}
 
@@ -203,7 +218,7 @@ SPDX-License-Identifier: Apache-2.0
         </dl>
       </section>
 
-      {#if authStore.authenticated}
+      {#if authStore.authenticated && !authStore.isGuest}
         <div class="border-border mt-4 flex justify-end border-t pt-4">
           <Button variant="outline" onclick={() => authStore.logout()}>
             <LogOut class="h-4 w-4" />

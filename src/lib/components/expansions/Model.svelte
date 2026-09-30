@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { defaultStore } from '$lib/stores/default-store.svelte';
+  import { authStore } from '$lib/stores/auth-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
@@ -151,14 +151,14 @@ SPDX-License-Identifier: Apache-2.0
     role="radiogroup"
     aria-label="Mesh source"
     class="border-input bg-muted/40 inline-flex rounded-md border p-0.5"
-    title={defaultStore.trial ? 'Uploading meshes is disabled in the trial version' : undefined}
+    title={authStore.isGuest ? 'Log in for full access' : undefined}
   >
     {#each sources as source (source.value)}
       <button
         type="button"
         role="radio"
         aria-checked={model.meshSource === source.value}
-        disabled={defaultStore.trial}
+        disabled={authStore.isGuest}
         onclick={() => switchMeshSource(source.value)}
         class="focus-visible:ring-ring h-7 rounded px-3 text-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 {model.meshSource ===
         source.value

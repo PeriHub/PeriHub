@@ -7,36 +7,27 @@ import shutil
 from typing import List
 
 import magic
-from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 
 # from ..support.base_models import
 from ..support.file_handler import FileHandler
-from ..support.globals import log, trial
+from ..support.globals import log
+from ..support.guest import require_non_guest
 
 router = APIRouter(prefix="/workspaces", tags=["Upload Methods"])
 
 
-@router.post("/{model_name}/{model_folder_name}/files", operation_id="upload_files")
+@router.post(
+    "/{model_name}/{model_folder_name}/files", operation_id="upload_files", dependencies=[Depends(require_non_guest)]
+)
 async def upload_files(
     model_name: str,
     model_folder_name: str = "Default",
     request: Request = "",
     files: List[UploadFile] = File(...),
 ) -> str:
-    """Upload files (mesh, input deck, material, ...) into a model folder, checked by MIME type; 2 MB per file in
-    trial mode. Returns the name of an uploaded `.txt` point mesh (recognized by its `header: x y` line), or "" if
-    there is none."""
-
-    # Check file size
-    if trial:
-        for file in files:
-            if file.size > 2 * 1024 * 1024:  # 2 MB
-                # more than 2 MB
-                log.info(f"File too large, max file size is 2 MB, got {file.size} bytes")
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"File too large, max file size is 2 MB, got {file.size} bytes",
-                )
+    """Upload files (mesh, input deck, material, ...) into a model folder, checked by MIME type. Returns the name of
+    an uploaded `.txt` point mesh (recognized by its `header: x y` line), or "" if there is none."""
 
     # Initialize magic library
     mime = magic.Magic(mime=True)
@@ -94,7 +85,11 @@ async def upload_files(
     return meshfile_name
 
 
-@router.put("/{model_name}/{model_folder_name}/input-deck", operation_id="write_input_file")
+@router.put(
+    "/{model_name}/{model_folder_name}/input-deck",
+    operation_id="write_input_file",
+    dependencies=[Depends(require_non_guest)],
+)
 def write_input_file(
     model_name: str,
     input_string: str,

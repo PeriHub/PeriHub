@@ -81,6 +81,28 @@ function applySessionToken(token: string) {
   authHeaders.Authorization = `Bearer ${token}`;
 }
 
+/** Validates `token` via /auth/me; on success marks the store authenticated, else forgets the token. */
+async function loadProfile(token: string): Promise<MeResponse | null> {
+  applySessionToken(token);
+  try {
+    const response = await api.get<MeResponse>('/auth/me');
+    authStore.authenticated = true;
+    authStore.role = response.data.role;
+    return response.data;
+  } catch (e) {
+    console.log('Session token is no longer valid:', e);
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    return null;
+  }
+}
+
+/** Leaves a guest session for a real login: the IdP with OAuth, the login page otherwise. */
+export async function leaveGuestSession(): Promise<void> {
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  if (publicConfig.oauthEnabled) await redirectToLogin();
+  else window.location.href = '/auth/login';
+}
+
 /**
  * Asks the backend for the IdP's authorization URL, stashes `state` for the
  * callback page to verify, and sends the browser there. Never returns on
@@ -141,15 +163,12 @@ export async function signupWithPassword(
 
 /**
  * Sets up auth for the app. Call from the root layout, client-side only.
- * - if OAuth isn't configured/licensed and this is a trial build, ask the
- *   backend for a random per-session identity (POST /auth/trial-id -
- *   replaces the old call out to the third-party randomuser.me API)
- * - if OAuth isn't configured and this *isn't* a trial build (i.e. a
- *   community deployment), look for a stored local-auth session token and
- *   validate it via GET /auth/me; if there isn't one (or it's no longer
- *   valid), send the browser to /auth/login instead of the IdP
- * - otherwise (OAuth configured), same as above but redirect to the IdP
- *   on a missing/invalid token instead of /auth/login
+ * - a stored session token that's still valid via GET /auth/me wins,
+ *   regardless of deployment mode
+ * - otherwise, if guest access is on, ask the backend for a throwaway
+ *   guest account (POST /auth/guest) instead of a login
+ * - otherwise, redirect to the IdP if OAuth is configured, or send the
+ *   browser to /auth/login (local email/password) if it isn't
  */
 export async function initAuth() {
   try {
@@ -166,76 +185,64 @@ async function setUpAuth() {
   let uuid = 'user';
   let gravatarUrl = 'US';
 
-  if (!publicConfig.oauthEnabled && publicConfig.trial) {
-    console.log("I'm on a trial build");
+  console.log(
+    publicConfig.oauthEnabled ? 'Using OAuth/OIDC login' : 'Using local email/password login'
+  );
+  const storedToken = browser() ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+  let profile = storedToken ? await loadProfile(storedToken) : null;
+
+  // Guest access: visitors without a session get a throwaway guest account instead of a login.
+  if (!profile && publicConfig.guestAccess) {
     try {
-      const response = await api.post('/auth/trial-id');
-      uuid = response.data.username;
+      const response = await api.post<LocalAuthResponse>('/auth/guest');
+      localStorage.setItem(TOKEN_STORAGE_KEY, response.data.token);
+      profile = await loadProfile(response.data.token);
     } catch (e) {
-      console.error('Failed to get a trial identity from the backend:', e);
+      console.error('Failed to create a guest session:', e);
     }
-  } else {
-    console.log(
-      publicConfig.oauthEnabled ? 'Using OAuth/OIDC login' : 'Using local email/password login'
-    );
-    let profile: MeResponse | null = null;
-    const storedToken = browser() ? localStorage.getItem(TOKEN_STORAGE_KEY) : null;
+  }
 
-    if (storedToken) {
-      applySessionToken(storedToken);
+  if (!profile) {
+    if (publicConfig.oauthEnabled) {
       try {
-        const response = await api.get<MeResponse>('/auth/me');
-        profile = response.data;
-        authStore.authenticated = true;
-        authStore.role = profile.role;
-      } catch (e) {
-        console.log('Stored session token is no longer valid, starting a new login:', e);
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
-      }
-    }
-
-    if (!profile) {
-      if (publicConfig.oauthEnabled) {
-        try {
-          await redirectToLogin();
-        } catch (error) {
-          console.error('Failed to start OAuth login:', error);
-        }
-      } else if (browser() && window.location.pathname !== '/auth/login') {
-        window.location.href = '/auth/login';
-      }
-      return; // either the browser is navigating away, or login couldn't be started
-    }
-
-    uuid = profile.display_name;
-
-    // crypto.subtle only exists in secure contexts (https/localhost) - skip Gravatar otherwise.
-    if (profile.email && crypto.subtle) {
-      const email = profile.email;
-      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(email));
-      const emailHash = Array.from(new Uint8Array(digest), (b) =>
-        b.toString(16).padStart(2, '0')
-      ).join('');
-      gravatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=404`;
-
-      try {
-        const response = await fetch(gravatarUrl);
-        if (response.ok) {
-          defaultStore.useGravatar = true;
-          console.log('Gravatar image found for', email);
-        } else {
-          const emailParts = email.split('.');
-          gravatarUrl =
-            (emailParts[0]?.charAt(0).toUpperCase() ?? '') +
-            (emailParts[1]?.charAt(0).toUpperCase() ?? '');
-          defaultStore.useGravatar = false;
-          console.log('No Gravatar image found for', email);
-        }
+        await redirectToLogin();
       } catch (error) {
-        gravatarUrl = email.charAt(0).toUpperCase();
-        defaultStore.useGravatar = false;
-        console.error(error);
+        console.error('Failed to start OAuth login:', error);
       }
+    } else if (browser() && window.location.pathname !== '/auth/login') {
+      window.location.href = '/auth/login';
+    }
+    return; // either the browser is navigating away, or login couldn't be started
+  }
+
+  uuid = profile.display_name;
+
+  // crypto.subtle only exists in secure contexts (https/localhost) - skip Gravatar otherwise.
+  if (profile.email && crypto.subtle) {
+    const email = profile.email;
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(email));
+    const emailHash = Array.from(new Uint8Array(digest), (b) =>
+      b.toString(16).padStart(2, '0')
+    ).join('');
+    gravatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=404`;
+
+    try {
+      const response = await fetch(gravatarUrl);
+      if (response.ok) {
+        defaultStore.useGravatar = true;
+        console.log('Gravatar image found for', email);
+      } else {
+        const emailParts = email.split('.');
+        gravatarUrl =
+          (emailParts[0]?.charAt(0).toUpperCase() ?? '') +
+          (emailParts[1]?.charAt(0).toUpperCase() ?? '');
+        defaultStore.useGravatar = false;
+        console.log('No Gravatar image found for', email);
+      }
+    } catch (error) {
+      gravatarUrl = email.charAt(0).toUpperCase();
+      defaultStore.useGravatar = false;
+      console.error(error);
     }
   }
 

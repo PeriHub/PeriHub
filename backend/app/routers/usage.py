@@ -19,7 +19,7 @@ router = APIRouter(prefix="/usage", tags=["Usage Methods"])
 def _summarize(user_id: str | None = None, org_id: str | None = None) -> UsageSummary:
     summary = UsageSummary()
     if base.SessionLocal is None:
-        return summary  # DB-less trial mode: nothing can have been submitted
+        return summary  # no DB: nothing can have been submitted
     with base.SessionLocal() as db:
         owner = func.coalesce(User.email, User.id)
         stmt = select(owner, JobQueueEntry.model_name, JobQueueEntry.status, func.count()).join(User)

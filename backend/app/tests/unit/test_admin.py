@@ -2,35 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
-
-from backend.app.db import models  # noqa: F401 - registers tables on Base.metadata
-from backend.app.db import base
-from backend.app.main import app
-
-
-@pytest.fixture
-def client(monkeypatch):
-    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
-    base.Base.metadata.create_all(engine)
-    session_local = sessionmaker(bind=engine, autoflush=False, autocommit=False)
-    monkeypatch.setattr(base, "SessionLocal", session_local)
-
-    def get_db():
-        db = session_local()
-        try:
-            yield db
-        finally:
-            db.close()
-
-    app.dependency_overrides[base.get_db] = get_db
-    yield TestClient(app)
-    app.dependency_overrides.clear()
-
 
 def _signup(client, email):
     r = client.post("/auth/signup", json={"email": email, "password": "password123", "display_name": email})

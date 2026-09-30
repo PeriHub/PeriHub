@@ -5,8 +5,8 @@
 """API-key auth for programmatic/CI callers.
 
 FileHandler.get_user_name() identifies a user from the `userName` header,
-which the frontend sets after an OAuth/OIDC login (or a random guest name in
-trial mode). That's fine for browser sessions but awkward for CI or
+which the frontend sets to the account's display name after a login (or to the
+guest account's "Guest-..." name). That's fine for browser sessions but awkward for CI or
 server-to-server callers that have no browser session at all.
 
 This adds an *optional*, additive check: if the caller sends a valid

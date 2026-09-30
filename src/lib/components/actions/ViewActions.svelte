@@ -9,6 +9,7 @@ SPDX-License-Identifier: Apache-2.0
   import { Dialog } from 'bits-ui';
   import { Play, X, Download, Eye, LineChart, Trash2, Check, ImageIcon } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
+  import { authStore } from '$lib/stores/auth-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
@@ -492,8 +493,12 @@ SPDX-License-Identifier: Apache-2.0
       variant="ghost"
       size="icon"
       onclick={openAnalysisDialog}
-      disabled={analysisLoading || !hasResults}
-      title={!hasResults ? 'Results not generated yet' : 'Run an analysis'}
+      disabled={analysisLoading || !hasResults || authStore.isGuest}
+      title={authStore.isGuest
+        ? 'Log in for full access'
+        : !hasResults
+          ? 'Results not generated yet'
+          : 'Run an analysis'}
     >
       <ImageIcon class="h-4 w-4" />
     </Button>

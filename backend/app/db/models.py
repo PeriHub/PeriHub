@@ -8,7 +8,7 @@ model_configs/materials tables are Phase 1 (they depend on users/orgs
 existing first) - deliberately not added here yet.
 
 Design notes:
-- `User.auth_provider` distinguishes local/oauth/trial rather than having
+- `User.auth_provider` distinguishes local/oauth/guest rather than having
   separate tables per login method; `OAuthIdentity` only exists for the
   oauth case, where a user may (later) link more than one external
   identity (Keycloak, Google, Azure AD, ...) to a single account.
@@ -76,16 +76,16 @@ class User(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid_str)
     org_id: Mapped[str | None] = mapped_column(ForeignKey("organizations.id"), nullable=True)
 
-    # Nullable: trial users have neither: they're identified only by `id`.
+    # Nullable: guest users have neither: they're identified only by `id`.
     email: Mapped[str | None] = mapped_column(String(320), nullable=True)
     password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    # "local" | "oauth" | "trial"
+    # "local" | "oauth" | "guest"
     auth_provider: Mapped[str] = mapped_column(String(32), nullable=False, default="local")
 
-    # "admin" | "member" | "viewer" - see Phase 1 RBAC.
+    # "admin" | "developer" | "member" | "viewer" | "guest" - see support/rbac.py.
     role: Mapped[str] = mapped_column(String(32), nullable=False, default="member")
 
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
@@ -150,7 +150,7 @@ class AdminSetting(Base):
 
 
 # "private" (owner only) | "team" (members of owner's team) | "org" (anyone
-# in owner's org) | "public" (anyone, including trial users - used sparingly,
+# in owner's org) | "public" (anyone, including guests - used sparingly,
 # e.g. a curated shared material library) - shared by both ModelConfig and
 # Material below.
 VISIBILITY_PRIVATE = "private"

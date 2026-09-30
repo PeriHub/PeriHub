@@ -32,6 +32,12 @@ export type AdminSettings = {
     signup_open: boolean;
     default_role: 'member' | 'viewer';
     external_perilab_url: string;
+    guest_access: boolean;
+    guest_max_nodes: number;
+    guest_max_output_steps: number;
+    guest_max_job_minutes: number;
+    guest_max_concurrent_jobs: number;
+    guest_retention_days: number;
 };
 
 export type default_role = 'member' | 'viewer';
@@ -45,6 +51,12 @@ export type AdminSettingsResponse = {
     signup_open: boolean;
     default_role: 'member' | 'viewer';
     external_perilab_url: string;
+    guest_access: boolean;
+    guest_max_nodes: number;
+    guest_max_output_steps: number;
+    guest_max_job_minutes: number;
+    guest_max_concurrent_jobs: number;
+    guest_retention_days: number;
     /**
      * Keys saved in the DB; the rest use env/default values
      */
@@ -665,10 +677,6 @@ export type ThermalModel = {
     predefinedFieldNames?: string | null;
 };
 
-export type TrialIdResponse = {
-    username: string;
-};
-
 /**
  * Aggregate usage stats - see routers/usage.py.
  */
@@ -978,7 +986,7 @@ export type GetLicenseStatusResponse = LicenseStatus;
 
 export type RefreshLicenseResponse = LicenseStatus;
 
-export type GetTrialIdResponse = TrialIdResponse;
+export type CreateGuestResponse = app__routers__oauth__AuthResponse;
 
 export type SignupData = {
     requestBody: SignupRequest;
@@ -1642,13 +1650,13 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/auth/trial-id': {
+    '/auth/guest': {
         post: {
             res: {
                 /**
                  * Successful Response
                  */
-                200: TrialIdResponse;
+                200: app__routers__oauth__AuthResponse;
             };
         };
     };

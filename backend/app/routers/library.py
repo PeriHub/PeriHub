@@ -9,10 +9,8 @@ tags + a JSON blob), so this one router handles both rather than
 duplicating the same endpoints twice - `kind` selects which table via a
 small dispatch dict.
 
-Requires a logged-in DB user (support.db_auth.resolve_user) - trial's
-anonymous random identity has nothing to own a shared resource as, so
-these 401 in trial mode. That's an intentional gap, not an oversight:
-sharing is a community/enterprise feature per the original roadmap ask.
+Requires a logged-in DB user (support.db_auth.resolve_user). Guests
+(support/guest.py) are rejected too.
 """
 
 from typing import Literal
@@ -32,6 +30,7 @@ from ..db.models import (
     ModelConfig,
 )
 from ..support.db_auth import resolve_user
+from ..support.guest import reject_guest
 from ..support.rbac import (
     list_visible_materials,
     list_visible_model_configs,
@@ -82,8 +81,9 @@ def _require_db_user(request: Request, db: Session):
     if identity.user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Sharing model configs/materials requires a logged-in account (not available in trial mode).",
+            detail="Sharing model configs/materials requires a logged-in account.",
         )
+    reject_guest(identity.user)
     return identity.user
 
 

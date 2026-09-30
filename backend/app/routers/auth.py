@@ -10,6 +10,7 @@ support.entitlements.require_feature(), so they can be added without
 touching this one.
 """
 
+import secrets
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -25,7 +26,6 @@ from ..support.globals import deployment_mode
 from ..support.local_auth import create_session_token, hash_password, verify_password
 from ..support.rbac import ensure_first_admin
 from ..support.seats import enforce_seat_limit
-from ..support.trial_identity import generate_trial_username
 
 router = APIRouter(prefix="/auth", tags=["Auth Methods"])
 
@@ -74,33 +74,31 @@ def _get_or_create_default_org(db: Session) -> Organization:
     return org
 
 
-class TrialIdResponse(BaseModel):
-    username: str
-
-
-@router.post("/trial-id", operation_id="get_trial_id", response_model=TrialIdResponse)
-def get_trial_id() -> TrialIdResponse:
-    """Issues a fresh random identity for a trial session. The frontend
-    calls this once (e.g. on first load with no stored identity) and sends
-    the returned username back as the `userName` header on every
-    subsequent request - same mechanism already used for a logged-in
-    OAuth-derived username, just generated instead of taken from a token.
-
-    404s outside trial mode - community/enterprise use real accounts
-    (see /auth/signup, /auth/login) instead of anonymous random ids.
-    """
-    if deployment_mode != "trial":
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Trial identities are only issued in trial mode. Use /auth/signup or /auth/login instead.",
-        )
-    return TrialIdResponse(username=generate_trial_username())
+@router.post("/guest", operation_id="create_guest", response_model=AuthResponse)
+def create_guest(db: Session = Depends(get_db)) -> AuthResponse:
+    """Create a throwaway guest account and return its session token. Only when the admin setting `guest_access` is
+    on (404 otherwise). Guests skip signup_open and the seat limit, can only run bounded jobs of built-in models
+    (support/guest.py) and are deleted after `guest_retention_days` (support/guest_sweeper.py)."""
+    if not instance_setting(db, "guest_access"):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Guest access is disabled.")
+    org = _get_or_create_default_org(db)
+    user = User(
+        display_name=f"Guest-{secrets.token_hex(4)}",
+        auth_provider="guest",
+        role="guest",
+        org_id=org.id,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    token = create_session_token(user.id)
+    return AuthResponse(token=token, user_id=user.id, display_name=user.display_name, role=user.role)
 
 
 @router.post("/signup", operation_id="signup", response_model=AuthResponse)
 def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> AuthResponse:
     """Create a local email/password account in the default organization (seat limit applies) and return a session
-    token. 409 if the email is taken, 422 for passwords under 8 characters."""
+    token. 409 if the email is taken, 422 for passwords under 8 characters or a reserved 'Guest-' display name."""
     existing = db.scalar(select(User).where(User.email == payload.email))
     if existing is not None:
         raise HTTPException(
@@ -112,6 +110,13 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> AuthRespons
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Password must be at least 8 characters.",
+        )
+
+    if payload.display_name.lower().startswith("guest-"):
+        # Folders are keyed by display name and retention deletes simulations/Guest-*.
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Display names starting with 'Guest-' are reserved.",
         )
 
     enforce_signup_open(db)

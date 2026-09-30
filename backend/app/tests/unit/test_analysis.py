@@ -67,6 +67,14 @@ def _body():
     return {"data": data, "valves": valves, "analysis_params": {"SCALE": 3}}
 
 
+def _auth(db_client):
+    """Analysis runs require a logged-in (non-guest) user (support/guest.py); the module-level
+    `client` has no DB behind it, so these tests use the DB-backed `client` fixture instead."""
+    r = db_client.post("/auth/signup", json={"email": "bar@x.de", "password": "password123", "display_name": "bar"})
+    assert r.status_code == 200, r.text
+    return {"Authorization": f"Bearer {r.json()['token']}"}
+
+
 def test_lists_analyses_with_their_params(bar_model):
     analyses = client.get("/models/Bar/analyses").json()
     assert [a["id"] for a in analyses] == ["force", "escape", "broken"]
@@ -80,25 +88,33 @@ def test_model_without_analyses_lists_none():
     assert client.get("/models/DCBmodel/analyses").json() == []
 
 
-def test_runs_analysis_and_returns_png(bar_model):
-    response = client.post("/results/analysis", params={"model_name": "Bar", "analysis_id": "force"}, json=_body())
+def test_runs_analysis_and_returns_png(bar_model, client):
+    response = client.post(
+        "/results/analysis", params={"model_name": "Bar", "analysis_id": "force"}, json=_body(), headers=_auth(client)
+    )
     assert response.status_code == 200, response.text
     assert response.headers["content-type"] == "image/png"
     assert response.content.startswith(b"\x89PNG")
 
 
-def test_rejects_paths_outside_the_result_folder(bar_model):
-    response = client.post("/results/analysis", params={"model_name": "Bar", "analysis_id": "escape"}, json=_body())
+def test_rejects_paths_outside_the_result_folder(bar_model, client):
+    response = client.post(
+        "/results/analysis", params={"model_name": "Bar", "analysis_id": "escape"}, json=_body(), headers=_auth(client)
+    )
     assert response.status_code == 422
     assert "outside the result folder" in response.json()["detail"]
 
 
-def test_analysis_errors_are_422_with_message(bar_model):
-    response = client.post("/results/analysis", params={"model_name": "Bar", "analysis_id": "broken"}, json=_body())
+def test_analysis_errors_are_422_with_message(bar_model, client):
+    response = client.post(
+        "/results/analysis", params={"model_name": "Bar", "analysis_id": "broken"}, json=_body(), headers=_auth(client)
+    )
     assert response.status_code == 422
     assert "Bar_Missing.csv not found" in response.json()["detail"]
 
 
-def test_unknown_analysis_is_404(bar_model):
-    response = client.post("/results/analysis", params={"model_name": "Bar", "analysis_id": "nope"}, json=_body())
+def test_unknown_analysis_is_404(bar_model, client):
+    response = client.post(
+        "/results/analysis", params={"model_name": "Bar", "analysis_id": "nope"}, json=_body(), headers=_auth(client)
+    )
     assert response.status_code == 404

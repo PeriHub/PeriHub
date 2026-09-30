@@ -14,6 +14,7 @@ id_rsa_*
 graphify-out/
 .playwright-mcp/
 scripts/
+.claude
 
 # Model Files
 Files/

@@ -41,7 +41,7 @@ These panels control how the run is executed and what is recorded.
 - **[Bond Filters](/input/BondFilters.html)** — keep certain bonds in or out (optional).
 - **[Output](/input/Output.html)** — which quantities to save and how often.
 - **[Solver](/input/Solver.html)** — time steps, accuracy, and how the math is solved.
-- **[Deviations](/input/Deviations.html)** — compare against a real experiment (not available in the trial).
+- **[Deviations](/input/Deviations.html)** — compare against a real experiment (not available for guests).
 - **[Job](/input/Job.html)** — where to run the simulation and how many processors to use (shown only with a cluster).
 
 Tip: open the panel to read the description of each field, then set the value.

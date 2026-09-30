@@ -123,10 +123,39 @@ export const $AdminSettings = {
         external_perilab_url: {
             type: 'string',
             title: 'External Perilab Url'
+        },
+        guest_access: {
+            type: 'boolean',
+            title: 'Guest Access'
+        },
+        guest_max_nodes: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Max Nodes'
+        },
+        guest_max_output_steps: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Max Output Steps'
+        },
+        guest_max_job_minutes: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Max Job Minutes'
+        },
+        guest_max_concurrent_jobs: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Max Concurrent Jobs'
+        },
+        guest_retention_days: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Retention Days'
         }
     },
     type: 'object',
-    required: ['max_concurrent_local_jobs', 'max_concurrent_jobs_per_user', 'signup_open', 'default_role', 'external_perilab_url'],
+    required: ['max_concurrent_local_jobs', 'max_concurrent_jobs_per_user', 'signup_open', 'default_role', 'external_perilab_url', 'guest_access', 'guest_max_nodes', 'guest_max_output_steps', 'guest_max_job_minutes', 'guest_max_concurrent_jobs', 'guest_retention_days'],
     title: 'AdminSettings'
 } as const;
 
@@ -156,6 +185,35 @@ export const $AdminSettingsResponse = {
             type: 'string',
             title: 'External Perilab Url'
         },
+        guest_access: {
+            type: 'boolean',
+            title: 'Guest Access'
+        },
+        guest_max_nodes: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Max Nodes'
+        },
+        guest_max_output_steps: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Max Output Steps'
+        },
+        guest_max_job_minutes: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Max Job Minutes'
+        },
+        guest_max_concurrent_jobs: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Max Concurrent Jobs'
+        },
+        guest_retention_days: {
+            type: 'integer',
+            minimum: 1,
+            title: 'Guest Retention Days'
+        },
         overridden: {
             items: {
                 type: 'string'
@@ -166,7 +224,7 @@ export const $AdminSettingsResponse = {
         }
     },
     type: 'object',
-    required: ['max_concurrent_local_jobs', 'max_concurrent_jobs_per_user', 'signup_open', 'default_role', 'external_perilab_url', 'overridden'],
+    required: ['max_concurrent_local_jobs', 'max_concurrent_jobs_per_user', 'signup_open', 'default_role', 'external_perilab_url', 'guest_access', 'guest_max_nodes', 'guest_max_output_steps', 'guest_max_job_minutes', 'guest_max_concurrent_jobs', 'guest_retention_days', 'overridden'],
     title: 'AdminSettingsResponse'
 } as const;
 
@@ -4347,18 +4405,6 @@ export const $ThermalModel = {
     type: 'object',
     required: ['name', 'thermalModel', 'thermalType'],
     title: 'ThermalModel'
-} as const;
-
-export const $TrialIdResponse = {
-    properties: {
-        username: {
-            type: 'string',
-            title: 'Username'
-        }
-    },
-    type: 'object',
-    required: ['username'],
-    title: 'TrialIdResponse'
 } as const;
 
 export const $UsageSummary = {

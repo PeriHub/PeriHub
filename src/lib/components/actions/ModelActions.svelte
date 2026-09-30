@@ -189,8 +189,8 @@ SPDX-License-Identifier: Apache-2.0
     variant="ghost"
     size="icon"
     onclick={readData}
-    disabled={defaultStore.trial}
-    title={defaultStore.trial ? 'Disabled in trial version' : 'Load model from JSON'}
+    disabled={authStore.isGuest}
+    title={authStore.isGuest ? 'Log in for full access' : 'Load model from JSON'}
   >
     <FolderOpen class="h-4 w-4" />
   </Button>

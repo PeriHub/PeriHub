@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, DeleteRunData, DeleteRunResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, GetTrialIdResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, DeleteRunData, DeleteRunResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -376,9 +376,8 @@ export const deleteModelFile = (data: DeleteModelFileData): CancelablePromise<De
 
 /**
  * Upload Files
- * Upload files (mesh, input deck, material, ...) into a model folder, checked by MIME type; 2 MB per file in
- * trial mode. Returns the name of an uploaded `.txt` point mesh (recognized by its `header: x y` line), or "" if
- * there is none.
+ * Upload files (mesh, input deck, material, ...) into a model folder, checked by MIME type. Returns the name of
+ * an uploaded `.txt` point mesh (recognized by its `header: x y` line), or "" if there is none.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
@@ -811,21 +810,16 @@ export const refreshLicense = (): CancelablePromise<RefreshLicenseResponse> => {
 }); };
 
 /**
- * Get Trial Id
- * Issues a fresh random identity for a trial session. The frontend
- * calls this once (e.g. on first load with no stored identity) and sends
- * the returned username back as the `userName` header on every
- * subsequent request - same mechanism already used for a logged-in
- * OAuth-derived username, just generated instead of taken from a token.
- *
- * 404s outside trial mode - community/enterprise use real accounts
- * (see /auth/signup, /auth/login) instead of anonymous random ids.
- * @returns TrialIdResponse Successful Response
+ * Create Guest
+ * Create a throwaway guest account and return its session token. Only when the admin setting `guest_access` is
+ * on (404 otherwise). Guests skip signup_open and the seat limit, can only run bounded jobs of built-in models
+ * (support/guest.py) and are deleted after `guest_retention_days` (support/guest_sweeper.py).
+ * @returns app__routers__oauth__AuthResponse Successful Response
  * @throws ApiError
  */
-export const getTrialId = (): CancelablePromise<GetTrialIdResponse> => { return __request(OpenAPI, {
+export const createGuest = (): CancelablePromise<CreateGuestResponse> => { return __request(OpenAPI, {
     method: 'POST',
-    url: '/auth/trial-id'
+    url: '/auth/guest'
 }); };
 
 /**
@@ -1169,8 +1163,8 @@ export const removeTeamMember = (data: RemoveTeamMemberData): CancelablePromise<
 
 /**
  * Get Public Config
- * Deployment settings the frontend needs before login: deployment mode, trial flag and whether OIDC login is
- * available (configured and licensed).
+ * Deployment settings the frontend needs before login: deployment mode, whether anonymous visitors get a guest
+ * account (and its limits), and whether OIDC login is available (configured and licensed).
  * @returns unknown Successful Response
  * @throws ApiError
  */

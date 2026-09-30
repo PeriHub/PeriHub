@@ -22,11 +22,9 @@ log = logging.getLogger("rich")
 load_dotenv()
 
 # Access the variables using os.getenv
-trial = False
 frontmatter_installation = True
-if os.getenv("TRIAL") == "True":
-    trial = True
-    log.info("Running in trial mode")
+# Default for the `guest_access` admin setting (anonymous visitors get a guest account, see routers/auth.py).
+guest_access = os.getenv("GUEST_ACCESS") == "True"
 if os.getenv("FRONTMATTER_INSTALLATION") == "False":
     frontmatter_installation = False
 max_nodes = int(os.getenv("MAX_NODES", default="50000"))
@@ -34,7 +32,7 @@ max_nodes = int(os.getenv("MAX_NODES", default="50000"))
 # --- Multi-user database (Phase 0) -------------------------------------------
 # Postgres connection for accounts, org settings, and (Phase 1) shared model
 # configs/materials. e.g. postgresql+psycopg://user:pass@host:5432/perihub
-# Left empty, trial mode still works (ephemeral, no DB); community/enterprise
+# Left empty, local model generation still works (no accounts); community/enterprise
 # deployments should always set this. See db/base.py.
 database_url = os.getenv("DATABASE_URL", default="")
 
@@ -45,13 +43,11 @@ session_secret = os.getenv("SESSION_SECRET", default="")
 session_ttl_seconds = int(os.getenv("SESSION_TTL_SECONDS", default=str(60 * 60 * 24 * 7)))  # 7 days
 
 # --- Deployment mode -----------------------------------------------------
-# "trial" | "community" | "enterprise". Distinct from license_server_url:
-# trial has no persistent accounts at all (random per-session identity, see
-# db_auth.py), which isn't something a license grant toggles on its own.
+# "community" | "enterprise". Distinct from license_server_url:
 # community/enterprise both persist accounts; enterprise additionally
 # requires a valid license (see support/entitlements.py) to unlock
 # OAuth2/OIDC login and seat enforcement.
-deployment_mode = os.getenv("DEPLOYMENT_MODE", default="trial" if trial else "community")
+deployment_mode = os.getenv("DEPLOYMENT_MODE", default="community")
 
 # --- API-key auth ------------------------------------------------------------
 # Comma-separated "name:key" pairs, e.g. "ci:abc123,partner-x:def456".

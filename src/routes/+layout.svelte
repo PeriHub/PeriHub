@@ -41,9 +41,9 @@ SPDX-License-Identifier: Apache-2.0
 
   onMount(() => {
     (async () => {
-      // Populate publicConfig (trial/oauth flags) before anything
-      // that reads it - defaultStore.initialiseStore() reads publicConfig.trial,
-      // and initAuth() below decides its whole flow from publicConfig.oauthEnabled.
+      // Populate publicConfig (guest access/oauth flags) before anything
+      // that reads it - initAuth() below decides its whole flow from
+      // publicConfig.guestAccess and publicConfig.oauthEnabled.
       await loadPublicConfig();
 
       defaultStore.initialiseStore();

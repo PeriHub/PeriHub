@@ -44,7 +44,7 @@ docker compose up
 Then open http://localhost:8080.
 
 All settings live in `.env`. [`.env.example`](.env.example) documents them. The ones you are most likely to change:
-`TRIAL` and `DEPLOYMENT_MODE` (trial, community or enterprise), `DATABASE_URL`, and `SOLVER_BACKEND`. Set
+`GUEST_ACCESS` (let visitors use PeriHub without an account), `DEPLOYMENT_MODE` (community or enterprise), `DATABASE_URL`, and `SOLVER_BACKEND`. Set
 `SOLVER_BACKEND=external` together with `EXTERNAL_PERILAB_URL` to run simulations on your own PeriLab server
 instead of the bundled container.
 

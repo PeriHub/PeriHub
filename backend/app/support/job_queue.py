@@ -20,12 +20,15 @@ those on the cluster side.
 """
 
 from datetime import datetime, timezone
+from typing import List, Optional
 
+from fastapi import HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..db.models import (
     JOB_CANCELLED,
+    JOB_DONE,
     JOB_FAILED,
     JOB_QUEUED,
     JOB_RUNNING,
@@ -34,6 +37,7 @@ from ..db.models import (
 )
 from .admin_settings import instance_setting
 from .globals import log
+from .perilab_api_client import PeriLabJob
 from .solver_backend import get_solver_backend
 
 _ACTIVE_STATUSES = (JOB_QUEUED, JOB_RUNNING)
@@ -56,7 +60,8 @@ def count_active_for_user(db: Session, user_id: str) -> int:
 def enforce_user_quota(db: Session, user: User) -> None:
     """Raises ValueError if `user` is already at max_concurrent_jobs_per_user
     active (running) jobs. Callers (routers/jobs.py) turn this into a 429."""
-    limit = instance_setting(db, "max_concurrent_jobs_per_user")
+    key = "guest_max_concurrent_jobs" if user.role == "guest" else "max_concurrent_jobs_per_user"
+    limit = instance_setting(db, key)
     if limit <= 0:
         return  # 0 or negative disables the per-user cap
     current = count_active_for_user(db, user.id)
@@ -156,3 +161,40 @@ def cancel_running(db: Session, entry: JobQueueEntry) -> None:
     entry.status = JOB_CANCELLED
     entry.finished_at = datetime.now(timezone.utc)
     db.commit()
+
+
+def perilab_job_ids(entry: JobQueueEntry) -> List[str]:
+    return [jid.strip() for jid in (entry.perilab_job_id or "").split(",") if jid.strip()]
+
+
+def sync_status(db: Session, entry: Optional[JobQueueEntry]) -> Optional[PeriLabJob]:
+    """Moves an active entry to done/failed/cancelled once the PeriLab API
+    reports its job(s) finished - nothing else ever does, so without this a
+    run would stay "running" forever. Returns the first PeriLab job (for
+    progress), or None if the entry isn't active or the API is unreachable."""
+    if entry is None or entry.status not in (JOB_QUEUED, JOB_RUNNING):
+        return None
+    job_ids = perilab_job_ids(entry)
+    if not job_ids:
+        return None
+
+    client = get_solver_backend().client()
+    try:
+        jobs = [client.get_job(job_id) for job_id in job_ids]
+    except HTTPException:
+        return None
+
+    # A batch submission is only finished once every one of its jobs is.
+    if not any(job.is_active for job in jobs):
+        failed = [job for job in jobs if job.is_failed]
+        if not failed:
+            entry.status = JOB_DONE
+        elif all(job.status.lower() == "cancelled" for job in failed):
+            entry.status = JOB_CANCELLED
+        else:
+            entry.status = JOB_FAILED
+            error = failed[0].raw.get("error")
+            entry.error = str(error)[:1000] if error else f"PeriLab job {failed[0].job_id} {failed[0].status}"
+        entry.finished_at = datetime.now(timezone.utc)
+        db.commit()
+    return jobs[0]

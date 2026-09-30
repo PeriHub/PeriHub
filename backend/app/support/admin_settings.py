@@ -23,7 +23,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db.models import AdminSetting, User
-from .globals import external_perilab_url, max_concurrent_jobs_per_user, max_concurrent_local_jobs
+from .globals import external_perilab_url, guest_access, max_concurrent_jobs_per_user, max_concurrent_local_jobs
 
 
 def get_setting(
@@ -68,6 +68,12 @@ INSTANCE_DEFAULTS = {
     "signup_open": True,
     "default_role": "member",
     "external_perilab_url": external_perilab_url,
+    "guest_access": guest_access,
+    "guest_max_nodes": 10000,
+    "guest_max_output_steps": 50,
+    "guest_max_job_minutes": 10,
+    "guest_max_concurrent_jobs": 1,
+    "guest_retention_days": 1,
 }
 
 
@@ -82,5 +88,8 @@ def overridden_instance_settings(db: Session) -> list[str]:
 def enforce_signup_open(db: Session) -> None:
     """403 for new accounts while signup is closed. The very first account is
     always allowed so a fresh install can't lock itself out."""
-    if not instance_setting(db, "signup_open") and db.scalar(select(User.id).limit(1)) is not None:
+    if (
+        not instance_setting(db, "signup_open")
+        and db.scalar(select(User.id).where(User.role != "guest").limit(1)) is not None
+    ):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Signup is closed.")

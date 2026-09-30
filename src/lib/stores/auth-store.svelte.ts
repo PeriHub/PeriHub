@@ -12,10 +12,12 @@ const TOKEN_STORAGE_KEY = 'periHubSessionToken';
  */
 class AuthStore {
   authenticated = $state(false);
-  /** Account role from /auth/me ('admin' | 'member' | 'viewer'); null for trial/anonymous. */
+  /** Account role from /auth/me ('admin' | 'developer' | 'member' | 'viewer' | 'guest'); null only when not logged in. */
   role = $state<string | null>(null);
   /** May create/edit own models and save default configs - mirrors the backend's require_model_author. */
   canAuthorModels = $derived(this.role === 'admin' || this.role === 'developer');
+  /** Anonymous guest account (guest access) - limited features, see backend support/guest.py. */
+  isGuest = $derived(this.role === 'guest');
 
   /**
    * Clears the stored PeriHub session token and reloads the page. With

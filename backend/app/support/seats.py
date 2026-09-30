@@ -7,8 +7,8 @@
 Call `enforce_seat_limit(db, org)` before creating a new active User row
 for that org - local signup or first OAuth login, all
 go through this. Community plans have no seat cap (single-tenant,
-unlimited local accounts by design); trial has no persistent accounts at
-all, so it never reaches this check.
+unlimited local accounts by design); guest accounts are created without a
+seat check.
 
 `Organization.licensed_seats` is a cache of LicenseStatus.seats, refreshed
 here on every check against license_client.get_status() (which itself
@@ -26,11 +26,18 @@ from .license_client import get_status
 
 
 def _active_seat_count(db: Session, org_id: str) -> int:
-    return db.scalar(select(func.count()).select_from(User).where(User.org_id == org_id, User.is_active.is_(True))) or 0
+    return (
+        db.scalar(
+            select(func.count())
+            .select_from(User)
+            .where(User.org_id == org_id, User.is_active.is_(True), User.role != "guest")
+        )
+        or 0
+    )
 
 
 def enforce_seat_limit(db: Session, org: Organization) -> None:
-    """No-op for community/trial orgs (no seat cap). For enterprise orgs,
+    """No-op for community orgs (no seat cap). For enterprise orgs,
     raises 402 if adding one more active user would exceed the licensed
     seat count."""
     if org.plan != "enterprise":

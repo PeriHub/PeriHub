@@ -17,8 +17,8 @@ reality, or tune it to match.
 
 ## Turning it on
 
-Toggle **enabled** to activate the comparison. This feature is **disabled in the
-trial version** of PeriHub.
+Toggle **enabled** to activate the comparison. This feature is **not available for
+guests** - log in for full access.
 
 ## Providing data
 

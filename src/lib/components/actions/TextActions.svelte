@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   import { onMount, onDestroy, untrack } from 'svelte';
   import { Save } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
+  import { authStore } from '$lib/stores/auth-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
@@ -258,8 +259,8 @@ SPDX-License-Identifier: Apache-2.0
     variant="ghost"
     size="icon"
     onclick={writeInputFile}
-    disabled={!defaultStore.status.created || viewStore.textId !== 'input' || defaultStore.trial}
-    title={defaultStore.trial ? 'Disabled in trial version' : 'Save Inputfile'}
+    disabled={!defaultStore.status.created || viewStore.textId !== 'input' || authStore.isGuest}
+    title={authStore.isGuest ? 'Log in for full access' : 'Save Inputfile'}
   >
     <Save class="h-4 w-4" />
   </Button>

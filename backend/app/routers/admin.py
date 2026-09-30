@@ -80,6 +80,12 @@ class AdminSettings(BaseModel):
     signup_open: bool
     default_role: Literal["member", "viewer"]
     external_perilab_url: str
+    guest_access: bool
+    guest_max_nodes: int = Field(ge=1)
+    guest_max_output_steps: int = Field(ge=1)
+    guest_max_job_minutes: int = Field(ge=1)
+    guest_max_concurrent_jobs: int = Field(ge=1)
+    guest_retention_days: int = Field(ge=1)
 
     @field_validator("external_perilab_url")
     @classmethod
@@ -116,7 +122,7 @@ def _job_count(db: Session, user_id: str) -> int:
 def list_users(admin: User = Depends(require_admin), db: Session = Depends(get_db)) -> list[AdminUser]:
     """All users of the admin's organization with their job count."""
     counts = dict(db.execute(select(JobQueueEntry.user_id, func.count()).group_by(JobQueueEntry.user_id)).all())
-    users = db.scalars(select(User).where(User.org_id == admin.org_id).order_by(User.created_at))
+    users = db.scalars(select(User).where(User.org_id == admin.org_id, User.role != "guest").order_by(User.created_at))
     return [_to_admin_user(u, counts.get(u.id, 0)) for u in users]
 
 

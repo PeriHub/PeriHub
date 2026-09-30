@@ -22,18 +22,21 @@ SPDX-License-Identifier: Apache-2.0
     MoreVertical,
     Award,
     Clock,
-    ExternalLink
+    ExternalLink,
+    LogIn
   } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { getLicenseStatus } from '$lib/client';
   import { authStore } from '$lib/stores/auth-store.svelte';
+  import { leaveGuestSession } from '$lib/auth/oauth';
   import UserSettingsDialog from '$lib/components/dialogs/UserSettingsDialog.svelte';
   import PlanDialog from '$lib/components/dialogs/PlanDialog.svelte';
 
   const navItems = $derived([
     { href: '/perihub', label: 'PeriHub' },
-    { href: '/models', label: 'Models' },
+    // Own-model authoring only - guests can't author models.
+    ...(authStore.isGuest ? [] : [{ href: '/models', label: 'Models' }]),
     { href: '/tools', label: 'Tools' },
     { href: '/publications', label: 'Publications' },
     // Only hides the link - the /admin endpoints enforce the role.
@@ -132,6 +135,17 @@ SPDX-License-Identifier: Apache-2.0
     </nav>
 
     <div class="col-start-3 flex items-center gap-1.5">
+      {#if authStore.isGuest}
+        <Button
+          variant="outline"
+          size="sm"
+          class="rounded-full px-3 py-1.5 text-xs font-medium"
+          onclick={leaveGuestSession}
+          title="You're using PeriHub as a guest - log in for full access"
+        >
+          <LogIn class="h-3.5 w-3.5" /> Log in
+        </Button>
+      {/if}
       <!-- Plan / licensing indicator, backed by the real /license/status endpoint. -->
       <Button
         type="button"

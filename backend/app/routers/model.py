@@ -44,7 +44,7 @@ def get_models(own_only: bool = False, verify: bool = False, request: Request = 
         return model_list + [model for model in own if model["file"] not in built_in]
     if verify:
         username = FileHandler.get_user_name(request)
-        own = [model for model in own if username == "dev" or username in model["author"].replace(" ", "").split(",")]
+        own = [model for model in own if username in model["author"].replace(" ", "").split(",")]
     return own
 
 

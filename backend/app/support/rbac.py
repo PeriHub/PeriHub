@@ -4,13 +4,15 @@
 
 """RBAC role checks + visibility-scoped queries for shared resources.
 
-Roles (User.role): "admin" | "developer" | "member" | "viewer". Deliberately
-flat, ranked roles rather than a permissions matrix - admin can manage
-org/users/admin_settings, developer can additionally create/edit own models
-(which run arbitrary Python on the server), member can create and share model
-configs/materials, viewer is read-only. Extend `ROLE_RANK` if a real
-customer needs something finer-grained (e.g. a separate "billing" role)
-rather than adding string checks scattered across routers.
+Roles (User.role): "admin" | "developer" | "member" | "viewer" | "guest".
+Deliberately flat, ranked roles rather than a permissions matrix - admin can
+manage org/users/admin_settings, developer can additionally create/edit own
+models (which run arbitrary Python on the server), member can create and
+share model configs/materials, viewer is read-only. guest is an anonymous
+throwaway account (support/guest.py) that can only run bounded jobs of
+built-in models. Extend `ROLE_RANK` if a real customer needs something
+finer-grained (e.g. a separate "billing" role) rather than adding string
+checks scattered across routers.
 
 Phase 2 adds: "team" visibility (narrower than "org"), project membership
 checks, and tag/name search over the same visibility-filtered set.
@@ -32,7 +34,7 @@ from ..db.models import (
     User,
 )
 
-ROLE_RANK = {"viewer": 0, "member": 1, "developer": 2, "admin": 3}
+ROLE_RANK = {"guest": 0, "viewer": 1, "member": 2, "developer": 3, "admin": 4}
 
 
 def require_role(user: User, minimum: str) -> None:
@@ -47,8 +49,9 @@ def require_role(user: User, minimum: str) -> None:
 def ensure_first_admin(db: Session, user: User) -> None:
     """Promotes `user` to admin if their org has no active admin yet - the first
     person to sign up / log in administers the instance. Also covers installs
-    that predate this rule: the next login in an admin-less org gets promoted."""
-    if user.role == "admin":
+    that predate this rule: the next login in an admin-less org gets promoted.
+    Guests are never promoted."""
+    if user.role in ("admin", "guest"):
         return
     # ponytail: check-then-set, two simultaneous first logins can both become admin; either can demote the other.
     has_admin = db.scalar(

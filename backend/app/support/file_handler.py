@@ -17,13 +17,7 @@ from pathlib import Path
 from fastapi import HTTPException
 from natsort import natsorted
 
-from ..support.globals import log, trial
-
-allowed_max_nodes = {
-    "trial": {"allowedNodes": 10000, "allowedFeSize": 150000},
-    "guest": {"allowedNodes": 1000000, "allowedFeSize": 15000000},
-    "dev": {"allowedNodes": 10000000, "allowedFeSize": 150000000},
-}
+from ..support.globals import log
 
 
 class FileHandler:
@@ -65,28 +59,6 @@ class FileHandler:
         if user_name is not None and user_name != "" and user_name != "undefined":
             return user_name
         return "user"
-
-    @staticmethod
-    def get_max_nodes(username):
-        """doc"""
-        if trial:
-            return allowed_max_nodes["trial"]["allowedNodes"]
-
-        if username in allowed_max_nodes:
-            return allowed_max_nodes[username]["allowedNodes"]
-
-        return allowed_max_nodes["guest"]["allowedNodes"]
-
-    @staticmethod
-    def get_max_fe_size(username):
-        """doc"""
-        if trial:
-            return allowed_max_nodes["trial"]["allowedFeSize"]
-
-        if username in allowed_max_nodes:
-            return allowed_max_nodes[username]["allowedFeSize"]
-
-        return allowed_max_nodes["guest"]["allowedFeSize"]
 
     @staticmethod
     def remove_folder_if_older(path, days, recursive):

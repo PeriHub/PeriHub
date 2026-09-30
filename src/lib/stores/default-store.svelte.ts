@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { config, publicConfig } from '$lib/config';
+import { config } from '$lib/config';
 import type { Status } from '$lib/client';
 
 function browser() {
@@ -16,14 +16,10 @@ class DefaultStore {
   darkMode = $state(false);
   saveEnergy = $state(true);
   dev = $state(false);
-  trial = $state(false);
   status = $state<Status>({} as Status);
 
   initialiseStore() {
     this.dev = config.dev;
-    // Assumes loadPublicConfig() has already resolved - see +layout.svelte,
-    // which awaits it before calling this.
-    this.trial = publicConfig.trial;
 
     if (!browser()) return;
 

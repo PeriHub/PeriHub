@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from ..db.base import get_db
 from ..db.models import Project, ProjectMembership, User
 from ..support.db_auth import resolve_user
+from ..support.guest import reject_guest
 from ..support.rbac import require_project_role
 
 router = APIRouter(prefix="/projects", tags=["Project Methods"])
@@ -49,6 +50,7 @@ def _require_db_user(request: Request, db: Session) -> User:
     identity = resolve_user(request, db)
     if identity.user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+    reject_guest(identity.user)
     return identity.user
 
 

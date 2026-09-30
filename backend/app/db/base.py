@@ -9,8 +9,8 @@ how to talk to Postgres. Everything else (models, auth, admin settings)
 imports `SessionLocal`/`get_db` from here rather than creating its own
 engine, so connection pooling and the DATABASE_URL are configured once.
 
-DATABASE_URL is required for community/enterprise deployments. Trial mode
-(no persistent accounts) can still run without Postgres configured - see
+DATABASE_URL is required for community/enterprise deployments. Local dev
+(no accounts, no job submission) can still run without Postgres configured - see
 support/db_auth.py - but sharing model configs/materials always needs it,
 so in practice every real deployment sets it.
 """
@@ -39,7 +39,7 @@ else:
     log.warning(
         "db.base: DATABASE_URL is not set - multi-user features (accounts, "
         "shared model configs/materials, admin settings) are unavailable. "
-        "Trial mode still works without it."
+        "Local model generation still works without it."
     )
 
 
@@ -52,7 +52,7 @@ def get_db() -> Generator[Session, None, None]:
     """FastAPI dependency yielding a request-scoped DB session.
 
     Raises RuntimeError if called without DATABASE_URL configured - callers
-    that need to work in DB-less trial mode should check
+    that need to work without a DB should check
     `db.base.get_engine() is not None` first rather than depending on this.
     """
     if SessionLocal is None:
