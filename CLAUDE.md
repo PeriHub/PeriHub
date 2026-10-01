@@ -73,7 +73,7 @@ npm run client    # writes src/lib/client/ via @hey-api/openapi-ts — never han
 
 ### Backend (`backend/app`)
 
-- `main.py` — FastAPI app; mounts routers, serves `/assets`, `/health`. Lifespan installs own-model requirements and checks the DB connection.
+- `main.py` — FastAPI app; mounts routers, serves `/assets`, `/health`, and `/openapi.agent.json` (the workflow subset of the spec for spec-only agents — `AGENT_OPERATIONS` lists the operation ids). Lifespan installs own-model requirements and checks the DB connection.
 - `routers/` — one module per API tag. Simulation: `generate` (models/mesh), `model` (model/input-deck CRUD), `upload`, `translate`, `jobs` (run/cancel/status, run listing, `/{run_id}/log`), `results`, `energy`, `delete`, `docs`. Platform: `auth` (local email/password), `api_keys` (self-service API keys), `oauth` (OIDC), `config` (`GET /config/public`), `library` (shared model configs/materials), `projects`, `teams`, `usage`, `license`. Each endpoint sets an `operation_id`; the OpenAPI schema is the contract for the frontend client.
 - `support/globals.py` — all configuration comes from env vars loaded from `.env` (`.env.example` documents them): `GUEST_ACCESS`, `DEPLOYMENT_MODE` (community/enterprise), `MAX_NODES`, `DATABASE_URL`, `SESSION_SECRET`, `SOLVER_BACKEND`/`LOCAL_PERILAB_API_URL`/`EXTERNAL_PERILAB_URL`, job limits (`MAX_CONCURRENT_LOCAL_JOBS`, `MAX_CONCURRENT_JOBS_PER_USER`), `OAUTH_*`, `LICENSE_*`.
 - `db/` — SQLAlchemy engine/session (`base.py`, `get_db` dependency) and ORM models (`models.py`: Organization, User, OAuthIdentity, ApiKey, AdminSetting, Team, Project, JobQueueEntry, ModelConfig, Material). Accounts (including guests), sharing and job submission require it.

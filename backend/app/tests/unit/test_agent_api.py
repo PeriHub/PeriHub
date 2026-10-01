@@ -10,9 +10,10 @@ import os
 import shutil
 
 import pytest
+from fastapi.testclient import TestClient
 
 from backend.app.db import base
-from backend.app.main import app
+from backend.app.main import AGENT_OPERATIONS, app
 from backend.app.routers import jobs, results
 from backend.app.support import job_queue
 from backend.app.support.base_models import ModelData
@@ -156,3 +157,24 @@ def test_auth_schemes_are_declared():
     assert set(spec["components"]["securitySchemes"]) == {"APIKeyHeader", "HTTPBearer"}
     assert spec["components"]["securitySchemes"]["APIKeyHeader"]["name"] == "X-Api-Key"
     assert {"APIKeyHeader": []} in _operations(spec)["run_model"]["security"]
+
+
+def test_agent_operations_exist():
+    assert AGENT_OPERATIONS <= set(_operations(app.openapi()))
+
+
+def test_agent_spec_is_the_typed_workflow_subset():
+    spec = TestClient(app).get("/openapi.agent.json").json()
+    ops = _operations(spec)
+    assert set(ops) == AGENT_OPERATIONS
+    assert spec["servers"] == [{"url": "."}]
+    assert "get_run_summary" in spec["info"]["description"]
+    assert spec["components"]["securitySchemes"]
+    for name, op in ops.items():
+        assert op.get("description"), name
+        for code, response in op["responses"].items():
+            if code.startswith("2") and "application/json" in response.get("content", {}):
+                assert response["content"]["application/json"]["schema"] != {}, name
+    # the full spec is untouched
+    assert "servers" not in app.openapi()
+    assert "/openapi.agent.json" not in app.openapi()["paths"]

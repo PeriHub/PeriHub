@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
+import copy
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -187,6 +188,51 @@ app.include_router(admin_router.router)
 async def healthcheck():
     """Liveness probe."""
     return {"status": True}
+
+
+# The operations a workflow agent needs; everything else (admin, teams, 3D-viewer data, ...) is left out of
+# /openapi.agent.json so the agent doesn't have to search 60+ operations. A unit test checks these ids exist.
+AGENT_OPERATIONS = {
+    "get_models",
+    "get_valves",
+    "get_config",
+    "get_analyses",
+    "generate_model",
+    "view_input_file",
+    "run_model",
+    "get_run",
+    "get_run_log",
+    "cancel_run",
+    "list_all_runs",
+    "get_run_summary",
+    "run_analysis",
+}
+
+AGENT_WORKFLOW = """Run peridynamic simulations with PeriHub. Authenticate with a personal API key (`X-Api-Key`).
+
+1. `get_models` -> pick a model; `get_valves` returns its parameters (`valves`).
+2. `get_config` -> the model's default `ModelData`; edit it.
+3. `generate_model` with `{"data": ModelData, "valves": valves}` -> writes the model folder (`GenerateResult`).
+4. `run_model` with the same ModelData as body -> `run_id`.
+5. Poll `get_run` until `status` is final (`done`, `failed`, `cancelled`). On `failed`, read
+   `get_run_log` (`tail=200`), fix the config and go back to 3.
+6. `get_run_summary` -> min/max of the results to judge the run; `run_analysis` renders a model analysis as PNG.
+"""
+
+
+@app.get("/openapi.agent.json", include_in_schema=False)
+def agent_openapi() -> dict:
+    """The workflow subset of /openapi.json for agents that only see a spec."""
+    spec = copy.deepcopy(app.openapi())  # app.openapi() is cached; never edit it in place
+    spec["paths"] = {
+        path: kept
+        for path, operations in spec["paths"].items()
+        if (kept := {method: op for method, op in operations.items() if op.get("operationId") in AGENT_OPERATIONS})
+    }
+    spec["info"]["description"] = AGENT_WORKFLOW
+    # Relative to where the spec was loaded from: /api/ behind nginx, / in dev.
+    spec["servers"] = [{"url": "."}]
+    return spec
 
 
 @app.get("/version", operation_id="get_version")
