@@ -38,6 +38,7 @@ jobs:
         run: python -m pytest tests/unit
         env:
           PYTHONPATH: ${{ github.workspace }}
+          SESSION_SECRET: ci-test-secret-not-for-production
 
   frontend-checks:
     runs-on: ubuntu-latest
