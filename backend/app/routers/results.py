@@ -123,7 +123,7 @@ def analysis_png(result, result_dir: str) -> bytes:
     raise ValueError(f"an analysis must return a matplotlib Figure or an image path, not {type(result).__name__}")
 
 
-@router.get("/plot", operation_id="get_plot")
+@router.get("/plot", operation_id="get_plot", response_model=dict[str, list[float | str]])
 def get_plot(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",

@@ -35,7 +35,7 @@ from ..db.base import get_db
 from ..db.models import JOB_DONE, JOB_QUEUED, JOB_RUNNING, JobQueueEntry
 from ..support import audit_log
 from ..support.admin_settings import instance_setting
-from ..support.base_models import ModelData, RunStatus, Status
+from ..support.base_models import ModelData, RunCancelled, RunDeleted, RunStatus, RunSubmitted, Status
 from ..support.db_auth import ResolvedIdentity, resolve_user
 from ..support.file_handler import FileHandler, safe_segment
 from ..support.globals import log
@@ -209,7 +209,7 @@ def _folder_summary(db: Session, request: Request, model_name: str, model_folder
     return result
 
 
-@router.post("/jobs", operation_id="run_model")
+@router.post("/jobs", operation_id="run_model", response_model=RunSubmitted)
 async def run_model(
     model_data: ModelData,
     model_name: str = "Dogbone",
@@ -221,7 +221,8 @@ async def run_model(
 ):
     """Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. Requires a
     database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
-    offline, 404 when this folder already has an active run."""
+    offline, 404 when this folder already has an active run. Poll GET /jobs/{run_id} (get_run) with the returned
+    run_id."""
     # user_folder() already 401s without a login, and the `db` dependency above
     # 500s without a DATABASE_URL - so by this point the caller is always a
     # logged-in, database-backed account and db_user below is never None.
@@ -529,7 +530,7 @@ def get_run_log(
     return text
 
 
-@router.delete("/jobs/{run_id}", operation_id="delete_run")
+@router.delete("/jobs/{run_id}", operation_id="delete_run", response_model=RunDeleted)
 def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     """Deletes a finished run: its PeriLab job(s) - log and result files -
     and its DB entry. Active runs have to be cancelled first. The model
@@ -560,7 +561,7 @@ def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     return {"deleted": run_id}
 
 
-@router.put("/jobs/{run_id}/cancel", operation_id="cancel_run")
+@router.put("/jobs/{run_id}/cancel", operation_id="cancel_run", response_model=RunCancelled)
 def cancel_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     """Cancels a queued or running run by its id (a model folder can have several runs, so cancelling
     names the run, not the folder). 409 if the run is no longer active."""

@@ -77,9 +77,10 @@ def get_analyses(model_name: str) -> list[AnalysisInfo]:
     ]
 
 
-@router.get("/models/{model_name}/config", operation_id="get_config")
+@router.get("/models/{model_name}/config", operation_id="get_config", response_model=ModelData)
 def get_config(model_name: str = "Dogbone") -> JSONResponse:
-    """A model's default ModelData config (`<Name>.json`); a built-in model wins over an own model of the same name."""
+    """A model's default ModelData config (`<Name>.json`); a built-in model wins over an own model of the same name.
+    Edit it and send it as `data` to generate_model and as the body of run_model."""
 
     safe_segment(model_name)
     config_path = os.path.join(

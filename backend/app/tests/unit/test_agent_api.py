@@ -4,13 +4,18 @@
 
 """The endpoints a spec-only workflow agent uses (see /openapi.agent.json)."""
 
+import glob
+import json
+
 import pytest
 
 from backend.app.db import base
+from backend.app.main import app
 from backend.app.routers import jobs
 from backend.app.support import job_queue
+from backend.app.support.base_models import ModelData
 
-from .test_guest import _auth, _FakeBackend, _job, _signup
+from .test_guest import _auth, _dogbone, _FakeBackend, _generate, _job, _signup, isolated  # noqa: F401 - fixture
 
 
 @pytest.fixture
@@ -68,3 +73,31 @@ def test_get_run_log_404_before_perilab_job(client, backend):
     owner = _signup(client, "a@x.de")
     run_id = _run(owner, job_id=None)
     assert client.get(f"/jobs/{run_id}/log", headers=_auth(owner)).status_code == 404
+
+
+def _operations(spec):
+    return {op["operationId"]: op for path in spec["paths"].values() for op in path.values()}
+
+
+def test_workflow_responses_are_typed():
+    ops = _operations(app.openapi())
+    for name in ["generate_model", "get_config", "run_model", "cancel_run", "delete_run", "get_plot", "get_run"]:
+        assert ops[name]["responses"]["200"]["content"]["application/json"]["schema"] != {}, name
+    run_status = app.openapi()["components"]["schemas"]["RunStatus"]["properties"]["status"]
+    assert run_status["enum"] == ["queued", "running", "done", "failed", "cancelled"]
+
+
+@pytest.mark.parametrize("path", sorted(glob.glob("./models/*/*.json")))
+def test_builtin_configs_match_model_data(path):
+    with open(path, encoding="UTF-8") as file:
+        ModelData.model_validate(json.load(file))
+
+
+def test_generate_reports_nodes_and_blocks(client, isolated):  # noqa: F811
+    user = _signup(client, "a@x.de")
+    r = _generate(client, _auth(user), _dogbone())
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["model_name"] == "Dogbone" and body["model_folder_name"] == "Default"
+    assert body["nodes"] > 0
+    assert body["blocks"] == len(_dogbone()["blocks"])

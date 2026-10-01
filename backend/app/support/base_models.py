@@ -175,7 +175,7 @@ class Status(BaseModel):
     *most recently submitted* run for this model_name/model_folder_name.
     A folder can have more than one run over time (re-submissions) - use
     `run_id` with GET /jobs/{run_id} for authoritative detail on that
-    specific run, or GET /jobs/{model_name}/{model_folder_name}/runs for
+    specific run, or GET /jobs/runs for
     the full history, rather than assuming this is "the" run."""
 
     created: Optional[bool] = False
@@ -189,17 +189,47 @@ class Status(BaseModel):
     run_id: Optional[str] = None
 
 
+# JobQueueEntry.status values (db/models.py JOB_*): queued/running are active, the rest are final.
+JobStatus = Literal["queued", "running", "done", "failed", "cancelled"]
+
+
+class RunSubmitted(BaseModel):
+    """A submitted run: poll GET /jobs/{run_id} (`get_run`) until its status is final."""
+
+    run_id: str
+    status: JobStatus
+    perilab_job_id: Optional[str] = None
+
+
+class RunCancelled(BaseModel):
+    cancelled: str
+
+
+class RunDeleted(BaseModel):
+    deleted: str
+
+
+class GenerateResult(BaseModel):
+    """What generate_model wrote into the model folder; the folder can now be submitted with run_model."""
+
+    model_name: str
+    model_folder_name: str
+    nodes: Optional[int] = None  # None for an uploaded mesh (its points aren't counted)
+    blocks: int
+
+
 class RunStatus(BaseModel):
     """Full status of a single run, keyed by its own id (JobQueueEntry.id -
     stable for the life of the run, independent of how many times its
     model_name/model_folder_name has been resubmitted before or since).
     This is the authoritative per-run detail; Status/Jobs only carry a
-    same-shaped snapshot of the latest run for quick folder-level display."""
+    same-shaped snapshot of the latest run for quick folder-level display.
+    `status`: queued/running are active; done, failed and cancelled are final."""
 
     id: str
     model_name: str
     model_folder_name: str
-    status: str
+    status: JobStatus
     perilab_job_id: Optional[str] = None
     submitted_at: Optional[datetime] = None
     started_at: Optional[datetime] = None

@@ -16,7 +16,7 @@ from pydantic import BaseModel
 # from ..models.RingOnRing.ring_on_ring import RingOnRing
 # from ..models.Smetana.smetana import Smetana
 from ..db import base
-from ..support.base_models import Block, Deviations, ModelData, Valves
+from ..support.base_models import Block, Deviations, GenerateResult, ModelData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import log
 from ..support.guest import DB_LESS_USER, GUEST_DENIED, apply_guest_limits, current_user, guest_limits
@@ -39,7 +39,11 @@ router = APIRouter(tags=["Generate Methods"])
 ACCOUNT_MAX_NODES = 1_000_000  # node cap for real accounts; guests use the guest_max_nodes setting
 
 
-@router.post("/workspaces/{model_name}/{model_folder_name}/generate", operation_id="generate_model")
+@router.post(
+    "/workspaces/{model_name}/{model_folder_name}/generate",
+    operation_id="generate_model",
+    response_model=GenerateResult,
+)
 def generate_model(
     data: ModelData,
     valves: Valves,
@@ -186,6 +190,12 @@ def generate_model(
     #     return str(exception)
 
     log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
+    return GenerateResult(
+        model_name=model_name,
+        model_folder_name=model_folder_name,
+        nodes=None if uploaded_mesh else len(x_value),
+        blocks=len(data.blocks),
+    )
 
 
 PREVIEW_MAX_DISCRETIZATION = 30
