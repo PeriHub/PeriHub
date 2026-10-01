@@ -79,7 +79,7 @@ def delete_expired_guests(db: Session, now: datetime) -> int:
                     except HTTPException as e:
                         log.warning("guest_sweeper: could not delete PeriLab job %s: %s", job_id, e.detail)
             db.execute(delete(JobQueueEntry).where(JobQueueEntry.user_id == user.id))
-            folder = FileHandler.get_local_user_path(user.display_name)
+            folder = FileHandler.get_local_user_path(user.id)
             db.delete(user)
             db.commit()
         except Exception as exc:  # noqa: BLE001 - retried on the next retention run

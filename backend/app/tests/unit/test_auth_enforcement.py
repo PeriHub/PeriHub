@@ -2,12 +2,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import os
+
+import pytest
 from starlette.requests import Request
 
 from backend.app.db import base
 from backend.app.db.models import ApiKey, User
 from backend.app.support.api_keys import generate_key, hash_key
 from backend.app.support.db_auth import resolve_user
+from backend.app.support.file_handler import FileHandler
 
 
 def _request(headers: dict) -> Request:
@@ -73,3 +77,40 @@ def test_generate_key_format():
     assert key.startswith("phk_") and len(key) > 40
     assert generate_key() != key
     assert len(hash_key(key)) == 64
+
+
+@pytest.fixture
+def sim_dir(monkeypatch, tmp_path):
+    monkeypatch.setattr(FileHandler, "get_local_simulation_path", staticmethod(lambda: str(tmp_path)))
+    return tmp_path
+
+
+@pytest.mark.parametrize(
+    "method, url",
+    [
+        ("get", "/workspaces/Dogbone"),
+        ("get", "/workspaces/Dogbone/Default/input-deck"),
+        ("delete", "/users/me/data"),
+    ],
+)
+def test_user_data_endpoints_require_login(client, sim_dir, method, url):
+    r = getattr(client, method)(url, headers={"userName": "someone"})
+    assert r.status_code == 401, r.text
+
+
+def test_folder_is_keyed_by_user_id(client, sim_dir):
+    body = _signup(client)
+    os.makedirs(sim_dir / body["user_id"] / "Dogbone" / "Mine")
+    os.makedirs(sim_dir / "a@x.de" / "Dogbone" / "Theirs")
+    r = client.get("/workspaces/Dogbone", headers={"Authorization": f"Bearer {body['token']}"})
+    assert r.status_code == 200, r.text
+    assert r.json() == ["Mine"]
+
+
+def test_db_less_mode_uses_fixed_folder(no_db, sim_dir):
+    from fastapi.testclient import TestClient
+
+    from backend.app.main import app
+
+    os.makedirs(sim_dir / "user" / "Dogbone" / "Local")
+    assert TestClient(app).get("/workspaces/Dogbone").json() == ["Local"]

@@ -144,8 +144,8 @@ def isolated(monkeypatch, tmp_path):
     monkeypatch.setattr(jobs, "get_solver_backend", lambda: _FakeBackend())
 
 
-def _guest_headers(guest, user_name=None):
-    return {**_auth(guest), "userName": user_name or guest["display_name"]}
+def _guest_headers(guest):
+    return _auth(guest)
 
 
 def test_guest_node_cap_and_deviations(client, isolated):
@@ -165,20 +165,12 @@ def test_generate_requires_login_with_db(client, isolated):
     assert r.status_code == 401, r.text
 
 
-def test_guest_cannot_generate_into_foreign_folder(client, isolated):
-    guest = _guest(client)
-    r = _generate(client, _guest_headers(guest, "someone-else"), _dogbone())
-    assert r.status_code == 403, r.text
-    assert "log in for full access" in r.json()["detail"]
-
-
-@pytest.mark.parametrize("user_name, job_ids", [("someone-else", "-1"), (None, "1,2")])
-def test_guest_run_rejects_foreign_folder_and_batches(client, isolated, user_name, job_ids):
+def test_guest_run_rejects_batches(client, isolated):
     guest = _guest(client)
     r = client.post(
-        f"/jobs?model_name=Dogbone&model_folder_name=Default&job_ids={job_ids}",
+        "/jobs?model_name=Dogbone&model_folder_name=Default&job_ids=1,2",
         json=_dogbone(),
-        headers=_guest_headers(guest, user_name),
+        headers=_guest_headers(guest),
     )
     assert r.status_code == 403, r.text
 
@@ -273,7 +265,7 @@ def test_sweep_deletes_expired_guests_with_data(client, monkeypatch, tmp_path):
     monkeypatch.setattr(FileHandler, "get_local_simulation_path", staticmethod(lambda: str(tmp_path)))
     old_guest = _guest(client)
     new_guest = client.post("/auth/guest").json()
-    os.makedirs(tmp_path / old_guest["display_name"] / "Dogbone")
+    os.makedirs(tmp_path / old_guest["user_id"] / "Dogbone")
     with base.SessionLocal() as db:
         _job(db, old_guest["user_id"], 1, "g-1")
         db.get(User, old_guest["user_id"]).created_at = datetime.now(timezone.utc) - timedelta(days=2)
@@ -284,6 +276,6 @@ def test_sweep_deletes_expired_guests_with_data(client, monkeypatch, tmp_path):
     assert remaining == {new_guest["user_id"]}
     assert jobs == 0
     assert backend.client().deleted == ["g-1"]
-    assert not (tmp_path / old_guest["display_name"]).exists()
+    assert not (tmp_path / old_guest["user_id"]).exists()
     # the expired guest's session no longer resolves
     assert client.get("/auth/me", headers=_auth(old_guest)).status_code == 401

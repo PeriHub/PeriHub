@@ -20,7 +20,7 @@ from ..support.base_models import AnalysisRequest, PointDataResults
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import log, max_nodes
-from ..support.guest import require_non_guest
+from ..support.guest import require_non_guest, user_folder
 from ..support.job_queue import perilab_job_ids
 from ..support.model import loader
 from ..support.model.model_api import AnalysisContext
@@ -201,7 +201,7 @@ def get_results(
 ):
     """Download a run's results: the Exodus `.e` file, or with `all_data` (or when there is none) the whole result
     folder as a zip."""
-    username = FileHandler.get_user_name(request)
+    username = user_folder(request)
 
     resultpath = FileHandler.get_local_model_path(username, model_name)
     zip_file = os.path.join(resultpath, model_name + "_" + model_folder_name)

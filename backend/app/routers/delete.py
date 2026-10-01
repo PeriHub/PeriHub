@@ -11,10 +11,10 @@ from sqlalchemy.orm import Session
 
 from ..db.base import get_db
 from ..support import audit_log
-from ..support.api_key_auth import get_user_name_with_api_key
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import log
+from ..support.guest import user_folder
 from ..support.rbac import require_role
 
 router = APIRouter(tags=["Delete Methods"])
@@ -27,8 +27,7 @@ def delete_model(
     request: Request = "",
 ):
     """Delete one of the caller's model folders (input deck, mesh, uploads)."""
-    username = FileHandler.get_user_name(request)
-    username = get_user_name_with_api_key(request, username)
+    username = user_folder(request)
 
     localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     if os.path.exists(localpath):
@@ -40,8 +39,7 @@ def delete_model(
 @router.delete("/users/me/data", operation_id="delete_user_data")
 def delete_user_data(request: Request):
     """Delete all of the caller's simulation data."""
-    username = FileHandler.get_user_name(request)
-    username = get_user_name_with_api_key(request, username)
+    username = user_folder(request)
 
     localpath = FileHandler.get_local_user_path(username)
     if os.path.exists(localpath):

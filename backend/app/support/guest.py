@@ -40,11 +40,28 @@ def reject_guest(user: User) -> None:
 
 def require_non_guest(request: Request) -> User:
     """FastAPI dependency: 401 without a login, 403 for guests."""
+    user = require_user(request)
+    reject_guest(user)
+    return user
+
+
+# Local dev without DATABASE_URL has no accounts: everything lives in one folder.
+DB_LESS_USER = "user"
+
+
+def require_user(request: Request) -> User:
+    """The logged-in caller; 401 without a login (or without a DB, where nobody can log in)."""
     user = current_user(request)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
-    reject_guest(user)
     return user
+
+
+def user_folder(request: Request) -> str:
+    """The caller's folder name under simulations/: their user id, or DB_LESS_USER without a DB."""
+    if base.SessionLocal is None:
+        return DB_LESS_USER
+    return require_user(request).id
 
 
 def guest_limits(db: Session) -> dict:

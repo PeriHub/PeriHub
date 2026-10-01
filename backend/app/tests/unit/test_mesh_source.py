@@ -4,7 +4,6 @@
 
 import json
 import os
-import shutil
 from types import SimpleNamespace
 
 import netCDF4
@@ -20,17 +19,17 @@ from backend.app.support.model import mesh_readers
 
 client = TestClient(app)
 
-USER = "pytest_mesh_source"
+USER = "user"  # DB_LESS_USER: DB-less mode has a single folder
 MODEL = "UploadedMesh"
-HEADERS = {"userName": USER}
+HEADERS = {}
 
 
 @pytest.fixture
-def folder(no_db):
+def folder(no_db, monkeypatch, tmp_path):
+    monkeypatch.setattr(FileHandler, "get_local_simulation_path", staticmethod(lambda: str(tmp_path)))
     path = FileHandler.get_local_model_folder_path(USER, MODEL, "Default")
     os.makedirs(path, exist_ok=True)
     yield path
-    shutil.rmtree(FileHandler.get_local_user_path(USER), ignore_errors=True)
 
 
 def _write_exodus(path):

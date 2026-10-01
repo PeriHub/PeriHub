@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 # from ..support.base_models import
 from ..support.file_handler import FileHandler
 from ..support.globals import log
-from ..support.guest import require_non_guest
+from ..support.guest import require_non_guest, user_folder
 
 router = APIRouter(prefix="/workspaces", tags=["Upload Methods"])
 
@@ -58,7 +58,7 @@ async def upload_files(
                 message=f"Invalid file type, got {content_type}, expected 'application/json', '.yaml', '.cdb', '.inp', '.gcode', 'application/x-netcdf', '.obj', 'text/plain', '.g', 'application/octet-stream', '.so' or '.inp'",
             )
 
-    username = FileHandler.get_user_name(request)
+    username = user_folder(request)
 
     localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
 
@@ -98,7 +98,7 @@ def write_input_file(
 ):
     """Overwrite the model folder's input deck (`<model>.yaml`) with `input_string`, e.g. after editing it in the
     text view."""
-    username = FileHandler.get_user_name(request)
+    username = user_folder(request)
 
     with open(
         FileHandler.get_local_model_folder_path(username, model_name, model_folder_name) + "/" + model_name + ".yaml",

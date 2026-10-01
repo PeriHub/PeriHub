@@ -19,7 +19,7 @@ from ..db import base
 from ..support.base_models import Block, Deviations, ModelData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import log
-from ..support.guest import GUEST_DENIED, apply_guest_limits, current_user, guest_limits
+from ..support.guest import DB_LESS_USER, GUEST_DENIED, apply_guest_limits, current_user, guest_limits
 from ..support.model.point_cloud import build_point_cloud, valves_to_dict
 from ..support.model.yaml_model import ModelSpecError
 from ..support.writer.model_writer import ModelWriter
@@ -52,17 +52,14 @@ def generate_model(
     input deck. 404 if the generator is missing or the point count exceeds the caller's node limit, 422 if an
     uploaded mesh is expected but missing from the folder."""
 
-    username = FileHandler.get_user_name(request)
-
     # With a DB every caller must be logged in, else the guest limits could be skipped by leaving out the token.
-    # Without a DB (local dev, no accounts) the userName header alone still works.
+    # Without a DB (local dev, no accounts) everything goes to the single DB_LESS_USER folder.
     user = current_user(request)
     if base.SessionLocal is not None and user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+    username = user.id if user is not None else DB_LESS_USER
     limits = None
     if user is not None and user.role == "guest":
-        if username != user.display_name:  # guests only ever write into their own folder
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=GUEST_DENIED)
         with base.SessionLocal() as db:
             limits = guest_limits(db)
     max_nodes = limits["max_nodes"] if limits else ACCOUNT_MAX_NODES

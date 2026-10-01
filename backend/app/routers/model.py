@@ -19,6 +19,7 @@ from ..support.base_models import AnalysisInfo, ModelData, PointData, Valves
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import log, max_nodes
+from ..support.guest import require_user, user_folder
 from ..support.model import loader, mesh_readers
 from ..support.model.yaml_model import ModelSpecError
 from ..support.model.yaml_model import model_class as yaml_model_class
@@ -43,7 +44,7 @@ def get_models(own_only: bool = False, verify: bool = False, request: Request = 
         built_in = {model["file"] for model in model_list}
         return model_list + [model for model in own if model["file"] not in built_in]
     if verify:
-        username = FileHandler.get_user_name(request)
+        username = require_user(request).display_name
         own = [model for model in own if username in model["author"].replace(" ", "").split(",")]
     return own
 
@@ -124,8 +125,6 @@ def require_model_author(request: Request) -> None:
 def save_config(model_name: str, config: ModelData, request: Request = ""):
     """Overwrite a model's default config with `config`, dropping empty top-level sections. Does nothing if the model
     has no config file."""
-    username = FileHandler.get_user_name(request)
-
     config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "models",
@@ -165,7 +164,7 @@ def get_model(
     request: Request = "",
 ):
     """Download a model folder (input deck, mesh, uploads) as a zip."""
-    username = FileHandler.get_user_name(request)
+    username = user_folder(request)
 
     folder_path = os.path.join(FileHandler.get_local_user_path(username), model_name)
     zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
@@ -197,7 +196,7 @@ def get_point_data(
     """Point cloud of a model for the 3D view: flat xyz coordinates plus block ids normalized to (0, 1].
     Read from the uploaded mesh `mesh_file` (text or Exodus) or else the generated `<model>.txt`; meshes above
     the node limit are thinned."""
-    username = FileHandler.get_user_name(request)
+    username = user_folder(request)
     folder = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
     try:
         xyz, block = mesh_readers.read_points(os.path.join(folder, mesh_file or model_name + ".txt"), two_d)
@@ -222,7 +221,7 @@ def get_point_data(
 @router.get("/workspaces/{model_name}/{model_folder_name}/files/{filename}", operation_id="get_workspace_file")
 def get_workspace_file(model_name: str, model_folder_name: str, filename: str, request: Request = ""):
     """A single file of a model folder, e.g. an uploaded G-code mesh for the browser preview."""
-    username = FileHandler.get_user_name(request)
+    username = user_folder(request)
     folder = Path(FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)).resolve()
     path = (folder / filename).resolve()
     if path.parent != folder or not path.is_file():
@@ -237,7 +236,7 @@ def view_input_file(
     request: Request = "",
 ) -> str:
     """The model folder's PeriLab input deck (`<model>.yaml`) as text; 400 if it hasn't been generated yet."""
-    username = FileHandler.get_user_name(request)
+    username = user_folder(request)
 
     file_path = (
         FileHandler.get_local_model_folder_path(username, model_name, model_folder_name) + "/" + model_name + ".yaml"
@@ -279,7 +278,7 @@ def add_model(
     model_name: str, description: str, model_format: Literal["yaml", "python"] = "yaml", request: Request = ""
 ) -> str:
     """Create an own model from the YAML (default) or Python template; returns its folder name."""
-    username = FileHandler.get_user_name(request)
+    username = require_user(request).display_name
     model_slug = slugify(model_name, separator="_")
     folder_path = OWN_MODELS / model_slug
     if folder_path.exists():
@@ -311,7 +310,6 @@ def save_model(
     request: Request = "",
 ):
     """Save an own model's source after a syntax check (YAML: full model validation)."""
-    FileHandler.get_user_name(request)
     path = _own_model_path(model_name, part)
     try:
         if path.suffix == ".yaml":

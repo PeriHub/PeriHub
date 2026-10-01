@@ -53,14 +53,6 @@ class FileHandler:
         # return "./peridigm/src/src/materials/umats/"
 
     @staticmethod
-    def get_user_name(request):
-        """doc"""
-        user_name = request.headers.get("userName")
-        if user_name is not None and user_name != "" and user_name != "undefined":
-            return user_name
-        return "user"
-
-    @staticmethod
     def remove_folder_if_older(path, days, recursive):
         """doc"""
 

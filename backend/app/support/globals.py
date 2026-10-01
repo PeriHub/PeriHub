@@ -49,12 +49,6 @@ session_ttl_seconds = int(os.getenv("SESSION_TTL_SECONDS", default=str(60 * 60 *
 # OAuth2/OIDC login and seat enforcement.
 deployment_mode = os.getenv("DEPLOYMENT_MODE", default="community")
 
-# --- API-key auth ------------------------------------------------------------
-# Comma-separated "name:key" pairs, e.g. "ci:abc123,partner-x:def456".
-# Meant for programmatic/CI callers that shouldn't have to go through the
-# browser-oriented OAuth/OIDC login flow. See support/api_key_auth.py.
-api_keys_raw = os.getenv("API_KEYS", default="")
-
 # --- Audit logging -------------------------------------------------------
 audit_log_path = os.getenv(
     "AUDIT_LOG_PATH",
