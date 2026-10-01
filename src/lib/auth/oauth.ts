@@ -60,7 +60,7 @@ interface LocalAuthResponse {
 }
 
 // A page's onMount runs before the root layout's, so generated-client calls made on mount would
-// otherwise go out before initAuth() has attached the session/userName headers - and the backend
+// otherwise go out before initAuth() has attached the session header - and the backend
 // would answer as the anonymous "user". Every generated-client request waits for initAuth() instead.
 const authHeaders: Record<string, string> = {};
 let markAuthReady = () => {};
@@ -252,8 +252,6 @@ async function setUpAuth() {
   }
 
   console.log('Logged in as ' + uuid);
-  api.defaults.headers.common['userName'] = uuid;
   defaultStore.username = uuid;
   defaultStore.gravatarUrl = gravatarUrl;
-  authHeaders.userName = uuid;
 }

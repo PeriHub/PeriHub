@@ -78,3 +78,35 @@ test('workflow page loads with a working-page title', async ({ page }) => {
   await page.goto('/perihub');
   await expect(page).toHaveTitle(/Model Builder/);
 });
+
+test('protected route sends anonymous visitors to login', async ({ page }) => {
+  await page.route('**/api/config/public', (route) =>
+    route.fulfill({
+      json: {
+        deployment_mode: 'community',
+        guest_access: false,
+        guest_limits: null,
+        oauth_enabled: false
+      }
+    })
+  );
+  await page.goto('/auth/login');
+  await page.goto('/perihub');
+  await expect(page).toHaveURL(/\/auth\/login/);
+});
+
+test('header nav link to the editor also gets guarded client-side', async ({ page }) => {
+  await page.route('**/api/config/public', (route) =>
+    route.fulfill({
+      json: {
+        deployment_mode: 'community',
+        guest_access: false,
+        guest_limits: null,
+        oauth_enabled: false
+      }
+    })
+  );
+  await page.goto('/auth/login');
+  await page.locator('header a[href="/perihub"]').first().click();
+  await expect(page).toHaveURL(/\/auth\/login/);
+});

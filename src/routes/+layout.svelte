@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
   import '../app.css';
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
+  import { afterNavigate, goto } from '$app/navigation';
   import { Toaster } from 'svelte-sonner';
   import Header from '$lib/components/layout/Header.svelte';
   import Footer from '$lib/components/layout/Footer.svelte';
@@ -15,8 +16,10 @@ SPDX-License-Identifier: Apache-2.0
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { initAuth } from '$lib/auth/oauth';
+  import { authStore } from '$lib/stores/auth-store.svelte';
   import { loadPublicConfig } from '$lib/config';
   import { refreshModelFromBackend, modelNeedsRefresh } from '$lib/utils/modelSync';
+  import { isPublicPath } from '$lib/utils/public-routes';
 
   let { children } = $props();
 
@@ -38,6 +41,13 @@ SPDX-License-Identifier: Apache-2.0
   // redirect/fetch and race the page's own handling. So skip it on both
   // and let each page drive auth setup for its one render.
   const skipsOwnInitAuth = ['/auth/callback', '/auth/login'].includes($page.url.pathname);
+
+  // initAuth() only runs once, so client-side navigation (header tabs) has to be re-checked here.
+  let authChecked = false;
+  function guard(path: string) {
+    if (authChecked && !authStore.authenticated && !isPublicPath(path)) goto('/auth/login');
+  }
+  afterNavigate(({ to }) => guard(to?.url.pathname ?? ''));
 
   onMount(() => {
     (async () => {
@@ -63,6 +73,9 @@ SPDX-License-Identifier: Apache-2.0
       if (modelNeedsRefresh(modelStore.selectedModel.file)) {
         resetData();
       }
+
+      authChecked = true;
+      guard(window.location.pathname);
     })();
 
     bus.on('resetData', resetData);
