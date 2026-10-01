@@ -20,6 +20,7 @@ SPDX-License-Identifier: Apache-2.0
   } from '$lib/client';
   import type { LicenseStatus, MeResponse, UsageSummary, VersionData } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
+  import ApiKeysSection from './ApiKeysSection.svelte';
 
   let { open = $bindable(false) }: { open?: boolean } = $props();
 
@@ -107,7 +108,7 @@ SPDX-License-Identifier: Apache-2.0
   <Dialog.Portal>
     <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
     <Dialog.Content
-      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 max-h-[90vh] w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border p-5 shadow-lg"
     >
       <div class="mb-4 flex items-center justify-between">
         <Dialog.Title class="text-lg font-semibold">Settings</Dialog.Title>
@@ -206,6 +207,10 @@ SPDX-License-Identifier: Apache-2.0
           {/if}
         </dl>
       </section>
+
+      {#if authStore.authenticated && !authStore.isGuest}
+        <ApiKeysSection />
+      {/if}
 
       <!-- System -->
       <section class="border-border mt-4 border-t pt-3">

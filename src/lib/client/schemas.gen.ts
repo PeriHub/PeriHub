@@ -377,6 +377,96 @@ export const $AnalysisRequest = {
     title: 'AnalysisRequest'
 } as const;
 
+export const $ApiKeyCreate = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        }
+    },
+    type: 'object',
+    required: ['name'],
+    title: 'ApiKeyCreate'
+} as const;
+
+export const $ApiKeyCreated = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        prefix: {
+            type: 'string',
+            title: 'Prefix'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        last_used_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Last Used At'
+        },
+        key: {
+            type: 'string',
+            title: 'Key'
+        }
+    },
+    type: 'object',
+    required: ['id', 'name', 'prefix', 'created_at', 'last_used_at', 'key'],
+    title: 'ApiKeyCreated'
+} as const;
+
+export const $ApiKeyInfo = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        prefix: {
+            type: 'string',
+            title: 'Prefix'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        last_used_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Last Used At'
+        }
+    },
+    type: 'object',
+    required: ['id', 'name', 'prefix', 'created_at', 'last_used_at'],
+    title: 'ApiKeyInfo'
+} as const;
+
 export const $AuthorizationUrlResponse = {
     properties: {
         authorization_url: {

@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, DeleteRunData, DeleteRunResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, DeleteRunData, DeleteRunResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -37,7 +37,7 @@ export const generateModel = (data: GenerateModelData): CancelablePromise<Genera
  * Coarse point cloud with block ids, drawn by the frontend as the model preview.
  *
  * Runs the generator exactly like /workspaces/{model}/{folder}/generate but with DISCRETIZATION capped and
- * without writing anything, so it needs no user folder and works in trial mode. With
+ * without writing anything, so it needs no user folder and works without an account. With
  * `source`, the model comes from that YAML text instead of the saved file.
  * @param data The data for the request.
  * @param data.modelName
@@ -825,7 +825,7 @@ export const createGuest = (): CancelablePromise<CreateGuestResponse> => { retur
 /**
  * Signup
  * Create a local email/password account in the default organization (seat limit applies) and return a session
- * token. 409 if the email is taken, 422 for passwords under 8 characters.
+ * token. 409 if the email is taken, 422 for passwords under 8 characters or a reserved 'Guest-' display name.
  * @param data The data for the request.
  * @param data.requestBody
  * @returns app__routers__oauth__AuthResponse Successful Response
@@ -869,6 +869,54 @@ export const login = (data: LoginData): CancelablePromise<LoginResponse> => { re
 export const getCurrentUserInfo = (): CancelablePromise<GetCurrentUserInfoResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/auth/me'
+}); };
+
+/**
+ * List Api Keys
+ * The caller's active API keys (never the keys themselves).
+ * @returns ApiKeyInfo Successful Response
+ * @throws ApiError
+ */
+export const listApiKeys = (): CancelablePromise<ListApiKeysResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/auth/api-keys'
+}); };
+
+/**
+ * Create Api Key
+ * Create a key for the caller. The returned `key` is shown only this once.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns ApiKeyCreated Successful Response
+ * @throws ApiError
+ */
+export const createApiKey = (data: CreateApiKeyData): CancelablePromise<CreateApiKeyResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/auth/api-keys',
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Revoke Api Key
+ * Revoke one of the caller's keys; 404 if it isn't theirs or is already revoked.
+ * @param data The data for the request.
+ * @param data.keyId
+ * @returns void Successful Response
+ * @throws ApiError
+ */
+export const revokeApiKey = (data: RevokeApiKeyData): CancelablePromise<RevokeApiKeyResponse> => { return __request(OpenAPI, {
+    method: 'DELETE',
+    url: '/auth/api-keys/{key_id}',
+    path: {
+        key_id: data.keyId
+    },
+    errors: {
+        422: 'Validation Error'
+    }
 }); };
 
 /**

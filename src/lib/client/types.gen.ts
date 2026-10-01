@@ -97,6 +97,27 @@ export type AnalysisRequest = {
     };
 };
 
+export type ApiKeyCreate = {
+    name: string;
+};
+
+export type ApiKeyCreated = {
+    id: string;
+    name: string;
+    prefix: string;
+    created_at: string;
+    last_used_at: string | null;
+    key: string;
+};
+
+export type ApiKeyInfo = {
+    id: string;
+    name: string;
+    prefix: string;
+    created_at: string;
+    last_used_at: string | null;
+};
+
 export type AuthorizationUrlResponse = {
     authorization_url: string;
     state: string;
@@ -1002,6 +1023,20 @@ export type LoginResponse = app__routers__oauth__AuthResponse;
 
 export type GetCurrentUserInfoResponse = MeResponse;
 
+export type ListApiKeysResponse = Array<ApiKeyInfo>;
+
+export type CreateApiKeyData = {
+    requestBody: ApiKeyCreate;
+};
+
+export type CreateApiKeyResponse = ApiKeyCreated;
+
+export type RevokeApiKeyData = {
+    keyId: string;
+};
+
+export type RevokeApiKeyResponse = void;
+
 export type StartOidcLoginResponse = AuthorizationUrlResponse;
 
 export type OidcCallbackData = {
@@ -1697,6 +1732,44 @@ export type $OpenApiTs = {
                  * Successful Response
                  */
                 200: MeResponse;
+            };
+        };
+    };
+    '/auth/api-keys': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: Array<ApiKeyInfo>;
+            };
+        };
+        post: {
+            req: CreateApiKeyData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: ApiKeyCreated;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/auth/api-keys/{key_id}': {
+        delete: {
+            req: RevokeApiKeyData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                204: void;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
             };
         };
     };
