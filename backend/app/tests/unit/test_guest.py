@@ -189,12 +189,21 @@ class _FakeClient:
     def __init__(self, status="running"):
         self.status = status
         self.deleted = []
+        self.log = ""
+        self.log_requests = []
 
     def get_job(self, job_id):
         return PeriLabJob(job_id=job_id, status=self.status)
 
     def delete_job(self, job_id):
         self.deleted.append(job_id)
+
+    def list_files(self, job_id):
+        return []
+
+    def get_log(self, job_id, tail=None):
+        self.log_requests.append((job_id, tail))
+        return self.log
 
 
 class _FakeBackend:

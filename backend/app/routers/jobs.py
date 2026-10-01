@@ -6,8 +6,8 @@ import json
 import os
 from typing import Iterator, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import PlainTextResponse, StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -130,6 +130,20 @@ def _can_view_entry(identity: ResolvedIdentity, entry: JobQueueEntry) -> bool:
     if entry.user_id == identity.user.id:
         return True
     return identity.user.role == "admin" and identity.user.org_id == entry.org_id
+
+
+def _viewable_entry(db: Session, request: Request, run_id: str) -> JobQueueEntry:
+    """The run `run_id` if the caller may see it: 401 without a login, 404 for an unknown id, 403 for
+    someone else's run."""
+    identity = resolve_user(request, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+    entry = db.get(JobQueueEntry, run_id)
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found.")
+    if not _can_view_entry(identity, entry):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+    return entry
 
 
 def _latest_entry(db: Session, user_id: str, model_name: str, model_folder_name: str) -> Optional[JobQueueEntry]:
@@ -440,15 +454,7 @@ def stream_run_log(
     """Streams a run's log as plain text (proxied from PeriLab's own log stream): everything logged so far,
     then new output as PeriLab writes it; the response ends when the job finishes. `debug=false` drops
     "[Debug]" lines. 404 while the run has no PeriLab job/log yet - the frontend retries."""
-    identity = resolve_user(request, db)
-    if identity.user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
-
-    entry = db.get(JobQueueEntry, run_id)
-    if entry is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found.")
-    if not _can_view_entry(identity, entry):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+    entry = _viewable_entry(db, request, run_id)
 
     job_ids = perilab_job_ids(entry)
     if not job_ids:
@@ -478,6 +484,51 @@ def stream_run_log(
     )
 
 
+@router.get("/jobs/{run_id}", operation_id="get_run", response_model=RunStatus)
+def get_run(run_id: str, request: Request, db: Session = Depends(get_db)) -> RunStatus:
+    """Live status of one run (synced with PeriLab first). Poll this with the `run_id` from `run_model` until
+    `status` is final: `queued`/`running` are active; `done`, `failed` and `cancelled` are final. `results` is
+    true once Exodus output exists (then call `get_run_summary`); on `failed`, `error` holds the reason and
+    `get_run_log` the solver output."""
+    entry = _viewable_entry(db, request, run_id)
+    return _to_run_status(entry, sync_status(db, entry))
+
+
+@router.get(
+    "/jobs/{run_id}/log",
+    operation_id="get_run_log",
+    response_class=PlainTextResponse,
+    responses={200: {"content": {"text/plain": {}}, "description": "The end of the run's log"}},
+)
+def get_run_log(
+    run_id: str,
+    request: Request,
+    tail: int = Query(200, ge=1, le=10000, description="Number of trailing log lines to return"),
+    debug: bool = False,
+    db: Session = Depends(get_db),
+) -> str:
+    """The last `tail` lines of a run's PeriLab log as plain text - read this when a run failed. `debug=false`
+    drops "[Debug]" lines (after tailing, so fewer than `tail` lines may come back). 404 while the run has no
+    PeriLab job yet, 503 when PeriLab is offline."""
+    entry = _viewable_entry(db, request, run_id)
+    job_ids = perilab_job_ids(entry)
+    if not job_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No PeriLab job ID associated with this run yet. The job may still be queued.",
+        )
+    # First job only for a batch submission, same as the log stream.
+    try:
+        text = get_solver_backend().client().get_log(job_ids[0], tail)
+    except HTTPException as e:
+        if e.status_code == status.HTTP_503_SERVICE_UNAVAILABLE:
+            raise
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.detail)) from e
+    if not debug:
+        text = "".join(_without_debug_lines(iter([text])))
+    return text
+
+
 @router.delete("/jobs/{run_id}", operation_id="delete_run")
 def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     """Deletes a finished run: its PeriLab job(s) - log and result files -
@@ -485,15 +536,7 @@ def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     folder (input deck) is left alone; it may be shared with other runs."""
     username = user_folder(request)
 
-    identity = resolve_user(request, db)
-    if identity.user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
-
-    entry = db.get(JobQueueEntry, run_id)
-    if entry is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found.")
-    if not _can_view_entry(identity, entry):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+    entry = _viewable_entry(db, request, run_id)
     sync_status(db, entry)
     if entry.status in (JOB_QUEUED, JOB_RUNNING):
         raise HTTPException(
@@ -523,15 +566,7 @@ def cancel_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     names the run, not the folder). 409 if the run is no longer active."""
     username = user_folder(request)
 
-    identity = resolve_user(request, db)
-    if identity.user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
-
-    entry = db.get(JobQueueEntry, run_id)
-    if entry is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Run not found.")
-    if not _can_view_entry(identity, entry):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your run.")
+    entry = _viewable_entry(db, request, run_id)
     if entry.status not in (JOB_QUEUED, JOB_RUNNING):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
