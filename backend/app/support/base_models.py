@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from typing import List, Literal, Optional, Union
 
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from .yaml_field import yaml_field
 
@@ -216,6 +216,43 @@ class GenerateResult(BaseModel):
     model_folder_name: str
     nodes: Optional[int] = None  # None for an uploaded mesh (its points aren't counted)
     blocks: int
+
+
+class VariableRange(BaseModel):
+    min: float
+    max: float
+
+
+class OutputSummary(BaseModel):
+    """One Exodus output at its last written time step."""
+
+    name: str = Field(description='Output name, e.g. "Output1"; deviation runs add their number ("Output1_2")')
+    last_step: int = Field(description="Index of the last written time step (0 = initial state)")
+    final_time: float
+    variables: dict[str, VariableRange] = Field(
+        description="Min/max of every point variable at that step, per component (`Displacementsx`); vectors "
+        "also as magnitude under their base name (`Displacements`)"
+    )
+    globals: dict[str, float] = Field(description="Global variables at that step, e.g. External_Forcesx")
+
+
+class ColumnSummary(BaseModel):
+    final: float
+    min: float
+    max: float
+
+
+class RunSummary(BaseModel):
+    """Compact digest of a run's results, small enough to reason about. Heavy data stays behind get_results
+    (Exodus download), get_plot (full CSV series) and run_analysis (PNG)."""
+
+    run_id: str
+    status: JobStatus
+    outputs: list[OutputSummary]
+    csv: dict[str, dict[str, ColumnSummary]] = Field(
+        description="CSV outputs by name: final/min/max of every numeric column over all steps"
+    )
+    analyses: list[str] = Field(description="ids of the model's @analysis functions, usable with run_analysis")
 
 
 class RunStatus(BaseModel):

@@ -16,15 +16,16 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 
 from ..db import base as db_base
 from ..db.models import JobQueueEntry
-from ..support.base_models import AnalysisRequest, PointDataResults
+from ..support.base_models import AnalysisRequest, PointDataResults, RunSummary
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import log, max_nodes
 from ..support.guest import require_non_guest, user_folder
-from ..support.job_queue import perilab_job_ids
+from ..support.job_queue import perilab_job_ids, sync_status
 from ..support.model import loader
 from ..support.model.model_api import AnalysisContext
 from ..support.model.point_cloud import valves_to_dict
+from ..support.results.summary import summarize
 from ..support.solver_backend import get_solver_backend
 from .jobs import _can_view_entry, _latest_entry
 
@@ -188,6 +189,26 @@ def get_plot(
     # except IOError:
     #     log.error("%s results can not be found on %s", model_name, cluster)
     #     return ResponseModel(data=data, message=model_name + " results can not be found on " + cluster)
+
+
+@router.get("/summary", operation_id="get_run_summary", response_model=RunSummary)
+def get_run_summary(run_id: str, request: Request = "") -> RunSummary:
+    """Compact digest of a run's results - call this once get_run reports `results: true`. Per Exodus output: the
+    last written step, its time, min/max of every point variable (vectors also as magnitude) and the global
+    variables; per CSV output: final/min/max of every column; plus the analyses run_analysis can render. While
+    a run is still active this reflects the output written so far (see `status`). Only available when PeriLab
+    runs locally."""
+    result_dir = _result_folder(request, "", "", run_id)
+    with db_base.SessionLocal() as db:
+        entry = db.get(JobQueueEntry, run_id)
+        sync_status(db, entry)
+        model_name, run_status = entry.model_name, entry.status
+    outputs, csv_outputs = summarize(result_dir, model_name)
+    try:
+        analyses = list(loader.load_analyses(model_name))
+    except LookupError:
+        analyses = []
+    return RunSummary(run_id=run_id, status=run_status, outputs=outputs, csv=csv_outputs, analyses=analyses)
 
 
 @router.get("/download", operation_id="get_results")

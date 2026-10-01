@@ -12,6 +12,7 @@ requests
 python-dotenv
 rich
 exodusreader
+netCDF4
 # pygalmesh
 python-magic
 python-slugify
