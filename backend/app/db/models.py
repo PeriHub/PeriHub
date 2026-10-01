@@ -100,6 +100,22 @@ class User(Base):
         return f"<User {self.display_name} ({self.auth_provider})>"
 
 
+class ApiKey(Base):
+    """A user-generated API key (routers/api_keys.py). Acts as its owner with the owner's role; only the SHA-256 of
+    the key is stored, the key itself is shown once at creation."""
+
+    __tablename__ = "api_keys"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    prefix: Mapped[str] = mapped_column(String(12), nullable=False)
+    key_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
 class OAuthIdentity(Base):
     """Links an external OAuth2/OIDC identity to a User.
 

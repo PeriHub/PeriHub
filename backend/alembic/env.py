@@ -30,6 +30,7 @@ if str(_ROOT) not in sys.path:
 from app.db.base import Base
 from app.db.models import (  # noqa: F401
     AdminSetting,
+    ApiKey,
     JobQueueEntry,
     Material,
     ModelConfig,
