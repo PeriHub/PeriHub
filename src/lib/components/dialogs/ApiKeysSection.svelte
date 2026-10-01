@@ -6,37 +6,57 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { Copy, Trash2 } from 'lucide-svelte';
-  import { toast } from 'svelte-sonner';
   import { createApiKey, listApiKeys, revokeApiKey } from '$lib/client';
   import type { ApiKeyInfo } from '$lib/client';
+  import { notify } from '$lib/utils/notify';
   import Button from '$lib/components/ui/Button.svelte';
   import Input from '$lib/components/ui/Input.svelte';
 
   let keys = $state<ApiKeyInfo[]>([]);
   let name = $state('');
   let newKey = $state<string | null>(null);
+  let busy = $state(false);
 
   async function load() {
-    keys = await listApiKeys();
+    try {
+      keys = await listApiKeys();
+    } catch (error) {
+      notify.apiError(error);
+    }
   }
 
   async function create() {
-    const created = await createApiKey({ requestBody: { name } });
-    newKey = created.key;
-    name = '';
-    await load();
+    busy = true;
+    try {
+      const created = await createApiKey({ requestBody: { name: name.trim() } });
+      newKey = created.key;
+      name = '';
+      await load();
+    } catch (error) {
+      notify.apiError(error);
+    } finally {
+      busy = false;
+    }
   }
 
   async function revoke(key: ApiKeyInfo) {
     if (!confirm(`Revoke "${key.name}"? Scripts using it will stop working.`)) return;
-    await revokeApiKey({ keyId: key.id });
-    await load();
+    try {
+      await revokeApiKey({ keyId: key.id });
+      await load();
+    } catch (error) {
+      notify.apiError(error);
+    }
   }
 
   async function copy() {
     if (!newKey) return;
-    await navigator.clipboard.writeText(newKey);
-    toast.success('API key copied');
+    try {
+      await navigator.clipboard.writeText(newKey);
+      notify.positive('API key copied');
+    } catch (error) {
+      notify.apiError(error);
+    }
   }
 
   const date = (value?: string | null) => (value ? new Date(value).toLocaleDateString() : '—');
@@ -96,7 +116,7 @@ SPDX-License-Identifier: Apache-2.0
       maxlength={100}
       aria-label="API key name"
     />
-    <Button type="submit" size="sm" disabled={!name.trim()}>Create</Button>
+    <Button type="submit" size="sm" disabled={!name.trim() || busy}>Create</Button>
   </form>
   <p class="text-muted-foreground mt-1 text-xs">
     Send as the <code>X-Api-Key</code> header. A key has the same access as your account.
