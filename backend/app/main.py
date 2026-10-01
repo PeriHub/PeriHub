@@ -135,6 +135,8 @@ app = FastAPI(
     lifespan=lifespan,
     version="4.0.0",
     dependencies=[Security(_api_key), Security(_bearer)],
+    # ModelData is both a request body and get_config's response; keep one schema instead of -Input/-Output.
+    separate_input_output_schemas=False,
 )
 
 

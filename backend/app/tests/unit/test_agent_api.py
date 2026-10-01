@@ -92,6 +92,8 @@ def test_workflow_responses_are_typed():
         assert ops[name]["responses"]["200"]["content"]["application/json"]["schema"] != {}, name
     run_status = app.openapi()["components"]["schemas"]["RunStatus"]["properties"]["status"]
     assert run_status["enum"] == ["queued", "running", "done", "failed", "cancelled"]
+    # one ModelData schema for request and response, not ModelData-Input/-Output (the frontend imports ModelData)
+    assert "ModelData" in app.openapi()["components"]["schemas"]
 
 
 @pytest.mark.parametrize("path", sorted(glob.glob("./models/*/*.json")))
