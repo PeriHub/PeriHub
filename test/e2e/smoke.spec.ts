@@ -4,10 +4,35 @@
 
 import { expect, test } from '@playwright/test';
 
-// No backend in e2e: pretend to be a trial deployment so initAuth() doesn't redirect to /auth/login.
+// No backend in e2e: pretend guest access is on so initAuth() gets a session instead of
+// redirecting to /auth/login. /auth/me answers as a member so the full nav (incl. Models) shows.
 test.beforeEach(async ({ page }) => {
   await page.route('**/api/config/public', (route) =>
-    route.fulfill({ json: { deployment_mode: 'trial', trial: true, oauth_enabled: false } })
+    route.fulfill({
+      json: {
+        deployment_mode: 'community',
+        guest_access: true,
+        guest_limits: null,
+        oauth_enabled: false
+      }
+    })
+  );
+  await page.route('**/api/auth/guest', (route) =>
+    route.fulfill({
+      json: { token: 'e2e-token', user_id: 'e2e', display_name: 'e2e', role: 'member' }
+    })
+  );
+  await page.route('**/api/auth/me', (route) =>
+    route.fulfill({
+      json: {
+        user_id: 'e2e',
+        email: null,
+        display_name: 'e2e',
+        role: 'member',
+        auth_provider: 'local',
+        org_id: null
+      }
+    })
   );
 });
 
