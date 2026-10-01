@@ -10,7 +10,7 @@ import magic
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 
 # from ..support.base_models import
-from ..support.file_handler import FileHandler
+from ..support.file_handler import FileHandler, safe_segment
 from ..support.globals import log
 from ..support.guest import require_non_guest, user_folder
 
@@ -67,6 +67,7 @@ async def upload_files(
 
     meshfile_name = ""
     for file in files:
+        safe_segment(file.filename)
         file_location = localpath + f"/{file.filename}"
         with open(file_location, "wb+") as file_object:
             shutil.copyfileobj(file.file, file_object)

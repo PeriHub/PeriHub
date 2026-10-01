@@ -17,7 +17,7 @@ from slugify import slugify
 from ..db import base
 from ..support.base_models import AnalysisInfo, ModelData, PointData, Valves
 from ..support.db_auth import resolve_user
-from ..support.file_handler import FileHandler
+from ..support.file_handler import FileHandler, safe_segment
 from ..support.globals import log, max_nodes
 from ..support.guest import require_user, user_folder
 from ..support.model import loader, mesh_readers
@@ -81,6 +81,7 @@ def get_analyses(model_name: str) -> list[AnalysisInfo]:
 def get_config(model_name: str = "Dogbone") -> JSONResponse:
     """A model's default ModelData config (`<Name>.json`); a built-in model wins over an own model of the same name."""
 
+    safe_segment(model_name)
     config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "models",
@@ -125,6 +126,7 @@ def require_model_author(request: Request) -> None:
 def save_config(model_name: str, config: ModelData, request: Request = ""):
     """Overwrite a model's default config with `config`, dropping empty top-level sections. Does nothing if the model
     has no config file."""
+    safe_segment(model_name)
     config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
         "models",
@@ -166,8 +168,8 @@ def get_model(
     """Download a model folder (input deck, mesh, uploads) as a zip."""
     username = user_folder(request)
 
-    folder_path = os.path.join(FileHandler.get_local_user_path(username), model_name)
-    zip_file = os.path.join(folder_path, model_name + "_" + model_folder_name)
+    folder_path = FileHandler.get_local_model_path(username, model_name)
+    zip_file = os.path.join(folder_path, model_name + "_" + safe_segment(model_folder_name))
     try:
         shutil.make_archive(zip_file, "zip", os.path.join(folder_path, model_folder_name))
 
@@ -198,6 +200,8 @@ def get_point_data(
     the node limit are thinned."""
     username = user_folder(request)
     folder = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
+    if mesh_file is not None:
+        safe_segment(mesh_file)
     try:
         xyz, block = mesh_readers.read_points(os.path.join(folder, mesh_file or model_name + ".txt"), two_d)
     except FileNotFoundError:

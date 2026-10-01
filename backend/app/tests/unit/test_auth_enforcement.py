@@ -9,7 +9,7 @@ from starlette.requests import Request
 
 from backend.app.db import base
 from backend.app.db.models import ApiKey, User
-from backend.app.support.api_keys import generate_key, hash_key
+from backend.app.support.api_keys import KEY_PREFIX_LEN, generate_key, hash_key
 from backend.app.support.db_auth import resolve_user
 from backend.app.support.file_handler import FileHandler
 
@@ -45,7 +45,7 @@ def test_api_key_resolves_owner_and_tracks_last_use(client):
     body = _signup(client)
     key = generate_key()
     with base.SessionLocal() as db:
-        db.add(ApiKey(user_id=body["user_id"], name="ci", prefix=key[:12], key_hash=hash_key(key)))
+        db.add(ApiKey(user_id=body["user_id"], name="ci", prefix=key[:KEY_PREFIX_LEN], key_hash=hash_key(key)))
         db.commit()
         identity = resolve_user(_request({"X-Api-Key": key}), db)
         assert identity.user.id == body["user_id"]
@@ -62,7 +62,7 @@ def test_unknown_or_revoked_api_key_resolves_nobody(client):
             ApiKey(
                 user_id=body["user_id"],
                 name="old",
-                prefix=key[:12],
+                prefix=key[:KEY_PREFIX_LEN],
                 key_hash=hash_key(key),
                 revoked_at=datetime.now(timezone.utc),
             )

@@ -20,6 +20,18 @@ from natsort import natsorted
 from ..support.globals import log
 
 
+def safe_segment(name: str) -> str:
+    """A single filesystem path segment, safe to join onto a trusted base path. Starlette percent-decodes path
+    params (%2E%2E -> ..) and query/body strings are never decoded at all, so any of these must be rejected before
+    they reach os.path.join/os.path.join-like string concatenation - otherwise ".." (or an embedded "/"/"\\")
+    escapes the caller's own folder. Raises 400 rather than silently rewriting the value, so callers can't be
+    fooled into thinking their file landed where they asked."""
+
+    if not name or name in (".", "..") or "/" in name or "\\" in name or "\0" in name:
+        raise HTTPException(status_code=400, detail="Invalid path segment.")
+    return name
+
+
 class FileHandler:
     """doc"""
 
@@ -36,19 +48,19 @@ class FileHandler:
     def get_local_user_path(username):
         """doc"""
 
-        return os.path.join(FileHandler.get_local_simulation_path(), username)
+        return os.path.join(FileHandler.get_local_simulation_path(), safe_segment(username))
 
     @staticmethod
     def get_local_model_path(username, model_name):
         """doc"""
 
-        return os.path.join(FileHandler.get_local_user_path(username), model_name)
+        return os.path.join(FileHandler.get_local_user_path(username), safe_segment(model_name))
 
     @staticmethod
     def get_local_model_folder_path(username, model_name, model_folder_name):
         """doc"""
 
-        return os.path.join(FileHandler.get_local_model_path(username, model_name), model_folder_name)
+        return os.path.join(FileHandler.get_local_model_path(username, model_name), safe_segment(model_folder_name))
 
         # return "./peridigm/src/src/materials/umats/"
 

@@ -13,7 +13,7 @@ import hashlib
 import secrets
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from ..db.models import ApiKey, User
@@ -39,6 +39,7 @@ def user_from_api_key(db: Session, key: str) -> User | None:
     if row is None:
         return None
     api_key, user = row
-    api_key.last_used_at = datetime.now(timezone.utc)
+    db.execute(update(ApiKey).where(ApiKey.id == api_key.id).values(last_used_at=datetime.now(timezone.utc)))
     db.commit()
+    db.refresh(user)
     return user

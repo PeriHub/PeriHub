@@ -37,7 +37,7 @@ from ..support import audit_log
 from ..support.admin_settings import instance_setting
 from ..support.base_models import ModelData, RunStatus, Status
 from ..support.db_auth import ResolvedIdentity, resolve_user
-from ..support.file_handler import FileHandler
+from ..support.file_handler import FileHandler, safe_segment
 from ..support.globals import log
 from ..support.guest import GUEST_DENIED, user_folder
 from ..support.job_concurrency import count_active_local_jobs
@@ -339,6 +339,8 @@ def get_status(
     if os.path.exists(localpath):
         job_status.created = True
 
+    if meshfile is not None:
+        safe_segment(meshfile)
     if meshfile is None or os.path.exists(os.path.join(localpath, meshfile)):
         job_status.meshfileExist = True
 
