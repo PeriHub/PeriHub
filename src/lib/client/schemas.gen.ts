@@ -959,6 +959,26 @@ export const $BoundaryConditions = {
     title: 'BoundaryConditions'
 } as const;
 
+export const $ColumnSummary = {
+    properties: {
+        final: {
+            type: 'number',
+            title: 'Final'
+        },
+        min: {
+            type: 'number',
+            title: 'Min'
+        },
+        max: {
+            type: 'number',
+            title: 'Max'
+        }
+    },
+    type: 'object',
+    required: ['final', 'min', 'max'],
+    title: 'ColumnSummary'
+} as const;
+
 export const $Compute = {
     properties: {
         computesId: {
@@ -1697,6 +1717,38 @@ export const $Gcode = {
     type: 'object',
     required: ['overwriteMesh', 'sampling', 'width', 'height', 'scale'],
     title: 'Gcode'
+} as const;
+
+export const $GenerateResult = {
+    properties: {
+        model_name: {
+            type: 'string',
+            title: 'Model Name'
+        },
+        model_folder_name: {
+            type: 'string',
+            title: 'Model Folder Name'
+        },
+        nodes: {
+            anyOf: [
+                {
+                    type: 'integer'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Nodes'
+        },
+        blocks: {
+            type: 'integer',
+            title: 'Blocks'
+        }
+    },
+    type: 'object',
+    required: ['model_name', 'model_folder_name', 'blocks'],
+    title: 'GenerateResult',
+    description: 'What generate_model wrote into the model folder; the folder can now be submitted with run_model.'
 } as const;
 
 export const $HTTPValidationError = {
@@ -3241,6 +3293,45 @@ export const $Output = {
     title: 'Output'
 } as const;
 
+export const $OutputSummary = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name',
+            description: 'Output name, e.g. "Output1"; deviation runs add their number ("Output1_2")'
+        },
+        last_step: {
+            type: 'integer',
+            title: 'Last Step',
+            description: 'Index of the last written time step (0 = initial state)'
+        },
+        final_time: {
+            type: 'number',
+            title: 'Final Time'
+        },
+        variables: {
+            additionalProperties: {
+                '$ref': '#/components/schemas/VariableRange'
+            },
+            type: 'object',
+            title: 'Variables',
+            description: 'Min/max of every point variable at that step, per component (`Displacementsx`); vectors also as magnitude under their base name (`Displacements`)'
+        },
+        globals: {
+            additionalProperties: {
+                type: 'number'
+            },
+            type: 'object',
+            title: 'Globals',
+            description: 'Global variables at that step, e.g. External_Forcesx'
+        }
+    },
+    type: 'object',
+    required: ['name', 'last_step', 'final_time', 'variables', 'globals'],
+    title: 'OutputSummary',
+    description: 'One Exodus output at its last written time step.'
+} as const;
+
 export const $Parameter = {
     properties: {
         parameterId: {
@@ -3568,6 +3659,30 @@ export const $ProjectOut = {
     title: 'ProjectOut'
 } as const;
 
+export const $RunCancelled = {
+    properties: {
+        cancelled: {
+            type: 'string',
+            title: 'Cancelled'
+        }
+    },
+    type: 'object',
+    required: ['cancelled'],
+    title: 'RunCancelled'
+} as const;
+
+export const $RunDeleted = {
+    properties: {
+        deleted: {
+            type: 'string',
+            title: 'Deleted'
+        }
+    },
+    type: 'object',
+    required: ['deleted'],
+    title: 'RunDeleted'
+} as const;
+
 export const $RunStatus = {
     properties: {
         id: {
@@ -3584,6 +3699,7 @@ export const $RunStatus = {
         },
         status: {
             type: 'string',
+            enum: ['queued', 'running', 'done', 'failed', 'cancelled'],
             title: 'Status'
         },
         perilab_job_id: {
@@ -3707,7 +3823,82 @@ export const $RunStatus = {
 stable for the life of the run, independent of how many times its
 model_name/model_folder_name has been resubmitted before or since).
 This is the authoritative per-run detail; Status/Jobs only carry a
-same-shaped snapshot of the latest run for quick folder-level display.`
+same-shaped snapshot of the latest run for quick folder-level display.
+\`status\`: queued/running are active; done, failed and cancelled are final.`
+} as const;
+
+export const $RunSubmitted = {
+    properties: {
+        run_id: {
+            type: 'string',
+            title: 'Run Id'
+        },
+        status: {
+            type: 'string',
+            enum: ['queued', 'running', 'done', 'failed', 'cancelled'],
+            title: 'Status'
+        },
+        perilab_job_id: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Perilab Job Id'
+        }
+    },
+    type: 'object',
+    required: ['run_id', 'status'],
+    title: 'RunSubmitted',
+    description: 'A submitted run: poll GET /jobs/{run_id} (`get_run`) until its status is final.'
+} as const;
+
+export const $RunSummary = {
+    properties: {
+        run_id: {
+            type: 'string',
+            title: 'Run Id'
+        },
+        status: {
+            type: 'string',
+            enum: ['queued', 'running', 'done', 'failed', 'cancelled'],
+            title: 'Status'
+        },
+        outputs: {
+            items: {
+                '$ref': '#/components/schemas/OutputSummary'
+            },
+            type: 'array',
+            title: 'Outputs'
+        },
+        csv: {
+            additionalProperties: {
+                additionalProperties: {
+                    '$ref': '#/components/schemas/ColumnSummary'
+                },
+                type: 'object'
+            },
+            type: 'object',
+            title: 'Csv',
+            description: 'CSV outputs by name: final/min/max of every numeric column over all steps'
+        },
+        analyses: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Analyses',
+            description: "ids of the model's @analysis functions, usable with run_analysis"
+        }
+    },
+    type: 'object',
+    required: ['run_id', 'status', 'outputs', 'csv', 'analyses'],
+    title: 'RunSummary',
+    description: `Compact digest of a run's results, small enough to reason about. Heavy data stays behind get_results
+(Exodus download), get_plot (full CSV series) and run_analysis (PNG).`
 } as const;
 
 export const $SignupRequest = {
@@ -4281,7 +4472,7 @@ export const $Status = {
 *most recently submitted* run for this model_name/model_folder_name.
 A folder can have more than one run over time (re-submissions) - use
 \`run_id\` with GET /jobs/{run_id} for authoritative detail on that
-specific run, or GET /jobs/{model_name}/{model_folder_name}/runs for
+specific run, or GET /jobs/runs for
 the full history, rather than assuming this is "the" run.`
 } as const;
 
@@ -4701,6 +4892,22 @@ export const $Valves = {
             }
         ]
     }
+} as const;
+
+export const $VariableRange = {
+    properties: {
+        min: {
+            type: 'number',
+            title: 'Min'
+        },
+        max: {
+            type: 'number',
+            title: 'Max'
+        }
+    },
+    type: 'object',
+    required: ['min', 'max'],
+    title: 'VariableRange'
 } as const;
 
 export const $Verlet = {

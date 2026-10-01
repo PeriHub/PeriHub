@@ -202,6 +202,12 @@ export type BoundaryConditions = {
     conditions: Array<BoundaryCondition>;
 };
 
+export type ColumnSummary = {
+    final: number;
+    min: number;
+    max: number;
+};
+
 export type Compute = {
     computesId?: number | null;
     computeClass: string;
@@ -303,6 +309,16 @@ export type Gcode = {
     height: number;
     scale: number;
     blockFunctions?: Array<BlockFunction> | null;
+};
+
+/**
+ * What generate_model wrote into the model folder; the folder can now be submitted with run_model.
+ */
+export type GenerateResult = {
+    model_name: string;
+    model_folder_name: string;
+    nodes?: number | null;
+    blocks: number;
 };
 
 export type HTTPValidationError = {
@@ -502,6 +518,33 @@ export type Output = {
     InitStep: number;
 };
 
+/**
+ * One Exodus output at its last written time step.
+ */
+export type OutputSummary = {
+    /**
+     * Output name, e.g. "Output1"; deviation runs add their number ("Output1_2")
+     */
+    name: string;
+    /**
+     * Index of the last written time step (0 = initial state)
+     */
+    last_step: number;
+    final_time: number;
+    /**
+     * Min/max of every point variable at that step, per component (`Displacementsx`); vectors also as magnitude under their base name (`Displacements`)
+     */
+    variables: {
+        [key: string]: VariableRange;
+    };
+    /**
+     * Global variables at that step, e.g. External_Forcesx
+     */
+    globals: {
+        [key: string]: (number);
+    };
+};
+
 export type Parameter = {
     parameterId?: number | null;
     id: Array<(string)>;
@@ -570,18 +613,27 @@ export type ProjectOut = {
     created_by: string;
 };
 
+export type RunCancelled = {
+    cancelled: string;
+};
+
+export type RunDeleted = {
+    deleted: string;
+};
+
 /**
  * Full status of a single run, keyed by its own id (JobQueueEntry.id -
  * stable for the life of the run, independent of how many times its
  * model_name/model_folder_name has been resubmitted before or since).
  * This is the authoritative per-run detail; Status/Jobs only carry a
  * same-shaped snapshot of the latest run for quick folder-level display.
+ * `status`: queued/running are active; done, failed and cancelled are final.
  */
 export type RunStatus = {
     id: string;
     model_name: string;
     model_folder_name: string;
-    status: string;
+    status: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
     perilab_job_id?: string | null;
     submitted_at?: string | null;
     started_at?: string | null;
@@ -595,6 +647,39 @@ export type RunStatus = {
     model?: {
     [key: string]: unknown;
 } | null;
+};
+
+export type status = 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+
+/**
+ * A submitted run: poll GET /jobs/{run_id} (`get_run`) until its status is final.
+ */
+export type RunSubmitted = {
+    run_id: string;
+    status: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+    perilab_job_id?: string | null;
+};
+
+/**
+ * Compact digest of a run's results, small enough to reason about. Heavy data stays behind get_results
+ * (Exodus download), get_plot (full CSV series) and run_analysis (PNG).
+ */
+export type RunSummary = {
+    run_id: string;
+    status: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+    outputs: Array<OutputSummary>;
+    /**
+     * CSV outputs by name: final/min/max of every numeric column over all steps
+     */
+    csv: {
+        [key: string]: {
+            [key: string]: ColumnSummary;
+        };
+    };
+    /**
+     * ids of the model's @analysis functions, usable with run_analysis
+     */
+    analyses: Array<(string)>;
 };
 
 export type SignupRequest = {
@@ -649,7 +734,7 @@ export type Static = {
  * *most recently submitted* run for this model_name/model_folder_name.
  * A folder can have more than one run over time (re-submissions) - use
  * `run_id` with GET /jobs/{run_id} for authoritative detail on that
- * specific run, or GET /jobs/{model_name}/{model_folder_name}/runs for
+ * specific run, or GET /jobs/runs for
  * the full history, rather than assuming this is "the" run.
  */
 export type Status = {
@@ -737,6 +822,11 @@ export type Valves = {
     valves: Array<Valve>;
 };
 
+export type VariableRange = {
+    min: number;
+    max: number;
+};
+
 export type Verlet = {
     numericalDamping?: number | null;
     outputFrequency?: number;
@@ -768,7 +858,7 @@ export type GenerateModelData = {
     requestBody: Body_generate_model;
 };
 
-export type GenerateModelResponse = unknown;
+export type GenerateModelResponse = GenerateResult;
 
 export type PreviewModelData = {
     modelName: string;
@@ -810,7 +900,7 @@ export type GetConfigData = {
     modelName: string;
 };
 
-export type GetConfigResponse = unknown;
+export type GetConfigResponse = ModelData;
 
 export type SaveConfigData = {
     modelName: string;
@@ -895,7 +985,7 @@ export type RunModelData = {
     verbose?: boolean;
 };
 
-export type RunModelResponse = unknown;
+export type RunModelResponse = RunSubmitted;
 
 export type GetJobFoldersData = {
     modelName: string;
@@ -920,17 +1010,34 @@ export type StreamRunLogData = {
 
 export type StreamRunLogResponse = unknown;
 
+export type GetRunData = {
+    runId: string;
+};
+
+export type GetRunResponse = RunStatus;
+
 export type DeleteRunData = {
     runId: string;
 };
 
-export type DeleteRunResponse = unknown;
+export type DeleteRunResponse = RunDeleted;
+
+export type GetRunLogData = {
+    debug?: boolean;
+    runId: string;
+    /**
+     * Number of trailing log lines to return
+     */
+    tail?: number;
+};
+
+export type GetRunLogResponse = string;
 
 export type CancelRunData = {
     runId: string;
 };
 
-export type CancelRunResponse = unknown;
+export type CancelRunResponse = RunCancelled;
 
 export type RunAnalysisData = {
     analysisId: string;
@@ -950,7 +1057,15 @@ export type GetPlotData = {
     runId?: string | null;
 };
 
-export type GetPlotResponse = unknown;
+export type GetPlotResponse = {
+    [key: string]: Array<(number | string)>;
+};
+
+export type GetRunSummaryData = {
+    runId: string;
+};
+
+export type GetRunSummaryResponse = RunSummary;
 
 export type GetResultsData = {
     allData?: boolean;
@@ -1181,7 +1296,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: GenerateResult;
                 /**
                  * Validation Error
                  */
@@ -1271,7 +1386,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: ModelData;
                 /**
                  * Validation Error
                  */
@@ -1430,7 +1545,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: RunSubmitted;
                 /**
                  * Validation Error
                  */
@@ -1494,13 +1609,41 @@ export type $OpenApiTs = {
         };
     };
     '/jobs/{run_id}': {
+        get: {
+            req: GetRunData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: RunStatus;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
         delete: {
             req: DeleteRunData;
             res: {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: RunDeleted;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/jobs/{run_id}/log': {
+        get: {
+            req: GetRunLogData;
+            res: {
+                /**
+                 * The end of the run's log
+                 */
+                200: string;
                 /**
                  * Validation Error
                  */
@@ -1515,7 +1658,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: RunCancelled;
                 /**
                  * Validation Error
                  */
@@ -1545,7 +1688,24 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: unknown;
+                200: {
+                    [key: string]: Array<(number | string)>;
+                };
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/results/summary': {
+        get: {
+            req: GetRunSummaryData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: RunSummary;
                 /**
                  * Validation Error
                  */
