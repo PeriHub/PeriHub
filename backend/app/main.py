@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .routers import admin as admin_router
+from .routers import api_keys as api_keys_router
 from .routers import auth as auth_router
 from .routers import config as config_router
 from .routers import delete, docs, energy, generate, jobs, library
@@ -165,6 +166,7 @@ app.include_router(energy.router)
 app.include_router(usage.router)
 app.include_router(license_router.router)
 app.include_router(auth_router.router)
+app.include_router(api_keys_router.router)
 app.include_router(oauth_router.router)
 app.include_router(library.router)
 app.include_router(projects_router.router)
