@@ -208,37 +208,23 @@ async def run_model(
     """Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. Requires a
     database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
     offline, 404 when this folder already has an active run."""
+    # user_folder() already 401s without a login, and the `db` dependency above
+    # 500s without a DATABASE_URL - so by this point the caller is always a
+    # logged-in, database-backed account and db_user below is never None.
     username = user_folder(request)
 
-    # Fair-share queueing requires knowing which DB user is submitting -
-    # every submission now requires a database-backed account (see the
-    # 501 below), so this is always resolvable.
+    # Fair-share queueing requires knowing which DB user is submitting.
     identity = resolve_user(request, db)
     db_user = identity.user
-    if db_user is not None and db_user.role == "guest":
+    if db_user.role == "guest":
         # Guests may only run a single job (no job_ids batches fanning out PeriLab jobs).
         if job_ids != "-1":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=GUEST_DENIED)
-    if db_user is not None:
-        try:
-            enforce_user_quota(db, db_user)
-        except ValueError as exc:
-            audit_log.record(username, "run_model", model_name, request, result="rejected_quota")
-            raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(exc)) from exc
-
-    # Submitting a simulation always requires a database-backed account
-    # (DATABASE_URL configured, and a real login rather than an API
-    # key session) - status, log streaming and cancel are tracked
-    # per-account, with no filesystem-only fallback.
-    if db_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail=(
-                "Submitting a simulation requires a database-backed account "
-                "(DATABASE_URL configured, and a real login rather than an API key "
-                "session)."
-            ),
-        )
+    try:
+        enforce_user_quota(db, db_user)
+    except ValueError as exc:
+        audit_log.record(username, "run_model", model_name, request, result="rejected_quota")
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=str(exc)) from exc
 
     # Instance-wide back-pressure: jobs run through the PeriLab API, so cap
     # how many can be in flight at once instead of silently piling them
