@@ -8,11 +8,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import requests
-from fastapi import (
-    FastAPI,
-    HTTPException,
-)
+from fastapi import FastAPI, HTTPException, Security
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import APIKeyHeader, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 
 from .routers import admin as admin_router
@@ -126,7 +124,17 @@ async def lifespan(app: FastAPI):
         sweeper.cancel()
 
 
-app = FastAPI(openapi_tags=tags_metadata, lifespan=lifespan, version="4.0.0")
+# Declared only so the OpenAPI spec says how to authenticate; resolve_user() does the actual check, and
+# auto_error=False keeps public endpoints (login, /config/public, ...) public.
+_api_key = APIKeyHeader(name="X-Api-Key", auto_error=False, description="Personal API key (user settings)")
+_bearer = HTTPBearer(auto_error=False, description="Session token from POST /auth/login")
+
+app = FastAPI(
+    openapi_tags=tags_metadata,
+    lifespan=lifespan,
+    version="4.0.0",
+    dependencies=[Security(_api_key), Security(_bearer)],
+)
 
 
 banner = rf"""

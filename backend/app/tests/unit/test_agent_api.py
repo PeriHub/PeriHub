@@ -149,3 +149,10 @@ def test_get_run_summary(client, backend, monkeypatch, tmp_path):
     assert [o["name"] for o in body["outputs"]] == ["Output1"]
     assert body["csv"]["Output2"]["Force"] == {"final": 5.0, "min": 0.0, "max": 5.0}
     assert body["analyses"] == list(loader.load_analyses("Dogbone"))
+
+
+def test_auth_schemes_are_declared():
+    spec = app.openapi()
+    assert set(spec["components"]["securitySchemes"]) == {"APIKeyHeader", "HTTPBearer"}
+    assert spec["components"]["securitySchemes"]["APIKeyHeader"]["name"] == "X-Api-Key"
+    assert {"APIKeyHeader": []} in _operations(spec)["run_model"]["security"]
