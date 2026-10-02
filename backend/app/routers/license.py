@@ -2,10 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from ..support import license_client
 from ..support.base_models import LicenseStatus
+from .admin import require_admin
 
 router = APIRouter(prefix="/license", tags=["License Methods"])
 
@@ -18,16 +19,12 @@ def get_license_status() -> LicenseStatus:
     return license_client.get_status()
 
 
-@router.post("/refresh", operation_id="refresh_license")
+@router.post("/refresh", operation_id="refresh_license", dependencies=[Depends(require_admin)])
 def refresh_license() -> LicenseStatus:
     """Force an immediate re-check against the license server instead of
     waiting for the normal refresh interval - useful right after a plan
     change, or for ops to confirm a new license key was picked up.
 
-    NOTE: unauthenticated for now, matching the rest of this router set (see
-    the security roadmap item on trusted-header auth). This only *reads* the
-    license server and can't grant anything beyond what it's actually
-    entitled to, but a real deployment should still restrict who can trigger
-    it to avoid needless load on the license server.
+    Admins only, so nobody else can put needless load on the license server.
     """
     return license_client.get_status(force_refresh=True)

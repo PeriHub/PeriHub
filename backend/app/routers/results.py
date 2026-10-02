@@ -18,7 +18,7 @@ from ..db import base as db_base
 from ..db.models import JobQueueEntry
 from ..support.base_models import AnalysisRequest, PointDataResults, RunSummary
 from ..support.db_auth import resolve_user
-from ..support.file_handler import FileHandler
+from ..support.file_handler import FileHandler, safe_segment
 from ..support.globals import log, max_nodes
 from ..support.guest import require_non_guest, user_folder
 from ..support.job_queue import perilab_job_ids, sync_status
@@ -141,7 +141,8 @@ def get_plot(
 ) -> JSONResponse:
     """A run's global CSV output as `{column: values}` for the charts. With `deviations_enabled`, every deviation
     run's CSV is included and its columns are suffixed with the run's number."""
-    resultpath = _result_folder(request, model_name, model_folder_name, run_id)
+    safe_segment(output)
+    resultpath = _result_folder(request, safe_segment(model_name), model_folder_name, run_id)
 
     matching_files = FileHandler.get_all_output_files_with_extension(
         resultpath, model_name, output, ".csv", deviations_enabled
@@ -225,7 +226,7 @@ def get_results(
     username = user_folder(request)
 
     resultpath = FileHandler.get_local_model_path(username, model_name)
-    zip_file = os.path.join(resultpath, model_name + "_" + model_folder_name)
+    zip_file = os.path.join(resultpath, model_name + "_" + safe_segment(model_folder_name))
     result_folder = _result_folder(request, model_name, model_folder_name, run_id)
 
     # check if folder contains only one .e file
@@ -382,7 +383,8 @@ def get_data(
     `variable`/`axis`, optionally clamped to the color-bar range and restricted to points where the `filter`
     variable is non-zero. Falls back to the last step when `step` is out of range, and to the first available
     variable when `variable` doesn't exist."""
-    resultpath = _result_folder(request, model_name, model_folder_name, run_id)
+    safe_segment(output)
+    resultpath = _result_folder(request, safe_segment(model_name), model_folder_name, run_id)
     file = os.path.join(resultpath, model_name + "_" + output + ".e")
 
     if not os.path.exists(file):

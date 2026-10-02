@@ -21,7 +21,6 @@ from ..support.file_handler import FileHandler
 from ..support.globals import log
 from ..support.guest import DB_LESS_USER, GUEST_DENIED, apply_guest_limits, current_user, guest_limits
 from ..support.model.point_cloud import build_point_cloud, valves_to_dict
-from ..support.model.yaml_model import ModelSpecError
 from ..support.writer.model_writer import ModelWriter
 
 # from ..models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
@@ -37,6 +36,9 @@ from ..support.writer.model_writer import ModelWriter
 router = APIRouter(tags=["Generate Methods"])
 
 ACCOUNT_MAX_NODES = 1_000_000  # node cap for real accounts; guests use the guest_max_nodes setting
+# The bounding-box grid is built before points outside the body are dropped, so it may exceed the node cap - but not
+# by more than this factor, or one request could allocate gigabytes before the node check ever runs.
+GRID_FACTOR = 10
 
 
 @router.post(
@@ -106,11 +108,11 @@ def generate_model(
 
         valves_dict = valves_to_dict(valves)
         try:
-            cloud = build_point_cloud(model_name, data, valves_dict)
+            cloud = build_point_cloud(model_name, data, valves_dict, max_grid_points=max_nodes * GRID_FACTOR)
         except LookupError as e:
             log.error(e)
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
-        except ModelSpecError as e:
+        except ValueError as e:  # ModelSpecError, or a grid over max_grid_points
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
         dx_value, vol, k = cloud["dx"], cloud["volume"], cloud["block"]
         x_value, y_value, z_value = cloud["x"], cloud["y"], cloud["z"]
@@ -200,6 +202,8 @@ def generate_model(
 
 PREVIEW_MAX_DISCRETIZATION = 30
 PREVIEW_MAX_POINTS = 5000
+# A capped DISCRETIZATION keeps normal previews tiny, but unsaved YAML can set geometry.spacing directly.
+PREVIEW_MAX_GRID_POINTS = 1_000_000
 
 
 class PreviewBlock(BaseModel):
@@ -244,7 +248,14 @@ def preview_model(
         valves_dict["DISCRETIZATION"] = min(valves_dict["DISCRETIZATION"], PREVIEW_MAX_DISCRETIZATION)
 
     try:
-        cloud = build_point_cloud(model_name, data, valves_dict, source=source, region_valves=full_valves)
+        cloud = build_point_cloud(
+            model_name,
+            data,
+            valves_dict,
+            source=source,
+            region_valves=full_valves,
+            max_grid_points=PREVIEW_MAX_GRID_POINTS,
+        )
     except LookupError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:

@@ -105,6 +105,9 @@ def add_member(project_id: str, payload: MemberIn, request: Request, db: Session
     """Add a user to a project or change their role; owners only."""
     user = _require_db_user(request, db)
     require_project_role(db, user, project_id, minimum="owner")
+    member = db.get(User, payload.user_id)
+    if member is None or member.org_id != db.get(Project, project_id).org_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
     existing = db.scalar(
         select(ProjectMembership).where(

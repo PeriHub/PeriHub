@@ -19,7 +19,7 @@ from ..support.base_models import AnalysisInfo, ModelData, PointData, Valves
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler, safe_segment
 from ..support.globals import log, max_nodes
-from ..support.guest import require_user, user_folder
+from ..support.guest import require_non_guest, require_user, user_folder
 from ..support.model import loader, mesh_readers
 from ..support.model.yaml_model import ModelSpecError
 from ..support.model.yaml_model import model_class as yaml_model_class
@@ -300,7 +300,7 @@ def add_model(
     return model_slug
 
 
-@router.get("/models/{model_name}/source", operation_id="get_own_model_file")
+@router.get("/models/{model_name}/source", operation_id="get_own_model_file", dependencies=[Depends(require_non_guest)])
 def get_own_model_file(model_name: str = "Dogbone", part: Literal["model", "analysis"] = "model") -> str:
     """Source of an own model (`part=analysis`: a YAML model's analysis.py, "" if it has none)."""
     path = _own_model_path(model_name, part)

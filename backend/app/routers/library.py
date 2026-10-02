@@ -28,10 +28,12 @@ from ..db.models import (
     VISIBILITY_TEAM,
     Material,
     ModelConfig,
+    Team,
 )
 from ..support.db_auth import resolve_user
 from ..support.guest import reject_guest
 from ..support.rbac import (
+    _user_team_ids,
     list_visible_materials,
     list_visible_model_configs,
     require_can_edit,
@@ -105,7 +107,7 @@ def _to_out(kind: str, row) -> LibraryItemOut:
     return LibraryItemOut(**base)
 
 
-def _validate_scope(payload: LibraryItemIn, user) -> None:
+def _validate_scope(db: Session, payload: LibraryItemIn, user) -> None:
     if payload.visibility == VISIBILITY_ORG and user.org_id is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -116,6 +118,13 @@ def _validate_scope(payload: LibraryItemIn, user) -> None:
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="'team' visibility requires team_id.",
         )
+    if payload.team_id:
+        if db.scalar(select(Team.org_id).where(Team.id == payload.team_id)) != user.org_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found.")
+        if user.role != "admin" and payload.team_id not in _user_team_ids(db, user):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not a member of this team.")
+    if payload.project_id:
+        require_project_role(db, user, payload.project_id, minimum="member")
 
 
 @router.get("/{kind}", operation_id="list_library_items", response_model=list[LibraryItemOut])
@@ -143,11 +152,8 @@ def create_item(
 ):
     """Share a model config or material at the given visibility; project-scoped items require project membership."""
     user = _require_db_user(request, db)
-    _validate_scope(payload, user)
+    _validate_scope(db, payload, user)
     model = _MODEL_BY_KIND[kind]
-
-    if payload.project_id:
-        require_project_role(db, user, payload.project_id, minimum="member")
 
     common = dict(
         owner_id=user.id,
@@ -193,7 +199,7 @@ def update_item(
     user = _require_db_user(request, db)
     row = _get_owned_or_404(db, kind, item_id)
     require_can_edit(user, row)
-    _validate_scope(payload, user)
+    _validate_scope(db, payload, user)
 
     row.name = payload.name
     row.visibility = payload.visibility

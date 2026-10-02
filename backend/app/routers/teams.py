@@ -74,6 +74,9 @@ def add_team_member(team_id: str, user_id: str, request: Request, db: Session = 
     team = db.get(Team, team_id)
     if team is None or team.org_id != user.org_id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found.")
+    member = db.get(User, user_id)
+    if member is None or member.org_id != user.org_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
     existing = db.scalar(
         select(TeamMembership).where(TeamMembership.team_id == team_id, TeamMembership.user_id == user_id)
@@ -89,6 +92,9 @@ def remove_team_member(team_id: str, user_id: str, request: Request, db: Session
     """Remove a user from a team; admins only."""
     user = _require_db_user(request, db)
     require_role(user, "admin")
+    team = db.get(Team, team_id)
+    if team is None or team.org_id != user.org_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Team not found.")
     membership = db.scalar(
         select(TeamMembership).where(TeamMembership.team_id == team_id, TeamMembership.user_id == user_id)
     )

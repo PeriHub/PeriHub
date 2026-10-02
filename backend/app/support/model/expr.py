@@ -31,12 +31,24 @@ FUNCTIONS = {
 }
 CONSTANTS = {"pi": math.pi, "true": True, "false": False}
 
+
+def _pow(base, exponent):
+    """Python ints are unbounded, so `9**9**9` would compute for minutes (an anonymous preview request can send
+    one); scalar powers go through float, which overflows to an error instead."""
+    if np.isscalar(base) and np.isscalar(exponent):
+        try:
+            return float(base) ** exponent
+        except OverflowError:
+            raise ExpressionError("number too large") from None
+    return operator.pow(base, exponent)
+
+
 _BINARY = {
     ast.Add: operator.add,
     ast.Sub: operator.sub,
     ast.Mult: operator.mul,
     ast.Div: operator.truediv,
-    ast.Pow: operator.pow,
+    ast.Pow: _pow,
     ast.Mod: operator.mod,
 }
 _COMPARE = {

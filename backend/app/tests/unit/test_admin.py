@@ -95,3 +95,61 @@ def test_only_developers_and_admins_create_models(client, monkeypatch, tmp_path)
     client.patch(f"/admin/users/{member['user_id']}", json={"role": "developer"}, headers=_auth(admin))
     assert client.post("/models", params=params, headers=_auth(member)).status_code == 200
     assert client.delete("/models/my_model", headers=_auth(admin)).status_code == 200
+
+
+def _foreign_user():
+    """A user in a second organization (signup always lands in the default one)."""
+    from backend.app.db import base
+    from backend.app.db.models import Organization, User
+    from backend.app.support.local_auth import create_session_token
+
+    with base.SessionLocal() as db:
+        org = Organization(name="Other", plan="enterprise")
+        db.add(org)
+        db.flush()
+        user = User(email="f@y.de", display_name="f", auth_provider="local", role="admin", org_id=org.id)
+        db.add(user)
+        db.commit()
+        return {"user_id": user.id, "token": create_session_token(user.id)}
+
+
+def test_teams_stay_within_the_org(client):
+    admin = _signup(client, "a@x.de")
+    member = _signup(client, "b@x.de")
+    foreign = _foreign_user()
+    team = client.post("/teams", json={"name": "T"}, headers=_auth(admin)).json()
+
+    assert client.post(f"/teams/{team['id']}/members/{foreign['user_id']}", headers=_auth(admin)).status_code == 404
+    assert client.post(f"/teams/{team['id']}/members/{member['user_id']}", headers=_auth(admin)).status_code == 200
+    # Another org's admin can neither see the team nor remove its members.
+    r = client.delete(f"/teams/{team['id']}/members/{member['user_id']}", headers=_auth(foreign))
+    assert r.status_code == 404
+
+
+def test_project_members_stay_within_the_org(client):
+    owner = _signup(client, "a@x.de")
+    foreign = _foreign_user()
+    project = client.post("/projects", json={"name": "P"}, headers=_auth(owner)).json()
+
+    r = client.post(f"/projects/{project['id']}/members", json={"user_id": foreign["user_id"]}, headers=_auth(owner))
+    assert r.status_code == 404
+
+
+def test_library_items_only_shared_into_own_teams(client):
+    admin = _signup(client, "a@x.de")
+    member = _signup(client, "b@x.de")
+    team = client.post("/teams", json={"name": "T"}, headers=_auth(admin)).json()
+    item = {"name": "cfg", "visibility": "team", "team_id": team["id"], "config": {}}
+
+    assert client.post("/library/model-config", json=item, headers=_auth(member)).status_code == 403
+    client.post(f"/teams/{team['id']}/members/{member['user_id']}", headers=_auth(admin))
+    assert client.post("/library/model-config", json=item, headers=_auth(member)).status_code == 200
+    assert client.post("/library/model-config", json=item, headers=_auth(_foreign_user())).status_code == 404
+
+
+def test_model_source_and_license_refresh_need_rights(client):
+    _signup(client, "a@x.de")
+    member = _signup(client, "b@x.de")
+    assert client.get("/models/Anything/source").status_code == 401
+    assert client.post("/license/refresh").status_code == 401
+    assert client.post("/license/refresh", headers=_auth(member)).status_code == 403

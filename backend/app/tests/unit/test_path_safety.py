@@ -84,3 +84,21 @@ def test_safe_segment(segment, ok):
     else:
         with pytest.raises(Exception):
             safe_segment(segment)
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "/results/download?model_name=Dogbone&model_folder_name=../../../escaped&all_data=true",
+        "/results/plot?model_name=../other-job/Dogbone&run_id=r1",
+        "/results/plot?model_name=Dogbone&output=../../other-job/Dogbone_Output1&run_id=r1",
+        "/results/points?model_name=../other-job/Dogbone&run_id=r1",
+        "/results/points?model_name=Dogbone&output=../../other-job/Dogbone_Output1&run_id=r1",
+    ],
+)
+def test_results_reject_traversal(client, sim_dir, url):
+    auth, _ = _signup(client)
+
+    r = client.get(url, headers=auth)
+
+    assert r.status_code == 400, r.text

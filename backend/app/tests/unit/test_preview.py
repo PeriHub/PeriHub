@@ -115,3 +115,41 @@ def test_3d_preview_is_a_top_view():
     xy = list(zip(result["x"], result["y"]))
     assert len(xy) == len(set(xy)), "one point per x/y position"
     assert result["bounds_min"][2] < result["bounds_max"][2], "bounds still cover the full thickness"
+
+
+DRAFT = """
+title: Draft
+geometry:
+  spacing: {spacing}
+  add:
+    - box: {{min: [0, 0, 0], max: [{size}, 4, 0]}}
+"""
+
+
+def _draft_preview(source):
+    return client.post("/models/Draft/preview", json={**_body("Dogbone"), "source": source})
+
+
+@pytest.mark.parametrize("path", ["__class__.x", "_private", "a.__dict__", "x['k']", "a..b", "a[0]()"])
+def test_set_paths_are_plain_input_deck_fields(path):
+    response = _draft_preview(DRAFT.format(spacing=1, size=10) + f'set:\n  "{path}": 1\n')
+    assert response.status_code == 422, response.text
+
+
+@pytest.mark.parametrize("path", ["solver.finalTime", "bondFilters[0].lowerLeftCornerY", "materials[1].density"])
+def test_set_path_pattern_accepts_field_paths(path):
+    from backend.app.support.model.yaml_model import SET_PATH
+
+    assert SET_PATH.fullmatch(path)
+
+
+def test_preview_refuses_huge_grid():
+    response = _draft_preview(DRAFT.format(spacing="1e-6", size=10))
+    assert response.status_code == 422
+    assert "point grid" in response.text
+
+
+def test_huge_powers_fail_fast():
+    response = _draft_preview(DRAFT.format(spacing="9**9**9**9", size=10))
+    assert response.status_code == 422
+    assert "too large" in response.text

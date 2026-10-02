@@ -20,15 +20,23 @@ def valves_to_dict(valves) -> dict:
 
 
 def build_point_cloud(
-    model_name: str, data, valves_dict: dict, source: str | None = None, region_valves: dict | None = None
+    model_name: str,
+    data,
+    valves_dict: dict,
+    source: str | None = None,
+    region_valves: dict | None = None,
+    max_grid_points: int | None = None,
 ) -> dict:
     """PeriHubModel.build() of the named model (or of unsaved YAML `source`): dx, x, y, z,
     volume (may be None), block, shapes, blocks. With `region_valves`, also the preview regions
     (regions.py; None for point-cloud models) for those parameters — the preview caps the
     discretization of the points, but regions cost the same at full resolution and blocks like
-    `x < 3 * spacing` must match the real mesh. `data` may be edited in place by the model."""
+    `x < 3 * spacing` must match the real mesh. `data` may be edited in place by the model.
+    `max_grid_points` refuses grids too big to allocate (ValueError) before any point is made."""
     model_class = yaml_model_class(source, model_name) if source is not None else load_model(model_name)
-    result = model_class(valves_dict, data).build(summary=region_valves is not None)
+    model = model_class(valves_dict, data)
+    model.max_grid_points = max_grid_points
+    result = model.build(summary=region_valves is not None)
     if region_valves is not None:
         result["regions"] = preview_regions(model_class(region_valves, data))
     return result

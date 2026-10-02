@@ -14,6 +14,8 @@ parameters, `spacing`, `two_d`, and in `where:` also `x`, `y`, `z`. Every error 
 YAML path it came from, which the /models editor shows next to the preview.
 """
 
+import re
+
 import magicattr
 import numpy as np
 import yaml
@@ -25,6 +27,9 @@ from .shapes import PRIMITIVES, Union
 TOP_LEVEL = {"title", "description", "author", "version", "requirements", "parameters", "geometry", "blocks", "set"}
 PARAM_KEYS = {"default", "label", "description", "options", "depends"}
 GEOMETRY_KEYS = {"spacing", "grid_origin", "add", "remove", "keep_only"}
+# `set:` keys are handed to magicattr, which follows any attribute/subscript path - so only plain ModelData field
+# paths (`solver.finalTime`, `bondFilters[0].lowerLeftCornerY`): no `_`/dunder names that could reach module state.
+SET_PATH = re.compile(r"[A-Za-z][A-Za-z0-9]*(\[\d+\])?(\.[A-Za-z][A-Za-z0-9]*(\[\d+\])?)*")
 
 
 class ModelSpecError(ValueError):
@@ -124,6 +129,9 @@ def _validate(doc):
             _fail(f"blocks[{i}]", "needs a shape and/or a 'where' condition")
     if not isinstance(doc.get("set") or {}, dict):
         _fail("set", "expected a mapping of input-deck path: expression")
+    for path in doc.get("set") or {}:
+        if not isinstance(path, str) or not SET_PATH.fullmatch(path):
+            _fail(f"set.{path}", "must be an input-deck field path like 'bondFilters[0].lowerLeftCornerY'")
 
 
 def parse(text: str) -> dict:

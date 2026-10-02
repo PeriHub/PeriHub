@@ -24,6 +24,8 @@ import os
 
 from ..db import base
 from .admin_settings import instance_setting
+from .deck_guard import check_input_deck
+from .file_handler import safe_segment
 from .globals import (
     external_perilab_url,
     local_perilab_api_url,
@@ -98,10 +100,15 @@ class PeriLabSolverBackend(SolverBackend):
         # submission, so mirror that by submitting each variant
         # separately. The single (non-batch) case is job_ids="-1".
         variants = [jid for jid in (job_ids or "-1").split(",")]
+        input_file_paths = [
+            os.path.join(remotepath, f"{model_name}.yaml" if jid == "-1" else f"{model_name}_{safe_segment(jid)}.yaml")
+            for jid in variants
+        ]
+        # Every deck is checked before any is submitted, so a rejected batch leaves no PeriLab jobs behind.
+        for input_file_path in input_file_paths:
+            check_input_deck(input_file_path)
         job_ids_submitted = []
-        for jid in variants:
-            filename = f"{model_name}.yaml" if jid == "-1" else f"{model_name}_{jid}.yaml"
-            input_file_path = os.path.join(remotepath, filename)
+        for input_file_path in input_file_paths:
             extra_files = [
                 os.path.join(remotepath, f)
                 for f in os.listdir(remotepath)

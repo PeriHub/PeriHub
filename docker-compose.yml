@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER-perihub}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD-perihub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env (must match DATABASE_URL)}
       POSTGRES_DB: ${POSTGRES_DB-perihub}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
@@ -52,8 +52,10 @@ services:
   perilab:
     image: perihub/perilab:nightly
     container_name: perihub_perilab
-    env_file:
-      - .env
+    environment:
+      LICENSE_SERVER_URL: ${LICENSE_SERVER_URL-}
+      PERIHUB_LICENSE_KEY: ${PERIHUB_LICENSE_KEY-}
+      CONTENT_SIGNING_SECRET: ${CONTENT_SIGNING_SECRET-}
     volumes:
       - ${VOLUME-./backend/app/simulations}:/app/simulations
     ports:

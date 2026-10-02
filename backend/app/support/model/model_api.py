@@ -83,6 +83,8 @@ class PeriHubModel:
     author: str = ""
     version: str = "0.1.0"
     requirements: list = []
+    # Bounding-box grid size the default points() may allocate before filtering; set by the platform per caller.
+    max_grid_points: int | None = None
 
     def __init__(self, params: dict | None = None, model_data=None):
         params = params or {}
@@ -152,6 +154,20 @@ class PeriHubModel:
         used = 2 if self.two_d else 3
         if not np.all(np.isfinite(lo[:used])) or not np.all(np.isfinite(hi[:used])):
             raise ValueError("the geometry is unbounded — give every added polygon a z range")
+        # Sized before anything is allocated: a tiny spacing must be refused, not attempted.
+        grid_points = int(
+            np.prod(
+                [
+                    max(0, last - first + 1)
+                    for first, last in (_axis_range(lo[i], hi[i], origin[i], dx) for i in range(used))
+                ]
+            )
+        )
+        if self.max_grid_points is not None and grid_points > self.max_grid_points:
+            raise ValueError(
+                f"the point grid would have {grid_points} points (limit {self.max_grid_points}) - "
+                "increase the spacing or lower DISCRETIZATION"
+            )
         axes = [_axis(lo[i], hi[i], origin[i], dx) for i in range(used)] + [np.zeros(1)] * (3 - used)
         # indexing="xy" keeps the old create_rectangle point order (y rows, then x, then z).
         gx, gy, gz = (g.ravel() for g in np.meshgrid(*axes))
@@ -198,11 +214,15 @@ class PeriHubModel:
         }
 
 
+def _axis_range(lo, hi, origin, dx):
+    """(first, last) grid index i of origin + i*dx within [lo, hi] (inclusive, round-off tolerant)."""
+    eps = 1e-9
+    return int(np.ceil((lo - origin) / dx - eps)), int(np.floor((hi - origin) / dx + eps))
+
+
 def _axis(lo, hi, origin, dx):
     """Grid coordinates origin + i*dx that lie within [lo, hi] (inclusive, round-off tolerant)."""
-    eps = 1e-9
-    first = int(np.ceil((lo - origin) / dx - eps))
-    last = int(np.floor((hi - origin) / dx + eps))
+    first, last = _axis_range(lo, hi, origin, dx)
     # np.arange's own float stepping (not origin + i*dx) reproduces the old generators' coordinates
     # bit for bit, which matters for points exactly on a block condition like `x <= 4 * spacing`.
     start = origin + first * dx
