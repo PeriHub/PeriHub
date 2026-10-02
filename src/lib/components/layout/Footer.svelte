@@ -18,7 +18,7 @@ SPDX-License-Identifier: Apache-2.0
   const year = new Date().getFullYear();
 </script>
 
-<footer class="border-primary/20 bg-primary text-primary-foreground border-t">
+<footer class="bg-brand text-brand-foreground border-t border-white/10">
   <div
     class="mx-auto flex max-w-7xl flex-col items-center gap-x-6 gap-y-2 px-4 py-4 text-xs md:flex-row md:justify-between"
   >

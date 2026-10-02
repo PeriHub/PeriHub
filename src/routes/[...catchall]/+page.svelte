@@ -14,9 +14,9 @@ SPDX-License-Identifier: Apache-2.0
 </svelte:head>
 
 <div
-  class="flex min-h-[70vh] flex-col items-center justify-center gap-4 bg-primary px-6 text-center text-primary-foreground"
+  class="bg-brand text-brand-foreground flex min-h-[70vh] flex-col items-center justify-center gap-4 px-6 text-center"
 >
-  <div class="text-[20vh] font-bold leading-none">404</div>
+  <div class="text-[20vh] leading-none font-bold">404</div>
   <div class="text-2xl opacity-70">Oops. Nothing here...</div>
   <Button href="/" variant="secondary" size="lg" class="mt-4">Go Home</Button>
 </div>

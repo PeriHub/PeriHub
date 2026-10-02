@@ -105,9 +105,7 @@ SPDX-License-Identifier: Apache-2.0
     'flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-white/10 hover:outline hover:outline-1 hover:outline-white/30 transition-colors';
 </script>
 
-<header
-  class="border-primary/20 bg-primary text-primary-foreground sticky top-0 z-40 border-b shadow-sm"
->
+<header class="bg-brand text-brand-foreground sticky top-0 z-40 border-b border-white/10 shadow-sm">
   <div class="mx-auto grid h-12 grid-cols-[auto_1fr_auto] items-center gap-2 px-3">
     <!-- Logo -->
     <a href="/" class="flex shrink-0 items-center gap-2 no-underline" aria-label="PeriHub home">
@@ -139,7 +137,7 @@ SPDX-License-Identifier: Apache-2.0
         <Button
           variant="outline"
           size="sm"
-          class="rounded-full px-3 py-1.5 text-xs font-medium"
+          class="rounded-full border-white/30 bg-white/15 px-3 py-1.5 text-xs font-medium text-inherit hover:bg-white/25 hover:text-inherit"
           onclick={leaveGuestSession}
           title="You're using PeriHub as a guest - log in for full access"
         >

@@ -42,6 +42,11 @@
   --primary: oklch(0.47 0.08 224);
   --primary-foreground: oklch(0.99 0.005 240);
 
+  /* Brand bars (header, footer, 404): primary in light mode, deep navy in dark
+     so the bar doesn't glare against the near-black background. */
+  --brand: var(--primary);
+  --brand-foreground: var(--primary-foreground);
+
   /* #82a043 */
   --secondary: oklch(0.62 0.1 122);
   --secondary-foreground: oklch(0.15 0.02 122);
@@ -78,6 +83,9 @@
   --primary: oklch(0.68 0.1 224);
   --primary-foreground: oklch(0.14 0.01 240);
 
+  --brand: oklch(0.27 0.05 224);
+  --brand-foreground: oklch(0.95 0.003 240);
+
   --secondary: oklch(0.62 0.1 122);
   --secondary-foreground: oklch(0.14 0.02 122);
 
@@ -108,6 +116,8 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-accent: var(--accent);
