@@ -6,9 +6,7 @@
 
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import '@fontsource-variable/inter';
 @import '@fontsource-variable/jetbrains-mono';
-@import '@fontsource-variable/archivo/wdth.css';
 
 /*
  * Tailwind v4 excludes node_modules from its automatic class scanning by
@@ -20,6 +18,25 @@
 @source '../node_modules/layerchart/dist/**/*.{svelte,js}';
 
 @custom-variant dark (&:is(.dark *));
+
+/*
+ * Brand typeface. Frutiger was the PeriHub font in the old Vue GUI and was
+ * dropped with the SvelteKit rewrite; the TTFs are restored from git and
+ * re-declared here via @font-face (frutiger-light / frutiger-roman).
+ */
+@font-face {
+  font-family: 'Frutiger Light';
+  src: url('/fonts/Frutiger/FRUTIGER-LIGHT.TTF') format('truetype');
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Frutiger Roman';
+  src: url('/fonts/Frutiger/FRUTIGER-ROMAN.TTF') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
 
 /*
  * PeriHub brand tokens — carried over from the old
@@ -136,7 +153,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    'Frutiger Light', 'Frutiger Roman', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
   --font-display: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
 }
@@ -147,6 +165,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 }
