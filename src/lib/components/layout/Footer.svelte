@@ -22,15 +22,9 @@ SPDX-License-Identifier: Apache-2.0
   <div
     class="mx-auto flex max-w-7xl flex-col items-center gap-x-6 gap-y-2 px-4 py-4 text-xs md:flex-row md:justify-between"
   >
-    <div class="flex items-center gap-3">
-      <a href="https://www.dlr.de" class="shrink-0 opacity-80 hover:opacity-100">
-        <img src="/DLR_Signet_weiss.png" alt="German Aerospace Center (DLR)" class="h-8 w-auto" />
-      </a>
-      <p class="opacity-80">
-        © {year} German Aerospace Center (DLR) · <strong>PeriHub</strong> · Jan-Timo Hesse, Christian
-        Willberg
-      </p>
-    </div>
+    <p class="opacity-80">
+      © {year} German Aerospace Center (DLR) · <strong>PeriHub</strong> · Jan-Timo Hesse, Christian Willberg
+    </p>
     <nav class="flex flex-wrap justify-center gap-x-4 gap-y-1" aria-label="Footer">
       {#each links as link (link.href)}
         <a href={link.href} class="opacity-80 hover:underline hover:opacity-100">{link.label}</a>

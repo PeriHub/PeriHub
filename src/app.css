@@ -26,14 +26,14 @@
  */
 @font-face {
   font-family: 'Frutiger Light';
-  src: url('/fonts/Frutiger/FRUTIGER-LIGHT.TTF') format('truetype');
+  src: url('/fonts/Frutiger/Frutiger-Light.TTF') format('truetype');
   font-weight: 300;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Frutiger Roman';
-  src: url('/fonts/Frutiger/FRUTIGER-ROMAN.TTF') format('truetype');
+  src: url('/fonts/Frutiger/Frutiger-Roman.TTF') format('truetype');
   font-weight: 400;
   font-display: swap;
 }
@@ -156,7 +156,7 @@
   --font-sans:
     'Frutiger Light', 'Frutiger Roman', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
-  --font-display: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Frutiger Roman', 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {

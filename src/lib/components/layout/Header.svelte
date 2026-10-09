@@ -108,15 +108,24 @@ SPDX-License-Identifier: Apache-2.0
 <header class="bg-brand text-brand-foreground sticky top-0 z-40 border-b border-white/10 shadow-sm">
   <div class="mx-auto grid h-12 grid-cols-[auto_1fr_auto] items-center gap-2 px-3">
     <!-- Logo -->
-    <a href="/" class="flex shrink-0 items-center gap-2 no-underline" aria-label="PeriHub home">
-      <img
-        src="/PeriHubLogo2b.png"
-        alt="PeriHub"
-        width="44"
-        height="44"
-        class="h-8 w-8 shrink-0 object-contain"
-      />
-    </a>
+    <div class="flex shrink-0 items-center gap-3">
+      <a href="/" class="flex shrink-0 items-center gap-2 no-underline" aria-label="PeriHub home">
+        <img
+          src="/PeriHubLogo2b.png"
+          alt="PeriHub"
+          width="44"
+          height="44"
+          class="h-8 w-8 shrink-0 object-contain"
+        />
+      </a>
+      <a
+        href="https://www.dlr.de"
+        class="hidden shrink-0 items-center gap-3 opacity-80 hover:opacity-100 sm:flex"
+      >
+        <span class="h-6 w-px bg-white/30" aria-hidden="true"></span>
+        <img src="/DLR_Signet_weiss.png" alt="German Aerospace Center (DLR)" class="h-7 w-auto" />
+      </a>
+    </div>
 
     <!-- Below md the nav moves into the ⋮ menu instead of overlapping the logo/toolbar. -->
     <nav class="hidden items-center justify-center gap-1 md:flex lg:gap-3">
