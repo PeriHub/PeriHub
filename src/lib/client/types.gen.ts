@@ -372,6 +372,8 @@ export type LibraryItemOut = {
     [key: string]: unknown;
 } | null;
     source?: string | null;
+    owner_name?: string | null;
+    can_edit?: boolean;
 };
 
 /**
@@ -394,6 +396,7 @@ export type LoginRequest = {
 
 export type Material = {
     materialsId?: number | null;
+    libraryId?: string | null;
     name: string;
     matType: Array<(string)>;
     bulkModulus?: number | null;

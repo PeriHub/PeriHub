@@ -870,11 +870,7 @@ export const getLicenseStatus = (): CancelablePromise<GetLicenseStatusResponse> 
  * waiting for the normal refresh interval - useful right after a plan
  * change, or for ops to confirm a new license key was picked up.
  *
- * NOTE: unauthenticated for now, matching the rest of this router set (see
- * the security roadmap item on trusted-header auth). This only *reads* the
- * license server and can't grant anything beyond what it's actually
- * entitled to, but a real deployment should still restrict who can trigger
- * it to avoid needless load on the license server.
+ * Admins only, so nobody else can put needless load on the license server.
  * @returns LicenseStatus Successful Response
  * @throws ApiError
  */

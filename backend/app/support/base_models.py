@@ -373,6 +373,7 @@ class StiffnessMatrix(BaseModel):
 
 class Material(BaseModel):
     materialsId: Optional[int] = None
+    libraryId: Optional[str] = None  # library material (/library/material) this copy was loaded from
     name: str
     matType: List[str]
     bulkModulus: Optional[float] = None

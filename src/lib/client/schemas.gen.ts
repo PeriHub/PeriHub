@@ -2020,6 +2020,22 @@ export const $LibraryItemOut = {
                 }
             ],
             title: 'Source'
+        },
+        owner_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Owner Name'
+        },
+        can_edit: {
+            type: 'boolean',
+            title: 'Can Edit',
+            default: false
         }
     },
     type: 'object',
@@ -2107,6 +2123,17 @@ export const $Material = {
                 }
             ],
             title: 'Materialsid'
+        },
+        libraryId: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Libraryid'
         },
         name: {
             type: 'string',

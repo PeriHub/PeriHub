@@ -29,11 +29,13 @@ from ..db.models import (
     Material,
     ModelConfig,
     Team,
+    User,
 )
 from ..support.db_auth import resolve_user
 from ..support.guest import reject_guest
 from ..support.rbac import (
     _user_team_ids,
+    can_edit,
     list_visible_materials,
     list_visible_model_configs,
     require_can_edit,
@@ -76,6 +78,8 @@ class LibraryItemOut(BaseModel):
     config: dict | None = None
     properties: dict | None = None
     source: str | None = None
+    owner_name: str | None = None
+    can_edit: bool = False  # caller may update/delete it (owner or org admin) - lets the UI hide those actions
 
 
 def _require_db_user(request: Request, db: Session):
@@ -89,7 +93,8 @@ def _require_db_user(request: Request, db: Session):
     return identity.user
 
 
-def _to_out(kind: str, row) -> LibraryItemOut:
+def _to_out(kind: str, row, user, db: Session) -> LibraryItemOut:
+    owner = db.get(User, row.owner_id)
     base = dict(
         id=row.id,
         owner_id=row.owner_id,
@@ -99,6 +104,8 @@ def _to_out(kind: str, row) -> LibraryItemOut:
         name=row.name,
         visibility=row.visibility,
         tags=row.tags or [],
+        owner_name=owner.display_name if owner else None,
+        can_edit=can_edit(user, row),
     )
     if kind == "model-config":
         base.update(description=row.description, config=row.config)
@@ -140,7 +147,7 @@ def list_items(
     user = _require_db_user(request, db)
     lister = list_visible_model_configs if kind == "model-config" else list_visible_materials
     rows = lister(db, user, search=search, tag=tag, project_id=project_id)
-    return [_to_out(kind, row) for row in rows]
+    return [_to_out(kind, row, user, db) for row in rows]
 
 
 @router.post("/{kind}", operation_id="create_library_item", response_model=LibraryItemOut)
@@ -172,7 +179,7 @@ def create_item(
     db.add(row)
     db.commit()
     db.refresh(row)
-    return _to_out(kind, row)
+    return _to_out(kind, row, user, db)
 
 
 def _get_owned_or_404(db: Session, kind: str, item_id: str):
@@ -215,7 +222,7 @@ def update_item(
 
     db.commit()
     db.refresh(row)
-    return _to_out(kind, row)
+    return _to_out(kind, row, user, db)
 
 
 @router.delete("/{kind}/{item_id}", operation_id="delete_library_item")

@@ -5,85 +5,94 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import {
-    convertElasticConstants,
-    emptyElasticConstants,
-    orthotropicStiffness
-  } from '$lib/utils/elastic-constants';
   import { Trash2, Upload } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
+  import { authStore } from '$lib/stores/auth-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
-  import { uploadFiles as uploadFilesApi } from '$lib/client';
-  import type { Material, properties as MaterialProperties } from '$lib/client';
-  import Toggle from '$lib/components/ui/Toggle.svelte';
+  import {
+    createLibraryItem,
+    listLibraryItems,
+    updateLibraryItem,
+    uploadFiles as uploadFilesApi
+  } from '$lib/client';
+  import type { LibraryItemOut, Material } from '$lib/client';
+  import { fromLibrary, libraryUpdateBody, toLibraryProperties } from '$lib/utils/material-library';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
   import Select from '$lib/components/ui/Select.svelte';
-  import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
+  import MaterialEditor from '$lib/components/MaterialEditor.svelte';
 
   const materials = $derived(modelStore.modelData.materials ?? []);
-  const materialModelNames = [
-    'Bond-based Elastic',
-    'PD Solid Elastic',
-    'PD Solid Plastic',
-    'Correspondence Elastic',
-    'Correspondence Plastic'
-  ];
-  const materialSymmetries = ['Isotropic', 'Anisotropic', 'Orthotropic', 'Transverse Isotropic'];
-  const stabilizationTypes = ['Bond Based', 'State Based', 'Sub Horizon', 'Global Stiffness'];
 
   let multiSoInput: HTMLInputElement;
   let propsInput: HTMLInputElement;
 
-  // Any two isotropic constants determine the other two - shown as
-  // placeholders so an empty field reads as "calculated", not "missing".
-  function derivedElastic(m: Material) {
-    const set = (v: number | null | undefined) => (v == null || (v as unknown) === '' ? null : v);
-    return convertElasticConstants({
-      ...emptyElasticConstants(),
-      poissonsRatio: set(m.poissonsRatio),
-      bulkModulus: set(m.bulkModulus),
-      shearModulus: set(m.shearModulus),
-      youngsModulus: set(m.youngsModulus)
-    });
+  // Shared material library (/materials page) - accounts only, guests can't use it.
+  const canUseLibrary = $derived(authStore.authenticated && !authStore.isGuest);
+  let library = $state<LibraryItemOut[]>([]);
+
+  async function fetchLibrary() {
+    try {
+      library = await listLibraryItems({ kind: 'material' });
+    } catch (error) {
+      notify.apiError(error);
+    }
   }
 
-  function hint(v: number | null) {
-    return v != null && Number.isFinite(v) ? `≈ ${+v.toPrecision(4)}` : undefined;
+  $effect(() => {
+    if (canUseLibrary) fetchLibrary();
+  });
+
+  const libraryItem = (id: string | null | undefined) => library.find((i) => i.id === id);
+
+  function loadFromLibrary(index: number, id: string) {
+    const item = libraryItem(id);
+    if (!item) return;
+    materials[index] = fromLibrary($state.snapshot(item), materials[index]!.materialsId);
+    notify.positive(`Loaded ${item.name}`);
+  }
+
+  async function saveToLibrary(material: Material) {
+    const item = libraryItem(material.libraryId);
+    if (!item) return;
+    try {
+      await updateLibraryItem({
+        kind: 'material',
+        itemId: item.id,
+        requestBody: libraryUpdateBody(item, $state.snapshot(material) as Material)
+      });
+      notify.positive(`Saved ${material.name} to the library`);
+    } catch (error) {
+      // Deleted from the library meanwhile - drop the stale link.
+      if ((error as { status?: number }).status === 404) material.libraryId = null;
+      notify.apiError(error);
+    }
+    await fetchLibrary();
+  }
+
+  async function saveAsNew(material: Material) {
+    try {
+      const created = await createLibraryItem({
+        kind: 'material',
+        requestBody: {
+          name: material.name,
+          properties: toLibraryProperties($state.snapshot(material) as Material)
+        }
+      });
+      material.libraryId = created.id;
+      notify.positive(`Saved ${material.name} as a new private library material`);
+    } catch (error) {
+      notify.apiError(error);
+    }
+    await fetchLibrary();
   }
 
   function editNumStateVars(numStateVars: number) {
     bus.emit('addStateVarsToOutput' as never, numStateVars as never);
-  }
-
-  function calculateStiffnessMatrix(materialId: number) {
-    const material = materials[materialId]!;
-    const sm = material.stiffnessMatrix;
-    if (!sm?.calculateStiffnessMatrix) return;
-
-    const E1 = sm.engineeringConstants.E1 as number | null;
-    const E2 = sm.engineeringConstants.E2 as number | null;
-    let E3 = sm.engineeringConstants.E3 as number | null;
-    const G12 = sm.engineeringConstants.G12 as number | null;
-    let G13 = sm.engineeringConstants.G13 as number | null;
-    let G23 = sm.engineeringConstants.G23 as number | null;
-    const nu12 = sm.engineeringConstants.nu12 as number | null;
-    let nu13 = sm.engineeringConstants.nu13 as number | null;
-    let nu23 = sm.engineeringConstants.nu23 as number | null;
-
-    if (E1 == null || E2 == null || G12 == null || nu12 == null) return;
-
-    if (E3 == null) E3 = E2;
-    if (G13 == null) G13 = G12;
-    if (nu13 == null) nu13 = nu12;
-    if (nu23 == null) nu23 = nu12;
-    if (G23 == null) G23 = E2 / (2 * (1 + nu23));
-
-    sm.matrix = orthotropicStiffness(E1, E2, E3, G12, G13, G23, nu12, nu13, nu23);
   }
 
   function uploadSo() {
@@ -151,7 +160,6 @@ SPDX-License-Identifier: Apache-2.0
         }
 
         for (let i = 2; i < propsArray.length; i++) {
-          addProp(0);
           let propValue = propsArray[i]!.trim();
           if (propValue.startsWith('<') && propValue.endsWith('>')) {
             const paramName = propValue.slice(1, -1);
@@ -159,7 +167,11 @@ SPDX-License-Identifier: Apache-2.0
             if (paramValue) propValue = paramValue.split('=')[1]!;
             else console.log(`Parameter ${paramName} not found.`);
           }
-          materials[0]!.properties![i - 2]!.value = parseFloat(propValue);
+          materials[0]!.properties!.push({
+            materialsPropId: i - 1,
+            name: `Prop_${i - 1}`,
+            value: parseFloat(propValue)
+          });
         }
       } else {
         console.log('Length of Propsarray unexpected');
@@ -183,23 +195,6 @@ SPDX-License-Identifier: Apache-2.0
     materials.splice(index, 1);
     materials.forEach((m, i) => (m.materialsId = i + 1));
   }
-
-  function addProp(index: number) {
-    const material = materials[index]!;
-    if (!material.properties) material.properties = [];
-    const len = material.properties.length;
-    const newItem =
-      len > 0
-        ? (structuredClone($state.snapshot(material.properties[len - 1])) as MaterialProperties)
-        : ({} as MaterialProperties);
-    newItem.materialsPropId = len + 1;
-    newItem.name = `Prop_${len + 1}`;
-    material.properties.push(newItem);
-  }
-
-  function removeProp(index: number, subindex: number) {
-    materials[index]!.properties!.splice(subindex, 1);
-  }
 </script>
 
 <div class="space-y-3 p-3">
@@ -217,225 +212,55 @@ SPDX-License-Identifier: Apache-2.0
         </Button>
       </div>
 
-      <div class="max-w-xs space-y-1">
-        <Label for={`mat-name-${index}`}>Name</Label>
-        <Input id={`mat-name-${index}`} bind:value={material.name} />
-      </div>
-
-      <div class="space-y-1">
-        <Label>Material models</Label>
-        <ChipGroup
-          ariaLabel="Material models of {material.name}"
-          options={materialModelNames}
-          bind:value={material.matType}
-        />
-      </div>
-
-      {#if material.matType?.includes('User')}
-        <div class="border-border space-y-2 border-t pt-2">
-          {#each material.properties ?? [] as prop, subindex (subindex)}
-            <div class="flex flex-wrap items-end gap-3">
-              <div class="space-y-1">
-                <Label for={`mat-prop-${index}-${subindex}`}>{prop.name}</Label>
-                <Input id={`mat-prop-${index}-${subindex}`} type="number" bind:value={prop.value} />
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onclick={() => removeProp(index, subindex)}
-                title="Remove Property"
-              >
-                <Trash2 class="h-4 w-4" />
-              </Button>
-            </div>
-          {/each}
-          <div class="flex flex-wrap items-end gap-2">
-            <AddButton noun="property" items={material.properties} onclick={() => addProp(index)} />
-            <Button variant="outline" size="sm" onclick={() => uploadProps()}>
-              <Upload class="h-4 w-4" /> Upload Property
-            </Button>
-            <Button variant="outline" size="sm" onclick={uploadSo}>
-              <Upload class="h-4 w-4" /> Upload shared Library
-            </Button>
-            <div class="space-y-1">
-              <Label for={`mat-nsv-${index}`}>Number of state variables</Label>
-              <Input
-                id={`mat-nsv-${index}`}
-                type="number"
-                bind:value={material.numStateVars}
-                oninput={() => editNumStateVars(material.numStateVars!)}
-              />
-            </div>
-          </div>
-        </div>
-      {/if}
-
-      {#if material.materialSymmetry === 'Isotropic'}
-        {@const calc = derivedElastic(material)}
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="space-y-1">
-            <Label for={`mat-pr-${index}`}>Poisson's ratio</Label>
-            <Input
-              id={`mat-pr-${index}`}
-              type="number"
-              placeholder={hint(calc.poissonsRatio)}
-              bind:value={material.poissonsRatio}
-            />
-          </div>
-          <div class="space-y-1">
-            <Label for={`mat-bulk-${index}`}>Bulk modulus</Label>
-            <Input
-              id={`mat-bulk-${index}`}
-              type="number"
-              placeholder={hint(calc.bulkModulus)}
-              bind:value={material.bulkModulus}
-            />
-          </div>
-          <div class="space-y-1">
-            <Label for={`mat-shear-${index}`}>Shear modulus</Label>
-            <Input
-              id={`mat-shear-${index}`}
-              type="number"
-              placeholder={hint(calc.shearModulus)}
-              bind:value={material.shearModulus}
-            />
-          </div>
-          <div class="space-y-1">
-            <Label for={`mat-young-${index}`}>Young's modulus</Label>
-            <Input
-              id={`mat-young-${index}`}
-              type="number"
-              placeholder={hint(calc.youngsModulus)}
-              bind:value={material.youngsModulus}
-            />
-          </div>
-        </div>
-      {/if}
-
-      <div class="flex flex-wrap items-end gap-3">
-        <div class="space-y-1">
-          <Label for={`mat-sym-${index}`}>Material symmetry</Label>
-          <Select id={`mat-sym-${index}`} bind:value={material.materialSymmetry}>
-            {#each materialSymmetries as sym (sym)}
-              <option value={sym}>{sym}</option>
+      {#if canUseLibrary}
+        {@const linked = libraryItem(material.libraryId)}
+        <div class="flex flex-wrap items-center gap-2">
+          <Select
+            class="h-8 w-56"
+            aria-label="Load {material.name} from the material library"
+            value=""
+            onchange={(e) => {
+              loadFromLibrary(index, e.currentTarget.value);
+              e.currentTarget.value = '';
+            }}
+          >
+            <option value="" disabled>Load from library…</option>
+            {#each library as item (item.id)}
+              <option value={item.id}>{item.name}</option>
             {/each}
           </Select>
-        </div>
-        <Toggle bind:checked={material.planeStress} label="Plane stress" />
-        <Toggle bind:checked={material.planeStrain} label="Plane strain" />
-        {#if material.stiffnessMatrix && material.materialSymmetry === 'Anisotropic' && material.matType?.includes('Correspondence')}
-          <Toggle
-            bind:checked={material.stiffnessMatrix.calculateStiffnessMatrix}
-            label="Calculate stiffness matrix"
-          />
-        {/if}
-      </div>
-
-      {#if material.materialSymmetry === 'Transverse Isotropic' || material.materialSymmetry === 'Orthotropic'}
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="space-y-1">
-            <Label for={`mat-ex-${index}`}>Young's modulus X</Label>
-            <Input id={`mat-ex-${index}`} type="number" bind:value={material.youngsModulusX} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`mat-ey-${index}`}>Young's modulus Y</Label>
-            <Input id={`mat-ey-${index}`} type="number" bind:value={material.youngsModulusY} />
-          </div>
-          {#if material.materialSymmetry === 'Orthotropic'}
-            <div class="space-y-1">
-              <Label for={`mat-ez-${index}`}>Young's modulus Z</Label>
-              <Input id={`mat-ez-${index}`} type="number" bind:value={material.youngsModulusZ} />
-            </div>
+          {#if linked?.can_edit}
+            <Button variant="outline" size="sm" onclick={() => saveToLibrary(material)}>
+              Save to library
+            </Button>
           {/if}
-          <div class="space-y-1">
-            <Label for={`mat-pxy-${index}`}>Poisson's ratio XY</Label>
-            <Input id={`mat-pxy-${index}`} type="number" bind:value={material.poissonsRatioXY} />
-          </div>
-          {#if material.planeStrain || material.materialSymmetry === 'Orthotropic'}
-            <div class="space-y-1">
-              <Label for={`mat-pyz-${index}`}>Poisson's ratio YZ</Label>
-              <Input id={`mat-pyz-${index}`} type="number" bind:value={material.poissonsRatioYZ} />
-            </div>
-          {/if}
-          {#if material.materialSymmetry === 'Orthotropic'}
-            <div class="space-y-1">
-              <Label for={`mat-pxz-${index}`}>Poisson's ratio XZ</Label>
-              <Input id={`mat-pxz-${index}`} type="number" bind:value={material.poissonsRatioXZ} />
-            </div>
-          {/if}
-          <div class="space-y-1">
-            <Label for={`mat-gxy-${index}`}>Shear modulus XY</Label>
-            <Input id={`mat-gxy-${index}`} type="number" bind:value={material.shearModulusXY} />
-          </div>
-          {#if material.materialSymmetry === 'Orthotropic'}
-            <div class="space-y-1">
-              <Label for={`mat-gyz-${index}`}>Shear modulus YZ</Label>
-              <Input id={`mat-gyz-${index}`} type="number" bind:value={material.shearModulusYZ} />
-            </div>
-            <div class="space-y-1">
-              <Label for={`mat-gxz-${index}`}>Shear modulus XZ</Label>
-              <Input id={`mat-gxz-${index}`} type="number" bind:value={material.shearModulusXZ} />
-            </div>
+          <Button variant="outline" size="sm" onclick={() => saveAsNew(material)}>
+            Save as new
+          </Button>
+          {#if linked}
+            <span class="text-muted-foreground text-xs">From library: {linked.name}</span>
           {/if}
         </div>
       {/if}
 
-      {#if material.stiffnessMatrix && material.materialSymmetry === 'Anisotropic' && material.matType?.includes('Correspondence')}
-        <div class="border-border flex flex-wrap gap-6 border-t pt-3">
-          {#if material.stiffnessMatrix.calculateStiffnessMatrix}
-            <div class="space-y-2">
-              {#each Object.keys(material.stiffnessMatrix.engineeringConstants) as key (key)}
-                <div class="space-y-1">
-                  <Label for={`mat-ec-${index}-${key}`}>{key}</Label>
-                  <Input
-                    id={`mat-ec-${index}-${key}`}
-                    type="number"
-                    bind:value={
-                      material.stiffnessMatrix.engineeringConstants[
-                        key as keyof typeof material.stiffnessMatrix.engineeringConstants
-                      ]
-                    }
-                    oninput={() => calculateStiffnessMatrix(index)}
-                  />
-                </div>
-              {/each}
-            </div>
-          {/if}
-          <div class="space-y-2">
-            {#each Object.keys(material.stiffnessMatrix.matrix) as key (key)}
-              <div class="space-y-1">
-                <Label for={`mat-mx-${index}-${key}`}>{key}</Label>
-                <Input
-                  id={`mat-mx-${index}-${key}`}
-                  type="number"
-                  bind:value={
-                    material.stiffnessMatrix.matrix[
-                      key as keyof typeof material.stiffnessMatrix.matrix
-                    ]
-                  }
-                  readonly={material.stiffnessMatrix.calculateStiffnessMatrix}
-                />
-              </div>
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      <div class="max-w-xs space-y-1">
-        <Label for={`mat-stab-${index}`}>Stabilization type</Label>
-        <Select id={`mat-stab-${index}`} bind:value={material.stabilizationType}>
-          {#each stabilizationTypes as type (type)}
-            <option value={type}>{type}</option>
-          {/each}
-        </Select>
-      </div>
-
-      {#if material.matType?.some((t) => t.includes('Plastic'))}
+      {#snippet userTools()}
+        <Button variant="outline" size="sm" onclick={() => uploadProps()}>
+          <Upload class="h-4 w-4" /> Upload Property
+        </Button>
+        <Button variant="outline" size="sm" onclick={uploadSo}>
+          <Upload class="h-4 w-4" /> Upload shared Library
+        </Button>
         <div class="space-y-1">
-          <Label for={`mat-yield-${index}`}>Yield stress</Label>
-          <Input id={`mat-yield-${index}`} type="number" bind:value={material.yieldStress} />
+          <Label for={`mat-${index}-nsv`}>Number of state variables</Label>
+          <Input
+            id={`mat-${index}-nsv`}
+            type="number"
+            bind:value={material.numStateVars}
+            oninput={() => editNumStateVars(material.numStateVars!)}
+          />
         </div>
-      {/if}
+      {/snippet}
+      <MaterialEditor bind:material={materials[index]!} idPrefix={`mat-${index}`} {userTools} />
     </div>
   {/each}
 

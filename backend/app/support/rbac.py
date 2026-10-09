@@ -66,14 +66,17 @@ def _user_team_ids(db: Session, user: User) -> list[str]:
     return list(db.scalars(select(TeamMembership.team_id).where(TeamMembership.user_id == user.id)))
 
 
-def visible_to(db: Session, user: User, stmt, model):
+def visible_to(db: Session, user: User, stmt, model, org_admin_sees_all: bool = False):
     """Adds a WHERE clause restricting `stmt` (a select() on ModelConfig or
     Material) to rows `user` is allowed to see: their own rows, anything
     shared with their team(s), anything shared org-wide within their org,
-    or anything public."""
+    or anything public. With `org_admin_sees_all`, an admin also sees every
+    row of their org (incl. private) - the same rows can_edit() lets them edit."""
     conditions = [model.owner_id == user.id, model.visibility == VISIBILITY_PUBLIC]
     if user.org_id is not None:
         conditions.append((model.org_id == user.org_id) & (model.visibility == VISIBILITY_ORG))
+        if org_admin_sees_all and user.role == "admin":
+            conditions.append(model.org_id == user.org_id)
     team_ids = _user_team_ids(db, user)
     if team_ids:
         conditions.append((model.team_id.in_(team_ids)) & (model.visibility == VISIBILITY_TEAM))
@@ -137,7 +140,7 @@ def list_visible_materials(
     tag: str | None = None,
     project_id: str | None = None,
 ) -> list[Material]:
-    stmt = visible_to(db, user, select(Material), Material)
+    stmt = visible_to(db, user, select(Material), Material, org_admin_sees_all=True)
     return _apply_search(stmt, Material, db, search, tag, project_id)
 
 

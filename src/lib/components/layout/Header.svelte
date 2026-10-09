@@ -37,6 +37,10 @@ SPDX-License-Identifier: Apache-2.0
     { href: '/perihub', label: 'PeriHub' },
     // Own-model authoring only - guests can't author models.
     ...(authStore.isGuest ? [] : [{ href: '/models', label: 'Models' }]),
+    // Material library needs an account (backend rejects guests and anonymous callers).
+    ...(authStore.authenticated && !authStore.isGuest
+      ? [{ href: '/materials', label: 'Materials' }]
+      : []),
     { href: '/tools', label: 'Tools' },
     { href: '/publications', label: 'Publications' },
     // Only hides the link - the /admin endpoints enforce the role.
