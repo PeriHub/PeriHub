@@ -5,7 +5,6 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { Dialog } from 'bits-ui';
   import { Plus, Trash2 } from 'lucide-svelte';
   import { authStore } from '$lib/stores/auth-store.svelte';
@@ -24,6 +23,7 @@ SPDX-License-Identifier: Apache-2.0
   import Label from '$lib/components/ui/Label.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import MaterialEditor from '$lib/components/MaterialEditor.svelte';
+  import AccountTeaser from '$lib/components/AccountTeaser.svelte';
 
   let items = $state<LibraryItemOut[]>([]);
   let teams = $state<TeamOut[]>([]);
@@ -107,11 +107,14 @@ SPDX-License-Identifier: Apache-2.0
     await fetchItems();
   }
 
-  onMount(async () => {
-    if (authStore.isGuest) return;
-    await fetchItems();
+  // Wait for initAuth() - on a fresh page load the session isn't known yet at mount time.
+  $effect(() => {
+    if (!authStore.hasAccount) return;
+    fetchItems();
     // Only needed for "team" sharing; an instance without teams just doesn't offer it.
-    teams = await listTeams().catch(() => []);
+    listTeams()
+      .then((t) => (teams = t))
+      .catch(() => (teams = []));
   });
 </script>
 
@@ -134,10 +137,18 @@ SPDX-License-Identifier: Apache-2.0
       </p>
     </header>
 
-    {#if authStore.isGuest}
-      <p class="border-border mt-10 max-w-md rounded-xl border border-dashed p-6 text-sm">
-        The material library needs an account - sign up or log in to create and share materials.
-      </p>
+    {#if !authStore.ready}
+      <!-- Session not known yet - render nothing rather than flash the teaser. -->
+    {:else if !authStore.hasAccount}
+      <AccountTeaser
+        title="Your own material library"
+        next="/materials"
+        points={[
+          'Save materials once and load them into any model',
+          'Private by default - share with your team, your organization or everyone',
+          'Overwrite a library material straight from the Material section'
+        ]}
+      />
     {:else}
       <div class="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[16rem_minmax(0,1fr)]">
         <nav aria-label="Materials" class="space-y-4 lg:sticky lg:top-6 lg:self-start">

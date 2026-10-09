@@ -153,3 +153,12 @@ def test_model_source_and_license_refresh_need_rights(client):
     assert client.get("/models/Anything/source").status_code == 401
     assert client.post("/license/refresh").status_code == 401
     assert client.post("/license/refresh", headers=_auth(member)).status_code == 403
+
+
+def test_public_config_reports_whether_signup_is_open(client):
+    assert client.get("/config/public").json()["signup_open"] is True  # fresh install: first account always allowed
+    admin = _signup(client, "a@x.de")
+    settings = client.get("/admin/settings", headers=_auth(admin)).json()
+    settings.update(signup_open=False)
+    client.put("/admin/settings", json=settings, headers=_auth(admin))
+    assert client.get("/config/public").json()["signup_open"] is False

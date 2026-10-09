@@ -5,7 +5,6 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { Dialog, Tabs } from 'bits-ui';
   import { Plus, Trash2 } from 'lucide-svelte';
   import { authStore } from '$lib/stores/auth-store.svelte';
@@ -26,6 +25,7 @@ SPDX-License-Identifier: Apache-2.0
   import CodeBlock from '$lib/components/views/CodeBlock.svelte';
   import ModelPreview from '$lib/components/views/ModelPreview.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
+  import AccountTeaser from '$lib/components/AccountTeaser.svelte';
 
   // Model metadata from GET /models?own_only=true (support/model/loader.py).
   type OwnModel = {
@@ -165,7 +165,10 @@ SPDX-License-Identifier: Apache-2.0
     await fetchModels();
   }
 
-  onMount(fetchModels);
+  // Wait for initAuth() - on a fresh page load the session isn't known yet at mount time.
+  $effect(() => {
+    if (authStore.hasAccount) fetchModels();
+  });
 </script>
 
 <svelte:head>
@@ -200,7 +203,20 @@ SPDX-License-Identifier: Apache-2.0
       </p>
     </header>
 
-    {#if loaded && modelList.length === 0}
+    {#if !authStore.ready}
+      <!-- Session not known yet - render nothing rather than flash the teaser. -->
+    {:else if !authStore.hasAccount}
+      <AccountTeaser
+        title="Build your own specimens"
+        next="/models"
+        points={[
+          'Describe a specimen in YAML - parameters, shapes and blocks, no programming - or in Python',
+          'Live preview while you edit, with its own default config',
+          'Shows up in the editor next to the built-in models',
+          'Creating models needs the developer role - an admin grants it after you sign up'
+        ]}
+      />
+    {:else if loaded && modelList.length === 0}
       <div class="border-border mt-10 max-w-md rounded-xl border border-dashed p-6">
         <h2 class="font-semibold">No own models yet</h2>
         <p class="text-muted-foreground mt-1 mb-4 text-sm">

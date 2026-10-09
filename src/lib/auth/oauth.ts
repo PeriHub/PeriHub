@@ -7,6 +7,7 @@ import { api } from '$lib/api/client';
 import { OpenAPI } from '$lib/client';
 import { defaultStore } from '$lib/stores/default-store.svelte';
 import { authStore } from '$lib/stores/auth-store.svelte';
+import { isPublicPath } from '$lib/utils/public-routes';
 
 /**
  * Generic OAuth2/OIDC login (backend: routers/oauth.py, support/oidc_client.py).
@@ -168,7 +169,8 @@ export async function signupWithPassword(
  * - otherwise, if guest access is on, ask the backend for a throwaway
  *   guest account (POST /auth/guest) instead of a login
  * - otherwise, redirect to the IdP if OAuth is configured, or send the
- *   browser to /auth/login (local email/password) if it isn't
+ *   browser to /auth/login (local email/password) if it isn't - except on
+ *   public pages (utils/public-routes.ts), which anonymous visitors may browse
  */
 export async function initAuth() {
   try {
@@ -203,13 +205,15 @@ async function setUpAuth() {
   }
 
   if (!profile) {
+    // Public pages (home, Models/Materials teasers, legal pages) stay browsable without a login.
+    if (browser() && isPublicPath(window.location.pathname)) return;
     if (publicConfig.oauthEnabled) {
       try {
         await redirectToLogin();
       } catch (error) {
         console.error('Failed to start OAuth login:', error);
       }
-    } else if (browser() && window.location.pathname !== '/auth/login') {
+    } else if (browser()) {
       window.location.href = '/auth/login';
     }
     return; // either the browser is navigating away, or login couldn't be started

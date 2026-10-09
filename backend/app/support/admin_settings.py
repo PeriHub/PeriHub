@@ -85,11 +85,15 @@ def overridden_instance_settings(db: Session) -> list[str]:
     return list(db.scalars(select(AdminSetting.key).where(AdminSetting.org_id.is_(None))))
 
 
+def signup_allowed(db: Session) -> bool:
+    """New accounts may be created: signup is open, or there is no account yet (the very first account is always
+    allowed so a fresh install can't lock itself out)."""
+    return bool(instance_setting(db, "signup_open")) or (
+        db.scalar(select(User.id).where(User.role != "guest").limit(1)) is None
+    )
+
+
 def enforce_signup_open(db: Session) -> None:
-    """403 for new accounts while signup is closed. The very first account is
-    always allowed so a fresh install can't lock itself out."""
-    if (
-        not instance_setting(db, "signup_open")
-        and db.scalar(select(User.id).where(User.role != "guest").limit(1)) is not None
-    ):
+    """403 for new accounts while signup is closed (see signup_allowed)."""
+    if not signup_allowed(db):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Signup is closed.")

@@ -5,10 +5,11 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { Trash2, Upload } from 'lucide-svelte';
+  import { Lock, Trash2, Upload } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { authStore } from '$lib/stores/auth-store.svelte';
+  import { publicConfig } from '$lib/config';
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
   import {
@@ -32,7 +33,7 @@ SPDX-License-Identifier: Apache-2.0
   let propsInput: HTMLInputElement;
 
   // Shared material library (/materials page) - accounts only, guests can't use it.
-  const canUseLibrary = $derived(authStore.authenticated && !authStore.isGuest);
+  const canUseLibrary = $derived(authStore.hasAccount);
   let library = $state<LibraryItemOut[]>([]);
 
   async function fetchLibrary() {
@@ -198,6 +199,19 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
+  {#if authStore.ready && !canUseLibrary}
+    <p class="text-muted-foreground flex flex-wrap items-center gap-1.5 text-xs">
+      <Lock class="h-3.5 w-3.5" aria-hidden="true" />
+      Save materials to your own library and reuse them across models.
+      {#if publicConfig.signupOpen}
+        <a href="/auth/login?mode=signup&next=%2Fperihub" class="text-primary underline">
+          Create account
+        </a>
+      {:else}
+        <a href="/auth/login?next=%2Fperihub" class="text-primary underline">Log in</a>
+      {/if}
+    </p>
+  {/if}
   {#each materials as material, index (index)}
     <div class="border-border space-y-3 rounded-md border p-3">
       <div class="flex items-center justify-between gap-3">

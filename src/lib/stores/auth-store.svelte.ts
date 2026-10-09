@@ -18,6 +18,10 @@ class AuthStore {
   canAuthorModels = $derived(this.role === 'admin' || this.role === 'developer');
   /** Anonymous guest account (guest access) - limited features, see backend support/guest.py. */
   isGuest = $derived(this.role === 'guest');
+  /** A real account (not anonymous, not guest) - may use the material library and own models. */
+  hasAccount = $derived(this.authenticated && !this.isGuest);
+  /** Set once the root layout's initAuth() finished - before that, `authenticated` is still false for everyone. */
+  ready = $state(false);
 
   /**
    * Clears the stored PeriHub session token and reloads the page. With

@@ -23,7 +23,7 @@ only calls PeriHub's own /oauth/oidc/login and /oauth/oidc/callback.
 from fastapi import APIRouter
 
 from ..db import base
-from ..support.admin_settings import instance_setting
+from ..support.admin_settings import instance_setting, signup_allowed
 from ..support.entitlements import has_feature
 from ..support.globals import deployment_mode, oauth_discovery_url
 from ..support.guest import guest_limits
@@ -34,17 +34,20 @@ router = APIRouter(prefix="/config", tags=["Config Methods"])
 @router.get("/public", operation_id="get_public_config")
 def get_public_config() -> dict:
     """Deployment settings the frontend needs before login: deployment mode, whether anonymous visitors get a guest
-    account (and its limits), and whether OIDC login is available (configured and licensed)."""
-    guest_access, limits = False, None
-    if base.SessionLocal is not None:  # guest accounts are DB rows - no DB, no guest access
+    account (and its limits), whether new accounts can sign up, and whether OIDC login is available (configured and
+    licensed)."""
+    guest_access, limits, signup_open = False, None, False
+    if base.SessionLocal is not None:  # guest accounts and signups are DB rows - no DB, neither
         with base.SessionLocal() as db:
             guest_access = bool(instance_setting(db, "guest_access"))
             if guest_access:
                 limits = guest_limits(db)
+            signup_open = signup_allowed(db)
     return {
         "deployment_mode": deployment_mode,
         "guest_access": guest_access,
         "guest_limits": limits,
+        "signup_open": signup_open,
         # Only advertise OAuth login to the frontend if it's both
         # configured AND actually licensed - a community deployment
         # that happens to have OAUTH_DISCOVERY_URL set (e.g. copied from an

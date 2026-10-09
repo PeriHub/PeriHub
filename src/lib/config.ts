@@ -35,6 +35,7 @@ interface PublicConfigResponse {
   deployment_mode: string;
   guest_access: boolean;
   guest_limits: GuestLimits | null;
+  signup_open: boolean;
   oauth_enabled: boolean;
 }
 
@@ -47,6 +48,8 @@ interface PublicConfigResponse {
 export const publicConfig = {
   guestAccess: false,
   guestLimits: null as GuestLimits | null,
+  // Default true: if the config can't be loaded, offer signup and let the backend answer.
+  signupOpen: true,
   oauthEnabled: false
 };
 
@@ -68,6 +71,7 @@ export async function loadPublicConfig(): Promise<void> {
     const data = (await response.json()) as PublicConfigResponse;
     publicConfig.guestAccess = data.guest_access ?? false;
     publicConfig.guestLimits = data.guest_limits ?? null;
+    publicConfig.signupOpen = data.signup_open ?? true;
     publicConfig.oauthEnabled = data.oauth_enabled ?? false;
     loaded = true;
   } catch (error) {

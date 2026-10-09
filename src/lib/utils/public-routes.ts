@@ -7,6 +7,7 @@ const PUBLIC = [
   '/',
   '/auth',
   '/models',
+  '/materials',
   '/publications',
   '/tools',
   '/impressum',

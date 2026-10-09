@@ -11,6 +11,7 @@ describe('isPublicPath', () => {
     '/auth/login',
     '/auth/callback',
     '/models',
+    '/materials',
     '/publications',
     '/tools',
     '/impressum'

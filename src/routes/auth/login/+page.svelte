@@ -17,14 +17,31 @@ SPDX-License-Identifier: Apache-2.0
   second concurrent initAuth() call would just race it.
 -->
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { page } from '$app/state';
   import Button from '$lib/components/ui/Button.svelte';
   import Card from '$lib/components/ui/Card.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import { loginWithPassword, signupWithPassword, initAuth } from '$lib/auth/oauth';
+  import { loadPublicConfig, publicConfig } from '$lib/config';
 
-  let mode: 'login' | 'signup' = $state('login');
+  // ?mode=signup&next=/materials - set by the account teasers (AccountTeaser.svelte).
+  let mode: 'login' | 'signup' = $state(
+    page.url.searchParams.get('mode') === 'signup' ? 'signup' : 'login'
+  );
+  // Same-origin paths only, so the link can't bounce users to another site.
+  const nextParam = page.url.searchParams.get('next') ?? '';
+  const next = /^\/(?![/\\])/.test(nextParam) ? nextParam : '/';
+
+  // Admin closed signup (admin settings) - offer login only and say so.
+  let signupOpen = $state(true);
+  onMount(async () => {
+    await loadPublicConfig();
+    signupOpen = publicConfig.signupOpen;
+    if (!signupOpen) mode = 'login';
+  });
   let email = $state('');
   let password = $state('');
   let displayName = $state('');
@@ -48,7 +65,7 @@ SPDX-License-Identifier: Apache-2.0
         await signupWithPassword(email, password, displayName);
       }
       await initAuth();
-      goto('/', { replaceState: true });
+      goto(next, { replaceState: true });
     } catch (error) {
       console.error(`${mode} failed:`, error);
       errorMessage = extractErrorMessage(error);
@@ -118,12 +135,18 @@ SPDX-License-Identifier: Apache-2.0
       </Button>
     </form>
 
-    <button
-      type="button"
-      onclick={toggleMode}
-      class="text-muted-foreground hover:text-foreground mt-4 w-full text-center text-sm underline-offset-4 hover:underline"
-    >
-      {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
-    </button>
+    {#if signupOpen}
+      <button
+        type="button"
+        onclick={toggleMode}
+        class="text-muted-foreground hover:text-foreground mt-4 w-full text-center text-sm underline-offset-4 hover:underline"
+      >
+        {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
+      </button>
+    {:else}
+      <p class="text-muted-foreground mt-4 text-center text-sm">
+        Sign-up is currently closed. Ask an administrator for an account.
+      </p>
+    {/if}
   </Card>
 </div>
