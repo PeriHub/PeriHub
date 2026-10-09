@@ -155,7 +155,11 @@
   --radius-xl: calc(var(--radius) + 4px);
   --font-sans:
     'Frutiger Light', 'Frutiger Roman', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --font-mono: 'Frutiger Roman', 'Frutiger Light', ui-sans-serif, system-ui, sans-serif;
+  /* Log, code and text editor stay monospaced (columns, cursor overlay in CodeBlock). */
+  --font-code: 'JetBrains Mono Variable', ui-monospace, monospace;
+  /* Preflight's font for code/pre/kbd/samp - would otherwise follow --font-mono (Frutiger). */
+  --default-mono-font-family: var(--font-code);
   --font-display: 'Frutiger Roman', 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
 }
 

@@ -35,7 +35,7 @@ SPDX-License-Identifier: Apache-2.0
   // selection and undo survive re-highlighting (a contenteditable whose HTML is replaced on
   // every keystroke loses them).
   const layer =
-    'col-start-1 row-start-1 m-0 p-3 font-mono text-sm leading-normal whitespace-pre-wrap break-words';
+    'col-start-1 row-start-1 m-0 p-3 font-code text-sm leading-normal whitespace-pre-wrap break-words';
 </script>
 
 {#if editable}
@@ -55,7 +55,7 @@ SPDX-License-Identifier: Apache-2.0
   </div>
 {:else}
   <pre
-    class="language-{language} border-border min-h-[200px] w-full overflow-auto rounded-md border bg-[#2d2d2d] p-3 font-mono text-sm {className}">
+    class="language-{language} border-border font-code min-h-[200px] w-full overflow-auto rounded-md border bg-[#2d2d2d] p-3 text-sm {className}">
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
    <code>{@html highlighted}</code></pre>
 {/if}

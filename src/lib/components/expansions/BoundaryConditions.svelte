@@ -211,7 +211,7 @@ SPDX-License-Identifier: Apache-2.0
             <tr>
               <td colspan={columnCount} class="p-0.5">
                 <textarea
-                  class="border-input bg-background focus-visible:ring-ring min-h-20 w-full resize-y rounded-md border px-2 py-1 font-mono text-[13px] shadow-sm focus-visible:ring-2 focus-visible:outline-none"
+                  class="border-input bg-background focus-visible:ring-ring font-code min-h-20 w-full resize-y rounded-md border px-2 py-1 text-[13px] shadow-sm focus-visible:ring-2 focus-visible:outline-none"
                   aria-label="Value equation of {condition.name}"
                   placeholder="e.g. 0.01 * t"
                   bind:value={condition.value}
