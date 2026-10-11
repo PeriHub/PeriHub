@@ -318,18 +318,16 @@ def get_job_folders(
     model_name: str = "Dogbone",
     request: Request = "",
 ) -> List[str]:
-    """The caller's model folders (workspaces) of this model; 404 if there are none. Read from the
+    """The caller's model folders (workspaces) of this model; empty if there are none. Read from the
     simulations volume - PeriLab doesn't know about folders, only about submitted runs."""
     username = user_folder(request)
 
     localpath = FileHandler.get_local_model_path(username, model_name)
 
     if not os.path.exists(localpath):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No jobs")
+        return []
 
-    job_folders = next(os.walk(localpath))[1]
-
-    return job_folders
+    return next(os.walk(localpath))[1]
 
 
 @router.get("/workspaces/{model_name}/{model_folder_name}/status", operation_id="get_status")

@@ -39,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0
 
   function _getJobFolders() {
     getJobFolders({ modelName: modelStore.selectedModel.file })
-      .then((response) => (modelFolderNameList = response))
+      .then((response) => (modelFolderNameList = response.length ? response : ['Default']))
       .catch((error) => notify.apiError(error));
   }
 
