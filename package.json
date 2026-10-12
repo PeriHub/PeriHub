@@ -57,7 +57,7 @@
     "bibtex-parse-js": "^0.0.23",
     "bits-ui": "^1.0.0",
     "clsx": "^2.1.1",
-    "driver.js": "^0.9.8",
+    "driver.js": "^1.8.0",
     "gcode-preview": "3.0.0-alpha.6",
     "layerchart": "^1.0.0",
     "lucide-svelte": "^0.469.0",
