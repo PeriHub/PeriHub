@@ -242,6 +242,51 @@ SPDX-License-Identifier: Apache-2.0
     completion of your request). Mandatory statutory provisions - in particular statutory retention
     periods - remain unaffected.
   </p>
+  <h3>3. Cookies</h3>
+  <p>
+    Our Internet pages use so-called "cookies". Cookies are small data packets and do not cause any
+    damage to your end device. They are stored on your device either temporarily for the duration of
+    a session (session cookies) or permanently (permanent cookies). Session cookies are
+    automatically deleted at the end of your visit. Permanent cookies remain stored on your end
+    device until you delete them yourself or they are automatically deleted by your web browser.
+  </p>
+  <p>
+    In some cases, cookies from third-party companies may also be stored on your device when you
+    visit our website (third-party cookies). These enable us or you to use certain services of the
+    third-party company (e.g. cookies for processing payment services).
+  </p>
+  <p>
+    Cookies have various functions. Many cookies are technically necessary, as certain website
+    functions would not work without them (e.g. the shopping basket function or the display of
+    videos). Other cookies are used to evaluate user behaviour or display advertising.
+  </p>
+  <p>
+    Cookies that are required to carry out the electronic communication process, to provide certain
+    functions that you have requested (e.g. for the shopping basket function) or to optimise the
+    website (e.g. cookies to measure the web audience) (necessary cookies) are stored on the basis
+    of Art. 6 para. 1 lit. f GDPR, unless another legal basis is specified. The website operator has
+    a legitimate interest in the storage of necessary cookies for the technically error-free and
+    optimised provision of its services. If consent to the storage of cookies and comparable
+    recognition technologies has been requested, the processing is carried out exclusively on the
+    basis of this consent (Art. 6 para. 1 lit. a GDPR and § 25 para. 1 TDDDG); the consent can be
+    revoked at any time.
+  </p>
+  <p>
+    You can set your browser so that you are informed about the setting of cookies and only allow
+    cookies in individual cases, exclude the acceptance of cookies for certain cases or in general
+    and activate the automatic deletion of cookies when closing the browser. If cookies are
+    deactivated, the functionality of this website may be restricted. If cookies are used by
+    third-party companies or for analysis purposes, we will inform you about this separately in the
+    context of this privacy policy and, if necessary, request your consent.
+  </p>
+  <h4>Cookies used</h4>
+  <p>
+    This website does not set any cookies. It only uses your browser's local storage for technically
+    necessary purposes: your login session token and your settings (e.g. dark mode, the current
+    model configuration and opened panels). This data stays on your device, is not passed on to
+    third parties and is not used for analysis or advertising. Logging out removes the session
+    token; you can delete all stored data at any time via your browser settings.
+  </p>
 
   <h2>VI. Rights of the data subject</h2>
   <p>
