@@ -100,7 +100,8 @@ SPDX-License-Identifier: Apache-2.0
     const scale = Math.min((w - 2 * PAD) / bw, (h - 2 * PAD) / bh);
     const ox = (w - bw * scale) / 2;
     const oy = (h - bh * scale) / 2;
-    const size = Math.max(1, 2 * data.dx * scale);
+    // thinned grid spacing is 2 dx; leave a gap so nodes read as discrete points
+    const r = Math.max(0.75, 0.7 * data.dx * scale);
     const n = px.length;
     const s = data.u_scale;
     const bins: number[][] = PALETTE.map(() => []);
@@ -110,18 +111,19 @@ SPDX-License-Identifier: Apache-2.0
     }
     const f = s * data.displ_factor;
     bins.forEach((list, b) => {
+      if (!list.length) return;
       ctx.fillStyle = PALETTE[b];
+      ctx.beginPath();
       for (const k of list) {
         const x = px[k] + u[2 * (frame * n + k)] * f;
         const y = py[k] + u[2 * (frame * n + k) + 1] * f;
         // flip y: model y points up, canvas y points down
-        ctx.fillRect(
-          ox + (x - bounds.x0) * scale - size / 2,
-          oy + (bounds.y1 - y) * scale - size / 2,
-          size,
-          size
-        );
+        const cx = ox + (x - bounds.x0) * scale;
+        const cy = oy + (bounds.y1 - y) * scale;
+        ctx.moveTo(cx + r, cy);
+        ctx.arc(cx, cy, r, 0, 2 * Math.PI);
       }
+      ctx.fill();
     });
   }
 
