@@ -90,7 +90,7 @@ perilab_api_timeout_seconds = float(os.getenv("PERILAB_API_TIMEOUT_SECONDS", def
 # LICENSE_SERVER_URL; see support/license_client.py for the (documented,
 # assumed) request/response contract PeriHub expects from it, and
 # support/entitlements.py for how routers gate paid features behind it.
-license_server_url = os.getenv("LICENSE_SERVER_URL", default="")
+license_server_url = os.getenv("LICENSE_SERVER_URL", default="https://perihub-license.nimbus-extern.dlr.de")
 license_key = os.getenv("LICENSE_KEY", default="")
 # Unique id for *this* PeriHub instance/install, sent to the license server so
 # it can track seat/instance usage independently of any one user account.

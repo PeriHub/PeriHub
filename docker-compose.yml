@@ -54,7 +54,7 @@ services:
     container_name: perihub_perilab
     environment:
       LICENSE_SERVER_URL: ${LICENSE_SERVER_URL-}
-      PERIHUB_LICENSE_KEY: ${PERIHUB_LICENSE_KEY-}
+      LICENSE_KEY: ${LICENSE_KEY-}
       CONTENT_SIGNING_SECRET: ${CONTENT_SIGNING_SECRET-}
     volumes:
       - ${VOLUME-./backend/app/simulations}:/app/simulations

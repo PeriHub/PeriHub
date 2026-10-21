@@ -18,6 +18,7 @@ SPDX-License-Identifier: Apache-2.0
     FastForward,
     SkipForward,
     Settings,
+    SlidersHorizontal,
     LoaderCircle
   } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
@@ -68,6 +69,8 @@ SPDX-License-Identifier: Apache-2.0
   let time = $state(0);
   let playing = $state(false);
   let expansionValue = $state('');
+  // Narrow screens only: the panel would cover the view, so it starts hidden.
+  let showControls = $state(false);
 
   let timer: ReturnType<typeof setInterval> | undefined;
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
@@ -184,7 +187,10 @@ SPDX-License-Identifier: Apache-2.0
 
 <div class="relative flex h-full flex-col overflow-hidden">
   <div class="border-border bg-muted/30 flex flex-col gap-1 border-b px-2 py-1.5">
-    <div class="flex flex-wrap items-center gap-1">
+    <!-- Smaller buttons on narrow screens so all ten fit on one row. -->
+    <div
+      class="flex flex-wrap items-center gap-0.5 md:gap-1 [&_button]:size-8 md:[&_button]:size-9"
+    >
       <Button variant="ghost" size="icon" onclick={() => viewPointData(true)} title="Reload Model">
         <RotateCw class="h-4 w-4" />
       </Button>
@@ -192,6 +198,16 @@ SPDX-License-Identifier: Apache-2.0
         <Maximize class="h-4 w-4" />
       </Button>
       <CameraViewMenu onSelect={(direction) => scene?.fitToPoints(direction)} />
+      <Button
+        variant={showControls ? 'secondary' : 'ghost'}
+        size="icon"
+        class="md:hidden"
+        onclick={() => (showControls = !showControls)}
+        title="View options"
+        aria-pressed={showControls}
+      >
+        <SlidersHorizontal class="h-4 w-4" />
+      </Button>
       <Button
         variant="ghost"
         size="icon"
@@ -223,7 +239,7 @@ SPDX-License-Identifier: Apache-2.0
         <SkipForward class="h-4 w-4" />
       </Button>
 
-      <div class="ml-2 flex min-w-[160px] items-center gap-2 px-2">
+      <div class="flex w-full min-w-[160px] items-center gap-2 px-2 md:ml-2 md:w-auto">
         <label for="results-step" class="text-muted-foreground text-xs whitespace-nowrap">
           Time Step: {modelParams.step}
         </label>
@@ -264,7 +280,9 @@ SPDX-License-Identifier: Apache-2.0
          at the top-left of the 3D view regardless of how many rows the
          toolbar above ends up needing. -->
     <div
-      class="border-border bg-background/90 absolute top-2 left-2 flex w-56 flex-col gap-2 rounded-md border p-2 shadow-sm backdrop-blur-sm"
+      class="border-border bg-background/90 absolute top-2 left-2 max-h-[calc(100%-1rem)] w-56 flex-col overflow-y-auto md:flex {showControls
+        ? 'flex'
+        : 'hidden'} gap-2 rounded-md border p-2 shadow-sm backdrop-blur-sm"
     >
       <div>
         <Label for="results-variable">Variable</Label>

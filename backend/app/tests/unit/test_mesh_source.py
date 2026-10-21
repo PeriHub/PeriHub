@@ -15,7 +15,7 @@ from backend.app.main import app
 from backend.app.routers.model import get_workspace_file
 from backend.app.support.base_models import Model
 from backend.app.support.file_handler import FileHandler
-from backend.app.support.model import mesh_readers
+from backend.app.support.model import loader, mesh_readers
 
 client = TestClient(app)
 
@@ -120,3 +120,41 @@ def test_workspace_file(folder):
         get_workspace_file(MODEL, "Default", "..", SimpleNamespace(headers=HEADERS))
     assert error.value.status_code == 404
     assert client.get(f"/workspaces/{MODEL}/Default/files/missing.gcode", headers=HEADERS).status_code == 404
+
+
+GCODE_EXAMPLE = "PeriHubLogo"
+
+
+@pytest.fixture
+def example_folder(no_db, monkeypatch, tmp_path):
+    monkeypatch.setattr(FileHandler, "get_local_simulation_path", staticmethod(lambda: str(tmp_path)))
+    yield FileHandler.get_local_model_folder_path(USER, GCODE_EXAMPLE, "Default")
+
+
+def test_gcode_example_is_listed_without_generator():
+    listed = {m["file"]: m for m in loader.list_models("built_in")}
+    assert listed[GCODE_EXAMPLE]["format"] == "gcode"
+    assert listed[GCODE_EXAMPLE]["title"] == "PeriHub Logo"
+    assert client.get(f"/models/{GCODE_EXAMPLE}/params").json() == {"valves": []}
+    assert loader.load_analyses(GCODE_EXAMPLE) == {}
+    with pytest.raises(LookupError, match="no generator"):
+        loader.load_model(GCODE_EXAMPLE)
+    assert loader.bundled_mesh(GCODE_EXAMPLE, "../Dogbone/Dogbone.json") is None
+
+
+def test_gcode_example_preview_and_generate(example_folder):
+    # Before generate the preview is served from the bundled file, generate then copies it for PeriLab.
+    response = client.get(f"/workspaces/{GCODE_EXAMPLE}/Default/files/{GCODE_EXAMPLE}.gcode", headers=HEADERS)
+    assert response.status_code == 200
+    assert response.text.startswith("; title: PeriHub Logo")
+    config = client.get(f"/models/{GCODE_EXAMPLE}/config").json()
+    response = client.post(
+        f"/workspaces/{GCODE_EXAMPLE}/Default/generate",
+        json={"data": config, "valves": {"valves": []}},
+        headers=HEADERS,
+    )
+    assert response.status_code == 200, response.text
+    assert os.path.isfile(os.path.join(example_folder, f"{GCODE_EXAMPLE}.gcode"))
+    with open(os.path.join(example_folder, f"{GCODE_EXAMPLE}.yaml"), encoding="UTF-8") as file:
+        deck = file.read()
+    assert "Type: Gcode" in deck and f"Input Mesh File: {GCODE_EXAMPLE}.gcode" in deck

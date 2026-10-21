@@ -13,7 +13,13 @@ from backend.app.routers import generate
 
 client = TestClient(app)
 
-BUILT_IN = sorted(d for d in os.listdir("./models") if os.path.isfile(os.path.join("./models", d, d + ".json")))
+# Models with a generator; G-code examples bring their mesh instead (test_mesh_source.py).
+BUILT_IN = sorted(
+    d
+    for d in os.listdir("./models")
+    if os.path.isfile(os.path.join("./models", d, d + ".json"))
+    and not os.path.isfile(os.path.join("./models", d, d + ".gcode"))
+)
 
 
 def _body(model_name):

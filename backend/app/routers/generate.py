@@ -4,6 +4,7 @@
 
 import json
 import os
+import shutil
 import time
 from typing import Optional
 
@@ -20,6 +21,7 @@ from ..support.base_models import Block, Deviations, GenerateResult, ModelData, 
 from ..support.file_handler import FileHandler
 from ..support.globals import log
 from ..support.guest import DB_LESS_USER, GUEST_DENIED, apply_guest_limits, current_user, guest_limits
+from ..support.model import loader
 from ..support.model.point_cloud import build_point_cloud, valves_to_dict
 from ..support.writer.model_writer import ModelWriter
 
@@ -80,6 +82,10 @@ def generate_model(
         os.makedirs(localpath)
 
     uploaded_mesh = data.model.meshSource == "upload"
+    # G-code examples ship their mesh with the model; put a copy where PeriLab expects the uploaded file.
+    bundled = loader.bundled_mesh(model_name, data.model.meshFile) if uploaded_mesh else None
+    if bundled and not os.path.isfile(os.path.join(localpath, bundled.name)):
+        shutil.copy(bundled, localpath)
     if uploaded_mesh and (not data.model.meshFile or not os.path.isfile(os.path.join(localpath, data.model.meshFile))):
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="No mesh uploaded for this model")
 

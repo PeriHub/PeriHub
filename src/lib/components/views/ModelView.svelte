@@ -105,7 +105,7 @@ SPDX-License-Identifier: Apache-2.0
   {/await}
 {:else}
   <div class="flex h-full flex-col">
-    <div class="border-border bg-muted/30 flex items-center gap-1 border-b px-2 py-1.5">
+    <div class="border-border bg-muted/30 flex flex-wrap items-center gap-1 border-b px-2 py-1.5">
       <Button variant="ghost" size="icon" onclick={viewPointData} title="Reload Model">
         <RefreshCw class="h-4 w-4" />
       </Button>
@@ -114,35 +114,41 @@ SPDX-License-Identifier: Apache-2.0
       </Button>
       <CameraViewMenu onSelect={(direction) => scene?.fitToPoints(direction)} />
 
-      <div class="mx-2 flex min-w-[140px] flex-1 items-center gap-2">
-        <label for="model-view-radius" class="text-muted-foreground text-xs whitespace-nowrap">
-          Radius: {multiplier}%
-        </label>
-        <input
-          id="model-view-radius"
-          type="range"
-          min="1"
-          max="200"
-          step="1"
-          bind:value={multiplier}
-          onchange={updatePoints}
-          class="accent-primary flex-1"
-        />
-      </div>
+      <!-- Own row below the buttons on narrow screens, inline from md up. -->
+      <div class="flex w-full gap-4 px-2 md:w-auto md:flex-1">
+        <div class="flex min-w-0 flex-1 items-center gap-2">
+          <label for="model-view-radius" class="text-muted-foreground text-xs whitespace-nowrap">
+            Radius: {multiplier}%
+          </label>
+          <input
+            id="model-view-radius"
+            type="range"
+            min="1"
+            max="200"
+            step="1"
+            bind:value={multiplier}
+            onchange={updatePoints}
+            class="accent-primary w-full min-w-0 flex-1"
+          />
+        </div>
 
-      <div class="mx-2 flex min-w-[140px] flex-1 items-center gap-2">
-        <label for="model-view-resolution" class="text-muted-foreground text-xs whitespace-nowrap">
-          Resolution: {resolution}
-        </label>
-        <input
-          id="model-view-resolution"
-          type="range"
-          min="3"
-          max="20"
-          step="1"
-          bind:value={resolution}
-          class="accent-primary flex-1"
-        />
+        <div class="flex min-w-0 flex-1 items-center gap-2">
+          <label
+            for="model-view-resolution"
+            class="text-muted-foreground text-xs whitespace-nowrap"
+          >
+            Resolution: {resolution}
+          </label>
+          <input
+            id="model-view-resolution"
+            type="range"
+            min="3"
+            max="20"
+            step="1"
+            bind:value={resolution}
+            class="accent-primary w-full min-w-0 flex-1"
+          />
+        </div>
       </div>
     </div>
 

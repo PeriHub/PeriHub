@@ -48,12 +48,15 @@ SPDX-License-Identifier: Apache-2.0
   const showCad = false;
 
   const tabClass =
-    'px-3 py-2 pr-4 text-ml font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground';
+    'shrink-0 whitespace-nowrap px-2 py-2 text-sm md:px-3 md:pr-4 md:text-base font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground';
 </script>
 
 <div class="flex h-full flex-col overflow-hidden">
   <Tabs.Root bind:value={viewStore.viewId} class="flex h-full flex-col">
-    <Tabs.List class="border-border bg-muted/40 flex flex-wrap justify-center gap-x-6 border-b">
+    <!-- One row on mobile; scrolls sideways if extra tabs (e.g. Analysis) don't fit. -->
+    <Tabs.List
+      class="border-border bg-muted/40 flex justify-between overflow-x-auto border-b md:flex-wrap md:justify-center md:gap-x-6"
+    >
       <Tabs.Trigger value="image" class={tabClass}>Preview</Tabs.Trigger>
       {#if showModel}
         <Tabs.Trigger value="model" class={tabClass}>Model</Tabs.Trigger>

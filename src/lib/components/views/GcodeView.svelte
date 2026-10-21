@@ -43,6 +43,25 @@ SPDX-License-Identifier: Apache-2.0
     );
   });
 
+  // The default camera frames a whole 200 mm print bed, so small parts are a speck.
+  // Aim at the part instead, keeping the default viewing direction.
+  function fitCamera(p: GCodePreview) {
+    const { center, size } = p.job.boundingBox;
+    if (!center || !size) return;
+    const { camera, controls } = p.sceneManager;
+    // G-code (x, y, z) is drawn rotated to scene (x, z, -y).
+    const target = controls.target.set(center.x, center.z, -center.y);
+    const radius = Math.max(Math.hypot(size.x, size.y, size.z) / 2, 1);
+    const fov = 'fov' in camera ? (camera.fov * Math.PI) / 180 : Math.PI / 4;
+    const direction = camera.position.clone().sub(target).normalize();
+    camera.position.copy(target).addScaledVector(direction, (1.2 * radius) / Math.sin(fov / 2));
+    camera.near = radius / 100;
+    camera.far = radius * 100;
+    camera.updateProjectionMatrix();
+    controls.update();
+    p.sceneManager.render();
+  }
+
   async function load(url: string) {
     if (!preview) return;
     const id = ++loadId;
@@ -53,7 +72,9 @@ SPDX-License-Identifier: Apache-2.0
       const response = await api.get<string>(url, { responseType: 'text' });
       if (id !== loadId) return;
       await preview.processGCodeStream(response.data);
-      if (id === loadId) loading = false;
+      if (id !== loadId) return;
+      loading = false;
+      fitCamera(preview);
     } catch (cause) {
       if (id !== loadId) return;
       loading = false;

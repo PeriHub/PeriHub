@@ -9,6 +9,9 @@
         <Name>.yaml | <Name>.py     exactly one — the generator
         analysis.py                 optional @analysis functions for a YAML model
         <Name>.json                 optional default input deck (ModelData)
+        <Name>.gcode                instead of a generator: a G-code example (its config has
+                                    meshSource "upload" + meshFile, the mesh is bundled here;
+                                    analysis.py works as for YAML models)
 
 Metadata (title, requirements, ...) is read statically — YAML parsing / `ast` for Python — so
 listing models and installing requirements never imports user code whose requirements may be
@@ -56,6 +59,9 @@ def find_model(name: str) -> tuple[Path, str]:
         found = _generator_file(directory / name)
         if found:
             return found
+        gcode = _gcode_file(directory / name)
+        if gcode:
+            return gcode, "gcode"
     raise LookupError(f"Model {name} not found")
 
 
@@ -80,6 +86,8 @@ def _model_subclasses(module):
 def load_model(name: str) -> type[PeriHubModel]:
     """The model's class. LookupError says why it can't be used (not found, legacy, broken)."""
     path, fmt = find_model(name)
+    if fmt == "gcode":
+        raise LookupError(f"Model {name} is a G-code example and has no generator")
     try:
         if fmt == "yaml":
             return model_class(path.read_text(encoding="utf-8"), name)
@@ -101,7 +109,7 @@ def load_model(name: str) -> type[PeriHubModel]:
 
 def _analysis_module(name: str):
     path, fmt = find_model(name)
-    if fmt == "yaml":
+    if fmt in ("yaml", "gcode"):
         path = path.parent / "analysis.py"
         if not path.is_file():
             return None
@@ -155,9 +163,38 @@ def _generator_file(folder: Path) -> tuple[Path, str] | None:
     return None
 
 
+def _gcode_file(folder: Path) -> Path | None:
+    path = folder / (folder.name + ".gcode")
+    return path if path.is_file() else None
+
+
+def _gcode_metadata(path: Path) -> dict:
+    """`; key: value` comments at the top of a G-code example."""
+    meta = {}
+    with path.open(encoding="utf-8") as file:
+        for line in file:
+            if not line.startswith(";"):
+                break
+            key, sep, value = line[1:].partition(":")
+            if sep:
+                meta[key.strip()] = value.strip()
+    return meta
+
+
+def bundled_mesh(name: str, filename: str) -> Path | None:
+    """A mesh file shipped in the model's folder (G-code examples), built-in first; None if there is none."""
+    if not name or not filename or any(c in name + filename for c in "/\\") or name.startswith("."):
+        return None
+    for directory in MODEL_DIRS.values():
+        path = directory / name / filename
+        if not filename.startswith(".") and path.is_file():
+            return path
+    return None
+
+
 def metadata(folder: Path) -> dict:
     """What the model list shows. Never raises: a broken model is listed with `error`."""
-    path, fmt = _generator_file(folder)
+    path, fmt = _generator_file(folder) or (_gcode_file(folder), "gcode")
     info = {
         "file": folder.name,
         "title": folder.name,
@@ -172,6 +209,8 @@ def metadata(folder: Path) -> dict:
             meta = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             if not isinstance(meta, dict):
                 raise ModelSpecError("the model file must be a YAML mapping")
+        elif fmt == "gcode":
+            meta = _gcode_metadata(path)
         else:
             meta = _python_metadata(path)
     except (LookupError, ModelSpecError, yaml.YAMLError, SyntaxError, OSError) as e:
@@ -189,7 +228,9 @@ def list_models(kind: str) -> list[dict]:
     if not directory.is_dir():
         return []
     folders = sorted(directory / entry for entry in os.listdir(directory) if not entry.startswith(("_", ".")))
-    # A folder without a generator file (e.g. only a leftover config) isn't a model.
+    # A folder without a generator or G-code file (e.g. only a leftover config) isn't a model.
     return [
-        {**metadata(folder), "own": kind == "own"} for folder in folders if folder.is_dir() and _generator_file(folder)
+        {**metadata(folder), "own": kind == "own"}
+        for folder in folders
+        if folder.is_dir() and (_generator_file(folder) or _gcode_file(folder))
     ]

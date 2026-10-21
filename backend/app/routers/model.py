@@ -225,13 +225,17 @@ def get_point_data(
 
 @router.get("/workspaces/{model_name}/{model_folder_name}/files/{filename}", operation_id="get_workspace_file")
 def get_workspace_file(model_name: str, model_folder_name: str, filename: str, request: Request = ""):
-    """A single file of a model folder, e.g. an uploaded G-code mesh for the browser preview."""
+    """A single file of a model folder, e.g. an uploaded G-code mesh for the browser preview. Falls back to the
+    mesh bundled with a G-code example, which is only copied into the folder on generate."""
     username = user_folder(request)
     folder = Path(FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)).resolve()
     path = (folder / filename).resolve()
-    if path.parent != folder or not path.is_file():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{filename} not found")
-    return FileResponse(path)
+    if path.parent == folder and path.is_file():
+        return FileResponse(path)
+    bundled = loader.bundled_mesh(model_name, filename)
+    if bundled:
+        return FileResponse(bundled)
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{filename} not found")
 
 
 @router.get("/workspaces/{model_name}/{model_folder_name}/input-deck", operation_id="view_input_file")

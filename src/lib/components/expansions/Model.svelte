@@ -25,6 +25,13 @@ SPDX-License-Identifier: Apache-2.0
 
   const model = $derived(modelStore.modelData.model);
   const uploaded = $derived(model.meshSource === 'upload');
+  // G-code examples are predefined models whose config points at a bundled mesh file.
+  const gcodeExample = $derived(
+    modelStore.availableModels.some(
+      (m) => m.file === modelStore.selectedModel.file && m.format === 'gcode'
+    )
+  );
+  const source = $derived(uploaded && !gcodeExample ? 'upload' : 'model');
   const sources = [
     { value: 'model', label: 'Predefined model' },
     { value: 'upload', label: 'Upload mesh' }
@@ -52,9 +59,9 @@ SPDX-License-Identifier: Apache-2.0
     bus.emit('getStatus' as never);
   }
 
-  async function switchMeshSource(source: 'model' | 'upload') {
-    if (source === model.meshSource) return;
-    if (source === 'upload') {
+  async function switchMeshSource(target: 'model' | 'upload') {
+    if (target === source) return;
+    if (target === 'upload') {
       // Own workspace name, so uploads don't land in a predefined model's folders.
       modelStore.selectedModel = { title: 'Uploaded mesh', file: 'UploadedMesh' };
       model.meshSource = 'upload';
@@ -153,24 +160,24 @@ SPDX-License-Identifier: Apache-2.0
     class="border-input bg-muted/40 inline-flex rounded-md border p-0.5"
     title={authStore.isGuest ? 'Log in for full access' : undefined}
   >
-    {#each sources as source (source.value)}
+    {#each sources as option (option.value)}
       <button
         type="button"
         role="radio"
-        aria-checked={model.meshSource === source.value}
+        aria-checked={source === option.value}
         disabled={authStore.isGuest}
-        onclick={() => switchMeshSource(source.value)}
-        class="focus-visible:ring-ring h-7 rounded px-3 text-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 {model.meshSource ===
-        source.value
+        onclick={() => switchMeshSource(option.value)}
+        class="focus-visible:ring-ring h-7 rounded px-3 text-xs transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 {source ===
+        option.value
           ? 'bg-background shadow-sm'
           : 'text-muted-foreground hover:text-foreground'}"
       >
-        {source.label}
+        {option.label}
       </button>
     {/each}
   </div>
 
-  {#if !uploaded}
+  {#if source === 'model'}
     <div class="max-w-xs space-y-1">
       <Label for="model-select">Model name</Label>
       <Select
@@ -216,7 +223,7 @@ SPDX-License-Identifier: Apache-2.0
     </datalist>
   </div>
 
-  {#if uploaded}
+  {#if source === 'upload'}
     <div class="max-w-xs space-y-1">
       <Label for="mesh-file">Mesh file</Label>
       {#if model.meshFile}
