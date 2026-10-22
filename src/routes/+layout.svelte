@@ -94,4 +94,10 @@ SPDX-License-Identifier: Apache-2.0
   {/if}
 </div>
 
-<Toaster richColors position="bottom-right" duration={2500} />
+<!-- Compact on phones: sonner stretches toasts edge to edge below 600px. -->
+<Toaster
+  richColors
+  position="bottom-right"
+  duration={2500}
+  toastOptions={{ class: 'max-sm:gap-1.5! max-sm:px-3! max-sm:py-2! max-sm:text-xs!' }}
+/>

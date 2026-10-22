@@ -242,3 +242,6 @@ class PeriLabApiClient:
         if isinstance(payload, list):
             return payload
         return payload.get("files", [])
+
+    def get_file(self, job_id: str, file_path: str) -> bytes:
+        return self._request("GET", f"/jobs/{job_id}/files/{file_path}").content

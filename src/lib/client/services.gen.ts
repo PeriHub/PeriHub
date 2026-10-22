@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetRunSummaryData, GetRunSummaryResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, GetRunInputData, GetRunInputResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetRunSummaryData, GetRunSummaryResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -239,7 +239,8 @@ export const getPointData = (data: GetPointDataData): CancelablePromise<GetPoint
 
 /**
  * Get Workspace File
- * A single file of a model folder, e.g. an uploaded G-code mesh for the browser preview.
+ * A single file of a model folder, e.g. an uploaded G-code mesh for the browser preview. Falls back to the
+ * mesh bundled with a G-code example, which is only copied into the folder on generate.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
@@ -433,7 +434,7 @@ export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse
 
 /**
  * Get Job Folders
- * The caller's model folders (workspaces) of this model; 404 if there are none. Read from the
+ * The caller's model folders (workspaces) of this model; empty if there are none. Read from the
  * simulations volume - PeriLab doesn't know about folders, only about submitted runs.
  * @param data The data for the request.
  * @param data.modelName
@@ -581,6 +582,27 @@ export const getRunLog = (data: GetRunLogData): CancelablePromise<GetRunLogRespo
     query: {
         tail: data.tail,
         debug: data.debug
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Run Input
+ * The PeriLab input deck (YAML) a run was actually started with - the model folder's own deck may have been
+ * regenerated since. 404 while the run has no PeriLab job yet or PeriLab no longer has its files, 503 when PeriLab
+ * is offline.
+ * @param data The data for the request.
+ * @param data.runId
+ * @returns string The input deck the run was started with
+ * @throws ApiError
+ */
+export const getRunInput = (data: GetRunInputData): CancelablePromise<GetRunInputResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/jobs/{run_id}/input',
+    path: {
+        run_id: data.runId
     },
     errors: {
         422: 'Validation Error'
@@ -819,8 +841,8 @@ export const getPublications = (): CancelablePromise<GetPublicationsResponse> =>
 }); };
 
 /**
- * Energy
- * Forecast share of renewable power in the German grid from energy-charts.info, as `{local time: share}`.
+ * Energy Prognosis
+ * Forecast share of renewable power in the German grid from energy-charts.info, as `{UTC ISO time: share}`.
  * @returns unknown Successful Response
  * @throws ApiError
  */
@@ -830,8 +852,8 @@ export const getPrognosisEnergy = (): CancelablePromise<GetPrognosisEnergyRespon
 }); };
 
 /**
- * Energy
- * Current German grid traffic-light signal from energy-charts.info (the value nearest to now).
+ * Energy Current
+ * Current share of renewable power (%) in the German grid from energy-charts.info (the value nearest to now).
  * @returns number Successful Response
  * @throws ApiError
  */
@@ -1282,7 +1304,8 @@ export const removeTeamMember = (data: RemoveTeamMemberData): CancelablePromise<
 /**
  * Get Public Config
  * Deployment settings the frontend needs before login: deployment mode, whether anonymous visitors get a guest
- * account (and its limits), and whether OIDC login is available (configured and licensed).
+ * account (and its limits), whether new accounts can sign up, and whether OIDC login is available (configured and
+ * licensed).
  * @returns unknown Successful Response
  * @throws ApiError
  */

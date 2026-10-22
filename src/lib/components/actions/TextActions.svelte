@@ -39,7 +39,6 @@ SPDX-License-Identifier: Apache-2.0
       modelFolderName: modelData.model.modelFolderName
     })
       .then((response) => {
-        notify.positive('Inputfile loaded');
         viewStore.textOutput = response as unknown as string;
         viewStore.textId = 'input';
       })

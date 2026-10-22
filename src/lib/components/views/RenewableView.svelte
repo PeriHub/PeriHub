@@ -6,18 +6,19 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { LineChart } from 'layerchart';
+  import { LineChart, Rule } from 'layerchart';
   import { getPrognosisEnergy } from '$lib/client';
   import { notify } from '$lib/utils/notify';
 
   let data = $state<{ date: Date; share: number }[]>([]);
+  const now = new Date();
 
   onMount(async () => {
     try {
-      // response is { "YYYY-MM-DD HH:MM:SS": percent renewable share }
+      // response is { "<UTC ISO time>": percent renewable share }
       const response = (await getPrognosisEnergy()) as Record<string, number>;
-      data = Object.entries(response).map(([label, share]) => ({
-        date: new Date(label.replace(' ', 'T')),
+      data = Object.entries(response).map(([time, share]) => ({
+        date: new Date(time),
         share
       }));
     } catch (error) {
@@ -35,9 +36,17 @@ SPDX-License-Identifier: Apache-2.0
     series={[{ key: 'share', label: 'Percent of renewable energy share', color: '#82a043' }]}
     points={false}
     props={{
-      xAxis: { classes: { tickLabel: 'fill-muted-foreground text-[10px]' } },
+      xAxis: {
+        format: (d: Date | number) =>
+          new Date(d).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        classes: { tickLabel: 'fill-muted-foreground text-[10px]' }
+      },
       yAxis: { classes: { tickLabel: 'fill-muted-foreground text-[10px]' } },
       grid: { class: 'stroke-border/40' }
     }}
-  />
+  >
+    <svelte:fragment slot="aboveMarks">
+      <Rule x={now} class="stroke-foreground/60 [stroke-dasharray:4_3]" />
+    </svelte:fragment>
+  </LineChart>
 </div>

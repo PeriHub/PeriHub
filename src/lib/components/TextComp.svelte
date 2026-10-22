@@ -5,24 +5,10 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { Tabs } from 'bits-ui';
   import { viewStore } from '$lib/stores/view-store.svelte';
-  import { bus } from '$lib/utils/bus';
   import TextView from '$lib/components/views/TextView.svelte';
   import LogView from '$lib/components/views/LogView.svelte';
-
-  function updateTextView() {
-    if (viewStore.textId === 'input') {
-      bus.emit('viewInputFile' as never);
-    } else if (viewStore.textId === 'log') {
-      bus.emit('enableWebsocket' as never);
-    }
-  }
-  onMount(() => {
-    bus.on('updateTextView' as never, updateTextView);
-    return () => bus.off('updateTextView' as never, updateTextView);
-  });
 
   const tabClass =
     'flex-1 px-3 py-2 text-center text-sm font-medium text-muted-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground';

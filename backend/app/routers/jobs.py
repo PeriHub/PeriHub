@@ -528,6 +528,37 @@ def get_run_log(
     return text
 
 
+@router.get(
+    "/jobs/{run_id}/input",
+    operation_id="get_run_input",
+    response_class=PlainTextResponse,
+    responses={200: {"content": {"text/plain": {}}, "description": "The input deck the run was started with"}},
+)
+def get_run_input(run_id: str, request: Request, db: Session = Depends(get_db)) -> str:
+    """The PeriLab input deck (YAML) a run was actually started with - the model folder's own deck may have been
+    regenerated since. 404 while the run has no PeriLab job yet or PeriLab no longer has its files, 503 when PeriLab
+    is offline."""
+    entry = _viewable_entry(db, request, run_id)
+    job_ids = perilab_job_ids(entry)
+    if not job_ids:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No PeriLab job ID associated with this run yet. The job may still be queued.",
+        )
+    # First job only for a batch submission, same as the log; a batch variant's deck is "<model>_<id>.yaml".
+    client = get_solver_backend().client()
+    try:
+        decks = [f for f in client.list_files(job_ids[0]) if f.endswith(".yaml")]
+        if not decks:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="The run has no input deck")
+        deck = entry.model_name + ".yaml" if entry.model_name + ".yaml" in decks else decks[0]
+        return client.get_file(job_ids[0], deck).decode("utf-8", errors="replace")
+    except HTTPException as e:
+        if e.status_code == status.HTTP_503_SERVICE_UNAVAILABLE:
+            raise
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e.detail)) from e
+
+
 @router.delete("/jobs/{run_id}", operation_id="delete_run", response_model=RunDeleted)
 def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     """Deletes a finished run: its PeriLab job(s) - log and result files -

@@ -2,83 +2,45 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
 
 import requests
 from fastapi import APIRouter, HTTPException, status
 
-# from ..support.base_models import
-
 router = APIRouter(prefix="/energy", tags=["Upload Methods"])
 
 
-@router.get("/prognosis", operation_id="get_prognosis_energy")
-async def energy() -> dict:
-    """Forecast share of renewable power in the German grid from energy-charts.info, as `{local time: share}`."""
-    # Define the URL and query parameters
-    url = "https://api.energy-charts.info/signal"
-    params = {"country": "de"}
-
-    # Send a GET request to the URL with the query parameters
-    response = requests.get(url, params=params)
-
-    # Check if the request was successful (status code 200)
-    if response.status_code == 200:
-        raw_data = response.json()
-        data = {}
-
-        # Loop through the xAxisValues and data arrays
-        for index, value in enumerate(raw_data["share"]):
-            # Convert the timestamp to a date string
-            timestamp = raw_data["unix_seconds"][index]
-            date = datetime.utcfromtimestamp(timestamp / 1000) + timedelta(
-                hours=2
-            )  # Assuming the timestamp is in milliseconds and utc
-            date_string = date.strftime("%Y-%m-%d %H:%M:%S")
-
-            # Assign the value to the result dictionary with the date string as the key
-            data[date_string] = value
-
-        # Now, 'data' contains the processed data
-        return data
-
-    else:
+def _signal() -> dict:
+    """energy-charts.info's German grid signal: `unix_seconds` and the renewable `share` (%) per 15 min."""
+    try:
+        response = requests.get("https://api.energy-charts.info/signal", params={"country": "de"}, timeout=10)
+    except requests.RequestException as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"energy-charts.info unreachable: {e}")
+    if response.status_code != 200:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Request failed with status code {response.status_code}",
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"energy-charts.info request failed with status code {response.status_code}",
         )
+    return response.json()
+
+
+@router.get("/prognosis", operation_id="get_prognosis_energy")
+def energy_prognosis() -> dict:
+    """Forecast share of renewable power in the German grid from energy-charts.info, as `{UTC ISO time: share}`."""
+    data = _signal()
+    return {
+        datetime.fromtimestamp(ts, timezone.utc).isoformat(): share
+        for ts, share in zip(data["unix_seconds"], data["share"])
+        if share is not None
+    }
 
 
 @router.get("/current", operation_id="get_current_energy")
-async def energy() -> float:
-    """Current German grid traffic-light signal from energy-charts.info (the value nearest to now)."""
-    # Define the URL and query parameters
-    url = "https://api.energy-charts.info/traffic_signal"
-    params = {"country": "de"}
-
-    # Target timestamp for which you want to find the nearest value
-    target_timestamp = int(datetime.now().timestamp() * 1000)
-
-    # Send a GET request to the URL with the query parameters
-    response = requests.get(url, params=params)
-
-    # Check if the request was successful (status code 200)
-    if response.status_code == 200:
-        raw_data = response.json()
-
-        # Find the index of the nearest timestamp in 'xAxisValues' array
-        nearest_index = min(
-            range(len(raw_data[0]["xAxisValues"])), key=lambda i: abs(raw_data[0]["xAxisValues"][i] - target_timestamp)
-        )
-
-        # Get the nearest value from the 'data' array
-        nearest_value = raw_data[0]["data"][nearest_index]
-
-        # Now, 'data' contains the processed data
-        return nearest_value
-
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Request failed with status code {response.status_code}",
-        )
+def energy_current() -> float:
+    """Current share of renewable power (%) in the German grid from energy-charts.info (the value nearest to now)."""
+    data = _signal()
+    now = datetime.now(timezone.utc).timestamp()
+    points = [(ts, share) for ts, share in zip(data["unix_seconds"], data["share"]) if share is not None]
+    if not points:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="energy-charts.info returned no data")
+    return min(points, key=lambda p: abs(p[0] - now))[1]

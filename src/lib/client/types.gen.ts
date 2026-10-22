@@ -1036,6 +1036,12 @@ export type GetRunLogData = {
 
 export type GetRunLogResponse = string;
 
+export type GetRunInputData = {
+    runId: string;
+};
+
+export type GetRunInputResponse = string;
+
 export type CancelRunData = {
     runId: string;
 };
@@ -1645,6 +1651,21 @@ export type $OpenApiTs = {
             res: {
                 /**
                  * The end of the run's log
+                 */
+                200: string;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/jobs/{run_id}/input': {
+        get: {
+            req: GetRunInputData;
+            res: {
+                /**
+                 * The input deck the run was started with
                  */
                 200: string;
                 /**

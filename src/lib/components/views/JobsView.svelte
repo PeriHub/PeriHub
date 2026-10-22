@@ -16,6 +16,7 @@ SPDX-License-Identifier: Apache-2.0
   import {
     cancelRun as cancelRunApi,
     deleteRun as deleteRunApi,
+    getRunInput,
     getValves,
     listAllRuns
   } from '$lib/client';
@@ -119,9 +120,18 @@ SPDX-License-Identifier: Apache-2.0
     defaultStore.status = { ...defaultStore.status, run_id: run.id, submitted: isActive(run) };
     viewStore.textId = 'log';
     bus.emit('getStatus' as never);
-    if (isActive(run)) {
-      bus.emit('enableWebsocket' as never, { force: true } as never);
-    } else if (run.results) {
+    // The log stream replays a finished run's whole log and then closes, so
+    // it serves finished runs too.
+    bus.emit('enableWebsocket' as never, { force: true } as never);
+    // The deck the run was started with - the folder's own may have been
+    // regenerated since.
+    getRunInput({ runId: run.id })
+      .then((input) => (viewStore.textOutput = input))
+      .catch((error) => {
+        viewStore.textOutput = '';
+        notify.apiError(error);
+      });
+    if (!isActive(run) && run.results) {
       viewStore.viewId = 'results';
     }
   }

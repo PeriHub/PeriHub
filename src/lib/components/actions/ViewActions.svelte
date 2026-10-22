@@ -519,10 +519,10 @@ SPDX-License-Identifier: Apache-2.0
     >
       <Dialog.Title class="mb-2 text-lg font-semibold">Run simulation</Dialog.Title>
       <p class="text-muted-foreground text-sm">
-        Renewables currently supply {energyPercent}% of grid power. Run now, or wait for a greener
-        window.
+        Renewables currently supply {Math.round(energyPercent)}% of grid power. Run now, or wait for
+        a greener window.
       </p>
-      <div class="my-3"><RenewableView /></div>
+      <div class="my-3 h-64"><RenewableView /></div>
       <div class="flex justify-end gap-2">
         <Button variant="ghost" onclick={() => (dialogEnergySavings = false)}>Cancel</Button>
         <Button

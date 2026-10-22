@@ -128,7 +128,6 @@ SPDX-License-Identifier: Apache-2.0
         requestBody: body
       });
       notify.positive('Model generated');
-      bus.emit('updateTextView' as never);
       bus.emit('viewInputFile' as never);
       bus.emit('viewPointData' as never);
       bus.emit('getStatus' as never);
