@@ -1492,6 +1492,17 @@ export const $DeleteAccountRequest = {
                 }
             ],
             title: 'Email'
+        },
+        confirm: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Confirm'
         }
     },
     type: 'object',
@@ -2745,6 +2756,17 @@ export const $MeResponse = {
         notify_job_emails: {
             type: 'boolean',
             title: 'Notify Job Emails'
+        },
+        avatar_url: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Avatar Url'
         }
     },
     type: 'object',

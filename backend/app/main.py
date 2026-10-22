@@ -238,7 +238,7 @@ def agent_openapi() -> dict:
 
 
 @app.get("/version", operation_id="get_version")
-async def get_app_latest_release_version() -> VersionData:
+def get_app_latest_release_version() -> VersionData:
     """Running and latest released versions of PeriHub and PeriLab; "unknown" where PeriLab or GitHub can't be
     reached."""
     current = app.version

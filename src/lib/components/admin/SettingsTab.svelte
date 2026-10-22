@@ -83,7 +83,10 @@ SPDX-License-Identifier: Apache-2.0
       <p class="text-muted-foreground text-xs">0 disables the per-user limit.</p>
     </div>
     <div class="flex items-center gap-2">
-      <Toggle label="Allow new signups" bind:checked={settings.signup_open} />
+      <Toggle
+        label="Allow email & password signups (SSO logins always get an account)"
+        bind:checked={settings.signup_open}
+      />
       {@render source('signup_open')}
     </div>
     <div class="grid gap-1.5">

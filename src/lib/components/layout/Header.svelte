@@ -78,7 +78,7 @@ SPDX-License-Identifier: Apache-2.0
   const planLabel = $derived(plan.charAt(0).toUpperCase() + plan.slice(1));
   const planColor = $derived(
     plan === 'enterprise'
-      ? 'bg-success/25 text-success'
+      ? 'border-accent bg-accent text-accent-foreground'
       : plan === 'trial'
         ? 'bg-warning/25 text-warning'
         : 'bg-white/15'

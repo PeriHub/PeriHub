@@ -28,7 +28,8 @@ SPDX-License-Identifier: Apache-2.0
     loginWithPassword,
     signupWithPassword,
     initAuth,
-    requestPasswordReset
+    requestPasswordReset,
+    redirectToLogin
   } from '$lib/auth/oauth';
   import { loadPublicConfig, publicConfig } from '$lib/config';
 
@@ -44,12 +45,16 @@ SPDX-License-Identifier: Apache-2.0
   let signupOpen = $state(true);
   // "Forgot password?" needs SMTP on the backend (support/mailer.py).
   let passwordReset = $state(false);
+  // OAuth/OIDC configured and licensed: offer the IdP next to email & password.
+  let oauthEnabled = $state(false);
+  let ssoRedirecting = $state(false);
   // Set once a reset mail was requested - the same message whether or not the email has an account.
   let resetRequested = $state(false);
   onMount(async () => {
     await loadPublicConfig();
     signupOpen = publicConfig.signupOpen;
     passwordReset = publicConfig.passwordReset;
+    oauthEnabled = publicConfig.oauthEnabled;
     if (!signupOpen) mode = 'login';
   });
   let email = $state('');
@@ -94,6 +99,17 @@ SPDX-License-Identifier: Apache-2.0
     errorMessage = '';
   }
 
+  async function loginWithSso() {
+    errorMessage = '';
+    ssoRedirecting = true;
+    try {
+      await redirectToLogin(); // navigates away on success
+    } catch (error) {
+      errorMessage = extractErrorMessage(error);
+      ssoRedirecting = false;
+    }
+  }
+
   function setMode(next: typeof mode) {
     mode = next;
     errorMessage = '';
@@ -115,6 +131,23 @@ SPDX-License-Identifier: Apache-2.0
   <Card class="w-full max-w-sm p-6">
     <h1 class="mb-1 text-xl font-semibold">{titles[mode][0]}</h1>
     <p class="text-muted-foreground mb-6 text-sm">{titles[mode][1]}</p>
+
+    {#if oauthEnabled && mode !== 'forgot'}
+      <Button
+        type="button"
+        size="lg"
+        class="w-full"
+        disabled={ssoRedirecting}
+        onclick={loginWithSso}
+      >
+        {ssoRedirecting ? 'Redirecting…' : 'Continue with single sign-on'}
+      </Button>
+      <div class="text-muted-foreground my-5 flex items-center gap-3 text-xs">
+        <span class="bg-border h-px flex-1"></span>
+        or with email
+        <span class="bg-border h-px flex-1"></span>
+      </div>
+    {/if}
 
     {#if mode === 'forgot' && resetRequested}
       <p class="text-sm">
@@ -196,7 +229,9 @@ SPDX-License-Identifier: Apache-2.0
       </button>
     {:else}
       <p class="text-muted-foreground mt-4 text-center text-sm">
-        Sign-up is currently closed. Ask an administrator for an account.
+        {oauthEnabled
+          ? 'Email sign-up is closed. New here? Continue with single sign-on.'
+          : 'Sign-up is currently closed. Ask an administrator for an account.'}
       </p>
     {/if}
   </Card>

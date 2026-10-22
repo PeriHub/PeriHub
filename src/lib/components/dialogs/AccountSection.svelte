@@ -18,6 +18,15 @@ SPDX-License-Identifier: Apache-2.0
 
   // OAuth accounts have no PeriHub password: no change, and deletion is confirmed by typing the email.
   const hasPassword = $derived(profile.auth_provider === 'local');
+  // How deletion is confirmed: password, else the account's email, else typing DELETE.
+  const confirmBy = $derived(hasPassword ? 'password' : profile.email ? 'email' : 'confirm');
+  const confirmInput = $derived(
+    {
+      password: { type: 'password', placeholder: 'Your password', label: 'Password to confirm' },
+      email: { type: 'email', placeholder: `Type ${profile.email}`, label: 'Email to confirm' },
+      confirm: { type: 'text', placeholder: 'Type DELETE', label: 'Type DELETE to confirm' }
+    }[confirmBy]
+  );
 
   let currentPassword = $state('');
   let newPassword = $state('');
@@ -66,7 +75,7 @@ SPDX-License-Identifier: Apache-2.0
     deleteError = '';
     try {
       await deleteAccount({
-        requestBody: hasPassword ? { password: confirmation } : { email: confirmation }
+        requestBody: { [confirmBy]: confirmation }
       });
       authStore.logout();
     } catch (error) {
@@ -165,10 +174,10 @@ SPDX-License-Identifier: Apache-2.0
           API keys. It can't be undone.
         </p>
         <Input
-          type={hasPassword ? 'password' : 'email'}
+          type={confirmInput.type}
           bind:value={confirmation}
-          placeholder={hasPassword ? 'Your password' : `Type ${profile.email ?? 'your email'}`}
-          aria-label={hasPassword ? 'Password to confirm' : 'Email to confirm'}
+          placeholder={confirmInput.placeholder}
+          aria-label={confirmInput.label}
           autocomplete={hasPassword ? 'current-password' : 'off'}
           required
         />

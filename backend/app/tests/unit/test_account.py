@@ -4,13 +4,14 @@
 
 import re
 from datetime import datetime, timezone
+from types import SimpleNamespace
 
 import pytest
 
 from backend.app.db import base
 from backend.app.db.models import JOB_DONE, JobQueueEntry, ModelConfig, Project, ProjectMembership, User
-from backend.app.routers import auth
-from backend.app.support import account, guest_sweeper, job_notifications, job_queue
+from backend.app.routers import auth, oauth
+from backend.app.support import account, external_identity, guest_sweeper, job_notifications, job_queue
 from backend.app.support.file_handler import FileHandler
 
 from .conftest import set_instance_setting
@@ -211,3 +212,92 @@ def test_own_cancel_sends_nothing_but_perilab_stop_does(client, monkeypatch, out
         guest_sweeper.sweep(db, datetime.now(timezone.utc), retention=False)
         assert db.get(JobQueueEntry, elsewhere).status == "cancelled"
     assert [subject for _, subject, _ in outbox] == ["PeriHub: Dogbone / Default was stopped"]
+
+
+@pytest.fixture
+def idp(monkeypatch):
+    """OIDC callback without an IdP or license server: set `idp.userinfo` before calling /oauth/oidc/callback."""
+    state = SimpleNamespace(userinfo={})
+    monkeypatch.setattr(oauth, "require_feature", lambda feature: None)
+    monkeypatch.setattr(oauth, "get_status", lambda: SimpleNamespace(plan="enterprise"))
+    monkeypatch.setattr(oauth, "exchange_code_for_userinfo", lambda code: state.userinfo)
+    return state
+
+
+def _oidc_login(client, idp, **userinfo):
+    idp.userinfo = userinfo
+    r = client.get("/oauth/oidc/callback", params={"code": "c"})
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def test_oauth_claims_are_configurable_and_synced(client, idp, monkeypatch):
+    monkeypatch.setattr(oauth, "oauth_email_claims", ["email", "upn"])
+    monkeypatch.setattr(oauth, "oauth_name_claims", ["name"])
+    first = _oidc_login(client, idp, sub="s1", upn="jo@corp.de", name="Jo", preferred_username="jdoe1")
+    me = client.get("/auth/me", headers=_auth(first)).json()
+    assert (me["email"], me["display_name"]) == ("jo@corp.de", "Jo")
+    # changed at the IdP: picked up on the next login, same account
+    again = _oidc_login(client, idp, sub="s1", email="jo.new@corp.de", name="Jo Doe")
+    me = client.get("/auth/me", headers=_auth(again)).json()
+    assert (again["user_id"], me["email"], me["display_name"]) == (first["user_id"], "jo.new@corp.de", "Jo Doe")
+
+
+def test_oauth_never_takes_another_accounts_email(client, idp):
+    _signup(client, "taken@x.de")
+    new = _oidc_login(client, idp, sub="s2", email="taken@x.de", preferred_username="jo")
+    assert client.get("/auth/me", headers=_auth(new)).json()["email"] is None
+    _oidc_login(client, idp, sub="s2", email="taken@x.de", preferred_username="jo")  # no crash on sync either
+
+
+def test_oauth_account_without_email_confirms_delete_with_text(client, idp):
+    _signup(client, "admin@x.de")
+    user = _oidc_login(client, idp, sub="s3", preferred_username="noemail")
+    assert client.post("/auth/me/delete", json={"confirm": "delete"}, headers=_auth(user)).status_code == 401
+    assert client.post("/auth/me/delete", json={"confirm": "DELETE"}, headers=_auth(user)).status_code == 204
+
+
+def test_closed_signup_only_stops_email_registration(client, idp):
+    _signup(client, "admin@x.de")
+    set_instance_setting("signup_open", False)
+    r = client.post("/auth/signup", json={"email": "b@x.de", "password": "password123", "display_name": "b"})
+    assert r.status_code == 403
+    _oidc_login(client, idp, sub="s4", email="sso@x.de", preferred_username="sso")  # 200: SSO still gets in
+
+
+def test_oauth_picture_claim(client, idp):
+    first = _oidc_login(client, idp, sub="s5", email="p@x.de", picture="https://idp.example/p.png")
+    assert client.get("/auth/me", headers=_auth(first)).json()["avatar_url"] == "https://idp.example/p.png"
+    again = _oidc_login(client, idp, sub="s5", email="p@x.de", picture="javascript:alert(1)")
+    assert client.get("/auth/me", headers=_auth(again)).json()["avatar_url"] is None
+    assert client.get("/auth/me", headers=_auth(_signup(client, "local@x.de"))).json()["avatar_url"] is None
+
+
+def test_sso_links_to_existing_account_by_verified_email(client, idp, monkeypatch):
+    local = _signup(client, "Jo@x.de")
+    # unverified: separate account, the email stays with the local one
+    other = _oidc_login(client, idp, sub="s6", email="jo@x.de", email_verified=False, preferred_username="jo")
+    assert other["user_id"] != local["user_id"]
+    # verified (case-insensitive): signs into the existing account, password still works
+    linked = _oidc_login(client, idp, sub="s7", email="jo@x.de", email_verified=True, preferred_username="jo")
+    assert linked["user_id"] == local["user_id"]
+    assert _oidc_login(client, idp, sub="s7", email="jo@x.de", email_verified=True)["user_id"] == local["user_id"]
+    assert _login(client, "Jo@x.de", "password123") == 200
+    # switched off: never links
+    monkeypatch.setattr(external_identity, "oauth_link_by_email", False)
+    off = _oidc_login(client, idp, sub="s8", email="jo@x.de", email_verified=True, preferred_username="jo")
+    assert off["user_id"] != local["user_id"]
+
+
+def test_verified_flag_only_covers_the_email_claim(client, idp, monkeypatch):
+    local = _signup(client, "jo@corp.de")
+    monkeypatch.setattr(oauth, "oauth_email_claims", ["upn"])
+    r = _oidc_login(client, idp, sub="s9", upn="jo@corp.de", email="else@corp.de", email_verified=True)
+    assert r["user_id"] != local["user_id"]
+
+
+def test_trusted_idp_links_without_email_verified(client, idp, monkeypatch):
+    local = _signup(client, "jo@corp.de")
+    assert _oidc_login(client, idp, sub="t1", email="jo@corp.de")["user_id"] != local["user_id"]
+    monkeypatch.setattr(oauth, "oauth_trust_email", True)
+    assert _oidc_login(client, idp, sub="t2", email="jo@corp.de")["user_id"] == local["user_id"]

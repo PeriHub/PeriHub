@@ -86,8 +86,8 @@ def overridden_instance_settings(db: Session) -> list[str]:
 
 
 def signup_allowed(db: Session) -> bool:
-    """New accounts may be created: signup is open, or there is no account yet (the very first account is always
-    allowed so a fresh install can't lock itself out)."""
+    """New email & password accounts may be created (SSO accounts don't check this): signup is open, or there is
+    no account yet (the very first account is always allowed so a fresh install can't lock itself out)."""
     return bool(instance_setting(db, "signup_open")) or (
         db.scalar(select(User.id).where(User.role != "guest").limit(1)) is None
     )

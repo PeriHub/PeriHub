@@ -68,6 +68,8 @@ class MeResponse(BaseModel):
     auth_provider: str
     org_id: str | None
     notify_job_emails: bool
+    # IdP avatar (OAUTH_PICTURE_CLAIM); None = use Gravatar / the default avatar.
+    avatar_url: str | None = None
 
 
 class AccountSettingsUpdate(BaseModel):
@@ -89,9 +91,11 @@ class ResetPasswordRequest(BaseModel):
 
 
 class DeleteAccountRequest(BaseModel):
-    # Email & password accounts confirm with their password, OAuth accounts (no password) with their email.
+    # Email & password accounts confirm with their password, OAuth accounts (no password) with their email,
+    # OAuth accounts without an email by typing "DELETE" as `confirm`.
     password: str | None = None
     email: str | None = None
+    confirm: str | None = None
 
 
 def _check_new_password(password: str) -> None:
@@ -228,6 +232,7 @@ def me(request: Request, db: Session = Depends(get_db)) -> MeResponse:
         auth_provider=user.auth_provider,
         org_id=user.org_id,
         notify_job_emails=user.notify_job_emails,
+        avatar_url=user.avatar_url,
     )
 
 
@@ -320,13 +325,16 @@ def reset_password(payload: ResetPasswordRequest, request: Request, db: Session 
 def delete_my_account(payload: DeleteAccountRequest, request: Request, db: Session = Depends(get_db)) -> None:
     """Permanently delete the logged-in account and everything it owns: jobs (stopped, with their PeriLab results),
     simulation files, model configs and materials (shared ones too), projects it created, team memberships and API
-    keys. Confirm with `password` (email & password accounts) or `email` (OAuth accounts): 401 if it doesn't match.
+    keys. Confirm with `password` (email & password accounts), `email` (OAuth accounts) or `confirm="DELETE"` (OAuth
+    accounts without an email): 401 if it doesn't match.
     409 for the organization's last admin."""
     user = _require_account(request, db)
     if user.password_hash:
         confirmed = payload.password is not None and verify_password(payload.password, user.password_hash)
+    elif user.email:
+        confirmed = bool(payload.email) and payload.email.strip().lower() == user.email.lower()
     else:
-        confirmed = bool(payload.email and user.email) and payload.email.strip().lower() == user.email.lower()
+        confirmed = payload.confirm == "DELETE"
     if not confirmed:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Confirmation doesn't match.")
     if user.role == "admin":

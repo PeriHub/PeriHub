@@ -30,6 +30,7 @@ from .globals import (
     oauth_client_secret,
     oauth_discovery_url,
     oauth_redirect_uri,
+    oauth_scopes,
 )
 
 _discovery_cache: dict | None = None
@@ -56,7 +57,7 @@ def build_authorization_url() -> tuple[str, str]:
         "response_type": "code",
         "client_id": oauth_client_id,
         "redirect_uri": oauth_redirect_uri,
-        "scope": "openid email profile",
+        "scope": oauth_scopes,
         "state": state,
     }
     query = urlencode(params)
@@ -65,7 +66,7 @@ def build_authorization_url() -> tuple[str, str]:
 
 def exchange_code_for_userinfo(code: str) -> dict:
     """Exchanges an authorization `code` for tokens, then fetches and
-    returns the userinfo claims (sub, email, preferred_username/name).
+    returns the userinfo claims (sub plus whatever OAUTH_NAME_CLAIM/OAUTH_EMAIL_CLAIM name).
     Raises requests.RequestException on any HTTP failure."""
     doc = _discovery()
     token_response = requests.post(

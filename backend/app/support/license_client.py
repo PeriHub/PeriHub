@@ -2,26 +2,27 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Client for an external license server.
+"""Client for the PeriHub license server (Phase 1).
 
-IMPORTANT: this assumes such a server already exists and speaks the simple
-contract below - PeriHub does not ship one. If LICENSE_SERVER_URL isn't
-configured, everything in this module degrades to the open-core default
-(plan="community", no gated features) rather than failing; PeriHub is fully
-usable with zero license-server configuration.
+If LICENSE_SERVER_URL isn't configured, everything in this module degrades
+to the open-core default (plan="community", no gated features) rather than
+failing; PeriHub is fully usable with zero license-server configuration.
 
-Assumed contract (adjust this module, not the callers in
-support/entitlements.py, if the real server differs):
+Contract - the same call PeriLab's ModuleLoader makes, so the server has one
+license check (adjust this module, not the callers in support/entitlements.py,
+if it changes):
 
-    GET {LICENSE_SERVER_URL}/v1/entitlements?instance_id=...
-    Headers: Authorization: Bearer {LICENSE_KEY}
+    POST {LICENSE_SERVER_URL}/api/v1/validate
+    {"license_key": LICENSE_KEY, "machine_id": LICENSE_INSTANCE_ID}
     200 OK:
-        {
-          "plan": "enterprise",
-          "features": ["cluster_priority", "external_solver", ...],
-          "seats": 25,
-          "expires_at": "2027-01-01T00:00:00Z"
-        }
+        {"valid": true, "features": ["oauth_login", ...], "expires_at": "2027-01-01T00:00:00", ...}
+        {"valid": false, "reason": "unknown license key" | "expired" | "revoked" | "activation limit reached"}
+
+Mapping: a valid license is plan "enterprise", an invalid one "community" -
+that's a definitive answer and is cached like any other, not treated as an
+outage. The server has no user-seat count (max_activations counts machines:
+this backend is one activation, the PeriLab container another), so `seats`
+stays None = no per-org user limit.
 
 Caching / offline behaviour:
 - A successful response is cached to disk (LICENSE_CACHE_PATH) and reused
@@ -37,6 +38,7 @@ Caching / offline behaviour:
 
 import json
 import os
+import socket
 import threading
 import time
 from typing import Optional
@@ -86,28 +88,35 @@ def _save_cache(status: LicenseStatus, fetched_at: float) -> None:
 
 
 def _fetch_from_server() -> Optional[LicenseStatus]:
+    """The server's answer, valid or not; None only if it couldn't be reached (then the cache grace applies)."""
     if not license_server_url:
         return None
+    machine_id = license_instance_id or socket.gethostname()
+    if not license_instance_id:
+        # A recreated container gets a new hostname, i.e. a new activation each time - set LICENSE_INSTANCE_ID.
+        log.warning("license_client: LICENSE_INSTANCE_ID not set, using hostname %s as machine id", machine_id)
     try:
-        response = requests.get(
-            f"{license_server_url.rstrip('/')}/v1/entitlements",
-            params={"instance_id": license_instance_id},
-            headers={"Authorization": f"Bearer {license_key}"},
+        response = requests.post(
+            f"{license_server_url.rstrip('/')}/api/v1/validate",
+            json={"license_key": license_key, "machine_id": machine_id},
             timeout=5,
         )
         response.raise_for_status()
         payload = response.json()
-        return LicenseStatus(
-            plan=payload.get("plan", "community"),
-            features=payload.get("features", []),
-            seats=payload.get("seats"),
-            expires_at=payload.get("expires_at"),
-            source="license_server",
-            license_server_configured=True,
-        )
-    except requests.RequestException as exc:
+    except (requests.RequestException, ValueError) as exc:
         log.warning("license_client: could not reach license server: %s", exc)
         return None
+    if not payload.get("valid"):
+        log.warning("license_client: license not valid (%s), using community plan", payload.get("reason"))
+        return LicenseStatus(**{**_DEFAULT.model_dump(), "source": "license_server"})
+    return LicenseStatus(
+        plan="enterprise",
+        features=payload.get("features") or [],
+        seats=None,
+        expires_at=payload.get("expires_at"),
+        source="license_server",
+        license_server_configured=True,
+    )
 
 
 def get_status(force_refresh: bool = False) -> LicenseStatus:

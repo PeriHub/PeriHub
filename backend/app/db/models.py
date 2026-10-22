@@ -78,10 +78,12 @@ class User(Base):
     org_id: Mapped[str | None] = mapped_column(ForeignKey("organizations.id"), nullable=True)
 
     # Nullable: guest users have neither: they're identified only by `id`.
-    email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    email: Mapped[str | None] = mapped_column(String(320), nullable=True, unique=True)
     password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     display_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    # Avatar URL from the IdP's picture claim (OAUTH_PICTURE_CLAIM), refreshed on every SSO login.
+    avatar_url: Mapped[str | None] = mapped_column(String(2000), nullable=True)
 
     # "local" | "oauth" | "guest"
     auth_provider: Mapped[str] = mapped_column(String(32), nullable=False, default="local")

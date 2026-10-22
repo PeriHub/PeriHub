@@ -1045,7 +1045,8 @@ export const resetPassword = (data: ResetPasswordData): CancelablePromise<ResetP
  * Delete My Account
  * Permanently delete the logged-in account and everything it owns: jobs (stopped, with their PeriLab results),
  * simulation files, model configs and materials (shared ones too), projects it created, team memberships and API
- * keys. Confirm with `password` (email & password accounts) or `email` (OAuth accounts): 401 if it doesn't match.
+ * keys. Confirm with `password` (email & password accounts), `email` (OAuth accounts) or `confirm="DELETE"` (OAuth
+ * accounts without an email): 401 if it doesn't match.
  * 409 for the organization's last admin.
  * @param data The data for the request.
  * @param data.requestBody

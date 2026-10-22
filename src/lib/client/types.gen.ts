@@ -284,6 +284,7 @@ export type Damage = {
 export type DeleteAccountRequest = {
     password?: string | null;
     email?: string | null;
+    confirm?: string | null;
 };
 
 export type Deviations = {
@@ -476,6 +477,7 @@ export type MeResponse = {
     auth_provider: string;
     org_id: string | null;
     notify_job_emails: boolean;
+    avatar_url?: string | null;
 };
 
 export type MemberIn = {

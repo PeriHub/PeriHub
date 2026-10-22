@@ -38,6 +38,7 @@ interface MeResponse {
   role: string;
   auth_provider: string;
   org_id: string | null;
+  avatar_url?: string | null;
 }
 
 interface AuthorizationUrlResponse {
@@ -109,7 +110,7 @@ export async function leaveGuestSession(): Promise<void> {
  * callback page to verify, and sends the browser there. Never returns on
  * success (the browser navigates away).
  */
-async function redirectToLogin(): Promise<void> {
+export async function redirectToLogin(): Promise<void> {
   const response = await api.get<AuthorizationUrlResponse>('/oauth/oidc/login');
   sessionStorage.setItem(STATE_STORAGE_KEY, response.data.state);
   window.location.href = response.data.authorization_url;
@@ -195,6 +196,23 @@ export async function initAuth() {
   }
 }
 
+/** Whether `url` loads as an image - an <img> load, not fetch(), since IdPs rarely allow CORS. */
+function imageLoads(url: string, timeoutMs = 5000): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const timer = setTimeout(() => resolve(false), timeoutMs);
+    img.onload = () => {
+      clearTimeout(timer);
+      resolve(true);
+    };
+    img.onerror = () => {
+      clearTimeout(timer);
+      resolve(false);
+    };
+    img.src = url;
+  });
+}
+
 async function setUpAuth() {
   await loadPublicConfig();
 
@@ -235,10 +253,19 @@ async function setUpAuth() {
 
   uuid = profile.display_name;
 
-  // crypto.subtle only exists in secure contexts (https/localhost) - skip Gravatar otherwise.
-  if (profile.email && crypto.subtle) {
+  // Avatar: the IdP's picture claim if it actually loads, else Gravatar for the email, else the
+  // default avatar icon.
+  if (profile.avatar_url && (await imageLoads(profile.avatar_url))) {
+    gravatarUrl = profile.avatar_url;
+    defaultStore.useGravatar = true;
+  } else if (profile.email && crypto.subtle) {
+    // crypto.subtle only exists in secure contexts (https/localhost) - skip Gravatar otherwise.
     const email = profile.email;
-    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(email));
+    // Gravatar hashes the trimmed, lowercased address - IdPs often send "Jane.Doe@corp.de".
+    const digest = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(email.trim().toLowerCase())
+    );
     const emailHash = Array.from(new Uint8Array(digest), (b) =>
       b.toString(16).padStart(2, '0')
     ).join('');

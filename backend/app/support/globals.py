@@ -86,14 +86,14 @@ external_perilab_url = os.getenv("EXTERNAL_PERILAB_URL", default="")
 perilab_api_timeout_seconds = float(os.getenv("PERILAB_API_TIMEOUT_SECONDS", default="30"))
 
 # --- License server integration ---------------------------------------------
-# Assumes a license server already exists and is reachable at
-# LICENSE_SERVER_URL; see support/license_client.py for the (documented,
-# assumed) request/response contract PeriHub expects from it, and
+# The PeriHub license server at LICENSE_SERVER_URL; see support/license_client.py
+# for the request/response contract (POST /api/v1/validate), and
 # support/entitlements.py for how routers gate paid features behind it.
 license_server_url = os.getenv("LICENSE_SERVER_URL", default="https://perihub-license.nimbus-extern.dlr.de")
 license_key = os.getenv("LICENSE_KEY", default="")
-# Unique id for *this* PeriHub instance/install, sent to the license server so
-# it can track seat/instance usage independently of any one user account.
+# Unique, stable id for *this* PeriHub backend, sent as `machine_id`: the
+# license server counts it as one activation (max_activations), so keep it
+# the same across restarts/recreated containers.
 license_instance_id = os.getenv("LICENSE_INSTANCE_ID", default="")
 license_cache_path = os.getenv(
     "LICENSE_CACHE_PATH",
@@ -123,6 +123,24 @@ oauth_discovery_url = os.getenv("OAUTH_DISCOVERY_URL", default="")  # e.g. https
 oauth_client_id = os.getenv("OAUTH_CLIENT_ID", default="")
 oauth_client_secret = os.getenv("OAUTH_CLIENT_SECRET", default="")
 oauth_redirect_uri = os.getenv("OAUTH_REDIRECT_URI", default="")
+# What to ask the IdP for and which userinfo claims hold the name/email. The
+# defaults fit Keycloak and most IdPs; Entra ID often has no `email` claim
+# (try OAUTH_EMAIL_CLAIM=upn or preferred_username). Name and email claims
+# are comma-separated lists, the first non-empty one wins.
+oauth_scopes = os.getenv("OAUTH_SCOPES", default="openid email profile")
+oauth_name_claims = [c.strip() for c in os.getenv("OAUTH_NAME_CLAIM", default="preferred_username,name").split(",")]
+oauth_email_claims = [c.strip() for c in os.getenv("OAUTH_EMAIL_CLAIM", default="email").split(",")]
+# Optional avatar URL claim (OIDC standard: `picture`); empty = no IdP avatars, Gravatar/default only.
+oauth_picture_claims = [c.strip() for c in os.getenv("OAUTH_PICTURE_CLAIM", default="picture").split(",") if c.strip()]
+# A first SSO login whose *verified* email (email_verified claim) belongs to an
+# existing account signs into that account instead of creating a second one.
+# IdPs that never send email_verified (some Entra ID setups) never link.
+oauth_link_by_email = os.getenv("OAUTH_LINK_BY_EMAIL", default="true").lower() in ("1", "true", "yes")
+# Treat every email from the IdP as verified, for IdPs that don't send
+# email_verified=true (e.g. Keycloak over LDAP without "Trust Email"). Only for
+# an IdP you trust: whoever can change their email there could take over the
+# PeriHub account with that address.
+oauth_trust_email = os.getenv("OAUTH_TRUST_EMAIL", default="false").lower() in ("1", "true", "yes")
 
 # Outgoing mail for "forgot password" (support/mailer.py) - an existing SMTP
 # server; the feature is hidden when SMTP_HOST is unset. SMTP_SECURITY is

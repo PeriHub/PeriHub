@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <script lang="ts">
   import { Dialog } from 'bits-ui';
-  import { LogOut, X } from 'lucide-svelte';
+  import { LogOut, User, X } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { authStore } from '$lib/stores/auth-store.svelte';
   import { publicConfig } from '$lib/config';
@@ -130,7 +130,7 @@ SPDX-License-Identifier: Apache-2.0
               class="h-full w-full object-cover"
             />
           {:else}
-            {defaultStore.gravatarUrl || defaultStore.username.charAt(0).toUpperCase()}
+            <User class="h-6 w-6" />
           {/if}
         </div>
         <div class="min-w-0 flex-1">

@@ -1,0 +1,11 @@
+{
+  "fetched_at": 1792676212.4761071,
+  "status": {
+    "plan": "enterprise",
+    "features": ["additive", "oauth_login"],
+    "seats": null,
+    "expires_at": "2028-12-30T13:04:06.863000",
+    "source": "license_server",
+    "license_server_configured": true
+  }
+}

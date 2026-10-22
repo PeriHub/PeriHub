@@ -30,6 +30,7 @@ from ..db.base import get_db
 from ..db.models import Organization
 from ..support.entitlements import require_feature
 from ..support.external_identity import get_or_create_external_user
+from ..support.globals import log, oauth_email_claims, oauth_name_claims, oauth_picture_claims, oauth_trust_email
 from ..support.license_client import get_status
 from ..support.local_auth import create_session_token
 from ..support.oidc_client import build_authorization_url, exchange_code_for_userinfo
@@ -65,6 +66,11 @@ def _get_or_create_default_org(db: Session) -> Organization:
         org.plan = current_plan
         db.commit()
     return org
+
+
+def _first_claim(userinfo: dict, names: list[str]) -> str | None:
+    """The first of `names` (OAUTH_NAME_CLAIM / OAUTH_EMAIL_CLAIM / OAUTH_PICTURE_CLAIM) the IdP filled in."""
+    return next((str(userinfo[n]).strip() for n in names if userinfo.get(n) and str(userinfo[n]).strip()), None)
 
 
 @router.get(
@@ -104,13 +110,22 @@ def oidc_callback(code: str = Query(...), db: Session = Depends(get_db)) -> Auth
             detail=f"OIDC code exchange failed: {exc}",
         ) from exc
 
+    # Claim names only (no values) - what an admin needs to set OAUTH_*_CLAIM.
+    log.info(
+        "oauth: userinfo claims %s, email_verified=%r", sorted(userinfo), userinfo.get("email_verified", "<missing>")
+    )
     org = _get_or_create_default_org(db)
+    email = _first_claim(userinfo, oauth_email_claims)
     user = get_or_create_external_user(
         db,
         provider="oauth",
         provider_subject=userinfo["sub"],
-        email=userinfo.get("email"),
-        display_name=userinfo.get("preferred_username") or userinfo.get("name") or userinfo["sub"],
+        email=email,
+        display_name=_first_claim(userinfo, oauth_name_claims) or userinfo["sub"],
+        avatar_url=_first_claim(userinfo, oauth_picture_claims),
+        # email_verified vouches for the `email` claim only, not for e.g. `upn` - unless the IdP is trusted.
+        email_verified=bool(email)
+        and (oauth_trust_email or (userinfo.get("email_verified") is True and email == userinfo.get("email"))),
         org=org,
     )
     if not user.is_active:
