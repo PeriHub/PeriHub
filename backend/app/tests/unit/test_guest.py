@@ -11,7 +11,7 @@ import pytest
 from backend.app.db import base
 from backend.app.db.models import JOB_CANCELLED, JOB_DONE, JOB_RUNNING, JobQueueEntry, User
 from backend.app.routers import jobs
-from backend.app.support import guest_sweeper, job_queue
+from backend.app.support import account, guest_sweeper, job_queue
 from backend.app.support.base_models import ModelData
 from backend.app.support.file_handler import FileHandler
 from backend.app.support.guest import apply_guest_limits
@@ -270,7 +270,7 @@ def test_sweep_syncs_before_stopping_overdue_job(client, monkeypatch):
 def test_sweep_deletes_expired_guests_with_data(client, monkeypatch, tmp_path):
     backend = _FakeBackend()
     monkeypatch.setattr(job_queue, "get_solver_backend", lambda: backend)
-    monkeypatch.setattr(guest_sweeper, "get_solver_backend", lambda: backend)
+    monkeypatch.setattr(account, "get_solver_backend", lambda: backend)
     monkeypatch.setattr(FileHandler, "get_local_simulation_path", staticmethod(lambda: str(tmp_path)))
     old_guest = _guest(client)
     new_guest = client.post("/auth/guest").json()

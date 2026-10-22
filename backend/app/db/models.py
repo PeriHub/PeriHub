@@ -32,6 +32,7 @@ from sqlalchemy import (
     Integer,
     String,
     UniqueConstraint,
+    false,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -89,6 +90,8 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(32), nullable=False, default="member")
 
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    # Account setting: email when one of their runs ends (support/job_notifications.py).
+    notify_job_emails: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=false())
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

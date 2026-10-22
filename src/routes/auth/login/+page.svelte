@@ -24,11 +24,16 @@ SPDX-License-Identifier: Apache-2.0
   import Card from '$lib/components/ui/Card.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
-  import { loginWithPassword, signupWithPassword, initAuth } from '$lib/auth/oauth';
+  import {
+    loginWithPassword,
+    signupWithPassword,
+    initAuth,
+    requestPasswordReset
+  } from '$lib/auth/oauth';
   import { loadPublicConfig, publicConfig } from '$lib/config';
 
   // ?mode=signup&next=/materials - set by the account teasers (AccountTeaser.svelte).
-  let mode: 'login' | 'signup' = $state(
+  let mode: 'login' | 'signup' | 'forgot' = $state(
     page.url.searchParams.get('mode') === 'signup' ? 'signup' : 'login'
   );
   // Same-origin paths only, so the link can't bounce users to another site.
@@ -37,9 +42,14 @@ SPDX-License-Identifier: Apache-2.0
 
   // Admin closed signup (admin settings) - offer login only and say so.
   let signupOpen = $state(true);
+  // "Forgot password?" needs SMTP on the backend (support/mailer.py).
+  let passwordReset = $state(false);
+  // Set once a reset mail was requested - the same message whether or not the email has an account.
+  let resetRequested = $state(false);
   onMount(async () => {
     await loadPublicConfig();
     signupOpen = publicConfig.signupOpen;
+    passwordReset = publicConfig.passwordReset;
     if (!signupOpen) mode = 'login';
   });
   let email = $state('');
@@ -59,6 +69,11 @@ SPDX-License-Identifier: Apache-2.0
     errorMessage = '';
     submitting = true;
     try {
+      if (mode === 'forgot') {
+        await requestPasswordReset(email);
+        resetRequested = true;
+        return;
+      }
       if (mode === 'login') {
         await loginWithPassword(email, password);
       } else {
@@ -78,64 +93,100 @@ SPDX-License-Identifier: Apache-2.0
     mode = mode === 'login' ? 'signup' : 'login';
     errorMessage = '';
   }
+
+  function setMode(next: typeof mode) {
+    mode = next;
+    errorMessage = '';
+    resetRequested = false;
+  }
+
+  const titles = {
+    login: ['Log in', 'Welcome back to PeriHub.'],
+    signup: ['Create an account', 'Set up your PeriHub account.'],
+    forgot: ['Reset your password', "Enter your account's email and we'll send you a link."]
+  };
 </script>
 
 <svelte:head>
-  <title>{mode === 'login' ? 'Log in' : 'Sign up'} — PeriHub</title>
+  <title>{mode === 'signup' ? 'Sign up' : titles[mode][0]} — PeriHub</title>
 </svelte:head>
 
 <div class="flex min-h-[70vh] flex-col items-center justify-center gap-6 px-4">
   <Card class="w-full max-w-sm p-6">
-    <h1 class="mb-1 text-xl font-semibold">{mode === 'login' ? 'Log in' : 'Create an account'}</h1>
-    <p class="text-muted-foreground mb-6 text-sm">
-      {mode === 'login' ? 'Welcome back to PeriHub.' : 'Set up your PeriHub account.'}
-    </p>
+    <h1 class="mb-1 text-xl font-semibold">{titles[mode][0]}</h1>
+    <p class="text-muted-foreground mb-6 text-sm">{titles[mode][1]}</p>
 
-    <form class="flex flex-col gap-4" onsubmit={handleSubmit}>
-      {#if mode === 'signup'}
-        <div class="flex flex-col gap-1.5">
-          <Label for="display-name">Name</Label>
-          <Input
-            id="display-name"
-            type="text"
-            bind:value={displayName}
-            required
-            autocomplete="name"
-          />
-        </div>
-      {/if}
-
-      <div class="flex flex-col gap-1.5">
-        <Label for="email">Email</Label>
-        <Input id="email" type="email" bind:value={email} required autocomplete="email" />
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <Label for="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          bind:value={password}
-          required
-          minlength={mode === 'signup' ? 8 : undefined}
-          autocomplete={mode === 'login' ? 'current-password' : 'new-password'}
-        />
-      </div>
-
-      {#if errorMessage}
-        <p class="text-destructive text-sm">{errorMessage}</p>
-      {/if}
-
-      <Button type="submit" size="lg" disabled={submitting} class="mt-2">
-        {#if submitting}
-          {mode === 'login' ? 'Logging in…' : 'Signing up…'}
-        {:else}
-          {mode === 'login' ? 'Log in' : 'Sign up'}
+    {#if mode === 'forgot' && resetRequested}
+      <p class="text-sm">
+        If an account exists for <strong>{email}</strong>, we've sent it a link to set a new
+        password. The link works for one hour.
+      </p>
+    {:else}
+      <form class="flex flex-col gap-4" onsubmit={handleSubmit}>
+        {#if mode === 'signup'}
+          <div class="flex flex-col gap-1.5">
+            <Label for="display-name">Name</Label>
+            <Input
+              id="display-name"
+              type="text"
+              bind:value={displayName}
+              required
+              autocomplete="name"
+            />
+          </div>
         {/if}
-      </Button>
-    </form>
 
-    {#if signupOpen}
+        <div class="flex flex-col gap-1.5">
+          <Label for="email">Email</Label>
+          <Input id="email" type="email" bind:value={email} required autocomplete="email" />
+        </div>
+
+        {#if mode !== 'forgot'}
+          <div class="flex flex-col gap-1.5">
+            <Label for="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              bind:value={password}
+              required
+              minlength={mode === 'signup' ? 8 : undefined}
+              autocomplete={mode === 'login' ? 'current-password' : 'new-password'}
+            />
+            {#if mode === 'login' && passwordReset}
+              <button
+                type="button"
+                onclick={() => setMode('forgot')}
+                class="text-muted-foreground hover:text-foreground self-end text-xs underline-offset-4 hover:underline"
+              >
+                Forgot password?
+              </button>
+            {/if}
+          </div>
+        {/if}
+
+        {#if errorMessage}
+          <p class="text-destructive text-sm">{errorMessage}</p>
+        {/if}
+
+        <Button type="submit" size="lg" disabled={submitting} class="mt-2">
+          {#if submitting}
+            {{ login: 'Logging in…', signup: 'Signing up…', forgot: 'Sending…' }[mode]}
+          {:else}
+            {{ login: 'Log in', signup: 'Sign up', forgot: 'Send reset link' }[mode]}
+          {/if}
+        </Button>
+      </form>
+    {/if}
+
+    {#if mode === 'forgot'}
+      <button
+        type="button"
+        onclick={() => setMode('login')}
+        class="text-muted-foreground hover:text-foreground mt-4 w-full text-center text-sm underline-offset-4 hover:underline"
+      >
+        Back to log in
+      </button>
+    {:else if signupOpen}
       <button
         type="button"
         onclick={toggleMode}

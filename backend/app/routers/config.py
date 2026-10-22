@@ -27,6 +27,7 @@ from ..support.admin_settings import instance_setting, signup_allowed
 from ..support.entitlements import has_feature
 from ..support.globals import deployment_mode, oauth_discovery_url
 from ..support.guest import guest_limits
+from ..support.mailer import mail_enabled, smtp_configured
 
 router = APIRouter(prefix="/config", tags=["Config Methods"])
 
@@ -34,7 +35,7 @@ router = APIRouter(prefix="/config", tags=["Config Methods"])
 @router.get("/public", operation_id="get_public_config")
 def get_public_config() -> dict:
     """Deployment settings the frontend needs before login: deployment mode, whether anonymous visitors get a guest
-    account (and its limits), whether new accounts can sign up, and whether OIDC login is available (configured and
+    account (and its limits), whether new accounts can sign up, whether password reset by email and job notification emails are available, and whether OIDC login is available (configured and
     licensed)."""
     guest_access, limits, signup_open = False, None, False
     if base.SessionLocal is not None:  # guest accounts and signups are DB rows - no DB, neither
@@ -54,4 +55,8 @@ def get_public_config() -> dict:
         # old .env) still shouldn't get an SSO login screen, matching the
         # enterprise-only gating on the /oauth/oidc/* routes themselves.
         "oauth_enabled": bool(oauth_discovery_url) and has_feature("oauth_login"),
+        # "Forgot password?" by email - needs SMTP and PUBLIC_URL configured (support/mailer.py).
+        "password_reset": mail_enabled(),
+        # The "email me when my jobs end" account setting - needs SMTP only.
+        "job_notifications": smtp_configured(),
     }

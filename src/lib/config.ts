@@ -37,6 +37,8 @@ interface PublicConfigResponse {
   guest_limits: GuestLimits | null;
   signup_open: boolean;
   oauth_enabled: boolean;
+  password_reset: boolean;
+  job_notifications: boolean;
 }
 
 /**
@@ -50,7 +52,9 @@ export const publicConfig = {
   guestLimits: null as GuestLimits | null,
   // Default true: if the config can't be loaded, offer signup and let the backend answer.
   signupOpen: true,
-  oauthEnabled: false
+  oauthEnabled: false,
+  passwordReset: false,
+  jobNotifications: false
 };
 
 let loaded = false;
@@ -73,6 +77,8 @@ export async function loadPublicConfig(): Promise<void> {
     publicConfig.guestLimits = data.guest_limits ?? null;
     publicConfig.signupOpen = data.signup_open ?? true;
     publicConfig.oauthEnabled = data.oauth_enabled ?? false;
+    publicConfig.passwordReset = data.password_reset ?? false;
+    publicConfig.jobNotifications = data.job_notifications ?? false;
     loaded = true;
   } catch (error) {
     // Deliberately non-fatal: the app still boots with everything "off"

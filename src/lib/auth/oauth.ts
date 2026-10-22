@@ -144,6 +144,20 @@ export async function loginWithPassword(email: string, password: string): Promis
 }
 
 /**
+ * "Forgot password?" (backend: POST /auth/password/forgot) and setting the new
+ * password from the emailed link (POST /auth/password/reset). Plain axios like
+ * loginWithPassword: their pages skip initAuth(), and generated-client calls
+ * wait for it. Throw with the backend's detail like the other auth calls.
+ */
+export async function requestPasswordReset(email: string): Promise<void> {
+  await api.post('/auth/password/forgot', { email });
+}
+
+export async function resetPasswordWithToken(token: string, newPassword: string): Promise<void> {
+  await api.post('/auth/password/reset', { token, new_password: newPassword });
+}
+
+/**
  * Local email/password signup (backend: routers/auth.py's POST /auth/signup).
  * Logs the new account straight in (the backend returns a session token
  * from signup the same way login does) rather than requiring a separate

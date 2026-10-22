@@ -37,6 +37,7 @@ from ..db.models import (
 )
 from .admin_settings import instance_setting
 from .globals import log
+from .job_notifications import notify_job_ended
 from .perilab_api_client import PeriLabJob
 from .solver_backend import get_solver_backend
 
@@ -197,4 +198,5 @@ def sync_status(db: Session, entry: Optional[JobQueueEntry]) -> Optional[PeriLab
             entry.error = str(error)[:1000] if error else f"PeriLab job {failed[0].job_id} {failed[0].status}"
         entry.finished_at = datetime.now(timezone.utc)
         db.commit()
+        notify_job_ended(db, entry)
     return jobs[0]

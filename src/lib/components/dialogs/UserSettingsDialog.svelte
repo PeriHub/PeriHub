@@ -21,6 +21,7 @@ SPDX-License-Identifier: Apache-2.0
   import type { LicenseStatus, MeResponse, UsageSummary, VersionData } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import ApiKeysSection from './ApiKeysSection.svelte';
+  import AccountSection from './AccountSection.svelte';
 
   let { open = $bindable(false) }: { open?: boolean } = $props();
 
@@ -210,6 +211,10 @@ SPDX-License-Identifier: Apache-2.0
 
       {#if authStore.authenticated && !authStore.isGuest}
         <ApiKeysSection />
+      {/if}
+
+      {#if profile && profile.auth_provider !== 'guest'}
+        <AccountSection {profile} />
       {/if}
 
       <!-- System -->

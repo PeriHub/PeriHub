@@ -15,6 +15,8 @@ yet; if that's needed before Phase 1, add a `revoked_sessions` table keyed
 by the JWT's `jti` claim rather than reworking this module.
 """
 
+import hashlib
+import hmac
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -69,3 +71,45 @@ def decode_session_token(token: str) -> str | None:
     except jwt.PyJWTError:
         return None
     return payload.get("sub")
+
+
+# Password reset links (Phase 1): stateless like sessions. Signed with a key
+# derived from SESSION_SECRET but distinct from it, so a reset token can never
+# pass decode_session_token(); it carries a fingerprint of the current
+# password hash, so it stops working once the password changes - i.e. it is
+# single-use without a token table.
+_RESET_TTL = timedelta(hours=1)
+
+
+def _reset_key() -> str:
+    return hashlib.sha256(f"password-reset:{session_secret}".encode()).hexdigest()
+
+
+def _password_fingerprint(password_hash: str) -> str:
+    return hashlib.sha256(password_hash.encode()).hexdigest()[:32]
+
+
+def create_password_reset_token(user_id: str, password_hash: str) -> str:
+    if not session_secret:
+        raise RuntimeError("SESSION_SECRET is not configured - refusing to issue password reset tokens.")
+    now = datetime.now(timezone.utc)
+    payload = {"uid": user_id, "pwd": _password_fingerprint(password_hash), "iat": now, "exp": now + _RESET_TTL}
+    return jwt.encode(payload, _reset_key(), algorithm=_JWT_ALGORITHM)
+
+
+def decode_password_reset_token(token: str) -> tuple[str, str] | None:
+    """(user_id, password fingerprint) of a valid, unexpired reset token, else None. The caller must compare
+    the fingerprint with password_matches_fingerprint() to reject already-used links."""
+    if not session_secret:
+        return None
+    try:
+        payload = jwt.decode(token, _reset_key(), algorithms=[_JWT_ALGORITHM])
+    except jwt.PyJWTError:
+        return None
+    if not payload.get("uid") or not payload.get("pwd"):
+        return None
+    return payload["uid"], payload["pwd"]
+
+
+def password_matches_fingerprint(password_hash: str | None, fingerprint: str) -> bool:
+    return bool(password_hash) and hmac.compare_digest(_password_fingerprint(password_hash), fingerprint)

@@ -123,3 +123,16 @@ oauth_discovery_url = os.getenv("OAUTH_DISCOVERY_URL", default="")  # e.g. https
 oauth_client_id = os.getenv("OAUTH_CLIENT_ID", default="")
 oauth_client_secret = os.getenv("OAUTH_CLIENT_SECRET", default="")
 oauth_redirect_uri = os.getenv("OAUTH_REDIRECT_URI", default="")
+
+# Outgoing mail for "forgot password" (support/mailer.py) - an existing SMTP
+# server; the feature is hidden when SMTP_HOST is unset. SMTP_SECURITY is
+# "starttls" (usually port 587), "ssl" (usually 465) or "none".
+smtp_host = os.getenv("SMTP_HOST", default="")
+smtp_port = int(os.getenv("SMTP_PORT", default="587"))
+smtp_user = os.getenv("SMTP_USER", default="")
+smtp_password = os.getenv("SMTP_PASSWORD", default="")
+smtp_from = os.getenv("SMTP_FROM", default="")
+smtp_security = os.getenv("SMTP_SECURITY", default="starttls").lower()
+# Where users reach PeriHub (e.g. https://perihub.example.com); reset links are
+# built from this, never from the request's Host header (link poisoning).
+public_url = os.getenv("PUBLIC_URL", default="").rstrip("/")

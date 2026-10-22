@@ -40,7 +40,9 @@ SPDX-License-Identifier: Apache-2.0
   // on either route, it would kick off a second, redundant login
   // redirect/fetch and race the page's own handling. So skip it on both
   // and let each page drive auth setup for its one render.
-  const skipsOwnInitAuth = ['/auth/callback', '/auth/login'].includes($page.url.pathname);
+  const skipsOwnInitAuth = ['/auth/callback', '/auth/login', '/auth/reset'].includes(
+    $page.url.pathname
+  );
 
   // initAuth() only runs once, so client-side navigation (header tabs) has to be re-checked here.
   let authChecked = false;

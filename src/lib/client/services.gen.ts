@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, GetRunInputData, GetRunInputResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetRunSummaryData, GetRunSummaryResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, GetRunInputData, GetRunInputResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetRunSummaryData, GetRunSummaryResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, UpdateAccountSettingsData, UpdateAccountSettingsResponse, ChangePasswordData, ChangePasswordResponse, ForgotPasswordData, ForgotPasswordResponse, ResetPasswordData, ResetPasswordResponse, DeleteAccountData, DeleteAccountResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -964,6 +964,105 @@ export const getCurrentUserInfo = (): CancelablePromise<GetCurrentUserInfoRespon
 }); };
 
 /**
+ * Update Account Settings
+ * Change the logged-in account's settings: `notify_job_emails` = email when one of your runs finishes, fails
+ * or is stopped by someone else (not when you cancel it yourself). 403 for guests.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns MeResponse Successful Response
+ * @throws ApiError
+ */
+export const updateAccountSettings = (data: UpdateAccountSettingsData): CancelablePromise<UpdateAccountSettingsResponse> => { return __request(OpenAPI, {
+    method: 'PATCH',
+    url: '/auth/me',
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Change Password
+ * Change the logged-in email & password account's password. 401 if `current_password` is wrong, 400 for
+ * accounts without a PeriHub password (OAuth), 422 for new passwords under 8 characters. Other sessions stay
+ * logged in.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns void Successful Response
+ * @throws ApiError
+ */
+export const changePassword = (data: ChangePasswordData): CancelablePromise<ChangePasswordResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/auth/password',
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Forgot Password
+ * Email a one-hour, single-use password reset link to an email & password account. Always 202, whether or not
+ * the address has an account (no account enumeration); at most one mail per address every 5 minutes. 404 when
+ * mail isn't configured (SMTP_HOST/SMTP_FROM/PUBLIC_URL).
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const forgotPassword = (data: ForgotPasswordData): CancelablePromise<ForgotPasswordResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/auth/password/forgot',
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Reset Password
+ * Set a new password with the token from a reset email. 400 if the link is invalid, expired or already used
+ * (any password change invalidates it), 422 for new passwords under 8 characters.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns void Successful Response
+ * @throws ApiError
+ */
+export const resetPassword = (data: ResetPasswordData): CancelablePromise<ResetPasswordResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/auth/password/reset',
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Delete My Account
+ * Permanently delete the logged-in account and everything it owns: jobs (stopped, with their PeriLab results),
+ * simulation files, model configs and materials (shared ones too), projects it created, team memberships and API
+ * keys. Confirm with `password` (email & password accounts) or `email` (OAuth accounts): 401 if it doesn't match.
+ * 409 for the organization's last admin.
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns void Successful Response
+ * @throws ApiError
+ */
+export const deleteAccount = (data: DeleteAccountData): CancelablePromise<DeleteAccountResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/auth/me/delete',
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
  * List Api Keys
  * The caller's active API keys (never the keys themselves).
  * @returns ApiKeyInfo Successful Response
@@ -1304,7 +1403,7 @@ export const removeTeamMember = (data: RemoveTeamMemberData): CancelablePromise<
 /**
  * Get Public Config
  * Deployment settings the frontend needs before login: deployment mode, whether anonymous visitors get a guest
- * account (and its limits), whether new accounts can sign up, and whether OIDC login is available (configured and
+ * account (and its limits), whether new accounts can sign up, whether password reset by email and job notification emails are available, and whether OIDC login is available (configured and
  * licensed).
  * @returns unknown Successful Response
  * @throws ApiError
