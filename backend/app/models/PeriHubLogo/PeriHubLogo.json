@@ -1,145 +1,119 @@
 {
   "additive": [
     {
-      "additiveType": "Simple",
-      "id": null,
+      "additiveModelId": null,
       "name": "Additive Model 1",
-      "printTemp": 653.15,
-      "timeFactor": 1
+      "additiveType": "Simple",
+      "printTemp": 653.15
     }
   ],
   "blocks": [
     {
-      "additiveModel": "Additive Model 1",
       "blocksId": 1,
-      "damageModel": "",
-      "density": 1.24e-9,
-      "horizon": 1.2,
-      "material": "PLA",
       "name": "Part",
-      "show": true,
+      "material": "PLA",
+      "damageModel": "",
       "thermalModel": "Thermal",
-      "specificHeatCapacity": 1800000000
+      "additiveModel": "Additive Model 1",
+      "horizon": 0.9,
+      "density": 1.24e-9,
+      "specificHeatCapacity": 1800000000.0,
+      "show": true
     }
   ],
-  "bondFilters": [],
-  "boundaryConditions": {
-    "conditions": []
-  },
-  "computes": [],
-  "contact": {
-    "contactModels": []
-  },
-  "damages": [],
-  "deviations": {
-    "enabled": false,
-    "parameters": [],
-    "sampleSize": 10
-  },
+  "boundaryConditions": { "conditions": [] },
+  "contact": { "contactModels": [], "searchFrequency": null, "onlySurfaceContactNodes": null },
   "discretization": {
     "distributionType": "Neighbor based",
     "discType": "gcode",
-    "nodeSets": [],
     "gcode": {
       "overwriteMesh": true,
       "sampling": 0.4,
       "width": 0.4,
       "height": 0.2,
-      "scale": 1,
+      "scale": 1.0,
       "blockFunctions": []
-    }
+    },
+    "nodeSets": []
   },
-  "job": {
-    "software": "PeriLab",
-    "cluster": false,
-    "sbatch": false,
-    "verbose": false,
-    "nodes": 1,
-    "tasks": 1,
-    "tasksPerNode": 1,
-    "cpusPerTask": 1,
-    "multithread": false,
-    "time": "00:20:00",
-    "account": 2263032
+  "deviations": {
+    "enabled": false,
+    "fileInput": null,
+    "sampleSize": 10,
+    "parameters": [],
+    "oldParameters": [],
+    "file": null,
+    "mean": null,
+    "std": null
   },
-  "materials": [],
+  "job": { "verbose": false, "tasks": 1 },
   "model": {
-    "horizon": null,
-    "meshFile": "PeriHubLogo.gcode",
     "modelFolderName": "Default",
     "meshSource": "upload",
-    "twoDimensional": false
+    "twoDimensional": false,
+    "horizon": null,
+    "meshFile": "PeriHubLogo.gcode"
   },
   "outputs": [
     {
-      "Frequency": 1,
-      "InitStep": 0,
-      "Write_After_Damage": false,
-      "name": "Output1",
-      "numberOfOutputSteps": 100,
       "outputsId": null,
+      "name": "Output1",
       "selectedFileType": "Exodus",
       "selectedOutputs": ["Temperature"],
-      "useOutputFrequency": false
+      "Write_After_Damage": false,
+      "Frequency": 1,
+      "numberOfOutputSteps": 100,
+      "useOutputFrequency": false,
+      "InitStep": 0
     }
   ],
-  "preCalculations": null,
   "solvers": [
     {
-      "adapt": {
-        "maximumBondDifference": 4,
-        "stableBondDifference": 1,
-        "stableStepDifference": 4
-      },
-      "adaptivetimeStepping": false,
-      "calculateCauchy": false,
-      "calculateStrain": false,
-      "calculateVonMises": false,
+      "solverId": null,
+      "name": "Printing",
+      "stepId": 1,
+      "matEnabled": false,
       "damEnabled": false,
       "dispEnabled": true,
-      "endStepAfterDamage": 3,
-      "finalTime": 200,
-      "fixedDt": 0.1,
-      "initialTime": 0,
-      "matEnabled": false,
-      "maxDamageValue": 0.3,
-      "name": "Printing",
-      "safetyFactor": 1,
-      "solverId": null,
-      "solvertype": "Verlet",
-      "static": null,
-      "stepId": 1,
-      "stopAfterCertainDamage": false,
-      "stopAfterDamageInitation": false,
-      "stopBeforeDamageInitation": false,
       "tempEnabled": true,
-      "verlet": {
-        "numericalDamping": null,
-        "outputFrequency": 100,
-        "safetyFactor": 0.95
-      },
-      "addEnabled": true
+      "addEnabled": true,
+      "initialTime": 0.0,
+      "finalTime": 200.0,
+      "additionalTime": null,
+      "fixedDt": 0.1,
+      "solvertype": "Verlet",
+      "safetyFactor": 1.0,
+      "verlet": { "numericalDamping": null, "outputFrequency": 100 },
+      "static": null,
+      "stopAfterDamageInitation": false,
+      "endStepAfterDamage": 3,
+      "stopAfterCertainDamage": false,
+      "maximumDamage": null,
+      "stopBeforeDamageInitation": false,
+      "adaptivetimeStepping": false,
+      "adapt": { "stableStepDifference": 4, "maximumBondDifference": 4, "stableBondDifference": 1 },
+      "calculateCauchy": false,
+      "calculateVonMises": false,
+      "calculateStrain": false
     }
   ],
   "thermal": [
     {
-      "applyHeatTransfer": false,
-      "applyThermalExpansion": false,
-      "applyThermalFlow": false,
-      "environmentalTemperature": 453.15,
-      "heatTransferCoefficient": 0.015,
+      "thermalModelsId": 1,
       "name": "Thermal",
       "thermalModel": ["Thermal Flow", "Heat Transfer"],
-      "printTemp": 200,
+      "thermalType": "Bond based",
+      "heatTransferCoefficient": 0.015,
+      "environmentalTemperature": 453.15,
+      "requiredSpecificVolume": 1.3,
       "thermalConductivity": 0.12,
       "thermalExpansionCoefficient": null,
-      "thermalModelsId": 1,
-      "thermalType": "Bond based",
-      "timeFactor": 1,
-      "printBedTemperature": null,
       "thermalConductivityPrintBed": null,
-      "requiredSpecificVolume": "1.3",
-      "numStateVars": 7
+      "printBedTemperature": null,
+      "printBedZCoord": null,
+      "file": null,
+      "numStateVars": 7,
+      "predefinedFieldNames": null
     }
   ]
 }

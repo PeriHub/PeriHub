@@ -84,12 +84,23 @@ SPDX-License-Identifier: Apache-2.0
     viewStore.logStatusMessage = '';
   }
 
+  // PeriLab logs "finished" slightly before its job status leaves "running",
+  // so the first getStatus can still say submitted - keep asking until the
+  // backend catches up, or the progress bar sticks at 100%.
+  async function refreshUntilFinished() {
+    for (let i = 0; i < 10; i++) {
+      await _getStatus();
+      if (!defaultStore.status.submitted) return;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+
   function finishRun(message: string, ok: boolean) {
     const wasSubmitted = defaultStore.status.submitted;
     closeStream();
     // Otherwise logStatus stays 'streaming' and ViewActions keeps showing Cancel.
     viewStore.logStatus = 'idle';
-    _getStatus();
+    refreshUntilFinished();
     bus.emit('getJobs' as never);
     if (wasSubmitted) {
       if (ok) notify.positive(message);

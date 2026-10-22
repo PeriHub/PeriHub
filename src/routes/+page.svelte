@@ -17,6 +17,13 @@ SPDX-License-Identifier: Apache-2.0
   // test specimen in a 100x50 viewBox.
   const models = [
     {
+      file: 'PeriHubLogo',
+      title: 'PeriHub Logo',
+      note: 'G-code print',
+      // The logo's square with its rounded corner and dot, filled by a print path.
+      d: 'M30 5h32a8 8 0 0 1 8 8v32H30zM59 13a3 3 0 0 0 6 0a3 3 0 0 0-6 0M36 40V12h6v28h6V12h6v28h6V22'
+    },
+    {
       file: 'Dogbone',
       title: 'Dogbone',
       note: 'Tensile test',
@@ -109,9 +116,10 @@ SPDX-License-Identifier: Apache-2.0
         Peridynamics,<br />in your browser.
       </h1>
       <p class="dark:text-muted-foreground mt-6 max-w-xl text-lg text-balance text-[#10191D]/75">
-        Build a model, run it on PeriLab and explore the results, all in one place. Simulate
-        fracture and damage, heat transfer, thermo-mechanics or additive manufacturing processes,
-        with static or dynamic solvers and your own material models.
+        PeriHub is an Open Source web-based platform for building and running peridynamic
+        simulations, giving engineers and researchers an accessible way to simulate fracture and
+        damage, heat transfer, thermo-mechanics or additive manufacturing processes, with static or
+        dynamic solvers and your own material models.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a
@@ -137,7 +145,7 @@ SPDX-License-Identifier: Apache-2.0
       Models
     </h2>
     <ul
-      class="dark:bg-border mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-[#10191D]/10 sm:grid-cols-3 lg:grid-cols-6"
+      class="dark:bg-border mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-[#10191D]/10 sm:grid-cols-4 lg:grid-cols-7"
     >
       {#each models as m (m.file)}
         <li>
@@ -164,7 +172,7 @@ SPDX-License-Identifier: Apache-2.0
           </button>
         </li>
       {/each}
-      <li>
+      <li class="col-span-2 lg:col-span-1">
         <a
           href="/models"
           class="group dark:bg-background dark:hover:bg-card flex h-full w-full flex-col bg-[#E8EDEE] p-4 text-left transition-colors hover:bg-white focus-visible:relative focus-visible:outline-2 focus-visible:outline-[#00658B]"
