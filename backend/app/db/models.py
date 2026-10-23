@@ -170,7 +170,7 @@ class AdminSetting(Base):
         return f"<AdminSetting {self.key}={self.value!r} org={self.org_id}>"
 
 
-# "private" (owner only; for materials also org admins, see rbac.visible_to) |
+# "private" (owner and org admins, see rbac.visible_to) |
 # "team" (members of owner's team) | "org" (anyone in owner's org) | "public"
 # (anyone, including guests - used sparingly, e.g. a curated shared material
 # library) - shared by both ModelConfig and Material below.

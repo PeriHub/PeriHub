@@ -425,7 +425,7 @@ def get_data(
     use_cell_data = False
 
     variable_list = list(point_data.keys())
-    variable_list = list(
+    variable_list = sorted(
         set([entry[:-1] if entry[-1].lower() in ["x", "y", "z"] else entry for entry in variable_list])
     )
 

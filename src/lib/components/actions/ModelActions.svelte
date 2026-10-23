@@ -161,7 +161,7 @@ SPDX-License-Identifier: Apache-2.0
         icon: Undo2,
         action: () => bus.emit('resetData'),
         disabled: false,
-        show: !uploaded
+        show: true
       },
       {
         label: 'Save as default config',

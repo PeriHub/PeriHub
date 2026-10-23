@@ -74,3 +74,16 @@ def test_guests_and_anonymous_are_rejected(client):
         set_setting(db, "guest_access", True)
     token = client.post("/auth/guest").json()["token"]
     assert client.get("/library/material", headers={"Authorization": f"Bearer {token}"}).status_code == 403
+
+
+def test_private_model_config_visible_to_org_admin(client):
+    admin = _signup(client, "admin@x.de")
+    owner = _signup(client, "owner@x.de")
+    member = _signup(client, "member@x.de")
+    r = client.post("/library/model-config", json={"name": "Cfg", "config": {}}, headers=owner)
+    assert r.status_code == 200, r.text
+
+    assert client.get("/library/model-config", headers=member).json() == []
+    assert [(c["name"], c["can_edit"]) for c in client.get("/library/model-config", headers=admin).json()] == [
+        ("Cfg", True)
+    ]

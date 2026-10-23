@@ -120,6 +120,9 @@ SPDX-License-Identifier: Apache-2.0
         maxValue = response.max_value;
         minValue = response.min_value;
         variableOptions = response.variables;
+        // The backend falls back to the first variable when the requested one is missing - mirror that here.
+        if (!variableOptions.includes(modelParams.variable))
+          modelParams.variable = variableOptions[0] ?? modelParams.variable;
         modelParams.numberOfSteps = response.number_of_steps;
         time = response.time;
       })
