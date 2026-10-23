@@ -46,7 +46,7 @@ def test_delete_rejects_traversal_into_another_users_folder(client, sim_dir):
     victim_folder = sim_dir / other_id / "Dogbone" / "Default"
     os.makedirs(victim_folder)
 
-    r = client.delete(f"/workspaces/%2E%2E/{other_id}", headers=auth)
+    r = client.delete("/jobs", params={"model_name": f"../{other_id}"}, headers=auth)
 
     assert r.status_code == 400, r.text
     assert (sim_dir / other_id).exists()

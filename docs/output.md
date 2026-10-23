@@ -33,8 +33,10 @@ archive.
 
 ## Deleting results
 
-Use **Delete data** to remove the results for the current model. This frees up
-space on your storage and does not touch any other models.
+In the **Jobs** view, the trash icon on a job deletes that job's log and result
+files. **Delete all** next to a model's name deletes all of its jobs together
+with the model's input files on the server; other models are not touched.
+Active jobs have to be cancelled first.
 
 ## Plotting results
 

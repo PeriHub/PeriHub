@@ -4,6 +4,7 @@
 
 import json
 import os
+import shutil
 from typing import Iterator, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
@@ -120,6 +121,7 @@ def _to_run_status(entry: JobQueueEntry, job: Optional[PeriLabJob] = None, check
         progress=run["progress"],
         currentStep=run["currentStep"],
         totalSteps=run["totalSteps"],
+        files_missing=not os.path.isdir(entry.remotepath),
     )
 
 
@@ -574,6 +576,55 @@ def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
             detail=f"Run is '{entry.status}' - cancel it before deleting.",
         )
 
+    _delete_perilab_jobs(entry)
+    audit_log.record(username, "delete_run", entry.model_name, request)
+    db.delete(entry)
+    db.commit()
+    log.info("Run %s has been deleted", run_id)
+    return {"deleted": run_id}
+
+
+@router.delete("/jobs", operation_id="delete_model_runs")
+def delete_model_runs(
+    request: Request,
+    model_name: str = Query(..., description="Model whose runs to delete"),
+    db: Session = Depends(get_db),
+) -> dict:
+    """Deletes all of the caller's runs of `model_name` - their PeriLab jobs and DB entries - together with the
+    model's folders (input decks, meshes, uploads). Refused while any of those runs is still active."""
+    identity = resolve_user(request, db)
+    if identity.user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
+    username = user_folder(request)
+
+    entries = list(
+        db.scalars(
+            select(JobQueueEntry).where(
+                JobQueueEntry.user_id == identity.user.id, JobQueueEntry.model_name == model_name
+            )
+        )
+    )
+    for entry in entries:
+        sync_status(db, entry)
+    if any(entry.status in (JOB_QUEUED, JOB_RUNNING) for entry in entries):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"{model_name} still has active runs - cancel them before deleting.",
+        )
+
+    for entry in entries:
+        _delete_perilab_jobs(entry)
+        db.delete(entry)
+    db.commit()
+    localpath = FileHandler.get_local_model_path(username, model_name)
+    if os.path.exists(localpath):
+        shutil.rmtree(localpath)
+    audit_log.record(username, "delete_model_runs", model_name, request, extra={"runs": len(entries)})
+    log.info("%d runs and the folders of %s have been deleted", len(entries), model_name)
+    return {"deleted": len(entries)}
+
+
+def _delete_perilab_jobs(entry: JobQueueEntry) -> None:
     client = get_solver_backend().client()
     for job_id in perilab_job_ids(entry):
         try:
@@ -581,13 +632,7 @@ def delete_run(run_id: str, request: Request, db: Session = Depends(get_db)):
         except HTTPException as e:
             # Already gone on the PeriLab side (or the API is down) - don't
             # leave an undeletable entry behind because of it.
-            log.warning("Could not delete PeriLab job %s of run %s: %s", job_id, run_id, e.detail)
-
-    audit_log.record(username, "delete_run", entry.model_name, request)
-    db.delete(entry)
-    db.commit()
-    log.info("Run %s has been deleted", run_id)
-    return {"deleted": run_id}
+            log.warning("Could not delete PeriLab job %s of run %s: %s", job_id, entry.id, e.detail)
 
 
 @router.put("/jobs/{run_id}/cancel", operation_id="cancel_run", response_model=RunCancelled)

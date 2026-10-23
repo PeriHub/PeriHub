@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import shutil
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -14,38 +13,9 @@ from ..support import audit_log
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler
 from ..support.globals import log
-from ..support.guest import user_folder
 from ..support.rbac import require_role
 
 router = APIRouter(tags=["Delete Methods"])
-
-
-@router.delete("/workspaces/{model_name}/{model_folder_name}", operation_id="delete_model")
-def delete_model(
-    model_name: str = "Dogbone",
-    model_folder_name: str = "Default",
-    request: Request = "",
-):
-    """Delete one of the caller's model folders (input deck, mesh, uploads)."""
-    username = user_folder(request)
-
-    localpath = FileHandler.get_local_model_folder_path(username, model_name, model_folder_name)
-    if os.path.exists(localpath):
-        shutil.rmtree(localpath)
-    audit_log.record(username, "delete_model", model_name, request, extra={"model_folder_name": model_folder_name})
-    log.info("%s has been deleted", model_name)
-
-
-@router.delete("/users/me/data", operation_id="delete_user_data")
-def delete_user_data(request: Request):
-    """Delete all of the caller's simulation data."""
-    username = user_folder(request)
-
-    localpath = FileHandler.get_local_user_path(username)
-    if os.path.exists(localpath):
-        shutil.rmtree(localpath)
-    audit_log.record(username, "delete_user_data", username, request)
-    log.info("Data of %s has been deleted", username)
 
 
 @router.delete("/admin/user-data", operation_id="delete_stale_user_data")

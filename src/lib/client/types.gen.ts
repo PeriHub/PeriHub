@@ -673,6 +673,7 @@ export type RunStatus = {
     progress?: number | null;
     currentStep?: number | null;
     totalSteps?: number | null;
+    files_missing?: boolean;
     model?: {
     [key: string]: unknown;
 } | null;
@@ -1016,6 +1017,17 @@ export type RunModelData = {
 
 export type RunModelResponse = RunSubmitted;
 
+export type DeleteModelRunsData = {
+    /**
+     * Model whose runs to delete
+     */
+    modelName: string;
+};
+
+export type DeleteModelRunsResponse = {
+    [key: string]: unknown;
+};
+
 export type GetJobFoldersData = {
     modelName: string;
 };
@@ -1127,15 +1139,6 @@ export type GetPointDataResultsData = {
 };
 
 export type GetPointDataResultsResponse = PointDataResults;
-
-export type DeleteModelData = {
-    modelFolderName: string;
-    modelName: string;
-};
-
-export type DeleteModelResponse = unknown;
-
-export type DeleteUserDataResponse = unknown;
 
 export type DeleteStaleUserDataData = {
     days?: number | null;
@@ -1617,6 +1620,21 @@ export type $OpenApiTs = {
                 422: HTTPValidationError;
             };
         };
+        delete: {
+            req: DeleteModelRunsData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: {
+                    [key: string]: unknown;
+                };
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
     };
     '/workspaces/{model_name}': {
         get: {
@@ -1820,31 +1838,6 @@ export type $OpenApiTs = {
                  * Validation Error
                  */
                 422: HTTPValidationError;
-            };
-        };
-    };
-    '/workspaces/{model_name}/{model_folder_name}': {
-        delete: {
-            req: DeleteModelData;
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
-                /**
-                 * Validation Error
-                 */
-                422: HTTPValidationError;
-            };
-        };
-    };
-    '/users/me/data': {
-        delete: {
-            res: {
-                /**
-                 * Successful Response
-                 */
-                200: unknown;
             };
         };
     };

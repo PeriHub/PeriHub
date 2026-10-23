@@ -16,6 +16,7 @@ SPDX-License-Identifier: Apache-2.0
   import {
     cancelRun as cancelRunApi,
     deleteRun as deleteRunApi,
+    deleteModelRuns,
     getRunInput,
     getValves,
     listAllRuns
@@ -30,6 +31,8 @@ SPDX-License-Identifier: Apache-2.0
   let pollTimer: ReturnType<typeof setInterval> | undefined;
   // Run awaiting confirmation in the delete dialog (null = dialog closed).
   let runToDelete = $state<RunStatus | null>(null);
+  // Model whose runs and folders await confirmation (null = dialog closed).
+  let modelToDelete = $state<string | null>(null);
 
   // model name -> subname -> runs (newest first, as sorted by GET /jobs/runs)
   const groups = $derived.by(() => {
@@ -185,6 +188,21 @@ SPDX-License-Identifier: Apache-2.0
     fetchJobs();
   }
 
+  async function deleteModel() {
+    const modelName = modelToDelete;
+    modelToDelete = null;
+    if (!modelName) return;
+    try {
+      await deleteModelRuns({ modelName });
+      runs = runs.filter((r) => r.model_name !== modelName);
+      notify.positive(`${modelTitle(modelName)} deleted`);
+    } catch (error) {
+      notify.apiError(error);
+    }
+    bus.emit('getStatus' as never);
+    fetchJobs();
+  }
+
   // Tabs.Content keeps this view mounted while hidden, so only fetch/poll
   // while the Jobs tab is shown. Not gated on "any active run in the list":
   // a run submitted after the last fetch isn't in `runs` yet (submitting
@@ -220,7 +238,18 @@ SPDX-License-Identifier: Apache-2.0
   {:else}
     {#each [...groups] as [modelName, bySubname] (modelName)}
       <section>
-        <h3 class="text-base font-semibold">{modelTitle(modelName)}</h3>
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-semibold">{modelTitle(modelName)}</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={[...bySubname.values()].flat().some(isActive)}
+            onclick={() => (modelToDelete = modelName)}
+            title="Delete all jobs and files of this model"
+          >
+            <Trash2 class="h-4 w-4" /> Delete all
+          </Button>
+        </div>
         {#each [...bySubname] as [subname, subRuns] (subname)}
           <div class="mt-2 pl-3">
             <h4 class="text-muted-foreground font-medium">{subname}</h4>
@@ -245,6 +274,14 @@ SPDX-License-Identifier: Apache-2.0
                       >
                         {run.status}
                       </span>
+                      {#if run.files_missing}
+                        <span
+                          class="ml-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-amber-600"
+                          title="This run's folder no longer exists on the server - it was deleted or moved. Its input deck and results can't be loaded; delete the run to clean up."
+                        >
+                          files missing
+                        </span>
+                      {/if}
                     </td>
                     <td class="w-40 px-3 py-2">
                       {#if isActive(run)}
@@ -328,6 +365,30 @@ SPDX-License-Identifier: Apache-2.0
       <div class="mt-4 flex justify-end gap-2">
         <Button variant="ghost" onclick={() => (runToDelete = null)}>Cancel</Button>
         <Button variant="destructive" onclick={deleteJob}>Delete</Button>
+      </div>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
+
+<Dialog.Root
+  open={modelToDelete !== null}
+  onOpenChange={(open) => {
+    if (!open) modelToDelete = null;
+  }}
+>
+  <Dialog.Portal>
+    <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
+    <Dialog.Content
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
+    >
+      <Dialog.Title class="mb-2 text-lg font-semibold">Delete all jobs</Dialog.Title>
+      <p class="text-muted-foreground text-sm">
+        Delete every job of {modelToDelete ? modelTitle(modelToDelete) : ''}? Their logs and result
+        files, and the model's input files on the server, are removed permanently.
+      </p>
+      <div class="mt-4 flex justify-end gap-2">
+        <Button variant="ghost" onclick={() => (modelToDelete = null)}>Cancel</Button>
+        <Button variant="destructive" onclick={deleteModel}>Delete</Button>
       </div>
     </Dialog.Content>
   </Dialog.Portal>

@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, GetRunInputData, GetRunInputResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetRunSummaryData, GetRunSummaryResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteModelData, DeleteModelResponse, DeleteUserDataResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, UpdateAccountSettingsData, UpdateAccountSettingsResponse, ChangePasswordData, ChangePasswordResponse, ForgotPasswordData, ForgotPasswordResponse, ResetPasswordData, ResetPasswordResponse, DeleteAccountData, DeleteAccountResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, DeleteModelRunsData, DeleteModelRunsResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, GetRunInputData, GetRunInputResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetRunSummaryData, GetRunSummaryResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, UpdateAccountSettingsData, UpdateAccountSettingsResponse, ChangePasswordData, ChangePasswordResponse, ForgotPasswordData, ForgotPasswordResponse, ResetPasswordData, ResetPasswordResponse, DeleteAccountData, DeleteAccountResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -433,6 +433,26 @@ export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse
 }); };
 
 /**
+ * Delete Model Runs
+ * Deletes all of the caller's runs of `model_name` - their PeriLab jobs and DB entries - together with the
+ * model's folders (input decks, meshes, uploads). Refused while any of those runs is still active.
+ * @param data The data for the request.
+ * @param data.modelName Model whose runs to delete
+ * @returns unknown Successful Response
+ * @throws ApiError
+ */
+export const deleteModelRuns = (data: DeleteModelRunsData): CancelablePromise<DeleteModelRunsResponse> => { return __request(OpenAPI, {
+    method: 'DELETE',
+    url: '/jobs',
+    query: {
+        model_name: data.modelName
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
  * Get Job Folders
  * The caller's model folders (workspaces) of this model; empty if there are none. Read from the
  * simulations volume - PeriLab doesn't know about folders, only about submitted runs.
@@ -776,38 +796,6 @@ export const getPointDataResults = (data: GetPointDataResultsData = {}): Cancela
     errors: {
         422: 'Validation Error'
     }
-}); };
-
-/**
- * Delete Model
- * Delete one of the caller's model folders (input deck, mesh, uploads).
- * @param data The data for the request.
- * @param data.modelName
- * @param data.modelFolderName
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const deleteModel = (data: DeleteModelData): CancelablePromise<DeleteModelResponse> => { return __request(OpenAPI, {
-    method: 'DELETE',
-    url: '/workspaces/{model_name}/{model_folder_name}',
-    path: {
-        model_name: data.modelName,
-        model_folder_name: data.modelFolderName
-    },
-    errors: {
-        422: 'Validation Error'
-    }
-}); };
-
-/**
- * Delete User Data
- * Delete all of the caller's simulation data.
- * @returns unknown Successful Response
- * @throws ApiError
- */
-export const deleteUserData = (): CancelablePromise<DeleteUserDataResponse> => { return __request(OpenAPI, {
-    method: 'DELETE',
-    url: '/users/me/data'
 }); };
 
 /**

@@ -3942,6 +3942,11 @@ export const $RunStatus = {
             ],
             title: 'Totalsteps'
         },
+        files_missing: {
+            type: 'boolean',
+            title: 'Files Missing',
+            default: false
+        },
         model: {
             anyOf: [
                 {

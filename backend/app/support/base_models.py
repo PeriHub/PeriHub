@@ -277,6 +277,9 @@ class RunStatus(BaseModel):
     progress: Optional[float] = None
     currentStep: Optional[int] = None
     totalSteps: Optional[int] = None
+    # The run's model folder is gone from the simulations volume (deleted or moved by hand, or the volume
+    # was swapped) - its input deck and local result files can't be loaded any more.
+    files_missing: bool = False
     # Saved input deck (ModelData) of the run's model folder - only filled
     # by GET /jobs/runs, so the job list can load a run back into the editor.
     model: Optional[dict] = None

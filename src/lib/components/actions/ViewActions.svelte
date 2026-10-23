@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { Dialog } from 'bits-ui';
-  import { Play, X, Download, Eye, LineChart, Trash2, Check, ImageIcon } from 'lucide-svelte';
+  import { Play, X, Download, Eye, LineChart, Check, ImageIcon } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { authStore } from '$lib/stores/auth-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
@@ -22,8 +22,6 @@ SPDX-License-Identifier: Apache-2.0
     cancelRun as cancelRunApi,
     getPlot,
     getAnalyses,
-    deleteModel as deleteModelApi,
-    deleteUserData as deleteUserDataApi,
     type AnalysisInfo,
     type Valve
   } from '$lib/client';
@@ -97,8 +95,6 @@ SPDX-License-Identifier: Apache-2.0
   let dialogEnergySavings = $state(false);
   let dialogDownload = $state(false);
   let dialogPlot = $state(false);
-  let dialogDelete = $state(false);
-  let dialogConfirm = $state<null | 'model' | 'localSettings' | 'userData'>(null);
 
   let energyPercent = $state(0);
   // let plotVariables = $state<string[]>([]);
@@ -354,44 +350,6 @@ SPDX-License-Identifier: Apache-2.0
     analysisLoading = false;
   }
 
-  async function deleteModelData() {
-    try {
-      await deleteModelApi({
-        modelName: modelStore.selectedModel.file,
-        modelFolderName: modelData.model.modelFolderName
-      });
-      notify.positive('Model data deleted');
-    } catch {
-      notify.negative('Could not delete the model data');
-    }
-  }
-
-  function deleteLocalSettings() {
-    localStorage.removeItem('darkMode');
-    localStorage.removeItem('modelData');
-    localStorage.removeItem('selectedModel');
-    localStorage.removeItem('modelParams');
-    localStorage.removeItem('panel');
-  }
-
-  async function deleteUserData() {
-    try {
-      await deleteUserDataApi();
-      notify.positive('User data deleted');
-    } catch {
-      notify.negative('Could not delete the user data');
-    }
-    bus.emit('getStatus' as never);
-  }
-
-  function confirmDelete() {
-    if (dialogConfirm === 'model') deleteModelData();
-    else if (dialogConfirm === 'localSettings') deleteLocalSettings();
-    else if (dialogConfirm === 'userData') deleteUserData();
-    dialogConfirm = null;
-    dialogDelete = false;
-  }
-
   onDestroy(() => timer && clearInterval(timer));
 </script>
 
@@ -503,12 +461,6 @@ SPDX-License-Identifier: Apache-2.0
       <ImageIcon class="h-4 w-4" />
     </Button>
   {/if}
-
-  <div class="flex-1"></div>
-
-  <Button variant="ghost" size="icon" onclick={() => (dialogDelete = true)} title="Delete data">
-    <Trash2 class="h-4 w-4" />
-  </Button>
 </div>
 
 <Dialog.Root bind:open={dialogEnergySavings}>
@@ -642,34 +594,6 @@ SPDX-License-Identifier: Apache-2.0
           <Button type="submit" disabled={!selectedAnalysis}>Run</Button>
         </div>
       </form>
-    </Dialog.Content>
-  </Dialog.Portal>
-</Dialog.Root>
-
-<Dialog.Root bind:open={dialogDelete}>
-  <Dialog.Portal>
-    <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
-    <Dialog.Content
-      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
-    >
-      {#if !dialogConfirm}
-        <Dialog.Title class="mb-3 text-lg font-semibold">Delete data</Dialog.Title>
-        <div class="flex flex-col gap-2">
-          <Button variant="outline" onclick={() => (dialogConfirm = 'model')}>Model data</Button>
-          <Button variant="outline" onclick={() => (dialogConfirm = 'localSettings')}>
-            Settings stored in this browser
-          </Button>
-          <Button variant="outline" onclick={() => (dialogConfirm = 'userData')}>User data</Button>
-          <Button variant="ghost" onclick={() => (dialogDelete = false)}>Cancel</Button>
-        </div>
-      {:else}
-        <Dialog.Title class="mb-2 text-lg font-semibold">Are you sure?</Dialog.Title>
-        <p class="text-muted-foreground text-sm">This action cannot be undone.</p>
-        <div class="mt-4 flex justify-end gap-2">
-          <Button variant="ghost" onclick={() => (dialogConfirm = null)}>Cancel</Button>
-          <Button variant="destructive" onclick={confirmDelete}>Delete</Button>
-        </div>
-      {/if}
     </Dialog.Content>
   </Dialog.Portal>
 </Dialog.Root>

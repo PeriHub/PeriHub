@@ -90,7 +90,7 @@ def sim_dir(monkeypatch, tmp_path):
     [
         ("get", "/workspaces/Dogbone"),
         ("get", "/workspaces/Dogbone/Default/input-deck"),
-        ("delete", "/users/me/data"),
+        ("delete", "/jobs?model_name=Dogbone"),
     ],
 )
 def test_user_data_endpoints_require_login(client, sim_dir, method, url):
