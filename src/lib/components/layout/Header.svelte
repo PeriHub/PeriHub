@@ -143,13 +143,15 @@ SPDX-License-Identifier: Apache-2.0
     </nav>
 
     <div class="col-start-3 flex items-center gap-1.5">
-      {#if authStore.isGuest}
+      {#if authStore.ready && !authStore.hasAccount}
         <Button
           variant="outline"
           size="sm"
           class="rounded-full border-white/30 bg-white/15 px-3 py-1.5 text-xs font-medium text-inherit hover:bg-white/25 hover:text-inherit"
           onclick={leaveGuestSession}
-          title="You're using PeriHub as a guest - log in for full access"
+          title={authStore.isGuest
+            ? "You're using PeriHub as a guest - log in for full access"
+            : 'Log in to PeriHub'}
         >
           <LogIn class="h-3.5 w-3.5" /> Log in
         </Button>
