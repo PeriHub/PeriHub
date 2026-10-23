@@ -37,15 +37,17 @@ def get_models(own_only: bool = False, verify: bool = False, request: Request = 
     by it everywhere, so it isn't listed twice).
 
     `own_only`: just the own models, shadowed ones included; broken or legacy-format ones
-    carry an `error` message. `verify` (with `own_only`): only those the caller authored."""
+    carry an `error` message. `verify` (with `own_only`): only those the caller authored (admins: all)."""
     own = loader.list_models("own")
     if not own_only:
         model_list = loader.list_models("built_in")
         built_in = {model["file"] for model in model_list}
         return model_list + [model for model in own if model["file"] not in built_in]
     if verify:
-        username = require_user(request).display_name
-        own = [model for model in own if username in model["author"].replace(" ", "").split(",")]
+        user = require_user(request)
+        if user.role != "admin":
+            username = user.display_name.replace(" ", "")
+            own = [model for model in own if username in model["author"].replace(" ", "").split(",")]
     return own
 
 
