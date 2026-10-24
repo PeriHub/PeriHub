@@ -1,0 +1,3745 @@
+{
+  "type": "object",
+  "title": "PeriLab input deck",
+  "required": ["PeriLab"],
+  "properties": {
+    "PeriLab": {
+      "type": "object",
+      "required": ["Blocks", "Discretization", "Models"],
+      "properties": {
+        "Multistep Solver": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              { "required": ["Linear Static Matrix Based"] },
+              { "required": ["Newmark"] },
+              { "required": ["Static"] },
+              { "required": ["Verlet"] },
+              { "required": ["Verlet Matrix Based"] }
+            ],
+            "type": "object",
+            "properties": {
+              "Step ID": { "type": "integer" },
+              "Static": {
+                "type": "object",
+                "properties": {
+                  "Residual scaling": { "type": "number", "default": 1.0e6 },
+                  "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                  "Globals": { "type": "object" },
+                  "Fixed dt": {
+                    "type": "number",
+                    "description": "quantity: time (in your consistent unit system)",
+                    "default": -1.0
+                  },
+                  "Maximum number of iterations": {
+                    "type": "integer",
+                    "minimum": 1.0,
+                    "default": 100
+                  },
+                  "Solution tolerance": { "type": "number", "minimum": 0.0, "default": 1.0e-7 },
+                  "NLSolve": { "type": "boolean" },
+                  "Solver Type": { "type": "string" },
+                  "m": { "type": "integer", "minimum": 1.0, "default": 15 },
+                  "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                  "Residual tolerance": { "type": "number", "minimum": 0.0, "default": 1.0e-7 },
+                  "Show solver iteration": { "type": "boolean", "default": false },
+                  "Linear Start Value": { "type": "string" }
+                },
+                "additionalProperties": false
+              },
+              "Degradation Models": { "type": "boolean", "default": false },
+              "Maximum Damage": { "type": "number" },
+              "Globals": { "type": "object" },
+              "Damage Models": { "type": "boolean", "default": false },
+              "Additional Time": {
+                "type": "number",
+                "description": "quantity: time (in your consistent unit system)"
+              },
+              "Calculate Strain": { "type": "boolean", "default": false },
+              "Fallback": {
+                "oneOf": [
+                  { "required": ["Linear Static Matrix Based"] },
+                  { "required": ["Newmark"] },
+                  { "required": ["Static"] },
+                  { "required": ["Verlet"] },
+                  { "required": ["Verlet Matrix Based"] }
+                ],
+                "type": "object",
+                "description": "solver that takes over a failed step",
+                "properties": {
+                  "Static": {
+                    "type": "object",
+                    "properties": {
+                      "Residual scaling": { "type": "number", "default": 1.0e6 },
+                      "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                      "Globals": { "type": "object" },
+                      "Fixed dt": {
+                        "type": "number",
+                        "description": "quantity: time (in your consistent unit system)",
+                        "default": -1.0
+                      },
+                      "Maximum number of iterations": {
+                        "type": "integer",
+                        "minimum": 1.0,
+                        "default": 100
+                      },
+                      "Solution tolerance": { "type": "number", "minimum": 0.0, "default": 1.0e-7 },
+                      "NLSolve": { "type": "boolean" },
+                      "Solver Type": { "type": "string" },
+                      "m": { "type": "integer", "minimum": 1.0, "default": 15 },
+                      "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                      "Residual tolerance": { "type": "number", "minimum": 0.0, "default": 1.0e-7 },
+                      "Show solver iteration": { "type": "boolean", "default": false },
+                      "Linear Start Value": { "type": "string" }
+                    },
+                    "additionalProperties": false
+                  },
+                  "Newmark": {
+                    "type": "object",
+                    "properties": {
+                      "Newmark Delta": { "type": "number", "default": 0.5 },
+                      "Fixed dt": {
+                        "type": "number",
+                        "description": "quantity: time (in your consistent unit system)",
+                        "default": -1.0
+                      },
+                      "Model Reduction": { "type": "boolean", "default": false },
+                      "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                      "Matrix Update": { "type": "boolean", "default": false },
+                      "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                      "Globals": { "type": "object" },
+                      "Newmark Alpha": { "type": "number" }
+                    },
+                    "additionalProperties": false
+                  },
+                  "Verlet Matrix Based": {
+                    "type": "object",
+                    "properties": {
+                      "Fixed dt": {
+                        "type": "number",
+                        "description": "quantity: time (in your consistent unit system)",
+                        "default": -1.0
+                      },
+                      "Model Reduction": {
+                        "type": "object",
+                        "required": ["Type"],
+                        "properties": {
+                          "Material Point Region": { "type": "boolean", "default": true },
+                          "Number of Modes": { "type": "integer", "minimum": 1.0, "default": 1 },
+                          "Reduction Blocks": {
+                            "type": ["integer", "string"],
+                            "description": "Block id or list, e.g. \"2, 3\""
+                          },
+                          "Globals": { "type": "object" },
+                          "Type": { "type": "string" }
+                        },
+                        "additionalProperties": false
+                      },
+                      "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                      "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                      "Globals": { "type": "object" }
+                    },
+                    "additionalProperties": false
+                  },
+                  "Verlet": {
+                    "type": "object",
+                    "properties": {
+                      "Fixed dt": {
+                        "type": "number",
+                        "description": "quantity: time (in your consistent unit system)",
+                        "default": -1.0
+                      },
+                      "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                      "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                      "Globals": { "type": "object" }
+                    },
+                    "additionalProperties": false
+                  },
+                  "Globals": { "type": "object" },
+                  "Linear Static Matrix Based": {
+                    "type": "object",
+                    "properties": {
+                      "Fixed dt": {
+                        "type": "number",
+                        "description": "quantity: time (in your consistent unit system)",
+                        "default": -1.0
+                      },
+                      "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                      "Matrix Update": { "type": "boolean", "default": false },
+                      "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                      "Globals": { "type": "object" }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              },
+              "Thermal Models": { "type": "boolean", "default": false },
+              "Material Models": { "type": "boolean", "default": true },
+              "Additive Models": { "type": "boolean", "default": false },
+              "Newmark": {
+                "type": "object",
+                "properties": {
+                  "Newmark Delta": { "type": "number", "default": 0.5 },
+                  "Fixed dt": {
+                    "type": "number",
+                    "description": "quantity: time (in your consistent unit system)",
+                    "default": -1.0
+                  },
+                  "Model Reduction": { "type": "boolean", "default": false },
+                  "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                  "Matrix Update": { "type": "boolean", "default": false },
+                  "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                  "Globals": { "type": "object" },
+                  "Newmark Alpha": { "type": "number" }
+                },
+                "additionalProperties": false
+              },
+              "Initial Time": {
+                "type": "number",
+                "description": "quantity: time (in your consistent unit system)"
+              },
+              "Calculate von Mises stress": { "type": "boolean", "default": false },
+              "Number of Steps": {
+                "type": "integer",
+                "description": "1 if not given",
+                "minimum": 1.0
+              },
+              "Verlet": {
+                "type": "object",
+                "properties": {
+                  "Fixed dt": {
+                    "type": "number",
+                    "description": "quantity: time (in your consistent unit system)",
+                    "default": -1.0
+                  },
+                  "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                  "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                  "Globals": { "type": "object" }
+                },
+                "additionalProperties": false
+              },
+              "Verlet Matrix Based": {
+                "type": "object",
+                "properties": {
+                  "Fixed dt": {
+                    "type": "number",
+                    "description": "quantity: time (in your consistent unit system)",
+                    "default": -1.0
+                  },
+                  "Model Reduction": {
+                    "type": "object",
+                    "required": ["Type"],
+                    "properties": {
+                      "Material Point Region": { "type": "boolean", "default": true },
+                      "Number of Modes": { "type": "integer", "minimum": 1.0, "default": 1 },
+                      "Reduction Blocks": {
+                        "type": ["integer", "string"],
+                        "description": "Block id or list, e.g. \"2, 3\""
+                      },
+                      "Globals": { "type": "object" },
+                      "Type": { "type": "string" }
+                    },
+                    "additionalProperties": false
+                  },
+                  "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                  "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                  "Globals": { "type": "object" }
+                },
+                "additionalProperties": false
+              },
+              "Pre Calculation Models": { "type": "boolean", "default": true },
+              "Final Time": {
+                "type": "number",
+                "description": "quantity: time (in your consistent unit system)"
+              },
+              "Calculate Cauchy": { "type": "boolean", "default": false },
+              "Linear Static Matrix Based": {
+                "type": "object",
+                "properties": {
+                  "Fixed dt": {
+                    "type": "number",
+                    "description": "quantity: time (in your consistent unit system)",
+                    "default": -1.0
+                  },
+                  "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                  "Matrix Update": { "type": "boolean", "default": false },
+                  "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                  "Globals": { "type": "object" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "FEM": {
+          "type": "object",
+          "required": ["Degree", "Element Type", "Material Model"],
+          "properties": {
+            "Coupling": {
+              "type": "object",
+              "required": ["Coupling Type"],
+              "properties": {
+                "Coupling Block": { "type": "integer" },
+                "Kappa": { "type": "number", "default": 1.0 },
+                "Coupling Type": { "type": "string" },
+                "PD Weight": { "type": "number", "default": 0.5 },
+                "Globals": { "type": "object" }
+              },
+              "additionalProperties": false
+            },
+            "Degree": { "type": ["integer", "string"] },
+            "Element Type": { "type": "string" },
+            "Globals": { "type": "object" },
+            "Material Model": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "Outputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["Output Filename", "Output Variables"],
+            "properties": {
+              "Start Time": {
+                "type": "number",
+                "description": "quantity: time (in your consistent unit system)",
+                "default": 0.0
+              },
+              "Write After Damage": { "type": "boolean", "default": false },
+              "Output Filename": { "type": "string" },
+              "Globals": { "type": "object" },
+              "Fallback Output Frequency": {
+                "type": ["integer", "string"],
+                "description": "Every n-th step of a fallback solver; per step as \"n1 n2\""
+              },
+              "Number of Output Steps": { "type": ["integer", "string"] },
+              "Fallback Number of Output Steps": {
+                "type": ["integer", "string"],
+                "description": "Outputs over the steps of a fallback solver"
+              },
+              "Flush File": { "type": "boolean", "default": true },
+              "Output Variables": {
+                "type": "object",
+                "additionalProperties": { "type": "boolean" }
+              },
+              "Output File Type": {
+                "type": "string",
+                "enum": ["Exodus", "CSV"],
+                "default": "Exodus"
+              },
+              "End Time": {
+                "type": "number",
+                "description": "quantity: time (in your consistent unit system)"
+              },
+              "Bond Export": { "type": "boolean", "default": false },
+              "Bond Blocks": {
+                "type": ["integer", "string"],
+                "description": "Block id or list, e.g. \"1 3\""
+              },
+              "Output Frequency": {
+                "type": ["integer", "string"],
+                "description": "Every n-th step; per step as \"n1 n2\""
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "Solver": {
+          "oneOf": [
+            { "required": ["Linear Static Matrix Based"] },
+            { "required": ["Newmark"] },
+            { "required": ["Static"] },
+            { "required": ["Verlet"] },
+            { "required": ["Verlet Matrix Based"] }
+          ],
+          "type": "object",
+          "properties": {
+            "Step ID": { "type": "integer" },
+            "Static": {
+              "type": "object",
+              "properties": {
+                "Residual scaling": { "type": "number", "default": 1.0e6 },
+                "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                "Globals": { "type": "object" },
+                "Fixed dt": {
+                  "type": "number",
+                  "description": "quantity: time (in your consistent unit system)",
+                  "default": -1.0
+                },
+                "Maximum number of iterations": {
+                  "type": "integer",
+                  "minimum": 1.0,
+                  "default": 100
+                },
+                "Solution tolerance": { "type": "number", "minimum": 0.0, "default": 1.0e-7 },
+                "NLSolve": { "type": "boolean" },
+                "Solver Type": { "type": "string" },
+                "m": { "type": "integer", "minimum": 1.0, "default": 15 },
+                "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                "Residual tolerance": { "type": "number", "minimum": 0.0, "default": 1.0e-7 },
+                "Show solver iteration": { "type": "boolean", "default": false },
+                "Linear Start Value": { "type": "string" }
+              },
+              "additionalProperties": false
+            },
+            "Degradation Models": { "type": "boolean", "default": false },
+            "Maximum Damage": { "type": "number" },
+            "Globals": { "type": "object" },
+            "Damage Models": { "type": "boolean", "default": false },
+            "Additional Time": {
+              "type": "number",
+              "description": "quantity: time (in your consistent unit system)"
+            },
+            "Calculate Strain": { "type": "boolean", "default": false },
+            "Fallback": {
+              "oneOf": [
+                { "required": ["Linear Static Matrix Based"] },
+                { "required": ["Newmark"] },
+                { "required": ["Static"] },
+                { "required": ["Verlet"] },
+                { "required": ["Verlet Matrix Based"] }
+              ],
+              "type": "object",
+              "description": "solver that takes over a failed step",
+              "properties": {
+                "Static": {
+                  "type": "object",
+                  "properties": {
+                    "Residual scaling": { "type": "number", "default": 1.0e6 },
+                    "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                    "Globals": { "type": "object" },
+                    "Fixed dt": {
+                      "type": "number",
+                      "description": "quantity: time (in your consistent unit system)",
+                      "default": -1.0
+                    },
+                    "Maximum number of iterations": {
+                      "type": "integer",
+                      "minimum": 1.0,
+                      "default": 100
+                    },
+                    "Solution tolerance": { "type": "number", "minimum": 0.0, "default": 1.0e-7 },
+                    "NLSolve": { "type": "boolean" },
+                    "Solver Type": { "type": "string" },
+                    "m": { "type": "integer", "minimum": 1.0, "default": 15 },
+                    "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                    "Residual tolerance": { "type": "number", "minimum": 0.0, "default": 1.0e-7 },
+                    "Show solver iteration": { "type": "boolean", "default": false },
+                    "Linear Start Value": { "type": "string" }
+                  },
+                  "additionalProperties": false
+                },
+                "Newmark": {
+                  "type": "object",
+                  "properties": {
+                    "Newmark Delta": { "type": "number", "default": 0.5 },
+                    "Fixed dt": {
+                      "type": "number",
+                      "description": "quantity: time (in your consistent unit system)",
+                      "default": -1.0
+                    },
+                    "Model Reduction": { "type": "boolean", "default": false },
+                    "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                    "Matrix Update": { "type": "boolean", "default": false },
+                    "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                    "Globals": { "type": "object" },
+                    "Newmark Alpha": { "type": "number" }
+                  },
+                  "additionalProperties": false
+                },
+                "Verlet Matrix Based": {
+                  "type": "object",
+                  "properties": {
+                    "Fixed dt": {
+                      "type": "number",
+                      "description": "quantity: time (in your consistent unit system)",
+                      "default": -1.0
+                    },
+                    "Model Reduction": {
+                      "type": "object",
+                      "required": ["Type"],
+                      "properties": {
+                        "Material Point Region": { "type": "boolean", "default": true },
+                        "Number of Modes": { "type": "integer", "minimum": 1.0, "default": 1 },
+                        "Reduction Blocks": {
+                          "type": ["integer", "string"],
+                          "description": "Block id or list, e.g. \"2, 3\""
+                        },
+                        "Globals": { "type": "object" },
+                        "Type": { "type": "string" }
+                      },
+                      "additionalProperties": false
+                    },
+                    "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                    "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                    "Globals": { "type": "object" }
+                  },
+                  "additionalProperties": false
+                },
+                "Verlet": {
+                  "type": "object",
+                  "properties": {
+                    "Fixed dt": {
+                      "type": "number",
+                      "description": "quantity: time (in your consistent unit system)",
+                      "default": -1.0
+                    },
+                    "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                    "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                    "Globals": { "type": "object" }
+                  },
+                  "additionalProperties": false
+                },
+                "Globals": { "type": "object" },
+                "Linear Static Matrix Based": {
+                  "type": "object",
+                  "properties": {
+                    "Fixed dt": {
+                      "type": "number",
+                      "description": "quantity: time (in your consistent unit system)",
+                      "default": -1.0
+                    },
+                    "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                    "Matrix Update": { "type": "boolean", "default": false },
+                    "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                    "Globals": { "type": "object" }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            },
+            "Thermal Models": { "type": "boolean", "default": false },
+            "Material Models": { "type": "boolean", "default": true },
+            "Additive Models": { "type": "boolean", "default": false },
+            "Newmark": {
+              "type": "object",
+              "properties": {
+                "Newmark Delta": { "type": "number", "default": 0.5 },
+                "Fixed dt": {
+                  "type": "number",
+                  "description": "quantity: time (in your consistent unit system)",
+                  "default": -1.0
+                },
+                "Model Reduction": { "type": "boolean", "default": false },
+                "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                "Matrix Update": { "type": "boolean", "default": false },
+                "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                "Globals": { "type": "object" },
+                "Newmark Alpha": { "type": "number" }
+              },
+              "additionalProperties": false
+            },
+            "Initial Time": {
+              "type": "number",
+              "description": "quantity: time (in your consistent unit system)"
+            },
+            "Calculate von Mises stress": { "type": "boolean", "default": false },
+            "Number of Steps": {
+              "type": "integer",
+              "description": "1 if not given",
+              "minimum": 1.0
+            },
+            "Verlet": {
+              "type": "object",
+              "properties": {
+                "Fixed dt": {
+                  "type": "number",
+                  "description": "quantity: time (in your consistent unit system)",
+                  "default": -1.0
+                },
+                "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                "Globals": { "type": "object" }
+              },
+              "additionalProperties": false
+            },
+            "Verlet Matrix Based": {
+              "type": "object",
+              "properties": {
+                "Fixed dt": {
+                  "type": "number",
+                  "description": "quantity: time (in your consistent unit system)",
+                  "default": -1.0
+                },
+                "Model Reduction": {
+                  "type": "object",
+                  "required": ["Type"],
+                  "properties": {
+                    "Material Point Region": { "type": "boolean", "default": true },
+                    "Number of Modes": { "type": "integer", "minimum": 1.0, "default": 1 },
+                    "Reduction Blocks": {
+                      "type": ["integer", "string"],
+                      "description": "Block id or list, e.g. \"2, 3\""
+                    },
+                    "Globals": { "type": "object" },
+                    "Type": { "type": "string" }
+                  },
+                  "additionalProperties": false
+                },
+                "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                "Globals": { "type": "object" }
+              },
+              "additionalProperties": false
+            },
+            "Pre Calculation Models": { "type": "boolean", "default": true },
+            "Final Time": {
+              "type": "number",
+              "description": "quantity: time (in your consistent unit system)"
+            },
+            "Calculate Cauchy": { "type": "boolean", "default": false },
+            "Linear Static Matrix Based": {
+              "type": "object",
+              "properties": {
+                "Fixed dt": {
+                  "type": "number",
+                  "description": "quantity: time (in your consistent unit system)",
+                  "default": -1.0
+                },
+                "Safety Factor": { "type": "number", "minimum": 0.0, "default": 1.0 },
+                "Matrix Update": { "type": "boolean", "default": false },
+                "Numerical Damping": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                "Globals": { "type": "object" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "Globals": { "type": "object" },
+        "Models": {
+          "type": "object",
+          "properties": {
+            "Damage Models": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": ["Critical Value", "Damage Model"],
+                "allOf": [
+                  {
+                    "if": { "properties": { "Damage Model": { "const": "Critical Energy" } } },
+                    "then": {
+                      "properties": {
+                        "Only Tension": { "type": "boolean", "default": true },
+                        "Interblock Damage": {
+                          "type": "object",
+                          "description": "Interblock Critical Value <block>_<block> entries",
+                          "additionalProperties": { "type": "number" }
+                        },
+                        "Local Damping": {
+                          "type": "object",
+                          "required": ["Damping coefficient", "Representative Young's modulus"],
+                          "properties": {
+                            "Damping coefficient": { "type": "number", "minimum": 0.0 },
+                            "Representative Young's modulus": {
+                              "type": "number",
+                              "description": "quantity: stress (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Globals": { "type": "object" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "Critical Value": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "Damage Model": {
+                          "type": "string",
+                          "description": "one of: Critical Energy, Critical Energy Anisotropic, Critical Stretch; models can be combined with +"
+                        },
+                        "Thickness": {
+                          "type": "number",
+                          "description": "quantity: length (in your consistent unit system)",
+                          "minimum": 0.0,
+                          "default": 1.0
+                        },
+                        "Globals": { "type": "object" },
+                        "Anisotropic Damage": {
+                          "type": "object",
+                          "required": ["Critical Value X", "Critical Value Y"],
+                          "properties": {
+                            "Critical Value Z": {
+                              "type": "number",
+                              "description": "defaults to Critical Value Y"
+                            },
+                            "Critical Value Y": { "type": "number" },
+                            "Critical Value X": { "type": "number" },
+                            "Globals": { "type": "object" }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": { "Damage Model": { "const": "Critical Energy Anisotropic" } }
+                    },
+                    "then": {
+                      "properties": {
+                        "Only Tension": { "type": "boolean", "default": false },
+                        "Interblock Damage": {
+                          "type": "object",
+                          "description": "Interblock Critical Value <block>_<block> entries",
+                          "additionalProperties": { "type": "number" }
+                        },
+                        "Local Damping": {
+                          "type": "object",
+                          "required": ["Damping coefficient", "Representative Young's modulus"],
+                          "properties": {
+                            "Damping coefficient": { "type": "number", "minimum": 0.0 },
+                            "Representative Young's modulus": {
+                              "type": "number",
+                              "description": "quantity: stress (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Globals": { "type": "object" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "Critical Value": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "Damage Model": {
+                          "type": "string",
+                          "description": "one of: Critical Energy, Critical Energy Anisotropic, Critical Stretch; models can be combined with +"
+                        },
+                        "Thickness": {
+                          "type": "number",
+                          "description": "quantity: length (in your consistent unit system)",
+                          "minimum": 0.0,
+                          "default": 1.0
+                        },
+                        "Globals": { "type": "object" },
+                        "Anisotropic Damage": {
+                          "type": "object",
+                          "required": ["Critical Value X", "Critical Value Y"],
+                          "properties": {
+                            "Critical Value Z": {
+                              "type": "number",
+                              "description": "defaults to Critical Value Y"
+                            },
+                            "Critical Value Y": { "type": "number" },
+                            "Critical Value X": { "type": "number" },
+                            "Globals": { "type": "object" }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": { "properties": { "Damage Model": { "const": "Critical Stretch" } } },
+                    "then": {
+                      "properties": {
+                        "Only Tension": { "type": "boolean", "default": true },
+                        "Interblock Damage": {
+                          "type": "object",
+                          "description": "Interblock Critical Value <block>_<block> entries",
+                          "additionalProperties": { "type": "number" }
+                        },
+                        "Local Damping": {
+                          "type": "object",
+                          "required": ["Damping coefficient", "Representative Young's modulus"],
+                          "properties": {
+                            "Damping coefficient": { "type": "number", "minimum": 0.0 },
+                            "Representative Young's modulus": {
+                              "type": "number",
+                              "description": "quantity: stress (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Globals": { "type": "object" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "Critical Value": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "Damage Model": {
+                          "type": "string",
+                          "description": "one of: Critical Energy, Critical Energy Anisotropic, Critical Stretch; models can be combined with +"
+                        },
+                        "Globals": { "type": "object" },
+                        "Anisotropic Damage": {
+                          "type": "object",
+                          "required": ["Critical Value X", "Critical Value Y"],
+                          "properties": {
+                            "Critical Value Z": {
+                              "type": "number",
+                              "description": "defaults to Critical Value Y"
+                            },
+                            "Critical Value Y": { "type": "number" },
+                            "Critical Value X": { "type": "number" },
+                            "Globals": { "type": "object" }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ],
+                "properties": {
+                  "Interblock Damage": {
+                    "type": "object",
+                    "description": "Interblock Critical Value <block>_<block> entries",
+                    "additionalProperties": { "type": "number" }
+                  },
+                  "Local Damping": {
+                    "type": "object",
+                    "required": ["Damping coefficient", "Representative Young's modulus"],
+                    "properties": {
+                      "Damping coefficient": { "type": "number", "minimum": 0.0 },
+                      "Representative Young's modulus": {
+                        "type": "number",
+                        "description": "quantity: stress (in your consistent unit system)",
+                        "minimum": 0.0
+                      },
+                      "Globals": { "type": "object" }
+                    },
+                    "additionalProperties": false
+                  },
+                  "Critical Value": {
+                    "oneOf": [
+                      { "type": "number", "minimum": 0.0 },
+                      { "type": "string", "description": "data file path" }
+                    ]
+                  },
+                  "Damage Model": {
+                    "type": "string",
+                    "description": "one of: Critical Energy, Critical Energy Anisotropic, Critical Stretch; models can be combined with +"
+                  },
+                  "Globals": { "type": "object" },
+                  "Anisotropic Damage": {
+                    "type": "object",
+                    "required": ["Critical Value X", "Critical Value Y"],
+                    "properties": {
+                      "Critical Value Z": {
+                        "type": "number",
+                        "description": "defaults to Critical Value Y"
+                      },
+                      "Critical Value Y": { "type": "number" },
+                      "Critical Value X": { "type": "number" },
+                      "Globals": { "type": "object" }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              }
+            },
+            "Additive Models": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": ["Additive Model"],
+                "properties": {
+                  "Globals": { "type": "object" },
+                  "Additive Model": {
+                    "type": "string",
+                    "description": "one of: ; models can be combined with +"
+                  }
+                }
+              }
+            },
+            "Degradation Models": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": ["Degradation Model"],
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": { "Degradation Model": { "const": "Bond-based Corrosion" } }
+                    },
+                    "then": {
+                      "properties": {
+                        "Degradation Model": {
+                          "type": "string",
+                          "description": "one of: Bond-based Corrosion, Thermal Decomposition; models can be combined with +"
+                        },
+                        "Globals": { "type": "object" }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": { "Degradation Model": { "const": "Thermal Decomposition" } }
+                    },
+                    "then": {
+                      "required": ["Decomposition Temperature"],
+                      "properties": {
+                        "Degradation Model": {
+                          "type": "string",
+                          "description": "one of: Bond-based Corrosion, Thermal Decomposition; models can be combined with +"
+                        },
+                        "Decomposition Temperature": {
+                          "type": "number",
+                          "description": "quantity: temperature (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ],
+                "properties": {
+                  "Degradation Model": {
+                    "type": "string",
+                    "description": "one of: Bond-based Corrosion, Thermal Decomposition; models can be combined with +"
+                  },
+                  "Globals": { "type": "object" }
+                }
+              }
+            },
+            "Pre Calculation Models": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "Deformation Gradient": { "type": "boolean" },
+                  "Bond Associated Deformation Gradient": {
+                    "type": "boolean",
+                    "description": "deprecated, use \"Bond Associated Correspondence\"",
+                    "const": false
+                  },
+                  "Bond Associated Correspondence": { "type": "boolean" },
+                  "Shape Tensor": { "type": "boolean" },
+                  "Axis Symmetric": { "type": "boolean" },
+                  "Deformed Bond Geometry": { "type": "boolean" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "Thermal Models": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": ["Thermal Model"],
+                "allOf": [
+                  {
+                    "if": { "properties": { "Thermal Model": { "const": "HETVAL" } } },
+                    "then": {
+                      "patternProperties": { "^Property_\\d+$": { "type": "number" } },
+                      "required": ["File"],
+                      "properties": {
+                        "Thermal Conductivity": { "type": "number", "minimum": 0.0 },
+                        "Thermal Model": {
+                          "type": "string",
+                          "description": "one of: HETVAL, Heat Transfer, Thermal Expansion, Thermal Flow; models can be combined with +"
+                        },
+                        "File": {
+                          "type": "string",
+                          "description": "HETVAL library, relative to the input deck"
+                        },
+                        "Number of State Variables": {
+                          "type": "integer",
+                          "minimum": 1.0,
+                          "default": 1
+                        },
+                        "HETVAL Material Name": { "type": "string" },
+                        "HETVAL name": {
+                          "type": "string",
+                          "description": "not used: PeriLab calls the routine hetval_ of the library",
+                          "default": "HETVAL"
+                        },
+                        "Predefined Field Names": {
+                          "type": "string",
+                          "description": "space separated node field names"
+                        },
+                        "Globals": { "type": "object" }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": { "properties": { "Thermal Model": { "const": "Heat Transfer" } } },
+                    "then": {
+                      "required": ["Environmental Temperature", "Heat Transfer Coefficient"],
+                      "properties": {
+                        "Allow Surface Change": { "type": "boolean", "default": true },
+                        "Thermal Conductivity": { "type": "number", "minimum": 0.0 },
+                        "Thermal Model": {
+                          "type": "string",
+                          "description": "one of: HETVAL, Heat Transfer, Thermal Expansion, Thermal Flow; models can be combined with +"
+                        },
+                        "Environmental Temperature": {
+                          "type": ["number", "string"],
+                          "description": "a number, or an expression in the time t",
+                          "x-perilab-eval": true
+                        },
+                        "Heat Transfer Coefficient": { "type": "number", "minimum": 0.0 },
+                        "Globals": { "type": "object" }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": { "properties": { "Thermal Model": { "const": "Thermal Expansion" } } },
+                    "then": {
+                      "required": ["Thermal Expansion Coefficient"],
+                      "properties": {
+                        "Reference Temperature": {
+                          "type": "number",
+                          "description": "0 if missing (with a warning)"
+                        },
+                        "Thermal Conductivity": { "type": "number", "minimum": 0.0 },
+                        "Thermal Model": {
+                          "type": "string",
+                          "description": "one of: HETVAL, Heat Transfer, Thermal Expansion, Thermal Flow; models can be combined with +"
+                        },
+                        "Globals": { "type": "object" },
+                        "Thermal Expansion Coefficient": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "array", "items": { "type": "number" } }
+                          ],
+                          "description": "a number, or one value per direction"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": { "properties": { "Thermal Model": { "const": "Thermal Flow" } } },
+                    "then": {
+                      "properties": {
+                        "Print Bed Z Coordinate": { "type": "number", "default": 0.0 },
+                        "Print Bed Temperature": { "type": "number" },
+                        "Thermal Conductivity": { "type": "number", "minimum": 0.0 },
+                        "Thermal Model": {
+                          "type": "string",
+                          "description": "one of: HETVAL, Heat Transfer, Thermal Expansion, Thermal Flow; models can be combined with +"
+                        },
+                        "Thermal Conductivity Print Bed": { "type": "number", "minimum": 0.0 },
+                        "Globals": { "type": "object" },
+                        "Type": {
+                          "type": "string",
+                          "description": "Bond based or Correspondence; one of: BondBased, Correspondence (case, spaces and punctuation are ignored)",
+                          "examples": ["BondBased", "Correspondence"],
+                          "default": "BondBased"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ],
+                "properties": {
+                  "Thermal Conductivity": { "type": "number", "minimum": 0.0 },
+                  "Thermal Model": {
+                    "type": "string",
+                    "description": "one of: HETVAL, Heat Transfer, Thermal Expansion, Thermal Flow; models can be combined with +"
+                  },
+                  "Globals": { "type": "object" }
+                }
+              }
+            },
+            "Material Models": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": ["Material Model"],
+                "allOf": [
+                  {
+                    "if": {
+                      "properties": { "Material Model": { "const": "1D Bond-based Elastic" } }
+                    },
+                    "then": {
+                      "required": ["Id1", "Id2"],
+                      "properties": {
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Id1": { "type": "integer", "minimum": 1.0 },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Id2": { "type": "integer", "minimum": 1.0 }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": { "properties": { "Material Model": { "const": "Bond-based Elastic" } } },
+                    "then": {
+                      "properties": {
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": { "Material Model": { "const": "Correspondence Elastic" } }
+                    },
+                    "then": {
+                      "properties": {
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": { "Material Model": { "const": "Correspondence Plastic" } }
+                    },
+                    "then": {
+                      "required": ["Yield Stress"],
+                      "properties": {
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Yield Stress": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": { "Material Model": { "const": "Correspondence UMAT" } }
+                    },
+                    "then": {
+                      "patternProperties": { "^Property_\\d+$": { "type": "number" } },
+                      "required": ["File", "Number of Properties"],
+                      "properties": {
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "Number of State Variables": { "type": "integer", "minimum": 0.0 },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "File": {
+                          "type": "string",
+                          "description": "UMAT library, relative to the input deck"
+                        },
+                        "Number of Properties": {
+                          "type": "integer",
+                          "description": "number of Property_N values passed to the UMAT",
+                          "minimum": 1.0
+                        },
+                        "UMAT Material Name": { "type": "string" },
+                        "Predefined Field Names": { "type": "string" },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "UMAT name": {
+                          "type": "string",
+                          "description": "not used: PeriLab calls the routine umat_ of the library"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": { "Material Model": { "const": "Correspondence VUMAT" } }
+                    },
+                    "then": {
+                      "patternProperties": { "^Property_\\d+$": { "type": "number" } },
+                      "required": ["File", "Number of Properties"],
+                      "properties": {
+                        "VUMAT name": {
+                          "type": "string",
+                          "description": "not used: PeriLab calls the routine vumat_ of the library"
+                        },
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "Number of State Variables": { "type": "integer", "minimum": 0.0 },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "File": {
+                          "type": "string",
+                          "description": "VUMAT library, relative to the input deck"
+                        },
+                        "Number of Properties": {
+                          "type": "integer",
+                          "description": "number of Property_N values passed to the VUMAT",
+                          "minimum": 1.0
+                        },
+                        "VUMAT Material Name": { "type": "string" },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": { "properties": { "Material Model": { "const": "PD Solid Elastic" } } },
+                    "then": {
+                      "properties": {
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": { "properties": { "Material Model": { "const": "PD Solid Plastic" } } },
+                    "then": {
+                      "required": ["Yield Stress"],
+                      "properties": {
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Yield Stress": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": { "properties": { "Material Model": { "const": "Rigid" } } },
+                    "then": {
+                      "properties": {
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": { "Material Model": { "const": "Unified Bond-based Elastic" } }
+                    },
+                    "then": {
+                      "properties": {
+                        "Poisson's Ratio YZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C46": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Material Model": {
+                          "type": "string",
+                          "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                        },
+                        "C12": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                        "C15": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C34": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C45": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C22": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XY": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" },
+                        "C35": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Bond Associated": { "type": "boolean", "default": false },
+                        "Zero Energy Control": {
+                          "type": "string",
+                          "description": "zero energy control model, e.g. Global"
+                        },
+                        "Bulk Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "Young's Modulus Z": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Young's Modulus X": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C14": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C33": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C66": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus XZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Symmetry": {
+                          "type": "string",
+                          "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                        },
+                        "Linear Strain": { "type": "boolean", "default": false },
+                        "Young's Modulus Y": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus YZ": {
+                          "oneOf": [
+                            { "type": "number", "minimum": 0.0 },
+                            { "type": "string", "description": "data file path" }
+                          ],
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "State Factor ID": {
+                          "type": "integer",
+                          "description": "index of the state variable that scales the elastic constants",
+                          "minimum": 1.0
+                        },
+                        "C11": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C25": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C44": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C36": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C26": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Shear Modulus": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)",
+                          "minimum": 0.0
+                        },
+                        "C55": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C24": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio XZ": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C23": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Flaw Function": {
+                          "type": "object",
+                          "required": ["Active", "Function"],
+                          "properties": {
+                            "Function": { "type": "string", "enum": ["Pre-defined"] },
+                            "Flaw Size": {
+                              "type": "number",
+                              "description": "quantity: length (in your consistent unit system)",
+                              "minimum": 0.0
+                            },
+                            "Flaw Location Y": { "type": "number" },
+                            "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                            "Flaw Location X": { "type": "number" },
+                            "Flaw Location Z": { "type": "number" },
+                            "Globals": { "type": "object" },
+                            "Active": { "type": "boolean" }
+                          },
+                          "additionalProperties": false
+                        },
+                        "C13": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "C16": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        },
+                        "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                        "Poisson's Ratio XY": {
+                          "oneOf": [
+                            { "type": "number" },
+                            { "type": "string", "description": "data file path" }
+                          ]
+                        },
+                        "C56": {
+                          "type": "number",
+                          "description": "quantity: stress (in your consistent unit system)"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                ],
+                "properties": {
+                  "Poisson's Ratio YZ": {
+                    "oneOf": [
+                      { "type": "number" },
+                      { "type": "string", "description": "data file path" }
+                    ]
+                  },
+                  "C46": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Material Model": {
+                    "type": "string",
+                    "description": "one of: 1D Bond-based Elastic, Bond-based Elastic, Correspondence Elastic, Correspondence Plastic, Correspondence UMAT, Correspondence VUMAT, PD Solid Elastic, PD Solid Plastic, Rigid, Unified Bond-based Elastic; models can be combined with +"
+                  },
+                  "C12": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Accuracy Order": { "type": "integer", "minimum": 1.0 },
+                  "C15": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C34": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C45": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Young's Modulus": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)",
+                    "minimum": 0.0
+                  },
+                  "C22": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Shear Modulus XY": {
+                    "oneOf": [
+                      { "type": "number", "minimum": 0.0 },
+                      { "type": "string", "description": "data file path" }
+                    ],
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Globals": { "type": "object" },
+                  "C35": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Bond Associated": { "type": "boolean", "default": false },
+                  "Zero Energy Control": {
+                    "type": "string",
+                    "description": "zero energy control model, e.g. Global"
+                  },
+                  "Bulk Modulus": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)",
+                    "minimum": 0.0
+                  },
+                  "Young's Modulus Z": {
+                    "oneOf": [
+                      { "type": "number", "minimum": 0.0 },
+                      { "type": "string", "description": "data file path" }
+                    ],
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Young's Modulus X": {
+                    "oneOf": [
+                      { "type": "number", "minimum": 0.0 },
+                      { "type": "string", "description": "data file path" }
+                    ],
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C14": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C33": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C66": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Shear Modulus XZ": {
+                    "oneOf": [
+                      { "type": "number", "minimum": 0.0 },
+                      { "type": "string", "description": "data file path" }
+                    ],
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Symmetry": {
+                    "type": "string",
+                    "description": "e.g. isotropic, isotropic plane strain, isotropic plane stress, orthotropic, anisotropic"
+                  },
+                  "Linear Strain": { "type": "boolean", "default": false },
+                  "Young's Modulus Y": {
+                    "oneOf": [
+                      { "type": "number", "minimum": 0.0 },
+                      { "type": "string", "description": "data file path" }
+                    ],
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Shear Modulus YZ": {
+                    "oneOf": [
+                      { "type": "number", "minimum": 0.0 },
+                      { "type": "string", "description": "data file path" }
+                    ],
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "State Factor ID": {
+                    "type": "integer",
+                    "description": "index of the state variable that scales the elastic constants",
+                    "minimum": 1.0
+                  },
+                  "C11": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C25": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C44": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C36": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C26": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Shear Modulus": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)",
+                    "minimum": 0.0
+                  },
+                  "C55": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C24": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Poisson's Ratio XZ": {
+                    "oneOf": [
+                      { "type": "number" },
+                      { "type": "string", "description": "data file path" }
+                    ]
+                  },
+                  "C23": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Flaw Function": {
+                    "type": "object",
+                    "required": ["Active", "Function"],
+                    "properties": {
+                      "Function": { "type": "string", "enum": ["Pre-defined"] },
+                      "Flaw Size": {
+                        "type": "number",
+                        "description": "quantity: length (in your consistent unit system)",
+                        "minimum": 0.0
+                      },
+                      "Flaw Location Y": { "type": "number" },
+                      "Flaw Magnitude": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+                      "Flaw Location X": { "type": "number" },
+                      "Flaw Location Z": { "type": "number" },
+                      "Globals": { "type": "object" },
+                      "Active": { "type": "boolean" }
+                    },
+                    "additionalProperties": false
+                  },
+                  "C13": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "C16": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  },
+                  "Poisson's Ratio": { "type": "number", "minimum": -1.0, "maximum": 0.5 },
+                  "Poisson's Ratio XY": {
+                    "oneOf": [
+                      { "type": "number" },
+                      { "type": "string", "description": "data file path" }
+                    ]
+                  },
+                  "C56": {
+                    "type": "number",
+                    "description": "quantity: stress (in your consistent unit system)"
+                  }
+                }
+              }
+            },
+            "Pre Calculation Global": {
+              "type": "object",
+              "properties": {
+                "Deformation Gradient": { "type": "boolean" },
+                "Bond Associated Deformation Gradient": {
+                  "type": "boolean",
+                  "description": "deprecated, use \"Bond Associated Correspondence\"",
+                  "const": false
+                },
+                "Bond Associated Correspondence": { "type": "boolean" },
+                "Shape Tensor": { "type": "boolean" },
+                "Axis Symmetric": { "type": "boolean" },
+                "Deformed Bond Geometry": { "type": "boolean" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "Blocks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["Block ID", "Density", "Horizon"],
+            "properties": {
+              "Step ID": { "type": ["integer", "string"] },
+              "FEM": { "type": "boolean" },
+              "Degradation Model": { "type": "string" },
+              "Thermal Model": { "type": "string" },
+              "Horizon": {
+                "type": "number",
+                "description": "quantity: length (in your consistent unit system)",
+                "minimum": 0.0
+              },
+              "Damage Model": { "type": "string" },
+              "Specific Heat Capacity": { "type": "number", "minimum": 0.0 },
+              "Globals": { "type": "object" },
+              "Material Model": { "type": "string" },
+              "Angle X": { "type": "number" },
+              "Block ID": { "type": "integer", "minimum": 1.0 },
+              "Pre Calculation Model": { "type": "string" },
+              "Additive Model": { "type": "string" },
+              "Density": {
+                "type": "number",
+                "description": "quantity: density (in your consistent unit system)",
+                "minimum": 0.0
+              },
+              "Angle Z": { "type": "number" },
+              "Angle Y": { "type": "number" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "Boundary Conditions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["Node Set", "Value", "Variable"],
+            "properties": {
+              "Node Set": {
+                "type": "string",
+                "description": "Node set name; several joined with +"
+              },
+              "Value": {
+                "type": ["number", "string"],
+                "description": "Number or expression, e.g. \"10*t\"",
+                "x-perilab-eval": true
+              },
+              "Step ID": { "type": ["integer", "string"] },
+              "Variable": { "type": "string" },
+              "Coordinate": { "type": "string" },
+              "Globals": { "type": "object" },
+              "Type": { "type": "string", "enum": ["Initial", "Dirichlet", "Neumann"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "Compute Class Parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["Compute Class", "Variable"],
+            "properties": {
+              "Node Set": { "type": "string" },
+              "Y": { "type": "number" },
+              "Compute Class": { "type": "string" },
+              "Variable": { "type": "string" },
+              "Calculation Type": { "type": "string" },
+              "X": { "type": "number" },
+              "Z": { "type": "number" },
+              "Block": { "type": "string" },
+              "Equation": { "type": "string", "x-perilab-eval": true },
+              "Globals": { "type": "object" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "Surface Correction": {
+          "type": "object",
+          "required": ["Type"],
+          "properties": {
+            "Update": { "type": "boolean", "default": false },
+            "Globals": { "type": "object" },
+            "Type": { "type": "string", "enum": ["Volume Correction"] }
+          },
+          "additionalProperties": false
+        },
+        "Discretization": {
+          "type": "object",
+          "required": ["Input Mesh File", "Type"],
+          "properties": {
+            "Influence Function": { "type": "string", "x-perilab-eval": true },
+            "Globals": { "type": "object" },
+            "Node Sets": {
+              "type": "object",
+              "description": "Node id, list of ids, or file",
+              "x-perilab-eval": true,
+              "additionalProperties": { "type": ["integer", "string"] }
+            },
+            "Surface Extrusion": {
+              "type": "object",
+              "required": ["Direction", "Number", "Step_X", "Step_Y", "Step_Z"],
+              "properties": {
+                "Step_Z": {
+                  "type": "number",
+                  "description": "quantity: length (in your consistent unit system)"
+                },
+                "Number": { "type": "integer", "minimum": 0.0 },
+                "Step_X": {
+                  "type": "number",
+                  "description": "quantity: length (in your consistent unit system)"
+                },
+                "Direction": { "type": "string", "enum": ["X", "Y", "Z"] },
+                "Globals": { "type": "object" },
+                "Step_Y": {
+                  "type": "number",
+                  "description": "quantity: length (in your consistent unit system)"
+                }
+              },
+              "additionalProperties": false
+            },
+            "Horizon Mesh Scaling Y": { "type": "number" },
+            "Type": {
+              "type": "string",
+              "description": "Mesh format, e.g. \"Text File\" or \"Exodus\""
+            },
+            "Input External Topology": {
+              "type": "object",
+              "required": ["File"],
+              "properties": {
+                "File": {
+                  "type": "string",
+                  "description": "File with the external element topology"
+                },
+                "Add Neighbor Search": { "type": "boolean" },
+                "Globals": { "type": "object" }
+              },
+              "additionalProperties": false
+            },
+            "Horizon Mesh Scaling Z": { "type": "number" },
+            "Input Mesh File": { "type": "string" },
+            "Bond Filters": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": ["Normal X", "Normal Y", "Type"],
+                "properties": {
+                  "Bottom Unit Vector X": { "type": "number" },
+                  "Side Length": { "type": "number", "minimum": 0.0 },
+                  "Lower Left Corner Y": { "type": "number" },
+                  "Globals": { "type": "object" },
+                  "Normal X": { "type": "number" },
+                  "Radius": { "type": "number", "minimum": 0.0 },
+                  "Center Z": { "type": "number" },
+                  "Lower Left Corner Z": { "type": "number" },
+                  "Center X": { "type": "number" },
+                  "Center Y": { "type": "number" },
+                  "Bottom Unit Vector Y": { "type": "number" },
+                  "Bottom Length": { "type": "number", "minimum": 0.0 },
+                  "Lower Left Corner X": { "type": "number" },
+                  "Type": { "type": "string" },
+                  "Normal Y": { "type": "number" },
+                  "Normal Z": { "type": "number" },
+                  "Allow Contact": { "type": "boolean", "default": false },
+                  "Bottom Unit Vector Z": { "type": "number" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "Distribution Type": { "type": "string" },
+            "Horizon Mesh Scaling X": { "type": "number" },
+            "Gcode": {
+              "type": "object",
+              "required": ["Height", "Overwrite Mesh", "Sampling", "Width"],
+              "properties": {
+                "Overwrite Mesh": { "type": "boolean" },
+                "Start Command": { "type": "string" },
+                "Stop Command": { "type": "string" },
+                "End Command": { "type": "string" },
+                "Sampling": {
+                  "type": "number",
+                  "description": "quantity: length (in your consistent unit system)",
+                  "minimum": 0.0
+                },
+                "Scale": { "type": "number", "default": 1.0 },
+                "Blocks": {
+                  "type": "object",
+                  "x-perilab-eval": true,
+                  "additionalProperties": { "type": "string" }
+                },
+                "Height": {
+                  "type": "number",
+                  "description": "quantity: length (in your consistent unit system)",
+                  "minimum": 0.0
+                },
+                "Globals": { "type": "object" },
+                "Width": {
+                  "type": "number",
+                  "description": "quantity: length (in your consistent unit system)",
+                  "minimum": 0.0
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "Strict Validation": {
+          "type": "boolean",
+          "description": "false reports unknown keys as warnings",
+          "default": true
+        },
+        "Contact": {
+          "type": "object",
+          "properties": {
+            "Globals": {
+              "type": "object",
+              "properties": {
+                "Global Search Frequency": { "type": "integer", "minimum": 1.0, "default": 1 },
+                "Only Surface Contact Nodes": { "type": "boolean", "default": true },
+                "Globals": { "type": "object" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": {
+            "type": "object",
+            "required": ["Contact Groups", "Contact Radius", "Type"],
+            "allOf": [
+              {
+                "if": { "properties": { "Type": { "const": "Penalty Contact" } } },
+                "then": {
+                  "properties": {
+                    "Type": {
+                      "type": "string",
+                      "description": "one of: Penalty Contact; models can be combined with +"
+                    },
+                    "Contact Stiffness": { "type": "number", "minimum": 0.0, "default": 1.0e8 },
+                    "Contact Radius": {
+                      "type": "number",
+                      "description": "quantity: length (in your consistent unit system)",
+                      "minimum": 0.0
+                    },
+                    "Contact Groups": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": ["Master Block ID", "Search Radius", "Slave Block ID"],
+                        "properties": {
+                          "Master Block ID": { "type": "integer", "minimum": 1.0 },
+                          "Search Radius": {
+                            "type": "number",
+                            "description": "quantity: length (in your consistent unit system)",
+                            "minimum": 0.0
+                          },
+                          "Global Search Frequency": { "type": "integer", "minimum": 1.0 },
+                          "Slave Block ID": { "type": "integer", "minimum": 1.0 },
+                          "Globals": { "type": "object" }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "Friction Coefficient": { "type": "number", "minimum": 0.0, "default": 0.0 },
+                    "Globals": { "type": "object" },
+                    "Symmetry": {
+                      "type": "string",
+                      "description": "\"plane stress\", \"plane strain\" or 3D (anything else)",
+                      "default": "3D"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            ],
+            "properties": {
+              "Type": {
+                "type": "string",
+                "description": "one of: Penalty Contact; models can be combined with +"
+              },
+              "Contact Radius": {
+                "type": "number",
+                "description": "quantity: length (in your consistent unit system)",
+                "minimum": 0.0
+              },
+              "Contact Groups": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object",
+                  "required": ["Master Block ID", "Search Radius", "Slave Block ID"],
+                  "properties": {
+                    "Master Block ID": { "type": "integer", "minimum": 1.0 },
+                    "Search Radius": {
+                      "type": "number",
+                      "description": "quantity: length (in your consistent unit system)",
+                      "minimum": 0.0
+                    },
+                    "Global Search Frequency": { "type": "integer", "minimum": 1.0 },
+                    "Slave Block ID": { "type": "integer", "minimum": 1.0 },
+                    "Globals": { "type": "object" }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "Globals": { "type": "object" },
+              "Symmetry": {
+                "type": "string",
+                "description": "\"plane stress\", \"plane strain\" or 3D (anything else)",
+                "default": "3D"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

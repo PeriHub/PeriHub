@@ -18,7 +18,8 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "prepare": "svelte-kit sync || echo '' && husky",
-    "client": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/lib/client --client axios --base http://localhost:8000"
+    "client": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/lib/client --client axios --base http://localhost:8000",
+    "perilab-schema": "curl -sf http://localhost:3000/schema -o src/lib/perilab/schema.json && prettier --write src/lib/perilab/schema.json"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

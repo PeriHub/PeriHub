@@ -69,6 +69,12 @@ Regenerate the typed API client after any backend endpoint change (needs the bac
 npm run client    # writes src/lib/client/ via @hey-api/openapi-ts — never hand-edit those files
 ```
 
+Refresh the PeriLab input-deck schema (option lists and "Additional PeriLab parameters" in the expansions) after a PeriLab update (needs `docker compose up perilab -d` with a PeriLab that has `GET /schema`):
+
+```bash
+npm run perilab-schema   # writes src/lib/perilab/schema.json - commit it; never hand-edit
+```
+
 ## Architecture
 
 ### Backend (`backend/app`)
