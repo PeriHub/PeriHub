@@ -31,7 +31,6 @@ class YAMLcreatorPeriLab:
         self.preCalculations = model_writer.model_data.preCalculations
         self.disc_dict = model_writer.model_data.discretization
         self.disc_type = model_writer.model_data.discretization.discType
-        # self.two_d = model_writer.model_data.model.twoDimensional
 
     @staticmethod
     def check_if_defined(obj):
@@ -43,10 +42,6 @@ class YAMLcreatorPeriLab:
         if self.disc_type == "txt":
             data["Type"] = "Text File"
 
-            # if self.check_if_defined(self.boundary_condition.nodeSets):
-            #     for nodeSet in self.boundary_condition.nodeSets:
-            #         data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
-            # else:
             if self.check_if_defined(self.disc_dict.nodeSets) and len(self.disc_dict.nodeSets) > 0:
                 data["Node Sets"] = {}
                 for nodeSet in self.disc_dict.nodeSets:
@@ -166,7 +161,6 @@ class YAMLcreatorPeriLab:
             elif mat.materialSymmetry == "Transverse Isotropic" and mat.planeStrain:
                 material["Symmetry"] = "transverse isotropic plane strain"
             if mat.materialSymmetry == "Anisotropic":
-                # material["Material Symmetry"] = mat.materialSymmetry
                 if mat.stiffnessMatrix is not None:
                     for key, value in mat.stiffnessMatrix.matrix:
                         material[key] = float(np.format_float_scientific(float(value)))
@@ -207,17 +201,9 @@ class YAMLcreatorPeriLab:
                     material["Poisson's Ratio"] = float(np.format_float_scientific(float(mat.poissonsRatio)))
 
             material["Zero Energy Control"] = "Global"
-            # material["Thickness"] = float(mat.thickness)
-            # material["Hourglass Coefficient"] = float(mat.hourglassCoefficient)
 
-            # if mat.tensionSeparation:
-            #     material["Tension Separation"] = mat.tensionSeparation
-            # if self.check_if_defined(mat.actualHorizon):
-            #     material["Actual Horizon"] = float(mat.actualHorizon)
             if self.check_if_defined(mat.yieldStress) and "Plastic" in material["Material Model"]:
                 material["Yield Stress"] = float(mat.yieldStress)
-            # if self.check_if_defined(mat.nonLinear):
-            #     material["Non linear"] = mat.nonLinear
             if self.check_if_defined(mat.numStateVars):
                 material["Number of State Vars"] = mat.numStateVars
             if self.check_if_defined(mat.properties) and "User" in mat.matType:
@@ -228,32 +214,6 @@ class YAMLcreatorPeriLab:
                 material["Compute Partial Stress"] = mat.computePartialStress
             if self.check_if_defined(mat.useCollocationNodes):
                 material["Use Collocation Nodes"] = mat.useCollocationNodes
-            # if self.check_if_defined(mat.specificHeatCapacity):
-            #     material["Specific Heat Capacity"] = float(mat.specificHeatCapacity)
-            # if self.check_if_defined(mat.thermalConductivity):
-            #     material["Thermal Conductivity"] = float(mat.thermalConductivity)
-            # if self.check_if_defined(mat.heatTransferCoefficient):
-            #     material["Heat Transfer Coefficient"] = float(mat.heatTransferCoefficient)
-            # if self.check_if_defined(mat.applyThermalFlow):
-            #     material["Apply Thermal Flow"] = mat.applyThermalFlow
-            # if self.check_if_defined(mat.applyThermalStrain):
-            #     material["Apply Thermal Strain"] = mat.applyThermalStrain
-            # if self.check_if_defined(mat.applyHeatTransfer):
-            #     material["Apply Heat Transfer"] = mat.applyHeatTransfer
-            # if self.check_if_defined(mat.thermalBondBased):
-            #     material["Thermal Bond Based"] = mat.thermalBondBased
-            # if self.check_if_defined(mat.environmentalTemperature):
-            #     material["Environmental Temperature"] = float(mat.environmentalTemperature)
-            # if self.check_if_defined(mat.printBedTemperature):
-            #     material["Print Bed Temperature"] = float(mat.printBedTemperature)
-            # if self.check_if_defined(mat.printBedThermalConductivity):
-            #     material["Print Bed Thermal Conductivity"] = float(mat.printBedThermalConductivity)
-            # if self.check_if_defined(mat.volumeFactor):
-            #     material["Volume Factor"] = float(mat.volumeFactor)
-            # if self.check_if_defined(mat.volumeLimit):
-            #     material["Volume Limit"] = float(mat.volumeLimit)
-            # if self.check_if_defined(mat.surfaceCorrection):
-            #     material["Surface Correction"] = float(mat.surfaceCorrection)
 
             data[mat.name] = material
 
@@ -268,7 +228,6 @@ class YAMLcreatorPeriLab:
                 continue
             thermal = {}
             thermal["Thermal Model"] = " + ".join([str(x) for x in therm.thermalModel])
-            # if self.check_if_defined(therm.thermalBondBased):
             thermal["Type"] = therm.thermalType
             if self.check_if_defined(therm.thermalConductivity):
                 thermal["Thermal Conductivity"] = float(therm.thermalConductivity)
@@ -299,9 +258,6 @@ class YAMLcreatorPeriLab:
             additive["Additive Model"] = add.additiveType
             additive["Print Temperature"] = float(add.printTemp)
 
-            # if self.check_if_defined(add.timeFactor):
-            #     additive["Time Factor"] = float(add.timeFactor)
-
             data[add.name] = additive
         return data
 
@@ -313,7 +269,6 @@ class YAMLcreatorPeriLab:
                 continue
             blocks = {}
 
-            # blocks["Block Names"] = block.name
             blocks["Block ID"] = block.blocksId
             if block.material != "" and block.material is not None:
                 blocks["Material Model"] = block.material
@@ -377,16 +332,11 @@ class YAMLcreatorPeriLab:
                 damage["Anisotropic Damage"] = {}
                 damage["Anisotropic Damage"]["Critical Value X"] = float(dam.anistropicDamageX)
                 damage["Anisotropic Damage"]["Critical Value Y"] = float(dam.anistropicDamageY)
-                # if not self.two_d:
                 damage["Anisotropic Damage"]["Critical Value Z"] = float(dam.anistropicDamageZ)
-            # damage["Plane Stress"] = self.two_d
             if self.check_if_defined(dam.onlyTension):
                 damage["Only Tension"] = dam.onlyTension
-            # damage["Detached Nodes Check"] = dam.detachedNodesCheck
             if self.check_if_defined(dam.thickness):
                 damage["Thickness"] = float(dam.thickness)
-            # damage["Hourglass Coefficient"] = float(dam.hourglassCoefficient)
-            # damage["Stabilization Type"] = dam.stabilizationType
 
             data[dam.name] = damage
 
@@ -543,7 +493,6 @@ class YAMLcreatorPeriLab:
             compute["Variable"] = out.variable
             if self.check_if_defined(out.equation):
                 compute["Equation"] = out.equation
-            # compute["Output Label"] = out.name
 
             data[out.name] = compute
 
@@ -563,7 +512,6 @@ class YAMLcreatorPeriLab:
                 output["Output Frequency"] = out.Frequency
             else:
                 output["Number of Output Steps"] = out.numberOfOutputSteps
-            # output["Parallel Write"] = True
             if out.Write_After_Damage:
                 output["Write After Damage"] = True
 

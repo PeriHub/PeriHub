@@ -5,14 +5,15 @@
 import ast
 import json
 import os
+import re
 import shutil
+import unicodedata
 from pathlib import Path
 from typing import Literal, Optional
 
 import numpy as np
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
-from slugify import slugify
 
 from ..db import base
 from ..support.base_models import AnalysisInfo, ModelData, PointData, Valves
@@ -290,7 +291,8 @@ def add_model(
 ) -> str:
     """Create an own model from the YAML (default) or Python template; returns its folder name."""
     username = require_user(request).display_name
-    model_slug = slugify(model_name, separator="_")
+    ascii_name = unicodedata.normalize("NFKD", model_name).encode("ascii", "ignore").decode()
+    model_slug = re.sub(r"[^a-z0-9]+", "_", ascii_name.lower()).strip("_")
     folder_path = OWN_MODELS / model_slug
     if folder_path.exists():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Model {model_slug} already exists")

@@ -305,27 +305,6 @@ class Model(BaseModel):
         return value
 
 
-class Jobs(BaseModel):
-    """Folder-level summary row (one per model_folder_name variant that
-    exists on disk). `run_id`/`run_count` describe the folder's run
-    history at a glance; submitted/results/progress reflect only the
-    *latest* run - see GET /jobs/{model_name}/{model_folder_name}/runs
-    for the full history and GET /jobs/{run_id} for a specific run."""
-
-    id: int
-    name: str
-    sub_name: str
-    created: bool
-    submitted: bool
-    results: bool
-    model: Optional[dict] = None
-    progress: Optional[float] = None
-    currentStep: Optional[int] = None
-    totalSteps: Optional[int] = None
-    run_id: Optional[str] = None
-    run_count: int = 0
-
-
 class properties(BaseModel):
     materialsPropId: Optional[int] = None
     name: str

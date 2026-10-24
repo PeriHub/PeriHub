@@ -25,7 +25,6 @@ from urllib.parse import urlencode
 import requests
 
 from .globals import (
-    log,
     oauth_client_id,
     oauth_client_secret,
     oauth_discovery_url,

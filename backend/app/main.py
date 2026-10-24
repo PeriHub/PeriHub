@@ -4,9 +4,7 @@
 
 import asyncio
 import copy
-import os
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 import requests
 from fastapi import FastAPI, HTTPException, Security

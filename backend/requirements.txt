@@ -6,21 +6,16 @@ fastapi[standard]
 matplotlib
 scipy
 numpy
-python-multipart
 pyjwt
 requests
 python-dotenv
-rich
 exodusreader
 netCDF4
 # pygalmesh
 python-magic
-python-slugify
 pandas
-toml
 magicattr
 pyyaml
-natsort
 sqlalchemy
 alembic
 psycopg[binary]

@@ -6,8 +6,8 @@
 doc
 """
 
-import ast
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -15,7 +15,6 @@ import time
 from pathlib import Path
 
 from fastapi import HTTPException
-from natsort import natsorted
 
 from ..support.globals import log
 
@@ -84,25 +83,6 @@ class FileHandler:
         return names
 
     @staticmethod
-    def get_docstring(script_path):
-        if not os.path.exists(script_path):
-            return
-        with open(script_path, "r") as file:
-            tree = ast.parse(file.read())
-            return ast.get_docstring(tree, clean=False)
-
-    @staticmethod
-    def doc_to_dict(docstring):
-        lines = docstring.split("\n")
-        doc_dict = {}
-
-        for line in lines:
-            if ":" in line:
-                param, desc = line.split(":", 1)
-                doc_dict[param.strip("| ")] = desc.strip()
-        return doc_dict
-
-    @staticmethod
     def install_frontmatter_requirements(requirements):
         if requirements:
             req_list = [req.strip() for req in requirements.split(",")]
@@ -140,4 +120,4 @@ class FileHandler:
         if len(matching_files) > 1 and os.path.exists(default_file):
             matching_files.remove(default_file)
 
-        return natsorted(matching_files)
+        return sorted(matching_files, key=lambda f: [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", f)])
