@@ -69,6 +69,10 @@ def _deck(tmp_path, peri):
         {"Discretization": {"Gcode": {"Blocks": {1: "exit(x > 0)"}}}},
         {"Discretization": {"Input Mesh File": "/etc/passwd"}},
         {"Blocks": {"block_1": {"Influence Function": "run(x)"}}},
+        {"Models": {"Material Models": {"m": {"Material Model": "Correspondence UMAT", "File": "/usr/lib/libc.so.6"}}}},
+        {"Models": {"Material Models": {"m": {"Material Model": "Correspondence UMAT", "File": "../other/umat.so"}}}},
+        {"Models": {"Thermal Models": {"t": {"Thermal Model": "HETVAL", "File": "/tmp/hetval.so"}}}},
+        {"Discretization": {"Input External Topology": {"File": "/etc/passwd"}}},
     ],
 )
 def test_check_input_deck_rejects(tmp_path, peri):
@@ -83,4 +87,9 @@ def test_check_input_deck_accepts_generated_deck(tmp_path):
         "Blocks": {"block_1": {"Block ID": 1, "Material Model": "PD Solid Elastic", "Horizon": 0.5}},
         "Boundary Conditions": {"BC_1": {"Variable": "Displacements", "Coordinate": "x", "Value": "-1000*t"}},
     }
+    check_input_deck(_deck(tmp_path, peri))
+
+
+def test_check_input_deck_accepts_umat_in_job_folder(tmp_path):
+    peri = {"Models": {"Material Models": {"m": {"Material Model": "Correspondence UMAT", "File": "umat.so"}}}}
     check_input_deck(_deck(tmp_path, peri))

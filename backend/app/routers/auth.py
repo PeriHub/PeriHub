@@ -193,16 +193,48 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)) -> AuthRespons
     return AuthResponse(token=token, user_id=user.id, display_name=user.display_name, role=user.role)
 
 
+# Online password guessing: at most _LOGIN_MAX_FAILURES wrong passwords per email in _LOGIN_WINDOW_SECONDS. Keyed by
+# email, not IP (behind nginx every client has the proxy's IP), so an attacker can lock an account for one window.
+# ponytail: in-process, per worker and lost on restart, like the reset cooldown; a shared store for many workers.
+_LOGIN_MAX_FAILURES = 10
+_LOGIN_WINDOW_SECONDS = 900
+_login_failures: dict[str, list[float]] = {}
+_login_lock = threading.Lock()
+
+
+def _login_allowed(email: str) -> bool:
+    cutoff = time.monotonic() - _LOGIN_WINDOW_SECONDS
+    with _login_lock:
+        recent = [t for t in _login_failures.get(email.lower(), []) if t > cutoff]
+        if recent:
+            _login_failures[email.lower()] = recent
+        else:
+            _login_failures.pop(email.lower(), None)
+        return len(recent) < _LOGIN_MAX_FAILURES
+
+
+def _record_login_failure(email: str) -> None:
+    with _login_lock:
+        _login_failures.setdefault(email.lower(), []).append(time.monotonic())
+
+
 @router.post("/login", operation_id="login", response_model=AuthResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)) -> AuthResponse:
     """Local email/password login; returns a session token to send as `Authorization: Bearer`. 401 on wrong
-    credentials, 403 for deactivated accounts."""
+    credentials, 403 for deactivated accounts, 429 after 10 wrong passwords for the email within 15 minutes."""
+    if not _login_allowed(payload.email):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed logins for this account. Try again in a few minutes.",
+        )
     user = db.scalar(select(User).where(User.email == payload.email, User.auth_provider == "local"))
     if user is None or not user.password_hash or not verify_password(payload.password, user.password_hash):
+        _record_login_failure(payload.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password.",
         )
+    _login_failures.pop(payload.email.lower(), None)
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

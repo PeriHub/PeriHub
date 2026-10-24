@@ -64,6 +64,16 @@ def test_change_password(client):
     assert _login(client, "a@x.de", "newpass123") == 200
 
 
+def test_login_throttled_after_repeated_failures(client):
+    _signup(client, "a@x.de")
+    for _ in range(auth._LOGIN_MAX_FAILURES):
+        assert _login(client, "a@x.de", "wrongpass") == 401
+    # Blocked even with the right password (and regardless of case), so guessing can't continue.
+    assert _login(client, "A@x.de", "password123") == 429
+    auth._login_failures.clear()  # window expired
+    assert _login(client, "a@x.de", "password123") == 200
+
+
 def test_forgot_password_unavailable_without_mail(client):
     assert client.get("/config/public").json()["password_reset"] is False
     assert client.post("/auth/password/forgot", json={"email": "a@x.de"}).status_code == 404

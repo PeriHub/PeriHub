@@ -54,8 +54,8 @@ async def upload_files(
         if content_type not in allowed_types:
             log.warning("Invalid file type, got %s, expected %s", content_type, allowed_types)
             raise HTTPException(
-                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                message=f"Invalid file type, got {content_type}, expected 'application/json', '.yaml', '.cdb', '.inp', '.gcode', 'application/x-netcdf', '.obj', 'text/plain', '.g', 'application/octet-stream', '.so' or '.inp'",
+                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                detail=f"Invalid file type, got {content_type}, expected 'application/json', '.yaml', '.cdb', '.inp', '.gcode', 'application/x-netcdf', '.obj', 'text/plain', '.g', 'application/octet-stream', '.so' or '.inp'",
             )
 
     username = user_folder(request)
