@@ -94,7 +94,7 @@ class YAMLcreatorPeriLab:
                 for block in self.disc_dict.gcode.blockFunctions:
                     data["Gcode"]["Blocks"][block.id] = block.function
 
-        return data
+        return {**self.disc_dict.extra, **data}
 
     def create_bond_filter(self):
         data = {}
@@ -123,7 +123,7 @@ class YAMLcreatorPeriLab:
                 filter["Center Y"] = bond_filter.centerY
                 filter["Center Z"] = bond_filter.centerZ
                 filter["Radius"] = bond_filter.radius
-            data[bond_filter.name] = filter
+            data[bond_filter.name] = {**bond_filter.extra, **filter}
 
         return data
 
@@ -215,7 +215,7 @@ class YAMLcreatorPeriLab:
             if self.check_if_defined(mat.useCollocationNodes):
                 material["Use Collocation Nodes"] = mat.useCollocationNodes
 
-            data[mat.name] = material
+            data[mat.name] = {**mat.extra, **material}
 
         return data
 
@@ -244,7 +244,7 @@ class YAMLcreatorPeriLab:
             if self.check_if_defined(therm.thermalExpansionCoefficient):
                 thermal["Thermal Expansion Coefficient"] = float(therm.thermalExpansionCoefficient)
 
-            data[therm.name] = thermal
+            data[therm.name] = {**therm.extra, **thermal}
         return data
 
     def additive(self):
@@ -258,7 +258,7 @@ class YAMLcreatorPeriLab:
             additive["Additive Model"] = add.additiveType
             additive["Print Temperature"] = float(add.printTemp)
 
-            data[add.name] = additive
+            data[add.name] = {**add.extra, **additive}
         return data
 
     def blocks(self, max_block_id):
@@ -283,7 +283,7 @@ class YAMLcreatorPeriLab:
             if self.check_if_defined(block.specificHeatCapacity):
                 blocks["Specific Heat Capacity"] = float(block.specificHeatCapacity)
 
-            data[block.name] = blocks
+            data[block.name] = {**block.extra, **blocks}
 
         return data
 
@@ -311,7 +311,8 @@ class YAMLcreatorPeriLab:
             elif dam.damageModel == "Critical Stretch":
                 damage["Critical Value"] = float(dam.criticalStretch)
             else:
-                damage["Critical Value"] = 0.0
+                # Models without a native branch (e.g. "Critical Energy Anisotropic") set it in extra.
+                damage["Critical Value"] = float(dam.extra.get("Critical Value", 0.0))
 
             if dam.interBlockDamage:
                 allowed = False
@@ -338,7 +339,7 @@ class YAMLcreatorPeriLab:
             if self.check_if_defined(dam.thickness):
                 damage["Thickness"] = float(dam.thickness)
 
-            data[dam.name] = damage
+            data[dam.name] = {**dam.extra, **damage}
 
         return data
 
@@ -382,6 +383,7 @@ class YAMLcreatorPeriLab:
                 data["Verlet"]["Stable Step Difference"] = self.solver_dict[id].adapt.stableStepDifference
                 data["Verlet"]["Maximum Bond Difference"] = self.solver_dict[id].adapt.maximumBondDifference
                 data["Verlet"]["Stable Bond Difference"] = self.solver_dict[id].adapt.stableBondDifference
+            data["Verlet"] = {**self.solver_dict[id].solverOptions, **data["Verlet"]}
         elif self.solver_dict[id].solvertype == "Static":
             data["Number of Steps"] = self.solver_dict[id].static.numberOfSteps
             data["Static"] = {}
@@ -401,8 +403,11 @@ class YAMLcreatorPeriLab:
                 data["Static"]["Residual scaling"] = float(self.solver_dict[id].static.residualScaling)
             if self.check_if_defined(self.solver_dict[id].static.m):
                 data["Static"]["m"] = int(self.solver_dict[id].static.m)
+            data["Static"] = {**self.solver_dict[id].solverOptions, **data["Static"]}
+        elif self.solver_dict[id].solvertype:
+            # Solvers PeriHub has no own fields for (Newmark, Verlet Matrix Based, ...): the schema-driven options.
+            data[self.solver_dict[id].solvertype] = dict(self.solver_dict[id].solverOptions)
         else:
-
             raise HTTPException(status_code=400, detail="Solver not defined")
 
         if self.check_if_defined(self.solver_dict[id].calculateCauchy):
@@ -414,7 +419,7 @@ class YAMLcreatorPeriLab:
         if self.check_if_defined(self.solver_dict[id].calculateStrain):
             data["Calculate Strain"] = self.solver_dict[id].calculateStrain
 
-        return data
+        return {**self.solver_dict[id].extra, **data}
 
     def multistepSolver(self):
         data = {}
@@ -447,7 +452,7 @@ class YAMLcreatorPeriLab:
                 cond["Coordinate"] = condition.coordinate
             cond["Value"] = condition.value
 
-            data[condition.name] = cond
+            data[condition.name] = {**condition.extra, **cond}
 
         return data
 
@@ -470,7 +475,7 @@ class YAMLcreatorPeriLab:
                 groups[group.name] = group_dict
 
             contact["Contact Groups"] = groups
-            data[con.name] = contact
+            data[con.name] = {**con.extra, **contact}
         return data
 
     def compute(self):
@@ -535,7 +540,7 @@ class YAMLcreatorPeriLab:
 
             output["Output Variables"] = variable
 
-            data["Output" + str(idx + 1)] = output
+            data["Output" + str(idx + 1)] = {**out.extra, **output}
             idx += 1
         return data
 

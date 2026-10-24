@@ -4,7 +4,7 @@
 
 import json
 from datetime import datetime
-from typing import List, Literal, Optional, Union
+from typing import Any, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -383,6 +383,9 @@ class Material(BaseModel):
     numStateVars: Optional[int] = None
     computePartialStress: Optional[bool] = None
     useCollocationNodes: Optional[bool] = None
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class ContactGroup(BaseModel):
@@ -400,6 +403,9 @@ class ContactModel(BaseModel):
     contactRadius: float
     contactStiffness: float
     contactGroups: List[ContactGroup]
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class Contact(BaseModel):
@@ -424,6 +430,9 @@ class ThermalModel(BaseModel):
     file: Optional[str] = None
     numStateVars: Optional[int] = None
     predefinedFieldNames: Optional[str] = None
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class AdditiveModel(BaseModel):
@@ -432,6 +441,9 @@ class AdditiveModel(BaseModel):
     additiveType: str
     printTemp: float
     # timeFactor: float
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class InterBlock(BaseModel):
@@ -469,6 +481,9 @@ class Damage(BaseModel):
     thickness: Optional[float] = None
     # hourglassCoefficient: float
     # stabilizationType: str
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class Block(BaseModel):
@@ -482,6 +497,9 @@ class Block(BaseModel):
     density: Optional[float] = None
     specificHeatCapacity: Union[Optional[float], Optional[str]] = None
     show: Optional[bool] = None
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class BlockFunction(BaseModel):
@@ -508,6 +526,9 @@ class Discretization(BaseModel):
     discType: Optional[str] = "txt"
     gcode: Optional[Gcode] = None
     nodeSets: Optional[List[NodeSet]] = None
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class BoundaryCondition(BaseModel):
@@ -520,6 +541,9 @@ class BoundaryCondition(BaseModel):
     blockId: Optional[int] = None
     coordinate: str
     value: str
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class BoundaryConditions(BaseModel):
@@ -547,6 +571,9 @@ class BondFilters(BaseModel):
     centerZ: Optional[float] = None
     radius: Optional[float] = None
     show: Optional[bool] = None
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class Compute(BaseModel):
@@ -582,6 +609,9 @@ class Output(BaseModel):
     numberOfOutputSteps: Optional[int] = 100
     useOutputFrequency: Optional[bool] = False
     InitStep: int
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
 
 
 class Verlet(BaseModel):
@@ -649,9 +679,7 @@ class Solver(BaseModel):
     # branch that decides which of the two to emit.
     additionalTime: Optional[float] = None
     fixedDt: Optional[float] = yaml_field(None, ui_label="Fixed dt", ui_widget="number", ui_group="Verlet", ui_order=0)
-    solvertype: str = yaml_field(
-        ..., ui_label="Solvertype", ui_widget="select", ui_options=["Verlet", "Static"], ui_group="Solver", ui_order=0
-    )
+    solvertype: str
     safetyFactor: float = yaml_field(
         ..., yaml_cast="float", ui_label="Safety Factor", ui_widget="number", ui_group="Verlet", ui_order=1
     )
@@ -698,6 +726,11 @@ class Solver(BaseModel):
         ui_group="Verlet",
         ui_order=4,
     )
+    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
+    # merges them into the section and native keys win.
+    extra: dict[str, Any] = {}
+    # Keys of the chosen solver's sub-section (e.g. "Verlet", "Newmark"); native Verlet/Static keys win.
+    solverOptions: dict[str, Any] = {}
 
 
 class Job(BaseModel):

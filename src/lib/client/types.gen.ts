@@ -15,6 +15,9 @@ export type AdditiveModel = {
     name: string;
     additiveType: string;
     printTemp: number;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 export type AdminJob = {
@@ -138,6 +141,9 @@ export type Block = {
     density?: number | null;
     specificHeatCapacity?: number | string | null;
     show?: boolean | null;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 export type BlockFunction = {
@@ -188,6 +194,9 @@ export type BondFilters = {
     centerZ?: number | null;
     radius?: number | null;
     show?: boolean | null;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 export type BoundaryCondition = {
@@ -200,6 +209,9 @@ export type BoundaryCondition = {
     blockId?: number | null;
     coordinate: string;
     value: string;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 export type BoundaryConditions = {
@@ -252,6 +264,9 @@ export type ContactModel = {
     contactRadius: number;
     contactStiffness: number;
     contactGroups: Array<ContactGroup>;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 export type CriticalEnergyCalc = {
@@ -279,6 +294,9 @@ export type Damage = {
     anistropicDamageZ?: number | null;
     onlyTension?: boolean | null;
     thickness?: number | null;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 export type DeleteAccountRequest = {
@@ -303,6 +321,9 @@ export type Discretization = {
     discType?: string | null;
     gcode?: Gcode | null;
     nodeSets?: Array<NodeSet> | null;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 export type EngineeringConstants = {
@@ -443,6 +464,9 @@ export type Material = {
     numStateVars?: number | null;
     computePartialStress?: boolean | null;
     useCollocationNodes?: boolean | null;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 export type Matrix = {
@@ -540,6 +564,9 @@ export type Output = {
     numberOfOutputSteps?: number | null;
     useOutputFrequency?: boolean | null;
     InitStep: number;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 /**
@@ -745,6 +772,12 @@ export type Solver = {
     calculateCauchy?: boolean | null;
     calculateVonMises?: boolean | null;
     calculateStrain?: boolean | null;
+    extra?: {
+        [key: string]: unknown;
+    };
+    solverOptions?: {
+        [key: string]: unknown;
+    };
 };
 
 export type Static = {
@@ -811,6 +844,9 @@ export type ThermalModel = {
     file?: string | null;
     numStateVars?: number | null;
     predefinedFieldNames?: string | null;
+    extra?: {
+        [key: string]: unknown;
+    };
 };
 
 /**

@@ -58,6 +58,12 @@ export const $AdditiveModel = {
         printTemp: {
             type: 'number',
             title: 'Printtemp'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
@@ -595,6 +601,12 @@ export const $Block = {
                 }
             ],
             title: 'Show'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
@@ -873,6 +885,12 @@ export const $BondFilters = {
                 }
             ],
             title: 'Show'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
@@ -949,6 +967,12 @@ export const $BoundaryCondition = {
         value: {
             type: 'string',
             title: 'Value'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
@@ -1228,6 +1252,12 @@ export const $ContactModel = {
             },
             type: 'array',
             title: 'Contactgroups'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
@@ -1462,6 +1492,12 @@ export const $Damage = {
                 }
             ],
             title: 'Thickness'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
@@ -1632,6 +1668,12 @@ export const $Discretization = {
                 }
             ],
             title: 'Nodesets'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
@@ -2468,6 +2510,12 @@ export const $Material = {
                 }
             ],
             title: 'Usecollocationnodes'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
@@ -3409,6 +3457,12 @@ export const $Output = {
         InitStep: {
             type: 'integer',
             title: 'Initstep'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
@@ -4225,11 +4279,7 @@ export const $Solver = {
         },
         solvertype: {
             type: 'string',
-            title: 'Solvertype',
-            ui_group: 'Solver',
-            ui_label: 'Solvertype',
-            ui_options: ['Verlet', 'Static'],
-            ui_widget: 'select'
+            title: 'Solvertype'
         },
         safetyFactor: {
             type: 'number',
@@ -4393,6 +4443,18 @@ export const $Solver = {
             ui_order: 4,
             ui_widget: 'toggle',
             yaml_key: 'Calculate Strain'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
+        },
+        solverOptions: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Solveroptions',
+            default: {}
         }
     },
     type: 'object',
@@ -4825,6 +4887,12 @@ export const $ThermalModel = {
                 }
             ],
             title: 'Predefinedfieldnames'
+        },
+        extra: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Extra',
+            default: {}
         }
     },
     type: 'object',
