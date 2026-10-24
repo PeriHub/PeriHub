@@ -5,11 +5,14 @@
 """PeriLab evaluates deck expressions as Julia, so anything beyond arithmetic over the solver variables must be
 refused before submission (support/deck_guard.py)."""
 
+import json
+from pathlib import Path
+
 import pytest
 import yaml
 from fastapi import HTTPException
 
-from backend.app.support.deck_guard import check_input_deck, is_safe_expression
+from backend.app.support.deck_guard import EXPRESSION_KEYS, EXPRESSION_MAPPINGS, check_input_deck, is_safe_expression
 
 SAFE = [
     "0",
@@ -93,3 +96,28 @@ def test_check_input_deck_accepts_generated_deck(tmp_path):
 def test_check_input_deck_accepts_umat_in_job_folder(tmp_path):
     peri = {"Models": {"Material Models": {"m": {"Material Model": "Correspondence UMAT", "File": "umat.so"}}}}
     check_input_deck(_deck(tmp_path, peri))
+
+
+PERILAB_SCHEMA = Path(__file__).resolve().parents[4] / "src" / "lib" / "perilab" / "schema.json"
+
+
+def _evaluated_keys(node, found):
+    """Every property name whose schema carries PeriLab's `x-perilab-eval` marker."""
+    if isinstance(node, dict):
+        for key, child in (node.get("properties") or {}).items():
+            if isinstance(child, dict) and child.get("x-perilab-eval"):
+                found.add(key)
+        for child in node.values():
+            _evaluated_keys(child, found)
+    elif isinstance(node, list):
+        for child in node:
+            _evaluated_keys(child, found)
+    return found
+
+
+def test_deck_guard_covers_every_key_perilab_evaluates():
+    # A PeriLab update that evaluates a new key fails here on `npm run perilab-schema`, instead of silently
+    # giving every account (guests included) code execution in the solver container.
+    found = _evaluated_keys(json.loads(PERILAB_SCHEMA.read_text()), set())
+    assert found, "schema.json has no x-perilab-eval markers - regenerate it with a PeriLab that emits them"
+    assert found <= EXPRESSION_KEYS | EXPRESSION_MAPPINGS, found - (EXPRESSION_KEYS | EXPRESSION_MAPPINGS)
