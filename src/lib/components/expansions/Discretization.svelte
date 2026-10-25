@@ -14,9 +14,10 @@ SPDX-License-Identifier: Apache-2.0
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import { sections, node, enumOf, paramsFor, pick, NATIVE_KEYS } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   const discretization = $derived(modelStore.modelData.discretization ?? ({} as Discretization));
-  const distributionTypes = ['Neighbor based', 'Node based'];
 
   function addNodeSet() {
     if (!discretization.nodeSets) discretization.nodeSets = [];
@@ -58,11 +59,17 @@ SPDX-License-Identifier: Apache-2.0
   <div class="max-w-xs space-y-1">
     <Label for="disc-type">Distribution type</Label>
     <Select id="disc-type" bind:value={discretization.distributionType}>
-      {#each distributionTypes as type (type)}
+      {#each pick(enumOf(node(['Distribution Type'], sections.discretization)), ['Neighbor based', 'Node based'], discretization.distributionType) as type (type)}
         <option value={type}>{type}</option>
       {/each}
     </Select>
   </div>
+
+  <PerilabParams
+    params={paramsFor(sections.discretization, [], NATIVE_KEYS.discretization)}
+    owner={discretization}
+    idPrefix="disc"
+  />
 
   {#each discretization.nodeSets ?? [] as nodeSet, index (index)}
     <div class="border-border flex items-end gap-2 border-b pb-2">

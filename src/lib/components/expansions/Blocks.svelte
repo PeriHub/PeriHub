@@ -12,6 +12,8 @@ SPDX-License-Identifier: Apache-2.0
   import Select from '$lib/components/ui/Select.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import { sections, paramsFor, NATIVE_KEYS } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   const model = $derived(modelStore.modelData.model);
   const uploaded = $derived(model.meshSource === 'upload');
@@ -163,6 +165,15 @@ SPDX-License-Identifier: Apache-2.0
       </tbody>
     </table>
   </div>
+
+  {#each blocks as block, index (index)}
+    <PerilabParams
+      params={paramsFor(sections.block, [], NATIVE_KEYS.block)}
+      owner={block}
+      idPrefix={`blk-${index}`}
+      title={`Additional PeriLab parameters - ${block.name}`}
+    />
+  {/each}
 
   {#if uploaded}
     <AddButton noun="block" items={blocks} onclick={addBlock} />

@@ -16,6 +16,8 @@ SPDX-License-Identifier: Apache-2.0
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
   import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
+  import { sections, node, enumOf, paramsFor, pick, NATIVE_KEYS } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   const model = $derived(modelStore.modelData.model);
   const uploaded = $derived(model.meshSource === 'upload');
@@ -24,7 +26,6 @@ SPDX-License-Identifier: Apache-2.0
   const boundaryConditions = $derived(modelStore.modelData.boundaryConditions);
   const discretization = $derived(modelStore.modelData.discretization ?? ({} as Discretization));
 
-  const boundaryTypes = ['Dirichlet', 'Initial'];
   const boundaryVariables = [
     'Displacements',
     'Force Densities',
@@ -111,7 +112,7 @@ SPDX-License-Identifier: Apache-2.0
                 aria-label="Type of {condition.name}"
                 bind:value={condition.boundarytype}
               >
-                {#each boundaryTypes as type (type)}
+                {#each pick(enumOf(node(['Type'], sections.boundaryCondition)), ['Dirichlet', 'Initial'], condition.boundarytype) as type (type)}
                   <option value={type}>{type}</option>
                 {/each}
               </Select>
@@ -216,6 +217,11 @@ SPDX-License-Identifier: Apache-2.0
                   placeholder="e.g. 0.01 * t"
                   bind:value={condition.value}
                 ></textarea>
+                <PerilabParams
+                  params={paramsFor(sections.boundaryCondition, [], NATIVE_KEYS.boundaryCondition)}
+                  owner={condition}
+                  idPrefix={`bc-${index}`}
+                />
               </td>
             </tr>
           {/if}

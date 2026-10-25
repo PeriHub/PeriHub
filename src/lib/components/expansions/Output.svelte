@@ -17,13 +17,14 @@ SPDX-License-Identifier: Apache-2.0
   import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import { sections, node, enumOf, paramsFor, pick, NATIVE_KEYS } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   const blocks = $derived(modelStore.modelData.blocks ?? []);
   const nodeSets = $derived(modelStore.modelData.discretization?.nodeSets ?? []);
   const computes = $derived(modelStore.modelData.computes ?? []);
   const outputs = $derived(modelStore.modelData.outputs ?? []);
 
-  const fileTypes = ['Exodus', 'CSV'];
   const computeClasses = ['Block_Data', 'Node_Set_Data', 'Nearest_Point_Data'];
   const calculationTypes = ['Sum', 'Maximum', 'Minimum'];
   const variables = ['Forces', 'Displacements', 'Damage', 'Temperature'];
@@ -231,7 +232,7 @@ SPDX-License-Identifier: Apache-2.0
             bind:value={output.selectedFileType}
             onchange={() => (output.selectedOutputs = [])}
           >
-            {#each fileTypes as t (t)}
+            {#each pick(enumOf(node(['Output File Type'], sections.output)), ['Exodus', 'CSV'], output.selectedFileType) as t (t)}
               <option value={t}>{t}</option>
             {/each}
           </Select>
@@ -258,6 +259,12 @@ SPDX-License-Identifier: Apache-2.0
         </div>
         <Toggle bind:checked={output.Write_After_Damage} label="Write after damage" />
       </div>
+
+      <PerilabParams
+        params={paramsFor(sections.output, [], NATIVE_KEYS.output)}
+        owner={output}
+        idPrefix={`out-${index}`}
+      />
     </div>
   {/each}
 

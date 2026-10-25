@@ -14,9 +14,10 @@ SPDX-License-Identifier: Apache-2.0
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import { sections, node, enumOf, paramsFor, pick, NATIVE_KEYS } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   const bondFilters = $derived(modelStore.modelData.bondFilters ?? []);
-  const bondFilterTypes = ['Rectangular_Plane', 'Disk'];
 
   function addBondFilter() {
     const len = bondFilters.length;
@@ -45,7 +46,7 @@ SPDX-License-Identifier: Apache-2.0
         <div class="space-y-1">
           <Label for={`bf-type-${index}`}>Type</Label>
           <Select id={`bf-type-${index}`} bind:value={bondFilter.type}>
-            {#each bondFilterTypes as type (type)}
+            {#each pick(enumOf(node(['Type'], sections.bondFilter)), ['Rectangular_Plane', 'Disk'], bondFilter.type) as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </Select>
@@ -141,6 +142,12 @@ SPDX-License-Identifier: Apache-2.0
           </div>
         </div>
       {/if}
+
+      <PerilabParams
+        params={paramsFor(sections.bondFilter, [], NATIVE_KEYS.bondFilter)}
+        owner={bondFilter}
+        idPrefix={`bf-${index}`}
+      />
     </div>
   {/each}
 
