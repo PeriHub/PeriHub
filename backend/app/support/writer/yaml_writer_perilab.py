@@ -312,7 +312,9 @@ class YAMLcreatorPeriLab:
                 damage["Critical Value"] = float(dam.criticalStretch)
             else:
                 # Models without a native branch (e.g. "Critical Energy Anisotropic") set it in extra.
-                damage["Critical Value"] = float(dam.extra.get("Critical Value", 0.0))
+                # PeriLab declares it `Dependent`: a number or a data-file path string, so only cast numbers.
+                critical_value = dam.extra.get("Critical Value", 0.0)
+                damage["Critical Value"] = critical_value if isinstance(critical_value, str) else float(critical_value)
 
             if dam.interBlockDamage:
                 allowed = False
@@ -406,6 +408,8 @@ class YAMLcreatorPeriLab:
             data["Static"] = {**self.solver_dict[id].solverOptions, **data["Static"]}
         elif self.solver_dict[id].solvertype:
             # Solvers PeriHub has no own fields for (Newmark, Verlet Matrix Based, ...): the schema-driven options.
+            if self.solver_dict[id].solvertype in data:
+                raise HTTPException(status_code=400, detail="Solver not defined")
             data[self.solver_dict[id].solvertype] = dict(self.solver_dict[id].solverOptions)
         else:
             raise HTTPException(status_code=400, detail="Solver not defined")

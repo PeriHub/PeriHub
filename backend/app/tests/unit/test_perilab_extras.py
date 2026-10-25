@@ -7,6 +7,9 @@
 import copy
 from types import SimpleNamespace
 
+import pytest
+from fastapi import HTTPException
+
 from backend.app.support.base_models import ModelData, default_model
 from backend.app.support.writer.yaml_writer_perilab import YAMLcreatorPeriLab
 
@@ -81,3 +84,20 @@ def test_solver_type_without_native_branch_writes_its_options():
     written = _writer(model_data).solver()
     assert written["Newmark"] == {"Newmark Alpha": 0.25}
     assert "Verlet" not in written and "Static" not in written
+
+
+def test_damage_model_without_native_branch_takes_critical_value_string_from_extra():
+    model_data = _model()
+    damage = model_data.damages[0]
+    damage.damageModel = "Critical Energy Anisotropic"
+    damage.extra = {"Critical Value": "data.txt"}
+    assert _writer(model_data).damage(99)[damage.name]["Critical Value"] == "data.txt"
+
+
+def test_solvertype_colliding_with_native_key_raises():
+    model_data = _model()
+    solver = model_data.solvers[0]
+    solver.solvertype = "Final Time"
+    with pytest.raises(HTTPException) as exc_info:
+        _writer(model_data).solver()
+    assert exc_info.value.status_code == 400

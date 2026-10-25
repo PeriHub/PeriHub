@@ -128,8 +128,8 @@ export function coerce(prop: SchemaProp, raw: string): string | number | undefin
     ? prop.oneOf.flatMap((o) => [o.type ?? []].flat())
     : [prop.type ?? []].flat();
   const number = Number(text);
-  if ((types.includes('number') || types.includes('integer')) && Number.isFinite(number))
-    return number;
+  if (types.includes('number') && Number.isFinite(number)) return number;
+  if (types.includes('integer') && Number.isInteger(number)) return number;
   return text;
 }
 

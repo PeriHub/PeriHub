@@ -68,6 +68,8 @@ describe('perilab schema helpers', () => {
     expect(coerce({ type: ['number', 'string'] }, '3')).toBe(3);
     expect(coerce({ type: 'string' }, '3')).toBe('3');
     expect(coerce({ type: 'number' }, '  ')).toBeUndefined();
+    expect(coerce({ type: 'integer' }, '3')).toBe(3);
+    expect(coerce({ type: 'integer' }, '2.5')).toBe('2.5');
   });
 
   it('keeps Critical Value editable only for damage models without a native field', () => {
