@@ -14,6 +14,17 @@ SPDX-License-Identifier: Apache-2.0
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
   import SchemaForm from '$lib/components/SchemaForm.svelte';
+  import Select from '$lib/components/ui/Select.svelte';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
+  import {
+    sections,
+    node,
+    solverNames,
+    paramsFor,
+    pick,
+    NATIVE_KEYS,
+    SOLVER_NATIVE_KEYS
+  } from '$lib/perilab/schema';
 
   const solvers = $derived(modelStore.modelData.solvers ?? []);
 
@@ -54,14 +65,24 @@ SPDX-License-Identifier: Apache-2.0
       </div>
 
       <!--
-        Every plain scalar field of Solver (solvertype, the 4 model-toggles,
-        initial/final time, max. damage) is rendered here from the schema's
-        yaml_field(...) metadata - see support/base_models.py. Adding a new
-        simple Solver field only means editing that model; this component
-        picks it up automatically. additionalTime stays hand-written just
-        below since it has a real structural rule (only meaningful for
-        solvers after the first) that a generic renderer shouldn't guess at.
+        Every plain scalar field of Solver (the 4 model-toggles, initial/final
+        time, max. damage) is rendered here from the schema's yaml_field(...)
+        metadata - see support/base_models.py. Adding a new simple Solver
+        field only means editing that model; this component picks it up
+        automatically. additionalTime stays hand-written just below since it
+        has a real structural rule (only meaningful for solvers after the
+        first) that a generic renderer shouldn't guess at. solvertype is a
+        hand-written select fed by PeriLab's registered solvers
+        (src/lib/perilab).
       -->
+      <div class="max-w-xs space-y-1">
+        <Label for={`sv-type-${index}`}>Solver type</Label>
+        <Select id={`sv-type-${index}`} bind:value={solver.solvertype}>
+          {#each pick(solverNames(), ['Verlet', 'Static'], solver.solvertype) as name (name)}
+            <option value={name}>{name}</option>
+          {/each}
+        </Select>
+      </div>
       <SchemaForm schemaName="Solver" data={solver} group="Solver" />
 
       {#if solver.stepId !== 1}
@@ -143,6 +164,28 @@ SPDX-License-Identifier: Apache-2.0
           </div>
         </div>
       {/if}
+
+      <!-- "Number of Steps" is written natively only by the Static branch of the writer. -->
+      <PerilabParams
+        params={paramsFor(
+          sections.solver,
+          [],
+          [...NATIVE_KEYS.solver, ...(solver.solvertype === 'Static' ? ['Number of Steps'] : [])]
+        )}
+        owner={solver}
+        idPrefix={`sv-${index}`}
+      />
+      <PerilabParams
+        params={paramsFor(
+          node([solver.solvertype], sections.solver),
+          [],
+          SOLVER_NATIVE_KEYS[solver.solvertype] ?? []
+        )}
+        owner={solver}
+        field="solverOptions"
+        idPrefix={`sv-${index}-opt`}
+        title={`${solver.solvertype} parameters`}
+      />
     </div>
   {/each}
 
