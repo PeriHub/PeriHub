@@ -21,6 +21,8 @@ SPDX-License-Identifier: Apache-2.0
   import AddButton from '$lib/components/ui/AddButton.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
+  import { sections, modelNames, paramsFor, pick, NATIVE_KEYS } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   let {
     material = $bindable(),
@@ -34,13 +36,20 @@ SPDX-License-Identifier: Apache-2.0
     userTools?: Snippet;
   } = $props();
 
-  const materialModelNames = [
-    'Bond-based Elastic',
-    'PD Solid Elastic',
-    'PD Solid Plastic',
-    'Correspondence Elastic',
-    'Correspondence Plastic'
-  ];
+  // PeriLab's registered material models; the old list is the fallback for a schema without them.
+  const materialModelNames = $derived(
+    pick(
+      modelNames(sections.material),
+      [
+        'Bond-based Elastic',
+        'PD Solid Elastic',
+        'PD Solid Plastic',
+        'Correspondence Elastic',
+        'Correspondence Plastic'
+      ],
+      material.matType
+    )
+  );
   const materialSymmetries = ['Isotropic', 'Anisotropic', 'Orthotropic', 'Transverse Isotropic'];
   const stabilizationTypes = ['Bond Based', 'State Based', 'Sub Horizon', 'Global Stiffness'];
 
@@ -306,3 +315,9 @@ SPDX-License-Identifier: Apache-2.0
     <Input id={`${idPrefix}-yield`} type="number" bind:value={material.yieldStress} />
   </div>
 {/if}
+
+<PerilabParams
+  params={paramsFor(sections.material, material.matType ?? [], NATIVE_KEYS.material)}
+  owner={material}
+  {idPrefix}
+/>

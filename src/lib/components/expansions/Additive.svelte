@@ -13,9 +13,10 @@ SPDX-License-Identifier: Apache-2.0
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import { sections, modelNames, paramsFor, pick, NATIVE_KEYS } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   const additive = $derived(modelStore.modelData.additive ?? []);
-  const additiveTypes = ['Simple'];
 
   function addAdditiveModel() {
     if (!modelStore.modelData.additive) modelStore.modelData.additive = [];
@@ -47,7 +48,7 @@ SPDX-License-Identifier: Apache-2.0
         <div class="space-y-1">
           <Label for={`add-type-${index}`}>Type</Label>
           <Select id={`add-type-${index}`} bind:value={model.additiveType}>
-            {#each additiveTypes as type (type)}
+            {#each pick(modelNames(sections.additive), ['Simple'], model.additiveType) as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </Select>
@@ -55,6 +56,13 @@ SPDX-License-Identifier: Apache-2.0
         <div class="space-y-1">
           <Label for={`add-temp-${index}`}>Print temperature</Label>
           <Input id={`add-temp-${index}`} type="number" bind:value={model.printTemp} />
+        </div>
+        <div class="basis-full">
+          <PerilabParams
+            params={paramsFor(sections.additive, [model.additiveType], NATIVE_KEYS.additive)}
+            owner={model}
+            idPrefix={`add-${index}`}
+          />
         </div>
         <Button
           variant="ghost"

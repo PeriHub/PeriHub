@@ -14,13 +14,13 @@ SPDX-License-Identifier: Apache-2.0
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import { sections, modelNames, paramsFor, pick, damageNativeKeys } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   const damages = $derived(modelStore.modelData.damages ?? []);
   const blocks = $derived(modelStore.modelData.blocks ?? []);
   const materials = $derived(modelStore.modelData.materials ?? []);
   const twoDimensional = $derived(modelStore.modelData.model.twoDimensional);
-
-  const damageModelNames = ['Critical Stretch', 'Critical Energy'];
 
   function addDamage() {
     if (!modelStore.modelData.damages) modelStore.modelData.damages = [];
@@ -108,7 +108,7 @@ SPDX-License-Identifier: Apache-2.0
       <div class="space-y-1">
         <Label for={`dm-model-${index}`}>Damage model</Label>
         <Select id={`dm-model-${index}`} bind:value={damage.damageModel}>
-          {#each damageModelNames as name (name)}
+          {#each pick(modelNames(sections.damage), ['Critical Stretch', 'Critical Energy'], damage.damageModel) as name (name)}
             <option value={name}>{name}</option>
           {/each}
         </Select>
@@ -247,6 +247,16 @@ SPDX-License-Identifier: Apache-2.0
         <Label for={`dm-thick-${index}`}>Thickness</Label>
         <Input id={`dm-thick-${index}`} type="number" bind:value={damage.thickness} />
       </div>
+
+      <PerilabParams
+        params={paramsFor(
+          sections.damage,
+          [damage.damageModel],
+          damageNativeKeys(damage.damageModel)
+        )}
+        owner={damage}
+        idPrefix={`dm-${index}`}
+      />
     </div>
   {/each}
 

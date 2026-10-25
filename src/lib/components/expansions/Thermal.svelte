@@ -14,9 +14,10 @@ SPDX-License-Identifier: Apache-2.0
   import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import { sections, modelNames, paramsFor, pick, NATIVE_KEYS } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   const thermal = $derived(modelStore.modelData.thermal ?? []);
-  const thermalModelNames = ['Thermal Flow', 'Heat Transfer', 'Thermal Expansion'];
   const thermalTypes = ['Bond based'];
 
   function addThermalModel() {
@@ -63,7 +64,11 @@ SPDX-License-Identifier: Apache-2.0
           <Label>Type</Label>
           <ChipGroup
             ariaLabel="Type of {thermalModel.name}"
-            options={thermalModelNames}
+            options={pick(
+              modelNames(sections.thermal),
+              ['Thermal Flow', 'Heat Transfer', 'Thermal Expansion'],
+              thermalModel.thermalModel
+            )}
             bind:value={thermalModel.thermalModel}
           />
         </div>
@@ -154,6 +159,12 @@ SPDX-License-Identifier: Apache-2.0
           <Input id={`th-pfn-${index}`} bind:value={thermalModel.predefinedFieldNames} />
         </div>
       </div>
+
+      <PerilabParams
+        params={paramsFor(sections.thermal, thermalModel.thermalModel ?? [], NATIVE_KEYS.thermal)}
+        owner={thermalModel}
+        idPrefix={`th-${index}`}
+      />
     </div>
   {/each}
 

@@ -14,11 +14,12 @@ SPDX-License-Identifier: Apache-2.0
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import { sections, modelNames, paramsFor, pick, NATIVE_KEYS } from '$lib/perilab/schema';
+  import PerilabParams from '$lib/components/PerilabParams.svelte';
 
   const contact = $derived(modelStore.modelData.contact ?? ({} as Contact));
   const blocks = $derived(modelStore.modelData.blocks ?? []);
   const contactModels = $derived(contact.contactModels ?? []);
-  const contactTypes = ['Penalty Contact'];
 
   function addContactModel() {
     if (!contact.contactModels) contact.contactModels = [];
@@ -76,7 +77,7 @@ SPDX-License-Identifier: Apache-2.0
         <div class="space-y-1">
           <Label for={`cm-type-${index}`}>Type</Label>
           <Select id={`cm-type-${index}`} bind:value={model.contactType}>
-            {#each contactTypes as type (type)}
+            {#each pick(modelNames(sections.contact), ['Penalty Contact'], model.contactType) as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </Select>
@@ -145,6 +146,12 @@ SPDX-License-Identifier: Apache-2.0
         items={model.contactGroups}
         class="ml-4"
         onclick={() => addContactGroup(index)}
+      />
+
+      <PerilabParams
+        params={paramsFor(sections.contact, [model.contactType], NATIVE_KEYS.contact)}
+        owner={model}
+        idPrefix={`ct-${index}`}
       />
     </div>
   {/each}
