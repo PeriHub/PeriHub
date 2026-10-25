@@ -62,6 +62,7 @@ SPDX-License-Identifier: Apache-2.0
         <div class="space-y-1" title={prop.description}>
           {#if widget === 'toggle'}
             <Toggle
+              id={id(key)}
               checked={(values[key] ?? prop.default ?? false) as boolean}
               onCheckedChange={(v: boolean) => set(key, v)}
               label={key}
