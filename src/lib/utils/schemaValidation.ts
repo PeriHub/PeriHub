@@ -87,7 +87,9 @@ export function sectionStatus(
   kind: 'object' | 'array',
   data: unknown,
   isUsed?: (data: never) => boolean,
-  isReady?: (data: never) => boolean
+  isReady?: (data: never) => boolean,
+  /** Required PeriLab keys without a value (src/lib/perilab/missing.ts); Pydantic no longer lists them. */
+  missing = 0
 ): SectionStatus {
   const optional = !(getSchema('ModelData')?.required ?? []).includes(field);
   const used =
@@ -97,5 +99,7 @@ export function sectionStatus(
     kind === 'array'
       ? isArraySectionComplete(schemaName, data)
       : isObjectSectionComplete(schemaName, data);
-  return complete && (!isReady || isReady(data as never)) ? 'complete' : 'incomplete';
+  return complete && missing === 0 && (!isReady || isReady(data as never))
+    ? 'complete'
+    : 'incomplete';
 }

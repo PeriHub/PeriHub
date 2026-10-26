@@ -3,16 +3,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ModelData, Valves, GetModelsResponse } from '$lib/client';
-import { $ModelData as ModelDataSchema, $Valves as ValvesSchema } from '$lib/client';
-import { normalizeModelData } from '$lib/utils/legacy-model-data';
+import { $Valves as ValvesSchema } from '$lib/client';
+import defaultModel from '../../../backend/app/assets/default_model.json';
+import { isCurrentShape } from '$lib/utils/model-shape';
+import { notify } from '$lib/utils/notify';
 
 function browser() {
   return typeof window !== 'undefined';
 }
 
 class ModelStore {
-  // @ts-expect-error the generated schema's `example` is typed loosely
-  modelData = $state<ModelData>({ ...ModelDataSchema.example });
+  modelData = $state<ModelData>(structuredClone(defaultModel) as ModelData);
   availableModels = $state<GetModelsResponse>([]);
   // @ts-expect-error the generated schema's `example` is typed loosely
   modelParams = $state<Valves>({ ...ValvesSchema.example });
@@ -35,7 +36,13 @@ class ModelStore {
 
     const modelData = localStorage.getItem('modelData');
     if (modelData) {
-      this.modelData = normalizeModelData(JSON.parse(modelData));
+      const parsed = JSON.parse(modelData);
+      // Pre-`params` configs (no compatibility): start from the default instead of a half-broken form.
+      if (isCurrentShape(parsed)) {
+        this.modelData = parsed;
+      } else {
+        notify.negative('Saved in an older PeriHub format – not supported anymore');
+      }
     }
     const selectedModel = localStorage.getItem('selectedModel');
     if (selectedModel) {

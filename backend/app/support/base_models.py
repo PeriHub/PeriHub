@@ -4,11 +4,10 @@
 
 import json
 from datetime import datetime
+from pathlib import Path
 from typing import Any, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, field_validator, model_validator
-
-from .yaml_field import yaml_field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class VersionData(BaseModel):
@@ -55,19 +54,25 @@ class PointData(BaseModel):
     dx_value: float
 
 
-class Parameter(BaseModel):
+class Strict(BaseModel):
+    """Unknown fields are errors: an old camelCase config must fail loudly instead of loading with values missing."""
+
+    model_config = ConfigDict(extra="forbid", validate_assignment=True)
+
+
+class Parameter(Strict):
     parameterId: Optional[int] = None
     id: List[str]
     std: float
 
 
-class OldParameter(BaseModel):
+class OldParameter(Strict):
     parameterId: Optional[int] = None
     id: List[str]
     factor: float
 
 
-class Deviations(BaseModel):
+class Deviations(Strict):
     enabled: bool
     fileInput: Optional[bool] = None
     sampleSize: int
@@ -285,7 +290,16 @@ class RunStatus(BaseModel):
     model: Optional[dict] = None
 
 
-class Model(BaseModel):
+class Entry(Strict):
+    """One named entry of a PeriLab section. `params` holds its PeriLab keys verbatim (YAML key -> value, offered
+    by the frontend from src/lib/perilab/schema.json); the other fields are PeriHub concepts the writer turns into
+    PeriLab keys (support/writer/yaml_writer_perilab.py)."""
+
+    name: str
+    params: dict[str, Any] = {}
+
+
+class Model(Strict):
     modelFolderName: str
     # "model": points come from the selected model's generator; "upload": the user uploads `meshFile`.
     meshSource: Literal["model", "upload"] = "model"
@@ -293,25 +307,17 @@ class Model(BaseModel):
     horizon: Optional[float] = None
     meshFile: Optional[str] = None
 
-    @model_validator(mode="before")
-    @classmethod
-    def migrate_own_model(cls, value):
-        # Legacy configs stored `ownModel` (= uploaded mesh) and an unused `ownMesh` flag.
-        if isinstance(value, dict) and ("ownModel" in value or "ownMesh" in value):
-            value = dict(value)
-            own_model = value.pop("ownModel", False)
-            value.pop("ownMesh", None)
-            value.setdefault("meshSource", "upload" if own_model else "model")
-        return value
 
-
-class properties(BaseModel):
+class MaterialProperty(Strict):
     materialsPropId: Optional[int] = None
     name: str
     value: Optional[float] = None
 
 
-class EngineeringConstants(BaseModel):
+class EngineeringConstants(Strict):
+    """Input of the frontend's stiffness-matrix calculator (writes C11..C66 into `params`); never written."""
+
+    calculate: bool = False
     E1: Optional[float] = None
     E2: Optional[float] = None
     E3: Optional[float] = None
@@ -323,740 +329,148 @@ class EngineeringConstants(BaseModel):
     nu23: Optional[float] = None
 
 
-class Matrix(BaseModel):
-    C11: Optional[float] = None
-    C12: Optional[float] = None
-    C13: Optional[float] = None
-    C14: Optional[float] = None
-    C15: Optional[float] = None
-    C16: Optional[float] = None
-    C22: Optional[float] = None
-    C23: Optional[float] = None
-    C24: Optional[float] = None
-    C25: Optional[float] = None
-    C26: Optional[float] = None
-    C33: Optional[float] = None
-    C34: Optional[float] = None
-    C35: Optional[float] = None
-    C36: Optional[float] = None
-    C44: Optional[float] = None
-    C45: Optional[float] = None
-    C46: Optional[float] = None
-    C55: Optional[float] = None
-    C56: Optional[float] = None
-    C66: Optional[float] = None
-
-
-class StiffnessMatrix(BaseModel):
-    calculateStiffnessMatrix: Optional[bool] = None
-    engineeringConstants: EngineeringConstants
-    matrix: Matrix
-
-
-class Material(BaseModel):
+class Material(Entry):
     materialsId: Optional[int] = None
     libraryId: Optional[str] = None  # library material (/library/material) this copy was loaded from
-    name: str
-    matType: List[str]
-    bulkModulus: Optional[float] = None
-    shearModulus: Optional[float] = None
-    shearModulusXY: Optional[float] = None
-    shearModulusYZ: Optional[float] = None
-    shearModulusXZ: Optional[float] = None
-    youngsModulus: Optional[float] = None
-    youngsModulusX: Optional[float] = None
-    youngsModulusY: Optional[float] = None
-    youngsModulusZ: Optional[float] = None
-    poissonsRatio: Optional[float] = None
-    poissonsRatioXY: Optional[float] = None
-    poissonsRatioYZ: Optional[float] = None
-    poissonsRatioXZ: Optional[float] = None
-    planeStress: bool
-    planeStrain: bool
-    materialSymmetry: str
-    stabilizationType: str
-    hourglassCoefficient: float
-    actualHorizon: Optional[float] = None
-    yieldStress: Optional[float] = None
-    stiffnessMatrix: Optional[StiffnessMatrix] = None
-    properties: Union[List[properties], None]
-    numStateVars: Optional[int] = None
-    computePartialStress: Optional[bool] = None
-    useCollocationNodes: Optional[bool] = None
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
+    # User material (UMAT/VUMAT) constants: written as "Number of Properties" plus one key per property.
+    properties: List[MaterialProperty] = []
+    engineeringConstants: Optional[EngineeringConstants] = None
 
 
-class ContactGroup(BaseModel):
+class ContactGroup(Entry):
     contactGroupId: Optional[int] = None
-    name: str
-    masterBlockId: int
-    slaveBlockId: int
-    searchRadius: float
 
 
-class ContactModel(BaseModel):
+class ContactModel(Entry):
     contactModelId: Optional[int] = None
-    name: str
-    contactType: str
-    contactRadius: float
-    contactStiffness: float
-    contactGroups: List[ContactGroup]
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
+    contactGroups: List[ContactGroup] = []
 
 
-class Contact(BaseModel):
-    contactModels: Optional[List[ContactModel]] = None
-    searchFrequency: Optional[int] = None
-    onlySurfaceContactNodes: Optional[bool] = None
+class Contact(Strict):
+    params: dict[str, Any] = {}  # Contact.Globals
+    contactModels: List[ContactModel] = []
 
 
-class ThermalModel(BaseModel):
+class ThermalModel(Entry):
     thermalModelsId: Optional[int] = None
-    name: str
-    thermalModel: List[str]
-    thermalType: str
-    heatTransferCoefficient: Optional[float] = None
-    environmentalTemperature: Optional[float] = None
-    requiredSpecificVolume: Optional[float] = None
-    thermalConductivity: Optional[float] = None
-    thermalExpansionCoefficient: Optional[float] = None
-    thermalConductivityPrintBed: Optional[float] = None
-    printBedTemperature: Optional[float] = None
-    printBedZCoord: Optional[float] = None
-    file: Optional[str] = None
-    numStateVars: Optional[int] = None
-    predefinedFieldNames: Optional[str] = None
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
 
 
-class AdditiveModel(BaseModel):
+class AdditiveModel(Entry):
     additiveModelId: Optional[int] = None
-    name: str
-    additiveType: str
-    printTemp: float
-    # timeFactor: float
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
 
 
-class InterBlock(BaseModel):
+class InterBlock(Strict):
     interBlockid: Optional[int] = None
     firstBlockId: int
     secondBlockId: int
     value: float
 
 
-class CriticalEnergyCalc(BaseModel):
-    calculateCriticalEnergy: Optional[bool] = None
+class CriticalEnergyCalc(Strict):
+    """Input of the frontend's K1C calculator (writes Critical Value into `params`); never written."""
+
+    calculateCriticalEnergy: bool = False
     k1c: Optional[float] = None
 
 
-class Damage(BaseModel):
+class Damage(Entry):
     damagesId: Optional[int] = None
-    name: str
-    damageModel: str
-    criticalStretch: Optional[float] = None
-    criticalVonMisesStress: Optional[float] = None
-    criticalDamage: Optional[float] = None
-    thresholdDamage: Optional[float] = None
-    criticalDamageToNeglect: Optional[float] = None
-    criticalEnergy: Optional[float] = None
+    interBlocks: List[InterBlock] = []
     criticalEnergyCalc: Optional[CriticalEnergyCalc] = None
-    interBlockDamage: Optional[bool] = None
-    numberOfBlocks: Optional[int] = None
-    interBlocks: Optional[List[InterBlock]] = None
-    anistropicDamage: Optional[bool] = None
-    anistropicDamageX: Optional[float] = None
-    anistropicDamageY: Optional[float] = None
-    anistropicDamageZ: Optional[float] = None
-    onlyTension: Optional[bool] = None
-    # detachedNodesCheck: Optional[bool] = None
-    thickness: Optional[float] = None
-    # hourglassCoefficient: float
-    # stabilizationType: str
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
 
 
-class Block(BaseModel):
+class Block(Entry):
     blocksId: int
-    name: str
-    material: Optional[str] = None
-    damageModel: Optional[str] = None
-    thermalModel: Optional[str] = None
-    additiveModel: Optional[str] = None
-    horizon: Optional[float] = None
-    density: Optional[float] = None
-    specificHeatCapacity: Union[Optional[float], Optional[str]] = None
     show: Optional[bool] = None
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
 
 
-class BlockFunction(BaseModel):
+class BlockFunction(Strict):
     id: int
     function: str
 
 
-class Gcode(BaseModel):
-    overwriteMesh: bool
-    sampling: float
-    width: float
-    height: float
-    scale: float
-    blockFunctions: Optional[List[BlockFunction]] = None
+class Gcode(Strict):
+    params: dict[str, Any] = {}
+    blockFunctions: List[BlockFunction] = []
 
 
-class NodeSet(BaseModel):
+class NodeSet(Strict):
     nodeSetId: Optional[int] = None
     file: str
 
 
-class Discretization(BaseModel):
-    distributionType: str
-    discType: Optional[str] = "txt"
+class Discretization(Strict):
+    discType: str = "txt"  # "txt" | "e" | "gcode": mesh file format, set by the model/mesh upload
+    params: dict[str, Any] = {}
     gcode: Optional[Gcode] = None
-    nodeSets: Optional[List[NodeSet]] = None
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
+    nodeSets: List[NodeSet] = []
 
 
-class BoundaryCondition(BaseModel):
+class BoundaryCondition(Entry):
     conditionsId: Optional[int] = None
-    stepId: Optional[List[int]] = [1]
-    name: str
+    stepId: List[int] = [1]
     nodeSet: Optional[int] = None
-    boundarytype: str
-    variable: str
     blockId: Optional[int] = None
-    coordinate: str
-    value: str
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
 
 
-class BoundaryConditions(BaseModel):
+class BoundaryConditions(Strict):
     conditions: List[BoundaryCondition]
 
 
-class BondFilters(BaseModel):
+class BondFilters(Entry):
     bondFiltersId: Optional[int] = None
-    name: str
-    type: str
-    allow_contact: Optional[bool] = False
-    normalX: float
-    normalY: float
-    normalZ: float
-    lowerLeftCornerX: Optional[float] = None
-    lowerLeftCornerY: Optional[float] = None
-    lowerLeftCornerZ: Optional[float] = None
-    bottomUnitVectorX: Optional[float] = None
-    bottomUnitVectorY: Optional[float] = None
-    bottomUnitVectorZ: Optional[float] = None
-    bottomLength: Optional[float] = None
-    sideLength: Optional[float] = None
-    centerX: Optional[float] = None
-    centerY: Optional[float] = None
-    centerZ: Optional[float] = None
-    radius: Optional[float] = None
     show: Optional[bool] = None
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
 
 
-class Compute(BaseModel):
+class Compute(Entry):
     computesId: Optional[int] = None
-    computeClass: str
-    name: str
-    variable: str
-    equation: Optional[str] = None
-    calculationType: Optional[str] = None
-    blockName: Optional[str] = None
     nodeSetId: Optional[int] = None
-    xValue: Optional[float] = None
-    yValue: Optional[float] = None
-    zValue: Optional[float] = None
 
 
-class PreCalculations(BaseModel):
-    deformedBondGeometry: Optional[bool] = None
-    deformationGradient: Optional[bool] = None
-    shapeTensor: Optional[bool] = None
-    bondAssociatedShapeTensor: Optional[bool] = None
-    bondAssociateDeformationGradient: Optional[bool] = None
-
-
-class Output(BaseModel):
+class Output(Entry):
     outputsId: Optional[int] = None
-    name: str
-    selectedFileType: Optional[str] = "Exodus"
-    selectedOutputs: Optional[List[str]] = None
-
-    Write_After_Damage: Optional[bool] = None
-    Frequency: Optional[int] = 100
-    numberOfOutputSteps: Optional[int] = 100
-    useOutputFrequency: Optional[bool] = False
-    InitStep: int
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
+    selectedOutputs: List[str] = []
 
 
-class Verlet(BaseModel):
-    numericalDamping: Optional[float] = None
-    outputFrequency: int = 1000
-
-
-class Static(BaseModel):
-    numberOfSteps: int
-    maximumNumberOfIterations: Optional[int] = None
-    NLsolver: Optional[bool] = None
-    showSolverIteration: Optional[bool] = None
-    residualTolerance: Optional[float] = None
-    solutionTolerance: Optional[float] = None
-    linearStartValue: Optional[List[float]] = None
-    residualScaling: Optional[float] = None
-    m: Optional[int] = None
-
-
-class Adapt(BaseModel):
-    stableStepDifference: int = 4
-    maximumBondDifference: int = 10
-    stableBondDifference: int = 4
-
-
-class Solver(BaseModel):
+class Solver(Strict):
     solverId: Optional[int] = None
-    name: Optional[str] = None
+    name: Optional[str] = None  # step name in a Multistep Solver
     stepId: int = 1
-    matEnabled: bool = yaml_field(
-        True, yaml_key="Material Models", ui_label="Material Models", ui_widget="toggle", ui_group="Solver", ui_order=1
-    )
-    damEnabled: Optional[bool] = yaml_field(
-        None, yaml_key="Damage Models", ui_label="Damage Models", ui_widget="toggle", ui_group="Solver", ui_order=2
-    )
-    dispEnabled: Optional[bool] = None
-    tempEnabled: Optional[bool] = yaml_field(
-        None, yaml_key="Thermal Models", ui_label="Thermal Models", ui_widget="toggle", ui_group="Solver", ui_order=3
-    )
-    addEnabled: Optional[bool] = yaml_field(
-        None, yaml_key="Additive Models", ui_label="Additive Models", ui_widget="toggle", ui_group="Solver", ui_order=4
-    )
-    initialTime: Optional[float] = yaml_field(
-        None,
-        yaml_key="Initial Time",
-        yaml_cast="float",
-        ui_label="Initial Time",
-        ui_widget="number",
-        ui_group="Solver",
-        ui_order=10,
-    )
-    finalTime: Optional[float] = yaml_field(
-        None,
-        yaml_key="Final Time",
-        yaml_cast="float",
-        ui_label="Final Time",
-        ui_widget="number",
-        ui_group="Solver",
-        ui_order=11,
-    )
-    # additionalTime and initialTime/finalTime are mutually exclusive in the
-    # written YAML (see yaml_writer_perilab.py's solver()) - that XOR is
-    # structural logic, so additionalTime intentionally has no yaml_key here
-    # even though it's a simple scalar; it's written by hand alongside the
-    # branch that decides which of the two to emit.
-    additionalTime: Optional[float] = None
-    fixedDt: Optional[float] = yaml_field(None, ui_label="Fixed dt", ui_widget="number", ui_group="Verlet", ui_order=0)
-    solvertype: str
-    safetyFactor: float = yaml_field(
-        ..., yaml_cast="float", ui_label="Safety Factor", ui_widget="number", ui_group="Verlet", ui_order=1
-    )
-    verlet: Optional[Verlet] = None
-    static: Optional[Static] = None
-    stopAfterDamageInitation: Optional[bool] = None
-    endStepAfterDamage: Optional[int] = None
-    stopAfterCertainDamage: Optional[bool] = None
-    maximumDamage: Optional[float] = yaml_field(
-        None,
-        yaml_key="Maximum Damage",
-        yaml_cast="float",
-        ui_label="Max. damage value",
-        ui_widget="number",
-        ui_group="Solver",
-        ui_order=14,
-    )
-    stopBeforeDamageInitation: Optional[bool] = None
-    adaptivetimeStepping: Optional[bool] = yaml_field(
-        None, ui_label="Adaptive Time Stepping", ui_widget="toggle", ui_group="Verlet", ui_order=1
-    )
-    adapt: Optional[Adapt] = None
-    calculateCauchy: Optional[bool] = yaml_field(
-        None,
-        yaml_key="Calculate Cauchy",
-        ui_label="Calculate Cauchy",
-        ui_widget="toggle",
-        ui_group="Verlet",
-        ui_order=2,
-    )
-    calculateVonMises: Optional[bool] = yaml_field(
-        None,
-        yaml_key="Calculate von Mises stress",
-        ui_label="Calculate von Mises",
-        ui_widget="toggle",
-        ui_group="Verlet",
-        ui_order=3,
-    )
-    calculateStrain: Optional[bool] = yaml_field(
-        None,
-        yaml_key="Calculate Strain",
-        ui_label="Calculate Strain",
-        ui_widget="toggle",
-        ui_group="Verlet",
-        ui_order=4,
-    )
-    # PeriLab keys PeriHub has no own field for (YAML key -> value), from src/lib/perilab/schema.json; the writer
-    # merges them into the section and native keys win.
-    extra: dict[str, Any] = {}
-    # Keys of the chosen solver's sub-section (e.g. "Verlet", "Newmark"); native Verlet/Static keys win.
+    solvertype: str  # the solver sub-section, e.g. "Verlet"; its keys are in solverOptions
+    params: dict[str, Any] = {}
     solverOptions: dict[str, Any] = {}
 
 
-class Job(BaseModel):
-    verbose: bool = yaml_field(..., ui_label="Verbose", ui_widget="toggle", ui_group="Job", ui_order=0)
+class Job(Strict):
+    verbose: bool
     tasks: Optional[int] = 1
 
 
-default_model = {
-    "additive": [],
-    "blocks": [
-        {
-            "additiveModel": "",
-            "blocksId": 1,
-            "damageModel": "Damage",
-            "density": 2.699e-09,
-            "horizon": None,
-            "material": "Aluminium",
-            "name": "Part",
-            "show": True,
-            "specificHeatCapacity": None,
-            "thermalModel": None,
-        },
-        {
-            "additiveModel": "",
-            "blocksId": 2,
-            "damageModel": "",
-            "density": 2.699e-09,
-            "horizon": None,
-            "material": "BC",
-            "name": "Top_BC",
-            "show": True,
-            "specificHeatCapacity": None,
-            "thermalModel": None,
-        },
-        {
-            "additiveModel": "",
-            "blocksId": 3,
-            "damageModel": "",
-            "density": 2.699e-09,
-            "horizon": None,
-            "material": "BC",
-            "name": "Bottom_BC",
-            "show": True,
-            "specificHeatCapacity": None,
-            "thermalModel": None,
-        },
-        {
-            "additiveModel": "",
-            "blocksId": 4,
-            "damageModel": "",
-            "density": 2.699e-09,
-            "horizon": None,
-            "material": "Aluminium",
-            "name": "Top_Part",
-            "show": True,
-            "specificHeatCapacity": None,
-            "thermalModel": None,
-        },
-        {
-            "additiveModel": "",
-            "blocksId": 5,
-            "damageModel": "",
-            "density": 2.699e-09,
-            "horizon": None,
-            "material": "Aluminium",
-            "name": "Bottom_Part",
-            "show": True,
-            "specificHeatCapacity": None,
-            "thermalModel": None,
-        },
-    ],
-    "bondFilters": [
-        {
-            "allow_contact": False,
-            "bottomLength": 56.75,
-            "bottomUnitVectorX": 1.0,
-            "bottomUnitVectorY": 0.0,
-            "bottomUnitVectorZ": 0.0,
-            "centerX": 0.0,
-            "centerY": 1.0,
-            "centerZ": 0.0,
-            "id": None,
-            "lowerLeftCornerX": -0.5,
-            "lowerLeftCornerY": 0.0,
-            "lowerLeftCornerZ": -2.0,
-            "name": "bf_1",
-            "normalX": 0.0,
-            "normalY": 1.0,
-            "normalZ": 0.0,
-            "radius": 1.0,
-            "show": True,
-            "sideLength": 4.0,
-            "type": "Rectangular_Plane",
-        }
-    ],
-    "boundaryConditions": {
-        "conditions": [
-            {
-                "blockId": 2,
-                "boundarytype": "Dirichlet",
-                "conditionsId": 1,
-                "coordinate": "y",
-                "name": "BC_1",
-                "nodeSet": None,
-                "stepId": [1],
-                "value": "1000*t",
-                "variable": "Displacements",
-            },
-            {
-                "blockId": 3,
-                "boundarytype": "Dirichlet",
-                "conditionsId": 2,
-                "coordinate": "y",
-                "name": "BC_2",
-                "nodeSet": None,
-                "stepId": [1],
-                "value": "-1000*t",
-                "variable": "Displacements",
-            },
-        ]
-    },
-    "computes": [
-        {
-            "blockName": "Bottom_BC",
-            "calculationType": "Sum",
-            "computeClass": "Block_Data",
-            "id": 1,
-            "name": "External_Force",
-            "nodeSetId": None,
-            "variable": "Forces",
-            "xValue": None,
-            "yValue": None,
-            "zValue": None,
-        },
-        {
-            "blockName": "Top_BC",
-            "calculationType": "Maximum",
-            "computeClass": "Block_Data",
-            "id": 2,
-            "name": "External_Displacement",
-            "nodeSetId": None,
-            "variable": "Displacements",
-            "xValue": None,
-            "yValue": None,
-            "zValue": None,
-        },
-    ],
-    "contact": {"contactModels": None, "onlySurfaceContactNodes": None, "searchFrequency": None},
-    "damages": [
-        {
-            "anistropicDamage": False,
-            "anistropicDamageX": None,
-            "anistropicDamageY": None,
-            "anistropicDamageZ": None,
-            "criticalDamage": None,
-            "criticalDamageToNeglect": None,
-            "criticalEnergy": 5.714285714285715,
-            "criticalEnergyCalc": {"calculateCriticalEnergy": True, "k1c": 632.4555320336759},
-            "criticalStretch": None,
-            "criticalVonMisesStress": None,
-            "damageModel": "Critical Energy",
-            "id": 1,
-            "interBlockDamage": False,
-            "interBlocks": [],
-            "name": "Damage",
-            "numberOfBlocks": None,
-            "onlyTension": True,
-            "thickness": 1.0,
-            "thresholdDamage": None,
-        }
-    ],
-    "deviations": {
-        "enabled": False,
-        "sampleSize": 10,
-        "parameters": [{"id": ["materials[0].youngsModulus"], "std": 10}],
-    },
-    "discretization": {"discType": "txt", "distributionType": "Neighbor based", "gcode": None, "nodeSets": None},
-    "job": {"tasks": 1, "verbose": False},
-    "materials": [
-        {
-            "actualHorizon": None,
-            "bulkModulus": None,
-            "computePartialStress": None,
-            "hourglassCoefficient": 1.0,
-            "id": 1,
-            "matType": ["PD Solid Elastic"],
-            "materialSymmetry": "Isotropic",
-            "name": "BC",
-            "numStateVars": None,
-            "planeStrain": False,
-            "planeStress": True,
-            "poissonsRatio": 0.35,
-            "properties": [{"id": 1, "name": "Prop_1", "value": None}],
-            "shearModulus": None,
-            "stabilizationType": "Global Stiffness",
-            "stiffnessMatrix": None,
-            "useCollocationNodes": None,
-            "yieldStress": None,
-            "youngsModulus": 200000.0,
-        },
-        {
-            "actualHorizon": None,
-            "bulkModulus": None,
-            "computePartialStress": None,
-            "hourglassCoefficient": 1.0,
-            "id": 1,
-            "matType": ["Correspondence Elastic", "Correspondence Plastic"],
-            "materialSymmetry": "Isotropic",
-            "name": "Aluminium",
-            "numStateVars": None,
-            "planeStrain": False,
-            "planeStress": True,
-            "poissonsRatio": 0.35,
-            "properties": [{"id": 1, "name": "Prop_1", "value": None}],
-            "shearModulus": None,
-            "stabilizationType": "Global Stiffness",
-            "stiffnessMatrix": None,
-            "useCollocationNodes": None,
-            "yieldStress": 350.0,
-            "youngsModulus": 70000.0,
-        },
-    ],
-    "model": {
-        "horizon": None,
-        "meshFile": None,
-        "meshSource": "model",
-        "modelFolderName": "Default",
-        "twoDimensional": True,
-    },
-    "outputs": [
-        {
-            "Frequency": 1,
-            "InitStep": 0,
-            "Write_After_Damage": False,
-            "name": "Output1",
-            "numberOfOutputSteps": 100,
-            "outputsId": None,
-            "selectedFileType": "Exodus",
-            "selectedOutputs": ["Displacements", "Damage", "Cauchy Stress", "Strain", "Number of Neighbors"],
-            "useOutputFrequency": False,
-        },
-        {
-            "Frequency": 100,
-            "InitStep": 0,
-            "Write_After_Damage": False,
-            "name": "Output2",
-            "numberOfOutputSteps": 500,
-            "outputsId": 2,
-            "selectedFileType": "CSV",
-            "selectedOutputs": ["External_Force", "External_Displacement"],
-            "useOutputFrequency": False,
-        },
-    ],
-    "preCalculations": None,
-    "solvers": [
-        {
-            "adapt": {"maximumBondDifference": 4, "stableBondDifference": 1, "stableStepDifference": 4},
-            "adaptivetimeStepping": False,
-            "addEnabled": None,
-            "additionalTime": None,
-            "calculateCauchy": None,
-            "calculateStrain": True,
-            "calculateVonMises": True,
-            "damEnabled": True,
-            "dispEnabled": True,
-            "endStepAfterDamage": 3,
-            "finalTime": 0.0005,
-            "fixedDt": None,
-            "initialTime": 0.0,
-            "matEnabled": True,
-            "maxDamageValue": 0.3,
-            "name": None,
-            "safetyFactor": 0.95,
-            "solverId": None,
-            "solvertype": "Verlet",
-            "static": None,
-            "stepId": 1,
-            "stopAfterCertainDamage": False,
-            "stopAfterDamageInitation": False,
-            "stopBeforeDamageInitation": False,
-            "tempEnabled": False,
-            "verlet": {"numericalDamping": 5e-06, "outputFrequency": 100, "safetyFactor": 0.95},
-        }
-    ],
-    "thermal": [],
-}
+# Frontend imports the same file as its initial model
+default_model = json.loads(
+    (Path(__file__).resolve().parent.parent / "assets" / "default_model.json").read_text(encoding="UTF-8")
+)
 
 
-class ModelData(BaseModel):
-    additive: Optional[List[AdditiveModel]] = None
+class ModelData(Strict):
+    additive: List[AdditiveModel] = []
     blocks: List[Block]
-    bondFilters: Optional[List[BondFilters]] = None
+    bondFilters: List[BondFilters] = []
     boundaryConditions: BoundaryConditions
-    computes: Optional[List[Compute]] = None
-    contact: Optional[Contact] = None
-    damages: Optional[List[Damage]] = None
-    discretization: Optional[Discretization] = None
+    computes: List[Compute] = []
+    contact: Contact = Contact()
+    damages: List[Damage] = []
+    discretization: Discretization = Discretization()
     deviations: Optional[Deviations] = None
     job: Job
-    materials: Optional[List[Material]] = None
+    materials: List[Material] = []
     model: Model
     outputs: List[Output]
-    preCalculations: Optional[PreCalculations] = None
     solvers: List[Solver]
-    thermal: Optional[List[ThermalModel]] = None
-
-    @field_validator("thermal", "additive", mode="before")
-    @classmethod
-    def unwrap_legacy_section(cls, value, info):
-        # Legacy configs stored {"enabled": bool, "<field>Models": [...]}; a disabled section maps to [].
-        if isinstance(value, dict):
-            return (value.get(f"{info.field_name}Models") or []) if value.get("enabled") else []
-        return value
-
-    @field_validator("contact", mode="before")
-    @classmethod
-    def unwrap_legacy_contact(cls, value):
-        if isinstance(value, dict) and value.get("enabled") is False:
-            return {**value, "contactModels": []}
-        return value
+    thermal: List[ThermalModel] = []
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
-    class Config:
-        json_schema_extra = {"example": default_model}
 
 
 class AnalysisRequest(BaseModel):

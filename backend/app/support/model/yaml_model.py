@@ -7,7 +7,7 @@
     parameters: {NAME: {default, label, description, options, depends}}  (or NAME: default)
     geometry:   {spacing, grid_origin, add: [shape], remove: [shape], keep_only: [shape]}
     blocks:     [{id, <shape>, where}]        later entries override earlier ones
-    set:        {"bondFilters[0].lowerLeftCornerY": expr}   edits the input deck
+    set:        {'bondFilters[0].params["Lower Left Corner Y"]': expr}   edits the input deck
 
 A shape is `{box|sphere|ellipsoid|cylinder|cone: {arg: expr}}`. Expressions (expr.py) see the
 parameters, `spacing`, `two_d`, and in `where:` also `x`, `y`, `z`. Every error names the
@@ -28,8 +28,10 @@ TOP_LEVEL = {"title", "description", "author", "version", "requirements", "param
 PARAM_KEYS = {"default", "label", "description", "options", "depends"}
 GEOMETRY_KEYS = {"spacing", "grid_origin", "add", "remove", "keep_only"}
 # `set:` keys are handed to magicattr, which follows any attribute/subscript path - so only plain ModelData field
-# paths (`solver.finalTime`, `bondFilters[0].lowerLeftCornerY`): no `_`/dunder names that could reach module state.
-SET_PATH = re.compile(r"[A-Za-z][A-Za-z0-9]*(\[\d+\])?(\.[A-Za-z][A-Za-z0-9]*(\[\d+\])?)*")
+# paths (`solvers[0].params["Final Time"]`, `bondFilters[0].params["Lower Left Corner Y"]`): no `_`/dunder names
+# that could reach module state, string subscripts only in double quotes and only with key characters.
+_SUB = r'(\[\d+\]|\["[A-Za-z0-9 \'_.-]+"\])*'
+SET_PATH = re.compile(rf"[A-Za-z][A-Za-z0-9]*{_SUB}(\.[A-Za-z][A-Za-z0-9]*{_SUB})*")
 
 
 class ModelSpecError(ValueError):
@@ -131,7 +133,9 @@ def _validate(doc):
         _fail("set", "expected a mapping of input-deck path: expression")
     for path in doc.get("set") or {}:
         if not isinstance(path, str) or not SET_PATH.fullmatch(path):
-            _fail(f"set.{path}", "must be an input-deck field path like 'bondFilters[0].lowerLeftCornerY'")
+            _fail(
+                f"set.{path}", "must be an input-deck field path like 'bondFilters[0].params[\"Lower Left Corner Y\"]'"
+            )
 
 
 def parse(text: str) -> dict:

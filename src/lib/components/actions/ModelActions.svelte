@@ -22,11 +22,12 @@ SPDX-License-Identifier: Apache-2.0
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
+  import { isCurrentShape } from '$lib/utils/model-shape';
   import { downloadFile } from '$lib/utils/download';
   import { api } from '$lib/api/client';
+  import { missingBySection } from '$lib/perilab/missing';
   import { generateModel as generateModelApi, saveConfig } from '$lib/client';
   import type { ModelData, Valves } from '$lib/client';
-  import { normalizeModelData } from '$lib/utils/legacy-model-data';
   import Button, { buttonVariants } from '$lib/components/ui/Button.svelte';
 
   const modelData = $derived(modelStore.modelData);
@@ -53,18 +54,15 @@ SPDX-License-Identifier: Apache-2.0
     const fr = new FileReader();
     fr.onload = (e) => {
       const result = JSON.parse(e.target?.result as string);
-      if (result.modelData) {
-        modelStore.modelData = {
-          ...modelStore.modelData,
-          ...normalizeModelData(result.modelData)
-        } as ModelData;
-      } else {
-        modelStore.modelData = {
-          ...modelStore.modelData,
-          ...normalizeModelData(result)
-        } as ModelData;
-        console.log('Deprecated Json Format!');
+      const incoming = result.modelData ?? result;
+      if (!isCurrentShape(incoming)) {
+        notify.negative('Saved in an older PeriHub format – not supported anymore');
+        return;
       }
+      modelStore.modelData = {
+        ...modelStore.modelData,
+        ...incoming
+      } as ModelData;
       if (result.modelParams) {
         modelStore.modelParams = structuredClone(result.modelParams) as Valves;
       }
@@ -113,6 +111,13 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   async function generateModel() {
+    const missing = Object.values(missingBySection(modelData)).flat();
+    if (missing.length) {
+      notify.warning(
+        `Missing required PeriLab parameters: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? ', …' : ''}`
+      );
+    }
+
     if (!uploaded) {
       viewStore.modelLoading = true;
     }

@@ -1,0 +1,242 @@
+{
+  "model": {
+    "modelFolderName": "Default",
+    "meshSource": "model",
+    "twoDimensional": true,
+    "horizon": null,
+    "meshFile": null
+  },
+  "discretization": {
+    "discType": "txt",
+    "params": {
+      "Distribution Type": "Neighbor based"
+    },
+    "nodeSets": []
+  },
+  "materials": [
+    {
+      "materialsId": 1,
+      "name": "BC",
+      "params": {
+        "Material Model": "PD Solid Elastic",
+        "Symmetry": "isotropic plane stress",
+        "Young's Modulus": 200000.0,
+        "Poisson's Ratio": 0.35,
+        "Zero Energy Control": "Global"
+      }
+    },
+    {
+      "materialsId": 2,
+      "name": "Aluminium",
+      "params": {
+        "Material Model": "Correspondence Elastic + Correspondence Plastic",
+        "Symmetry": "isotropic plane stress",
+        "Young's Modulus": 70000.0,
+        "Poisson's Ratio": 0.35,
+        "Yield Stress": 350.0,
+        "Zero Energy Control": "Global"
+      }
+    }
+  ],
+  "damages": [
+    {
+      "damagesId": 1,
+      "name": "Damage",
+      "params": {
+        "Damage Model": "Critical Energy",
+        "Critical Value": 5.714285714285715,
+        "Only Tension": true,
+        "Thickness": 1.0
+      },
+      "criticalEnergyCalc": {
+        "calculateCriticalEnergy": true,
+        "k1c": 632.4555320336759
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "blocksId": 1,
+      "name": "Part",
+      "show": true,
+      "params": {
+        "Material Model": "Aluminium",
+        "Damage Model": "Damage",
+        "Density": 2.699e-9
+      }
+    },
+    {
+      "blocksId": 2,
+      "name": "Top_BC",
+      "show": true,
+      "params": {
+        "Material Model": "BC",
+        "Density": 2.699e-9
+      }
+    },
+    {
+      "blocksId": 3,
+      "name": "Bottom_BC",
+      "show": true,
+      "params": {
+        "Material Model": "BC",
+        "Density": 2.699e-9
+      }
+    },
+    {
+      "blocksId": 4,
+      "name": "Top_Part",
+      "show": true,
+      "params": {
+        "Material Model": "Aluminium",
+        "Density": 2.699e-9
+      }
+    },
+    {
+      "blocksId": 5,
+      "name": "Bottom_Part",
+      "show": true,
+      "params": {
+        "Material Model": "Aluminium",
+        "Density": 2.699e-9
+      }
+    }
+  ],
+  "bondFilters": [
+    {
+      "bondFiltersId": 1,
+      "name": "bf_1",
+      "show": true,
+      "params": {
+        "Type": "Rectangular_Plane",
+        "Normal X": 0.0,
+        "Normal Y": 1.0,
+        "Normal Z": 0.0,
+        "Lower Left Corner X": -0.5,
+        "Lower Left Corner Y": 0.0,
+        "Lower Left Corner Z": -2.0,
+        "Bottom Unit Vector X": 1.0,
+        "Bottom Unit Vector Y": 0.0,
+        "Bottom Unit Vector Z": 0.0,
+        "Bottom Length": 56.75,
+        "Side Length": 4.0,
+        "Allow Contact": false
+      }
+    }
+  ],
+  "boundaryConditions": {
+    "conditions": [
+      {
+        "conditionsId": 1,
+        "name": "BC_1",
+        "blockId": 2,
+        "stepId": [1],
+        "params": {
+          "Type": "Dirichlet",
+          "Variable": "Displacements",
+          "Coordinate": "y",
+          "Value": "1000*t"
+        }
+      },
+      {
+        "conditionsId": 2,
+        "name": "BC_2",
+        "blockId": 3,
+        "stepId": [1],
+        "params": {
+          "Type": "Dirichlet",
+          "Variable": "Displacements",
+          "Coordinate": "y",
+          "Value": "-1000*t"
+        }
+      }
+    ]
+  },
+  "computes": [
+    {
+      "computesId": 1,
+      "name": "External_Force",
+      "params": {
+        "Compute Class": "Block_Data",
+        "Calculation Type": "Sum",
+        "Block": "Bottom_BC",
+        "Variable": "Forces"
+      }
+    },
+    {
+      "computesId": 2,
+      "name": "External_Displacement",
+      "params": {
+        "Compute Class": "Block_Data",
+        "Calculation Type": "Maximum",
+        "Block": "Top_BC",
+        "Variable": "Displacements"
+      }
+    }
+  ],
+  "contact": {
+    "params": {},
+    "contactModels": []
+  },
+  "deviations": {
+    "enabled": false,
+    "sampleSize": 10,
+    "parameters": [
+      {
+        "id": ["materials[0].params[\"Young's Modulus\"]"],
+        "std": 10
+      }
+    ]
+  },
+  "job": {
+    "tasks": 1,
+    "verbose": false
+  },
+  "outputs": [
+    {
+      "outputsId": 1,
+      "name": "Output1",
+      "selectedOutputs": [
+        "Displacements",
+        "Damage",
+        "Cauchy Stress",
+        "Strain",
+        "Number of Neighbors"
+      ],
+      "params": {
+        "Output File Type": "Exodus",
+        "Number of Output Steps": 100
+      }
+    },
+    {
+      "outputsId": 2,
+      "name": "Output2",
+      "selectedOutputs": ["External_Force", "External_Displacement"],
+      "params": {
+        "Output File Type": "CSV",
+        "Number of Output Steps": 500
+      }
+    }
+  ],
+  "solvers": [
+    {
+      "solverId": 1,
+      "stepId": 1,
+      "solvertype": "Verlet",
+      "params": {
+        "Material Models": true,
+        "Damage Models": true,
+        "Initial Time": 0.0,
+        "Final Time": 0.0005,
+        "Calculate von Mises stress": true,
+        "Calculate Strain": true
+      },
+      "solverOptions": {
+        "Safety Factor": 0.95,
+        "Numerical Damping": 5e-6
+      }
+    }
+  ],
+  "thermal": [],
+  "additive": []
+}

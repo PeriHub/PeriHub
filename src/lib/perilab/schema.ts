@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * PeriLab's input-deck JSON Schema (`npm run perilab-schema` -> schema.json), read for the expansions' option
- * lists and their "Additional PeriLab parameters" (PerilabParams.svelte). PeriHub's own fields stay hand-written
- * and are listed in NATIVE_KEYS so they aren't offered twice; the backend writer merges the rest from each item's
- * `extra` (and Solver's `solverOptions`) with native keys winning. Unknown sections/names give empty results
- * (fail open), so a schema missing a module never breaks a panel.
+ * PeriLab's input-deck JSON Schema (`npm run perilab-schema` -> schema.json) drives every PeriLab parameter in
+ * PeriHub: SchemaParams.svelte renders an entry's keys from `paramsFor`, values live in the entry's `params`
+ * (YAML key -> value), and the backend writer merges them into the deck. Expansions render only `CUSTOM_KEYS`
+ * themselves. Unknown sections/names give empty results (fail open), so a schema missing a module never breaks a
+ * panel.
  */
 
 import schemaJson from './schema.json';
@@ -24,8 +24,13 @@ export interface SchemaProp {
   required?: string[];
   properties?: Record<string, SchemaProp>;
   additionalProperties?: SchemaProp | boolean;
-  allOf?: { if: { properties: Record<string, { const: string }> }; then: SchemaProp }[];
+  allOf?: {
+    if: { properties: Record<string, { const: string }> };
+    then: SchemaProp;
+  }[];
   'x-perilab-eval'?: boolean;
+  /** Read only if every listed sibling key (or `$solver`, the chosen solver) has one of the listed values. */
+  'x-perilab-when'?: Record<string, string[]>;
 }
 
 const root = (schemaJson as unknown as SchemaProp).properties?.PeriLab;
@@ -51,7 +56,10 @@ export const sections = {
   boundaryCondition: node(['Boundary Conditions', '*']),
   bondFilter: node(['Discretization', 'Bond Filters', '*']),
   discretization: node(['Discretization']),
-  solver: node(['Solver'])
+  compute: node(['Compute Class Parameters', '*']),
+  contactGlobals: node(['Contact', 'Globals']),
+  solver: node(['Solver']),
+  multistepSolver: node(['Multistep Solver', '*'])
 };
 
 /** Names of the registered models of a named-entry section (its `allOf` `if ... const` branches). */
@@ -72,28 +80,6 @@ function isScalar(prop: SchemaProp): boolean {
   return types.length > 0 && types.every((t) => t !== undefined && SCALARS.has(t));
 }
 
-/**
- * Keys a user can set on one entry: the section's shared keys plus those of every named model (composite
- * `A + B` materials get the union), without `Globals`, `nativeKeys` and non-scalar keys (those need custom UX).
- */
-export function paramsFor(
-  entry: SchemaProp | undefined,
-  names: readonly string[],
-  nativeKeys: readonly string[]
-): Record<string, SchemaProp> {
-  const merged: Record<string, SchemaProp> = { ...entry?.properties };
-  for (const branch of entry?.allOf ?? []) {
-    if (Object.values(branch.if.properties).some((p) => names.includes(p.const))) {
-      Object.assign(merged, branch.then.properties);
-    }
-  }
-  return Object.fromEntries(
-    Object.entries(merged).filter(
-      ([key, prop]) => key !== 'Globals' && !nativeKeys.includes(key) && isScalar(prop)
-    )
-  );
-}
-
 export function enumOf(prop?: SchemaProp): string[] {
   return (prop?.enum ?? prop?.examples ?? []).map(String);
 }
@@ -109,6 +95,44 @@ export function pick(
     if (value && !options.includes(value)) options.push(value);
   }
   return options;
+}
+
+export interface PropInfo {
+  /** PeriLab's own words, without the parts shown as facts. */
+  text: string;
+  /** Short machine facts: valid range, default, data-file option, physical quantity. */
+  facts: string[];
+}
+
+const QUANTITY = /^quantity: (.+?) \(in your consistent unit system\)$/;
+
+/**
+ * Tooltip content for a parameter. PeriLab joins description parts with "; " and appends the quantity and,
+ * for enums, "one of: ..." (already visible in the select), so those become facts or are dropped.
+ */
+export function propInfo(prop: SchemaProp): PropInfo {
+  const text: string[] = [];
+  let quantity: string | undefined;
+  for (const part of (prop.description ?? '').split('; ')) {
+    const match = QUANTITY.exec(part);
+    if (match) quantity = match[1];
+    else if (part && !part.startsWith('one of:')) text.push(part);
+  }
+  const branch = prop.oneOf?.find((o) => o.minimum != null || o.maximum != null);
+  const min = prop.minimum ?? branch?.minimum;
+  const max = prop.maximum ?? branch?.maximum;
+  const facts: string[] = [];
+  if (min != null && max != null) facts.push(`${min} – ${max}`);
+  else if (min != null) facts.push(`≥ ${min}`);
+  else if (max != null) facts.push(`≤ ${max}`);
+  if (prop.default != null) {
+    facts.push(
+      `default ${typeof prop.default === 'boolean' ? (prop.default ? 'on' : 'off') : prop.default}`
+    );
+  }
+  if (prop.oneOf?.some((o) => o.description === 'data file path')) facts.push('or data file');
+  if (quantity) facts.push(quantity);
+  return { text: text.join('. '), facts };
 }
 
 export type Widget = 'number' | 'toggle' | 'select' | 'text';
@@ -133,143 +157,144 @@ export function coerce(prop: SchemaProp, raw: string): string | number | undefin
   return text;
 }
 
-const axes = (prefix: string) => ['X', 'Y', 'Z'].map((axis) => `${prefix} ${axis}`);
-const stiffnessKeys = [1, 2, 3, 4, 5, 6].flatMap((i) =>
-  [1, 2, 3, 4, 5, 6].filter((j) => j >= i).map((j) => `C${i}${j}`)
-);
+export interface Context {
+  /** The entry's current values, for `x-perilab-when` conditions on sibling keys and `Type`-dependent branches. */
+  values?: Record<string, unknown>;
+  /** The chosen solver sub-section, for `$solver` conditions. */
+  solver?: string;
+}
 
-/** YAML keys each expansion already renders and backend/app/support/writer/yaml_writer_perilab.py writes. */
-export const NATIVE_KEYS = {
-  material: [
-    'Material Model',
-    'Symmetry',
-    ...stiffnessKeys,
-    "Young's Modulus",
-    ...axes("Young's Modulus"),
-    "Poisson's Ratio",
-    "Poisson's Ratio XY",
-    "Poisson's Ratio YZ",
-    "Poisson's Ratio XZ",
-    'Shear Modulus',
-    'Shear Modulus XY',
-    'Shear Modulus YZ',
-    'Shear Modulus XZ',
-    'Bulk Modulus',
-    'Zero Energy Control',
-    'Yield Stress',
-    'Number of State Vars',
-    'Number of Properties',
-    'Compute Partial Stress',
-    'Use Collocation Nodes'
-  ],
-  damage: [
-    'Damage Model',
-    'Critical Value',
-    'Critical Von Mises Stress',
-    'Critical Damage',
-    'Threshold Damage',
-    'Critical Damage To Neglect',
-    'Interblock Damage',
-    'Anisotropic Damage',
-    'Only Tension',
-    'Thickness'
-  ],
-  thermal: [
-    'Thermal Model',
-    'Type',
-    'Thermal Conductivity',
-    'Thermal Conductivity Print Bed',
-    'Print Bed Temperature',
-    'Print Bed Z Coordinate',
-    'Environmental Temperature',
-    'Heat Transfer Coefficient',
-    'Thermal Expansion Coefficient'
-  ],
-  additive: ['Additive Model', 'Print Temperature'],
-  contact: ['Type', 'Contact Radius', 'Contact Stiffness', 'Contact Groups'],
+export interface Offered {
+  props: Record<string, SchemaProp>;
+  required: Set<string>;
+}
+
+const same = (a: unknown, b: unknown) => String(a).toLowerCase() === String(b).toLowerCase();
+
+export function isSet(value: unknown): boolean {
+  return value != null && !(typeof value === 'string' && value.trim() === '');
+}
+
+/** `x-perilab-when`: every condition key's value (else its schema default) is one of the listed values. */
+export function whenMet(
+  prop: SchemaProp,
+  siblings: Record<string, SchemaProp>,
+  ctx: Context
+): boolean {
+  return Object.entries(prop['x-perilab-when'] ?? {}).every(([key, allowed]) => {
+    const value = key === '$solver' ? ctx.solver : (ctx.values?.[key] ?? siblings[key]?.default);
+    return isSet(value) && allowed.some((option) => same(option, value));
+  });
+}
+
+function offerable(prop: SchemaProp): boolean {
+  return isScalar(prop) || (prop.type === 'object' && !!prop.properties);
+}
+
+/** An `allOf` branch applies if every `if` const is a selected model name or the entry's value of that key. */
+function branchApplies(
+  branch: NonNullable<SchemaProp['allOf']>[number],
+  names: readonly string[],
+  ctx: Context
+): boolean {
+  return Object.entries(branch.if.properties).every(
+    ([key, cond]) => names.includes(cond.const) || same(ctx.values?.[key] ?? '', cond.const)
+  );
+}
+
+/**
+ * Keys a user can set on one entry, in PeriLab's declaration order: the section's shared keys plus those of every
+ * applying `allOf` branch (selected models, `Type`-dependent keys), without `Globals`, `custom` keys (rendered by
+ * the expansion), maps/arrays (need custom UX) and keys whose `x-perilab-when` isn't met. `required` holds the
+ * required keys among them and among `custom`.
+ */
+export function paramsFor(
+  entry: SchemaProp | undefined,
+  names: readonly string[],
+  custom: readonly string[] = [],
+  ctx: Context = {}
+): Offered {
+  const merged: Record<string, SchemaProp> = { ...entry?.properties };
+  const required = new Set(entry?.required ?? []);
+  for (const branch of entry?.allOf ?? []) {
+    if (!branchApplies(branch, names, ctx)) continue;
+    Object.assign(merged, branch.then.properties);
+    branch.then.required?.forEach((key) => required.add(key));
+  }
+  const applies = (key: string) => !merged[key] || whenMet(merged[key]!, merged, ctx);
+  const props = Object.fromEntries(
+    Object.entries(merged).filter(
+      ([key, prop]) => key !== 'Globals' && !custom.includes(key) && offerable(prop) && applies(key)
+    )
+  );
+  return {
+    props,
+    required: new Set(
+      [...required].filter((key) => (key in props || custom.includes(key)) && applies(key))
+    )
+  };
+}
+
+/** Required keys without a value; `auto` keys are filled by PeriHub (writer/generator) and never missing. */
+export function missingRequired(
+  offered: Offered,
+  values: Record<string, unknown>,
+  auto: readonly string[] = []
+): string[] {
+  return [...offered.required].filter((key) => !auto.includes(key) && !isSet(values[key]));
+}
+
+/** PeriLab's composite model strings ("A + B") <-> the list of selected models. */
+export function splitModels(value: unknown): string[] {
+  return typeof value === 'string'
+    ? value
+        .split('+')
+        .map((name) => name.trim())
+        .filter(Boolean)
+    : [];
+}
+
+export function joinModels(names: readonly (string | number)[]): string | undefined {
+  return names.length ? names.join(' + ') : undefined;
+}
+
+/** Keys each expansion renders itself (references to other entries, composite pickers, lists, table columns). */
+export const CUSTOM_KEYS = {
+  material: ['Material Model'],
+  damage: ['Damage Model'],
+  thermal: ['Thermal Model'],
+  additive: ['Additive Model'],
+  contact: ['Type', 'Contact Groups'],
+  contactGroup: ['Master Block ID', 'Slave Block ID'],
   block: [
     'Block ID',
     'Material Model',
     'Damage Model',
     'Thermal Model',
     'Additive Model',
-    'Horizon',
     'Density',
-    'Specific Heat Capacity'
+    'Horizon',
+    'Specific Heat Capacity',
+    // Hidden: PeriHub has no FEM, degradation or pre-calculation sections to point at.
+    'FEM',
+    'Degradation Model',
+    'Pre Calculation Model'
   ],
-  output: [
-    'Output File Type',
-    'Output Filename',
-    'Initial Output Step',
-    'Output Frequency',
-    'Number of Output Steps',
-    'Write After Damage',
-    'Output Variables'
-  ],
+  output: ['Output Filename', 'Output Variables', 'Output File Type'],
   boundaryCondition: ['Type', 'Variable', 'Node Set', 'Step ID', 'Coordinate', 'Value'],
-  bondFilter: [
-    'Type',
-    ...axes('Normal'),
-    'Allow Contact',
-    ...axes('Lower Left Corner'),
-    ...axes('Bottom Unit Vector'),
-    'Bottom Length',
-    'Side Length',
-    ...axes('Center'),
-    'Radius'
-  ],
-  discretization: [
-    'Type',
-    'Node Sets',
-    'Input Mesh File',
-    'Gcode',
-    'Bond Filters',
-    'Distribution Type'
-  ],
-  solver: [
-    'Step ID',
-    'Material Models',
-    'Damage Models',
-    'Thermal Models',
-    'Additive Models',
-    'Initial Time',
-    'Final Time',
-    'Additional Time',
-    'Maximum Damage',
-    'Calculate Cauchy',
-    'Calculate von Mises stress',
-    'Calculate Strain',
-    'Stop before damage initiation'
-  ]
+  bondFilter: ['Type'],
+  discretization: ['Type', 'Input Mesh File', 'Node Sets', 'Gcode', 'Bond Filters'],
+  compute: ['Compute Class', 'Block', 'Node Set'],
+  solver: ['Step ID']
 } as const satisfies Record<string, readonly string[]>;
 
-/** Sub-section keys the Verlet/Static branches of the writer handle; other solvers are fully schema-driven. */
-export const SOLVER_NATIVE_KEYS: Record<string, readonly string[]> = {
-  Verlet: [
-    'Fixed dt',
-    'Safety Factor',
-    'Numerical Damping',
-    'Adapt dt',
-    'Stable Step Difference',
-    'Maximum Bond Difference',
-    'Stable Bond Difference'
-  ],
-  Static: [
-    'Maximum number of iterations',
-    'Show solver iteration',
-    'Residual tolerance',
-    'Solution tolerance',
-    'Linear Start Value',
-    'Residual scaling',
-    'm'
-  ]
-};
-
-const NATIVE_DAMAGE_MODELS = ['Critical Stretch', 'Critical Energy', 'Von Mises Stress'];
-
-/** The writer only fills `Critical Value` for its own damage models; others take it from `extra`. */
-export function damageNativeKeys(model: string | null | undefined): readonly string[] {
-  return NATIVE_DAMAGE_MODELS.includes(model ?? '')
-    ? NATIVE_KEYS.damage
-    : NATIVE_KEYS.damage.filter((key) => key !== 'Critical Value');
-}
+/** Required keys PeriHub fills itself (writer or generator), so they never count as missing. */
+export const AUTO_KEYS = {
+  block: ['Block ID'],
+  boundaryCondition: ['Node Set', 'Step ID'],
+  output: ['Output Filename', 'Output Variables'],
+  discretization: ['Type', 'Input Mesh File'],
+  contact: ['Contact Groups'],
+  compute: ['Node Set'],
+  solver: ['Step ID']
+} as const satisfies Record<string, readonly string[]>;

@@ -136,13 +136,18 @@ def _draft_preview(source):
     return client.post("/models/Draft/preview", json={**_body("Dogbone"), "source": source})
 
 
-@pytest.mark.parametrize("path", ["__class__.x", "_private", "a.__dict__", "x['k']", "a..b", "a[0]()"])
+@pytest.mark.parametrize(
+    "path",
+    ["__class__.x", "_private", "a.__dict__", "x['k']", "a..b", "a[0]()", 'x["k"]()', 'a.params["k"].__class__'],
+)
 def test_set_paths_are_plain_input_deck_fields(path):
     response = _draft_preview(DRAFT.format(spacing=1, size=10) + f'set:\n  "{path}": 1\n')
     assert response.status_code == 422, response.text
 
 
-@pytest.mark.parametrize("path", ["solver.finalTime", "bondFilters[0].lowerLeftCornerY", "materials[1].density"])
+@pytest.mark.parametrize(
+    "path", ['solvers[0].params["Final Time"]', 'bondFilters[0].params["Lower Left Corner Y"]', "model.horizon"]
+)
 def test_set_path_pattern_accepts_field_paths(path):
     from backend.app.support.model.yaml_model import SET_PATH
 

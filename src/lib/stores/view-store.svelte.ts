@@ -37,17 +37,19 @@ function computeBondFilterPoints(bondFilters: BondFilters[]): BondFilterPoint[] 
   for (let i = 0; i < bondFilters.length; i++) {
     const bondFilterPointString: number[] = [];
     const bf = bondFilters[i]!;
+    const p = (bf.params ?? {}) as Record<string, number | undefined>;
+    const n = (key: string) => (typeof p[key] === 'number' ? p[key] : undefined);
 
     if (bf.show) {
-      const nx = bf.normalX,
-        ny = bf.normalY,
-        nz = bf.normalZ;
+      const nx = n('Normal X') ?? 0,
+        ny = n('Normal Y') ?? 0,
+        nz = n('Normal Z') ?? 0;
 
-      if (bf.type === 'Disk') {
-        const cx = bf.centerX,
-          cy = bf.centerY,
-          cz = bf.centerZ,
-          radius = bf.radius;
+      if (bf.params?.['Type'] === 'Disk') {
+        const cx = n('Center X'),
+          cy = n('Center Y'),
+          cz = n('Center Z'),
+          radius = n('Radius');
         if (cx == null || cy == null || cz == null || radius == null) {
           console.log('Disk: cx, cy, cz, radius not defined');
           continue;
@@ -63,14 +65,14 @@ function computeBondFilterPoints(bondFilters: BondFilters[]): BondFilterPoint[] 
           bondFilterPointString.push(cx + v[0]! * radius, cy + v[1]! * radius, cz + v[2]! * radius);
         }
       } else {
-        const lx = bf.lowerLeftCornerX,
-          ly = bf.lowerLeftCornerY,
-          lz = bf.lowerLeftCornerZ;
-        const bx = bf.bottomUnitVectorX,
-          by = bf.bottomUnitVectorY,
-          bz = bf.bottomUnitVectorZ;
-        const bl = bf.bottomLength,
-          sl = bf.sideLength;
+        const lx = n('Lower Left Corner X'),
+          ly = n('Lower Left Corner Y'),
+          lz = n('Lower Left Corner Z');
+        const bx = n('Bottom Unit Vector X'),
+          by = n('Bottom Unit Vector Y'),
+          bz = n('Bottom Unit Vector Z');
+        const bl = n('Bottom Length'),
+          sl = n('Side Length');
 
         if (
           lx == null ||

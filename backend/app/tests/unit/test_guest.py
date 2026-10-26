@@ -125,10 +125,24 @@ def test_guest_is_blocked(client, method, url, kwargs):
 
 def test_apply_guest_limits_clamps_outputs():
     data = ModelData(**_dogbone())
-    data.outputs[0].numberOfOutputSteps = 500
-    data.outputs[0].useOutputFrequency = True
+    data.outputs[0].params.update({"Number of Output Steps": 500, "Output Frequency": 1})
     apply_guest_limits(data, {"max_output_steps": 50})
-    assert all(o.numberOfOutputSteps <= 50 and o.useOutputFrequency is False for o in data.outputs)
+    assert all(o.params["Number of Output Steps"] <= 50 and "Output Frequency" not in o.params for o in data.outputs)
+
+
+def test_apply_guest_limits_falls_back_to_cap_on_non_numeric_value():
+    data = ModelData(**_dogbone())
+    data.outputs[0].params["Number of Output Steps"] = "10 20"  # never raise, just cap
+    apply_guest_limits(data, {"max_output_steps": 50})
+    assert data.outputs[0].params["Number of Output Steps"] == 50
+
+
+def test_apply_guest_limits_clamps_fallback_keys():
+    data = ModelData(**_dogbone())
+    data.outputs[0].params.update({"Fallback Output Frequency": 1, "Fallback Number of Output Steps": 500})
+    apply_guest_limits(data, {"max_output_steps": 50})
+    assert "Fallback Output Frequency" not in data.outputs[0].params
+    assert data.outputs[0].params["Fallback Number of Output Steps"] == 50
 
 
 def _generate(client, headers, params):

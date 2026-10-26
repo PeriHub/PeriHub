@@ -110,3 +110,35 @@ test('header nav link to the editor also gets guarded client-side', async ({ pag
   await page.locator('header a[href="/perihub"]').first().click();
   await expect(page).toHaveURL(/\/auth\/login/);
 });
+
+// The Solver/Material forms are generated from src/lib/perilab/schema.json (npm run perilab-schema) - this
+// pins the resulting show/hide behavior (x-perilab-when) to the schema's actual content instead of only to
+// perilab-schema.test.ts's parsing of it.
+test('solver and material forms follow the PeriLab schema', async ({ page }) => {
+  await page.goto('/perihub');
+  await page.getByRole('button', { name: 'Solver' }).click();
+  // Final Time is required: ParamLabel appends an aria-hidden "*" to the <label> text, which getByLabel's
+  // exact match compares against literally - getByRole (name from the accessible-name algorithm, which drops
+  // aria-hidden content) avoids that.
+  await expect(page.getByRole('spinbutton', { name: 'Final Time', exact: true })).toBeVisible();
+  await expect(page.getByRole('spinbutton', { name: 'Number of Steps' })).toHaveCount(0); // default solver is Verlet
+  await page.getByRole('combobox', { name: 'Solver', exact: true }).selectOption('Static');
+  await expect(page.getByRole('spinbutton', { name: 'Number of Steps' })).toBeVisible();
+
+  // Not exact: the accordion trigger's accessible name also carries its status dot's title (e.g. "Material
+  // Required fields filled in"). Anchored instead of a plain substring, so it doesn't also match the
+  // "About Material Models" info-tip button left over from the still-open Solver panel.
+  await page.getByRole('button', { name: /^Material\b/ }).click();
+  await expect(page.getByLabel("Young's Modulus", { exact: true }).first()).toBeVisible();
+  await expect(page.getByLabel('C11', { exact: true })).toHaveCount(0); // default Symmetry is isotropic plane stress
+  await page.getByLabel('Symmetry', { exact: true }).first().selectOption('anisotropic');
+  await expect(page.getByLabel('C11', { exact: true }).first()).toBeVisible();
+});
+
+test('a missing required value is marked and counted', async ({ page }) => {
+  await page.goto('/perihub');
+  await page.getByRole('button', { name: 'Blocks' }).click();
+  await page.getByLabel('Density of Part').fill('');
+  await page.getByLabel('Density of Part').blur();
+  await expect(page.getByText(/1 missing/)).toBeVisible();
+});

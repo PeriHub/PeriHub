@@ -16,8 +16,8 @@ SPDX-License-Identifier: Apache-2.0
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
   import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
-  import { sections, node, enumOf, paramsFor, pick, NATIVE_KEYS } from '$lib/perilab/schema';
-  import PerilabParams from '$lib/components/PerilabParams.svelte';
+  import { sections, node, enumOf, pick, CUSTOM_KEYS } from '$lib/perilab/schema';
+  import SchemaParams from '$lib/components/SchemaParams.svelte';
 
   const model = $derived(modelStore.modelData.model);
   const uploaded = $derived(model.meshSource === 'upload');
@@ -34,8 +34,6 @@ SPDX-License-Identifier: Apache-2.0
     'Damage',
     'Velocity'
   ];
-  const coordinates = ['x', 'y', 'z'];
-
   // Rows whose value is edited in the large textarea (long equations).
   let expanded = $state<boolean[]>([]);
   // Must match the header: an oversized colspan adds phantom columns to the table-fixed grid.
@@ -53,7 +51,10 @@ SPDX-License-Identifier: Apache-2.0
     const newItem =
       len > 0
         ? (structuredClone($state.snapshot(list[len - 1])) as BoundaryCondition)
-        : ({} as BoundaryCondition);
+        : ({
+            params: { Type: 'Dirichlet', Variable: 'Displacements', Coordinate: 'x', Value: '0' },
+            stepId: [1]
+          } as unknown as BoundaryCondition);
     newItem.conditionsId = len + 1;
     newItem.name = `BC_${len + 1}`;
     newItem.blockId = len + 1;
@@ -80,12 +81,12 @@ SPDX-License-Identifier: Apache-2.0
           <th class="px-1 pb-1 font-medium">Name</th>
           <th class="w-24 px-1 pb-1 font-medium">Type</th>
           {#if discretization.nodeSets && discretization.nodeSets.length > 0}
-            <th class="w-16 px-1 pb-1 font-medium">Node set</th>
+            <th class="w-16 px-1 pb-1 font-medium">Node Set</th>
           {/if}
           {#if !uploaded}<th class="w-16 px-1 pb-1 font-medium">Block ID</th>{/if}
-          {#if solvers.length > 1}<th class="px-1 pb-1 font-medium">Steps</th>{/if}
+          {#if solvers.length > 1}<th class="px-1 pb-1 font-medium">Step ID</th>{/if}
           <th class="w-32 px-1 pb-1 font-medium">Variable</th>
-          <th class="w-14 px-1 pb-1 font-medium">Axis</th>
+          <th class="w-14 px-1 pb-1 font-medium">Coordinate</th>
           <th class="px-1 pb-1 font-medium">Value</th>
           <th class="w-11"><span class="sr-only">Remove</span></th>
         </tr>
@@ -110,9 +111,9 @@ SPDX-License-Identifier: Apache-2.0
               <Select
                 class="h-8 pr-6 pl-2 text-[13px]"
                 aria-label="Type of {condition.name}"
-                bind:value={condition.boundarytype}
+                bind:value={condition.params!['Type']}
               >
-                {#each pick(enumOf(node(['Type'], sections.boundaryCondition)), ['Dirichlet', 'Initial'], condition.boundarytype) as type (type)}
+                {#each pick(enumOf(node(['Type'], sections.boundaryCondition)), ['Dirichlet', 'Initial'], condition.params?.Type as string | undefined) as type (type)}
                   <option value={type}>{type}</option>
                 {/each}
               </Select>
@@ -156,9 +157,9 @@ SPDX-License-Identifier: Apache-2.0
               <Select
                 class="h-8 pr-6 pl-2 text-[13px]"
                 aria-label="Variable of {condition.name}"
-                bind:value={condition.variable}
+                bind:value={condition.params!['Variable']}
               >
-                {#each boundaryVariables as v (v)}
+                {#each pick(enumOf(node(['Variable'], sections.boundaryCondition)), boundaryVariables, String(condition.params?.Variable ?? '')) as v (v)}
                   <option value={v}>{v}</option>
                 {/each}
               </Select>
@@ -167,9 +168,9 @@ SPDX-License-Identifier: Apache-2.0
               <Select
                 class="h-8 pr-6 pl-2 text-[13px]"
                 aria-label="Axis of {condition.name}"
-                bind:value={condition.coordinate}
+                bind:value={condition.params!['Coordinate']}
               >
-                {#each coordinates as c (c)}
+                {#each pick(enumOf(node(['Coordinate'], sections.boundaryCondition)), ['x', 'y', 'z'], String(condition.params?.Coordinate ?? '')) as c (c)}
                   <option value={c}>{c}</option>
                 {/each}
               </Select>
@@ -179,7 +180,7 @@ SPDX-License-Identifier: Apache-2.0
                 <Input
                   class="h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none"
                   aria-label="Value of {condition.name}"
-                  bind:value={condition.value}
+                  bind:value={condition.params!['Value']}
                 />
                 <Button
                   variant="ghost"
@@ -215,11 +216,12 @@ SPDX-License-Identifier: Apache-2.0
                   class="border-input bg-background focus-visible:ring-ring font-code min-h-20 w-full resize-y rounded-md border px-2 py-1 text-[13px] shadow-sm focus-visible:ring-2 focus-visible:outline-none"
                   aria-label="Value equation of {condition.name}"
                   placeholder="e.g. 0.01 * t"
-                  bind:value={condition.value}
+                  bind:value={condition.params!['Value']}
                 ></textarea>
-                <PerilabParams
-                  params={paramsFor(sections.boundaryCondition, [], NATIVE_KEYS.boundaryCondition)}
-                  owner={condition}
+                <SchemaParams
+                  entry={sections.boundaryCondition}
+                  values={condition.params!}
+                  custom={CUSTOM_KEYS.boundaryCondition}
                   idPrefix={`bc-${index}`}
                 />
               </td>

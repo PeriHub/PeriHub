@@ -20,6 +20,8 @@ SPDX-License-Identifier: Apache-2.0
     ariaLabel?: string;
     disabled?: boolean;
     id?: string;
+    /** Switch.Root has no dedicated prop for this; set here since bits-ui passes unknown props through. */
+    required?: boolean;
     onCheckedChange?: (checked: boolean) => void;
   }
 
@@ -29,6 +31,7 @@ SPDX-License-Identifier: Apache-2.0
     ariaLabel,
     disabled = false,
     id,
+    required = false,
     onCheckedChange
   }: Props = $props();
   const inputId = id ?? label?.replace(/\s+/g, '-').toLowerCase();
@@ -58,6 +61,7 @@ SPDX-License-Identifier: Apache-2.0
     onCheckedChange={handleCheckedChange}
     {disabled}
     id={inputId}
+    aria-required={required}
     aria-label={label ? undefined : ariaLabel}
     class="peer bg-muted data-[state=checked]:bg-primary inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
   >

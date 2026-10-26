@@ -29,5 +29,5 @@ blocks:
 
 # Put the notch bond filters between two point rows.
 set:
-  bondFilters[0].lowerLeftCornerY: int(25 / spacing) * spacing + spacing / 2
-  bondFilters[1].lowerLeftCornerY: -(int(25 / spacing) * spacing + spacing / 2)
+  'bondFilters[0].params["Lower Left Corner Y"]': int(25 / spacing) * spacing + spacing / 2
+  'bondFilters[1].params["Lower Left Corner Y"]': -(int(25 / spacing) * spacing + spacing / 2)

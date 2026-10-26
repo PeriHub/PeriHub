@@ -135,9 +135,9 @@ def generate_model(
 
         for i, block in enumerate(data.blocks):
             if isinstance(dx_value[0], float):
-                block.horizon = 2.5 * max([dx_value[0], dx_value[1]])
+                block.params["Horizon"] = 2.5 * max([dx_value[0], dx_value[1]])
             else:
-                block.horizon = 2.5 * max([dx_value[i][0], dx_value[i][1]])
+                block.params["Horizon"] = 2.5 * max([dx_value[i][0], dx_value[i][1]])
     else:
         k = [1e10]
     block_def = data.blocks

@@ -68,10 +68,25 @@ def guest_limits(db: Session) -> dict:
     return {key: instance_setting(db, f"guest_{key}") for key in LIMIT_KEYS}
 
 
+def _capped_steps(value, cap: int) -> int:
+    """`value` (a possibly non-numeric saved param) clamped to `cap`; anything that doesn't parse as an int
+    falls back to the cap itself rather than raising."""
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return cap
+    return min(parsed, cap)
+
+
 def apply_guest_limits(data: ModelData, limits: dict) -> None:
     """Bounds the result size before the input deck is written: at most `max_output_steps` outputs per output
     definition, never frequency-based (which could produce one output per step)."""
     cap = limits["max_output_steps"]
     for output in data.outputs:
-        output.useOutputFrequency = False
-        output.numberOfOutputSteps = min(output.numberOfOutputSteps or cap, cap)
+        output.params.pop("Output Frequency", None)
+        output.params.pop("Fallback Output Frequency", None)
+        output.params["Number of Output Steps"] = _capped_steps(output.params.get("Number of Output Steps"), cap)
+        if "Fallback Number of Output Steps" in output.params:
+            output.params["Fallback Number of Output Steps"] = _capped_steps(
+                output.params["Fallback Number of Output Steps"], cap
+            )

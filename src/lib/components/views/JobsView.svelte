@@ -13,6 +13,7 @@ SPDX-License-Identifier: Apache-2.0
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
+  import { isCurrentShape } from '$lib/utils/model-shape';
   import {
     cancelRun as cancelRunApi,
     deleteRun as deleteRunApi,
@@ -24,7 +25,6 @@ SPDX-License-Identifier: Apache-2.0
   import type { ModelData, RunStatus } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import ProgressBar from '$lib/components/ui/ProgressBar.svelte';
-  import { normalizeModelData } from '$lib/utils/legacy-model-data';
 
   let loading = $state(false);
   let runs = $state<RunStatus[]>([]);
@@ -144,9 +144,13 @@ SPDX-License-Identifier: Apache-2.0
       notify.negative(`No saved input deck for ${run.model_name} / ${run.model_folder_name}`);
       return;
     }
+    if (!isCurrentShape(run.model)) {
+      notify.negative('Saved in an older PeriHub format – not supported anymore');
+      return;
+    }
     selectRun(run);
     modelStore.modelData = {
-      ...normalizeModelData($state.snapshot(run.model as ModelData)),
+      ...$state.snapshot(run.model as ModelData),
       model: { ...(run.model as ModelData).model, modelFolderName: run.model_folder_name }
     };
     modelStore.modelDataFile = run.model_name;

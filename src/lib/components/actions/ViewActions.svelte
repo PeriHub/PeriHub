@@ -16,6 +16,7 @@ SPDX-License-Identifier: Apache-2.0
   import { notify } from '$lib/utils/notify';
   import { downloadFile } from '$lib/utils/download';
   import { api } from '$lib/api/client';
+  import { missingBySection } from '$lib/perilab/missing';
   import {
     getCurrentEnergy,
     runModel as runModelApi,
@@ -114,6 +115,13 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   async function _runModel(jobIds: string | null = null) {
+    const missing = Object.values(missingBySection(modelData)).flat();
+    if (missing.length) {
+      notify.warning(
+        `Missing required PeriLab parameters: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? ', …' : ''}`
+      );
+    }
+
     submitLoading = true;
     viewStore.textLoading = true;
 
@@ -436,7 +444,8 @@ SPDX-License-Identifier: Apache-2.0
     variant="ghost"
     size="icon"
     onclick={() => (viewStore.viewId = 'results')}
-    disabled={!status.results || !outputs.some((o) => o.selectedFileType === 'Exodus')}
+    disabled={!status.results ||
+      !outputs.some((o) => (o.params?.['Output File Type'] ?? 'Exodus') === 'Exodus')}
     title={!status.results ? 'Results not generated yet' : 'Show Results'}
   >
     <Eye class="h-4 w-4" />

@@ -184,9 +184,16 @@ SPDX-License-Identifier: Apache-2.0
     if (!modelBounds) return [];
     const byId = new Map(blocks.map((b) => [b.id, b.bounds]));
     return (data.boundaryConditions?.conditions ?? []).flatMap((bc) => {
-      const bounds = bc.blockId != null ? byId.get(bc.blockId) : undefined;
-      const marker = bounds && bcMarker(bc, bounds, modelBounds);
-      return marker ? [{ name: bc.name ?? '', marker }] : [];
+      const like = {
+        name: bc.name,
+        blockId: bc.blockId,
+        coordinate: bc.params?.['Coordinate'] as string | undefined,
+        value: bc.params?.['Value'] as string | undefined,
+        variable: bc.params?.['Variable'] as string | undefined
+      };
+      const bounds = like.blockId != null ? byId.get(like.blockId) : undefined;
+      const marker = bounds && bcMarker(like, bounds, modelBounds);
+      return marker ? [{ name: like.name ?? '', marker }] : [];
     });
   });
 

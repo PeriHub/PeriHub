@@ -12,10 +12,21 @@ import time
 
 import magicattr
 import numpy as np
+from fastapi import HTTPException
 
 from ...support.file_handler import FileHandler
 from ...support.globals import log
+from ...support.model.yaml_model import SET_PATH
 from ...support.writer.yaml_writer_perilab import YAMLcreatorPeriLab
+
+
+def _validate_deviation_path(path: str) -> str:
+    """Deviations ids are handed to magicattr.get/set, which follows any attribute/subscript path - so, like
+    YAML models' `set:` (support/model/yaml_model.py), only plain ModelData field paths are allowed; otherwise a
+    user-supplied id could reach arbitrary attributes (e.g. '__class__.__init__')."""
+    if not SET_PATH.fullmatch(path):
+        raise HTTPException(status_code=422, detail=f"Invalid deviation parameter path: {path}")
+    return path
 
 
 class ModelWriter:
@@ -96,6 +107,10 @@ class ModelWriter:
         self.file_writer(self.filename + ".yaml", string)
 
         if deviations is not None and deviations.enabled:
+
+            for parameter in [*deviations.parameters, *(deviations.oldParameters or [])]:
+                for parameter_id in parameter.id:
+                    _validate_deviation_path(parameter_id)
 
             deviation_dict = {"sample_size": deviations.sampleSize, "samples": {}, "default": {}}
 

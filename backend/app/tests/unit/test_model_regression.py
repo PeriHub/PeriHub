@@ -52,7 +52,10 @@ def test_converted_model_matches_old_generator(case):
         outside = np.any((dropped > hi + 1e-9) | (dropped < lo - 1e-9), axis=1)
         assert outside.all(), "points inside the nominal body went missing"
 
-    bond_filters = [[b.lowerLeftCornerX, b.lowerLeftCornerY, b.bottomLength] for b in data.bondFilters or []]
+    bond_filters = [
+        [b.params.get("Lower Left Corner X"), b.params.get("Lower Left Corner Y"), b.params.get("Bottom Length")]
+        for b in data.bondFilters
+    ]
     np.testing.assert_allclose(
         np.array(bond_filters, dtype=float), np.array(json.loads(str(old["bond_filters"])), dtype=float)
     )

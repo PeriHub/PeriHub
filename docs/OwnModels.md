@@ -64,7 +64,7 @@ blocks: # everything else is block 1; later rules win
   - { id: 3, box: { min: [LENGTH - 1, 0, -THICKNESS], max: [LENGTH, HEIGHT, THICKNESS] } } # right grip
 
 set: # optional: adjust the input deck to the geometry
-  bondFilters[0].lowerLeftCornerY: HEIGHT / 2
+  'bondFilters[0].params["Lower Left Corner Y"]': HEIGHT / 2
 ```
 
 ### Parameters
@@ -143,7 +143,7 @@ class Model(PeriHubModel):
         return {2: x < 3 * self.spacing, 3: box([49, 0, -3], [50, 20, 3])}
 
     def edit_model_data(self, model_data):                      # optional
-        model_data.bondFilters[0].lowerLeftCornerY = self.HEIGHT / 2
+        model_data.bondFilters[0].params["Lower Left Corner Y"] = self.HEIGHT / 2
 ```
 
 Parameters are attributes (`self.LENGTH`); `self.two_d` and `self.model_data` are available.

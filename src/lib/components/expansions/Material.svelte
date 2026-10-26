@@ -19,9 +19,12 @@ SPDX-License-Identifier: Apache-2.0
     uploadFiles as uploadFilesApi
   } from '$lib/client';
   import type { LibraryItemOut, Material } from '$lib/client';
-  import { fromLibrary, libraryUpdateBody, toLibraryProperties } from '$lib/utils/material-library';
-  import Input from '$lib/components/ui/Input.svelte';
-  import Label from '$lib/components/ui/Label.svelte';
+  import {
+    fromLibrary,
+    libraryUpdateBody,
+    newMaterial,
+    toLibraryProperties
+  } from '$lib/utils/material-library';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
   import Select from '$lib/components/ui/Select.svelte';
@@ -53,7 +56,12 @@ SPDX-License-Identifier: Apache-2.0
   function loadFromLibrary(index: number, id: string) {
     const item = libraryItem(id);
     if (!item) return;
-    materials[index] = fromLibrary($state.snapshot(item), materials[index]!.materialsId);
+    const material = fromLibrary($state.snapshot(item), materials[index]!.materialsId);
+    if (!material) {
+      notify.negative('This material was saved in an older PeriHub format – not supported anymore');
+      return;
+    }
+    materials[index] = material;
     notify.positive(`Loaded ${item.name}`);
   }
 
@@ -90,10 +98,6 @@ SPDX-License-Identifier: Apache-2.0
       notify.apiError(error);
     }
     await fetchLibrary();
-  }
-
-  function editNumStateVars(numStateVars: number) {
-    bus.emit('addStateVarsToOutput' as never, numStateVars as never);
   }
 
   function uploadSo() {
@@ -186,9 +190,10 @@ SPDX-License-Identifier: Apache-2.0
     const list = modelStore.modelData.materials;
     const len = list.length;
     const newItem =
-      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Material) : ({} as Material);
+      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Material) : newMaterial();
     newItem.materialsId = len + 1;
     newItem.name = `Material ${len + 1}`;
+    newItem.libraryId = null;
     list.push(newItem);
   }
 
@@ -196,6 +201,14 @@ SPDX-License-Identifier: Apache-2.0
     materials.splice(index, 1);
     materials.forEach((m, i) => (m.materialsId = i + 1));
   }
+
+  // User materials: offer their state variables as outputs (Output expansion listens).
+  $effect(() => {
+    for (const m of materials) {
+      const n = m.params?.['Number of State Variables'];
+      if (typeof n === 'number') bus.emit('addStateVarsToOutput' as never, n as never);
+    }
+  });
 </script>
 
 <div class="space-y-3 p-3">
@@ -264,15 +277,6 @@ SPDX-License-Identifier: Apache-2.0
         <Button variant="outline" size="sm" onclick={uploadSo}>
           <Upload class="h-4 w-4" /> Upload shared Library
         </Button>
-        <div class="space-y-1">
-          <Label for={`mat-${index}-nsv`}>Number of state variables</Label>
-          <Input
-            id={`mat-${index}-nsv`}
-            type="number"
-            bind:value={material.numStateVars}
-            oninput={() => editNumStateVars(material.numStateVars!)}
-          />
-        </div>
       {/snippet}
       <MaterialEditor bind:material={materials[index]!} idPrefix={`mat-${index}`} {userTools} />
     </div>

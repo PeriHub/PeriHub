@@ -27,6 +27,7 @@ SPDX-License-Identifier: Apache-2.0
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
   import { sectionStatus } from '$lib/utils/schemaValidation';
+  import { missingBySection } from '$lib/perilab/missing';
   import type { Contact, Deviations, Model, ModelData } from '$lib/client';
   import AccordionItem from '$lib/components/ui/AccordionItem.svelte';
 
@@ -235,20 +236,23 @@ SPDX-License-Identifier: Apache-2.0
   // sync with the number of panels.
   let openPanels = $state<string[]>([]);
 
-  const panelGroups = $derived(
-    PANEL_GROUPS.map((group) => ({
+  const panelGroups = $derived.by(() => {
+    const missing = missingBySection(modelStore.modelData);
+    return PANEL_GROUPS.map((group) => ({
       ...group,
       sections: group.sections
         .filter((section) => !section.visible || section.visible())
         .map((section) => ({
           ...section,
+          missing: missing[section.field] ?? [],
           status: sectionStatus(
             section.field,
             section.schema,
             section.schemaKind,
             modelStore.modelData[section.field],
             section.isUsed,
-            section.isReady
+            section.isReady,
+            missing[section.field]?.length ?? 0
           )
         }))
     }))
@@ -257,8 +261,8 @@ SPDX-License-Identifier: Apache-2.0
         ...group,
         completeCount: group.sections.filter((s) => s.status === 'complete').length,
         usedCount: group.sections.filter((s) => s.status !== 'unused').length
-      }))
-  );
+      }));
+  });
 
   $effect(() => {
     viewStore.setupComplete = panelGroups.every((g) => g.completeCount === g.usedCount);
@@ -318,6 +322,7 @@ SPDX-License-Identifier: Apache-2.0
           label={section.label}
           icon={section.icon}
           status={section.status}
+          missing={section.missing}
         >
           <section.component />
         </AccordionItem>

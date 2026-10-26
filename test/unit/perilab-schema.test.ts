@@ -4,17 +4,23 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-  NATIVE_KEYS,
+  AUTO_KEYS,
+  CUSTOM_KEYS,
   coerce,
-  damageNativeKeys,
   enumOf,
+  missingRequired,
   modelNames,
   node,
   paramsFor,
   pick,
   sections,
   solverNames,
-  widgetOf
+  splitModels,
+  joinModels,
+  widgetOf,
+  propInfo,
+  whenMet,
+  type SchemaProp
 } from '../../src/lib/perilab/schema';
 
 describe('perilab schema helpers', () => {
@@ -23,30 +29,6 @@ describe('perilab schema helpers', () => {
     expect(modelNames(sections.damage)).toContain('Critical Stretch');
     expect(modelNames(sections.contact)).toContain('Penalty Contact');
     expect(solverNames()).toEqual(expect.arrayContaining(['Verlet', 'Static']));
-  });
-
-  it('unions the keys of every selected model and drops native ones', () => {
-    const plastic = paramsFor(sections.material, ['Correspondence Plastic'], []);
-    expect(plastic).toHaveProperty('Yield Stress');
-    const both = paramsFor(sections.material, ['PD Solid Elastic', 'Correspondence Plastic'], []);
-    expect(both).toHaveProperty('Yield Stress');
-    const native = paramsFor(sections.material, ['Correspondence Plastic'], NATIVE_KEYS.material);
-    expect(native).not.toHaveProperty('Yield Stress');
-    expect(native).not.toHaveProperty('Material Model');
-    expect(native).not.toHaveProperty('Globals');
-  });
-
-  it('skips objects and arrays, keeps scalar unions', () => {
-    const solver = paramsFor(sections.solver, [], []);
-    expect(solver).not.toHaveProperty('Verlet');
-    expect(solver).not.toHaveProperty('Fallback');
-    expect(solver).toHaveProperty('Degradation Models');
-    const bc = paramsFor(sections.boundaryCondition, [], []);
-    expect(bc).toHaveProperty('Value');
-  });
-
-  it('reads solver sub-sections', () => {
-    expect(paramsFor(node(['Newmark'], sections.solver), [], [])).toHaveProperty('Newmark Alpha');
   });
 
   it('picks options with fallback and keeps the current value', () => {
@@ -72,8 +54,107 @@ describe('perilab schema helpers', () => {
     expect(coerce({ type: 'integer' }, '2.5')).toBe('2.5');
   });
 
-  it('keeps Critical Value editable only for damage models without a native field', () => {
-    expect(damageNativeKeys('Critical Stretch')).toContain('Critical Value');
-    expect(damageNativeKeys('Critical Energy Anisotropic')).not.toContain('Critical Value');
+  it('splits PeriLab descriptions into text and facts', () => {
+    expect(
+      propInfo({
+        type: 'number',
+        minimum: 0,
+        default: 1,
+        description: 'elastic stiffness; quantity: stress (in your consistent unit system)'
+      })
+    ).toEqual({ text: 'elastic stiffness', facts: ['≥ 0', 'default 1', 'stress'] });
+    expect(
+      propInfo({
+        oneOf: [
+          { type: 'number', minimum: 0 },
+          { type: 'string', description: 'data file path' }
+        ]
+      })
+    ).toEqual({ text: '', facts: ['≥ 0', 'or data file'] });
+    expect(propInfo({ type: 'boolean', default: false })).toEqual({
+      text: '',
+      facts: ['default off']
+    });
+    expect(propInfo({ type: 'string', description: 'one of: a, b' })).toEqual({
+      text: '',
+      facts: []
+    });
+  });
+});
+
+// A hand-written entry in PeriLab's schema shape, so these tests don't depend on schema.json's contents.
+const entry: SchemaProp = {
+  required: ['Model'],
+  properties: {
+    Model: { type: 'string' },
+    Symmetry: { type: 'string', enum: ['isotropic', 'orthotropic'], default: 'isotropic' },
+    'Young X': { type: 'number', 'x-perilab-when': { Symmetry: ['orthotropic'] } },
+    Steps: { type: 'integer', 'x-perilab-when': { $solver: ['Static', 'Newmark'] } },
+    Nested: { type: 'object', properties: { A: { type: 'number' } } },
+    Map: { type: 'object', additionalProperties: { type: 'number' } },
+    List: { type: 'array' },
+    Globals: { type: 'object' }
+  },
+  allOf: [
+    {
+      if: { properties: { Model: { const: 'Plastic' } } },
+      then: { required: ['Yield'], properties: { Yield: { type: 'number' } } }
+    },
+    { if: { properties: { Symmetry: { const: 'orthotropic' } } }, then: { required: ['Young X'] } }
+  ]
+};
+
+describe('paramsFor', () => {
+  it('keeps declaration order, scalars and nested objects; drops maps, arrays, Globals and custom keys', () => {
+    const { props } = paramsFor(entry, [], ['Model']);
+    expect(Object.keys(props)).toEqual(['Symmetry', 'Nested']);
+  });
+
+  it('merges model branches and their required keys', () => {
+    const offered = paramsFor(entry, ['Plastic']);
+    expect(offered.props).toHaveProperty('Yield');
+    expect([...offered.required]).toEqual(expect.arrayContaining(['Model', 'Yield']));
+  });
+
+  it('applies x-perilab-when from sibling values, defaults and the solver', () => {
+    expect(paramsFor(entry, []).props).not.toHaveProperty('Young X');
+    const ortho = paramsFor(entry, [], [], { values: { Symmetry: 'Orthotropic' } });
+    expect(ortho.props).toHaveProperty('Young X');
+    expect(ortho.required.has('Young X')).toBe(true);
+    expect(paramsFor(entry, [], [], { solver: 'Verlet' }).props).not.toHaveProperty('Steps');
+    expect(paramsFor(entry, [], [], { solver: 'Static' }).props).toHaveProperty('Steps');
+  });
+
+  it('whenMet needs every condition and treats an unset key without default as not met', () => {
+    const prop: SchemaProp = { 'x-perilab-when': { A: ['x'], B: ['y'] } };
+    const siblings: Record<string, SchemaProp> = { A: {}, B: {} };
+    expect(whenMet(prop, siblings, { values: { A: 'x', B: 'y' } })).toBe(true);
+    expect(whenMet(prop, siblings, { values: { A: 'x' } })).toBe(false);
+  });
+});
+
+describe('missingRequired', () => {
+  it('lists required keys without a value, minus auto-filled ones', () => {
+    const offered = paramsFor(entry, ['Plastic']);
+    expect(missingRequired(offered, { Model: 'Plastic' })).toEqual(['Yield']);
+    expect(missingRequired(offered, { Model: '', Yield: 1 })).toEqual(['Model']);
+    expect(missingRequired(offered, {}, ['Model', 'Yield'])).toEqual([]);
+  });
+});
+
+describe('model name lists', () => {
+  it('splits and joins composite model strings', () => {
+    expect(splitModels('Correspondence Elastic + Correspondence Plastic')).toEqual([
+      'Correspondence Elastic',
+      'Correspondence Plastic'
+    ]);
+    expect(splitModels(undefined)).toEqual([]);
+    expect(joinModels(['A', 'B'])).toBe('A + B');
+    expect(joinModels([])).toBeUndefined();
+  });
+
+  it('declares custom and auto keys per section', () => {
+    expect(CUSTOM_KEYS.block).toContain('Material Model');
+    expect(AUTO_KEYS.output).toContain('Output Filename');
   });
 });

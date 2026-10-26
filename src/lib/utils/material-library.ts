@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { LibraryItemIn, LibraryItemOut, Material } from '$lib/client';
+import { isCurrentShape } from './model-shape';
 
 /** A library entry stores one model material (minus its position/link in a model) as `properties`. */
 export function toLibraryProperties(material: Material): Record<string, unknown> {
@@ -12,11 +13,14 @@ export function toLibraryProperties(material: Material): Record<string, unknown>
 }
 
 /** Copy a library material into a model slot: keeps the slot's materialsId and remembers the source.
- *  Pass a plain object (`$state.snapshot`) - structuredClone throws on $state proxies. */
+ *  Pass a plain object (`$state.snapshot`) - structuredClone throws on $state proxies. Returns null for a
+ *  material saved before PeriLab keys moved into `params` - no backward compatibility; the caller should
+ *  warn and skip the load. */
 export function fromLibrary(
   item: LibraryItemOut,
   materialsId: number | null | undefined
-): Material {
+): Material | null {
+  if (!isCurrentShape(item.properties)) return null;
   return {
     ...structuredClone(item.properties ?? {}),
     name: item.name,
@@ -41,15 +45,12 @@ export function libraryUpdateBody(item: LibraryItemOut, material: Material): Lib
 export function newMaterial(): Material {
   return {
     name: 'New material',
-    matType: ['PD Solid Elastic'],
-    materialSymmetry: 'Isotropic',
-    stabilizationType: 'Global Stiffness',
-    hourglassCoefficient: 1,
-    planeStress: true,
-    planeStrain: false,
-    poissonsRatio: null,
-    youngsModulus: null,
-    properties: null
+    params: {
+      'Material Model': 'PD Solid Elastic',
+      Symmetry: 'isotropic plane stress',
+      'Zero Energy Control': 'Global'
+    },
+    properties: []
   };
 }
 

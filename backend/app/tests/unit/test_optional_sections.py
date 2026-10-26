@@ -8,8 +8,8 @@ from types import SimpleNamespace
 from backend.app.support.base_models import ModelData, default_model
 from backend.app.support.writer.yaml_writer_perilab import YAMLcreatorPeriLab
 
-THERMAL = {"name": "T1", "thermalModel": ["Thermal Flow"], "thermalType": "Bond based"}
-ADDITIVE = {"name": "A1", "additiveType": "Simple", "printTemp": 200}
+THERMAL = {"name": "T1", "params": {"Thermal Model": "Thermal Flow", "Type": "Bond based"}}
+ADDITIVE = {"name": "A1", "params": {"Additive Model": "Simple"}}
 
 
 def _writer(model_data):
@@ -25,19 +25,6 @@ def test_thermal_and_additive_written_only_when_referenced_by_a_block():
     assert _writer(model_data).thermal() == {}
     assert _writer(model_data).additive() == {}
 
-    model_data.blocks[0].thermalModel = "T1"
-    model_data.blocks[0].additiveModel = "A1"
+    model_data.blocks[0].params.update({"Thermal Model": "T1", "Additive Model": "A1"})
     assert list(_writer(model_data).thermal()) == ["T1"]
     assert list(_writer(model_data).additive()) == ["A1"]
-
-
-def test_legacy_enabled_sections_are_unwrapped():
-    data = copy.deepcopy(default_model)
-    data["thermal"] = {"enabled": False, "thermalModels": [THERMAL]}
-    data["additive"] = {"enabled": True, "additiveModels": [ADDITIVE]}
-    data["contact"] = {"enabled": False, "contactModels": [{}]}
-    model_data = ModelData(**data)
-
-    assert model_data.thermal == []
-    assert [a.name for a in model_data.additive] == ["A1"]
-    assert model_data.contact.contactModels == []

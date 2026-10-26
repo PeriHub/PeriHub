@@ -6,7 +6,6 @@ import { getConfig, getValves } from '$lib/client';
 import type { ModelData } from '$lib/client';
 import { modelStore } from '$lib/stores/model-store.svelte';
 import { notify } from './notify';
-import { normalizeModelData } from '$lib/utils/legacy-model-data';
 
 /**
  * Fetches `modelFile`'s config and valves from the backend and applies them
@@ -21,7 +20,7 @@ export function refreshModelFromBackend(modelFile: string) {
   getConfig({ modelName: modelFile })
     .then((response) => {
       const data = JSON.parse(JSON.stringify(response));
-      modelStore.modelData = { ...modelStore.modelData, ...normalizeModelData(data) } as ModelData;
+      modelStore.modelData = { ...modelStore.modelData, ...data } as ModelData;
       modelStore.modelDataFile = modelFile;
     })
     .catch((error) => notify.apiError(error));
