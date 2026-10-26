@@ -24,13 +24,28 @@ export interface SchemaProp {
   required?: string[];
   properties?: Record<string, SchemaProp>;
   additionalProperties?: SchemaProp | boolean;
+  /** Model/`Type` branches (`if` + `then`), plus `if`-less `anyOf` entries mirroring `x-perilab-required-groups`. */
   allOf?: {
-    if: { properties: Record<string, { const: string }> };
-    then: SchemaProp;
+    if?: {
+      properties: Record<string, { const?: string; enum?: (string | null)[] }>;
+      required?: string[];
+    };
+    then?: SchemaProp;
   }[];
   'x-perilab-eval'?: boolean;
-  /** Read only if every listed sibling key (or `$solver`, the chosen solver) has one of the listed values. */
-  'x-perilab-when'?: Record<string, string[]>;
+  /** Read only if every listed sibling key (or `$solver`) has one of the listed values; `null`: key not set. */
+  'x-perilab-when'?: Record<string, (string | null)[]>;
+  'x-perilab-required-groups'?: RequiredGroup[];
+}
+
+/** "Give `min` of `keys`" (e.g. Output Frequency or Number of Output Steps), applying when `when` is met. */
+export interface RequiredGroup {
+  keys: string[];
+  min: number;
+  max?: number | null;
+  /** Key -> allowed values; `null` means the key is not set. */
+  when?: Record<string, (string | null)[]>;
+  description?: string;
 }
 
 const root = (schemaJson as unknown as SchemaProp).properties?.PeriLab;
@@ -62,9 +77,11 @@ export const sections = {
   multistepSolver: node(['Multistep Solver', '*'])
 };
 
-/** Names of the registered models of a named-entry section (its `allOf` `if ... const` branches). */
+/** Names of the registered models of a named-entry section (its `allOf` `if ... const` branches adding keys). */
 export function modelNames(entry?: SchemaProp): string[] {
-  return (entry?.allOf ?? []).flatMap((c) => Object.values(c.if.properties).map((p) => p.const));
+  return (entry?.allOf ?? []).flatMap((c) =>
+    c.if && c.then?.properties ? Object.values(c.if.properties).flatMap((p) => p.const ?? []) : []
+  );
 }
 
 /** Registered solvers: the Solver section requires exactly one of these sub-sections. */
@@ -167,6 +184,8 @@ export interface Context {
 export interface Offered {
   props: Record<string, SchemaProp>;
   required: Set<string>;
+  /** Applying required groups, reduced to their offered keys. */
+  groups: RequiredGroup[];
 }
 
 const same = (a: unknown, b: unknown) => String(a).toLowerCase() === String(b).toLowerCase();
@@ -175,7 +194,7 @@ export function isSet(value: unknown): boolean {
   return value != null && !(typeof value === 'string' && value.trim() === '');
 }
 
-/** `x-perilab-when`: every condition key's value (else its schema default) is one of the listed values. */
+/** `x-perilab-when`: every condition key's value (else its schema default) is one of the listed values (`null`: unset). */
 export function whenMet(
   prop: SchemaProp,
   siblings: Record<string, SchemaProp>,
@@ -183,7 +202,9 @@ export function whenMet(
 ): boolean {
   return Object.entries(prop['x-perilab-when'] ?? {}).every(([key, allowed]) => {
     const value = key === '$solver' ? ctx.solver : (ctx.values?.[key] ?? siblings[key]?.default);
-    return isSet(value) && allowed.some((option) => same(option, value));
+    return allowed.some((option) =>
+      option === null ? !isSet(value) : isSet(value) && same(option, value)
+    );
   });
 }
 
@@ -191,14 +212,30 @@ function offerable(prop: SchemaProp): boolean {
   return isScalar(prop) || (prop.type === 'object' && !!prop.properties);
 }
 
-/** An `allOf` branch applies if every `if` const is a selected model name or the entry's value of that key. */
+/** Some allowed value is a selected model name or the entry's value of `key`; `null` allows an unset key. */
+function allows(
+  allowed: readonly (string | null)[],
+  key: string,
+  names: readonly string[],
+  ctx: Context
+): boolean {
+  const value = ctx.values?.[key];
+  return allowed.some((option) =>
+    option === null ? !isSet(value) : names.includes(option) || same(value ?? '', option)
+  );
+}
+
+/** An `allOf` branch applies if every `if` condition (`const` or `enum`) is met. */
 function branchApplies(
   branch: NonNullable<SchemaProp['allOf']>[number],
   names: readonly string[],
   ctx: Context
 ): boolean {
-  return Object.entries(branch.if.properties).every(
-    ([key, cond]) => names.includes(cond.const) || same(ctx.values?.[key] ?? '', cond.const)
+  return (
+    !!branch.if &&
+    Object.entries(branch.if.properties).every(([key, cond]) =>
+      allows(cond.const !== undefined ? [cond.const] : (cond.enum ?? []), key, names, ctx)
+    )
   );
 }
 
@@ -218,8 +255,8 @@ export function paramsFor(
   const required = new Set(entry?.required ?? []);
   for (const branch of entry?.allOf ?? []) {
     if (!branchApplies(branch, names, ctx)) continue;
-    Object.assign(merged, branch.then.properties);
-    branch.then.required?.forEach((key) => required.add(key));
+    Object.assign(merged, branch.then?.properties);
+    branch.then?.required?.forEach((key) => required.add(key));
   }
   const applies = (key: string) => !merged[key] || whenMet(merged[key]!, merged, ctx);
   const props = Object.fromEntries(
@@ -227,21 +264,41 @@ export function paramsFor(
       ([key, prop]) => key !== 'Globals' && !custom.includes(key) && offerable(prop) && applies(key)
     )
   );
-  return {
-    props,
-    required: new Set(
-      [...required].filter((key) => (key in props || custom.includes(key)) && applies(key))
+  const offeredKey = (key: string) => (key in props || custom.includes(key)) && applies(key);
+  const groups = (entry?.['x-perilab-required-groups'] ?? [])
+    .filter((g) =>
+      Object.entries(g.when ?? {}).every(([key, allowed]) => allows(allowed, key, names, ctx))
     )
-  };
+    .map((g) => ({ ...g, keys: g.keys.filter(offeredKey) }))
+    .filter((g) => g.keys.length > 0);
+  return { props, required: new Set([...required].filter(offeredKey)), groups };
 }
 
-/** Required keys without a value; `auto` keys are filled by PeriHub (writer/generator) and never missing. */
+const COUNT = ['none', 'one', 'two', 'three', 'four'];
+
+/** "one of A, B" / "two of A, B, C, D". */
+export function groupLabel(group: RequiredGroup): string {
+  return `${COUNT[group.min] ?? group.min} of ${group.keys.join(', ')}`;
+}
+
+/** Fewer than `min` of the group's keys have a value. */
+export function groupUnmet(group: RequiredGroup, values: Record<string, unknown>): boolean {
+  return group.keys.filter((key) => isSet(values[key])).length < group.min;
+}
+
+/**
+ * Required keys without a value, then unmet groups as "one of A, B"; `auto` keys are filled by PeriHub
+ * (writer/generator) and never missing.
+ */
 export function missingRequired(
   offered: Offered,
   values: Record<string, unknown>,
   auto: readonly string[] = []
 ): string[] {
-  return [...offered.required].filter((key) => !auto.includes(key) && !isSet(values[key]));
+  return [
+    ...[...offered.required].filter((key) => !auto.includes(key) && !isSet(values[key])),
+    ...offered.groups.filter((g) => groupUnmet(g, values)).map(groupLabel)
+  ];
 }
 
 /** PeriLab's composite model strings ("A + B") <-> the list of selected models. */

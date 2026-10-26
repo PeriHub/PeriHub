@@ -6,7 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 <!--
   The form of one PeriLab section entry, generated from the PeriLab schema (src/lib/perilab): every key the current
-  selection offers, required keys first, then "Optional", each in PeriLab's declaration order. Values live in
+  selection offers, required keys and required groups ("one of ...") first, then "Optional", each in PeriLab's
+  declaration order. Values live in
   `values` (the entry's `params`, YAML key -> value); the backend writer merges them into the deck. Keys an
   expansion renders itself are passed as `custom`.
 -->
@@ -15,6 +16,8 @@ SPDX-License-Identifier: Apache-2.0
   import {
     coerce,
     enumOf,
+    groupLabel,
+    groupUnmet,
     isSet,
     paramsFor,
     pick,
@@ -46,8 +49,9 @@ SPDX-License-Identifier: Apache-2.0
 
   const offered = $derived(paramsFor(entry, names, custom, { values, solver }));
   const keys = $derived(Object.keys(offered.props));
-  const required = $derived(keys.filter((key) => offered.required.has(key)));
-  const optional = $derived(keys.filter((key) => !offered.required.has(key)));
+  const inGroup = (key: string) => offered.groups.some((g) => g.keys.includes(key));
+  const required = $derived(keys.filter((key) => offered.required.has(key) || inGroup(key)));
+  const optional = $derived(keys.filter((key) => !offered.required.has(key) && !inGroup(key)));
   // Set earlier but not offered by the current selection (other model/solver/Type, or dropped by PeriLab): still
   // written to the deck, so show it rather than let PeriLab warn about a key the user can't see.
   const leftovers = $derived(
@@ -62,7 +66,10 @@ SPDX-License-Identifier: Apache-2.0
   const id = (key: string) => `${idPrefix}-pl-${key.replace(/\W+/g, '-')}`;
   const placeholder = (key: string, prop: SchemaProp) =>
     hints[key] ?? (prop.default != null ? `Default ${String(prop.default)}` : 'Not set');
-  const missing = (key: string) => offered.required.has(key) && !isSet(values[key]);
+  const missing = (key: string) =>
+    !isSet(values[key]) &&
+    (offered.required.has(key) ||
+      offered.groups.some((g) => g.keys.includes(key) && groupUnmet(g, values)));
 </script>
 
 {#snippet field(key: string, prop: SchemaProp)}
@@ -134,7 +141,7 @@ SPDX-License-Identifier: Apache-2.0
             set(key, coerce(prop, (e.currentTarget as HTMLInputElement).value))}
         />
       {/if}
-      {#if missing(key)}<p class="text-destructive text-xs">Required</p>{/if}
+      {#if missing(key) && isRequired}<p class="text-destructive text-xs">Required</p>{/if}
     </div>
   {/if}
 {/snippet}
@@ -144,6 +151,11 @@ SPDX-License-Identifier: Apache-2.0
     {#each required as key (key)}{@render field(key, offered.props[key]!)}{/each}
   </div>
 {/if}
+{#each offered.groups as group (group.keys.join())}
+  <p class="text-xs {groupUnmet(group, values) ? 'text-destructive' : 'text-muted-foreground'}">
+    Give {groupLabel(group)}{group.max == null ? '' : ` (at most ${group.max})`}
+  </p>
+{/each}
 {#if optional.length}
   <p class="text-muted-foreground pt-1 text-xs font-medium tracking-wide uppercase">Optional</p>
   <div class="flex flex-wrap items-start gap-3">

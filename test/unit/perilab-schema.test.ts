@@ -153,6 +153,40 @@ describe('model name lists', () => {
     expect(joinModels([])).toBeUndefined();
   });
 
+  it('reads required groups from the real schema', () => {
+    const outputs = paramsFor(sections.output, [], CUSTOM_KEYS.output);
+    expect(outputs.groups.map((g) => g.keys)).toEqual([
+      ['Output Frequency', 'Number of Output Steps']
+    ]);
+    expect(missingRequired(outputs, {}, AUTO_KEYS.output)).toEqual([
+      'one of Output Frequency, Number of Output Steps'
+    ]);
+    expect(missingRequired(outputs, { 'Output Frequency': 10 }, AUTO_KEYS.output)).toEqual([]);
+
+    const iso = { 'Material Model': 'PD Solid Elastic', Symmetry: 'isotropic' };
+    const solid = paramsFor(sections.material, ['PD Solid Elastic'], [], { values: iso });
+    expect(missingRequired(solid, { ...iso, "Young's Modulus": 1 })).toEqual([
+      "two of Young's Modulus, Poisson's Ratio, Bulk Modulus, Shear Modulus"
+    ]);
+    expect(
+      missingRequired(solid, { ...iso, "Young's Modulus": 1, "Poisson's Ratio": 0.3 })
+    ).toEqual([]);
+    const bb = { 'Material Model': 'Bond-based Elastic', Symmetry: 'isotropic' };
+    const bondBased = paramsFor(sections.material, ['Bond-based Elastic'], [], { values: bb });
+    expect(bondBased.groups.map((g) => g.min)).toEqual([1]);
+    expect(missingRequired(bondBased, { ...bb, 'Bulk Modulus': 1 })).toEqual([]);
+  });
+
+  it('applies enum branches (orthotropic symmetry requires its constants)', () => {
+    const values = { 'Material Model': 'PD Solid Elastic', Symmetry: 'orthotropic' };
+    const ortho = paramsFor(sections.material, ['PD Solid Elastic'], CUSTOM_KEYS.material, {
+      values
+    });
+    expect(ortho.required).toContain("Young's Modulus X");
+    expect(ortho.groups).toEqual([]);
+    expect(modelNames(sections.material)).not.toContain(undefined);
+  });
+
   it('declares custom and auto keys per section', () => {
     expect(CUSTOM_KEYS.block).toContain('Material Model');
     expect(AUTO_KEYS.output).toContain('Output Filename');

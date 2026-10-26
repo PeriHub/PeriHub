@@ -368,7 +368,7 @@
                       "Symmetry": ["isotropic", "isotropic plane stress", "isotropic plane strain"]
                     },
                     "type": "number",
-                    "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                    "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                   },
                   "Poisson's Ratio": {
                     "minimum": -1.0,
@@ -377,7 +377,7 @@
                     },
                     "type": "number",
                     "maximum": 0.5,
-                    "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                    "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                   },
                   "Bulk Modulus": {
                     "minimum": 0.0,
@@ -385,7 +385,7 @@
                       "Symmetry": ["isotropic", "isotropic plane stress", "isotropic plane strain"]
                     },
                     "type": "number",
-                    "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                    "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                   },
                   "Shear Modulus": {
                     "minimum": 0.0,
@@ -393,7 +393,7 @@
                       "Symmetry": ["isotropic", "isotropic plane stress", "isotropic plane strain"]
                     },
                     "type": "number",
-                    "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                    "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                   },
                   "Young's Modulus X": {
                     "x-perilab-when": {
@@ -966,6 +966,58 @@
                   },
                   {
                     "if": {
+                      "properties": {
+                        "Material Model": {
+                          "enum": [
+                            "Correspondence Elastic",
+                            "Correspondence Plastic",
+                            "Correspondence UMAT",
+                            "Correspondence VUMAT",
+                            "PD Solid Elastic",
+                            "PD Solid Plastic",
+                            "Rigid",
+                            "Unified Bond-based Elastic"
+                          ]
+                        },
+                        "Symmetry": {
+                          "enum": ["isotropic", "isotropic plane stress", "isotropic plane strain"]
+                        }
+                      },
+                      "required": ["Material Model"]
+                    },
+                    "then": {
+                      "anyOf": [
+                        { "required": ["Young's Modulus", "Poisson's Ratio"] },
+                        { "required": ["Young's Modulus", "Bulk Modulus"] },
+                        { "required": ["Young's Modulus", "Shear Modulus"] },
+                        { "required": ["Poisson's Ratio", "Bulk Modulus"] },
+                        { "required": ["Poisson's Ratio", "Shear Modulus"] },
+                        { "required": ["Bulk Modulus", "Shear Modulus"] }
+                      ]
+                    }
+                  },
+                  {
+                    "if": {
+                      "properties": {
+                        "Material Model": {
+                          "enum": ["1D Bond-based Elastic", "Bond-based Elastic"]
+                        },
+                        "Symmetry": {
+                          "enum": ["isotropic", "isotropic plane stress", "isotropic plane strain"]
+                        }
+                      },
+                      "required": ["Material Model"]
+                    },
+                    "then": {
+                      "anyOf": [
+                        { "required": ["Young's Modulus"] },
+                        { "required": ["Bulk Modulus"] },
+                        { "required": ["Shear Modulus"] }
+                      ]
+                    }
+                  },
+                  {
+                    "if": {
                       "properties": { "Material Model": { "const": "1D Bond-based Elastic" } }
                     },
                     "then": {
@@ -1013,7 +1065,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -1026,7 +1078,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -1038,7 +1090,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -1050,7 +1102,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -1545,7 +1597,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -1558,7 +1610,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -1570,7 +1622,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -1582,7 +1634,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -2078,7 +2130,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -2091,7 +2143,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -2103,7 +2155,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -2115,7 +2167,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -2618,7 +2670,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -2631,7 +2683,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -2643,7 +2695,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -2655,7 +2707,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -3175,7 +3227,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -3188,7 +3240,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -3200,7 +3252,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -3212,7 +3264,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -3728,7 +3780,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -3741,7 +3793,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -3753,7 +3805,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -3765,7 +3817,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -4260,7 +4312,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -4273,7 +4325,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -4285,7 +4337,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -4297,7 +4349,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -4798,7 +4850,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -4811,7 +4863,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -4823,7 +4875,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -4835,7 +4887,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -5330,7 +5382,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -5343,7 +5395,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -5355,7 +5407,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -5367,7 +5419,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -5863,7 +5915,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Poisson's Ratio": {
                           "minimum": -1.0,
@@ -5876,7 +5928,7 @@
                           },
                           "type": "number",
                           "maximum": 0.5,
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node"
                         },
                         "Bulk Modulus": {
                           "minimum": 0.0,
@@ -5888,7 +5940,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Shear Modulus": {
                           "minimum": 0.0,
@@ -5900,7 +5952,7 @@
                             ]
                           },
                           "type": "number",
-                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed; quantity: stress (in your consistent unit system)"
+                          "description": "Isotropic elastic constant; give two of Young's modulus, Poisson's ratio, bulk modulus and shear modulus, the others are computed (bond-based models fix Poisson's ratio and need one of the others); a text mesh column (e.g. Bulk_Modulus) gives it per node; quantity: stress (in your consistent unit system)"
                         },
                         "Young's Modulus X": {
                           "x-perilab-when": {
@@ -6356,6 +6408,47 @@
                       "additionalProperties": false,
                       "description": "Unified bond-based elastic material after Guan et al. (2024), simplified: no rigid body rotation and no surface correction"
                     }
+                  }
+                ],
+                "x-perilab-required-groups": [
+                  {
+                    "max": null,
+                    "keys": ["Young's Modulus", "Poisson's Ratio", "Bulk Modulus", "Shear Modulus"],
+                    "min": 2,
+                    "when": {
+                      "Material Model": [
+                        "Correspondence Elastic",
+                        "Correspondence Plastic",
+                        "Correspondence UMAT",
+                        "Correspondence VUMAT",
+                        "PD Solid Elastic",
+                        "PD Solid Plastic",
+                        "Rigid",
+                        "Unified Bond-based Elastic"
+                      ],
+                      "Symmetry": [
+                        null,
+                        "isotropic",
+                        "isotropic plane stress",
+                        "isotropic plane strain"
+                      ]
+                    },
+                    "description": "give two of Young's Modulus, Poisson's Ratio, Bulk Modulus, Shear Modulus (isotropic, not bond-based)"
+                  },
+                  {
+                    "max": null,
+                    "keys": ["Young's Modulus", "Bulk Modulus", "Shear Modulus"],
+                    "min": 1,
+                    "when": {
+                      "Material Model": ["1D Bond-based Elastic", "Bond-based Elastic"],
+                      "Symmetry": [
+                        null,
+                        "isotropic",
+                        "isotropic plane stress",
+                        "isotropic plane strain"
+                      ]
+                    },
+                    "description": "give one of Young's Modulus, Bulk Modulus, Shear Modulus (isotropic, bond-based)"
                   }
                 ],
                 "type": "object",
@@ -6821,6 +6914,12 @@
                         }
                       },
                       "additionalProperties": false,
+                      "allOf": [
+                        {
+                          "if": { "required": ["Print Bed Temperature"] },
+                          "then": { "required": ["Thermal Conductivity Print Bed"] }
+                        }
+                      ],
                       "description": "Heat conduction between nodes"
                     }
                   }
@@ -7181,7 +7280,7 @@
             },
             "Additional Time": {
               "type": "number",
-              "description": "Duration of the step, added to the current time; used if Final Time is not given; quantity: time (in your consistent unit system)"
+              "description": "Duration of the step, added to the current time; give this or Final Time, which takes precedence; quantity: time (in your consistent unit system)"
             },
             "Linear Static Matrix Based": {
               "properties": {
@@ -7602,6 +7701,17 @@
             { "required": ["Verlet"] },
             { "required": ["Verlet Matrix Based"] }
           ],
+          "allOf": [
+            { "anyOf": [{ "required": ["Final Time"] }, { "required": ["Additional Time"] }] }
+          ],
+          "x-perilab-required-groups": [
+            {
+              "max": null,
+              "keys": ["Final Time", "Additional Time"],
+              "min": 1,
+              "description": "give one of Final Time, Additional Time"
+            }
+          ],
           "required": ["Final Time", "Initial Time"],
           "type": "object",
           "description": "Single solver step; use either this or Multistep Solver"
@@ -7623,7 +7733,7 @@
               },
               "Additional Time": {
                 "type": "number",
-                "description": "Duration of the step, added to the current time; used if Final Time is not given; quantity: time (in your consistent unit system)"
+                "description": "Duration of the step, added to the current time; give this or Final Time, which takes precedence; quantity: time (in your consistent unit system)"
               },
               "Linear Static Matrix Based": {
                 "properties": {
@@ -8044,12 +8154,23 @@
               { "required": ["Verlet"] },
               { "required": ["Verlet Matrix Based"] }
             ],
+            "allOf": [
+              { "anyOf": [{ "required": ["Final Time"] }, { "required": ["Additional Time"] }] }
+            ],
+            "x-perilab-required-groups": [
+              {
+                "max": null,
+                "keys": ["Final Time", "Additional Time"],
+                "min": 1,
+                "description": "give one of Final Time, Additional Time"
+              }
+            ],
             "required": ["Step ID"],
             "type": "object",
             "description": "Time range, solver and the model categories evaluated in a solver step"
           },
           "type": "object",
-          "description": "Several solver steps run one after another, one entry per name, each with its own Step ID"
+          "description": "Several solver steps run one after another, one entry per name, each with its own Step ID; use either this or Solver"
         },
         "Outputs": {
           "additionalProperties": {
@@ -8071,11 +8192,11 @@
               },
               "Output Frequency": {
                 "type": ["integer", "string"],
-                "description": "Writes every n-th step; per solver step as \"n1 n2\"; Number of Output Steps takes precedence"
+                "description": "Writes every n-th step; per solver step as \"n1 n2\"; give this or Number of Output Steps, which takes precedence"
               },
               "Number of Output Steps": {
                 "type": ["integer", "string"],
-                "description": "Number of outputs, evenly spread over the solver steps; per solver step as \"n1 n2\""
+                "description": "Number of outputs, evenly spread over the solver steps; per solver step as \"n1 n2\"; give this or Output Frequency; wins if both are given"
               },
               "Start Time": {
                 "default": 0.0,
@@ -8109,16 +8230,32 @@
               },
               "Fallback Output Frequency": {
                 "type": ["integer", "string"],
-                "description": "Writes every n-th step of a fallback solver; per solver step as \"n1 n2\""
+                "description": "Writes every n-th step of a fallback solver; per solver step as \"n1 n2\"; Fallback Number of Output Steps takes precedence; without either the output keeps its interval in time"
               },
               "Fallback Number of Output Steps": {
                 "type": ["integer", "string"],
-                "description": "Number of outputs over the steps of a fallback solver; per solver step as \"n1 n2\""
+                "description": "Number of outputs over the steps of a fallback solver; per solver step as \"n1 n2\"; wins over Fallback Output Frequency"
               },
               "Globals": { "type": "object" }
             },
             "additionalProperties": false,
             "required": ["Output Filename", "Output Variables"],
+            "allOf": [
+              {
+                "anyOf": [
+                  { "required": ["Output Frequency"] },
+                  { "required": ["Number of Output Steps"] }
+                ]
+              }
+            ],
+            "x-perilab-required-groups": [
+              {
+                "max": null,
+                "keys": ["Output Frequency", "Number of Output Steps"],
+                "min": 1,
+                "description": "give one of Output Frequency, Number of Output Steps"
+              }
+            ],
             "type": "object",
             "description": "A result file with the fields and compute classes to write and when to write them"
           },
@@ -8281,6 +8418,15 @@
       },
       "additionalProperties": false,
       "required": ["Blocks", "Discretization", "Models"],
+      "allOf": [{ "oneOf": [{ "required": ["Solver"] }, { "required": ["Multistep Solver"] }] }],
+      "x-perilab-required-groups": [
+        {
+          "max": 1,
+          "keys": ["Solver", "Multistep Solver"],
+          "min": 1,
+          "description": "give exactly one of Solver, Multistep Solver"
+        }
+      ],
       "type": "object",
       "description": "Simulation setup: mesh, blocks, models, solver, boundary conditions and outputs"
     }
