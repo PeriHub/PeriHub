@@ -6935,11 +6935,32 @@
                 "properties": {
                   "Additive Model": {
                     "type": "string",
-                    "description": "Model of this entry; combine several models with +; one of: "
+                    "description": "Model of this entry; combine several models with +; one of: Simple"
                   },
                   "Globals": { "type": "object" }
                 },
                 "required": ["Additive Model"],
+                "allOf": [
+                  {
+                    "if": { "properties": { "Additive Model": { "const": "Simple" } } },
+                    "then": {
+                      "properties": {
+                        "Additive Model": {
+                          "type": "string",
+                          "description": "Model of this entry; combine several models with +; one of: Simple"
+                        },
+                        "Print Temperature": {
+                          "type": "number",
+                          "description": "quantity: temperature (in your consistent unit system)"
+                        },
+                        "Globals": { "type": "object" }
+                      },
+                      "additionalProperties": false,
+                      "required": ["Print Temperature"],
+                      "description": ""
+                    }
+                  }
+                ],
                 "type": "object",
                 "description": "Additive manufacturing model of the blocks that use this entry"
               },
