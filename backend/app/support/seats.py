@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Seat enforcement (enterprise plans only).
 
 Call `enforce_seat_limit(db, org)` before creating a new active User row

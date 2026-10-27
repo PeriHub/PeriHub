@@ -1,6 +1,6 @@
 <%!
 import re
-%># SPDX-License-Identifier: Apache-2.0
+%>
 """${message}
 
 Revision ID: ${up_revision}

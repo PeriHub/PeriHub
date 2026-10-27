@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """CRUD + search for shared model configs and materials.
 
 Both resources share the same shape (owner/org/team/project/visibility +

@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 /**
  * True if `data` is already in the current schema-driven shape, where every PeriLab key lives in an
  * entry's `params` dict - rather than an older, pre-`params` config (no backward compatibility: those must

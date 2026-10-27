@@ -1,6 +1,4 @@
 <!--
-SPDX-License-Identifier: Apache-2.0
-
 Thin host for the <Canvas> - just forwards resetCamera()/fitToPoints() calls
 down to Scene.svelte, which does the actual work. Kept as a separate outer
 component because everything that calls useThrelte() (camera fitting,

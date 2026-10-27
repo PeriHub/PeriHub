@@ -1,6 +1,4 @@
 <!--
-SPDX-License-Identifier: Apache-2.0
-
 Everything that must live INSIDE <Canvas> for the Results view - camera rig,
 lights, background and the sphere cloud colored by the continuous legend
 gradient.

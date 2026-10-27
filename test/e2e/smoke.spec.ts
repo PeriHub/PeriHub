@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 import { expect, test, type Page } from '@playwright/test';
 
 // No backend in e2e: pretend guest access is on so initAuth() gets a session instead of

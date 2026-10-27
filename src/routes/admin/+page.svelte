@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script lang="ts">
   import { Tabs } from 'bits-ui';
   import { authStore } from '$lib/stores/auth-store.svelte';

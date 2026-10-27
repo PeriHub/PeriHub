@@ -1,10 +1,4 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
-<!--
   The form of one PeriLab section entry, generated from the PeriLab schema (src/lib/perilab): every key the current
   selection offers, required keys and required groups ("one of ...") first, then "Optional", each in PeriLab's
   declaration order. Values live in

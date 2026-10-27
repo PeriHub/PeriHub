@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
 """User-generated API keys (replaces the env-configured API_KEYS).
 
 Revision ID: 0002_api_keys

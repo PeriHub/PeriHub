@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """PeriLab evaluates deck expressions as Julia, so anything beyond arithmetic over the solver variables must be
 refused before submission (support/deck_guard.py)."""
 

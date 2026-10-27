@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <!-- Toolpath preview of an uploaded G-code mesh, after
      https://github.com/xyz-tools/gcode-preview-svelte. Loaded with a dynamic
      import() by ModelView, since gcode-preview brings its own three.js copy. -->

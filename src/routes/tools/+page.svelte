@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script lang="ts">
   import ConversionCard from '$lib/components/tools/ConversionCard.svelte';
   import SiConversionCard from '$lib/components/tools/SiConversionCard.svelte';

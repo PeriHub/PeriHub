@@ -1,14 +1,10 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Generic OAuth2/OIDC login for enterprise customers not using Keycloak.
 
 Standard authorization-code flow against any IdP that publishes an OIDC
 discovery document at OAUTH_DISCOVERY_URL
 (".../.well-known/openid-configuration"). Unlike the Keycloak path (which
 only verifies a token the frontend already obtained), PeriHub itself drives
-this exchange: routers/oauth.py's /oauth/oidc/login builds the redirect,
+this exchange: ee/oauth.py's /oauth/oidc/login builds the redirect,
 and /oauth/oidc/callback trades the returned `code` for tokens here.
 
 State handling: the `state` parameter is generated and returned to the
@@ -24,7 +20,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from .globals import (
+from ..support.globals import (
     oauth_client_id,
     oauth_client_secret,
     oauth_discovery_url,

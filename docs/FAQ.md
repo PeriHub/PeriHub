@@ -43,11 +43,14 @@ The loop is: generate a model → configure material, blocks, and boundary
 conditions → submit the job → view and plot the results → download them. See
 **[First Simulation](/FirstSimulation.html)** for a complete walkthrough.
 
-### Is PeriHub free and open source?
+### Is PeriHub free to use?
 
-Yes. It is open source under the Apache 2.0 license, which allows both
-non-commercial and commercial use. See the [LICENSE](https://github.com/PeriHub/PeriHub/blob/main/LICENSE.md)
-for details.
+Yes, for internal business, non-commercial and personal use. PeriHub is
+source-available under the Sustainable Use License; reselling it or offering it
+as a hosted service needs a commercial license, and code in `ee/` directories
+(enterprise features) needs a PeriHub Enterprise License. Releases before the
+license change remain Apache-2.0. See the
+[LICENSE](https://github.com/PeriHub/PeriHub/blob/main/LICENSE.md) for details.
 
 ### How do I install and run it myself?
 

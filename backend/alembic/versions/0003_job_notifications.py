@@ -1,6 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
 """Account setting for job notification emails.
 
 Revision ID: 0003_job_notifications

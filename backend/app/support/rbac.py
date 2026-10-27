@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """RBAC role checks + visibility-scoped queries for shared resources.
 
 Roles (User.role): "admin" | "developer" | "member" | "viewer" | "guest".

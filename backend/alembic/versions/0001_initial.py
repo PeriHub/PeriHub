@@ -1,4 +1,3 @@
-# SPDX-License-Identifier: Apache-2.0
 """Initial schema: organizations, users, oauth_identities, admin_settings,
 model_configs, materials, teams, projects, team/project memberships,
 job_queue_entries.

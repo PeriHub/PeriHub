@@ -1,14 +1,8 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 # PeriHub
 
 [![Pipeline Status](https://img.shields.io/github/actions/workflow/status/PeriHub/PeriHub/CI.yml?branch=main)](https://github.com/PeriHub/PeriHub/actions)
 [![docs](https://img.shields.io/badge/docs-v1-blue.svg)](https://perihub.github.io/PeriHub/)
-[![License](https://img.shields.io/badge/License-Apache-blue.svg)](https://github.com/PeriHub/PeriHub/blob/main/LICENSE.md)
+[![License](https://img.shields.io/badge/License-Sustainable_Use-blue.svg)](https://github.com/PeriHub/PeriHub/blob/main/LICENSE.md)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8159334.svg)](https://doi.org/10.5281/zenodo.8159334)
 [![Docker Image](https://img.shields.io/docker/pulls/perihub/frontend)](https://hub.docker.com/r/perihub/frontend)
 [![YouTube](https://img.shields.io/youtube/channel/subscribers/UCeky7HtUGlOJ2OKknvl6YnQ)](https://www.youtube.com/@PeriHub)
@@ -127,4 +121,7 @@ If you use PeriHub in your research, please cite it via Zenodo:
 
 ## License
 
-See [LICENSE.md](LICENSE.md) for how the content is licensed.
+PeriHub is source-available under the [Sustainable Use License](LICENSE.md): free for internal business,
+non-commercial and personal use. Code in `ee/` directories is under the [PeriHub Enterprise License](LICENSE_EE.md).
+For commercial use (reselling, hosting PeriHub as a service, enterprise features) contact
+[Jan-Timo Hesse](mailto:Jan-Timo.Hesse@dlr.de). Releases before this change remain Apache-2.0.

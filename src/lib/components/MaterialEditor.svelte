@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <!-- Fields of one material - used by the Material expansion and the /materials library page. -->
 <script lang="ts">
   import type { Snippet } from 'svelte';

@@ -1,10 +1,4 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
-<!--
   Landing-page hero: replays a real PeriLab result (Kalthoff–Winkler), drawn
   the way ResultsView draws it - points displaced by a displacement factor
   and coloured by displacement magnitude on the same colour scale. The data

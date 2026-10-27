@@ -1,6 +1,4 @@
 <!--
-SPDX-License-Identifier: Apache-2.0
-
 Renders one InstancedMesh sphere per point, with per-instance color from the
 `colorFor` callback. This is the direct replacement for vtkGlyph3DMapper:
 instead of vtk.js re-running its glyphing pipeline, all spheres share one

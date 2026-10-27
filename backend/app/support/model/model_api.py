@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """The contract every model generator implements — importable in model files as `perihub`.
 
 A model declares its UI parameters as `Param` class attributes and describes its body as a

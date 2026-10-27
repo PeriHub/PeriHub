@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Public, unauthenticated deployment config for the frontend.
 
 Before this, the frontend duplicated deployment flags as its own VITE_*

@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Projects (workspaces) - Phase 2.
 
 Any logged-in member can create a project (becomes its "owner"); adding

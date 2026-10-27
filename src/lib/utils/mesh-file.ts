@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 export type MeshType = 'txt' | 'e' | 'gcode';
 
 export const MESH_EXTENSIONS = '.txt,.e,.g,.gcode';

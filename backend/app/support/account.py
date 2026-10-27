@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Deleting an account and everything it owns (Phase 1).
 
 One path for both callers: users deleting themselves (routers/auth.py) and the

@@ -1,10 +1,4 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
-<!--
   Local email/password login + signup (backend: routers/auth.py). This is
   what community deployments (no OAuth configured) use
   instead of the OIDC redirect flow in $lib/auth/oauth.ts - see

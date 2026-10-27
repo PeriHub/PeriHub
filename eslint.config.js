@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 import js from '@eslint/js';
 import ts from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';

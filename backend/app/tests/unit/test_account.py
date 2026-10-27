@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 import re
 from datetime import datetime, timezone
 from types import SimpleNamespace
@@ -10,8 +6,9 @@ import pytest
 
 from backend.app.db import base
 from backend.app.db.models import JOB_DONE, JobQueueEntry, ModelConfig, Project, ProjectMembership, User
-from backend.app.routers import auth, oauth
-from backend.app.support import account, external_identity, guest_sweeper, job_notifications, job_queue
+from backend.app.ee import external_identity, oauth
+from backend.app.routers import auth
+from backend.app.support import account, guest_sweeper, job_notifications, job_queue
 from backend.app.support.file_handler import FileHandler
 
 from .conftest import set_instance_setting

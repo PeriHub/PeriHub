@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 import { describe, expect, it } from 'vitest';
 import { meshTypeFromFilename } from '../../src/lib/utils/mesh-file';
 

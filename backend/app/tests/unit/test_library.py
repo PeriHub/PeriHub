@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 from backend.app.db import base
 from backend.app.db.models import Organization, User
 from backend.app.support.admin_settings import set_setting

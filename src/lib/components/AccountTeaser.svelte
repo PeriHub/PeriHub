@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <!-- Shown to anonymous visitors and guests on account-only pages: what an account unlocks + sign up / log in. -->
 <script lang="ts">
   import { Lock } from 'lucide-svelte';

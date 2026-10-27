@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Refuses input decks that would make PeriLab run arbitrary code.
 
 PeriLab evaluates several deck strings as Julia (`Base.eval(Meta.parse(...))`): boundary condition `Value`, compute

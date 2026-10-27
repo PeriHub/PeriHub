@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """The model preview as regions instead of points, so the frontend can draw exact edges.
 
 A region is a JSON tree the frontend turns into SVG masks:

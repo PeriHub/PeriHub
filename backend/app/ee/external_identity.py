@@ -1,10 +1,6 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Find-or-create a User from an external OAuth2/OIDC identity.
 
-Used by routers/oauth.py's OIDC login path so seat enforcement and org
+Used by ee/oauth.py's OIDC login path so seat enforcement and org
 assignment behave the same way as local signup, regardless of which
 upstream IdP (Keycloak, Auth0, Azure AD, ...) actually authenticated the
 user.
@@ -21,9 +17,9 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from ..db.models import OAuthIdentity, Organization, User
-from .admin_settings import instance_setting
-from .globals import log, oauth_link_by_email
-from .seats import enforce_seat_limit
+from ..support.admin_settings import instance_setting
+from ..support.globals import log, oauth_link_by_email
+from ..support.seats import enforce_seat_limit
 
 
 def get_or_create_external_user(

@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script lang="ts">
   // Drawn from the model itself (POST /models/{name}/preview) instead of a
   // hand-made image per model: blocks coloured and numbered, boundary

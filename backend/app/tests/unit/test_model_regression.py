@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """The built-in models were converted from the old Valves/main generators to YAML/PeriHubModel.
 Fixtures hold the old generators' output (points, blocks, edited bond filters). The converted
 models must reproduce it — except that the old grids (np.arange(start, end + dx, dx)) overshot

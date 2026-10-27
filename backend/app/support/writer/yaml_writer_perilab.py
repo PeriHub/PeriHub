@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Turns ModelData into the PeriLab input deck.
 
 Every section entry carries its PeriLab keys verbatim in `params` (YAML key -> value, offered by the frontend from

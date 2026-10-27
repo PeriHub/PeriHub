@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Password hashing + session tokens for local email/password auth.
 
 Community and enterprise plans both get local auth (it's the baseline,

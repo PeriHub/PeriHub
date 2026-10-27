@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 /** Routes anonymous visitors may see; everything else needs a login (UX only - the backend enforces it). */
 const PUBLIC = [
   '/',

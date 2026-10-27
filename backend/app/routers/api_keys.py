@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Self-service API keys (user settings). Any logged-in non-guest may create keys; a key acts as its owner with the
 owner's role (support/db_auth.resolve_user), so it grants nothing the user couldn't already do. The plain key is
 returned once, at creation - only its SHA-256 is stored (support/api_keys.py)."""

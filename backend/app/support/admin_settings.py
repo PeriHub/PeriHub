@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Runtime-editable admin settings, backed by the admin_settings table.
 
 Phase 0 goal: move things like EXTERNAL_PERILAB_URL out of "env var set at

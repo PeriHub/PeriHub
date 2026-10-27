@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Per-user API keys for programmatic callers (scripts, CI).
 
 Replaces the env-configured API_KEYS, which mapped a key to a bare username with no account behind it. A key now

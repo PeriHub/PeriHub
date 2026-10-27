@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Geometry primitives for model generators, as vectorised "is this point inside?" tests.
 
 Models never mesh: they lay a regular point grid and keep/label points by shape membership,

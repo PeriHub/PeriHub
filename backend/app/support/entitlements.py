@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Feature gating on top of support/license_client.py.
 
 Open-core model: every feature is available by default (an unconfigured

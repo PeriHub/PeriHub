@@ -1,12 +1,8 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 [tool.poetry]
 name = "perihub"
 version = "4.0.0"
 description = "PeriHub"
-license = "Apache-2.0"
+license = "LicenseRef-Sustainable-Use-1.0"
 authors = ["Jan-Timo Hesse"]
 readme = "README.md"
 repository = "https://github.com/PeriHub/PeriHub"

@@ -1,6 +1,4 @@
 <!--
-SPDX-License-Identifier: Apache-2.0
-
 Flat translucent grey quads, one per visible bond-filter plane - the direct
 replacement for the original's manual "remove all actors, rebuild one
 vtkActor/vtkMapper/vtkPolyData per bondFilterPoint" loop in

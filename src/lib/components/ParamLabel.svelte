@@ -1,10 +1,4 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
-<!--
   Label of a PeriLab key: the YAML key itself, `*` when required, and PeriLab's description/facts behind an info
   icon (InfoTip renders them sr-only under `descId` for the field's aria-describedby).
 -->

@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script lang="ts">
   // The image a model's @analysis function returned (run from ViewActions).
   import { Download } from 'lucide-svelte';

@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script lang="ts">
   const links = [
     { label: 'About us', href: 'https://www.dlr.de/sy' },

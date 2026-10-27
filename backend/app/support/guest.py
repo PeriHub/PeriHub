@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Guest access (Phase 1): what anonymous visitors may do, and how much.
 
 Guests are real User rows with role "guest" (routers/auth.py create_guest), so they authenticate like everyone

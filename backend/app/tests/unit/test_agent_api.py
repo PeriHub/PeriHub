@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """The endpoints a spec-only workflow agent uses (see /openapi.agent.json)."""
 
 import glob

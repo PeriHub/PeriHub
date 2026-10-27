@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Email a user when one of their runs ends (Phase 1, account setting `notify_job_emails`).
 
 Called from sync_status, the one place a run is seen to end in PeriLab - finished, failed, or stopped there (e.g.

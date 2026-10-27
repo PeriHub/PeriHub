@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 /**
  * Required PeriLab keys without a value, per ModelData section - for the panel badges (ExpansionComp) and the
  * Generate/Run warning. Mirrors how each expansion calls paramsFor (selected models, solver), so a key counts as

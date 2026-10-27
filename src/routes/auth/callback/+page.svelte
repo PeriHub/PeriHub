@@ -1,10 +1,4 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
-<!--
   The IdP redirects the browser here after login, with `code` (and `state`,
   echoed back from /oauth/oidc/login) as query params - see
   $lib/auth/oauth.ts's module doc for the full flow.

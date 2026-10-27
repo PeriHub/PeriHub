@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 # NOTE: the backend also has a Python `pre-commit` (pre-commit.com) config
 # (.pre-commit-config.yaml, scoped to backend/ via its `files:` key). Both that tool and
 # Husky install into the same .git/hooks/pre-commit file, so whichever was `install`ed last

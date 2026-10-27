@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Run a model generator up to (but not including) writing files.
 
 Shared by POST /workspaces/{model}/{folder}/generate (the real mesh) and POST /models/{name}/preview

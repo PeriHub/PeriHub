@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 import asyncio
 import copy
 from contextlib import asynccontextmanager
@@ -12,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 
+from .ee import oauth as oauth_router
 from .routers import admin as admin_router
 from .routers import api_keys as api_keys_router
 from .routers import auth as auth_router
@@ -19,7 +16,6 @@ from .routers import config as config_router
 from .routers import delete, docs, energy, generate, jobs, library
 from .routers import license as license_router
 from .routers import model
-from .routers import oauth as oauth_router
 from .routers import projects as projects_router
 from .routers import results
 from .routers import teams as teams_router

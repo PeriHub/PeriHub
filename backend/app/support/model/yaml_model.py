@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """No-code models: a YAML file becomes a `PeriHubModel` subclass.
 
     parameters: {NAME: {default, label, description, options, depends}}  (or NAME: default)

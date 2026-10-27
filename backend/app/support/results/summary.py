@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Compact digest of a run's result folder, for agents (GET /results/summary).
 
 The other /results endpoints feed the browser - whole point clouds, whole CSV series, PNGs - and are far too

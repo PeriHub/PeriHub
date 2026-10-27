@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Finding and loading model generators — the one place that knows the on-disk layout.
 
     models/<Name>/       built-in (tracked in git), win over own models of the same name

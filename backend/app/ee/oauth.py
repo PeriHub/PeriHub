@@ -1,8 +1,4 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
-"""Enterprise-only login: generic OAuth2/OIDC (support/oidc_client.py).
+"""Enterprise-only login: generic OAuth2/OIDC (ee/oidc_client.py).
 
 Works against any IdP that publishes a standard OIDC discovery document -
 including a self-hosted Keycloak realm, which exposes exactly that at
@@ -29,11 +25,11 @@ from sqlalchemy.orm import Session
 from ..db.base import get_db
 from ..db.models import Organization
 from ..support.entitlements import require_feature
-from ..support.external_identity import get_or_create_external_user
+from .external_identity import get_or_create_external_user
 from ..support.globals import log, oauth_email_claims, oauth_name_claims, oauth_picture_claims, oauth_trust_email
 from ..support.license_client import get_status
 from ..support.local_auth import create_session_token
-from ..support.oidc_client import build_authorization_url, exchange_code_for_userinfo
+from .oidc_client import build_authorization_url, exchange_code_for_userinfo
 from ..support.rbac import ensure_first_admin
 
 router = APIRouter(prefix="/oauth", tags=["Auth Methods"])
@@ -99,7 +95,7 @@ def oidc_callback(code: str = Query(...), db: Session = Depends(get_db)) -> Auth
     """Exchanges the authorization `code` for tokens, fetches userinfo, and
     finds or creates the corresponding local User. The frontend is
     responsible for verifying `state` matches what /oidc/login returned
-    before calling this - see support/oidc_client.py's docstring."""
+    before calling this - see ee/oidc_client.py's docstring."""
     require_feature("oauth_login")
 
     try:

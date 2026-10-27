@@ -1,6 +1,4 @@
 <!--
-SPDX-License-Identifier: Apache-2.0
-
 Camera + OrbitControls + bounding-sphere camera fitting, shared by both
 scenes (Results and Model). Must be a real child of <Canvas> since
 fitToPoints() calls useThrelte()'s invalidate().

@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 import logging
 import os
 
@@ -106,7 +102,7 @@ license_offline_grace_period_seconds = int(os.getenv("LICENSE_OFFLINE_GRACE_PERI
 # flow against any IdP that publishes a discovery document at
 # OAUTH_DISCOVERY_URL (".../.well-known/openid-configuration"); PeriHub
 # performs the code exchange itself using these values (see
-# support/oidc_client.py). This also covers a self-hosted Keycloak realm -
+# ee/oidc_client.py). This also covers a self-hosted Keycloak realm -
 # point OAUTH_DISCOVERY_URL at
 # "{your-keycloak-url}/realms/{your-realm}/.well-known/openid-configuration"
 # and set OAUTH_CLIENT_ID/OAUTH_CLIENT_SECRET to that realm's client

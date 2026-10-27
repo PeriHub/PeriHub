@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Caps how many locally-submitted (non-cluster) jobs can run at once.
 
 Local jobs all run through the PeriLab API (support/perilab_api_client.py) -

@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 /**
  * PeriLab's input-deck JSON Schema (`npm run perilab-schema` -> schema.json) drives every PeriLab parameter in
  * PeriHub: SchemaParams.svelte renders an entry's keys from `paramsFor`, values live in the entry's `params`

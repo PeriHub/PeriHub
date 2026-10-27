@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Client for the PeriHub license server (Phase 1).
 
 If LICENSE_SERVER_URL isn't configured, everything in this module degrades

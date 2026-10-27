@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Phase 0 ORM models: organizations, users, oauth identities, admin settings.
 
 model_configs/materials tables are Phase 1 (they depend on users/orgs

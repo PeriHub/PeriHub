@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Teams (org sub-groups) - Phase 2.
 
 Unlike projects (any member can spin one up), teams are an org-structure

@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Job submission bookkeeping for locally-submitted (non-cluster) jobs.
 
 There is no queue any more: routers/jobs.py checks capacity

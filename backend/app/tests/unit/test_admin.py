@@ -1,8 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
-
 def _signup(client, email):
     r = client.post("/auth/signup", json={"email": email, "password": "password123", "display_name": email})
     assert r.status_code == 200, r.text

@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Usage summary, aggregated from the JobQueueEntry rows every submission already writes
 (support/job_queue.py) - no separate usage log to keep in sync."""
 

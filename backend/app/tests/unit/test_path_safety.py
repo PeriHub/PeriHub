@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Path-traversal regression tests: Starlette percent-decodes path params (%2E%2E -> ..), so a client-controlled
 model_name/model_folder_name/filename segment must never be trusted to stay inside the caller's own folder."""
 

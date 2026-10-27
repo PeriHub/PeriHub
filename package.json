@@ -1,6 +1,7 @@
 {
   "name": "perihub-frontend",
   "version": "4.0.0",
+  "license": "SEE LICENSE IN LICENSE.md",
   "description": "Frontend for PeriHub",
   "private": true,
   "type": "module",

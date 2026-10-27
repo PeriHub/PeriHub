@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 import { publicConfig, config, loadPublicConfig } from '$lib/config';
 import { api } from '$lib/api/client';
 import { OpenAPI } from '$lib/client';
@@ -10,7 +6,7 @@ import { authStore } from '$lib/stores/auth-store.svelte';
 import { isPublicPath } from '$lib/utils/public-routes';
 
 /**
- * Generic OAuth2/OIDC login (backend: routers/oauth.py, support/oidc_client.py).
+ * Generic OAuth2/OIDC login (backend: ee/oauth.py, ee/oidc_client.py).
  *
  * Works against any IdP that publishes a standard OIDC discovery document,
  * Keycloak included - there's no IdP-specific frontend code any more.
@@ -119,7 +115,7 @@ export async function redirectToLogin(): Promise<void> {
 /**
  * Exchanges the authorization `code` for a PeriHub session token, verifying
  * `state` against what /oauth/oidc/login handed out first (CSRF check -
- * see support/oidc_client.py's docstring). Called once, from
+ * see ee/oidc_client.py's docstring). Called once, from
  * routes/auth/callback/+page.svelte.
  */
 export async function completeOAuthCallback(code: string, state: string): Promise<void> {

@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { ArrowUpRight } from 'lucide-svelte';
@@ -116,7 +110,7 @@ SPDX-License-Identifier: Apache-2.0
         Peridynamics,<br />in your browser.
       </h1>
       <p class="dark:text-muted-foreground mt-6 max-w-xl text-lg text-balance text-[#10191D]/75">
-        PeriHub is an Open Source web-based platform for building and running peridynamic
+        PeriHub is a source-available web-based platform for building and running peridynamic
         simulations, giving engineers and researchers an accessible way to simulate fracture and
         damage, heat transfer, thermo-mechanics or additive manufacturing processes, with static or
         dynamic solvers and your own material models.

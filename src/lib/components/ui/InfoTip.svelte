@@ -1,10 +1,4 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
-<!--
   Info icon with a spec-card tooltip: the input-deck key as written in the YAML, a description, and short
   facts (range, default, quantity) in the code face. The text is also rendered sr-only under `id` so a field
   can point aria-describedby at it - the tooltip itself only exists in the DOM while open.

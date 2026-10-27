@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Background housekeeping for guest accounts (Phase 1).
 
 The PeriLab API has no run-time limit, and guests close their tab without cancelling, so PeriHub itself stops

@@ -1,6 +1,4 @@
 <!--
-SPDX-License-Identifier: Apache-2.0
-
 Everything that must live INSIDE <Canvas> for the Model view - camera rig,
 lights, background, the block-colored sphere cloud, and the bond-filter
 planes.

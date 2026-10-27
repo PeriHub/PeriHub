@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 import { getConfig, getValves } from '$lib/client';
 import type { ModelData } from '$lib/client';
 import { modelStore } from '$lib/stores/model-store.svelte';

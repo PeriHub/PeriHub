@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
 <!-- Catch-all 404, replaces pages/ErrorNotFound.vue -->
 <script lang="ts">
   import Button from '$lib/components/ui/Button.svelte';

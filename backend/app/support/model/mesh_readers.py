@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Read the points of a mesh file for the model view.
 
 Covers the generated `<model>.txt` and uploaded meshes (`meshSource == "upload"`): PeriLab text point clouds

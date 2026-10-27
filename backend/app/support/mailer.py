@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Plain-text mail through an existing SMTP server (Phase 1: forgot password, job notifications).
 
 PeriHub doesn't run a mail server; it relays through whatever SMTP_* in .env

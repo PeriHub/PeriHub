@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Admin page API (Phase 1): user management, jobs & usage, instance settings, audit log.
 
 Every endpoint is guarded by `require_admin`, so this file is the one place to audit

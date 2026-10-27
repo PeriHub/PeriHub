@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-#
-# SPDX-License-Identifier: Apache-2.0
-
 """Local email/password auth (Phase 0 - community baseline).
 
 OAuth2/OIDC login is enterprise-only (see roadmap Phase 1)

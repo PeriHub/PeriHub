@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-//
-// SPDX-License-Identifier: Apache-2.0
-
 /**
  * "Is this section's required data filled in" checks for ExpansionComp's
  * panel-completeness indicators, driven by the backend's actual Pydantic

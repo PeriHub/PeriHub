@@ -1,10 +1,4 @@
 <!--
-SPDX-FileCopyrightText: 2023 PeriHub <https://github.com/PeriHub/PeriHub>
-
-SPDX-License-Identifier: Apache-2.0
--->
-
-<!--
   Target of the "forgot password" email (backend: routers/auth.py's
   POST /auth/password/forgot builds the link from PUBLIC_URL). Needs no
   session - the root layout skips initAuth() here, like for /auth/login.

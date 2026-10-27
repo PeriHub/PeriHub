@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
 //
 // Piecewise-linear color interpolation, shared by both scenes:
 // - valueToColor(): the continuous legend gradient (VerticalColoredLegend /
