@@ -165,7 +165,11 @@
     await viewPointData(false);
   }
 
-  const refreshResults = () => viewPointData(false);
+  // Run finished: reload first (number_of_steps grew while it ran), then jump to the final step.
+  async function refreshResults() {
+    await viewPointData(false);
+    await fastForward();
+  }
 
   onMount(async () => {
     bus.on('refreshResults' as never, refreshResults);
