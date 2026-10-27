@@ -13,9 +13,11 @@ SPDX-License-Identifier: Apache-2.0
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import ParamLabel from '$lib/components/ParamLabel.svelte';
+  import SchemaParams from '$lib/components/SchemaParams.svelte';
+  import { sections, modelNames, pick, CUSTOM_KEYS } from '$lib/perilab/schema';
 
   const additive = $derived(modelStore.modelData.additive ?? []);
-  const additiveTypes = ['Simple'];
 
   function addAdditiveModel() {
     if (!modelStore.modelData.additive) modelStore.modelData.additive = [];
@@ -24,7 +26,7 @@ SPDX-License-Identifier: Apache-2.0
     const newItem =
       len > 0
         ? (structuredClone($state.snapshot(list[len - 1])) as AdditiveModel)
-        : ({} as AdditiveModel);
+        : ({ params: { 'Additive Model': 'Simple' } } as unknown as AdditiveModel);
     newItem.additiveModelId = len + 1;
     newItem.name = `Additive Model ${len + 1}`;
     list.push(newItem);
@@ -45,16 +47,26 @@ SPDX-License-Identifier: Apache-2.0
           <Input id={`add-name-${index}`} bind:value={model.name} />
         </div>
         <div class="space-y-1">
-          <Label for={`add-type-${index}`}>Type</Label>
-          <Select id={`add-type-${index}`} bind:value={model.additiveType}>
-            {#each additiveTypes as type (type)}
+          <ParamLabel
+            key="Additive Model"
+            for={`add-type-${index}`}
+            required
+            prop={sections.additive?.properties?.['Additive Model']}
+          />
+          <Select id={`add-type-${index}`} bind:value={model.params!['Additive Model']}>
+            {#each pick(modelNames(sections.additive), ['Simple'], String(model.params?.['Additive Model'] ?? '')) as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </Select>
         </div>
-        <div class="space-y-1">
-          <Label for={`add-temp-${index}`}>Print temperature</Label>
-          <Input id={`add-temp-${index}`} type="number" bind:value={model.printTemp} />
+        <div class="basis-full">
+          <SchemaParams
+            entry={sections.additive}
+            values={model.params!}
+            names={[String(model.params?.['Additive Model'] ?? '')]}
+            custom={CUSTOM_KEYS.additive}
+            idPrefix={`add-${index}`}
+          />
         </div>
         <Button
           variant="ghost"

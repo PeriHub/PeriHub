@@ -12,14 +12,14 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env (must match DATABASE_URL)}
       POSTGRES_DB: ${POSTGRES_DB-perihub}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
       interval: 5s
       timeout: 5s
       retries: 10
     volumes:
       - ${DB_VOLUME-perihub_db_data}:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - 127.0.0.1:5432:5432
 
   perihub_backend:
     # image: perihub/backend
@@ -59,7 +59,7 @@ services:
     volumes:
       - ${VOLUME-./backend/app/simulations}:/app/simulations
     ports:
-      - 3000:3000
+      - 127.0.0.1:3000:3000
 
 volumes:
   perihub_db_data:

@@ -14,6 +14,9 @@ export const notify = {
   info(message: string) {
     toast(message);
   },
+  warning(message: string) {
+    toast.warning(message);
+  },
   /** Convenience for the common `.catch((error) => notify.apiError(error))` pattern. */
   apiError(error: unknown) {
     const message =

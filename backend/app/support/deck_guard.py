@@ -12,7 +12,8 @@ one place every deck passes, rather than per writer.
 
 A string passes if it is a plain file name (no call possible without parentheses) or an arithmetic/boolean expression
 over the solver's variables and a fixed set of math functions: no strings, backticks, macros, indexing, assignment or
-other identifiers, so nothing can reach `run`, `open`, `ENV`, ... Mesh file names must stay inside the job folder.
+other identifiers, so nothing can reach `run`, `open`, `ENV`, ... Mesh and `File` names (UMAT libraries PeriLab
+loads and runs) must stay inside the job folder.
 """
 
 import re
@@ -23,7 +24,9 @@ from fastapi import HTTPException, status
 EXPRESSION_KEYS = {"Value", "Equation", "Influence Function", "Environmental Temperature"}
 # String values directly inside these mappings are evaluated too (node-set definitions, G-code block conditions).
 EXPRESSION_MAPPINGS = {"Node Sets", "Blocks"}
-FILE_KEYS = {"Input Mesh File"}
+# "File": UMAT/VUMAT/HETVAL libraries PeriLab ccall()s and the external topology it reads. PeriLab joins it onto the
+# job folder with joinpath, which keeps an absolute path as is - so any path would load any library in the container.
+FILE_KEYS = {"Input Mesh File", "File"}
 
 # ponytail: Phase 0 allowlist of what built-in configs and the amplitude tool produce; extend when a model needs more.
 ALLOWED_NAMES = {

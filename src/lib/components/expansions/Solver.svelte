@@ -8,20 +8,24 @@ SPDX-License-Identifier: Apache-2.0
   import { Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { Solver } from '$lib/client';
-  import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
-  import SchemaForm from '$lib/components/SchemaForm.svelte';
+  import Select from '$lib/components/ui/Select.svelte';
+  import SchemaParams from '$lib/components/SchemaParams.svelte';
+  import { sections, node, solverNames, pick, CUSTOM_KEYS } from '$lib/perilab/schema';
 
   const solvers = $derived(modelStore.modelData.solvers ?? []);
+  // More than one solver is written as a Multistep Solver, whose steps have their own schema (no required times).
+  const section = $derived(solvers.length > 1 ? sections.multistepSolver : sections.solver);
 
   function addSolver() {
     const len = solvers.length;
     const newItem = structuredClone($state.snapshot(solvers[len - 1])) as Solver;
     newItem.solverId = len + 1;
     newItem.stepId = len + 1;
+    newItem.name = `Step ${len + 1}`;
     solvers.push(newItem);
   }
 
@@ -35,7 +39,7 @@ SPDX-License-Identifier: Apache-2.0
   {#each solvers as solver, index (index)}
     <div class="border-border space-y-3 rounded-md border p-3">
       <div class="flex items-center justify-between">
-        <h4 class="font-medium">Solver {solver.solverId}</h4>
+        <h4 class="font-medium">{solver.name ?? `Solver ${solver.solverId}`}</h4>
         {#if solvers.length > 1}
           <Button
             variant="ghost"
@@ -48,101 +52,35 @@ SPDX-License-Identifier: Apache-2.0
         {/if}
       </div>
 
-      <div class="space-y-1">
-        <Label for={`sv-name-${index}`}>Solver name</Label>
-        <Input id={`sv-name-${index}`} bind:value={solver.name} />
+      <div class="flex flex-wrap items-end gap-3">
+        <div class="space-y-1">
+          <Label for={`sv-name-${index}`}>Name</Label>
+          <Input id={`sv-name-${index}`} bind:value={solver.name} />
+        </div>
+        <div class="space-y-1">
+          <Label for={`sv-type-${index}`}>Solver</Label>
+          <Select id={`sv-type-${index}`} bind:value={solver.solvertype}>
+            {#each pick(solverNames(), ['Verlet', 'Static'], solver.solvertype) as name (name)}
+              <option value={name}>{name}</option>
+            {/each}
+          </Select>
+        </div>
       </div>
 
-      <!--
-        Every plain scalar field of Solver (solvertype, the 4 model-toggles,
-        initial/final time, max. damage) is rendered here from the schema's
-        yaml_field(...) metadata - see support/base_models.py. Adding a new
-        simple Solver field only means editing that model; this component
-        picks it up automatically. additionalTime stays hand-written just
-        below since it has a real structural rule (only meaningful for
-        solvers after the first) that a generic renderer shouldn't guess at.
-      -->
-      <SchemaForm schemaName="Solver" data={solver} group="Solver" />
+      <SchemaParams
+        entry={section}
+        values={solver.params!}
+        custom={CUSTOM_KEYS.solver}
+        solver={solver.solvertype}
+        idPrefix={`sv-${index}`}
+      />
 
-      {#if solver.stepId !== 1}
-        <div class="max-w-xs space-y-1">
-          <Label for={`sv-add-${index}`}>Additional time</Label>
-          <Input id={`sv-add-${index}`} type="number" bind:value={solver.additionalTime} />
-        </div>
-      {/if}
-
-      {#if solver.solvertype === 'Verlet' && solver.verlet != null}
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="space-y-1">
-            <Label for={`sv-damp-${index}`}>Numerical damping</Label>
-            <Input
-              id={`sv-damp-${index}`}
-              type="number"
-              bind:value={solver.verlet.numericalDamping}
-              clearable
-            />
-          </div>
-          <!--
-            fixedDt/safetyFactor/adaptivetimeStepping/calculateCauchy/
-            calculateVonMises/calculateStrain, all Verlet-only fields on the
-            Solver schema itself (ui_group: "Verlet"). Numerical Damping above
-            stays hand-written because it lives on the separate nested Verlet
-            sub-model (solver.verlet), not on Solver directly - SchemaForm
-            only understands one schema/data pair at a time.
-          -->
-          <SchemaForm schemaName="Solver" data={solver} group="Verlet" />
-        </div>
-      {/if}
-
-      {#if solver.solvertype === 'Static' && solver.static != null}
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="space-y-1">
-            <Label for={`sv-steps-${index}`}>Number of steps</Label>
-            <Input
-              id={`sv-steps-${index}`}
-              type="number"
-              bind:value={solver.static.numberOfSteps}
-            />
-          </div>
-          <div class="space-y-1">
-            <Label for={`sv-iters-${index}`}>Maximum number of iterations</Label>
-            <Input
-              id={`sv-iters-${index}`}
-              type="number"
-              bind:value={solver.static.maximumNumberOfIterations}
-            />
-          </div>
-          <Toggle bind:checked={solver.static.showSolverIteration} label="Show solver iteration" />
-          <div class="space-y-1">
-            <Label for={`sv-restol-${index}`}>Residual tolerance</Label>
-            <Input
-              id={`sv-restol-${index}`}
-              type="number"
-              bind:value={solver.static.residualTolerance}
-            />
-          </div>
-          <div class="space-y-1">
-            <Label for={`sv-soltol-${index}`}>Solution tolerance</Label>
-            <Input
-              id={`sv-soltol-${index}`}
-              type="number"
-              bind:value={solver.static.solutionTolerance}
-            />
-          </div>
-          <div class="space-y-1">
-            <Label for={`sv-resscale-${index}`}>Residual scaling</Label>
-            <Input
-              id={`sv-resscale-${index}`}
-              type="number"
-              bind:value={solver.static.residualScaling}
-            />
-          </div>
-          <div class="space-y-1">
-            <Label for={`sv-m-${index}`}>m</Label>
-            <Input id={`sv-m-${index}`} type="number" bind:value={solver.static.m} />
-          </div>
-        </div>
-      {/if}
+      <h5 class="text-muted-foreground text-sm font-medium">{solver.solvertype}</h5>
+      <SchemaParams
+        entry={node([solver.solvertype], section)}
+        values={solver.solverOptions!}
+        idPrefix={`sv-${index}-opt`}
+      />
     </div>
   {/each}
 

@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 import os
 import shutil
 import time
@@ -12,28 +11,14 @@ import numpy as np
 from fastapi import APIRouter, Body, HTTPException, Request, status
 from pydantic import BaseModel
 
-# from ..models.PlateWithHole.plate_with_hole import PlateWithHole
-# from ..models.PlateWithOpening.plate_with_opening import PlateWithOpening
-# from ..models.RingOnRing.ring_on_ring import RingOnRing
-# from ..models.Smetana.smetana import Smetana
 from ..db import base
-from ..support.base_models import Block, Deviations, GenerateResult, ModelData, Valves
+from ..support.base_models import GenerateResult, ModelData, Valves
 from ..support.file_handler import FileHandler
 from ..support.globals import log
 from ..support.guest import DB_LESS_USER, GUEST_DENIED, apply_guest_limits, current_user, guest_limits
 from ..support.model import loader
 from ..support.model.point_cloud import build_point_cloud, valves_to_dict
 from ..support.writer.model_writer import ModelWriter
-
-# from ..models.KalthoffWinkler.kalthoff_winkler import KalthoffWinkler
-# from ..models.OwnModel.own_model import OwnModel
-
-
-# from ..models.DCBmodel.dcb_model import DCBmodel
-# from ..models.Dogbone.dogbone import Dogbone
-# from ..models.ENFmodel.enf_model import ENFmodel
-# from ..models.G1Cmodel.g1c_model import G1Cmodel
-
 
 router = APIRouter(tags=["Generate Methods"])
 
@@ -90,18 +75,6 @@ def generate_model(
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="No mesh uploaded for this model")
 
     json_file = os.path.join(localpath, model_name + ".json")
-    ignore_mesh = False
-
-    # if os.path.exists(json_file):
-    #     with open(json_file, "r", encoding="UTF-8") as file:
-    #         json_data = json.load(file)
-    #         # print(data.model)
-    #         if (
-    #             data.model == json_data["model"]
-    #             and data.boundaryConditions == json_data["boundaryConditions"]
-    #         ):
-    #             log.info("Model not changed")
-    #             ignore_mesh = True
 
     with open(json_file, "w", encoding="UTF-8") as file:
         file.write(data.to_json())
@@ -130,10 +103,6 @@ def generate_model(
                 detail="The number of nodes (" + str(len(x_value)) + ") is larger than the allowed " + str(max_nodes),
             )
 
-        # if data.model.rotatedAngles:
-        #     angle_x = np.zeros(len(x_value))
-        #     angle_y = np.zeros(len(x_value))
-        #     angle_z = np.zeros(len(x_value))
         # check if vol is defined
         if vol is None:
             if data.model.twoDimensional:
@@ -149,23 +118,6 @@ def generate_model(
 
     writer = ModelWriter(data, model_name, model_folder_name, username)
 
-    # if data.model.rotatedAngles:
-    #     model = np.transpose(
-    #         np.vstack(
-    #             [
-    #                 x_value.ravel(),
-    #                 y_value.ravel(),
-    #                 z_value.ravel(),
-    #                 k.ravel(),
-    #                 vol.ravel(),
-    #                 angle_x.ravel(),
-    #                 angle_y.ravel(),
-    #                 angle_z.ravel(),
-    #             ]
-    #         )
-    #     )
-    #     writer.write_mesh_with_angles(model, two_d)
-    # else:
     if not uploaded_mesh:
         model = np.transpose(
             np.vstack(
@@ -183,19 +135,14 @@ def generate_model(
 
         for i, block in enumerate(data.blocks):
             if isinstance(dx_value[0], float):
-                block.horizon = 2.5 * max([dx_value[0], dx_value[1]])
+                block.params["Horizon"] = 2.5 * max([dx_value[0], dx_value[1]])
             else:
-                block.horizon = 2.5 * max([dx_value[i][0], dx_value[i][1]])
+                block.params["Horizon"] = 2.5 * max([dx_value[i][0], dx_value[i][1]])
     else:
         k = [1e10]
     block_def = data.blocks
 
-    # try:
-    # deviations = {'sampleSize': 5, 'parameters': [{'id': "materials[0].youngsModulus", "mean": 0.1, "std": 10}]}
     writer.create_file(block_def, max(k), data.deviations)
-    # except TypeError as exception:
-    #     log.error(f"Failed to create file: {exception}")
-    #     return str(exception)
 
     log.info("%s has been created in %.2f seconds", model_name, time.time() - start_time)
     return GenerateResult(

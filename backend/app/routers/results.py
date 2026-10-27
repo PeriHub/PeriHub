@@ -130,12 +130,6 @@ def get_plot(
     model_folder_name: str = "Default",
     output: str = "Output1",
     deviations_enabled: bool = False,
-    # x_variable: str = "Time",
-    # x_axis: str = "X",
-    # x_absolute: bool = True,
-    # y_variable: str = "External_Displacement",
-    # y_axis: str = "X",
-    # y_absolute: bool = True,
     run_id: Optional[str] = None,
     request: Request = "",
 ) -> JSONResponse:
@@ -148,12 +142,8 @@ def get_plot(
         resultpath, model_name, output, ".csv", deviations_enabled
     )
 
-    # x_data = Analysis.get_global_data(file, x_variable, x_axis, x_absolute)
-    # y_data = Analysis.get_global_data(file, y_variable, y_axis, y_absolute)
-
     data = {}
     first_row = True
-    # try:
     for file in matching_files:
         with open(file, "r", encoding="UTF-8") as csv_file:
             reader = csv.reader(csv_file)
@@ -187,9 +177,6 @@ def get_plot(
                         data[column_names[i]].append(parsed_value)
         first_row = True
     return JSONResponse(content=data)
-    # except IOError:
-    #     log.error("%s results can not be found on %s", model_name, cluster)
-    #     return ResponseModel(data=data, message=model_name + " results can not be found on " + cluster)
 
 
 @router.get("/summary", operation_id="get_run_summary", response_model=RunSummary)
@@ -245,7 +232,6 @@ def get_results(
         response.headers["Content-Disposition"] = (
             "attachment; filename=" + model_name + "_" + model_folder_name + ".zip"
         )
-        # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
         return response
     except IOError:
         log.error("%s results can not be found", model_name)
@@ -503,17 +489,11 @@ def get_data(
 
     min_cell_value = np.min(cell_value) if color_bar_min == None else color_bar_min
     max_cell_value = np.max(cell_value) if color_bar_max == None else color_bar_max
-    if max_cell_value == min_cell_value:
-        normalized_cell_value = np.zeros_like(cell_value)
-    else:
-        normalized_cell_value = (cell_value - min_cell_value) / (max_cell_value - min_cell_value)
-    # print(time)
 
     reduce_factor = 1
     if len(np_points_all_x) > max_nodes:
         reduce_factor = int(len(np_points_all_x) / max_nodes)
         log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
-    # print(normalized_cell_value.tolist()[::reduce_factor])
     data = PointDataResults(
         nodes=np.ravel(
             [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
@@ -526,17 +506,5 @@ def get_data(
         max_value=max_cell_value,
         time=np.format_float_scientific(time, 2),
     )
-    # data = {
-    #     "nodes": np.ravel(
-    #         [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
-    #         order="F",
-    #     ).tolist(),
-    #     "value": normalized_cell_value.tolist()[::reduce_factor],
-    #     "variables": variable_list,
-    #     "number_of_steps": number_of_steps,
-    #     "min_value": min_cell_value,
-    #     "max_value": max_cell_value,
-    #     "time": np.format_float_scientific(time, 2),
-    # }
 
     return data

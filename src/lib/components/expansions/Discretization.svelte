@@ -10,13 +10,12 @@ SPDX-License-Identifier: Apache-2.0
   import type { BlockFunction, Discretization, Gcode, NodeSet } from '$lib/client';
   import Input from '$lib/components/ui/Input.svelte';
   import Label from '$lib/components/ui/Label.svelte';
-  import Select from '$lib/components/ui/Select.svelte';
-  import Toggle from '$lib/components/ui/Toggle.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import SchemaParams from '$lib/components/SchemaParams.svelte';
+  import { sections, node, CUSTOM_KEYS } from '$lib/perilab/schema';
 
   const discretization = $derived(modelStore.modelData.discretization ?? ({} as Discretization));
-  const distributionTypes = ['Neighbor based', 'Node based'];
 
   function addNodeSet() {
     if (!discretization.nodeSets) discretization.nodeSets = [];
@@ -35,7 +34,7 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   function addBlockFunction() {
-    if (!discretization.gcode) discretization.gcode = {} as Gcode;
+    if (!discretization.gcode) discretization.gcode = { params: {}, blockFunctions: [] } as Gcode;
     if (!discretization.gcode.blockFunctions) discretization.gcode.blockFunctions = [];
     const list = discretization.gcode.blockFunctions;
     const len = list.length;
@@ -55,19 +54,17 @@ SPDX-License-Identifier: Apache-2.0
 </script>
 
 <div class="space-y-3 p-3">
-  <div class="max-w-xs space-y-1">
-    <Label for="disc-type">Distribution type</Label>
-    <Select id="disc-type" bind:value={discretization.distributionType}>
-      {#each distributionTypes as type (type)}
-        <option value={type}>{type}</option>
-      {/each}
-    </Select>
-  </div>
+  <SchemaParams
+    entry={sections.discretization}
+    values={discretization.params!}
+    custom={CUSTOM_KEYS.discretization}
+    idPrefix="disc"
+  />
 
   {#each discretization.nodeSets ?? [] as nodeSet, index (index)}
     <div class="border-border flex items-end gap-2 border-b pb-2">
       <div class="flex-1 space-y-1">
-        <Label for={`nodeset-${index}`}>Node set</Label>
+        <Label for={`nodeset-${index}`}>Node Set {nodeSet.nodeSetId}</Label>
         <Input id={`nodeset-${index}`} bind:value={nodeSet.file} />
       </div>
       <Button
@@ -84,23 +81,11 @@ SPDX-License-Identifier: Apache-2.0
 
   {#if discretization.discType === 'gcode' && discretization.gcode != null}
     <div class="border-border space-y-3 border-t pt-3">
-      <Toggle bind:checked={discretization.gcode.overwriteMesh} label="Overwrite mesh" />
-      <div class="space-y-1">
-        <Label for="gcode-sampling">Sampling</Label>
-        <Input id="gcode-sampling" type="number" bind:value={discretization.gcode.sampling} />
-      </div>
-      <div class="space-y-1">
-        <Label for="gcode-width">Width</Label>
-        <Input id="gcode-width" type="number" bind:value={discretization.gcode.width} />
-      </div>
-      <div class="space-y-1">
-        <Label for="gcode-height">Height</Label>
-        <Input id="gcode-height" type="number" bind:value={discretization.gcode.height} />
-      </div>
-      <div class="space-y-1">
-        <Label for="gcode-scale">Scale</Label>
-        <Input id="gcode-scale" type="number" bind:value={discretization.gcode.scale} />
-      </div>
+      <SchemaParams
+        entry={node(['Gcode'], sections.discretization)}
+        values={discretization.gcode.params!}
+        idPrefix="gcode"
+      />
 
       {#each discretization.gcode.blockFunctions ?? [] as block, index (block.id ?? index)}
         <div class="border-border flex flex-wrap items-end gap-2 border-b pb-2">

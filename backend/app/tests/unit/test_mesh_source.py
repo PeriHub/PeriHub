@@ -13,7 +13,6 @@ from fastapi.testclient import TestClient
 
 from backend.app.main import app
 from backend.app.routers.model import get_workspace_file
-from backend.app.support.base_models import Model
 from backend.app.support.file_handler import FileHandler
 from backend.app.support.model import loader, mesh_readers
 
@@ -45,13 +44,6 @@ def _write_exodus(path):
             var = nc.createVariable(f"connect{i}", "i4", (f"num_el_in_blk{i}", "num_nod_per_el1"))
             var.elem_type = "SPHERE"
             var[:] = nodes
-
-
-def test_model_migrates_legacy_own_model():
-    assert Model(modelFolderName="D", twoDimensional=True, ownModel=True, ownMesh=None).meshSource == "upload"
-    assert Model(modelFolderName="D", twoDimensional=True, ownModel=False).meshSource == "model"
-    assert Model(modelFolderName="D", twoDimensional=True).meshSource == "model"
-    assert "ownModel" not in Model(modelFolderName="D", twoDimensional=True, ownModel=True).model_dump()
 
 
 def _upload_body(mesh_file):

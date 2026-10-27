@@ -106,7 +106,7 @@ blocks:
   - {id: 2, where: "x < spacing"}
   - {id: 3, box: {min: [LENGTH - 1, 0, -1], max: [LENGTH, HEIGHT, 1]}}
 set:
-  solvers[0].finalTime: LENGTH / 1000
+  'solvers[0].params["Final Time"]': LENGTH / 1000
 """
 
 
@@ -118,7 +118,7 @@ def test_yaml_model_builds_points_blocks_and_shapes():
 
     data = _data()
     result = Model({}, data).build()
-    assert data.solvers[0].finalTime == pytest.approx(0.01)
+    assert data.solvers[0].params["Final Time"] == pytest.approx(0.01)
     x, y, block = result["x"], result["y"], result["block"]
     assert result["dx"][0] == pytest.approx(0.4)
     assert x.min() == 0 and x.max() == pytest.approx(10) and y.max() == pytest.approx(4)
@@ -146,7 +146,7 @@ def test_yaml_model_builds_points_blocks_and_shapes():
         (("- {id: 2, ", "- {"), "blocks[0]: every block needs an 'id'"),
         (("title: Plate", "title: Plate\nmesh: 1"), "mesh: unknown section"),
         (("  LENGTH: 10", "  LENGTH: {label: L}"), "parameters.LENGTH: missing 'default'"),
-        (("solvers[0].finalTime", "nosuch.field"), "set.nosuch.field: no such input-deck field"),
+        (("'solvers[0].params[\"Final Time\"]'", "nosuch.field"), "set.nosuch.field: no such input-deck field"),
         (("add:", "add: [\n"), "line "),
     ],
 )

@@ -9,6 +9,7 @@ SPDX-License-Identifier: Apache-2.0
   import { Plus, Trash2 } from 'lucide-svelte';
   import { authStore } from '$lib/stores/auth-store.svelte';
   import { notify } from '$lib/utils/notify';
+  import { isCurrentShape } from '$lib/utils/model-shape';
   import {
     createLibraryItem,
     deleteLibraryItem,
@@ -53,6 +54,10 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   function open(item: LibraryItemOut) {
+    if (!isCurrentShape(item.properties)) {
+      notify.negative('This material was saved in an older PeriHub format – not supported anymore');
+      return;
+    }
     selected = item;
     creating = false;
     // Snapshot, not structuredClone: list items are $state proxies, which can't be cloned.

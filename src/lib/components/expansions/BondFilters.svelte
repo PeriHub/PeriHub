@@ -14,23 +14,21 @@ SPDX-License-Identifier: Apache-2.0
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import ParamLabel from '$lib/components/ParamLabel.svelte';
+  import SchemaParams from '$lib/components/SchemaParams.svelte';
+  import { sections, node, enumOf, pick, CUSTOM_KEYS } from '$lib/perilab/schema';
 
   const bondFilters = $derived(modelStore.modelData.bondFilters ?? []);
-  const bondFilterTypes = ['Rectangular_Plane', 'Disk'];
 
   function addBondFilter() {
     const len = bondFilters.length;
     const newItem =
       len > 0
         ? (structuredClone($state.snapshot(bondFilters[len - 1])) as BondFilters)
-        : ({} as BondFilters);
+        : ({ params: { Type: 'Rectangular_Plane' }, show: true } as unknown as BondFilters);
     newItem.bondFiltersId = len + 1;
     newItem.name = `bf_${len + 1}`;
     bondFilters.push(newItem);
-  }
-
-  function removeBondFilter(index: number) {
-    bondFilters.splice(index, 1);
   }
 </script>
 
@@ -43,104 +41,34 @@ SPDX-License-Identifier: Apache-2.0
           <Input id={`bf-name-${index}`} bind:value={bondFilter.name} />
         </div>
         <div class="space-y-1">
-          <Label for={`bf-type-${index}`}>Type</Label>
-          <Select id={`bf-type-${index}`} bind:value={bondFilter.type}>
-            {#each bondFilterTypes as type (type)}
+          <ParamLabel
+            key="Type"
+            for={`bf-type-${index}`}
+            required
+            prop={sections.bondFilter?.properties?.Type}
+          />
+          <Select id={`bf-type-${index}`} bind:value={bondFilter.params!['Type']}>
+            {#each pick(enumOf(node(['Type'], sections.bondFilter)), ['Rectangular_Plane', 'Disk'], String(bondFilter.params?.Type ?? '')) as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </Select>
         </div>
-        {#if bondFilter.type === 'Rectangular_Plane'}
-          <div class="space-y-1">
-            <Label for={`bf-bottomlen-${index}`}>Bottom length</Label>
-            <Input
-              id={`bf-bottomlen-${index}`}
-              type="number"
-              bind:value={bondFilter.bottomLength}
-            />
-          </div>
-          <div class="space-y-1">
-            <Label for={`bf-sidelen-${index}`}>Side length</Label>
-            <Input id={`bf-sidelen-${index}`} type="number" bind:value={bondFilter.sideLength} />
-          </div>
-        {:else if bondFilter.type === 'Disk'}
-          <div class="space-y-1">
-            <Label for={`bf-radius-${index}`}>Radius</Label>
-            <Input id={`bf-radius-${index}`} type="number" bind:value={bondFilter.radius} />
-          </div>
-        {/if}
-        <Toggle bind:checked={bondFilter.allow_contact} label="Allow contact" />
+        <Toggle bind:checked={bondFilter.show} label="Show" />
         <Button
           variant="ghost"
           size="icon"
-          onclick={() => removeBondFilter(index)}
+          onclick={() => bondFilters.splice(index, 1)}
           title="Remove Bond Filter"
         >
           <Trash2 class="h-4 w-4" />
         </Button>
       </div>
-
-      <div class="flex flex-wrap items-end gap-3">
-        <div class="space-y-1">
-          <Label for={`bf-nx-${index}`}>Normal X</Label>
-          <Input id={`bf-nx-${index}`} type="number" bind:value={bondFilter.normalX} />
-        </div>
-        <div class="space-y-1">
-          <Label for={`bf-ny-${index}`}>Normal Y</Label>
-          <Input id={`bf-ny-${index}`} type="number" bind:value={bondFilter.normalY} />
-        </div>
-        <div class="space-y-1">
-          <Label for={`bf-nz-${index}`}>Normal Z</Label>
-          <Input id={`bf-nz-${index}`} type="number" bind:value={bondFilter.normalZ} />
-        </div>
-        <Toggle bind:checked={bondFilter.show} label="Show" />
-      </div>
-
-      {#if bondFilter.type === 'Rectangular_Plane'}
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="space-y-1">
-            <Label for={`bf-llx-${index}`}>Lower left corner X</Label>
-            <Input id={`bf-llx-${index}`} type="number" bind:value={bondFilter.lowerLeftCornerX} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`bf-lly-${index}`}>Lower left corner Y</Label>
-            <Input id={`bf-lly-${index}`} type="number" bind:value={bondFilter.lowerLeftCornerY} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`bf-llz-${index}`}>Lower left corner Z</Label>
-            <Input id={`bf-llz-${index}`} type="number" bind:value={bondFilter.lowerLeftCornerZ} />
-          </div>
-        </div>
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="space-y-1">
-            <Label for={`bf-bux-${index}`}>Bottom unit vector X</Label>
-            <Input id={`bf-bux-${index}`} type="number" bind:value={bondFilter.bottomUnitVectorX} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`bf-buy-${index}`}>Bottom unit vector Y</Label>
-            <Input id={`bf-buy-${index}`} type="number" bind:value={bondFilter.bottomUnitVectorY} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`bf-buz-${index}`}>Bottom unit vector Z</Label>
-            <Input id={`bf-buz-${index}`} type="number" bind:value={bondFilter.bottomUnitVectorZ} />
-          </div>
-        </div>
-      {:else if bondFilter.type === 'Disk'}
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="space-y-1">
-            <Label for={`bf-cx-${index}`}>Center X</Label>
-            <Input id={`bf-cx-${index}`} type="number" bind:value={bondFilter.centerX} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`bf-cy-${index}`}>Center Y</Label>
-            <Input id={`bf-cy-${index}`} type="number" bind:value={bondFilter.centerY} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`bf-cz-${index}`}>Center Z</Label>
-            <Input id={`bf-cz-${index}`} type="number" bind:value={bondFilter.centerZ} />
-          </div>
-        </div>
-      {/if}
+      <SchemaParams
+        entry={sections.bondFilter}
+        values={bondFilter.params!}
+        custom={CUSTOM_KEYS.bondFilter}
+        idPrefix={`bf-${index}`}
+      />
     </div>
   {/each}
 

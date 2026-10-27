@@ -11,6 +11,7 @@ from sqlalchemy.pool import StaticPool
 from backend.app.db import models  # noqa: F401 - registers tables on Base.metadata
 from backend.app.db import base
 from backend.app.main import app
+from backend.app.routers import auth
 from backend.app.support.admin_settings import set_setting
 
 
@@ -21,6 +22,7 @@ def client(monkeypatch):
     base.Base.metadata.create_all(engine)
     session_local = sessionmaker(bind=engine, autoflush=False, autocommit=False)
     monkeypatch.setattr(base, "SessionLocal", session_local)
+    monkeypatch.setattr(auth, "_login_failures", {})  # in-process login throttle outlives a test's DB
 
     def get_db():
         db = session_local()

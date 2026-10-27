@@ -6,18 +6,10 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from rich.logging import RichHandler
 
-FORMAT = "%(message)s"
-logging.basicConfig(
-    level="NOTSET",
-    format=FORMAT,
-    datefmt="[%X]",
-    handlers=[RichHandler(level=logging.INFO)],
-)
-logging.getLogger("paramiko").setLevel(logging.WARNING)
+logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s %(message)s", datefmt="%X")
 
-log = logging.getLogger("rich")
+log = logging.getLogger("perihub")
 
 load_dotenv()
 

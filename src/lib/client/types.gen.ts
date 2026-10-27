@@ -4,17 +4,12 @@ export type AccountSettingsUpdate = {
     notify_job_emails: boolean;
 };
 
-export type Adapt = {
-    stableStepDifference?: number;
-    maximumBondDifference?: number;
-    stableBondDifference?: number;
-};
-
 export type AdditiveModel = {
-    additiveModelId?: number | null;
     name: string;
-    additiveType: string;
-    printTemp: number;
+    params?: {
+        [key: string]: unknown;
+    };
+    additiveModelId?: number | null;
 };
 
 export type AdminJob = {
@@ -128,15 +123,11 @@ export type AuthorizationUrlResponse = {
 };
 
 export type Block = {
-    blocksId: number;
     name: string;
-    material?: string | null;
-    damageModel?: string | null;
-    thermalModel?: string | null;
-    additiveModel?: string | null;
-    horizon?: number | null;
-    density?: number | null;
-    specificHeatCapacity?: number | string | null;
+    params?: {
+        [key: string]: unknown;
+    };
+    blocksId: number;
     show?: boolean | null;
 };
 
@@ -168,38 +159,23 @@ export type Body_upload_files = {
 };
 
 export type BondFilters = {
-    bondFiltersId?: number | null;
     name: string;
-    type: string;
-    allow_contact?: boolean | null;
-    normalX: number;
-    normalY: number;
-    normalZ: number;
-    lowerLeftCornerX?: number | null;
-    lowerLeftCornerY?: number | null;
-    lowerLeftCornerZ?: number | null;
-    bottomUnitVectorX?: number | null;
-    bottomUnitVectorY?: number | null;
-    bottomUnitVectorZ?: number | null;
-    bottomLength?: number | null;
-    sideLength?: number | null;
-    centerX?: number | null;
-    centerY?: number | null;
-    centerZ?: number | null;
-    radius?: number | null;
+    params?: {
+        [key: string]: unknown;
+    };
+    bondFiltersId?: number | null;
     show?: boolean | null;
 };
 
 export type BoundaryCondition = {
-    conditionsId?: number | null;
-    stepId?: Array<(number)> | null;
     name: string;
+    params?: {
+        [key: string]: unknown;
+    };
+    conditionsId?: number | null;
+    stepId?: Array<(number)>;
     nodeSet?: number | null;
-    boundarytype: string;
-    variable: string;
     blockId?: number | null;
-    coordinate: string;
-    value: string;
 };
 
 export type BoundaryConditions = {
@@ -218,67 +194,54 @@ export type ColumnSummary = {
 };
 
 export type Compute = {
-    computesId?: number | null;
-    computeClass: string;
     name: string;
-    variable: string;
-    equation?: string | null;
-    calculationType?: string | null;
-    blockName?: string | null;
+    params?: {
+        [key: string]: unknown;
+    };
+    computesId?: number | null;
     nodeSetId?: number | null;
-    xValue?: number | null;
-    yValue?: number | null;
-    zValue?: number | null;
 };
 
 export type Contact = {
-    contactModels?: Array<ContactModel> | null;
-    searchFrequency?: number | null;
-    onlySurfaceContactNodes?: boolean | null;
+    params?: {
+        [key: string]: unknown;
+    };
+    contactModels?: Array<ContactModel>;
 };
 
 export type ContactGroup = {
-    contactGroupId?: number | null;
     name: string;
-    masterBlockId: number;
-    slaveBlockId: number;
-    searchRadius: number;
+    params?: {
+        [key: string]: unknown;
+    };
+    contactGroupId?: number | null;
 };
 
 export type ContactModel = {
-    contactModelId?: number | null;
     name: string;
-    contactType: string;
-    contactRadius: number;
-    contactStiffness: number;
-    contactGroups: Array<ContactGroup>;
+    params?: {
+        [key: string]: unknown;
+    };
+    contactModelId?: number | null;
+    contactGroups?: Array<ContactGroup>;
 };
 
+/**
+ * Input of the frontend's K1C calculator (writes Critical Value into `params`); never written.
+ */
 export type CriticalEnergyCalc = {
-    calculateCriticalEnergy?: boolean | null;
+    calculateCriticalEnergy?: boolean;
     k1c?: number | null;
 };
 
 export type Damage = {
-    damagesId?: number | null;
     name: string;
-    damageModel: string;
-    criticalStretch?: number | null;
-    criticalVonMisesStress?: number | null;
-    criticalDamage?: number | null;
-    thresholdDamage?: number | null;
-    criticalDamageToNeglect?: number | null;
-    criticalEnergy?: number | null;
+    params?: {
+        [key: string]: unknown;
+    };
+    damagesId?: number | null;
+    interBlocks?: Array<InterBlock>;
     criticalEnergyCalc?: CriticalEnergyCalc | null;
-    interBlockDamage?: boolean | null;
-    numberOfBlocks?: number | null;
-    interBlocks?: Array<InterBlock> | null;
-    anistropicDamage?: boolean | null;
-    anistropicDamageX?: number | null;
-    anistropicDamageY?: number | null;
-    anistropicDamageZ?: number | null;
-    onlyTension?: boolean | null;
-    thickness?: number | null;
 };
 
 export type DeleteAccountRequest = {
@@ -299,13 +262,19 @@ export type Deviations = {
 };
 
 export type Discretization = {
-    distributionType: string;
-    discType?: string | null;
+    discType?: string;
+    params?: {
+        [key: string]: unknown;
+    };
     gcode?: Gcode | null;
-    nodeSets?: Array<NodeSet> | null;
+    nodeSets?: Array<NodeSet>;
 };
 
+/**
+ * Input of the frontend's stiffness-matrix calculator (writes C11..C66 into `params`); never written.
+ */
 export type EngineeringConstants = {
+    calculate?: boolean;
     E1?: number | null;
     E2?: number | null;
     E3?: number | null;
@@ -322,12 +291,10 @@ export type ForgotPasswordRequest = {
 };
 
 export type Gcode = {
-    overwriteMesh: boolean;
-    sampling: number;
-    width: number;
-    height: number;
-    scale: number;
-    blockFunctions?: Array<BlockFunction> | null;
+    params?: {
+        [key: string]: unknown;
+    };
+    blockFunctions?: Array<BlockFunction>;
 };
 
 /**
@@ -414,59 +381,20 @@ export type LoginRequest = {
 };
 
 export type Material = {
+    name: string;
+    params?: {
+        [key: string]: unknown;
+    };
     materialsId?: number | null;
     libraryId?: string | null;
-    name: string;
-    matType: Array<(string)>;
-    bulkModulus?: number | null;
-    shearModulus?: number | null;
-    shearModulusXY?: number | null;
-    shearModulusYZ?: number | null;
-    shearModulusXZ?: number | null;
-    youngsModulus?: number | null;
-    youngsModulusX?: number | null;
-    youngsModulusY?: number | null;
-    youngsModulusZ?: number | null;
-    poissonsRatio?: number | null;
-    poissonsRatioXY?: number | null;
-    poissonsRatioYZ?: number | null;
-    poissonsRatioXZ?: number | null;
-    planeStress: boolean;
-    planeStrain: boolean;
-    materialSymmetry: string;
-    stabilizationType: string;
-    hourglassCoefficient: number;
-    actualHorizon?: number | null;
-    yieldStress?: number | null;
-    stiffnessMatrix?: StiffnessMatrix | null;
-    properties: Array<properties> | null;
-    numStateVars?: number | null;
-    computePartialStress?: boolean | null;
-    useCollocationNodes?: boolean | null;
+    properties?: Array<MaterialProperty>;
+    engineeringConstants?: EngineeringConstants | null;
 };
 
-export type Matrix = {
-    C11?: number | null;
-    C12?: number | null;
-    C13?: number | null;
-    C14?: number | null;
-    C15?: number | null;
-    C16?: number | null;
-    C22?: number | null;
-    C23?: number | null;
-    C24?: number | null;
-    C25?: number | null;
-    C26?: number | null;
-    C33?: number | null;
-    C34?: number | null;
-    C35?: number | null;
-    C36?: number | null;
-    C44?: number | null;
-    C45?: number | null;
-    C46?: number | null;
-    C55?: number | null;
-    C56?: number | null;
-    C66?: number | null;
+export type MaterialProperty = {
+    materialsPropId?: number | null;
+    name: string;
+    value?: number | null;
 };
 
 export type MeResponse = {
@@ -501,22 +429,21 @@ export type Model = {
 export type meshSource = 'model' | 'upload';
 
 export type ModelData = {
-    additive?: Array<AdditiveModel> | null;
+    additive?: Array<AdditiveModel>;
     blocks: Array<Block>;
-    bondFilters?: Array<BondFilters> | null;
+    bondFilters?: Array<BondFilters>;
     boundaryConditions: BoundaryConditions;
-    computes?: Array<Compute> | null;
-    contact?: Contact | null;
-    damages?: Array<Damage> | null;
-    discretization?: Discretization | null;
+    computes?: Array<Compute>;
+    contact?: Contact;
+    damages?: Array<Damage>;
+    discretization?: Discretization;
     deviations?: Deviations | null;
     job: Job;
-    materials?: Array<Material> | null;
+    materials?: Array<Material>;
     model: Model;
     outputs: Array<Output>;
-    preCalculations?: PreCalculations | null;
     solvers: Array<Solver>;
-    thermal?: Array<ThermalModel> | null;
+    thermal?: Array<ThermalModel>;
 };
 
 export type NodeSet = {
@@ -531,15 +458,12 @@ export type OldParameter = {
 };
 
 export type Output = {
-    outputsId?: number | null;
     name: string;
-    selectedFileType?: string | null;
-    selectedOutputs?: Array<(string)> | null;
-    Write_After_Damage?: boolean | null;
-    Frequency?: number | null;
-    numberOfOutputSteps?: number | null;
-    useOutputFrequency?: boolean | null;
-    InitStep: number;
+    params?: {
+        [key: string]: unknown;
+    };
+    outputsId?: number | null;
+    selectedOutputs?: Array<(string)>;
 };
 
 /**
@@ -589,14 +513,6 @@ export type PointDataResults = {
     min_value: number;
     max_value: number;
     time: number;
-};
-
-export type PreCalculations = {
-    deformedBondGeometry?: boolean | null;
-    deformationGradient?: boolean | null;
-    shapeTensor?: boolean | null;
-    bondAssociatedShapeTensor?: boolean | null;
-    bondAssociateDeformationGradient?: boolean | null;
 };
 
 export type PreviewBlock = {
@@ -722,41 +638,13 @@ export type Solver = {
     solverId?: number | null;
     name?: string | null;
     stepId?: number;
-    matEnabled?: boolean;
-    damEnabled?: boolean | null;
-    dispEnabled?: boolean | null;
-    tempEnabled?: boolean | null;
-    addEnabled?: boolean | null;
-    initialTime?: number | null;
-    finalTime?: number | null;
-    additionalTime?: number | null;
-    fixedDt?: number | null;
     solvertype: string;
-    safetyFactor: number;
-    verlet?: Verlet | null;
-    static?: Static | null;
-    stopAfterDamageInitation?: boolean | null;
-    endStepAfterDamage?: number | null;
-    stopAfterCertainDamage?: boolean | null;
-    maximumDamage?: number | null;
-    stopBeforeDamageInitation?: boolean | null;
-    adaptivetimeStepping?: boolean | null;
-    adapt?: Adapt | null;
-    calculateCauchy?: boolean | null;
-    calculateVonMises?: boolean | null;
-    calculateStrain?: boolean | null;
-};
-
-export type Static = {
-    numberOfSteps: number;
-    maximumNumberOfIterations?: number | null;
-    NLsolver?: boolean | null;
-    showSolverIteration?: boolean | null;
-    residualTolerance?: number | null;
-    solutionTolerance?: number | null;
-    linearStartValue?: Array<(number)> | null;
-    residualScaling?: number | null;
-    m?: number | null;
+    params?: {
+        [key: string]: unknown;
+    };
+    solverOptions?: {
+        [key: string]: unknown;
+    };
 };
 
 /**
@@ -779,12 +667,6 @@ export type Status = {
     run_id?: string | null;
 };
 
-export type StiffnessMatrix = {
-    calculateStiffnessMatrix?: boolean | null;
-    engineeringConstants: EngineeringConstants;
-    matrix: Matrix;
-};
-
 export type TeamIn = {
     name: string;
 };
@@ -796,21 +678,11 @@ export type TeamOut = {
 };
 
 export type ThermalModel = {
-    thermalModelsId?: number | null;
     name: string;
-    thermalModel: Array<(string)>;
-    thermalType: string;
-    heatTransferCoefficient?: number | null;
-    environmentalTemperature?: number | null;
-    requiredSpecificVolume?: number | null;
-    thermalConductivity?: number | null;
-    thermalExpansionCoefficient?: number | null;
-    thermalConductivityPrintBed?: number | null;
-    printBedTemperature?: number | null;
-    printBedZCoord?: number | null;
-    file?: string | null;
-    numStateVars?: number | null;
-    predefinedFieldNames?: string | null;
+    params?: {
+        [key: string]: unknown;
+    };
+    thermalModelsId?: number | null;
 };
 
 /**
@@ -857,11 +729,6 @@ export type VariableRange = {
     max: number;
 };
 
-export type Verlet = {
-    numericalDamping?: number | null;
-    outputFrequency?: number;
-};
-
 export type VersionData = {
     current: string;
     latest: string;
@@ -874,12 +741,6 @@ export type app__routers__oauth__AuthResponse = {
     user_id: string;
     display_name: string;
     role: string;
-};
-
-export type properties = {
-    materialsPropId?: number | null;
-    name: string;
-    value?: number | null;
 };
 
 export type GenerateModelData = {

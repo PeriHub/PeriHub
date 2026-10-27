@@ -1,248 +1,4 @@
 {
-  "additive": [],
-  "blocks": [
-    {
-      "additiveModel": "",
-      "blocksId": 1,
-      "damageModel": "Damage",
-      "density": 2.699e-9,
-      "horizon": null,
-      "material": "Aluminium",
-      "name": "Part",
-      "show": true,
-      "specificHeatCapacity": null,
-      "thermalModel": null
-    },
-    {
-      "additiveModel": "",
-      "blocksId": 2,
-      "damageModel": "",
-      "density": 2.699e-9,
-      "horizon": null,
-      "material": "BC",
-      "name": "Top_BC",
-      "show": true,
-      "specificHeatCapacity": null,
-      "thermalModel": null
-    },
-    {
-      "additiveModel": "",
-      "blocksId": 3,
-      "damageModel": "",
-      "density": 2.699e-9,
-      "horizon": null,
-      "material": "BC",
-      "name": "Bottom_BC",
-      "show": true,
-      "specificHeatCapacity": null,
-      "thermalModel": null
-    },
-    {
-      "additiveModel": "",
-      "blocksId": 4,
-      "damageModel": "",
-      "density": 2.699e-9,
-      "horizon": null,
-      "material": "Aluminium",
-      "name": "Top_Part",
-      "show": true,
-      "specificHeatCapacity": null,
-      "thermalModel": null
-    },
-    {
-      "additiveModel": "",
-      "blocksId": 5,
-      "damageModel": "",
-      "density": 2.699e-9,
-      "horizon": null,
-      "material": "Aluminium",
-      "name": "Bottom_Part",
-      "show": true,
-      "specificHeatCapacity": null,
-      "thermalModel": null
-    }
-  ],
-  "bondFilters": [
-    {
-      "allow_contact": false,
-      "bottomLength": 56.75,
-      "bottomUnitVectorX": 1.0,
-      "bottomUnitVectorY": 0.0,
-      "bottomUnitVectorZ": 0.0,
-      "centerX": 0.0,
-      "centerY": 1.0,
-      "centerZ": 0.0,
-      "id": null,
-      "lowerLeftCornerX": -0.5,
-      "lowerLeftCornerY": 0.0,
-      "lowerLeftCornerZ": -2.0,
-      "name": "bf_1",
-      "normalX": 0.0,
-      "normalY": 1.0,
-      "normalZ": 0.0,
-      "radius": 1.0,
-      "show": true,
-      "sideLength": 4.0,
-      "type": "Rectangular_Plane"
-    }
-  ],
-  "boundaryConditions": {
-    "conditions": [
-      {
-        "blockId": 2,
-        "boundarytype": "Dirichlet",
-        "conditionsId": 1,
-        "coordinate": "y",
-        "name": "BC_1",
-        "nodeSet": null,
-        "stepId": [1],
-        "value": "1000*t",
-        "variable": "Displacements"
-      },
-      {
-        "blockId": 3,
-        "boundarytype": "Dirichlet",
-        "conditionsId": 2,
-        "coordinate": "y",
-        "name": "BC_2",
-        "nodeSet": null,
-        "stepId": [1],
-        "value": "-1000*t",
-        "variable": "Displacements"
-      }
-    ]
-  },
-  "computes": [
-    {
-      "blockName": "Bottom_BC",
-      "calculationType": "Sum",
-      "computeClass": "Block_Data",
-      "id": 1,
-      "name": "External_Force",
-      "nodeSetId": null,
-      "variable": "Forces",
-      "xValue": null,
-      "yValue": null,
-      "zValue": null
-    },
-    {
-      "blockName": "Top_BC",
-      "calculationType": "Maximum",
-      "computeClass": "Block_Data",
-      "id": 2,
-      "name": "External_Displacement",
-      "nodeSetId": null,
-      "variable": "Displacements",
-      "xValue": null,
-      "yValue": null,
-      "zValue": null
-    }
-  ],
-  "contact": {
-    "contactModels": null,
-    "onlySurfaceContactNodes": null,
-    "searchFrequency": null
-  },
-  "damages": [
-    {
-      "anistropicDamage": false,
-      "anistropicDamageX": null,
-      "anistropicDamageY": null,
-      "anistropicDamageZ": null,
-      "criticalDamage": null,
-      "criticalDamageToNeglect": null,
-      "criticalEnergy": 5.714285714285715,
-      "criticalEnergyCalc": {
-        "calculateCriticalEnergy": true,
-        "k1c": 632.4555320336759
-      },
-      "criticalStretch": null,
-      "criticalVonMisesStress": null,
-      "damageModel": "Critical Energy",
-      "id": 1,
-      "interBlockDamage": false,
-      "interBlocks": [],
-      "name": "Damage",
-      "numberOfBlocks": null,
-      "onlyTension": true,
-      "thickness": 1.0,
-      "thresholdDamage": null
-    }
-  ],
-  "discretization": {
-    "discType": "txt",
-    "distributionType": "Neighbor based",
-    "gcode": null,
-    "nodeSets": null
-  },
-  "job": {
-    "account": 2263032,
-    "cluster": false,
-    "cpusPerTask": 1,
-    "multithread": false,
-    "nodes": 1,
-    "sbatch": false,
-    "tasks": 1,
-    "tasksPerNode": 1,
-    "time": "00:20:00",
-    "verbose": false
-  },
-  "materials": [
-    {
-      "actualHorizon": null,
-      "bulkModulus": null,
-      "computePartialStress": null,
-      "hourglassCoefficient": 1.0,
-      "id": 1,
-      "matType": ["PD Solid Elastic"],
-      "materialSymmetry": "Isotropic",
-      "name": "BC",
-      "numStateVars": null,
-      "planeStrain": false,
-      "planeStress": true,
-      "poissonsRatio": 0.35,
-      "properties": [
-        {
-          "id": 1,
-          "name": "Prop_1",
-          "value": null
-        }
-      ],
-      "shearModulus": null,
-      "stabilizationType": "Global Stiffness",
-      "stiffnessMatrix": null,
-      "useCollocationNodes": null,
-      "yieldStress": null,
-      "youngsModulus": 200000.0
-    },
-    {
-      "actualHorizon": null,
-      "bulkModulus": null,
-      "computePartialStress": null,
-      "hourglassCoefficient": 1.0,
-      "id": 1,
-      "matType": ["Correspondence Elastic", "Correspondence Plastic"],
-      "materialSymmetry": "Isotropic",
-      "name": "Aluminium",
-      "numStateVars": null,
-      "planeStrain": false,
-      "planeStress": true,
-      "poissonsRatio": 0.35,
-      "properties": [
-        {
-          "id": 1,
-          "name": "Prop_1",
-          "value": null
-        }
-      ],
-      "shearModulus": null,
-      "stabilizationType": "Global Stiffness",
-      "stiffnessMatrix": null,
-      "useCollocationNodes": null,
-      "yieldStress": 350.0,
-      "youngsModulus": 70000.0
-    }
-  ],
   "model": {
     "horizon": null,
     "meshFile": null,
@@ -250,15 +6,189 @@
     "meshSource": "model",
     "twoDimensional": true
   },
+  "discretization": {
+    "discType": "txt",
+    "params": {
+      "Distribution Type": "Neighbor based"
+    },
+    "nodeSets": [],
+    "gcode": null
+  },
+  "materials": [
+    {
+      "materialsId": 1,
+      "name": "BC",
+      "params": {
+        "Material Model": "PD Solid Elastic",
+        "Symmetry": "isotropic plane stress",
+        "Zero Energy Control": "Global",
+        "Young's Modulus": 200000.0,
+        "Poisson's Ratio": 0.35
+      }
+    },
+    {
+      "materialsId": 1,
+      "name": "Aluminium",
+      "params": {
+        "Material Model": "Correspondence Elastic + Correspondence Plastic",
+        "Symmetry": "isotropic plane stress",
+        "Zero Energy Control": "Global",
+        "Young's Modulus": 70000.0,
+        "Poisson's Ratio": 0.35,
+        "Yield Stress": 350.0
+      }
+    }
+  ],
+  "damages": [
+    {
+      "damagesId": 1,
+      "name": "Damage",
+      "params": {
+        "Damage Model": "Critical Energy",
+        "Only Tension": true,
+        "Thickness": 1.0,
+        "Critical Value": 5.714285714285715
+      },
+      "criticalEnergyCalc": {
+        "calculateCriticalEnergy": true,
+        "k1c": 632.4555320336759
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "blocksId": 1,
+      "name": "Part",
+      "show": true,
+      "params": {
+        "Material Model": "Aluminium",
+        "Damage Model": "Damage",
+        "Density": 2.699e-9
+      }
+    },
+    {
+      "blocksId": 2,
+      "name": "Top_BC",
+      "show": true,
+      "params": {
+        "Material Model": "BC",
+        "Density": 2.699e-9
+      }
+    },
+    {
+      "blocksId": 3,
+      "name": "Bottom_BC",
+      "show": true,
+      "params": {
+        "Material Model": "BC",
+        "Density": 2.699e-9
+      }
+    },
+    {
+      "blocksId": 4,
+      "name": "Top_Part",
+      "show": true,
+      "params": {
+        "Material Model": "Aluminium",
+        "Density": 2.699e-9
+      }
+    },
+    {
+      "blocksId": 5,
+      "name": "Bottom_Part",
+      "show": true,
+      "params": {
+        "Material Model": "Aluminium",
+        "Density": 2.699e-9
+      }
+    }
+  ],
+  "thermal": [],
+  "additive": [],
+  "contact": {
+    "params": {},
+    "contactModels": []
+  },
+  "boundaryConditions": {
+    "conditions": [
+      {
+        "conditionsId": 1,
+        "name": "BC_1",
+        "stepId": [1],
+        "nodeSet": null,
+        "blockId": 2,
+        "params": {
+          "Type": "Dirichlet",
+          "Variable": "Displacements",
+          "Coordinate": "y",
+          "Value": "1000*t"
+        }
+      },
+      {
+        "conditionsId": 2,
+        "name": "BC_2",
+        "stepId": [1],
+        "nodeSet": null,
+        "blockId": 3,
+        "params": {
+          "Type": "Dirichlet",
+          "Variable": "Displacements",
+          "Coordinate": "y",
+          "Value": "-1000*t"
+        }
+      }
+    ]
+  },
+  "bondFilters": [
+    {
+      "bondFiltersId": null,
+      "name": "bf_1",
+      "show": true,
+      "params": {
+        "Type": "Rectangular_Plane",
+        "Normal X": 0.0,
+        "Normal Y": 1.0,
+        "Normal Z": 0.0,
+        "Allow Contact": false,
+        "Lower Left Corner X": -0.5,
+        "Lower Left Corner Y": 0.0,
+        "Lower Left Corner Z": -2.0,
+        "Bottom Unit Vector X": 1.0,
+        "Bottom Unit Vector Y": 0.0,
+        "Bottom Unit Vector Z": 0.0,
+        "Bottom Length": 56.75,
+        "Side Length": 4.0
+      }
+    }
+  ],
+  "computes": [
+    {
+      "computesId": 1,
+      "name": "External_Force",
+      "nodeSetId": null,
+      "params": {
+        "Compute Class": "Block_Data",
+        "Calculation Type": "Sum",
+        "Block": "Bottom_BC",
+        "Variable": "Forces"
+      }
+    },
+    {
+      "computesId": 2,
+      "name": "External_Displacement",
+      "nodeSetId": null,
+      "params": {
+        "Compute Class": "Block_Data",
+        "Calculation Type": "Maximum",
+        "Block": "Top_BC",
+        "Variable": "Displacements"
+      }
+    }
+  ],
   "outputs": [
     {
-      "Frequency": 1,
-      "InitStep": 0,
-      "Write_After_Damage": false,
-      "name": "Output1",
-      "numberOfOutputSteps": 100,
       "outputsId": null,
-      "selectedFileType": "Exodus",
+      "name": "Output1",
       "selectedOutputs": [
         "Displacements",
         "Damage",
@@ -266,58 +196,44 @@
         "Strain",
         "Number of Neighbors"
       ],
-      "useOutputFrequency": false
+      "params": {
+        "Output File Type": "Exodus",
+        "Number of Output Steps": 100
+      }
     },
     {
-      "Frequency": 100,
-      "InitStep": 0,
-      "Write_After_Damage": false,
-      "name": "Output2",
-      "numberOfOutputSteps": 500,
       "outputsId": 2,
-      "selectedFileType": "CSV",
+      "name": "Output2",
       "selectedOutputs": ["External_Force", "External_Displacement"],
-      "useOutputFrequency": false
-    }
-  ],
-  "preCalculations": null,
-  "solvers": [
-    {
-      "adapt": {
-        "maximumBondDifference": 4,
-        "stableBondDifference": 1,
-        "stableStepDifference": 4
-      },
-      "adaptivetimeStepping": false,
-      "addEnabled": null,
-      "additionalTime": null,
-      "calculateCauchy": null,
-      "calculateStrain": true,
-      "calculateVonMises": true,
-      "damEnabled": true,
-      "dispEnabled": true,
-      "endStepAfterDamage": 3,
-      "finalTime": 0.0005,
-      "fixedDt": null,
-      "initialTime": 0.0,
-      "matEnabled": true,
-      "maxDamageValue": 0.3,
-      "name": null,
-      "safetyFactor": 0.95,
-      "solverId": null,
-      "solvertype": "Verlet",
-      "static": null,
-      "stepId": 1,
-      "stopAfterCertainDamage": false,
-      "stopAfterDamageInitation": false,
-      "stopBeforeDamageInitation": false,
-      "tempEnabled": false,
-      "verlet": {
-        "numericalDamping": 5e-6,
-        "outputFrequency": 100,
-        "safetyFactor": 0.95
+      "params": {
+        "Output File Type": "CSV",
+        "Number of Output Steps": 500
       }
     }
   ],
-  "thermal": []
+  "solvers": [
+    {
+      "solverId": 1,
+      "name": null,
+      "stepId": 1,
+      "solvertype": "Verlet",
+      "params": {
+        "Material Models": true,
+        "Damage Models": true,
+        "Thermal Models": false,
+        "Calculate von Mises stress": true,
+        "Calculate Strain": true,
+        "Initial Time": 0.0,
+        "Final Time": 0.0005
+      },
+      "solverOptions": {
+        "Safety Factor": 0.95,
+        "Numerical Damping": 5e-6
+      }
+    }
+  ],
+  "job": {
+    "verbose": false,
+    "tasks": 1
+  }
 }

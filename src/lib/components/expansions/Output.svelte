@@ -10,23 +10,22 @@ SPDX-License-Identifier: Apache-2.0
   import { modelStore } from '$lib/stores/model-store.svelte';
   import { bus } from '$lib/utils/bus';
   import type { Compute, Output } from '$lib/client';
-  import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import ChipGroup from '$lib/components/ui/ChipGroup.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import ParamLabel from '$lib/components/ParamLabel.svelte';
+  import SchemaParams from '$lib/components/SchemaParams.svelte';
+  import { sections, node, enumOf, pick, CUSTOM_KEYS } from '$lib/perilab/schema';
 
   const blocks = $derived(modelStore.modelData.blocks ?? []);
   const nodeSets = $derived(modelStore.modelData.discretization?.nodeSets ?? []);
   const computes = $derived(modelStore.modelData.computes ?? []);
   const outputs = $derived(modelStore.modelData.outputs ?? []);
 
-  const fileTypes = ['Exodus', 'CSV'];
-  const computeClasses = ['Block_Data', 'Node_Set_Data', 'Nearest_Point_Data'];
-  const calculationTypes = ['Sum', 'Maximum', 'Minimum'];
-  const variables = ['Forces', 'Displacements', 'Damage', 'Temperature'];
+  const fileType = (o: Output) => String(o.params?.['Output File Type'] ?? 'Exodus');
 
   let outputKeys = $state([
     'Displacements',
@@ -55,14 +54,23 @@ SPDX-License-Identifier: Apache-2.0
   }
 
   function addCompute() {
-    if (!modelStore.modelData.computes) modelStore.modelData.computes = [];
-    const list = modelStore.modelData.computes;
+    const list = (modelStore.modelData.computes ??= []);
     const len = list.length;
     const newItem =
-      len > 0 ? (structuredClone($state.snapshot(list[len - 1])) as Compute) : ({} as Compute);
+      len > 0
+        ? (structuredClone($state.snapshot(list[len - 1])) as Compute)
+        : ({
+            params: { 'Compute Class': 'Block_Data', Variable: 'Forces', 'Calculation Type': 'Sum' }
+          } as unknown as Compute);
     newItem.computesId = len + 1;
     newItem.name = `Compute${len + 1}`;
     list.push(newItem);
+  }
+
+  function clearStaleComputeKeys(compute: Compute) {
+    const computeClass = compute.params?.['Compute Class'];
+    if (computeClass !== 'Block_Data') delete compute.params!['Block'];
+    if (computeClass !== 'Node_Set_Data') compute.nodeSetId = null;
   }
 
   function removeCompute(index: number) {
@@ -76,8 +84,7 @@ SPDX-License-Identifier: Apache-2.0
       outputsId: len + 1,
       name: `Output${len + 1}`,
       selectedOutputs: [],
-      Write_After_Damage: false,
-      InitStep: 0
+      params: { 'Output File Type': 'Exodus', 'Number of Output Steps': 100 }
     } as Output);
   }
 
@@ -99,94 +106,68 @@ SPDX-License-Identifier: Apache-2.0
     <div class="border-border space-y-2 border-b pb-3">
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label for={`cp-name-${index}`}>Output label</Label>
+          <Label for={`cp-name-${index}`}>Name</Label>
           <Input id={`cp-name-${index}`} bind:value={compute.name} />
         </div>
         <div class="space-y-1">
-          <Label for={`cp-class-${index}`}>Compute class</Label>
-          <Select id={`cp-class-${index}`} bind:value={compute.computeClass}>
-            {#each computeClasses as c (c)}
+          <ParamLabel
+            key="Compute Class"
+            for={`cp-class-${index}`}
+            required
+            prop={sections.compute?.properties?.['Compute Class']}
+          />
+          <Select
+            id={`cp-class-${index}`}
+            bind:value={compute.params!['Compute Class']}
+            onchange={() => clearStaleComputeKeys(compute)}
+          >
+            {#each pick(enumOf(node(['Compute Class'], sections.compute)), ['Block_Data', 'Node_Set_Data', 'Nearest_Point_Data'], String(compute.params?.['Compute Class'] ?? '')) as c (c)}
               <option value={c}>{c}</option>
             {/each}
           </Select>
         </div>
-        <div class="space-y-1">
-          <Label for={`cp-var-${index}`}>Variable</Label>
-          <Select id={`cp-var-${index}`} bind:value={compute.variable}>
-            {#each variables as v (v)}
-              <option value={v}>{v}</option>
-            {/each}
-          </Select>
-        </div>
-        <div class="space-y-1">
-          <Label for={`cp-eq-${index}`}>Equation</Label>
-          <Input id={`cp-eq-${index}`} bind:value={compute.equation} />
-        </div>
-      </div>
-
-      {#if compute.computeClass === 'Block_Data'}
-        <div class="flex flex-wrap items-end gap-3">
+        {#if compute.params?.['Compute Class'] === 'Block_Data'}
           <div class="space-y-1">
-            <Label for={`cp-calc-${index}`}>Calculation type</Label>
-            <Select id={`cp-calc-${index}`} bind:value={compute.calculationType}>
-              {#each calculationTypes as c (c)}
-                <option value={c}>{c}</option>
-              {/each}
+            <ParamLabel
+              key="Block"
+              for={`cp-block-${index}`}
+              prop={sections.compute?.properties?.Block}
+            />
+            <Select id={`cp-block-${index}`} bind:value={compute.params!['Block']}>
+              {#each blocks as block (block.blocksId)}<option value={block.name}
+                  >{block.name}</option
+                >{/each}
             </Select>
           </div>
+        {:else if compute.params?.['Compute Class'] === 'Node_Set_Data'}
           <div class="space-y-1">
-            <Label for={`cp-block-${index}`}>Block</Label>
-            <Select id={`cp-block-${index}`} bind:value={compute.blockName}>
-              {#each blocks as block, blockIdx (blockIdx)}
-                <option value={block.name}>{block.name}</option>
-              {/each}
-            </Select>
-          </div>
-        </div>
-      {:else if compute.computeClass === 'Node_Set_Data'}
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="space-y-1">
-            <Label for={`cp-calc2-${index}`}>Calculation type</Label>
-            <Select id={`cp-calc2-${index}`} bind:value={compute.calculationType}>
-              {#each calculationTypes as c (c)}
-                <option value={c}>{c}</option>
-              {/each}
-            </Select>
-          </div>
-          <div class="space-y-1">
-            <Label for={`cp-ns-${index}`}>Node set ID</Label>
+            <ParamLabel
+              key="Node Set"
+              for={`cp-ns-${index}`}
+              prop={sections.compute?.properties?.['Node Set']}
+            />
             <Select id={`cp-ns-${index}`} bind:value={compute.nodeSetId}>
-              {#each nodeSets as ns, nsIndex (nsIndex)}
-                <option value={ns.nodeSetId}>{ns.nodeSetId}</option>
-              {/each}
+              {#each nodeSets as ns (ns.nodeSetId)}<option value={ns.nodeSetId}
+                  >{ns.nodeSetId}</option
+                >{/each}
             </Select>
           </div>
-        </div>
-      {:else if compute.computeClass === 'Nearest_Point_Data'}
-        <div class="flex flex-wrap items-end gap-3">
-          <div class="space-y-1">
-            <Label for={`cp-x-${index}`}>X</Label>
-            <Input id={`cp-x-${index}`} type="number" bind:value={compute.xValue} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`cp-y-${index}`}>Y</Label>
-            <Input id={`cp-y-${index}`} type="number" bind:value={compute.yValue} />
-          </div>
-          <div class="space-y-1">
-            <Label for={`cp-z-${index}`}>Z</Label>
-            <Input id={`cp-z-${index}`} type="number" bind:value={compute.zValue} />
-          </div>
-        </div>
-      {/if}
-
-      <Button
-        variant="ghost"
-        size="icon"
-        onclick={() => removeCompute(index)}
-        title="Remove Compute"
-      >
-        <Trash2 class="h-4 w-4" />
-      </Button>
+        {/if}
+        <Button
+          variant="ghost"
+          size="icon"
+          onclick={() => removeCompute(index)}
+          title="Remove Compute"
+        >
+          <Trash2 class="h-4 w-4" />
+        </Button>
+      </div>
+      <SchemaParams
+        entry={sections.compute}
+        values={compute.params!}
+        custom={CUSTOM_KEYS.compute}
+        idPrefix={`cp-${index}`}
+      />
     </div>
   {/each}
 
@@ -215,49 +196,43 @@ SPDX-License-Identifier: Apache-2.0
 
       <div class="flex flex-wrap items-end gap-3">
         <div class="space-y-1">
-          <Label>Selected outputs</Label>
+          <ParamLabel
+            key="Output File Type"
+            for={`out-type-${index}`}
+            prop={sections.output?.properties?.['Output File Type']}
+          />
+          <Select
+            id={`out-type-${index}`}
+            bind:value={output.params!['Output File Type']}
+            onchange={() => (output.selectedOutputs = [])}
+          >
+            {#each pick(enumOf(node(['Output File Type'], sections.output)), ['Exodus', 'CSV'], fileType(output)) as t (t)}
+              <option value={t}>{t}</option>
+            {/each}
+          </Select>
+        </div>
+        <div class="space-y-1">
+          <ParamLabel
+            key="Output Variables"
+            for={`out-vars-${index}`}
+            required
+            prop={sections.output?.properties?.['Output Variables']}
+          />
           <ChipGroup
-            ariaLabel="Selected outputs of {output.name}"
-            options={output.selectedFileType === 'CSV'
+            ariaLabel="Output Variables of {output.name}"
+            options={fileType(output) === 'CSV'
               ? computes.flatMap((c) => (c.name ? [c.name] : []))
               : outputKeys}
             bind:value={output.selectedOutputs}
           />
         </div>
-        <div class="space-y-1">
-          <Label for={`out-type-${index}`}>File type</Label>
-          <Select
-            id={`out-type-${index}`}
-            bind:value={output.selectedFileType}
-            onchange={() => (output.selectedOutputs = [])}
-          >
-            {#each fileTypes as t (t)}
-              <option value={t}>{t}</option>
-            {/each}
-          </Select>
-        </div>
-        <Toggle bind:checked={output.useOutputFrequency} label="Use output frequency" />
-        {#if output.useOutputFrequency}
-          <div class="space-y-1">
-            <Label for={`out-freq-${index}`}>Output frequency</Label>
-            <Input id={`out-freq-${index}`} type="number" bind:value={output.Frequency} />
-          </div>
-        {:else}
-          <div class="space-y-1">
-            <Label for={`out-numsteps-${index}`}>Number of outputs</Label>
-            <Input
-              id={`out-numsteps-${index}`}
-              type="number"
-              bind:value={output.numberOfOutputSteps}
-            />
-          </div>
-        {/if}
-        <div class="space-y-1">
-          <Label for={`out-init-${index}`}>Initial output step</Label>
-          <Input id={`out-init-${index}`} type="number" bind:value={output.InitStep} />
-        </div>
-        <Toggle bind:checked={output.Write_After_Damage} label="Write after damage" />
       </div>
+      <SchemaParams
+        entry={sections.output}
+        values={output.params!}
+        custom={CUSTOM_KEYS.output}
+        idPrefix={`out-${index}`}
+      />
     </div>
   {/each}
 

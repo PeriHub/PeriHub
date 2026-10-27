@@ -98,15 +98,17 @@ SPDX-License-Identifier: Apache-2.0
       await postFiles([file]);
       model.meshFile = file.name;
       const data = modelStore.modelData;
-      if (!data.discretization) data.discretization = {} as Discretization;
+      if (!data.discretization) data.discretization = { params: {} } as Discretization;
       data.discretization.discType = type;
       if (type === 'gcode' && !data.discretization.gcode) {
         data.discretization.gcode = {
-          overwriteMesh: true,
-          sampling: 1,
-          width: 0.4,
-          height: 0.2,
-          scale: 1
+          params: {
+            'Overwrite Mesh': true,
+            Sampling: 1,
+            Width: 0.4,
+            Height: 0.2,
+            Scale: 1
+          }
         };
       }
       notify.positive(`Mesh ${file.name} uploaded`);

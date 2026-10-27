@@ -11,7 +11,7 @@ PeriHub is a web platform for peridynamics simulations: a FastAPI backend (`back
 ### Full stack
 
 ```bash
-cp .env.example .env   # configure (DATABASE_URL, SESSION_SECRET, GUEST_ACCESS, SOLVER_BACKEND, OAUTH_*, LICENSE_*, ...)
+cp .env.example .env   # configure (DATABASE_URL, SESSION_SECRET, GUEST_ACCESS, OAUTH_*, LICENSE_*, ...)
 docker compose up      # frontend at http://localhost:8080
 ```
 
@@ -69,20 +69,26 @@ Regenerate the typed API client after any backend endpoint change (needs the bac
 npm run client    # writes src/lib/client/ via @hey-api/openapi-ts — never hand-edit those files
 ```
 
+Refresh the PeriLab input-deck schema (option lists and "Additional PeriLab parameters" in the expansions) after a PeriLab update (needs `docker compose up perilab -d` with a PeriLab that has `GET /schema`):
+
+```bash
+npm run perilab-schema   # writes src/lib/perilab/schema.json - commit it; never hand-edit
+```
+
 ## Architecture
 
 ### Backend (`backend/app`)
 
 - `main.py` — FastAPI app; mounts routers, serves `/assets`, `/health`, and `/openapi.agent.json` (the workflow subset of the spec for spec-only agents — `AGENT_OPERATIONS` lists the operation ids). Lifespan installs own-model requirements and checks the DB connection.
-- `routers/` — one module per API tag. Simulation: `generate` (models/mesh), `model` (model/input-deck CRUD), `upload`, `translate`, `jobs` (run/cancel/status, run listing, `/{run_id}/log`), `results`, `energy`, `delete`, `docs`. Platform: `auth` (local email/password), `api_keys` (self-service API keys), `oauth` (OIDC), `config` (`GET /config/public`), `library` (shared model configs/materials), `projects`, `teams`, `usage`, `license`. Each endpoint sets an `operation_id`; the OpenAPI schema is the contract for the frontend client.
-- `support/globals.py` — all configuration comes from env vars loaded from `.env` (`.env.example` documents them): `GUEST_ACCESS`, `DEPLOYMENT_MODE` (community/enterprise), `MAX_NODES`, `DATABASE_URL`, `SESSION_SECRET`, `SOLVER_BACKEND`/`LOCAL_PERILAB_API_URL`/`EXTERNAL_PERILAB_URL`, job limits (`MAX_CONCURRENT_LOCAL_JOBS`, `MAX_CONCURRENT_JOBS_PER_USER`), `OAUTH_*`, `LICENSE_*`.
-- `db/` — SQLAlchemy engine/session (`base.py`, `get_db` dependency) and ORM models (`models.py`: Organization, User, OAuthIdentity, ApiKey, AdminSetting, Team, Project, JobQueueEntry, ModelConfig, Material). Accounts (including guests), sharing and job submission require it.
+- `routers/` — one module per API tag. Simulation: `generate` (models/mesh), `model` (model/input-deck CRUD), `upload`, `jobs` (run/cancel/status, run listing, `/{run_id}/log`), `results`, `energy`, `delete`, `docs`. Platform: `auth` (local email/password), `api_keys` (self-service API keys), `oauth` (OIDC), `config` (`GET /config/public`), `library` (shared model configs/materials), `projects`, `teams`, `usage`, `license`, `admin` (admin page: users, jobs, settings, audit log; all behind `require_admin`; the first user in an org becomes admin via `rbac.ensure_first_admin`). Each endpoint sets an `operation_id`; the OpenAPI schema is the contract for the frontend client.
+- `support/globals.py` — all configuration comes from env vars loaded from `.env` (`.env.example` documents them): `GUEST_ACCESS`, `DEPLOYMENT_MODE` (community/enterprise), `MAX_NODES`, `DATABASE_URL`, `SESSION_SECRET`, `LOCAL_PERILAB_API_URL`, `SOLVER_BACKEND` (optional, default `local`; not in `.env.example`) + `EXTERNAL_PERILAB_URL`, job limits (`MAX_CONCURRENT_LOCAL_JOBS`, `MAX_CONCURRENT_JOBS_PER_USER`), `OAUTH_*`, `LICENSE_*`, `SMTP_*`/`PUBLIC_URL` (mail via `mailer.py`: password reset, job notifications). Some settings (e.g. `EXTERNAL_PERILAB_URL`, job limits, guest access) can be overridden at runtime from the admin page (`admin_settings.py`, DB row wins over env).
+- `db/` — SQLAlchemy engine/session (`base.py`, `get_db` dependency) and ORM models (`models.py`: Organization, User, OAuthIdentity, ApiKey, AdminSetting, Team, TeamMembership, Project, ProjectMembership, JobQueueEntry, ModelConfig, Material). Accounts (including guests), sharing and job submission require it.
 - `support/file_handler.py` — path handling: user data lives under `backend/app/simulations/<user.id>/<model>/<folder>` (mounted volume; `user` without a DB).
 - **Identity/auth** — `support/db_auth.resolve_user()` identifies the caller only from `X-Api-Key` (per-user keys, `api_keys.py`, managed via `routers/api_keys.py`) or `Authorization: Bearer` (session JWT, `local_auth.py`); `guest.user_folder()` gives the caller's folder (`simulations/<user.id>`, or `user` without a DB) and 401s without a login. `rbac.py` has ranked roles (admin > developer > member > viewer > guest; only developer/admin may create/edit/delete own models and save default configs, since models run server-side code and configs are shared; the editor offers saving built-in defaults only under `npm run dev`) and visibility-scoped queries (private/team/org/public); `entitlements.py` + `license_client.py` gate features by license (nothing is gated when no license server is configured); `seats.py` and `audit_log.py` round this out; `/usage` aggregates `JobQueueEntry` rows. `guest.py` holds guest restrictions/limits (guest access: anonymous visitors get a `guest` account via `POST /auth/guest`), `guest_sweeper.py` stops overdue guest jobs and deletes expired guests.
 - `support/writer/` — generates what the solver consumes: `model_writer.py` (input deck), `yaml_writer_perilab.py`.
-- `support/model/` (model API, shapes, YAML models, loader, meshing — see below) and `support/results/` (analysis, crack_analysis).
+- `support/model/` (model API, shapes, YAML models, loader, meshing — see below) and `support/results/` (crack_analysis, summary).
 
-**Job execution** (`routers/jobs.py`): `support/solver_backend.py` submits to a PeriLab HTTP API via `support/perilab_api_client.py`. `SOLVER_BACKEND=local` = the bundled `perihub_perilab` container sharing the simulations volume (files read directly); `external` = a customer-hosted PeriLab API (files uploaded/downloaded through it). Capacity and per-user caps are checked up front (`job_concurrency.py`, 429 if exceeded — there is no queue), and each submission is recorded as a `JobQueueEntry` holding `perilab_job_id` (`job_queue.py`), so **local submission requires `DATABASE_URL`**. Logs/status are fetched from the PeriLab API. There is no HPC/cluster (SFTP/sbatch) path anymore.
+**Job execution** (`routers/jobs.py`): `support/solver_backend.py` submits to a PeriLab HTTP API via `support/perilab_api_client.py`. `SOLVER_BACKEND=local` = the bundled `perihub_perilab` container sharing the simulations volume (files read directly); `external` = a customer-hosted PeriLab API (files uploaded/downloaded through it). Capacity and per-user caps are checked up front (`job_concurrency.py`, 429 if exceeded — there is no queue), and each submission is recorded as a `JobQueueEntry` holding `perilab_job_id` (`job_queue.py`), so **local submission requires `DATABASE_URL`**. Logs/status are fetched from the PeriLab API. There is no HPC/cluster (SFTP/sbatch) path anymore. Every submitted deck passes `support/deck_guard.py`, which refuses deck strings PeriLab would `eval` as Julia (BC `Value`, compute `Equation`, node sets, ...) — without it any account, guests included, gets code execution in the solver container, so don't bypass it when adding deck fields.
 
 **Model generator pattern** — this is the core extensibility mechanism (reference: `docs/OwnModels.md`):
 
@@ -95,7 +101,7 @@ npm run client    # writes src/lib/client/ via @hey-api/openapi-ts — never han
 ### Frontend (repo root)
 
 Svelte 5 (runes) + SvelteKit (`adapter-static`) + TypeScript + Tailwind v4 + `bits-ui`/shadcn-svelte, no Pinia
-(stores are plain `$state` classes), i18n via `sveltekit-i18n` (`src/lib/i18n/`).
+(stores are plain `$state` classes).
 
 - `src/lib/client/` — generated axios client mirroring the backend OpenAPI schema; components/stores call these services directly. Never hand-edit — regenerate with `npm run client`.
 - `src/routes/perihub/+page.svelte` is the main workflow page; `src/lib/components/expansions/` each map to one input-deck section (Discretization, BoundaryConditions, Material, Blocks, Output, ...), `src/lib/components/views/` hold the viewers (model/results 3D views, charts, text editor, log view, `JobsView`), `dialogs/` hold e.g. `UserSettingsDialog`.

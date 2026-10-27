@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { sectionStatus } from '../../src/lib/utils/schemaValidation';
 
-const THERMAL = { name: 'T1', thermalModel: ['Thermal Flow'], thermalType: 'Bond based' };
+const THERMAL = { name: 'T1', params: { 'Thermal Model': 'Thermal Flow' } };
 
 describe('sectionStatus', () => {
   it('marks empty optional sections unused, empty required sections incomplete', () => {
@@ -16,7 +16,7 @@ describe('sectionStatus', () => {
 
   it('still checks entries of a used optional section', () => {
     expect(sectionStatus('thermal', 'ThermalModel', 'array', [THERMAL])).toBe('complete');
-    expect(sectionStatus('thermal', 'ThermalModel', 'array', [{ name: 'T1' }])).toBe('incomplete');
+    expect(sectionStatus('thermal', 'ThermalModel', 'array', [{}])).toBe('incomplete');
   });
 
   it('honours isUsed for always-present object sections', () => {
@@ -46,6 +46,15 @@ describe('sectionStatus', () => {
         undefined,
         meshReady
       )
+    ).toBe('complete');
+  });
+
+  it('treats missing PeriLab keys as incomplete', () => {
+    expect(
+      sectionStatus('thermal', 'ThermalModel', 'array', [THERMAL], undefined, undefined, 2)
+    ).toBe('incomplete');
+    expect(
+      sectionStatus('thermal', 'ThermalModel', 'array', [THERMAL], undefined, undefined, 0)
     ).toBe('complete');
   });
 });

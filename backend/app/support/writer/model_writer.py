@@ -5,19 +5,28 @@
 """
 doc
 """
+
 import json
 import os
 import time
 
 import magicattr
 import numpy as np
-import pandas as pd
+from fastapi import HTTPException
 
 from ...support.file_handler import FileHandler
 from ...support.globals import log
+from ...support.model.yaml_model import SET_PATH
 from ...support.writer.yaml_writer_perilab import YAMLcreatorPeriLab
 
-# from numba import jit
+
+def _validate_deviation_path(path: str) -> str:
+    """Deviations ids are handed to magicattr.get/set, which follows any attribute/subscript path - so, like
+    YAML models' `set:` (support/model/yaml_model.py), only plain ModelData field paths are allowed; otherwise a
+    user-supplied id could reach arbitrary attributes (e.g. '__class__.__init__')."""
+    if not SET_PATH.fullmatch(path):
+        raise HTTPException(status_code=422, detail=f"Invalid deviation parameter path: {path}")
+    return path
 
 
 class ModelWriter:
@@ -53,12 +62,6 @@ class ModelWriter:
                 string += str(int(point) + 1) + "\n"
             self.file_writer(self.ns_name + "_" + str(idx + 1) + ".txt", string)
             number_of_ns += 1
-            # print(self.ns_list)
-            # for idx, points in enumerate(self.ns_list):
-            #     string = "header: global_id\n"
-            #     for point in points:
-            #         string += str(int(point) + 1) + "\n"
-            # self.file_writer(self.ns_name + "_" + str(idx + 1 + number_of_ns) + ".txt", string)
 
     def file_writer(self, filename, string):
         """doc"""
@@ -95,25 +98,6 @@ class ModelWriter:
         )
         log.info("Mesh written in %.2f seconds", time.time() - start_time)
 
-    def write_mesh_with_angles(self, model, twoD=False):
-        """doc"""
-        start_time = time.time()
-        values = "%.18e %.18e %.18e %d %.18e %.18e %.18e %.18e"
-        if twoD:
-            string = "header: x y block_id volume Angles\n"
-            # remove z entry from model
-            model = np.delete(model, [2, 6, 7], axis=1)
-            values = "%.18e %.18e %d %.18e %.18e"
-        else:
-            string = "header: x y z block_id volume Angles_x Angles_y Angles_z\n"
-        self.mesh_file_writer(
-            self.filename + ".txt",
-            string,
-            model,
-            values,
-        )
-        log.info("Mesh written in %.2f seconds", time.time() - start_time)
-
     def create_file(self, block_def, max_block_id, deviations=None):
         """doc"""
 
@@ -123,7 +107,11 @@ class ModelWriter:
         self.file_writer(self.filename + ".yaml", string)
 
         if deviations is not None and deviations.enabled:
-            
+
+            for parameter in [*deviations.parameters, *(deviations.oldParameters or [])]:
+                for parameter_id in parameter.id:
+                    _validate_deviation_path(parameter_id)
+
             deviation_dict = {"sample_size": deviations.sampleSize, "samples": {}, "default": {}}
 
             output_names = []
@@ -136,64 +124,25 @@ class ModelWriter:
                 deviation_dict["samples"][sample_names[i]] = {}
 
             value_list = []
-            old_params = []
-            old_deviation_dict = None
             num_old_params = 0
             if deviations.file is not None:
-                deviations_path =os.path.join(self.path,deviations.file)
+                deviations_path = os.path.join(self.path, deviations.file)
                 if not os.path.exists(deviations_path):
                     log.error("Deviation file does not exist: %s", deviations_path)
                     return
-                # if deviations.type == "json":
-                #     with open(deviations_path, "r", encoding="UTF-8") as file:
-                #         old_deviation_dict = json.load(file)
-                        
-                #     df_samples = pd.DataFrame.from_dict(old_deviation_dict['samples'], orient='index')
-                #     min_val = np.min(df_samples["G1C"])
-                #     max_val = np.max(df_samples["G1C"])
-                #     scaled_data = (df_samples['G1C'] - df_samples['G1C'].mean()) / df_samples['G1C'].std() * deviations.std + deviations.mean
-                #     print(scaled_data)
-                #     # scaled_data = ((df_samples["G1C"] - min_val) / (max_val - min_val)  - 0.5) * np.std(df_samples["G1C"]) + np.mean(df_samples["G1C"])
-                #     default_keys = list(old_deviation_dict["default"])
-                #     default_keys.append("G1C")
-                #     for parameter in default_keys:
-                #         new_key = []
-                #         if parameter == "G1C":
-                #             new_key.append("damages[0].interBlocks[0].value")
-                #             new_key.append("damages[0].interBlocks[1].value")
-                #         elif parameter == "materials[0].youngsModulus":
-                #             new_key.append("materials[0].youngsModulusY")
-                #         elif parameter == "materials[0].poissonsRatio":
-                #             new_key.append("materials[0].poissonsRatioXY")
-                #         old_params.append(new_key)
-                #         values = []
-                #         for i,sample in enumerate(old_deviation_dict["samples"]):
-                #             if i == deviations.sampleSize:
-                #                 break
-                #             old_value = old_deviation_dict["samples"][sample][parameter]
-                #             for key in new_key:
-                #                 if parameter == "G1C":
-                #                     old_value = scaled_data[i]
-                #                 deviation_dict["samples"][sample_names[i]][key] = old_value
-                #             values.append(old_value)
-                #         value_list.append(values)
-                #         for key in new_key:
-                #             if parameter == "G1C":
-                #                 deviation_dict["default"][key] = {"mean": deviations.mean, "std": deviations.std}
-                #             else:
-                #                 deviation_dict["default"][key] = old_deviation_dict["default"][parameter]
                 if deviations.fileInput:
                     old_deviation = np.loadtxt(deviations_path)
                     num_old_params = len(deviations.oldParameters)
-                    # old_params = [["materials[0].youngsModulusX"],["materials[0].poissonsRatioXY"],["materials[0].youngsModulusY"],["materials[0].shearModulusXY"],["damages[0].interBlocks[0].value","damages[0].interBlocks[1].value"]]
-                    # factor = [1000,1,1000,1000,0.001]
                     for i in range(old_deviation.shape[1]):
                         factor = deviations.oldParameters[i].factor
-                        value_list.append(old_deviation[:,i]* factor)
+                        value_list.append(old_deviation[:, i] * factor)
                         for key in deviations.oldParameters[i].id:
                             for j in range(old_deviation.shape[0]):
-                                deviation_dict["samples"][sample_names[j]][key] = old_deviation[j,i] * factor
-                            deviation_dict["default"][key] = {"mean": old_deviation[:,i].mean()* factor, "std": old_deviation[:,i].std()* factor}
+                                deviation_dict["samples"][sample_names[j]][key] = old_deviation[j, i] * factor
+                            deviation_dict["default"][key] = {
+                                "mean": old_deviation[:, i].mean() * factor,
+                                "std": old_deviation[:, i].std() * factor,
+                            }
 
             for parameter in deviations.parameters:
                 mean = magicattr.get(self.model_data, parameter.id[0])
@@ -201,13 +150,10 @@ class ModelWriter:
                 value_list.append(value)
                 for ids in parameter.id:
                     deviation_dict["default"][ids] = {"mean": mean, "std": parameter.std}
-                # deviation_dict["default"]["G2C"] = 0.0
                 for i in range(deviations.sampleSize):
                     for ids in parameter.id:
                         deviation_dict["samples"][sample_names[i]][ids] = value[i]
-            
-            if old_deviation_dict is not None:
-                num_old_params = len(old_deviation_dict["default"]) + 1
+
             num_new_params = len(deviations.parameters)
 
             for i in range(deviations.sampleSize):
@@ -216,7 +162,7 @@ class ModelWriter:
                         magicattr.set(self.model_data, parameter, value_list[j][i])
                 for j in range(num_new_params):
                     for parameter in deviations.parameters[j].id:
-                        magicattr.set(self.model_data, parameter, value_list[j+num_old_params][i])
+                        magicattr.set(self.model_data, parameter, value_list[j + num_old_params][i])
                 for idx, output in enumerate(self.model_data.outputs):
                     output.name = output_names[idx] + "_" + str(i + 1)
                 yaml_perilab = YAMLcreatorPeriLab(self, block_def=block_def)

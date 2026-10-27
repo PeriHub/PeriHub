@@ -17,10 +17,12 @@ SPDX-License-Identifier: Apache-2.0
     icon: Component;
     /** Optional required-fields-filled-in indicator (see schemaValidation.ts). Omit to hide. */
     status?: SectionStatus;
+    /** Required PeriLab keys without a value in this section (see $lib/perilab/missing.ts). */
+    missing?: string[];
     children?: import('svelte').Snippet;
   }
 
-  let { value, label, icon: Icon, status, children }: Props = $props();
+  let { value, label, icon: Icon, status, missing, children }: Props = $props();
 
   const STATUS_STYLE: Record<SectionStatus, { class: string; title: string }> = {
     complete: { class: 'bg-success', title: 'Required fields filled in' },
@@ -36,6 +38,11 @@ SPDX-License-Identifier: Apache-2.0
     >
       <Icon class="text-primary h-4 w-4 shrink-0" />
       <span class="flex-1">{label}</span>
+      {#if missing?.length}
+        <span class="text-warning text-xs font-normal tabular-nums" title={missing.join('\n')}>
+          {missing.length} missing
+        </span>
+      {/if}
       {#if status}
         <span
           class={cn('h-2 w-2 shrink-0 rounded-full', STATUS_STYLE[status].class)}

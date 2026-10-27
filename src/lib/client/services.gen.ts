@@ -64,7 +64,7 @@ export const previewModel = (data: PreviewModelData): CancelablePromise<PreviewM
  * by it everywhere, so it isn't listed twice).
  *
  * `own_only`: just the own models, shadowed ones included; broken or legacy-format ones
- * carry an `error` message. `verify` (with `own_only`): only those the caller authored.
+ * carry an `error` message. `verify` (with `own_only`): only those the caller authored (admins: all).
  * @param data The data for the request.
  * @param data.ownOnly
  * @param data.verify
@@ -924,7 +924,7 @@ export const signup = (data: SignupData): CancelablePromise<SignupResponse> => {
 /**
  * Login
  * Local email/password login; returns a session token to send as `Authorization: Bearer`. 401 on wrong
- * credentials, 403 for deactivated accounts.
+ * credentials, 403 for deactivated accounts, 429 after 10 wrong passwords for the email within 15 minutes.
  * @param data The data for the request.
  * @param data.requestBody
  * @returns app__routers__oauth__AuthResponse Successful Response

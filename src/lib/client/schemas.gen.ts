@@ -12,30 +12,18 @@ export const $AccountSettingsUpdate = {
     title: 'AccountSettingsUpdate'
 } as const;
 
-export const $Adapt = {
-    properties: {
-        stableStepDifference: {
-            type: 'integer',
-            title: 'Stablestepdifference',
-            default: 4
-        },
-        maximumBondDifference: {
-            type: 'integer',
-            title: 'Maximumbonddifference',
-            default: 10
-        },
-        stableBondDifference: {
-            type: 'integer',
-            title: 'Stablebonddifference',
-            default: 4
-        }
-    },
-    type: 'object',
-    title: 'Adapt'
-} as const;
-
 export const $AdditiveModel = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         additiveModelId: {
             anyOf: [
                 {
@@ -46,22 +34,11 @@ export const $AdditiveModel = {
                 }
             ],
             title: 'Additivemodelid'
-        },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        additiveType: {
-            type: 'string',
-            title: 'Additivetype'
-        },
-        printTemp: {
-            type: 'number',
-            title: 'Printtemp'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['name', 'additiveType', 'printTemp'],
+    required: ['name'],
     title: 'AdditiveModel'
 } as const;
 
@@ -497,93 +474,19 @@ export const $AuthorizationUrlResponse = {
 
 export const $Block = {
     properties: {
-        blocksId: {
-            type: 'integer',
-            title: 'Blocksid'
-        },
         name: {
             type: 'string',
             title: 'Name'
         },
-        material: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Material'
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
         },
-        damageModel: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Damagemodel'
-        },
-        thermalModel: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Thermalmodel'
-        },
-        additiveModel: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Additivemodel'
-        },
-        horizon: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Horizon'
-        },
-        density: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Density'
-        },
-        specificHeatCapacity: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Specificheatcapacity'
+        blocksId: {
+            type: 'integer',
+            title: 'Blocksid'
         },
         show: {
             anyOf: [
@@ -597,8 +500,9 @@ export const $Block = {
             title: 'Show'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['blocksId', 'name'],
+    required: ['name', 'blocksId'],
     title: 'Block'
 } as const;
 
@@ -613,6 +517,7 @@ export const $BlockFunction = {
             title: 'Function'
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['id', 'function'],
     title: 'BlockFunction'
@@ -688,6 +593,16 @@ export const $Body_upload_files = {
 
 export const $BondFilters = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         bondFiltersId: {
             anyOf: [
                 {
@@ -698,170 +613,6 @@ export const $BondFilters = {
                 }
             ],
             title: 'Bondfiltersid'
-        },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        type: {
-            type: 'string',
-            title: 'Type'
-        },
-        allow_contact: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Allow Contact',
-            default: false
-        },
-        normalX: {
-            type: 'number',
-            title: 'Normalx'
-        },
-        normalY: {
-            type: 'number',
-            title: 'Normaly'
-        },
-        normalZ: {
-            type: 'number',
-            title: 'Normalz'
-        },
-        lowerLeftCornerX: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Lowerleftcornerx'
-        },
-        lowerLeftCornerY: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Lowerleftcornery'
-        },
-        lowerLeftCornerZ: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Lowerleftcornerz'
-        },
-        bottomUnitVectorX: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bottomunitvectorx'
-        },
-        bottomUnitVectorY: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bottomunitvectory'
-        },
-        bottomUnitVectorZ: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bottomunitvectorz'
-        },
-        bottomLength: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bottomlength'
-        },
-        sideLength: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Sidelength'
-        },
-        centerX: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Centerx'
-        },
-        centerY: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Centery'
-        },
-        centerZ: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Centerz'
-        },
-        radius: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Radius'
         },
         show: {
             anyOf: [
@@ -875,13 +626,24 @@ export const $BondFilters = {
             title: 'Show'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['name', 'type', 'normalX', 'normalY', 'normalZ'],
+    required: ['name'],
     title: 'BondFilters'
 } as const;
 
 export const $BoundaryCondition = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         conditionsId: {
             anyOf: [
                 {
@@ -894,23 +656,12 @@ export const $BoundaryCondition = {
             title: 'Conditionsid'
         },
         stepId: {
-            anyOf: [
-                {
-                    items: {
-                        type: 'integer'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
+            items: {
+                type: 'integer'
+            },
+            type: 'array',
             title: 'Stepid',
             default: [1]
-        },
-        name: {
-            type: 'string',
-            title: 'Name'
         },
         nodeSet: {
             anyOf: [
@@ -923,14 +674,6 @@ export const $BoundaryCondition = {
             ],
             title: 'Nodeset'
         },
-        boundarytype: {
-            type: 'string',
-            title: 'Boundarytype'
-        },
-        variable: {
-            type: 'string',
-            title: 'Variable'
-        },
         blockId: {
             anyOf: [
                 {
@@ -941,18 +684,11 @@ export const $BoundaryCondition = {
                 }
             ],
             title: 'Blockid'
-        },
-        coordinate: {
-            type: 'string',
-            title: 'Coordinate'
-        },
-        value: {
-            type: 'string',
-            title: 'Value'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['name', 'boundarytype', 'variable', 'coordinate', 'value'],
+    required: ['name'],
     title: 'BoundaryCondition'
 } as const;
 
@@ -966,6 +702,7 @@ export const $BoundaryConditions = {
             title: 'Conditions'
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['conditions'],
     title: 'BoundaryConditions'
@@ -1009,6 +746,16 @@ export const $ColumnSummary = {
 
 export const $Compute = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         computesId: {
             anyOf: [
                 {
@@ -1020,51 +767,6 @@ export const $Compute = {
             ],
             title: 'Computesid'
         },
-        computeClass: {
-            type: 'string',
-            title: 'Computeclass'
-        },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        variable: {
-            type: 'string',
-            title: 'Variable'
-        },
-        equation: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Equation'
-        },
-        calculationType: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Calculationtype'
-        },
-        blockName: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Blockname'
-        },
         nodeSetId: {
             anyOf: [
                 {
@@ -1075,91 +777,48 @@ export const $Compute = {
                 }
             ],
             title: 'Nodesetid'
-        },
-        xValue: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Xvalue'
-        },
-        yValue: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Yvalue'
-        },
-        zValue: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Zvalue'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['computeClass', 'name', 'variable'],
+    required: ['name'],
     title: 'Compute'
 } as const;
 
 export const $Contact = {
     properties: {
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         contactModels: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/ContactModel'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Contactmodels'
-        },
-        searchFrequency: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Searchfrequency'
-        },
-        onlySurfaceContactNodes: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Onlysurfacecontactnodes'
+            items: {
+                '$ref': '#/components/schemas/ContactModel'
+            },
+            type: 'array',
+            title: 'Contactmodels',
+            default: []
         }
     },
+    additionalProperties: false,
     type: 'object',
     title: 'Contact'
 } as const;
 
 export const $ContactGroup = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         contactGroupId: {
             anyOf: [
                 {
@@ -1170,31 +829,26 @@ export const $ContactGroup = {
                 }
             ],
             title: 'Contactgroupid'
-        },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        masterBlockId: {
-            type: 'integer',
-            title: 'Masterblockid'
-        },
-        slaveBlockId: {
-            type: 'integer',
-            title: 'Slaveblockid'
-        },
-        searchRadius: {
-            type: 'number',
-            title: 'Searchradius'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['name', 'masterBlockId', 'slaveBlockId', 'searchRadius'],
+    required: ['name'],
     title: 'ContactGroup'
 } as const;
 
 export const $ContactModel = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         contactModelId: {
             anyOf: [
                 {
@@ -1206,47 +860,27 @@ export const $ContactModel = {
             ],
             title: 'Contactmodelid'
         },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        contactType: {
-            type: 'string',
-            title: 'Contacttype'
-        },
-        contactRadius: {
-            type: 'number',
-            title: 'Contactradius'
-        },
-        contactStiffness: {
-            type: 'number',
-            title: 'Contactstiffness'
-        },
         contactGroups: {
             items: {
                 '$ref': '#/components/schemas/ContactGroup'
             },
             type: 'array',
-            title: 'Contactgroups'
+            title: 'Contactgroups',
+            default: []
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['name', 'contactType', 'contactRadius', 'contactStiffness', 'contactGroups'],
+    required: ['name'],
     title: 'ContactModel'
 } as const;
 
 export const $CriticalEnergyCalc = {
     properties: {
         calculateCriticalEnergy: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Calculatecriticalenergy'
+            type: 'boolean',
+            title: 'Calculatecriticalenergy',
+            default: false
         },
         k1c: {
             anyOf: [
@@ -1260,12 +894,24 @@ export const $CriticalEnergyCalc = {
             title: 'K1C'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    title: 'CriticalEnergyCalc'
+    title: 'CriticalEnergyCalc',
+    description: "Input of the frontend's K1C calculator (writes Critical Value into `params`); never written."
 } as const;
 
 export const $Damage = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         damagesId: {
             anyOf: [
                 {
@@ -1277,79 +923,13 @@ export const $Damage = {
             ],
             title: 'Damagesid'
         },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        damageModel: {
-            type: 'string',
-            title: 'Damagemodel'
-        },
-        criticalStretch: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Criticalstretch'
-        },
-        criticalVonMisesStress: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Criticalvonmisesstress'
-        },
-        criticalDamage: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Criticaldamage'
-        },
-        thresholdDamage: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Thresholddamage'
-        },
-        criticalDamageToNeglect: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Criticaldamagetoneglect'
-        },
-        criticalEnergy: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Criticalenergy'
+        interBlocks: {
+            items: {
+                '$ref': '#/components/schemas/InterBlock'
+            },
+            type: 'array',
+            title: 'Interblocks',
+            default: []
         },
         criticalEnergyCalc: {
             anyOf: [
@@ -1360,112 +940,11 @@ export const $Damage = {
                     type: 'null'
                 }
             ]
-        },
-        interBlockDamage: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Interblockdamage'
-        },
-        numberOfBlocks: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Numberofblocks'
-        },
-        interBlocks: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/InterBlock'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Interblocks'
-        },
-        anistropicDamage: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Anistropicdamage'
-        },
-        anistropicDamageX: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Anistropicdamagex'
-        },
-        anistropicDamageY: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Anistropicdamagey'
-        },
-        anistropicDamageZ: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Anistropicdamagez'
-        },
-        onlyTension: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Onlytension'
-        },
-        thickness: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Thickness'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['name', 'damageModel'],
+    required: ['name'],
     title: 'Damage'
 } as const;
 
@@ -1586,6 +1065,7 @@ export const $Deviations = {
             title: 'Std'
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['enabled', 'sampleSize', 'parameters'],
     title: 'Deviations'
@@ -1593,21 +1073,16 @@ export const $Deviations = {
 
 export const $Discretization = {
     properties: {
-        distributionType: {
-            type: 'string',
-            title: 'Distributiontype'
-        },
         discType: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
+            type: 'string',
             title: 'Disctype',
             default: 'txt'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
         },
         gcode: {
             anyOf: [
@@ -1620,27 +1095,26 @@ export const $Discretization = {
             ]
         },
         nodeSets: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/NodeSet'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Nodesets'
+            items: {
+                '$ref': '#/components/schemas/NodeSet'
+            },
+            type: 'array',
+            title: 'Nodesets',
+            default: []
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['distributionType'],
     title: 'Discretization'
 } as const;
 
 export const $EngineeringConstants = {
     properties: {
+        calculate: {
+            type: 'boolean',
+            title: 'Calculate',
+            default: false
+        },
         E1: {
             anyOf: [
                 {
@@ -1741,8 +1215,10 @@ export const $EngineeringConstants = {
             title: 'Nu23'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    title: 'EngineeringConstants'
+    title: 'EngineeringConstants',
+    description: "Input of the frontend's stiffness-matrix calculator (writes C11..C66 into `params`); never written."
 } as const;
 
 export const $ForgotPasswordRequest = {
@@ -1760,43 +1236,23 @@ export const $ForgotPasswordRequest = {
 
 export const $Gcode = {
     properties: {
-        overwriteMesh: {
-            type: 'boolean',
-            title: 'Overwritemesh'
-        },
-        sampling: {
-            type: 'number',
-            title: 'Sampling'
-        },
-        width: {
-            type: 'number',
-            title: 'Width'
-        },
-        height: {
-            type: 'number',
-            title: 'Height'
-        },
-        scale: {
-            type: 'number',
-            title: 'Scale'
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
         },
         blockFunctions: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/BlockFunction'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Blockfunctions'
+            items: {
+                '$ref': '#/components/schemas/BlockFunction'
+            },
+            type: 'array',
+            title: 'Blockfunctions',
+            default: []
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['overwriteMesh', 'sampling', 'width', 'height', 'scale'],
     title: 'Gcode'
 } as const;
 
@@ -1872,6 +1328,7 @@ export const $InterBlock = {
             title: 'Value'
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['firstBlockId', 'secondBlockId', 'value'],
     title: 'InterBlock'
@@ -1881,10 +1338,7 @@ export const $Job = {
     properties: {
         verbose: {
             type: 'boolean',
-            title: 'Verbose',
-            ui_group: 'Job',
-            ui_label: 'Verbose',
-            ui_widget: 'toggle'
+            title: 'Verbose'
         },
         tasks: {
             anyOf: [
@@ -1899,6 +1353,7 @@ export const $Job = {
             default: 1
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['verbose'],
     title: 'Job'
@@ -2194,6 +1649,16 @@ export const $LoginRequest = {
 
 export const $Material = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         materialsId: {
             anyOf: [
                 {
@@ -2216,227 +1681,34 @@ export const $Material = {
             ],
             title: 'Libraryid'
         },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        matType: {
+        properties: {
             items: {
-                type: 'string'
+                '$ref': '#/components/schemas/MaterialProperty'
             },
             type: 'array',
-            title: 'Mattype'
+            title: 'Properties',
+            default: []
         },
-        bulkModulus: {
+        engineeringConstants: {
             anyOf: [
                 {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bulkmodulus'
-        },
-        shearModulus: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Shearmodulus'
-        },
-        shearModulusXY: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Shearmodulusxy'
-        },
-        shearModulusYZ: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Shearmodulusyz'
-        },
-        shearModulusXZ: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Shearmodulusxz'
-        },
-        youngsModulus: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Youngsmodulus'
-        },
-        youngsModulusX: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Youngsmodulusx'
-        },
-        youngsModulusY: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Youngsmodulusy'
-        },
-        youngsModulusZ: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Youngsmodulusz'
-        },
-        poissonsRatio: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Poissonsratio'
-        },
-        poissonsRatioXY: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Poissonsratioxy'
-        },
-        poissonsRatioYZ: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Poissonsratioyz'
-        },
-        poissonsRatioXZ: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Poissonsratioxz'
-        },
-        planeStress: {
-            type: 'boolean',
-            title: 'Planestress'
-        },
-        planeStrain: {
-            type: 'boolean',
-            title: 'Planestrain'
-        },
-        materialSymmetry: {
-            type: 'string',
-            title: 'Materialsymmetry'
-        },
-        stabilizationType: {
-            type: 'string',
-            title: 'Stabilizationtype'
-        },
-        hourglassCoefficient: {
-            type: 'number',
-            title: 'Hourglasscoefficient'
-        },
-        actualHorizon: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Actualhorizon'
-        },
-        yieldStress: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Yieldstress'
-        },
-        stiffnessMatrix: {
-            anyOf: [
-                {
-                    '$ref': '#/components/schemas/StiffnessMatrix'
+                    '$ref': '#/components/schemas/EngineeringConstants'
                 },
                 {
                     type: 'null'
                 }
             ]
-        },
-        properties: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/properties'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Properties'
-        },
-        numStateVars: {
+        }
+    },
+    additionalProperties: false,
+    type: 'object',
+    required: ['name'],
+    title: 'Material'
+} as const;
+
+export const $MaterialProperty = {
+    properties: {
+        materialsPropId: {
             anyOf: [
                 {
                     type: 'integer'
@@ -2445,272 +1717,28 @@ export const $Material = {
                     type: 'null'
                 }
             ],
-            title: 'Numstatevars'
+            title: 'Materialspropid'
         },
-        computePartialStress: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        value: {
             anyOf: [
                 {
-                    type: 'boolean'
+                    type: 'number'
                 },
                 {
                     type: 'null'
                 }
             ],
-            title: 'Computepartialstress'
-        },
-        useCollocationNodes: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Usecollocationnodes'
+            title: 'Value'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['name', 'matType', 'planeStress', 'planeStrain', 'materialSymmetry', 'stabilizationType', 'hourglassCoefficient', 'properties'],
-    title: 'Material'
-} as const;
-
-export const $Matrix = {
-    properties: {
-        C11: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C11'
-        },
-        C12: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C12'
-        },
-        C13: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C13'
-        },
-        C14: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C14'
-        },
-        C15: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C15'
-        },
-        C16: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C16'
-        },
-        C22: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C22'
-        },
-        C23: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C23'
-        },
-        C24: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C24'
-        },
-        C25: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C25'
-        },
-        C26: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C26'
-        },
-        C33: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C33'
-        },
-        C34: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C34'
-        },
-        C35: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C35'
-        },
-        C36: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C36'
-        },
-        C44: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C44'
-        },
-        C45: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C45'
-        },
-        C46: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C46'
-        },
-        C55: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C55'
-        },
-        C56: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C56'
-        },
-        C66: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'C66'
-        }
-    },
-    type: 'object',
-    title: 'Matrix'
+    required: ['name'],
+    title: 'MaterialProperty'
 } as const;
 
 export const $MeResponse = {
@@ -2846,6 +1874,7 @@ export const $Model = {
             title: 'Meshfile'
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['modelFolderName', 'twoDimensional'],
     title: 'Model'
@@ -2854,18 +1883,12 @@ export const $Model = {
 export const $ModelData = {
     properties: {
         additive: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/AdditiveModel'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Additive'
+            items: {
+                '$ref': '#/components/schemas/AdditiveModel'
+            },
+            type: 'array',
+            title: 'Additive',
+            default: []
         },
         blocks: {
             items: {
@@ -2875,69 +1898,46 @@ export const $ModelData = {
             title: 'Blocks'
         },
         bondFilters: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/BondFilters'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bondfilters'
+            items: {
+                '$ref': '#/components/schemas/BondFilters'
+            },
+            type: 'array',
+            title: 'Bondfilters',
+            default: []
         },
         boundaryConditions: {
             '$ref': '#/components/schemas/BoundaryConditions'
         },
         computes: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/Compute'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Computes'
+            items: {
+                '$ref': '#/components/schemas/Compute'
+            },
+            type: 'array',
+            title: 'Computes',
+            default: []
         },
         contact: {
-            anyOf: [
-                {
-                    '$ref': '#/components/schemas/Contact'
-                },
-                {
-                    type: 'null'
-                }
-            ]
+            '$ref': '#/components/schemas/Contact',
+            default: {
+                params: {},
+                contactModels: []
+            }
         },
         damages: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/Damage'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Damages'
+            items: {
+                '$ref': '#/components/schemas/Damage'
+            },
+            type: 'array',
+            title: 'Damages',
+            default: []
         },
         discretization: {
-            anyOf: [
-                {
-                    '$ref': '#/components/schemas/Discretization'
-                },
-                {
-                    type: 'null'
-                }
-            ]
+            '$ref': '#/components/schemas/Discretization',
+            default: {
+                discType: 'txt',
+                params: {},
+                nodeSets: []
+            }
         },
         deviations: {
             anyOf: [
@@ -2953,18 +1953,12 @@ export const $ModelData = {
             '$ref': '#/components/schemas/Job'
         },
         materials: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/Material'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Materials'
+            items: {
+                '$ref': '#/components/schemas/Material'
+            },
+            type: 'array',
+            title: 'Materials',
+            default: []
         },
         model: {
             '$ref': '#/components/schemas/Model'
@@ -2976,16 +1970,6 @@ export const $ModelData = {
             type: 'array',
             title: 'Outputs'
         },
-        preCalculations: {
-            anyOf: [
-                {
-                    '$ref': '#/components/schemas/PreCalculations'
-                },
-                {
-                    type: 'null'
-                }
-            ]
-        },
         solvers: {
             items: {
                 '$ref': '#/components/schemas/Solver'
@@ -2994,273 +1978,18 @@ export const $ModelData = {
             title: 'Solvers'
         },
         thermal: {
-            anyOf: [
-                {
-                    items: {
-                        '$ref': '#/components/schemas/ThermalModel'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Thermal'
+            items: {
+                '$ref': '#/components/schemas/ThermalModel'
+            },
+            type: 'array',
+            title: 'Thermal',
+            default: []
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['blocks', 'boundaryConditions', 'job', 'model', 'outputs', 'solvers'],
-    title: 'ModelData',
-    example: {
-        additive: [],
-        blocks: [
-            {
-                additiveModel: '',
-                blocksId: 1,
-                damageModel: 'Damage',
-                density: 2.699e-9,
-                material: 'Aluminium',
-                name: 'Part',
-                show: true
-            },
-            {
-                additiveModel: '',
-                blocksId: 2,
-                damageModel: '',
-                density: 2.699e-9,
-                material: 'BC',
-                name: 'Top_BC',
-                show: true
-            },
-            {
-                additiveModel: '',
-                blocksId: 3,
-                damageModel: '',
-                density: 2.699e-9,
-                material: 'BC',
-                name: 'Bottom_BC',
-                show: true
-            },
-            {
-                additiveModel: '',
-                blocksId: 4,
-                damageModel: '',
-                density: 2.699e-9,
-                material: 'Aluminium',
-                name: 'Top_Part',
-                show: true
-            },
-            {
-                additiveModel: '',
-                blocksId: 5,
-                damageModel: '',
-                density: 2.699e-9,
-                material: 'Aluminium',
-                name: 'Bottom_Part',
-                show: true
-            }
-        ],
-        bondFilters: [
-            {
-                allow_contact: false,
-                bottomLength: 56.75,
-                bottomUnitVectorX: 1,
-                bottomUnitVectorY: 0,
-                bottomUnitVectorZ: 0,
-                centerX: 0,
-                centerY: 1,
-                centerZ: 0,
-                lowerLeftCornerX: -0.5,
-                lowerLeftCornerY: 0,
-                lowerLeftCornerZ: -2,
-                name: 'bf_1',
-                normalX: 0,
-                normalY: 1,
-                normalZ: 0,
-                radius: 1,
-                show: true,
-                sideLength: 4,
-                type: 'Rectangular_Plane'
-            }
-        ],
-        boundaryConditions: {
-            conditions: [
-                {
-                    blockId: 2,
-                    boundarytype: 'Dirichlet',
-                    conditionsId: 1,
-                    coordinate: 'y',
-                    name: 'BC_1',
-                    stepId: [1],
-                    value: '1000*t',
-                    variable: 'Displacements'
-                },
-                {
-                    blockId: 3,
-                    boundarytype: 'Dirichlet',
-                    conditionsId: 2,
-                    coordinate: 'y',
-                    name: 'BC_2',
-                    stepId: [1],
-                    value: '-1000*t',
-                    variable: 'Displacements'
-                }
-            ]
-        },
-        computes: [
-            {
-                blockName: 'Bottom_BC',
-                calculationType: 'Sum',
-                computeClass: 'Block_Data',
-                id: 1,
-                name: 'External_Force',
-                variable: 'Forces'
-            },
-            {
-                blockName: 'Top_BC',
-                calculationType: 'Maximum',
-                computeClass: 'Block_Data',
-                id: 2,
-                name: 'External_Displacement',
-                variable: 'Displacements'
-            }
-        ],
-        contact: {},
-        damages: [
-            {
-                anistropicDamage: false,
-                criticalEnergy: 5.714285714285715,
-                criticalEnergyCalc: {
-                    calculateCriticalEnergy: true,
-                    k1c: 632.4555320336759
-                },
-                damageModel: 'Critical Energy',
-                id: 1,
-                interBlockDamage: false,
-                interBlocks: [],
-                name: 'Damage',
-                onlyTension: true,
-                thickness: 1
-            }
-        ],
-        deviations: {
-            enabled: false,
-            parameters: [
-                {
-                    id: ['materials[0].youngsModulus'],
-                    std: 10
-                }
-            ],
-            sampleSize: 10
-        },
-        discretization: {
-            discType: 'txt',
-            distributionType: 'Neighbor based'
-        },
-        job: {
-            tasks: 1,
-            verbose: false
-        },
-        materials: [
-            {
-                hourglassCoefficient: 1,
-                id: 1,
-                matType: ['PD Solid Elastic'],
-                materialSymmetry: 'Isotropic',
-                name: 'BC',
-                planeStrain: false,
-                planeStress: true,
-                poissonsRatio: 0.35,
-                properties: [
-                    {
-                        id: 1,
-                        name: 'Prop_1'
-                    }
-                ],
-                stabilizationType: 'Global Stiffness',
-                youngsModulus: 200000
-            },
-            {
-                hourglassCoefficient: 1,
-                id: 1,
-                matType: ['Correspondence Elastic', 'Correspondence Plastic'],
-                materialSymmetry: 'Isotropic',
-                name: 'Aluminium',
-                planeStrain: false,
-                planeStress: true,
-                poissonsRatio: 0.35,
-                properties: [
-                    {
-                        id: 1,
-                        name: 'Prop_1'
-                    }
-                ],
-                stabilizationType: 'Global Stiffness',
-                yieldStress: 350,
-                youngsModulus: 70000
-            }
-        ],
-        model: {
-            meshSource: 'model',
-            modelFolderName: 'Default',
-            twoDimensional: true
-        },
-        outputs: [
-            {
-                Frequency: 1,
-                InitStep: 0,
-                Write_After_Damage: false,
-                name: 'Output1',
-                numberOfOutputSteps: 100,
-                selectedFileType: 'Exodus',
-                selectedOutputs: ['Displacements', 'Damage', 'Cauchy Stress', 'Strain', 'Number of Neighbors'],
-                useOutputFrequency: false
-            },
-            {
-                Frequency: 100,
-                InitStep: 0,
-                Write_After_Damage: false,
-                name: 'Output2',
-                numberOfOutputSteps: 500,
-                outputsId: 2,
-                selectedFileType: 'CSV',
-                selectedOutputs: ['External_Force', 'External_Displacement'],
-                useOutputFrequency: false
-            }
-        ],
-        solvers: [
-            {
-                adapt: {
-                    maximumBondDifference: 4,
-                    stableBondDifference: 1,
-                    stableStepDifference: 4
-                },
-                adaptivetimeStepping: false,
-                calculateStrain: true,
-                calculateVonMises: true,
-                damEnabled: true,
-                dispEnabled: true,
-                endStepAfterDamage: 3,
-                finalTime: 0.0005,
-                initialTime: 0,
-                matEnabled: true,
-                maxDamageValue: 0.3,
-                safetyFactor: 0.95,
-                solvertype: 'Verlet',
-                stepId: 1,
-                stopAfterCertainDamage: false,
-                stopAfterDamageInitation: false,
-                stopBeforeDamageInitation: false,
-                tempEnabled: false,
-                verlet: {
-                    numericalDamping: 0.000005,
-                    outputFrequency: 100,
-                    safetyFactor: 0.95
-                }
-            }
-        ],
-        thermal: []
-    }
+    title: 'ModelData'
 } as const;
 
 export const $NodeSet = {
@@ -3281,6 +2010,7 @@ export const $NodeSet = {
             title: 'File'
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['file'],
     title: 'NodeSet'
@@ -3311,6 +2041,7 @@ export const $OldParameter = {
             title: 'Factor'
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['id', 'factor'],
     title: 'OldParameter'
@@ -3318,6 +2049,16 @@ export const $OldParameter = {
 
 export const $Output = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         outputsId: {
             anyOf: [
                 {
@@ -3329,90 +2070,18 @@ export const $Output = {
             ],
             title: 'Outputsid'
         },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        selectedFileType: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Selectedfiletype',
-            default: 'Exodus'
-        },
         selectedOutputs: {
-            anyOf: [
-                {
-                    items: {
-                        type: 'string'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Selectedoutputs'
-        },
-        Write_After_Damage: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Write After Damage'
-        },
-        Frequency: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Frequency',
-            default: 100
-        },
-        numberOfOutputSteps: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Numberofoutputsteps',
-            default: 100
-        },
-        useOutputFrequency: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Useoutputfrequency',
-            default: false
-        },
-        InitStep: {
-            type: 'integer',
-            title: 'Initstep'
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Selectedoutputs',
+            default: []
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['name', 'InitStep'],
+    required: ['name'],
     title: 'Output'
 } as const;
 
@@ -3480,6 +2149,7 @@ export const $Parameter = {
             title: 'Std'
         }
     },
+    additionalProperties: false,
     type: 'object',
     required: ['id', 'std'],
     title: 'Parameter'
@@ -3554,68 +2224,6 @@ export const $PointDataResults = {
     type: 'object',
     required: ['nodes', 'value', 'variables', 'number_of_steps', 'min_value', 'max_value', 'time'],
     title: 'PointDataResults'
-} as const;
-
-export const $PreCalculations = {
-    properties: {
-        deformedBondGeometry: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Deformedbondgeometry'
-        },
-        deformationGradient: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Deformationgradient'
-        },
-        shapeTensor: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Shapetensor'
-        },
-        bondAssociatedShapeTensor: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bondassociatedshapetensor'
-        },
-        bondAssociateDeformationGradient: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Bondassociatedeformationgradient'
-        }
-    },
-    type: 'object',
-    title: 'PreCalculations'
 } as const;
 
 export const $PreviewBlock = {
@@ -4095,412 +2703,27 @@ export const $Solver = {
             title: 'Stepid',
             default: 1
         },
-        matEnabled: {
-            type: 'boolean',
-            title: 'Matenabled',
-            default: true,
-            ui_group: 'Solver',
-            ui_label: 'Material Models',
-            ui_order: 1,
-            ui_widget: 'toggle',
-            yaml_key: 'Material Models'
-        },
-        damEnabled: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Damenabled',
-            ui_group: 'Solver',
-            ui_label: 'Damage Models',
-            ui_order: 2,
-            ui_widget: 'toggle',
-            yaml_key: 'Damage Models'
-        },
-        dispEnabled: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Dispenabled'
-        },
-        tempEnabled: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Tempenabled',
-            ui_group: 'Solver',
-            ui_label: 'Thermal Models',
-            ui_order: 3,
-            ui_widget: 'toggle',
-            yaml_key: 'Thermal Models'
-        },
-        addEnabled: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Addenabled',
-            ui_group: 'Solver',
-            ui_label: 'Additive Models',
-            ui_order: 4,
-            ui_widget: 'toggle',
-            yaml_key: 'Additive Models'
-        },
-        initialTime: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Initialtime',
-            ui_group: 'Solver',
-            ui_label: 'Initial Time',
-            ui_order: 10,
-            ui_widget: 'number',
-            yaml_cast: 'float',
-            yaml_key: 'Initial Time'
-        },
-        finalTime: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Finaltime',
-            ui_group: 'Solver',
-            ui_label: 'Final Time',
-            ui_order: 11,
-            ui_widget: 'number',
-            yaml_cast: 'float',
-            yaml_key: 'Final Time'
-        },
-        additionalTime: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Additionaltime'
-        },
-        fixedDt: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Fixeddt',
-            ui_group: 'Verlet',
-            ui_label: 'Fixed dt',
-            ui_widget: 'number'
-        },
         solvertype: {
             type: 'string',
-            title: 'Solvertype',
-            ui_group: 'Solver',
-            ui_label: 'Solvertype',
-            ui_options: ['Verlet', 'Static'],
-            ui_widget: 'select'
+            title: 'Solvertype'
         },
-        safetyFactor: {
-            type: 'number',
-            title: 'Safetyfactor',
-            ui_group: 'Verlet',
-            ui_label: 'Safety Factor',
-            ui_order: 1,
-            ui_widget: 'number',
-            yaml_cast: 'float'
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
         },
-        verlet: {
-            anyOf: [
-                {
-                    '$ref': '#/components/schemas/Verlet'
-                },
-                {
-                    type: 'null'
-                }
-            ]
-        },
-        static: {
-            anyOf: [
-                {
-                    '$ref': '#/components/schemas/Static'
-                },
-                {
-                    type: 'null'
-                }
-            ]
-        },
-        stopAfterDamageInitation: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Stopafterdamageinitation'
-        },
-        endStepAfterDamage: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Endstepafterdamage'
-        },
-        stopAfterCertainDamage: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Stopaftercertaindamage'
-        },
-        maximumDamage: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Maximumdamage',
-            ui_group: 'Solver',
-            ui_label: 'Max. damage value',
-            ui_order: 14,
-            ui_widget: 'number',
-            yaml_cast: 'float',
-            yaml_key: 'Maximum Damage'
-        },
-        stopBeforeDamageInitation: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Stopbeforedamageinitation'
-        },
-        adaptivetimeStepping: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Adaptivetimestepping',
-            ui_group: 'Verlet',
-            ui_label: 'Adaptive Time Stepping',
-            ui_order: 1,
-            ui_widget: 'toggle'
-        },
-        adapt: {
-            anyOf: [
-                {
-                    '$ref': '#/components/schemas/Adapt'
-                },
-                {
-                    type: 'null'
-                }
-            ]
-        },
-        calculateCauchy: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Calculatecauchy',
-            ui_group: 'Verlet',
-            ui_label: 'Calculate Cauchy',
-            ui_order: 2,
-            ui_widget: 'toggle',
-            yaml_key: 'Calculate Cauchy'
-        },
-        calculateVonMises: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Calculatevonmises',
-            ui_group: 'Verlet',
-            ui_label: 'Calculate von Mises',
-            ui_order: 3,
-            ui_widget: 'toggle',
-            yaml_key: 'Calculate von Mises stress'
-        },
-        calculateStrain: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Calculatestrain',
-            ui_group: 'Verlet',
-            ui_label: 'Calculate Strain',
-            ui_order: 4,
-            ui_widget: 'toggle',
-            yaml_key: 'Calculate Strain'
+        solverOptions: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Solveroptions',
+            default: {}
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['solvertype', 'safetyFactor'],
+    required: ['solvertype'],
     title: 'Solver'
-} as const;
-
-export const $Static = {
-    properties: {
-        numberOfSteps: {
-            type: 'integer',
-            title: 'Numberofsteps'
-        },
-        maximumNumberOfIterations: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Maximumnumberofiterations'
-        },
-        NLsolver: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Nlsolver'
-        },
-        showSolverIteration: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Showsolveriteration'
-        },
-        residualTolerance: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Residualtolerance'
-        },
-        solutionTolerance: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Solutiontolerance'
-        },
-        linearStartValue: {
-            anyOf: [
-                {
-                    items: {
-                        type: 'number'
-                    },
-                    type: 'array'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Linearstartvalue'
-        },
-        residualScaling: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Residualscaling'
-        },
-        m: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'M'
-        }
-    },
-    type: 'object',
-    required: ['numberOfSteps'],
-    title: 'Static'
 } as const;
 
 export const $Status = {
@@ -4620,31 +2843,6 @@ specific run, or GET /jobs/runs for
 the full history, rather than assuming this is "the" run.`
 } as const;
 
-export const $StiffnessMatrix = {
-    properties: {
-        calculateStiffnessMatrix: {
-            anyOf: [
-                {
-                    type: 'boolean'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Calculatestiffnessmatrix'
-        },
-        engineeringConstants: {
-            '$ref': '#/components/schemas/EngineeringConstants'
-        },
-        matrix: {
-            '$ref': '#/components/schemas/Matrix'
-        }
-    },
-    type: 'object',
-    required: ['engineeringConstants', 'matrix'],
-    title: 'StiffnessMatrix'
-} as const;
-
 export const $TeamIn = {
     properties: {
         name: {
@@ -4679,6 +2877,16 @@ export const $TeamOut = {
 
 export const $ThermalModel = {
     properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        params: {
+            additionalProperties: true,
+            type: 'object',
+            title: 'Params',
+            default: {}
+        },
         thermalModelsId: {
             anyOf: [
                 {
@@ -4689,146 +2897,11 @@ export const $ThermalModel = {
                 }
             ],
             title: 'Thermalmodelsid'
-        },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        thermalModel: {
-            items: {
-                type: 'string'
-            },
-            type: 'array',
-            title: 'Thermalmodel'
-        },
-        thermalType: {
-            type: 'string',
-            title: 'Thermaltype'
-        },
-        heatTransferCoefficient: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Heattransfercoefficient'
-        },
-        environmentalTemperature: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Environmentaltemperature'
-        },
-        requiredSpecificVolume: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Requiredspecificvolume'
-        },
-        thermalConductivity: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Thermalconductivity'
-        },
-        thermalExpansionCoefficient: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Thermalexpansioncoefficient'
-        },
-        thermalConductivityPrintBed: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Thermalconductivityprintbed'
-        },
-        printBedTemperature: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Printbedtemperature'
-        },
-        printBedZCoord: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Printbedzcoord'
-        },
-        file: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'File'
-        },
-        numStateVars: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Numstatevars'
-        },
-        predefinedFieldNames: {
-            anyOf: [
-                {
-                    type: 'string'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Predefinedfieldnames'
         }
     },
+    additionalProperties: false,
     type: 'object',
-    required: ['name', 'thermalModel', 'thermalType'],
+    required: ['name'],
     title: 'ThermalModel'
 } as const;
 
@@ -5054,29 +3127,6 @@ export const $VariableRange = {
     title: 'VariableRange'
 } as const;
 
-export const $Verlet = {
-    properties: {
-        numericalDamping: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Numericaldamping'
-        },
-        outputFrequency: {
-            type: 'integer',
-            title: 'Outputfrequency',
-            default: 1000
-        }
-    },
-    type: 'object',
-    title: 'Verlet'
-} as const;
-
 export const $VersionData = {
     properties: {
         current: {
@@ -5123,38 +3173,4 @@ export const $app__routers__oauth__AuthResponse = {
     type: 'object',
     required: ['token', 'user_id', 'display_name', 'role'],
     title: 'AuthResponse'
-} as const;
-
-export const $properties = {
-    properties: {
-        materialsPropId: {
-            anyOf: [
-                {
-                    type: 'integer'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Materialspropid'
-        },
-        name: {
-            type: 'string',
-            title: 'Name'
-        },
-        value: {
-            anyOf: [
-                {
-                    type: 'number'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Value'
-        }
-    },
-    type: 'object',
-    required: ['name'],
-    title: 'properties'
 } as const;

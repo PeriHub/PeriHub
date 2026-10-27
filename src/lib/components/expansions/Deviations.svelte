@@ -18,7 +18,10 @@ SPDX-License-Identifier: Apache-2.0
   import AddButton from '$lib/components/ui/AddButton.svelte';
 
   const deviations = $derived(modelStore.modelData.deviations ?? ({} as Deviations));
-  let parameters = $state<string[]>(['materials[0].youngsModulus']);
+  let parameters = $state<string[]>(['materials[0].params["Young\'s Modulus"]']);
+
+  // magicattr (backend) resolves these paths; keys that aren't identifiers (PeriLab keys) need ["..."].
+  const IDENT = /^[A-Za-z][A-Za-z0-9]*$/;
 
   function isObject(val: unknown): val is Record<string, unknown> {
     return val != null && typeof val === 'object' && !Array.isArray(val);
@@ -31,7 +34,9 @@ SPDX-License-Identifier: Apache-2.0
         const path = prefix
           ? Array.isArray(obj)
             ? `${prefix}[${k}]`
-            : `${prefix}.${k}`
+            : IDENT.test(String(k))
+              ? `${prefix}.${k}`
+              : `${prefix}[${JSON.stringify(k)}]`
           : String(k);
         if (Array.isArray(v) || isObject(v)) {
           objleaves(v, path, acc);

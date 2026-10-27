@@ -8,17 +8,18 @@ SPDX-License-Identifier: Apache-2.0
   import { Trash2 } from 'lucide-svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
   import type { ContactGroup, ContactModel, Contact } from '$lib/client';
-  import Toggle from '$lib/components/ui/Toggle.svelte';
   import Input from '$lib/components/ui/Input.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import Label from '$lib/components/ui/Label.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
+  import ParamLabel from '$lib/components/ParamLabel.svelte';
+  import SchemaParams from '$lib/components/SchemaParams.svelte';
+  import { sections, node, modelNames, pick, CUSTOM_KEYS } from '$lib/perilab/schema';
 
   const contact = $derived(modelStore.modelData.contact ?? ({} as Contact));
   const blocks = $derived(modelStore.modelData.blocks ?? []);
   const contactModels = $derived(contact.contactModels ?? []);
-  const contactTypes = ['Penalty Contact'];
 
   function addContactModel() {
     if (!contact.contactModels) contact.contactModels = [];
@@ -27,7 +28,7 @@ SPDX-License-Identifier: Apache-2.0
     const newItem =
       len > 0
         ? (structuredClone($state.snapshot(list[len - 1])) as ContactModel)
-        : ({} as ContactModel);
+        : ({ params: { Type: 'Penalty Contact' }, contactGroups: [] } as unknown as ContactModel);
     newItem.contactModelId = len + 1;
     newItem.name = `Contact Model ${len + 1}`;
     list.push(newItem);
@@ -46,25 +47,19 @@ SPDX-License-Identifier: Apache-2.0
     const newItem =
       len > 0
         ? (structuredClone($state.snapshot(list[len - 1])) as ContactGroup)
-        : ({} as ContactGroup);
+        : ({ params: {} } as unknown as ContactGroup);
     newItem.contactGroupId = len + 1;
     newItem.name = `Contact Group ${len + 1}`;
     list.push(newItem);
   }
 
   function removeContactGroup(index: number, subindex: number) {
-    contactModels[index]!.contactGroups.splice(subindex, 1);
+    contactModels[index]!.contactGroups?.splice(subindex, 1);
   }
 </script>
 
 <div class="space-y-3 p-3">
-  <div class="flex flex-wrap items-end gap-3">
-    <div class="w-40 space-y-1">
-      <Label for="contact-freq">Search frequency</Label>
-      <Input id="contact-freq" type="number" bind:value={contact.searchFrequency} />
-    </div>
-    <Toggle bind:checked={contact.onlySurfaceContactNodes} label="Only surface contact nodes" />
-  </div>
+  <SchemaParams entry={sections.contactGlobals} values={contact.params!} idPrefix="contact" />
 
   {#each contactModels as model, index (index)}
     <div class="border-border space-y-2 border-t pt-3">
@@ -74,20 +69,17 @@ SPDX-License-Identifier: Apache-2.0
           <Input id={`cm-name-${index}`} bind:value={model.name} />
         </div>
         <div class="space-y-1">
-          <Label for={`cm-type-${index}`}>Type</Label>
-          <Select id={`cm-type-${index}`} bind:value={model.contactType}>
-            {#each contactTypes as type (type)}
+          <ParamLabel
+            key="Type"
+            for={`cm-type-${index}`}
+            required
+            prop={sections.contact?.properties?.Type}
+          />
+          <Select id={`cm-type-${index}`} bind:value={model.params!['Type']}>
+            {#each pick(modelNames(sections.contact), ['Penalty Contact'], String(model.params?.Type ?? '')) as type (type)}
               <option value={type}>{type}</option>
             {/each}
           </Select>
-        </div>
-        <div class="w-32 space-y-1">
-          <Label for={`cm-radius-${index}`}>Contact radius</Label>
-          <Input id={`cm-radius-${index}`} type="number" bind:value={model.contactRadius} />
-        </div>
-        <div class="w-32 space-y-1">
-          <Label for={`cm-stiff-${index}`}>Contact stiffness</Label>
-          <Input id={`cm-stiff-${index}`} type="number" bind:value={model.contactStiffness} />
         </div>
         <Button
           variant="ghost"
@@ -106,28 +98,38 @@ SPDX-License-Identifier: Apache-2.0
             <Input id={`cg-name-${index}-${subindex}`} bind:value={group.name} />
           </div>
           <div class="space-y-1">
-            <Label for={`cg-master-${index}-${subindex}`}>Master block ID</Label>
-            <Select id={`cg-master-${index}-${subindex}`} bind:value={group.masterBlockId}>
+            <ParamLabel
+              key="Master Block ID"
+              for={`cg-master-${index}-${subindex}`}
+              required
+              prop={node(['Contact Groups', '*'], sections.contact)?.properties?.[
+                'Master Block ID'
+              ]}
+            />
+            <Select
+              id={`cg-master-${index}-${subindex}`}
+              bind:value={group.params!['Master Block ID']}
+            >
               {#each blocks as block, blockIdx (blockIdx)}
                 <option value={block.blocksId}>{block.blocksId}</option>
               {/each}
             </Select>
           </div>
           <div class="space-y-1">
-            <Label for={`cg-slave-${index}-${subindex}`}>Slave block ID</Label>
-            <Select id={`cg-slave-${index}-${subindex}`} bind:value={group.slaveBlockId}>
+            <ParamLabel
+              key="Slave Block ID"
+              for={`cg-slave-${index}-${subindex}`}
+              required
+              prop={node(['Contact Groups', '*'], sections.contact)?.properties?.['Slave Block ID']}
+            />
+            <Select
+              id={`cg-slave-${index}-${subindex}`}
+              bind:value={group.params!['Slave Block ID']}
+            >
               {#each blocks as block, blockIdx (blockIdx)}
                 <option value={block.blocksId}>{block.blocksId}</option>
               {/each}
             </Select>
-          </div>
-          <div class="w-32 space-y-1">
-            <Label for={`cg-radius-${index}-${subindex}`}>Search radius</Label>
-            <Input
-              id={`cg-radius-${index}-${subindex}`}
-              type="number"
-              bind:value={group.searchRadius}
-            />
           </div>
           <Button
             variant="ghost"
@@ -137,6 +139,14 @@ SPDX-License-Identifier: Apache-2.0
           >
             <Trash2 class="h-4 w-4" />
           </Button>
+          <div class="basis-full">
+            <SchemaParams
+              entry={node(['Contact Groups', '*'], sections.contact)}
+              values={group.params!}
+              custom={CUSTOM_KEYS.contactGroup}
+              idPrefix={`cg-${index}-${subindex}`}
+            />
+          </div>
         </div>
       {/each}
 
@@ -145,6 +155,14 @@ SPDX-License-Identifier: Apache-2.0
         items={model.contactGroups}
         class="ml-4"
         onclick={() => addContactGroup(index)}
+      />
+
+      <SchemaParams
+        entry={sections.contact}
+        values={model.params!}
+        names={[String(model.params?.Type ?? '')]}
+        custom={CUSTOM_KEYS.contact}
+        idPrefix={`ct-${index}`}
       />
     </div>
   {/each}

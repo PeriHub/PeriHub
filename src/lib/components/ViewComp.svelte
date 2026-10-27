@@ -25,13 +25,16 @@ SPDX-License-Identifier: Apache-2.0
   const status = $derived(defaultStore.status);
   const modelReady = $derived(Boolean(status.created && status.meshfileExist));
   const resultsReady = $derived(
-    Boolean(status.results) && outputs.some((o) => o.selectedFileType === 'Exodus')
+    Boolean(status.results) &&
+      outputs.some((o) => (o.params?.['Output File Type'] ?? 'Exodus') === 'Exodus')
   );
   // Generate / run switch to these tabs before their files exist - keep the
   // tab visible while it is selected so the loading state stays reachable.
   const showModel = $derived(modelReady || viewStore.viewId === 'model');
   const showResults = $derived(resultsReady || viewStore.viewId === 'results');
-  const showChart = $derived(outputs.some((o) => o.selectedFileType === 'CSV'));
+  const showChart = $derived(
+    outputs.some((o) => (o.params?.['Output File Type'] ?? 'Exodus') === 'CSV')
+  );
 
   // A status refresh says the open tab has no files (other folder, failed
   // run) - fall back to the preview unless they are still being produced.

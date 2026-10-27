@@ -32,6 +32,7 @@ SPDX-License-Identifier: Apache-2.0
     redirectToLogin
   } from '$lib/auth/oauth';
   import { loadPublicConfig, publicConfig } from '$lib/config';
+  import { Eye, EyeOff } from 'lucide-svelte';
 
   // ?mode=signup&next=/materials - set by the account teasers (AccountTeaser.svelte).
   let mode: 'login' | 'signup' | 'forgot' = $state(
@@ -59,6 +60,7 @@ SPDX-License-Identifier: Apache-2.0
   });
   let email = $state('');
   let password = $state('');
+  let showPassword = $state(false);
   let displayName = $state('');
   let errorMessage = $state('');
   let submitting = $state(false);
@@ -177,14 +179,26 @@ SPDX-License-Identifier: Apache-2.0
         {#if mode !== 'forgot'}
           <div class="flex flex-col gap-1.5">
             <Label for="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              bind:value={password}
-              required
-              minlength={mode === 'signup' ? 8 : undefined}
-              autocomplete={mode === 'login' ? 'current-password' : 'new-password'}
-            />
+            <div class="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                bind:value={password}
+                required
+                minlength={mode === 'signup' ? 8 : undefined}
+                autocomplete={mode === 'login' ? 'current-password' : 'new-password'}
+                class="pr-9"
+              />
+              <button
+                type="button"
+                onclick={() => (showPassword = !showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
+                class="text-muted-foreground hover:text-foreground absolute inset-y-0 right-2 flex cursor-pointer items-center transition-colors"
+              >
+                {#if showPassword}<EyeOff class="h-4 w-4" />{:else}<Eye class="h-4 w-4" />{/if}
+              </button>
+            </div>
             {#if mode === 'login' && passwordReset}
               <button
                 type="button"

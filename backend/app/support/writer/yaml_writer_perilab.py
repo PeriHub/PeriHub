@@ -2,12 +2,44 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""Turns ModelData into the PeriLab input deck.
+
+Every section entry carries its PeriLab keys verbatim in `params` (YAML key -> value, offered by the frontend from
+PeriLab's schema, already typed), so this only adds what PeriHub derives itself: entry names, block ids, node sets,
+interblock damage, user material properties, mesh files, output files/variables and the solver sub-section.
+Derived keys are written after `params` and win. support/deck_guard.py still checks the result before submission.
+"""
 
 import numpy as np
 import yaml
 from fastapi import HTTPException
 
-from ..yaml_field import write_mapped_fields
+# Output variables PeriHub offers as one choice but PeriLab expects per component.
+EXPANDED_OUTPUTS = {
+    "Velocity_Gradient": ["Velocity_Gradient_X", "Velocity_Gradient_Y", "Velocity_Gradient_Z"],
+    "PiolaStressTimesInvShapeTensor": [
+        "PiolaStressTimesInvShapeTensorX",
+        "PiolaStressTimesInvShapeTensorY",
+        "PiolaStressTimesInvShapeTensorZ",
+    ],
+}
+MESH_TYPES = {"txt": ("Text File", ".txt"), "e": ("Exodus", ".g"), "gcode": ("Gcode", ".gcode")}
+
+
+def _clean(params: dict) -> dict:
+    """Drops unset values (None, "") so PeriLab's defaults apply; nested sub-sections are cleaned too. numpy
+    scalars (e.g. a generated Horizon, a deviations sample) are coerced to plain Python types, otherwise
+    yaml.dump emits `!!python/object` tags that deck_guard.py's safe_load can't read back (a cryptic 422)."""
+    out = {}
+    for key, value in params.items():
+        if isinstance(value, np.generic):
+            value = value.item()
+        if isinstance(value, dict):
+            value = _clean(value)
+        if value is None or value == "":
+            continue
+        out[key] = value
+    return out
 
 
 class YAMLcreatorPeriLab:
@@ -15,616 +47,151 @@ class YAMLcreatorPeriLab:
         self.filename = model_writer.filename
         self.ns_name = model_writer.ns_name
         self.node_set_ids = model_writer.node_set_ids
-        self.block_def = block_def
+        self.block_def = block_def or []
+        self.data = model_writer.model_data
 
-        self.mesh_file = model_writer.model_data.model.meshFile
-        self.boundary_condition = model_writer.model_data.boundaryConditions
-        self.solver_dict = model_writer.model_data.solvers
-        self.damage_dict = model_writer.model_data.damages
-        self.material_dict = model_writer.model_data.materials
-        self.thermal_dict = model_writer.model_data.thermal
-        self.additive_dict = model_writer.model_data.additive
-        self.compute_dict = model_writer.model_data.computes
-        self.output_dict = model_writer.model_data.outputs
-        self.contact_dict = model_writer.model_data.contact
-        self.bondfilters = model_writer.model_data.bondFilters
-        self.preCalculations = model_writer.model_data.preCalculations
-        self.disc_dict = model_writer.model_data.discretization
-        self.disc_type = model_writer.model_data.discretization.discType
-        # self.two_d = model_writer.model_data.model.twoDimensional
-
-    @staticmethod
-    def check_if_defined(obj):
-        return obj is not None and obj != 0 and obj != ""
-
-    def load_mesh(self):
-        data = {}
-
-        if self.disc_type == "txt":
-            data["Type"] = "Text File"
-
-            # if self.check_if_defined(self.boundary_condition.nodeSets):
-            #     for nodeSet in self.boundary_condition.nodeSets:
-            #         data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
-            # else:
-            if self.check_if_defined(self.disc_dict.nodeSets) and len(self.disc_dict.nodeSets) > 0:
-                data["Node Sets"] = {}
-                for nodeSet in self.disc_dict.nodeSets:
-                    data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
-            else:
-                if len(self.node_set_ids) > 0:
-                    data["Node Sets"] = {}
-                for idx in range(0, len(self.node_set_ids)):
-                    data["Node Sets"]["Node Set " + str(idx + 1)] = self.ns_name + "_" + str(idx + 1) + ".txt"
-
-            if self.check_if_defined(self.mesh_file):
-                data["Input Mesh File"] = self.mesh_file
-            else:
-                data["Input Mesh File"] = self.filename + ".txt"
-
-        elif self.disc_type == "e":
-            data["Type"] = "Exodus"
-
-            if self.check_if_defined(self.mesh_file):
-                data["Input Mesh File"] = self.mesh_file
-            else:
-                data["Input Mesh File"] = self.filename + ".g"
-
-        elif self.disc_type == "gcode":
-            data["Type"] = "Gcode"
-
-            if self.check_if_defined(self.disc_dict.nodeSets) and len(self.disc_dict.nodeSets) > 0:
-                data["Node Sets"] = {}
-                for nodeSet in self.disc_dict.nodeSets:
-                    data["Node Sets"]["Node Set " + str(nodeSet.nodeSetId)] = nodeSet.file
-
-            if self.check_if_defined(self.mesh_file):
-                data["Input Mesh File"] = self.mesh_file
-            else:
-                data["Input Mesh File"] = self.filename + ".gcode"
-            data["Gcode"] = {}
-
-            data["Gcode"]["Overwrite Mesh"] = self.disc_dict.gcode.overwriteMesh
-            data["Gcode"]["Sampling"] = self.disc_dict.gcode.sampling
-            data["Gcode"]["Width"] = self.disc_dict.gcode.width
-            data["Gcode"]["Height"] = self.disc_dict.gcode.height
-            data["Gcode"]["Scale"] = self.disc_dict.gcode.scale
-
-            if (
-                self.check_if_defined(self.disc_dict.gcode.blockFunctions)
-                and len(self.disc_dict.gcode.blockFunctions) > 0
-            ):
-                data["Gcode"]["Blocks"] = {}
-
-                for block in self.disc_dict.gcode.blockFunctions:
-                    data["Gcode"]["Blocks"][block.id] = block.function
-
-        return data
-
-    def create_bond_filter(self):
-        data = {}
-
-        for bond_filter in self.bondfilters:
-            filter = {}
-            filter["Type"] = bond_filter.type
-            filter["Normal X"] = bond_filter.normalX
-            filter["Normal Y"] = bond_filter.normalY
-            filter["Normal Z"] = bond_filter.normalZ
-
-            if self.check_if_defined(bond_filter.allow_contact):
-                filter["Allow Contact"] = bond_filter.allow_contact
-
-            if bond_filter.type == "Rectangular_Plane":
-                filter["Lower Left Corner X"] = bond_filter.lowerLeftCornerX
-                filter["Lower Left Corner Y"] = bond_filter.lowerLeftCornerY
-                filter["Lower Left Corner Z"] = bond_filter.lowerLeftCornerZ
-                filter["Bottom Unit Vector X"] = bond_filter.bottomUnitVectorX
-                filter["Bottom Unit Vector Y"] = bond_filter.bottomUnitVectorY
-                filter["Bottom Unit Vector Z"] = bond_filter.bottomUnitVectorZ
-                filter["Bottom Length"] = bond_filter.bottomLength
-                filter["Side Length"] = bond_filter.sideLength
-            elif bond_filter.type == "Disk":
-                filter["Center X"] = bond_filter.centerX
-                filter["Center Y"] = bond_filter.centerY
-                filter["Center Z"] = bond_filter.centerZ
-                filter["Radius"] = bond_filter.radius
-            data[bond_filter.name] = filter
-
-        return data
-
-    def preCalculation(self):
-        data = {}
-
-        data["Deformed Bond Geometry"] = True
-        data["Deformation Gradient"] = True
-        data["Shape Tensor"] = True
-        data["Bond Associated Shape Tensorr"] = False
-        data["Bond Associated Deformation Gradient"] = False
-
+    def discretization(self):
+        disc = self.data.discretization
+        mesh_type, suffix = MESH_TYPES[disc.discType]
+        data = {
+            **_clean(disc.params),
+            "Type": mesh_type,
+            "Input Mesh File": self.data.model.meshFile or self.filename + suffix,
+        }
+        if disc.discType != "e":
+            if disc.nodeSets:
+                data["Node Sets"] = {f"Node Set {ns.nodeSetId}": ns.file for ns in disc.nodeSets}
+            elif disc.discType == "txt" and self.node_set_ids:
+                data["Node Sets"] = {
+                    f"Node Set {i + 1}": f"{self.ns_name}_{i + 1}.txt" for i in range(len(self.node_set_ids))
+                }
+        if disc.discType == "gcode" and disc.gcode is not None:
+            gcode = _clean(disc.gcode.params)
+            if disc.gcode.blockFunctions:
+                gcode["Blocks"] = {block.id: block.function for block in disc.gcode.blockFunctions}
+            data["Gcode"] = gcode
+        if self.data.bondFilters:
+            data["Bond Filters"] = {bf.name: _clean(bf.params) for bf in self.data.bondFilters}
         return data
 
     def materials(self):
         data = {}
-
-        for mat in self.material_dict:
-            material = {}
-            material["Material Model"] = " + ".join([str(x) for x in mat.matType])
-            if mat.materialSymmetry == "Anisotropic" and mat.planeStress:
-                material["Symmetry"] = "anisotropic plane stress"
-            elif mat.materialSymmetry == "Isotropic" and mat.planeStress:
-                material["Symmetry"] = "isotropic plane stress"
-            elif mat.materialSymmetry == "Orthotropic" and mat.planeStress:
-                material["Symmetry"] = "orthotropic plane stress"
-            elif mat.materialSymmetry == "Transverse Isotropic" and mat.planeStress:
-                material["Symmetry"] = "transverse isotropic plane stress"
-            elif mat.materialSymmetry == "Isotropic" and mat.planeStrain:
-                material["Symmetry"] = "isotropic plane strain"
-            elif mat.materialSymmetry == "Anisotropic" and mat.planeStrain:
-                material["Symmetry"] = "anisotropic plane strain"
-            elif mat.materialSymmetry == "Orthotropic" and mat.planeStrain:
-                material["Symmetry"] = "orthotropic plane strain"
-            elif mat.materialSymmetry == "Transverse Isotropic" and mat.planeStrain:
-                material["Symmetry"] = "transverse isotropic plane strain"
-            if mat.materialSymmetry == "Anisotropic":
-                # material["Material Symmetry"] = mat.materialSymmetry
-                if mat.stiffnessMatrix is not None:
-                    for key, value in mat.stiffnessMatrix.matrix:
-                        material[key] = float(np.format_float_scientific(float(value)))
-
-            if mat.materialSymmetry == "Transverse Isotropic":
-                material["Young's Modulus X"] = float(np.format_float_scientific(float(mat.youngsModulusX)))
-                material["Young's Modulus Y"] = float(np.format_float_scientific(float(mat.youngsModulusY)))
-                material["Poisson's Ratio XY"] = float(np.format_float_scientific(float(mat.poissonsRatioXY)))
-                material["Shear Modulus XY"] = float(np.format_float_scientific(float(mat.shearModulusXY)))
-                if mat.planeStrain:
-                    material["Poisson's Ratio YZ"] = float(np.format_float_scientific(float(mat.poissonsRatioYZ)))
-                if not mat.planeStress and not mat.planeStrain:
-                    material["Poisson's Ratio YZ"] = float(np.format_float_scientific(float(mat.poissonsRatioYZ)))
-                    material["Shear Modulus YZ"] = float(np.format_float_scientific(float(mat.shearModulusYZ)))
-
-            if mat.materialSymmetry == "Orthotropic":
-                material["Young's Modulus X"] = float(np.format_float_scientific(float(mat.youngsModulusX)))
-                material["Young's Modulus Y"] = float(np.format_float_scientific(float(mat.youngsModulusY)))
-                material["Young's Modulus Z"] = float(np.format_float_scientific(float(mat.youngsModulusZ)))
-                material["Poisson's Ratio XY"] = float(np.format_float_scientific(float(mat.poissonsRatioXY)))
-                material["Poisson's Ratio YZ"] = float(np.format_float_scientific(float(mat.poissonsRatioYZ)))
-                material["Poisson's Ratio XZ"] = float(np.format_float_scientific(float(mat.poissonsRatioXZ)))
-                material["Shear Modulus XY"] = float(np.format_float_scientific(float(mat.shearModulusXY)))
-                material["Shear Modulus YZ"] = float(np.format_float_scientific(float(mat.shearModulusYZ)))
-                material["Shear Modulus XZ"] = float(np.format_float_scientific(float(mat.shearModulusXZ)))
-
-            if mat.materialSymmetry == "Isotropic":
-                if self.check_if_defined(mat.youngsModulus):
-                    material["Young's Modulus"] = float(np.format_float_scientific(float(mat.youngsModulus)))
-
-                if self.check_if_defined(mat.shearModulus):
-                    material["Shear Modulus"] = float(np.format_float_scientific(float(mat.shearModulus)))
-
-                if self.check_if_defined(mat.bulkModulus):
-                    material["Bulk Modulus"] = float(np.format_float_scientific(float(mat.bulkModulus)))
-
-                if self.check_if_defined(mat.poissonsRatio):
-                    material["Poisson's Ratio"] = float(np.format_float_scientific(float(mat.poissonsRatio)))
-
-            material["Zero Energy Control"] = "Global"
-            # material["Thickness"] = float(mat.thickness)
-            # material["Hourglass Coefficient"] = float(mat.hourglassCoefficient)
-
-            # if mat.tensionSeparation:
-            #     material["Tension Separation"] = mat.tensionSeparation
-            # if self.check_if_defined(mat.actualHorizon):
-            #     material["Actual Horizon"] = float(mat.actualHorizon)
-            if self.check_if_defined(mat.yieldStress) and "Plastic" in material["Material Model"]:
-                material["Yield Stress"] = float(mat.yieldStress)
-            # if self.check_if_defined(mat.nonLinear):
-            #     material["Non linear"] = mat.nonLinear
-            if self.check_if_defined(mat.numStateVars):
-                material["Number of State Vars"] = mat.numStateVars
-            if self.check_if_defined(mat.properties) and "User" in mat.matType:
+        for mat in self.data.materials:
+            material = _clean(mat.params)
+            if mat.properties:
                 material["Number of Properties"] = len(mat.properties)
-                for prop in mat.properties:
-                    material[prop.name] = float(np.format_float_scientific(float(prop.value)))
-            if self.check_if_defined(mat.computePartialStress):
-                material["Compute Partial Stress"] = mat.computePartialStress
-            if self.check_if_defined(mat.useCollocationNodes):
-                material["Use Collocation Nodes"] = mat.useCollocationNodes
-            # if self.check_if_defined(mat.specificHeatCapacity):
-            #     material["Specific Heat Capacity"] = float(mat.specificHeatCapacity)
-            # if self.check_if_defined(mat.thermalConductivity):
-            #     material["Thermal Conductivity"] = float(mat.thermalConductivity)
-            # if self.check_if_defined(mat.heatTransferCoefficient):
-            #     material["Heat Transfer Coefficient"] = float(mat.heatTransferCoefficient)
-            # if self.check_if_defined(mat.applyThermalFlow):
-            #     material["Apply Thermal Flow"] = mat.applyThermalFlow
-            # if self.check_if_defined(mat.applyThermalStrain):
-            #     material["Apply Thermal Strain"] = mat.applyThermalStrain
-            # if self.check_if_defined(mat.applyHeatTransfer):
-            #     material["Apply Heat Transfer"] = mat.applyHeatTransfer
-            # if self.check_if_defined(mat.thermalBondBased):
-            #     material["Thermal Bond Based"] = mat.thermalBondBased
-            # if self.check_if_defined(mat.environmentalTemperature):
-            #     material["Environmental Temperature"] = float(mat.environmentalTemperature)
-            # if self.check_if_defined(mat.printBedTemperature):
-            #     material["Print Bed Temperature"] = float(mat.printBedTemperature)
-            # if self.check_if_defined(mat.printBedThermalConductivity):
-            #     material["Print Bed Thermal Conductivity"] = float(mat.printBedThermalConductivity)
-            # if self.check_if_defined(mat.volumeFactor):
-            #     material["Volume Factor"] = float(mat.volumeFactor)
-            # if self.check_if_defined(mat.volumeLimit):
-            #     material["Volume Limit"] = float(mat.volumeLimit)
-            # if self.check_if_defined(mat.surfaceCorrection):
-            #     material["Surface Correction"] = float(mat.surfaceCorrection)
-
+                material.update({prop.name: prop.value for prop in mat.properties})
             data[mat.name] = material
-
         return data
+
+    def _used(self, key):
+        return {block.params.get(key) for block in self.block_def}
 
     def thermal(self):
-        data = {}
-
-        used = {block.thermalModel for block in self.block_def or []}
-        for therm in self.thermal_dict or []:
-            if therm.name not in used:
-                continue
-            thermal = {}
-            thermal["Thermal Model"] = " + ".join([str(x) for x in therm.thermalModel])
-            # if self.check_if_defined(therm.thermalBondBased):
-            thermal["Type"] = therm.thermalType
-            if self.check_if_defined(therm.thermalConductivity):
-                thermal["Thermal Conductivity"] = float(therm.thermalConductivity)
-            if self.check_if_defined(therm.thermalConductivityPrintBed):
-                thermal["Thermal Conductivity Print Bed"] = float(therm.thermalConductivityPrintBed)
-            if self.check_if_defined(therm.printBedTemperature):
-                thermal["Print Bed Temperature"] = float(therm.printBedTemperature)
-            if self.check_if_defined(therm.printBedZCoord):
-                thermal["Print Bed Z Coordinate"] = float(therm.printBedZCoord)
-            if self.check_if_defined(therm.environmentalTemperature):
-                thermal["Environmental Temperature"] = float(therm.environmentalTemperature)
-            if self.check_if_defined(therm.heatTransferCoefficient):
-                thermal["Heat Transfer Coefficient"] = float(therm.heatTransferCoefficient)
-            if self.check_if_defined(therm.thermalExpansionCoefficient):
-                thermal["Thermal Expansion Coefficient"] = float(therm.thermalExpansionCoefficient)
-
-            data[therm.name] = thermal
-        return data
+        used = self._used("Thermal Model")
+        return {t.name: _clean(t.params) for t in self.data.thermal if t.name in used}
 
     def additive(self):
-        data = {}
-
-        used = {block.additiveModel for block in self.block_def or []}
-        for add in self.additive_dict or []:
-            if add.name not in used:
-                continue
-            additive = {}
-            additive["Additive Model"] = add.additiveType
-            additive["Print Temperature"] = float(add.printTemp)
-
-            # if self.check_if_defined(add.timeFactor):
-            #     additive["Time Factor"] = float(add.timeFactor)
-
-            data[add.name] = additive
-        return data
+        used = self._used("Additive Model")
+        return {a.name: _clean(a.params) for a in self.data.additive if a.name in used}
 
     def blocks(self, max_block_id):
-        data = {}
-
-        for block in self.block_def:
-            if block.blocksId > max_block_id:
-                continue
-            blocks = {}
-
-            # blocks["Block Names"] = block.name
-            blocks["Block ID"] = block.blocksId
-            if block.material != "" and block.material is not None:
-                blocks["Material Model"] = block.material
-            if block.damageModel != "" and block.damageModel is not None:
-                blocks["Damage Model"] = block.damageModel
-            if block.thermalModel != "" and block.thermalModel is not None:
-                blocks["Thermal Model"] = block.thermalModel
-            if block.additiveModel != "" and block.additiveModel is not None:
-                blocks["Additive Model"] = block.additiveModel
-            blocks["Horizon"] = block.horizon
-            blocks["Density"] = block.density
-            if self.check_if_defined(block.specificHeatCapacity):
-                blocks["Specific Heat Capacity"] = float(block.specificHeatCapacity)
-
-            data[block.name] = blocks
-
-        return data
+        return {
+            block.name: {**_clean(block.params), "Block ID": block.blocksId}
+            for block in self.block_def
+            if block.blocksId <= max_block_id
+        }
 
     def damage(self, max_block_id):
         data = {}
-
-        for dam in self.damage_dict:
-            damage = {}
-
-            damage["Damage Model"] = str(dam.damageModel)
-
-            if dam.damageModel == "Critical Energy":
-                damage["Critical Value"] = float(dam.criticalEnergy)
-
-            elif dam.damageModel == "Von Mises Stress":
-                damage["Critical Von Mises Stress"] = float(dam.criticalVonMisesStress)
-
-                if self.check_if_defined(dam.criticalDamage):
-                    damage["Critical Damage"] = float(dam.criticalDamage)
-                if self.check_if_defined(dam.thresholdDamage):
-                    damage["Threshold Damage"] = float(dam.thresholdDamage)
-                if self.check_if_defined(dam.criticalDamageToNeglect):
-                    damage["Critical Damage To Neglect"] = float(dam.criticalDamageToNeglect)
-
-            elif dam.damageModel == "Critical Stretch":
-                damage["Critical Value"] = float(dam.criticalStretch)
-            else:
-                damage["Critical Value"] = 0.0
-
-            if dam.interBlockDamage:
-                allowed = False
-                for interBlock in dam.interBlocks:
-                    if interBlock.firstBlockId <= max_block_id and interBlock.secondBlockId <= max_block_id:
-                        allowed = True
-                        break
-                if allowed:
-                    damage["Interblock Damage"] = {}
-                    for interBlock in dam.interBlocks:
-                        damage["Interblock Damage"][
-                            "Interblock Critical Value "
-                            + str(interBlock.firstBlockId)
-                            + "_"
-                            + str(interBlock.secondBlockId)
-                        ] = float(interBlock.value)
-            if dam.anistropicDamage:
-                damage["Anisotropic Damage"] = {}
-                damage["Anisotropic Damage"]["Critical Value X"] = float(dam.anistropicDamageX)
-                damage["Anisotropic Damage"]["Critical Value Y"] = float(dam.anistropicDamageY)
-                # if not self.two_d:
-                damage["Anisotropic Damage"]["Critical Value Z"] = float(dam.anistropicDamageZ)
-            # damage["Plane Stress"] = self.two_d
-            if self.check_if_defined(dam.onlyTension):
-                damage["Only Tension"] = dam.onlyTension
-            # damage["Detached Nodes Check"] = dam.detachedNodesCheck
-            if self.check_if_defined(dam.thickness):
-                damage["Thickness"] = float(dam.thickness)
-            # damage["Hourglass Coefficient"] = float(dam.hourglassCoefficient)
-            # damage["Stabilization Type"] = dam.stabilizationType
-
+        for dam in self.data.damages:
+            damage = _clean(dam.params)
+            if any(ib.firstBlockId <= max_block_id and ib.secondBlockId <= max_block_id for ib in dam.interBlocks):
+                damage["Interblock Damage"] = {
+                    f"Interblock Critical Value {ib.firstBlockId}_{ib.secondBlockId}": float(ib.value)
+                    for ib in dam.interBlocks
+                }
             data[dam.name] = damage
-
         return data
 
-    def solver(self, id=0, multistep=False):
-        data = {}
-        if multistep:
-            data["Step ID"] = self.solver_dict[id].stepId
-
-        # Picks up matEnabled->"Material Models", damEnabled->"Damage Models",
-        # tempEnabled->"Thermal Models", addEnabled->"Additive Models",
-        # calculateCauchy/calculateVonMises/calculateStrain, and
-        # initialTime/finalTime/maximumDamage - see the yaml_field(...)
-        # declarations on Solver in support/base_models.py. Only fields that
-        # need real structural logic (the solvertype branch below, the
-        # additionalTime/initialTime XOR, Verlet's nested "Fixed dt"/"Safety
-        # Factor") stay hand-written past this point.
-        write_mapped_fields(self.solver_dict[id], data)
-
-        if self.check_if_defined(self.solver_dict[id].additionalTime):
-            data["Additional Time"] = float(self.solver_dict[id].additionalTime)
-            data.pop("Initial Time", None)
-            data.pop("Final Time", None)
-
-        if self.solver_dict[id].stopBeforeDamageInitation:
-            data["Stop before damage initiation"] = True
-
-        if self.solver_dict[id].solvertype == "Verlet":
-            data["Verlet"] = {}
-            if self.check_if_defined(self.solver_dict[id].fixedDt):
-                data["Verlet"]["Fixed dt"] = float(self.solver_dict[id].fixedDt)
-
-            data["Verlet"]["Safety Factor"] = float(self.solver_dict[id].safetyFactor)
-            if self.check_if_defined(self.solver_dict[id].verlet.numericalDamping):
-                data["Verlet"]["Numerical Damping"] = float(self.solver_dict[id].verlet.numericalDamping)
-
-            if (
-                self.check_if_defined(self.solver_dict[id].adaptivetimeStepping)
-                and self.solver_dict[id].adaptivetimeStepping
-            ):
-                data["Verlet"]["Adapt dt"] = True
-                data["Verlet"]["Stable Step Difference"] = self.solver_dict[id].adapt.stableStepDifference
-                data["Verlet"]["Maximum Bond Difference"] = self.solver_dict[id].adapt.maximumBondDifference
-                data["Verlet"]["Stable Bond Difference"] = self.solver_dict[id].adapt.stableBondDifference
-        elif self.solver_dict[id].solvertype == "Static":
-            data["Number of Steps"] = self.solver_dict[id].static.numberOfSteps
-            data["Static"] = {}
-            if self.check_if_defined(self.solver_dict[id].static.maximumNumberOfIterations):
-                data["Static"]["Maximum number of iterations"] = int(
-                    self.solver_dict[id].static.maximumNumberOfIterations
-                )
-            if self.check_if_defined(self.solver_dict[id].static.showSolverIteration):
-                data["Static"]["Show solver iteration"] = self.solver_dict[id].static.showSolverIteration
-            if self.check_if_defined(self.solver_dict[id].static.residualTolerance):
-                data["Static"]["Residual tolerance"] = float(self.solver_dict[id].static.residualTolerance)
-            if self.check_if_defined(self.solver_dict[id].static.solutionTolerance):
-                data["Static"]["Solution tolerance"] = float(self.solver_dict[id].static.solutionTolerance)
-            if self.check_if_defined(self.solver_dict[id].static.linearStartValue):
-                data["Static"]["Linear Start Value"] = self.solver_dict[id].static.linearStartValue
-            if self.check_if_defined(self.solver_dict[id].static.residualScaling):
-                data["Static"]["Residual scaling"] = float(self.solver_dict[id].static.residualScaling)
-            if self.check_if_defined(self.solver_dict[id].static.m):
-                data["Static"]["m"] = int(self.solver_dict[id].static.m)
-        else:
-
+    def solver(self, solver, multistep=False):
+        if not solver.solvertype:
             raise HTTPException(status_code=400, detail="Solver not defined")
-
-        if self.check_if_defined(self.solver_dict[id].calculateCauchy):
-            data["Calculate Cauchy"] = self.solver_dict[id].calculateCauchy
-
-        if self.check_if_defined(self.solver_dict[id].calculateVonMises):
-            data["Calculate von Mises stress"] = self.solver_dict[id].calculateVonMises
-
-        if self.check_if_defined(self.solver_dict[id].calculateStrain):
-            data["Calculate Strain"] = self.solver_dict[id].calculateStrain
-
+        data = _clean(solver.params)
+        data[solver.solvertype] = _clean(solver.solverOptions)
+        if multistep:
+            data["Step ID"] = solver.stepId
         return data
 
-    def multistepSolver(self):
+    def multistep_solver(self):
+        return {(s.name or f"Step {s.stepId}"): self.solver(s, True) for s in self.data.solvers}
+
+    def boundary_conditions(self, multistep):
         data = {}
-
-        for i, _ in enumerate(self.solver_dict):
-            data[self.solver_dict[i].name] = self.solver(i, True)
-        return data
-
-    def create_boundary_conditions(self, multistep):
-        data = {}
-
-        for condition in self.boundary_condition.conditions:
-            cond = {}
-            node_set_id = self.node_set_ids.index(condition.blockId)
-            cond["Type"] = condition.boundarytype
-            cond["Variable"] = condition.variable
-
-            if self.check_if_defined(condition.nodeSet):
-                cond["Node Set"] = "Node Set " + str(condition.nodeSet)
-            else:
-                cond["Node Set"] = "Node Set " + str(node_set_id + 1)
-
-            if self.check_if_defined(condition.stepId) and multistep:
-                steps = ""
-                for step in condition.stepId:
-                    steps += str(step) + ", "
-                cond["Step ID"] = steps[:-2]
-
-            if "Temperature" not in condition.variable:
-                cond["Coordinate"] = condition.coordinate
-            cond["Value"] = condition.value
-
-            data[condition.name] = cond
-
+        for cond in self.data.boundaryConditions.conditions:
+            bc = _clean(cond.params)
+            node_set = cond.nodeSet or self.node_set_ids.index(cond.blockId) + 1
+            bc["Node Set"] = f"Node Set {node_set}"
+            if multistep and cond.stepId:
+                bc["Step ID"] = ", ".join(str(step) for step in cond.stepId)
+            data[cond.name] = bc
         return data
 
     def contact(self):
-        data = {}
-        data["Globals"] = {}
-        data["Globals"]["Only Surface Contact Nodes"] = self.contact_dict.onlySurfaceContactNodes
-        data["Globals"]["Global Search Frequency"] = self.contact_dict.searchFrequency
-        for con in self.contact_dict.contactModels:
-            contact = {}
-            contact["Type"] = con.contactType
-            contact["Contact Radius"] = con.contactRadius
-            contact["Contact Stiffness"] = con.contactStiffness
-            groups = {}
-            for group in con.contactGroups:
-                group_dict = {}
-                group_dict["Master Block ID"] = group.masterBlockId
-                group_dict["Slave Block ID"] = group.slaveBlockId
-                group_dict["Search Radius"] = group.searchRadius
-                groups[group.name] = group_dict
-
-            contact["Contact Groups"] = groups
-            data[con.name] = contact
+        contact = self.data.contact
+        data = {"Globals": _clean(contact.params)}
+        for model in contact.contactModels:
+            data[model.name] = {
+                **_clean(model.params),
+                "Contact Groups": {group.name: _clean(group.params) for group in model.contactGroups},
+            }
         return data
 
     def compute(self):
         data = {}
-        for out in self.compute_dict:
-            compute = {}
-            if out.computeClass == "Node_Set_Data":
-                compute["Compute Class"] = "Node_Set_Data"
-                compute["Calculation Type"] = out.calculationType
-                compute["Node Set"] = "Node Set " + str(out.nodeSetId)
-            elif out.computeClass == "Block_Data":
-                compute["Compute Class"] = "Block_Data"
-                compute["Calculation Type"] = out.calculationType
-                compute["Block"] = out.blockName
-            elif out.computeClass == "Nearest_Point_Data":
-                compute["Compute Class"] = "Nearest_Point_Data"
-                compute["X"] = out.xValue
-                compute["Y"] = out.yValue
-                compute["Z"] = out.zValue
-            compute["Variable"] = out.variable
-            if self.check_if_defined(out.equation):
-                compute["Equation"] = out.equation
-            # compute["Output Label"] = out.name
-
-            data[out.name] = compute
-
+        for comp in self.data.computes:
+            entry = _clean(comp.params)
+            if comp.nodeSetId is not None:
+                entry["Node Set"] = f"Node Set {comp.nodeSetId}"
+            data[comp.name] = entry
         return data
 
     def output(self):
+        computes = [comp.name for comp in self.data.computes]
         data = {}
-        idx = 0
-        for out in self.output_dict:
-            output = {}
-            output["Output File Type"] = out.selectedFileType
-            output["Output Filename"] = self.filename + "_" + out.name
-
-            if out.InitStep != 0:
-                output["Initial Output Step"] = out.InitStep
-            if out.useOutputFrequency:
-                output["Output Frequency"] = out.Frequency
-            else:
-                output["Number of Output Steps"] = out.numberOfOutputSteps
-            # output["Parallel Write"] = True
-            if out.Write_After_Damage:
-                output["Write After Damage"] = True
-
-            variable = {}
-            for outputs in out.selectedOutputs:
-                if outputs == "Velocity_Gradient":
-                    variable["Velocity_Gradient_X"] = True
-                    variable["Velocity_Gradient_Y"] = True
-                    variable["Velocity_Gradient_Z"] = True
-                elif outputs == "PiolaStressTimesInvShapeTensor":
-                    variable["PiolaStressTimesInvShapeTensorX"] = True
-                    variable["PiolaStressTimesInvShapeTensorY"] = True
-                    variable["PiolaStressTimesInvShapeTensorZ"] = True
-                else:
-                    variable[outputs] = True
-
-                output["Output Variables"] = variable
-            if self.check_if_defined(self.compute_dict):
-                for compute in self.compute_dict:
-                    variable[compute.name] = True
-
-            output["Output Variables"] = variable
-
-            data["Output" + str(idx + 1)] = output
-            idx += 1
+        for idx, out in enumerate(self.data.outputs):
+            variables = {v: True for name in out.selectedOutputs for v in EXPANDED_OUTPUTS.get(name, [name])}
+            variables.update({name: True for name in computes})
+            data[f"Output{idx + 1}"] = {
+                **_clean(out.params),
+                "Output Filename": f"{self.filename}_{out.name}",
+                "Output Variables": variables,
+            }
         return data
 
     def create_yaml(self, max_block_id):
-
-        multistep = len(self.solver_dict) > 1
-
-        data = {"PeriLab": {}}
-        data["PeriLab"]["Models"] = {}
-
-        data["PeriLab"]["Discretization"] = self.load_mesh()
-        if self.check_if_defined(self.bondfilters) and len(self.bondfilters) > 0:
-            data["PeriLab"]["Discretization"]["Bond Filters"] = self.create_bond_filter()
-        if self.check_if_defined(self.preCalculations):
-            data["PeriLab"]["Models"]["Pre Calculation"] = self.preCalculation()
-        if self.check_if_defined(self.material_dict) and len(self.material_dict) > 0:
-            data["PeriLab"]["Models"]["Material Models"] = self.materials()
+        d = self.data
+        multistep = len(d.solvers) > 1
+        models = {}
+        if d.materials:
+            models["Material Models"] = self.materials()
         if thermal := self.thermal():
-            data["PeriLab"]["Models"]["Thermal Models"] = thermal
+            models["Thermal Models"] = thermal
         if additive := self.additive():
-            data["PeriLab"]["Models"]["Additive Models"] = additive
-        data["PeriLab"]["Blocks"] = self.blocks(max_block_id)
-        if self.check_if_defined(self.damage_dict) and len(self.damage_dict) > 0:
-            data["PeriLab"]["Models"]["Damage Models"] = self.damage(max_block_id)
-        if multistep:
-            data["PeriLab"]["Multistep Solver"] = self.multistepSolver()
-        else:
-            data["PeriLab"]["Solver"] = self.solver()
-        if self.check_if_defined(self.boundary_condition.conditions) and len(self.boundary_condition.conditions) > 0:
-            data["PeriLab"]["Boundary Conditions"] = self.create_boundary_conditions(multistep)
-        if self.check_if_defined(self.contact_dict):
-            if self.contact_dict.contactModels:
-                data["PeriLab"]["Contact"] = self.contact()
-        if self.check_if_defined(self.compute_dict):
-            if len(self.compute_dict) > 0:
-                data["PeriLab"]["Compute Class Parameters"] = self.compute()
-        data["PeriLab"]["Outputs"] = self.output()
+            models["Additive Models"] = additive
+        if d.damages:
+            models["Damage Models"] = self.damage(max_block_id)
 
-        yaml_string = yaml.dump(data, default_flow_style=False)
-        return yaml_string
+        deck = {"Models": models, "Discretization": self.discretization(), "Blocks": self.blocks(max_block_id)}
+        if multistep:
+            deck["Multistep Solver"] = self.multistep_solver()
+        else:
+            deck["Solver"] = self.solver(d.solvers[0])
+        if d.boundaryConditions.conditions:
+            deck["Boundary Conditions"] = self.boundary_conditions(multistep)
+        if d.contact.contactModels:
+            deck["Contact"] = self.contact()
+        if d.computes:
+            deck["Compute Class Parameters"] = self.compute()
+        deck["Outputs"] = self.output()
+        return yaml.dump({"PeriLab": deck}, default_flow_style=False)
