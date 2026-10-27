@@ -4,7 +4,7 @@ author: hess_ja
 version: 0.1.0
 
 parameters:
-  DISCRETIZATION: {default: 100, label: Discretization, description: Points over half the height}
+  DISCRETIZATION: {default: 50, label: Discretization, description: Points over half the height}
   LENGTH: {default: 100, label: Length}
   HEIGHT: {default: 200, label: Height}
   WIDTH: {default: 9, label: Width}

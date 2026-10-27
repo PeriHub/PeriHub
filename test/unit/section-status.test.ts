@@ -24,6 +24,17 @@ describe('sectionStatus', () => {
     expect(
       sectionStatus('deviations', 'Deviations', 'object', { enabled: false }, deviationsUsed)
     ).toBe('unused');
+    // Required in ModelData, but no conditions = not used rather than complete.
+    const bcUsed = (bc: { conditions?: unknown[] }) => !!bc.conditions?.length;
+    expect(
+      sectionStatus(
+        'boundaryConditions',
+        'BoundaryConditions',
+        'object',
+        { conditions: [] },
+        bcUsed
+      )
+    ).toBe('unused');
   });
 
   it('honours isReady, e.g. an uploaded-mesh model without a mesh', () => {

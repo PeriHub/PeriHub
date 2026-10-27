@@ -19,6 +19,7 @@
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { notify } from '$lib/utils/notify';
+  import { bus } from '$lib/utils/bus';
   import { getPointDataResults } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import Select from '$lib/components/ui/Select.svelte';
@@ -164,7 +165,10 @@
     await viewPointData(false);
   }
 
+  const refreshResults = () => viewPointData(false);
+
   onMount(async () => {
+    bus.on('refreshResults' as never, refreshResults);
     // Just the data load - ResultsScene/Canvas handles its own sizing
     // (including the tab-mounted-but-hidden case), so no ResizeObserver
     // bookkeeping is needed here any more.
@@ -177,6 +181,7 @@
   });
 
   onDestroy(() => {
+    bus.off('refreshResults' as never, refreshResults);
     clearInterval(timer);
     clearTimeout(debounceTimer);
   });

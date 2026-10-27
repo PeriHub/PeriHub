@@ -22,7 +22,7 @@
   import { bus } from '$lib/utils/bus';
   import { sectionStatus } from '$lib/utils/schemaValidation';
   import { missingBySection } from '$lib/perilab/missing';
-  import type { Contact, Deviations, Model, ModelData } from '$lib/client';
+  import type { BoundaryConditions, Contact, Deviations, Model, ModelData } from '$lib/client';
   import AccordionItem from '$lib/components/ui/AccordionItem.svelte';
 
   import ModelSettings from '$lib/components/expansions/Model.svelte';
@@ -171,7 +171,8 @@
           component: BoundaryConditionsSettings,
           schema: 'BoundaryConditions',
           schemaKind: 'object',
-          field: 'boundaryConditions'
+          field: 'boundaryConditions',
+          isUsed: (bc: BoundaryConditions) => !!bc.conditions?.length
         },
         {
           key: 'bondFilters',

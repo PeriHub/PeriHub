@@ -93,7 +93,8 @@
     closeStream();
     // Otherwise logStatus stays 'streaming' and ViewActions keeps showing Cancel.
     viewStore.logStatus = 'idle';
-    refreshUntilFinished();
+    // The results view was opened at "Run" with partial output - reload it once the job is really over.
+    refreshUntilFinished().then(() => bus.emit('refreshResults' as never));
     bus.emit('getJobs' as never);
     if (wasSubmitted) {
       if (ok) notify.positive(message);

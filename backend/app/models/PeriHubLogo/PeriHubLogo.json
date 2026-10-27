@@ -14,11 +14,9 @@
     "nodeSets": [],
     "gcode": {
       "params": {
-        "Overwrite Mesh": true,
         "Sampling": 0.4,
         "Width": 0.4,
-        "Height": 0.2,
-        "Scale": 1.0
+        "Height": 0.2
       },
       "blockFunctions": []
     }

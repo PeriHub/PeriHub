@@ -34,7 +34,6 @@
       "params": {
         "Damage Model": "Critical Stretch",
         "Only Tension": true,
-        "Thickness": 10.0,
         "Critical Value": 0.015
       },
       "criticalEnergyCalc": {

@@ -90,7 +90,8 @@ export function sectionStatus(
   const optional = !(getSchema('ModelData')?.required ?? []).includes(field);
   const used =
     data != null && (isUsed ? isUsed(data as never) : !(Array.isArray(data) && data.length === 0));
-  if (optional && !used) return 'unused';
+  // An explicit isUsed marks a required-but-possibly-empty section (e.g. no boundary conditions) as optional too.
+  if ((optional || isUsed) && !used) return 'unused';
   const complete =
     kind === 'array'
       ? isArraySectionComplete(schemaName, data)
