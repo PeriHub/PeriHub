@@ -22,4 +22,23 @@ describe('missingBySection', () => {
     data.model.meshSource = 'upload';
     expect(missingBySection(data).blocks).toContain('Part: Horizon');
   });
+
+  it('requires Thermal Conductivity for Thermal Flow only', () => {
+    const data = base();
+    data.thermal = [
+      { name: 'T', params: { 'Thermal Model': 'Thermal Flow' } }
+    ] as ModelData['thermal'];
+    expect(missingBySection(data).thermal).toContain('T: Thermal Conductivity');
+    data.thermal![0]!.params!['Thermal Model'] = 'Thermal Expansion';
+    expect(missingBySection(data).thermal).not.toContain('T: Thermal Conductivity');
+  });
+
+  it('requires Specific Heat Capacity on every block once a block uses a thermal model', () => {
+    const data = base();
+    expect(missingBySection(data).blocks).toEqual([]);
+    data.blocks[0]!.params!['Thermal Model'] = 'T';
+    expect(missingBySection(data).blocks).toEqual(
+      data.blocks.map((b) => `${b.name}: Specific Heat Capacity`)
+    );
+  });
 });

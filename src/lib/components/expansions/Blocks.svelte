@@ -6,7 +6,8 @@
   import Select from '$lib/components/ui/Select.svelte';
   import Button from '$lib/components/ui/Button.svelte';
   import AddButton from '$lib/components/ui/AddButton.svelte';
-  import { sections, CUSTOM_KEYS } from '$lib/perilab/schema';
+  import { sections, isSet, CUSTOM_KEYS } from '$lib/perilab/schema';
+  import { needsHeatCapacity } from '$lib/perilab/missing';
   import SchemaParams from '$lib/components/SchemaParams.svelte';
 
   const model = $derived(modelStore.modelData.model);
@@ -16,11 +17,17 @@
   const thermal = $derived(modelStore.modelData.thermal ?? []);
   const additive = $derived(modelStore.modelData.additive ?? []);
   const blocks = $derived(modelStore.modelData.blocks ?? []);
+  const heatCapacityColumn = $derived(thermal.length > 0 || additive.length > 0);
+  const heatCapacityRequired = $derived(needsHeatCapacity({ blocks }));
 
   let expanded = $state<boolean[]>([]);
   // Must match the header: an oversized colspan adds phantom columns to the table-fixed grid.
   const columnCount = $derived(
-    5 + (thermal.length ? 2 : 0) + (additive.length ? 1 : 0) + (uploaded ? 2 : 0)
+    5 +
+      (thermal.length ? 1 : 0) +
+      (additive.length ? 1 : 0) +
+      (heatCapacityColumn ? 1 : 0) +
+      (uploaded ? 2 : 0)
   );
 
   function addBlock() {
@@ -52,7 +59,7 @@
           {#if thermal.length}<th class="px-1 pb-1 font-medium">Thermal Model</th>{/if}
           {#if additive.length}<th class="px-1 pb-1 font-medium">Additive Model</th>{/if}
           <th class="px-1 pb-1 font-medium">Density</th>
-          {#if thermal.length}<th class="px-1 pb-1 font-medium">Specific Heat Capacity</th>{/if}
+          {#if heatCapacityColumn}<th class="px-1 pb-1 font-medium">Specific Heat Capacity</th>{/if}
           {#if uploaded}<th class="px-1 pb-1 font-medium">Horizon</th>{/if}
           <th class="w-11"><span class="sr-only">PeriLab parameters</span></th>
           {#if uploaded}<th class="w-11"><span class="sr-only">Remove</span></th>{/if}
@@ -144,12 +151,13 @@
                 bind:value={block.params!['Density']}
               />
             </td>
-            {#if thermal.length}
+            {#if heatCapacityColumn}
               <td class="p-0.5">
                 <Input
-                  class="h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none"
+                  class={`h-8 [appearance:textfield] px-2 text-[13px] [&::-webkit-inner-spin-button]:appearance-none${heatCapacityRequired && !isSet(block.params?.['Specific Heat Capacity']) ? ' border-destructive' : ''}`}
                   type="number"
                   aria-label="Specific heat capacity of {block.name}"
+                  aria-required={heatCapacityRequired}
                   title="Specific heat capacity"
                   bind:value={block.params!['Specific Heat Capacity']}
                 />

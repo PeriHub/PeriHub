@@ -73,6 +73,13 @@ export const sections = {
   multistepSolver: node(['Multistep Solver', '*'])
 };
 
+// PeriLab aborts without a Thermal Conductivity for Thermal Flow (thermal_flow.jl), but its schema only says so in
+// the description. ponytail: patched here; drop once `npm run perilab-schema` brings it as `required`.
+for (const branch of sections.thermal?.allOf ?? []) {
+  if (branch.if?.properties['Thermal Model']?.const === 'Thermal Flow' && branch.then)
+    branch.then.required = [...new Set([...(branch.then.required ?? []), 'Thermal Conductivity'])];
+}
+
 /** Names of the registered models of a named-entry section (its `allOf` `if ... const` branches adding keys). */
 export function modelNames(entry?: SchemaProp): string[] {
   return (entry?.allOf ?? []).flatMap((c) =>

@@ -7,6 +7,7 @@
 import type { ModelData } from '$lib/client';
 import {
   AUTO_KEYS,
+  isSet,
   missingRequired,
   node,
   paramsFor,
@@ -40,9 +41,16 @@ function entries<T extends { name: string; params?: Values }>(
   return (list ?? []).flatMap((e) => check(section, e.name, e.params, names(e), auto));
 }
 
+/** PeriLab aborts unless every block has a Specific Heat Capacity once any block uses a thermal or additive model
+ * (Model_Factory.jl set_heat_capacity) - a cross-section rule its schema can't express. */
+export function needsHeatCapacity(data: Pick<ModelData, 'blocks'>): boolean {
+  return data.blocks.some((b) => b.params?.['Thermal Model'] || b.params?.['Additive Model']);
+}
+
 export function missingBySection(data: ModelData): Partial<Record<string, string[]>> {
   const generated = data.model.meshSource !== 'upload';
   const solverSection = data.solvers.length > 1 ? sections.multistepSolver : sections.solver;
+  const heatCapacity = needsHeatCapacity(data);
   return {
     discretization: check(
       sections.discretization,
@@ -51,10 +59,15 @@ export function missingBySection(data: ModelData): Partial<Record<string, string
       [],
       AUTO_KEYS.discretization
     ),
-    blocks: entries(data.blocks, sections.block, () => [], [
-      ...AUTO_KEYS.block,
-      ...(generated ? ['Horizon'] : [])
-    ]),
+    blocks: [
+      ...entries(data.blocks, sections.block, () => [], [
+        ...AUTO_KEYS.block,
+        ...(generated ? ['Horizon'] : [])
+      ]),
+      ...(heatCapacity ? data.blocks : [])
+        .filter((b) => !isSet(b.params?.['Specific Heat Capacity']))
+        .map((b) => `${b.name}: Specific Heat Capacity`)
+    ],
     materials: entries(data.materials, sections.material, (m) =>
       splitModels(m.params?.['Material Model'])
     ),
