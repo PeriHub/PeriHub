@@ -62,8 +62,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      # Layers cached in the GitHub Actions cache; `publish` reuses the same scope.
       - name: Build Docker image
-        run: docker build -t perihub/backend:dev ./backend
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          tags: perihub/backend:dev
+          load: true
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
       - name: Run Docker container
         run: docker run -d -p 8000:8000 -v ./test:/app/simulations perihub/backend:dev
       - uses: actions/setup-node@v7
@@ -73,8 +81,22 @@ jobs:
           cache-dependency-path: ./package-lock.json
       - name: Install dependencies
         run: npm ci
+      # Only chromium is configured (playwright.config.ts); the browser download is cached per Playwright version,
+      # the system packages it needs are always installed (apt, not cacheable here).
+      - name: Get Playwright version
+        id: playwright
+        run: echo "version=$(npm ls @playwright/test --json | jq -r '.dependencies["@playwright/test"].version')" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v7
@@ -96,11 +118,20 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build Docker images
-        run: |
-          docker build -t perihub/backend:dev ./backend
-          docker build -t perihub/frontend:dev .
-      - name: Publish to Registry
-        run: |
-          docker push perihub/backend:dev
-          docker push perihub/frontend:dev
+      - uses: docker/setup-buildx-action@v4
+      - name: Build and publish backend
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          tags: perihub/backend:dev
+          push: true
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
+      - name: Build and publish frontend
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          tags: perihub/frontend:dev
+          push: true
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,scope=frontend,mode=max
