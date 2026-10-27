@@ -131,16 +131,23 @@ test('solver and material forms follow the PeriLab schema', async ({ page }) => 
   // Required fields filled in"). Anchored instead of a plain substring, so it doesn't also match the
   // "About Material Models" info-tip button left over from the still-open Solver panel.
   await page.getByRole('button', { name: /^Material\b/ }).click();
-  // getByRole for the same reason as Final Time: C11 (and possibly Young's Modulus) are required.
+  // The materials depend on the default model (PeriHubLogo from the backend has none), so add one and check that
+  // (the last): "Add material" creates an isotropic plane stress PD Solid Elastic one, "Duplicate <last>" copies
+  // an isotropic default one. .last(): the still-open Solver panel above has its own add button. getByRole for
+  // the same reason as Final Time: C11 is required once anisotropic.
+  await page
+    .getByRole('button', { name: /^(Add material|Duplicate )/ })
+    .last()
+    .click();
   await expect(
-    page.getByRole('spinbutton', { name: "Young's Modulus", exact: true }).first()
+    page.getByRole('spinbutton', { name: "Young's Modulus", exact: true }).last()
   ).toBeVisible();
-  await expect(page.getByRole('spinbutton', { name: 'C11', exact: true })).toHaveCount(0); // default Symmetry is isotropic plane stress
+  await expect(page.getByRole('spinbutton', { name: 'C11', exact: true })).toHaveCount(0);
   await page
     .getByRole('combobox', { name: 'Symmetry', exact: true })
-    .first()
+    .last()
     .selectOption('anisotropic');
-  await expect(page.getByRole('spinbutton', { name: 'C11', exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('spinbutton', { name: 'C11', exact: true }).last()).toBeVisible();
 });
 
 test('a missing required value is marked and counted', async ({ page }) => {
