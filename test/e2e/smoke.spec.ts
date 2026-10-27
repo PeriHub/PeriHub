@@ -7,6 +7,8 @@ import { expect, test } from '@playwright/test';
 // No backend in e2e: pretend guest access is on so initAuth() gets a session instead of
 // redirecting to /auth/login. /auth/me answers as a member so the full nav (incl. Models) shows.
 test.beforeEach(async ({ page }) => {
+  // The editor auto-launches its driver.js tour on a first visit; its overlay would swallow clicks.
+  await page.addInitScript(() => localStorage.setItem('periHubTourSeen', 'true'));
   await page.route('**/api/config/public', (route) =>
     route.fulfill({
       json: {
@@ -129,10 +131,16 @@ test('solver and material forms follow the PeriLab schema', async ({ page }) => 
   // Required fields filled in"). Anchored instead of a plain substring, so it doesn't also match the
   // "About Material Models" info-tip button left over from the still-open Solver panel.
   await page.getByRole('button', { name: /^Material\b/ }).click();
-  await expect(page.getByLabel("Young's Modulus", { exact: true }).first()).toBeVisible();
-  await expect(page.getByLabel('C11', { exact: true })).toHaveCount(0); // default Symmetry is isotropic plane stress
-  await page.getByLabel('Symmetry', { exact: true }).first().selectOption('anisotropic');
-  await expect(page.getByLabel('C11', { exact: true }).first()).toBeVisible();
+  // getByRole for the same reason as Final Time: C11 (and possibly Young's Modulus) are required.
+  await expect(
+    page.getByRole('spinbutton', { name: "Young's Modulus", exact: true }).first()
+  ).toBeVisible();
+  await expect(page.getByRole('spinbutton', { name: 'C11', exact: true })).toHaveCount(0); // default Symmetry is isotropic plane stress
+  await page
+    .getByRole('combobox', { name: 'Symmetry', exact: true })
+    .first()
+    .selectOption('anisotropic');
+  await expect(page.getByRole('spinbutton', { name: 'C11', exact: true }).first()).toBeVisible();
 });
 
 test('a missing required value is marked and counted', async ({ page }) => {
