@@ -97,11 +97,9 @@
       if (type === 'gcode' && !data.discretization.gcode) {
         data.discretization.gcode = {
           params: {
-            'Overwrite Mesh': true,
             Sampling: 1,
             Width: 0.4,
-            Height: 0.2,
-            Scale: 1
+            Height: 0.2
           }
         };
       }
