@@ -19,6 +19,7 @@ signal to fall back on.
 import os
 
 from ..db import base
+from . import gcode_mesh_cache
 from .admin_settings import instance_setting
 from .deck_guard import check_input_deck
 from .file_handler import safe_segment
@@ -103,6 +104,7 @@ class PeriLabSolverBackend(SolverBackend):
         # Every deck is checked before any is submitted, so a rejected batch leaves no PeriLab jobs behind.
         for input_file_path in input_file_paths:
             check_input_deck(input_file_path)
+            gcode_mesh_cache.drop_if_stale(remotepath, input_file_path)
         job_ids_submitted = []
         for input_file_path in input_file_paths:
             extra_files = [

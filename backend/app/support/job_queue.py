@@ -31,6 +31,7 @@ from ..db.models import (
     JobQueueEntry,
     User,
 )
+from . import gcode_mesh_cache
 from .admin_settings import instance_setting
 from .globals import log
 from .job_notifications import notify_job_ended
@@ -195,4 +196,10 @@ def sync_status(db: Session, entry: Optional[JobQueueEntry]) -> Optional[PeriLab
         entry.finished_at = datetime.now(timezone.utc)
         db.commit()
         notify_job_ended(db, entry)
+        # ponytail: single-deck runs only; batch variants share the model folder, add per-variant decks if needed.
+        if entry.status == JOB_DONE and len(job_ids) == 1:
+            try:
+                gcode_mesh_cache.keep(client, job_ids[0], entry.remotepath, entry.model_name + ".yaml")
+            except Exception as exc:  # a missing mesh copy must never break the status update
+                log.warning("job_queue: could not keep the G-code mesh of %s: %s", entry.id, exc)
     return jobs[0]

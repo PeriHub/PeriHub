@@ -153,3 +153,6 @@ dmypy.json
 /local
 _site/
 .jekyll-cache/
+
+# Backend runtime state (audit log, license cache)
+backend/app/logs/
