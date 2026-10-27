@@ -20,6 +20,7 @@
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { notify } from '$lib/utils/notify';
   import { bus } from '$lib/utils/bus';
+  import { nodeSpacing } from '$lib/utils/node-spacing';
   import { getPointDataResults } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import Select from '$lib/components/ui/Select.svelte';
@@ -41,7 +42,9 @@
     displFactor: 1,
     step: 1,
     numberOfSteps: 100,
-    filter: '',
+    // Additive (G-code) models keep every node of the final part in the mesh; unprinted ones stay at 0 K, so
+    // filtering by Temperature shows the part as printed so far.
+    filter: modelStore.modelData.additive?.length ? 'Temperature' : '',
     colorBarMin: null as number | null,
     colorBarMax: null as number | null
   });
@@ -99,7 +102,8 @@
       step: modelParams.step,
       displFactor: modelParams.displFactor,
       variable: modelParams.variable,
-      filter: modelParams.filter,
+      // At step 1 (time 0) nothing is printed yet - the filter would hide every node.
+      filter: modelData.additive?.length && modelParams.step === 1 ? '' : modelParams.filter,
       colorBarMin: modelParams.colorBarMin,
       colorBarMax: modelParams.colorBarMax,
       runId: defaultStore.status.run_id
@@ -107,11 +111,7 @@
       .then((response) => {
         pointString = response.nodes;
         blockIdString = response.value;
-        dxValue = Math.hypot(
-          pointString[3]! - pointString[0]!,
-          pointString[4]! - pointString[1]!,
-          pointString[5]! - pointString[2]!
-        );
+        dxValue = nodeSpacing(pointString);
         maxValue = response.max_value;
         minValue = response.min_value;
         variableOptions = response.variables;

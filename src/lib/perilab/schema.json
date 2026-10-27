@@ -146,6 +146,11 @@
             "Gcode": {
               "x-perilab-when": { "Type": ["Gcode"] },
               "properties": {
+                "Overwrite Mesh": {
+                  "default": true,
+                  "type": "boolean",
+                  "description": "Regenerate the mesh from the G-code; if false and the .txt mesh written by a previous run exists next to the G-code file, that mesh is read instead"
+                },
                 "Sampling": {
                   "minimum": 0.0,
                   "type": "number",
