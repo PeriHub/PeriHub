@@ -17,9 +17,9 @@ feeding the same Glyph3DMapper shape.
   interface Props {
     // Flat [x0,y0,z0, x1,y1,z1, ...] - same layout as glyphPoints.setData() in
     // the original component.
-    points: number[];
+    points: ArrayLike<number>;
     // One scalar per point - same role as glyphScalars in the original.
-    values: number[];
+    values: ArrayLike<number>;
     radius: number;
     resolution: number;
     colorFor: (value: number, target: THREE.Color) => THREE.Color;
@@ -41,8 +41,7 @@ feeding the same Glyph3DMapper shape.
   const geometry = $derived.by(() => new THREE.SphereGeometry(1, resolution, resolution));
   const material = new THREE.MeshStandardMaterial({ roughness: 0.6, metalness: 0.05 });
 
-  // Reused scratch objects - avoids allocating per point per update.
-  const dummy = new THREE.Object3D();
+  // Reused scratch color - avoids allocating per point per update.
   const scratchColor = new THREE.Color();
 
   let previousGeometry: THREE.SphereGeometry | undefined;
@@ -56,17 +55,24 @@ feeding the same Glyph3DMapper shape.
   });
 
   // Equivalent of updateGlyphGeometry() + updateColorRange() combined: one
-  // pass writing both the transform and color instance buffers.
+  // pass writing both instance buffers directly (a uniform scale + translation
+  // matrix needs no Object3D.updateMatrix() per point - matters at 50k+ nodes).
   $effect(() => {
     if (!mesh || count === 0) return;
+    const matrices = mesh.instanceMatrix.array as Float32Array;
+    mesh.instanceColor ??= new THREE.InstancedBufferAttribute(new Float32Array(count * 3), 3);
+    const colors = mesh.instanceColor.array as Float32Array;
     for (let i = 0; i < count; i++) {
-      dummy.position.set(points[i * 3], points[i * 3 + 1], points[i * 3 + 2]);
-      dummy.scale.setScalar(radius);
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
+      const m = i * 16;
+      matrices.fill(0, m, m + 16);
+      matrices[m] = matrices[m + 5] = matrices[m + 10] = radius;
+      matrices[m + 12] = points[i * 3]!;
+      matrices[m + 13] = points[i * 3 + 1]!;
+      matrices[m + 14] = points[i * 3 + 2]!;
+      matrices[m + 15] = 1;
 
-      colorFor(values[i], scratchColor);
-      mesh.setColorAt(i, scratchColor);
+      colorFor(values[i]!, scratchColor);
+      scratchColor.toArray(colors, i * 3);
     }
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;

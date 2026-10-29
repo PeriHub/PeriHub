@@ -11,8 +11,8 @@ is not one - it's Canvas's parent.
   import Scene from '$lib/components/three/Scene.svelte';
 
   interface Props {
-    points: number[];
-    values: number[];
+    points: ArrayLike<number>;
+    values: ArrayLike<number>;
     radius: number;
     resolution: number;
     minValue: number;

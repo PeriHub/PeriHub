@@ -11,7 +11,7 @@ fitToPoints() calls useThrelte()'s invalidate().
   interface Props {
     // Flat [x0,y0,z0, x1,y1,z1, ...] - used only to compute the bounding
     // sphere for fitToPoints(), not rendered here.
-    points: number[];
+    points: ArrayLike<number>;
   }
 
   let { points }: Props = $props();
@@ -31,11 +31,11 @@ fitToPoints() calls useThrelte()'s invalidate().
   const boundingSphere = new THREE.Sphere();
   const scratchVector = new THREE.Vector3();
 
-  function computeBoundingSphere(pts: number[]): THREE.Sphere | null {
+  function computeBoundingSphere(pts: ArrayLike<number>): THREE.Sphere | null {
     if (pts.length < 3) return null;
     box.makeEmpty();
     for (let i = 0; i < pts.length; i += 3) {
-      scratchVector.set(pts[i], pts[i + 1], pts[i + 2]);
+      scratchVector.set(pts[i]!, pts[i + 1]!, pts[i + 2]!);
       box.expandByPoint(scratchVector);
     }
     box.getBoundingSphere(boundingSphere);

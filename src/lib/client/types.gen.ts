@@ -505,16 +505,6 @@ export type PointData = {
     dx_value: number;
 };
 
-export type PointDataResults = {
-    nodes: Array<(number)>;
-    value: Array<(number)>;
-    variables: Array<(string)>;
-    number_of_steps: number;
-    min_value: number;
-    max_value: number;
-    time: number;
-};
-
 export type PreviewBlock = {
     id: number;
     bounds: {
@@ -999,7 +989,7 @@ export type GetPointDataResultsData = {
     variable?: string;
 };
 
-export type GetPointDataResultsResponse = PointDataResults;
+export type GetPointDataResultsResponse = unknown;
 
 export type DeleteStaleUserDataData = {
     days?: number | null;
@@ -1692,9 +1682,9 @@ export type $OpenApiTs = {
             req: GetPointDataResultsData;
             res: {
                 /**
-                 * Successful Response
+                 * Binary frame, see encode_frame
                  */
-                200: PointDataResults;
+                200: unknown;
                 /**
                  * Validation Error
                  */

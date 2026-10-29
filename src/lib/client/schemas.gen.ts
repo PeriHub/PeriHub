@@ -2181,51 +2181,6 @@ export const $PointData = {
     title: 'PointData'
 } as const;
 
-export const $PointDataResults = {
-    properties: {
-        nodes: {
-            items: {
-                type: 'number'
-            },
-            type: 'array',
-            title: 'Nodes'
-        },
-        value: {
-            items: {
-                type: 'number'
-            },
-            type: 'array',
-            title: 'Value'
-        },
-        variables: {
-            items: {
-                type: 'string'
-            },
-            type: 'array',
-            title: 'Variables'
-        },
-        number_of_steps: {
-            type: 'integer',
-            title: 'Number Of Steps'
-        },
-        min_value: {
-            type: 'number',
-            title: 'Min Value'
-        },
-        max_value: {
-            type: 'number',
-            title: 'Max Value'
-        },
-        time: {
-            type: 'number',
-            title: 'Time'
-        }
-    },
-    type: 'object',
-    required: ['nodes', 'value', 'variables', 'number_of_steps', 'min_value', 'max_value', 'time'],
-    title: 'PointDataResults'
-} as const;
-
 export const $PreviewBlock = {
     properties: {
         id: {

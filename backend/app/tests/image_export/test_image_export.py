@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 
@@ -24,7 +25,10 @@ def test_getPointData(result_folder):
     shutil.copy(FIXTURE, result_folder / "Dogbone_Output1.e")
     response = client.get("/results/points")
     assert response.status_code == 200, response.text
-    assert response.json()["number_of_steps"] == 49
+    head_len = int.from_bytes(response.content[:4], "little")
+    header = json.loads(response.content[4 : 4 + head_len])
+    assert header["number_of_steps"] == 49
+    assert len(response.content) == 4 + head_len + 16 * header["count"]
 
 
 def test_getPlot(result_folder):

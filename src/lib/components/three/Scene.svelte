@@ -12,8 +12,8 @@ gradient.
   import { valueToColor } from './colorTransfer';
 
   interface Props {
-    points: number[];
-    values: number[];
+    points: ArrayLike<number>;
+    values: ArrayLike<number>;
     radius: number;
     resolution: number;
     minValue: number;

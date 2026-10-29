@@ -21,7 +21,9 @@
   import { notify } from '$lib/utils/notify';
   import { bus } from '$lib/utils/bus';
   import { nodeSpacing } from '$lib/utils/node-spacing';
-  import { getPointDataResults } from '$lib/client';
+  import axios from 'axios';
+  import { api } from '$lib/api/client';
+  import { parseResultsFrame, type ResultsFrame } from '$lib/utils/results-frame';
   import Button from '$lib/components/ui/Button.svelte';
   import Select from '$lib/components/ui/Select.svelte';
   import Input from '$lib/components/ui/Input.svelte';
@@ -59,9 +61,11 @@
     const [r, g, b] = [1, 3, 5].map((i) => parseInt(viewStore.sceneBackground.slice(i, i + 2), 16));
     return 0.2126 * r! + 0.7152 * g! + 0.0722 * b! > 140 ? '#1f2328' : 'white';
   });
-  let pointString = $state<number[]>([1, 0, 0]);
-  let blockIdString = $state<number[]>([0]);
+  // Raw, not deep $state: a proxy per element would make every read in the render loop slow.
+  let pointString = $state.raw<ArrayLike<number>>(new Float32Array([1, 0, 0]));
+  let blockIdString = $state.raw<ArrayLike<number>>(new Float32Array([0]));
   let modelLoading = $state(false);
+  let stepLoading = $state(false);
   let maxValue = $state(100);
   let minValue = $state(0);
   let time = $state(0);
@@ -70,104 +74,162 @@
   // Narrow screens only: the panel would cover the view, so it starts hidden.
   let showControls = $state(false);
 
-  let timer: ReturnType<typeof setInterval> | undefined;
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
   let scene: ResultsScene | undefined = $state();
 
   const sphereRadius = $derived((radius * multiplier) / 100);
 
-  async function viewPointData(loading = true) {
+  // Frames of the current variable/axis/filter/... by step, so stepping back or replaying needs no request.
+  // ponytail: LRU by Map insertion order, ~1 MB per frame at the 50k node cap.
+  const CACHE_SIZE = 30;
+  // Minimum time per frame while playing.
+  const FRAME_MS = 200;
+  const cache = new Map<number, Promise<ResultsFrame>>();
+  let controller = new AbortController();
+  // The step the view should end up on; responses for other steps are dropped.
+  let wantedStep = 0;
+  let spacingKnown = false;
+
+  function loadFrame(step: number): Promise<ResultsFrame> {
+    let frame = cache.get(step);
+    if (frame) cache.delete(step);
+    else
+      frame = api
+        .get<ArrayBuffer>('/results/points', {
+          params: {
+            model_name: modelStore.selectedModel.file,
+            model_folder_name: modelData.model.modelFolderName,
+            output: modelData.outputs[0]!.name,
+            axis: modelParams.axis,
+            step,
+            displ_factor: modelParams.displFactor,
+            variable: modelParams.variable,
+            // At step 1 (time 0) nothing is printed yet - the filter would hide every node.
+            filter: modelData.additive?.length && step === 1 ? '' : modelParams.filter,
+            color_bar_min: modelParams.colorBarMin ?? undefined,
+            color_bar_max: modelParams.colorBarMax ?? undefined,
+            run_id: defaultStore.status.run_id
+          },
+          responseType: 'arraybuffer',
+          signal: controller.signal
+        })
+        .then((response) => parseResultsFrame(response.data));
+    const pending = frame;
+    // Failed loads are retried on the next visit.
+    pending.catch(() => cache.get(step) === pending && cache.delete(step));
+    cache.set(step, pending);
+    if (cache.size > CACHE_SIZE) cache.delete(cache.keys().next().value!);
+    return pending;
+  }
+
+  function applyFrame(frame: ResultsFrame) {
+    pointString = frame.points;
+    blockIdString = frame.values;
+    // Spacing barely moves between steps but costs O(100 n), so only after a reload.
+    if (!spacingKnown) {
+      dxValue = nodeSpacing(frame.points);
+      radius = parseFloat(dxValue.toFixed(3));
+      spacingKnown = true;
+    }
+    maxValue = frame.maxValue;
+    minValue = frame.minValue;
+    variableOptions = frame.variables;
+    // The backend falls back to the first variable when the requested one is missing - mirror that here.
+    if (!variableOptions.includes(modelParams.variable))
+      modelParams.variable = variableOptions[0] ?? modelParams.variable;
+    modelParams.numberOfSteps = frame.numberOfSteps;
+    time = frame.time;
+  }
+
+  async function notifyError(error: unknown) {
+    // With responseType arraybuffer, the JSON error body arrives as an ArrayBuffer too.
+    const body = (error as { response?: { data?: unknown } }).response?.data;
+    let detail = '';
+    if (body instanceof ArrayBuffer) {
+      try {
+        detail = JSON.parse(new TextDecoder().decode(body)).detail ?? '';
+      } catch {
+        /* not JSON */
+      }
+    }
+    notify.negative(detail || 'Loading results failed');
+  }
+
+  // Shows modelParams.step; the previous frame stays visible until the new one is there.
+  async function showStep(loading = false) {
+    const step = modelParams.step;
+    wantedStep = step;
     modelLoading = loading;
-    await getPointDataAndUpdateDx();
-    radius = parseFloat(dxValue.toFixed(3));
-    updatePoints();
-    modelLoading = false;
+    stepLoading = true;
+    try {
+      const frame = await loadFrame(step);
+      if (step !== wantedStep) return;
+      applyFrame(frame);
+      if (step < modelParams.numberOfSteps) loadFrame(step + 1);
+    } catch (error) {
+      if (!axios.isCancel(error) && step === wantedStep) await notifyError(error);
+    } finally {
+      if (step === wantedStep) modelLoading = stepLoading = false;
+    }
   }
 
-  function updatePoints() {
-    // Kept as its own step (matching the old component) even though it's
-    // currently a no-op beyond the loading flag - radius/resolution changes
-    // are already applied reactively via props passed into ResultsScene.
-    modelLoading = true;
-    modelLoading = false;
-  }
-
-  async function getPointDataAndUpdateDx() {
-    await getPointDataResults({
-      modelName: modelStore.selectedModel.file,
-      modelFolderName: modelData.model.modelFolderName!,
-      output: modelData.outputs[0]!.name,
-      axis: modelParams.axis,
-      step: modelParams.step,
-      displFactor: modelParams.displFactor,
-      variable: modelParams.variable,
-      // At step 1 (time 0) nothing is printed yet - the filter would hide every node.
-      filter: modelData.additive?.length && modelParams.step === 1 ? '' : modelParams.filter,
-      colorBarMin: modelParams.colorBarMin,
-      colorBarMax: modelParams.colorBarMax,
-      runId: defaultStore.status.run_id
-    })
-      .then((response) => {
-        pointString = response.nodes;
-        blockIdString = response.value;
-        dxValue = nodeSpacing(pointString);
-        maxValue = response.max_value;
-        minValue = response.min_value;
-        variableOptions = response.variables;
-        // The backend falls back to the first variable when the requested one is missing - mirror that here.
-        if (!variableOptions.includes(modelParams.variable))
-          modelParams.variable = variableOptions[0] ?? modelParams.variable;
-        modelParams.numberOfSteps = response.number_of_steps;
-        time = response.time;
-      })
-      .catch((error) => notify.apiError(error));
+  // Variable, axis, filter, ... changed: every cached or in-flight frame is stale.
+  async function reload() {
+    controller.abort();
+    controller = new AbortController();
+    cache.clear();
+    spacingKnown = false;
+    await showStep(true);
   }
 
   function debouncedReload() {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => viewPointData(true), 500);
+    debounceTimer = setTimeout(reload, 500);
   }
 
-  function play() {
+  // Waits for each frame, so a slow connection slows playback down instead of piling up requests.
+  async function play() {
     playing = true;
-    timer = setInterval(forward, 200);
+    while (playing && modelParams.step < modelParams.numberOfSteps) {
+      modelParams.step += 1;
+      await Promise.all([showStep(), new Promise((resolve) => setTimeout(resolve, FRAME_MS))]);
+    }
+    playing = false;
   }
 
   function pause() {
     playing = false;
-    clearInterval(timer);
   }
 
   async function backward() {
     if (modelParams.step > 1) {
       modelParams.step -= 1;
-      await viewPointData(false);
+      await showStep();
     }
   }
 
   async function fastBackward() {
     modelParams.step = 1;
-    await viewPointData(false);
+    await showStep();
   }
 
   async function forward() {
     if (modelParams.step < modelParams.numberOfSteps) {
       modelParams.step += 1;
-      await viewPointData(false);
-    } else {
-      pause();
+      await showStep();
     }
   }
 
   async function fastForward() {
     modelParams.step = modelParams.numberOfSteps;
-    await viewPointData(false);
+    await showStep();
   }
 
-  // Run finished: reload first (number_of_steps grew while it ran), then jump to the final step.
+  // Run finished: reload first (number_of_steps grew while it ran, cached frames may be stale), then jump to the
+  // final step.
   async function refreshResults() {
-    await viewPointData(false);
+    await reload();
     await fastForward();
   }
 
@@ -176,7 +238,7 @@
     // Just the data load - ResultsScene/Canvas handles its own sizing
     // (including the tab-mounted-but-hidden case), so no ResizeObserver
     // bookkeeping is needed here any more.
-    await viewPointData(true);
+    await reload();
     // After data + tick, the scene ref and Three.js camera/controls are
     // ready — reset the camera so each tab visit starts at a clean framing
     // rather than restoring the user's last view.
@@ -186,7 +248,8 @@
 
   onDestroy(() => {
     bus.off('refreshResults' as never, refreshResults);
-    clearInterval(timer);
+    playing = false;
+    controller.abort();
     clearTimeout(debounceTimer);
   });
 </script>
@@ -197,7 +260,7 @@
     <div
       class="flex flex-wrap items-center gap-0.5 md:gap-1 [&_button]:size-8 md:[&_button]:size-9"
     >
-      <Button variant="ghost" size="icon" onclick={() => viewPointData(true)} title="Reload Model">
+      <Button variant="ghost" size="icon" onclick={reload} title="Reload Model">
         <RotateCw class="h-4 w-4" />
       </Button>
       <Button variant="ghost" size="icon" onclick={() => scene?.resetCamera()} title="Reset Camera">
@@ -256,13 +319,15 @@
           max={modelParams.numberOfSteps}
           step="1"
           bind:value={modelParams.step}
-          onchange={() => viewPointData(true)}
+          oninput={() => cache.has(modelParams.step) && showStep()}
+          onchange={() => showStep()}
           class="accent-primary flex-1"
         />
         <span
-          class="text-muted-foreground shrink-0 text-xs whitespace-nowrap tabular-nums"
+          class="text-muted-foreground flex shrink-0 items-center gap-1 text-xs whitespace-nowrap tabular-nums"
           title="Simulation time of this step"
         >
+          {#if stepLoading}<LoaderCircle class="h-3 w-3 animate-spin" />{/if}
           t = {+time.toPrecision(3)}
         </span>
       </div>
@@ -292,11 +357,7 @@
     >
       <div>
         <Label for="results-variable">Variable</Label>
-        <Select
-          id="results-variable"
-          bind:value={modelParams.variable}
-          onchange={() => viewPointData(true)}
-        >
+        <Select id="results-variable" bind:value={modelParams.variable} onchange={reload}>
           {#each variableOptions as option (option)}
             <option value={option}>{option}</option>
           {/each}
@@ -304,11 +365,7 @@
       </div>
       <div>
         <Label for="results-axis">Axis</Label>
-        <Select
-          id="results-axis"
-          bind:value={modelParams.axis}
-          onchange={() => viewPointData(true)}
-        >
+        <Select id="results-axis" bind:value={modelParams.axis} onchange={reload}>
           {#each AXIS_OPTIONS as option (option)}
             <option value={option}>{option}</option>
           {/each}
@@ -329,11 +386,7 @@
           <div class="flex flex-col gap-2">
             <div>
               <Label for="results-filter">Filter</Label>
-              <Select
-                id="results-filter"
-                bind:value={modelParams.filter}
-                onchange={() => viewPointData(true)}
-              >
+              <Select id="results-filter" bind:value={modelParams.filter} onchange={reload}>
                 <option value="">-</option>
                 {#each FILTER_OPTIONS as option (option)}
                   <option value={option}>{option}</option>
@@ -367,7 +420,6 @@
                 max="200"
                 step="1"
                 bind:value={multiplier}
-                onchange={updatePoints}
                 class="accent-primary w-full"
               />
             </div>

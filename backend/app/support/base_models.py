@@ -34,16 +34,6 @@ class LicenseStatus(BaseModel):
     license_server_configured: bool
 
 
-class PointDataResults(BaseModel):
-    nodes: List[float]
-    value: List[float]
-    variables: List[str]
-    number_of_steps: int
-    min_value: float
-    max_value: float
-    time: float
-
-
 class PointData(BaseModel):
     points: List[float]
     block_ids: List[float]

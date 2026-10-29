@@ -774,7 +774,7 @@ export const getResults = (data: GetResultsData = {}): CancelablePromise<GetResu
  * @param data.colorBarMin
  * @param data.colorBarMax
  * @param data.runId
- * @returns PointDataResults Successful Response
+ * @returns unknown Binary frame, see encode_frame
  * @throws ApiError
  */
 export const getPointDataResults = (data: GetPointDataResultsData = {}): CancelablePromise<GetPointDataResultsResponse> => { return __request(OpenAPI, {

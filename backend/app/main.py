@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 import requests
 from fastapi import FastAPI, HTTPException, Security
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.security import APIKeyHeader, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 
@@ -152,6 +153,8 @@ app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
 origins = ["*"]
 
+# Results frames and model previews are large; level 5 keeps compressing them cheap.
+app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=5)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

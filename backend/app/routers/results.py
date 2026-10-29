@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import os
 import shutil
 from typing import Optional
@@ -12,7 +13,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 
 from ..db import base as db_base
 from ..db.models import JobQueueEntry
-from ..support.base_models import AnalysisRequest, PointDataResults, RunSummary
+from ..support.base_models import AnalysisRequest, RunSummary
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler, safe_segment
 from ..support.globals import log, max_nodes
@@ -346,7 +347,26 @@ def get_point_data(variable, axis, displ_factor, use_multi_data, points, point_d
     return np_points_all_x, np_points_all_y, np_points_all_z, cell_value
 
 
-@router.get("/points", operation_id="get_point_data_results")
+def encode_frame(nodes, values, header: dict) -> bytes:
+    """Binary frame for the results view: uint32 LE header length, JSON header (space-padded to a multiple of 4 so
+    the float arrays stay aligned), then float32 LE `nodes` (xyz per point) and `values` (one per point). About a
+    fifth of the JSON size and parsed for free by the browser (Float32Array views on the buffer)."""
+    head = json.dumps({**header, "count": len(values)}).encode()
+    head += b" " * (-len(head) % 4)
+    return (
+        len(head).to_bytes(4, "little")
+        + head
+        + np.asarray(nodes, dtype="<f4").tobytes()
+        + np.asarray(values, dtype="<f4").tobytes()
+    )
+
+
+@router.get(
+    "/points",
+    operation_id="get_point_data_results",
+    response_class=Response,
+    responses={200: {"content": {"application/octet-stream": {}}, "description": "Binary frame, see encode_frame"}},
+)
 def get_data(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
@@ -360,7 +380,7 @@ def get_data(
     color_bar_max: Optional[float] = None,
     run_id: Optional[str] = None,
     request: Request = "",
-) -> PointDataResults:
+) -> Response:
     """One time step of a run's Exodus output for the 3D view: points displaced by `displ_factor` and the values of
     `variable`/`axis`, optionally clamped to the color-bar range and restricted to points where the `filter`
     variable is non-zero. Falls back to the last step when `step` is out of range, and to the first available
@@ -490,17 +510,18 @@ def get_data(
     if len(np_points_all_x) > max_nodes:
         reduce_factor = int(len(np_points_all_x) / max_nodes)
         log.info(f"Number of nodes in file is too large, only every {reduce_factor}th node is read!")
-    data = PointDataResults(
-        nodes=np.ravel(
-            [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
-            order="F",
-        ).tolist(),
-        value=cell_value.tolist()[::reduce_factor],
-        variables=variable_list,
-        number_of_steps=number_of_steps,
-        min_value=min_cell_value,
-        max_value=max_cell_value,
-        time=np.format_float_scientific(time, 2),
+    nodes = np.ravel(
+        [np_points_all_x[::reduce_factor], np_points_all_y[::reduce_factor], np_points_all_z[::reduce_factor]],
+        order="F",
     )
-
-    return data
+    header = {
+        "variables": variable_list,
+        "number_of_steps": number_of_steps,
+        "min_value": float(min_cell_value),
+        "max_value": float(max_cell_value),
+        "time": float(time),
+    }
+    return Response(
+        content=encode_frame(nodes, np.asarray(cell_value)[::reduce_factor], header),
+        media_type="application/octet-stream",
+    )
