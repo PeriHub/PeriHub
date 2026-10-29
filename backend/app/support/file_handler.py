@@ -58,8 +58,6 @@ class FileHandler:
 
         return os.path.join(FileHandler.get_local_model_path(username, model_name), safe_segment(model_folder_name))
 
-        # return "./peridigm/src/src/materials/umats/"
-
     @staticmethod
     def remove_folder_if_older(path, days, recursive):
         """doc"""

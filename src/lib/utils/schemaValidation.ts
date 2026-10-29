@@ -44,7 +44,7 @@ function requiredFieldsPresent(schema: JsonSchemaLike, data: Record<string, unkn
  * `data`, or if the schema can't be found (fails open rather than showing
  * every panel as permanently incomplete if a schema gets renamed).
  */
-export function isObjectSectionComplete(schemaName: string, data: unknown): boolean {
+function isObjectSectionComplete(schemaName: string, data: unknown): boolean {
   const schema = getSchema(schemaName);
   if (!schema) return true;
   if (data == null || typeof data !== 'object') return false;
@@ -58,7 +58,7 @@ export function isObjectSectionComplete(schemaName: string, data: unknown): bool
  * of these sections needs at least one entry for the model to be valid
  * (e.g. you can't generate a model with zero materials or zero solvers).
  */
-export function isArraySectionComplete(schemaName: string, data: unknown): boolean {
+function isArraySectionComplete(schemaName: string, data: unknown): boolean {
   const schema = getSchema(schemaName);
   if (!schema) return true;
   if (!Array.isArray(data) || data.length === 0) return false;

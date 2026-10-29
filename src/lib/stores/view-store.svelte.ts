@@ -1,24 +1,18 @@
 import { modelStore } from './model-store.svelte';
 import { parseLogProgress } from '$lib/utils/progress';
 import type { BondFilters } from '$lib/client';
+import { Vector3 } from 'three';
 
 interface BondFilterPoint {
   bondFilterPointsId: number;
   bondFilterPointString: number[];
 }
 
-function cross(a1: number, a2: number, a3: number, b1: number, b2: number, b3: number): number[] {
-  return [a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1];
-}
-
-function vectorLength(a1: number, a2: number, a3: number): number {
-  return Math.sqrt(a1 * a1 + a2 * a2 + a3 * a3);
-}
-
-function getVectorNorm(a1: number, a2: number, a3: number): number[] {
-  const len = Math.abs(vectorLength(a1, a2, a3));
-  return [a1 / len, a2 / len, a3 / len];
-}
+// A disk filter is drawn through four rim points: center + radius * normalize(normal x axis).
+const AXIS_X = new Vector3(1, 0, 0);
+const AXIS_Y = new Vector3(0, 1, 0);
+const AXIS_X_NEG = new Vector3(-1, 0, 0);
+const AXIS_Y_NEG = new Vector3(0, -1, 0);
 
 function computeBondFilterPoints(bondFilters: BondFilters[]): BondFilterPoint[] {
   const result: BondFilterPoint[] = [];
@@ -30,9 +24,7 @@ function computeBondFilterPoints(bondFilters: BondFilters[]): BondFilterPoint[] 
     const n = (key: string) => (typeof p[key] === 'number' ? p[key] : undefined);
 
     if (bf.show) {
-      const nx = n('Normal X') ?? 0,
-        ny = n('Normal Y') ?? 0,
-        nz = n('Normal Z') ?? 0;
+      const normal = new Vector3(n('Normal X') ?? 0, n('Normal Y') ?? 0, n('Normal Z') ?? 0);
 
       if (bf.params?.['Type'] === 'Disk') {
         const cx = n('Center X'),
@@ -43,15 +35,10 @@ function computeBondFilterPoints(bondFilters: BondFilters[]): BondFilterPoint[] 
           console.log('Disk: cx, cy, cz, radius not defined');
           continue;
         }
-        const vecs = [
-          cross(nx, ny, nz, 1, 0, 0),
-          cross(nx, ny, nz, 0, 1, 0),
-          cross(nx, ny, nz, -1, 0, 0),
-          cross(nx, ny, nz, 0, -1, 0)
-        ].map((v) => getVectorNorm(v[0]!, v[1]!, v[2]!));
-
-        for (const v of vecs) {
-          bondFilterPointString.push(cx + v[0]! * radius, cy + v[1]! * radius, cz + v[2]! * radius);
+        const center = new Vector3(cx, cy, cz);
+        for (const axis of [AXIS_X, AXIS_Y, AXIS_X_NEG, AXIS_Y_NEG]) {
+          const v = new Vector3().crossVectors(normal, axis).normalize();
+          bondFilterPointString.push(...center.clone().addScaledVector(v, radius).toArray());
         }
       } else {
         const lx = n('Lower Left Corner X'),
@@ -77,25 +64,16 @@ function computeBondFilterPoints(bondFilters: BondFilters[]): BondFilterPoint[] 
           continue;
         }
 
-        const point1 = [lx, ly, -lz];
-        const [normx, normy, normz] = getVectorNorm(bx, by, bz);
-        const point2 = [lx + normx! * bl, ly + normy! * bl, -lz + normz! * bl];
-
-        const crossVector = cross(nx, ny, nz, bx, by, bz);
-        const normVector = getVectorNorm(crossVector[0]!, crossVector[1]!, crossVector[2]!);
-
-        const point4 = [
-          lx + normVector[0]! * sl,
-          ly + normVector[1]! * sl,
-          -lz + normVector[2]! * sl
-        ];
-        const point3 = [
-          point2[0]! + normVector[0]! * sl,
-          point2[1]! + normVector[1]! * sl,
-          point2[2]! + normVector[2]! * sl
-        ];
-
-        bondFilterPointString.push(...point1, ...point2, ...point3, ...point4);
+        const bottom = new Vector3(bx, by, bz);
+        const side = new Vector3().crossVectors(normal, bottom).normalize();
+        const point1 = new Vector3(lx, ly, -lz);
+        const point2 = point1.clone().addScaledVector(bottom.normalize(), bl);
+        bondFilterPointString.push(
+          ...point1.toArray(),
+          ...point2.toArray(),
+          ...point2.clone().addScaledVector(side, sl).toArray(),
+          ...point1.clone().addScaledVector(side, sl).toArray()
+        );
       }
     }
 
@@ -166,9 +144,6 @@ class ViewStore {
   bondFilterPoints = $derived<BondFilterPoint[]>(
     computeBondFilterPoints(modelStore.modelData.bondFilters ?? [])
   );
-  filteredPointString = $state([1, 0, 0]);
-  filteredBlockIdString = $state([1]);
-  dxValue = $state(0.1);
 }
 
 export const viewStore = new ViewStore();

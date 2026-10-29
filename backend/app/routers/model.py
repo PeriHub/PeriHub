@@ -180,7 +180,6 @@ def get_model(
         response.headers["Content-Disposition"] = (
             "attachment; filename=" + model_name + "_" + model_folder_name + ".zip"
         )
-        # return StreamingResponse(iterfile(), media_type="application/x-zip-compressed")
         return response
     except shutil.Error:
         log.error("%s files can not be found", model_name)

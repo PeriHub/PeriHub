@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import { RefreshCw, Maximize } from 'lucide-svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
@@ -17,32 +17,17 @@
     uploaded && modelData.discretization?.discType === 'gcode' ? modelData.model.meshFile : null
   );
 
-  // Local view controls - mirrors the old component's own `data()`, not
-  // shared app state (only the filtered results below live in viewStore).
+  // Local view controls - mirrors the old component's own `data()`, not shared app state.
   let resolution = $state(8);
   let radius = $state(0.2);
   let multiplier = $state(100);
-  let pointString = $state<number[]>([1, 0, 0]);
-  let blockIdString = $state<number[]>([1]);
+  // Raw: a deep proxy per element would slow the render loop down.
+  let pointString = $state.raw<number[]>([1, 0, 0]);
+  let blockIdString = $state.raw<number[]>([1]);
 
   let scene: ModelScene | undefined = $state();
 
   const sphereRadius = $derived((radius * multiplier) / 100);
-
-  // Blocks used to be hideable via a per-block "Show" toggle; that was
-  // removed in favour of the hover highlight in ModelPreview, so every
-  // block is always drawn (a saved `show: false` would otherwise hide one
-  // for good with no way to bring it back).
-  function filterPointData() {
-    viewStore.filteredBlockIdString = [...blockIdString];
-    viewStore.filteredPointString = [...pointString];
-  }
-
-  function updatePoints() {
-    viewStore.modelLoading = true;
-    filterPointData();
-    viewStore.modelLoading = false;
-  }
 
   async function getPointDataAndUpdateDx() {
     await getPointData({
@@ -54,7 +39,7 @@
       .then((response) => {
         pointString = response.points;
         blockIdString = response.block_ids;
-        viewStore.dxValue = response.dx_value;
+        radius = parseFloat(response.dx_value.toFixed(3));
       })
       .catch((error) => notify.apiError(error));
   }
@@ -63,8 +48,6 @@
     if (gcodeFile) return;
     viewStore.modelLoading = true;
     await getPointDataAndUpdateDx();
-    radius = parseFloat(viewStore.dxValue.toFixed(3));
-    updatePoints();
     bus.emit('showHideBondFilters' as never);
     // The original called renderer.resetCamera() on every reload here (not
     // just once on first load) - fitToPoints() is the equivalent explicit
@@ -75,17 +58,7 @@
 
   onMount(() => {
     bus.on('viewPointData' as never, viewPointData);
-    bus.on('filterPointData' as never, filterPointData);
-
-    return () => {
-      bus.off('viewPointData' as never, viewPointData);
-      bus.off('filterPointData' as never, filterPointData);
-    };
-  });
-
-  onDestroy(() => {
-    bus.off('viewPointData' as never, viewPointData);
-    bus.off('filterPointData' as never, filterPointData);
+    return () => bus.off('viewPointData' as never, viewPointData);
   });
 </script>
 
@@ -121,7 +94,6 @@
             max="200"
             step="1"
             bind:value={multiplier}
-            onchange={updatePoints}
             class="accent-primary w-full min-w-0 flex-1"
           />
         </div>
@@ -149,8 +121,8 @@
     <div class="min-h-0 flex-1">
       <ModelScene
         bind:this={scene}
-        points={viewStore.filteredPointString}
-        blockIds={viewStore.filteredBlockIdString}
+        points={pointString}
+        blockIds={blockIdString}
         radius={sphereRadius}
         {resolution}
         bondFilterPoints={viewStore.bondFilterPoints}
