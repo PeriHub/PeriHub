@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Eye, Pencil, Trash2, X } from 'lucide-svelte';
+  import { Download, Pencil, Trash2, X } from 'lucide-svelte';
   import { onMount, onDestroy } from 'svelte';
   import { Dialog } from 'bits-ui';
   import { defaultStore } from '$lib/stores/default-store.svelte';
@@ -8,6 +8,8 @@
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
   import { isCurrentShape } from '$lib/utils/model-shape';
+  import { downloadFile } from '$lib/utils/download';
+  import { api } from '$lib/api/client';
   import {
     cancelRun as cancelRunApi,
     deleteRun as deleteRunApi,
@@ -110,13 +112,38 @@
     modelStore.modelData.model.modelFolderName = run.model_folder_name;
   }
 
-  function viewRun(run: RunStatus) {
+  // Loads everything of the run: its config into the editor, its log, the input deck it was started with and
+  // its results.
+  async function editRun(run: RunStatus) {
     selectRun(run);
+    if (!run.model) {
+      notify.negative(`No saved config for ${run.model_name} / ${run.model_folder_name}`);
+    } else if (!isCurrentShape(run.model)) {
+      notify.negative('Config saved in an older PeriHub format – not supported anymore');
+    } else {
+      modelStore.modelData = {
+        ...$state.snapshot(run.model as ModelData),
+        model: { ...(run.model as ModelData).model, modelFolderName: run.model_folder_name }
+      };
+      modelStore.modelDataFile = run.model_name;
+      try {
+        modelStore.modelParams = await getValves({ modelName: run.model_name });
+        modelStore.modelParamsFile = run.model_name;
+      } catch (error) {
+        notify.apiError(error);
+      }
+    }
+    if (run.files_missing) {
+      notify.warning("This run's files are gone from the server - only its config could be loaded");
+      bus.emit('getStatus' as never);
+      return;
+    }
     // Set the run up front so the log poll targets it right away instead of
     // whatever getStatus returned for the previously selected folder.
     defaultStore.status = { ...defaultStore.status, run_id: run.id, submitted: isActive(run) };
     viewStore.textId = 'log';
     bus.emit('getStatus' as never);
+    bus.emit('getJobFolders' as never);
     // The log stream replays a finished run's whole log and then closes, so
     // it serves finished runs too.
     bus.emit('enableWebsocket' as never, { force: true } as never);
@@ -128,35 +155,32 @@
         viewStore.textOutput = '';
         notify.apiError(error);
       });
-    if (!isActive(run) && run.results) {
-      viewStore.viewId = 'results';
-    }
+    if (!isActive(run) && run.results) viewStore.viewId = 'results';
   }
 
-  async function editRun(run: RunStatus) {
-    if (!run.model) {
-      notify.negative(`No saved input deck for ${run.model_name} / ${run.model_folder_name}`);
-      return;
-    }
-    if (!isCurrentShape(run.model)) {
-      notify.negative('Saved in an older PeriHub format – not supported anymore');
-      return;
-    }
-    selectRun(run);
-    modelStore.modelData = {
-      ...$state.snapshot(run.model as ModelData),
-      model: { ...(run.model as ModelData).model, modelFolderName: run.model_folder_name }
-    };
-    modelStore.modelDataFile = run.model_name;
+  // The run's whole result folder (results, log, input deck) as a zip.
+  let downloading = $state<string | null>(null);
+
+  async function downloadRun(run: RunStatus) {
+    downloading = run.id;
     try {
-      modelStore.modelParams = await getValves({ modelName: run.model_name });
-      modelStore.modelParamsFile = run.model_name;
-    } catch (error) {
-      notify.apiError(error);
+      const response = await api.get('/results/download', {
+        params: {
+          model_name: run.model_name,
+          model_folder_name: run.model_folder_name,
+          all_data: true,
+          run_id: run.id
+        },
+        responseType: 'blob'
+      });
+      downloadFile(
+        `${run.model_name}_${run.model_folder_name}_${run.perilab_job_id ?? run.id}.zip`,
+        response.data
+      );
+    } catch {
+      notify.negative('Could not download the results');
     }
-    bus.emit('getStatus' as never);
-    bus.emit('getJobFolders' as never);
-    notify.positive(`Loaded ${run.model_name} / ${run.model_folder_name}`);
+    downloading = null;
   }
 
   async function cancelJob(run: RunStatus) {
@@ -275,7 +299,7 @@
                       {#if run.files_missing}
                         <span
                           class="ml-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-amber-600"
-                          title="This run's folder no longer exists on the server - it was deleted or moved. Its input deck and results can't be loaded; delete the run to clean up."
+                          title="This run's files no longer exist on the server - they were deleted, moved or cleaned up. Its log and results can't be loaded; delete the run to clean up."
                         >
                           files missing
                         </span>
@@ -301,17 +325,26 @@
                       {run.perilab_job_id ?? '–'}
                     </td>
                     <td class="px-3 py-2 text-right whitespace-nowrap">
-                      <Button variant="ghost" size="icon" onclick={() => viewRun(run)} title="View">
-                        <Eye class="h-4 w-4" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        disabled={run.files_missing && !run.model}
+                        onclick={() => editRun(run)}
+                        title="Open config, log, input and results"
+                      >
+                        <Pencil class="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        disabled={!run.model}
-                        onclick={() => editRun(run)}
-                        title="Edit"
+                        disabled={isActive(run) ||
+                          run.files_missing ||
+                          !(run.results || run.csvResults) ||
+                          downloading === run.id}
+                        onclick={() => downloadRun(run)}
+                        title="Download results"
                       >
-                        <Pencil class="h-4 w-4" />
+                        <Download class="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"

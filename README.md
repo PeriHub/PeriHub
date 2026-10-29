@@ -77,9 +77,10 @@ Requirements: Python 3.11, Node.js (LTS, for example via [nvm](https://github.co
 4. Start the backend. It runs at http://localhost:8000, with API docs at http://localhost:8000/docs:
 
    ```bash
-   cd backend/app
-   fastapi dev main.py
+   backend/dev.sh
    ```
+
+   It reloads on code changes. Outside Docker, `DATABASE_URL` must point at `localhost:5432` instead of `perihub_db`.
 
 5. Start the frontend. It runs at http://localhost:9000 and forwards `/api` to the backend:
 

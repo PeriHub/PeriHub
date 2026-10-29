@@ -7,13 +7,6 @@ interface BondFilterPoint {
   bondFilterPointString: number[];
 }
 
-interface PlotSeries {
-  name: string;
-  x: number[];
-  y: number[];
-  type: string;
-}
-
 function cross(a1: number, a2: number, a3: number, b1: number, b2: number, b3: number): number[] {
   return [a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1];
 }
@@ -176,27 +169,6 @@ class ViewStore {
   filteredPointString = $state([1, 0, 0]);
   filteredBlockIdString = $state([1]);
   dxValue = $state(0.1);
-  plotData = $state<PlotSeries[]>([
-    {
-      name: 'Displacement',
-      x: [1, 2, 3, 4],
-      y: [10, 15, 20, 17],
-      type: 'scatter'
-    }
-  ]);
-  plotLayout = $state({
-    title: 'Model',
-    showlegend: true,
-    legend: { orientation: 'h' },
-    hovermode: 'compare',
-    bargap: 0,
-    xaxis: { showgrid: true, zeroline: true, color: 'white', title: 'Time' },
-    yaxis: { showgrid: true, zeroline: true, color: 'white', title: 'Displacement' },
-    plot_bgcolor: '#2D2D2D',
-    paper_bgcolor: '#2D2D2D',
-    font: { color: 'white' },
-    modebar: { color: 'white' }
-  });
 }
 
 export const viewStore = new ViewStore();

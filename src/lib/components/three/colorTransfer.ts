@@ -81,3 +81,39 @@ const categoricalInterpolate = buildInterpolator(CATEGORICAL_STOPS);
 export function blockIdToColor(normalizedBlockId: number, target: Color = new Color()): Color {
   return categoricalInterpolate(normalizedBlockId, target);
 }
+
+/**
+ * Draws the results legend (as VerticalColoredLegend shows it) into the bottom-right corner of a screenshot.
+ * `scale` is device pixels per CSS pixel of the canvas.
+ */
+export function drawColorBar(
+  canvas: HTMLCanvasElement,
+  min: number,
+  max: number,
+  labelColor: string,
+  scale: number
+) {
+  const ctx = canvas.getContext('2d')!;
+  const [width, height, margin] = [24 * scale, 224 * scale, 16 * scale];
+  const x = canvas.width - margin - width;
+  const y = canvas.height - margin - height;
+  const gradient = ctx.createLinearGradient(0, y + height, 0, y);
+  LEGEND_STOPS.forEach((color, i) =>
+    gradient.addColorStop(i / (LEGEND_STOPS.length - 1), color.getStyle())
+  );
+  ctx.fillStyle = gradient;
+  ctx.fillRect(x, y, width, height);
+  ctx.fillStyle = labelColor;
+  ctx.font = `${12 * scale}px sans-serif`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  const ticks = 11;
+  for (let i = 0; i < ticks; i++) {
+    const value = min + ((max - min) * i) / (ticks - 1);
+    ctx.fillText(
+      `${value.toExponential(2)} ―`,
+      x - 4 * scale,
+      y + height - (height * i) / (ticks - 1)
+    );
+  }
+}

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { Dialog } from 'bits-ui';
-  import { Play, X, Download, Eye, LineChart, Check, ImageIcon } from 'lucide-svelte';
+  import { Play, X, Download, Check, ImageIcon } from 'lucide-svelte';
   import { defaultStore } from '$lib/stores/default-store.svelte';
   import { authStore } from '$lib/stores/auth-store.svelte';
   import { modelStore } from '$lib/stores/model-store.svelte';
@@ -15,7 +15,6 @@
     getCurrentEnergy,
     runModel as runModelApi,
     cancelRun as cancelRunApi,
-    getPlot,
     getAnalyses,
     type AnalysisInfo,
     type Valve
@@ -26,17 +25,6 @@
   import Label from '$lib/components/ui/Label.svelte';
   import Toggle from '$lib/components/ui/Toggle.svelte';
   import RenewableView from '$lib/components/views/RenewableView.svelte';
-
-  const PALETTE = [
-    '#00658b',
-    '#d2ae3d',
-    '#82a043',
-    '#666666',
-    '#3b98cb',
-    '#f2cd51',
-    '#a6bf51',
-    '#858585'
-  ];
 
   const modelData = $derived(modelStore.modelData);
   const outputs = $derived(modelData.outputs ?? []);
@@ -89,11 +77,8 @@
 
   let dialogEnergySavings = $state(false);
   let dialogDownload = $state(false);
-  let dialogPlot = $state(false);
 
   let energyPercent = $state(0);
-  // let plotVariables = $state<string[]>([]);
-  let plotOutput = $state('');
 
   async function checkEnergy() {
     if (defaultStore.saveEnergy) {
@@ -207,7 +192,6 @@
       const params = {
         model_name: modelStore.selectedModel.file,
         model_folder_name: modelData.model.modelFolderName,
-        output: plotOutput,
         all_data: allData,
         run_id: status.run_id
       };
@@ -220,59 +204,6 @@
       notify.negative('Could not download the results');
     }
     resultsLoading = false;
-  }
-
-  function updatePlotVariables() {
-    // plotVariables = [...(modelData.computes ?? []).map((c) => c.name), 'Time'];
-    plotOutput = outputs[0]?.name ?? '';
-    dialogPlot = true;
-  }
-
-  async function _getPlot() {
-    viewStore.modelLoading = true;
-    dialogPlot = false;
-    try {
-      const plotRawData = (await getPlot({
-        modelName: modelStore.selectedModel.file,
-        modelFolderName: modelData.model.modelFolderName,
-        output: plotOutput,
-        deviationsEnabled: modelData.deviations?.enabled ?? false,
-        runId: status.run_id
-      })) as Record<string, (number | string)[]>;
-
-      notify.positive('Plot loaded');
-
-      // The API can hand back numeric-looking values as strings (e.g. raw
-      // CSV cells); coerce explicitly rather than trusting the type cast
-      // above, since a chart's axis domain needs real numbers to compare
-      // correctly - comparing strings numerically-but-not ("10" < "9")
-      // silently produces a corrupted axis range that "reset zoom" can't fix.
-      const toNumbers = (values: (number | string)[]): number[] =>
-        values.map((v) => (typeof v === 'number' ? v : Number(v)));
-
-      const firstProperty = Object.keys(plotRawData)[0]!;
-      const xValues = toNumbers(plotRawData[firstProperty]!);
-      const tempData = Object.entries(plotRawData)
-        .filter(([name]) => name !== firstProperty)
-        .map(([name, values], i) => ({
-          name,
-          x: xValues,
-          y: toNumbers(values),
-          type: 'scatter',
-          marker: { color: PALETTE[i % PALETTE.length] }
-        }));
-
-      viewStore.plotData = tempData;
-      viewStore.plotLayout = {
-        ...viewStore.plotLayout,
-        xaxis: { ...viewStore.plotLayout.xaxis, title: firstProperty }
-      };
-      viewStore.viewId = 'plotly';
-    } catch (error) {
-      console.error(error);
-      notify.negative('Could not load the plot');
-    }
-    viewStore.modelLoading = false;
   }
 
   // The model's @analysis functions (result images), refetched when the model changes.
@@ -434,21 +365,6 @@
     <Download class="h-4 w-4" />
   </Button>
 
-  <Button
-    variant="ghost"
-    size="icon"
-    onclick={() => (viewStore.viewId = 'results')}
-    disabled={!status.results ||
-      !outputs.some((o) => (o.params?.['Output File Type'] ?? 'Exodus') === 'Exodus')}
-    title={!status.results ? 'Results not generated yet' : 'Show Results'}
-  >
-    <Eye class="h-4 w-4" />
-  </Button>
-
-  <Button variant="ghost" size="icon" onclick={updatePlotVariables} title="Plot Results">
-    <LineChart class="h-4 w-4" />
-  </Button>
-
   {#if analyses.length}
     <Button
       variant="ghost"
@@ -508,26 +424,6 @@
         <Button variant="ghost" onclick={() => (dialogDownload = false)}>Cancel</Button>
         <Button variant="outline" onclick={() => saveResults(false)}>Only the result</Button>
         <Button onclick={() => saveResults(true)}>All data</Button>
-      </div>
-    </Dialog.Content>
-  </Dialog.Portal>
-</Dialog.Root>
-
-<Dialog.Root bind:open={dialogPlot}>
-  <Dialog.Portal>
-    <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
-    <Dialog.Content
-      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,26rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
-    >
-      <Dialog.Title class="mb-3 text-lg font-semibold">Plot results</Dialog.Title>
-      <Select bind:value={plotOutput}>
-        {#each outputs as output, outputIdx (outputIdx)}
-          <option value={output.name}>{output.name}</option>
-        {/each}
-      </Select>
-      <div class="mt-4 flex justify-end gap-2">
-        <Button variant="ghost" onclick={() => (dialogPlot = false)}>Cancel</Button>
-        <Button onclick={_getPlot}>Show</Button>
       </div>
     </Dialog.Content>
   </Dialog.Portal>

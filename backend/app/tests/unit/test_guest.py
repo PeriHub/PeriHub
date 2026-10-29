@@ -217,6 +217,8 @@ class _FakeClient:
 
 
 class _FakeBackend:
+    shares_local_filesystem = False
+
     def __init__(self, status="running"):
         self.cancelled = []
         self._client = _FakeClient(status)

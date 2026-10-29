@@ -1,3 +1,17 @@
+<script lang="ts" module>
+  // Same brand palette already used for the old Plotly series colours.
+  export const PALETTE = [
+    '#00658b',
+    '#d2ae3d',
+    '#82a043',
+    '#666666',
+    '#3b98cb',
+    '#f2cd51',
+    '#a6bf51',
+    '#858585'
+  ];
+</script>
+
 <script lang="ts">
   import { LineChart } from 'layerchart';
 
@@ -12,26 +26,16 @@
     series: Series[];
     xLabel?: string;
     yLabel?: string;
+    /** Off when the caller already names the series (e.g. ChartView's colored column toggles). */
+    legend?: boolean;
     class?: string;
   }
 
-  let { series, xLabel = '', yLabel = '', class: className = '' }: Props = $props();
+  let { series, xLabel = '', yLabel = '', legend = true, class: className = '' }: Props = $props();
 
   // Bound to LineChart's xDomain: undefined means "full extent". Set by
   // dragging a selection (brush), cleared by the reset button below.
   let xDomain = $state<[number, number] | undefined>(undefined);
-
-  // Same brand palette already used for the old Plotly series colours.
-  const PALETTE = [
-    '#00658b',
-    '#d2ae3d',
-    '#82a043',
-    '#666666',
-    '#3b98cb',
-    '#f2cd51',
-    '#a6bf51',
-    '#858585'
-  ];
 
   // LayerChart's LineChart takes each series as its own {key, data, value}
   // entry rather than Plotly's flat {data, layout} shape, so each series
@@ -67,10 +71,13 @@
   // input defensively - a thrown error while formatting one tick can take
   // down the whole axis (both the label AND its tick mark), which is why
   // ticks disappeared entirely rather than just rendering wrong.
-  const scientificFormat = (value: unknown) => {
+  const scientific = (digits: number) => (value: unknown) => {
     const num = typeof value === 'number' ? value : Number(value);
-    return Number.isFinite(num) ? num.toExponential(1) : String(value ?? '');
+    return Number.isFinite(num) ? num.toExponential(digits) : String(value ?? '');
   };
+  const scientificFormat = scientific(1);
+  // The tooltip is for reading values - layerchart's default rounds small ones to 0.0.
+  const tooltipFormat = scientific(3);
 
   // layerchart's default padding is sized for short, fixed-decimal tick
   // labels. Scientific notation ticks ("1.23e+2") are wider, and the
@@ -96,7 +103,7 @@
     x="x"
     y="y"
     series={lcSeries}
-    legend={series.length > 1}
+    legend={legend && series.length > 1}
     points={false}
     bind:xDomain
     padding={chartPadding}
@@ -120,6 +127,8 @@
         classes: { root: 'text-xs shrink-0', label: 'text-muted-foreground text-xs' }
       },
       tooltip: {
+        header: { format: tooltipFormat },
+        item: { format: tooltipFormat },
         root: {
           class:
             'rounded-md border border-border bg-popover text-popover-foreground shadow-md px-2 py-1.5 text-xs'

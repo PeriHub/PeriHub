@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onMount, onDestroy, tick } from 'svelte';
   import type { Component } from 'svelte';
-  import { Accordion } from 'bits-ui';
+  import { Accordion, Dialog } from 'bits-ui';
   import {
     RotateCw,
     Maximize,
+    ImageDown,
     SkipBack,
     Rewind,
     Pause,
@@ -32,6 +33,9 @@
   import VerticalColoredLegend from '$lib/components/views/VerticalColoredLegend.svelte';
   import ResultsScene from '$lib/components/views/ResultsScene.svelte';
   import CameraViewMenu from '$lib/components/three/CameraViewMenu.svelte';
+  import Toggle from '$lib/components/ui/Toggle.svelte';
+  import { drawColorBar } from '$lib/components/three/colorTransfer';
+  import { downloadFile } from '$lib/utils/download';
 
   const modelData = $derived(modelStore.modelData);
 
@@ -76,7 +80,24 @@
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
 
+  let dialogScreenshot = $state(false);
+  let screenshotColorBar = $state(true);
+  let screenshotTransparent = $state(false);
+
+  function saveScreenshot() {
+    dialogScreenshot = false;
+    const image = scene?.snapshot(screenshotTransparent);
+    if (!image) return;
+    if (screenshotColorBar) {
+      const scale = image.width / (viewport?.clientWidth || image.width);
+      drawColorBar(image, minValue, maxValue, legendLabelColor, scale);
+    }
+    const name = `${modelStore.selectedModel.file}_${modelData.model.modelFolderName}_${modelParams.variable}_step${modelParams.step}.png`;
+    image.toBlob((blob) => blob && downloadFile(name, blob));
+  }
+
   let scene: ResultsScene | undefined = $state();
+  let viewport: HTMLDivElement | undefined = $state();
 
   const sphereRadius = $derived((radius * multiplier) / 100);
 
@@ -268,6 +289,14 @@
       </Button>
       <CameraViewMenu onSelect={(direction) => scene?.fitToPoints(direction)} />
       <Button
+        variant="ghost"
+        size="icon"
+        onclick={() => (dialogScreenshot = true)}
+        title="Save screenshot"
+      >
+        <ImageDown class="h-4 w-4" />
+      </Button>
+      <Button
         variant={showControls ? 'secondary' : 'ghost'}
         size="icon"
         class="md:hidden"
@@ -334,7 +363,7 @@
     </div>
   </div>
 
-  <div class="relative min-h-0 flex-1">
+  <div class="relative min-h-0 flex-1" bind:this={viewport}>
     <ResultsScene
       bind:this={scene}
       points={pointString}
@@ -460,3 +489,22 @@
     {/if}
   </div>
 </div>
+
+<Dialog.Root bind:open={dialogScreenshot}>
+  <Dialog.Portal>
+    <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
+    <Dialog.Content
+      class="border-border bg-card fixed top-1/2 left-1/2 z-50 w-[min(92vw,22rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl border p-5 shadow-lg"
+    >
+      <Dialog.Title class="mb-3 text-lg font-semibold">Save screenshot</Dialog.Title>
+      <div class="space-y-3">
+        <Toggle bind:checked={screenshotColorBar} label="Color bar" />
+        <Toggle bind:checked={screenshotTransparent} label="Transparent background" />
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <Button variant="ghost" onclick={() => (dialogScreenshot = false)}>Cancel</Button>
+        <Button onclick={saveScreenshot}>Save PNG</Button>
+      </div>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>

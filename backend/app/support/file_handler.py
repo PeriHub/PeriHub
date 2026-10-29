@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -80,11 +81,21 @@ class FileHandler:
 
     @staticmethod
     def install_frontmatter_requirements(requirements):
-        if requirements:
-            req_list = [req.strip() for req in requirements.split(",")]
-            for req in req_list:
-                print(f"Installing requirement: {req}")
-                subprocess.check_call([sys.executable, "-m", "pip", "install", req])
+        """pip-installs an own model's comma-separated requirements, each once per environment: startup runs this
+        for every own model, and pip re-clones a git URL even when it is installed, which held up every dev
+        reload. The record lives in the temp dir, so it is gone whenever the packages might be (new container,
+        reboot). ponytail: an edited requirement version is only picked up after that."""
+        if not requirements:
+            return
+        record = Path(tempfile.gettempdir()) / f"perihub-installed-requirements-{sys.prefix.replace(os.sep, '_')}"
+        installed = set(record.read_text().splitlines()) if record.exists() else set()
+        for req in (r.strip() for r in requirements.split(",")):
+            if not req or req in installed:
+                continue
+            print(f"Installing requirement: {req}")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", req])
+            installed.add(req)
+            record.write_text("\n".join(sorted(installed)))
 
     @staticmethod
     def get_all_output_files_with_extension(directory, model_name, output, extension, deviations_enabled):

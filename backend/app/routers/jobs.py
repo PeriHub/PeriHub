@@ -100,8 +100,20 @@ def _run_status_dict(
     return result
 
 
+def _output_missing(entry: JobQueueEntry) -> bool:
+    """A finished run whose PeriLab output folder is gone (deleted, or cleaned up by PeriLab). Only knowable for
+    the local solver, whose folders are on this disk; running/queued jobs may not have created theirs yet."""
+    if entry.status != JOB_DONE or not get_solver_backend().shares_local_filesystem:
+        return False
+    root = FileHandler.get_local_simulation_path()
+    return not any(os.path.isdir(os.path.join(root, job_id)) for job_id in perilab_job_ids(entry))
+
+
 def _to_run_status(entry: JobQueueEntry, job: Optional[PeriLabJob] = None, check_files: bool = True) -> RunStatus:
     run = _run_status_dict(entry, job, check_files)
+    output_missing = _output_missing(entry)
+    if output_missing:
+        run["results"] = run["csvResults"] = False
     return RunStatus(
         id=entry.id,
         model_name=entry.model_name,
@@ -117,7 +129,7 @@ def _to_run_status(entry: JobQueueEntry, job: Optional[PeriLabJob] = None, check
         progress=run["progress"],
         currentStep=run["currentStep"],
         totalSteps=run["totalSteps"],
-        files_missing=not os.path.isdir(entry.remotepath),
+        files_missing=output_missing or not os.path.isdir(entry.remotepath),
     )
 
 
@@ -473,11 +485,16 @@ def stream_run_log(
     if not debug:
         chunks = _without_debug_lines(chunks)
     # no-transform/X-Accel-Buffering keep proxies (vite, nginx) from
-    # buffering the stream until it ends.
+    # buffering the stream until it ends; an explicit Content-Encoding makes
+    # GZipMiddleware pass it through instead of buffering it the same way.
     return StreamingResponse(
         chunks,
         media_type="text/plain; charset=utf-8",
-        headers={"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"},
+        headers={
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
+            "Content-Encoding": "identity",
+        },
     )
 
 

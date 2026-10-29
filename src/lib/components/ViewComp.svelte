@@ -26,8 +26,11 @@
   // tab visible while it is selected so the loading state stays reachable.
   const showModel = $derived(modelReady || viewStore.viewId === 'model');
   const showResults = $derived(resultsReady || viewStore.viewId === 'results');
+  // The Plot tab loads the run's CSV itself (ChartView), so it needs one.
   const showChart = $derived(
-    outputs.some((o) => (o.params?.['Output File Type'] ?? 'Exodus') === 'CSV')
+    (Boolean(status.csvResults) &&
+      outputs.some((o) => (o.params?.['Output File Type'] ?? 'Exodus') === 'CSV')) ||
+      viewStore.viewId === 'plotly'
   );
 
   // A status refresh says the open tab has no files (other folder, failed

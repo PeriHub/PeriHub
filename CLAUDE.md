@@ -30,8 +30,8 @@ pip install git+https://github.com/JTHesse/crackpy.git   # crack analysis depend
 
 cd backend && alembic upgrade head   # create/migrate the DB schema (needs DATABASE_URL)
 
-cd backend/app
-fastapi dev main.py        # API at http://localhost:8000, docs at /docs
+backend/dev.sh             # API at http://localhost:8000, docs at /docs; reloads on code changes only (not `fastapi dev`:
+                           # it also watches simulation data and hangs on reload while a log stream is open)
 ```
 
 Schema changes go through Alembic (`backend/alembic/versions/`); ORM models are in `backend/app/db/models.py`.

@@ -1,12 +1,34 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import { LoaderCircle, TriangleAlert } from 'lucide-svelte';
   import CodeBlock from '$lib/components/views/CodeBlock.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
 
   const hasLog = $derived(viewStore.logOutput.trim().length > 0);
+
+  // Follows new log lines while scrolled to the bottom; scrolling up pauses that until scrolled back down.
+  // The log's own <pre> (CodeBlock) is what scrolls - it is sized to this panel.
+  let panel: HTMLDivElement | undefined = $state();
+  let follow = true;
+
+  // Scroll events don't bubble, hence onscrollcapture on the panel.
+  function onScroll(event: Event) {
+    const el = event.target as HTMLElement;
+    follow = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+  }
+
+  $effect(() => {
+    void viewStore.logOutput;
+    // A hidden tab can't scroll, so also catch up when the Log tab is shown.
+    if (viewStore.textId !== 'log' || !follow || !panel) return;
+    tick().then(() => {
+      const log = panel?.querySelector('pre');
+      log?.scrollTo({ top: log.scrollHeight });
+    });
+  });
 </script>
 
-<div class="flex h-full flex-col overflow-y-auto">
+<div class="flex h-full flex-col overflow-y-auto" bind:this={panel} onscrollcapture={onScroll}>
   {#if viewStore.logStatus === 'waiting' && !hasLog}
     <div class="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
       <LoaderCircle class="text-primary h-10 w-10 animate-spin" />

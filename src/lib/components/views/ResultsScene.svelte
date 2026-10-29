@@ -31,6 +31,10 @@ is not one - it's Canvas's parent.
   export function fitToPoints(direction?: [number, number, number]) {
     scene?.fitToPoints(direction);
   }
+
+  export function snapshot(transparent: boolean) {
+    return scene?.snapshot(transparent);
+  }
 </script>
 
 <Canvas>

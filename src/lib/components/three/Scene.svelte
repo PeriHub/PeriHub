@@ -4,7 +4,7 @@ lights, background and the sphere cloud colored by the continuous legend
 gradient.
 -->
 <script lang="ts">
-  import { T } from '@threlte/core';
+  import { T, useThrelte } from '@threlte/core';
   import * as THREE from 'three';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import CameraRig from './CameraRig.svelte';
@@ -31,6 +31,24 @@ gradient.
 
   export function fitToPoints(direction?: [number, number, number]) {
     cameraRig?.fitToPoints(direction);
+  }
+
+  const { renderer, scene, camera, invalidate } = useThrelte();
+
+  // The current view as a 2D canvas. Rendered here and copied in the same task, so the WebGL drawing buffer
+  // needs no preserveDrawingBuffer; the renderer has alpha, so no background means transparent pixels.
+  export function snapshot(transparent: boolean): HTMLCanvasElement {
+    const background = scene.background;
+    if (transparent) scene.background = null;
+    renderer.render(scene, camera.current);
+    const source = renderer.domElement;
+    const image = document.createElement('canvas');
+    image.width = source.width;
+    image.height = source.height;
+    image.getContext('2d')!.drawImage(source, 0, 0);
+    scene.background = background;
+    invalidate();
+    return image;
   }
 
   const colorFor = $derived((value: number, target: THREE.Color) =>
