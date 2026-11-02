@@ -16,7 +16,6 @@
   import ModelActions from '$lib/components/actions/ModelActions.svelte';
   import ViewActions from '$lib/components/actions/ViewActions.svelte';
   import TextActions from '$lib/components/actions/TextActions.svelte';
-  import { defaultStore } from '$lib/stores/default-store.svelte';
   import { viewStore } from '$lib/stores/view-store.svelte';
   import { bus } from '$lib/utils/bus';
 
@@ -156,70 +155,69 @@
   });
 
   async function showTutorial() {
-    const { default: Driver } = await import('driver.js');
-    await import('driver.js/dist/driver.min.css');
+    const { driver } = await import('driver.js');
+    await import('driver.js/dist/driver.css');
 
-    const driver = new Driver({
+    const tour = driver({
       animate: true,
-      opacity: 0.5,
-      stageBackground: defaultStore.darkMode ? 'gray' : 'white'
+      overlayOpacity: 0.5,
+      showProgress: true,
+      steps: [
+        {
+          element: '#ModelActions',
+          popover: {
+            title: 'Model toolbar',
+            description:
+              'Generate the mesh for the current settings. Load, save and download models from here too.',
+            side: 'right'
+          }
+        },
+        {
+          element: '#ExpansionComp',
+          popover: {
+            title: 'Simulation settings',
+            description:
+              'Geometry, material, boundary conditions and solver. A green dot means the section has everything it needs.',
+            side: 'right'
+          }
+        },
+        {
+          element: '#ViewActions',
+          popover: {
+            title: 'Run and results',
+            description:
+              'The progress bar shows what is left to do. Run the simulation, then view, plot or download the results.',
+            side: 'left'
+          }
+        },
+        {
+          element: '#ViewComp',
+          popover: {
+            title: 'Viewer',
+            description: 'The mesh, results and plots appear here.',
+            side: 'left'
+          }
+        },
+        {
+          element: '#TextActions',
+          popover: {
+            title: 'Input deck toolbar',
+            description: 'Save edits you make to the input deck by hand.',
+            side: 'left'
+          }
+        },
+        {
+          element: '#TextComp',
+          popover: {
+            title: 'Input deck and log',
+            description: 'The generated input deck, and the solver log while a job runs.',
+            side: 'left'
+          }
+        }
+      ]
     });
 
-    driver.defineSteps([
-      {
-        element: '#ModelActions',
-        popover: {
-          title: 'Model toolbar',
-          description:
-            'Generate the mesh for the current settings. Load, save and download models from here too.',
-          position: 'right'
-        }
-      },
-      {
-        element: '#ExpansionComp',
-        popover: {
-          title: 'Simulation settings',
-          description:
-            'Geometry, material, boundary conditions and solver. A green dot means the section has everything it needs.',
-          position: 'right'
-        }
-      },
-      {
-        element: '#ViewActions',
-        popover: {
-          title: 'Run and results',
-          description:
-            'The progress bar shows what is left to do. Run the simulation, then view, plot or download the results.',
-          position: 'left'
-        }
-      },
-      {
-        element: '#ViewComp',
-        popover: {
-          title: 'Viewer',
-          description: 'The mesh, results and plots appear here.',
-          position: 'left'
-        }
-      },
-      {
-        element: '#TextActions',
-        popover: {
-          title: 'Input deck toolbar',
-          description: 'Save edits you make to the input deck by hand.',
-          position: 'left'
-        }
-      },
-      {
-        element: '#TextComp',
-        popover: {
-          title: 'Input deck and log',
-          description: 'The generated input deck, and the solver log while a job runs.',
-          position: 'left'
-        }
-      }
-    ]);
-
-    driver.start();
+    tour.drive();
   }
 
   onMount(() => {
