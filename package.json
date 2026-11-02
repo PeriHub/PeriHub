@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@hey-api/openapi-ts": "^0.51.0",
+    "@hey-api/openapi-ts": "^0.99.0",
     "@playwright/test": "^1.64.1",
     "@sveltejs/adapter-static": "^3.0.6",
     "@sveltejs/kit": "^2.15.0",
