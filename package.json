@@ -23,7 +23,7 @@
     "perilab-schema": "curl -sf http://localhost:3000/schema -o src/lib/perilab/schema.json && prettier --write src/lib/perilab/schema.json"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@eslint/js": "^10.0.1",
     "@hey-api/openapi-ts": "^0.99.0",
     "@playwright/test": "^1.64.1",
     "@sveltejs/adapter-static": "^3.0.6",
