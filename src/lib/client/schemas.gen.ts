@@ -1367,7 +1367,8 @@ export const $Job = {
         tasks: {
             anyOf: [
                 {
-                    type: 'integer'
+                    type: 'integer',
+                    minimum: 1
                 },
                 {
                     type: 'null'
