@@ -365,6 +365,18 @@
         <option value="external">External PeriLab</option>
       </Select>
     {/if}
+    {#if !authStore.isGuest}
+      <label class="text-muted-foreground flex items-center gap-1 text-xs" title="MPI processes">
+        Processes
+        <Input
+          class="h-8 w-16 text-xs"
+          type="number"
+          min="1"
+          step="1"
+          bind:value={modelData.job.tasks}
+        />
+      </label>
+    {/if}
   {:else}
     <Button variant="outline" size="sm" onclick={cancelJob} disabled={submitLoading}>
       <X class="h-4 w-4" />

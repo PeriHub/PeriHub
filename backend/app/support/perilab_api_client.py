@@ -118,6 +118,10 @@ class PeriLabApiClient:
 
     # --- /health, /version --------------------------------------------------
 
+    def mpi_available(self) -> bool:
+        """Whether the server can run num_procs > 1 (its image has an MPI launcher)."""
+        return bool(self._request("GET", "/health").json().get("mpi_launcher"))
+
     def health(self) -> bool:
         try:
             self._request("GET", "/health")

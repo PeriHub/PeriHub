@@ -195,6 +195,17 @@ def test_guest_run_rejects_external_solver(client, isolated):
     assert r.status_code == 403, r.text
 
 
+def test_run_rejects_multiple_procs_without_mpi(client, isolated):
+    params = _dogbone()
+    params["job"]["tasks"] = 2
+    r = client.post(
+        "/jobs?model_name=Dogbone&model_folder_name=Default",
+        json=params,
+        headers=_auth(_signup(client, "a@x.de")),
+    )
+    assert r.status_code == 400 and "no MPI" in r.json()["detail"], r.text
+
+
 def test_signup_rejects_reserved_guest_names(client):
     r = client.post("/auth/signup", json={"email": "a@x.de", "password": "password123", "display_name": "guest-1234"})
     assert r.status_code == 422
@@ -214,6 +225,12 @@ class _FakeClient:
 
     def get_job(self, job_id):
         return PeriLabJob(job_id=job_id, status=self.status)
+
+    def health(self):
+        return True
+
+    def mpi_available(self):
+        return False
 
     def delete_job(self, job_id):
         self.deleted.append(job_id)

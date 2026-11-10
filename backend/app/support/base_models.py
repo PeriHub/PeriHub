@@ -430,7 +430,7 @@ class Solver(Strict):
 
 class Job(Strict):
     verbose: bool
-    tasks: Optional[int] = 1
+    tasks: Optional[int] = Field(1, ge=1)  # MPI ranks (PeriLab num_procs)
 
 
 # Frontend imports the same file as its initial model

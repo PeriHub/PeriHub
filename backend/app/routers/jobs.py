@@ -299,11 +299,19 @@ async def run_model(
 
     # Fail fast while the PeriLab API is down, before submit_job records a
     # FAILED run for what is only an outage.
-    if not get_solver_backend(solver).client().health():
+    client = get_solver_backend(solver).client()
+    if not client.health():
         audit_log.record(username, "run_model", model_name, request, result="rejected_perilab_offline")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="The PeriLab API is not online. Please try again later.",
+        )
+    num_procs = 1 if db_user.role == "guest" else (model_data.job.tasks or 1)
+    # Refuse up front rather than record a run that PeriLab can only fail.
+    if num_procs > 1 and not client.mpi_available():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"The {solver} PeriLab server has no MPI - run with 1 process.",
         )
 
     # No queue: submit straight to the PeriLab API. If this fails (API
@@ -319,7 +327,7 @@ async def run_model(
             remotepath,
             project_id=None,
             solver_args=args,
-            num_procs=1 if db_user.role == "guest" else model_data.job.tasks,
+            num_procs=num_procs,
             job_ids=job_ids,
             solver=solver,
         )
