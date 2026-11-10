@@ -413,6 +413,7 @@ export const uploadFiles = (data: UploadFilesData): CancelablePromise<UploadFile
  * @param data.modelFolderName
  * @param data.verbose
  * @param data.jobIds
+ * @param data.solver PeriLab server to run on; default: the instance's default (see GET /config/public)
  * @returns RunSubmitted Successful Response
  * @throws ApiError
  */
@@ -423,7 +424,8 @@ export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse
         model_name: data.modelName,
         model_folder_name: data.modelFolderName,
         verbose: data.verbose,
-        job_ids: data.jobIds
+        job_ids: data.jobIds,
+        solver: data.solver
     },
     body: data.requestBody,
     mediaType: 'application/json',
@@ -894,7 +896,7 @@ export const refreshLicense = (): CancelablePromise<RefreshLicenseResponse> => {
  * Create a throwaway guest account and return its session token. Only when the admin setting `guest_access` is
  * on (404 otherwise). Guests skip signup_open and the seat limit, can only run bounded jobs of built-in models
  * (support/guest.py) and are deleted after `guest_retention_days` (support/guest_sweeper.py).
- * @returns app__routers__oauth__AuthResponse Successful Response
+ * @returns AuthResponse Successful Response
  * @throws ApiError
  */
 export const createGuest = (): CancelablePromise<CreateGuestResponse> => { return __request(OpenAPI, {
@@ -908,7 +910,7 @@ export const createGuest = (): CancelablePromise<CreateGuestResponse> => { retur
  * token. 409 if the email is taken, 422 for passwords under 8 characters or a reserved 'Guest-' display name.
  * @param data The data for the request.
  * @param data.requestBody
- * @returns app__routers__oauth__AuthResponse Successful Response
+ * @returns AuthResponse Successful Response
  * @throws ApiError
  */
 export const signup = (data: SignupData): CancelablePromise<SignupResponse> => { return __request(OpenAPI, {
@@ -927,7 +929,7 @@ export const signup = (data: SignupData): CancelablePromise<SignupResponse> => {
  * credentials, 403 for deactivated accounts, 429 after 10 wrong passwords for the email within 15 minutes.
  * @param data The data for the request.
  * @param data.requestBody
- * @returns app__routers__oauth__AuthResponse Successful Response
+ * @returns AuthResponse Successful Response
  * @throws ApiError
  */
 export const login = (data: LoginData): CancelablePromise<LoginResponse> => { return __request(OpenAPI, {
@@ -1116,10 +1118,10 @@ export const startOidcLogin = (): CancelablePromise<StartOidcLoginResponse> => {
  * Exchanges the authorization `code` for tokens, fetches userinfo, and
  * finds or creates the corresponding local User. The frontend is
  * responsible for verifying `state` matches what /oidc/login returned
- * before calling this - see support/oidc_client.py's docstring.
+ * before calling this - see ee/oidc_client.py's docstring.
  * @param data The data for the request.
  * @param data.code
- * @returns app__routers__oauth__AuthResponse Successful Response
+ * @returns AuthResponse Successful Response
  * @throws ApiError
  */
 export const oidcCallback = (data: OidcCallbackData): CancelablePromise<OidcCallbackResponse> => { return __request(OpenAPI, {

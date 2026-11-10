@@ -139,11 +139,21 @@ def _external_perilab_url() -> str:
         return instance_setting(db, "external_perilab_url")
 
 
-def get_solver_backend() -> SolverBackend:
-    if solver_backend_kind == "external":
-        external_perilab_url = _external_perilab_url()
-        if not external_perilab_url:
-            log.warning("SOLVER_BACKEND=external but EXTERNAL_PERILAB_URL is not set; falling back to local")
-            return PeriLabSolverBackend(local_perilab_api_url, shares_local_filesystem=True)
-        return PeriLabSolverBackend(external_perilab_url, shares_local_filesystem=False)
+def external_available() -> bool:
+    return bool(_external_perilab_url())
+
+
+def default_solver() -> str:
+    """What the frontend preselects: SOLVER_BACKEND, if that server is usable."""
+    return "external" if solver_backend_kind == "external" and external_available() else "local"
+
+
+def get_solver_backend(solver: str | None = None) -> SolverBackend:
+    """The PeriLab API a run talks to. Each run stores the server it was submitted to
+    (JobQueueEntry.solver) and passes it here; None means the default (SOLVER_BACKEND)."""
+    if (solver or default_solver()) == "external":
+        url = _external_perilab_url()
+        if url:
+            return PeriLabSolverBackend(url, shares_local_filesystem=False)
+        log.warning("External PeriLab requested but EXTERNAL_PERILAB_URL is not set; falling back to local")
     return PeriLabSolverBackend(local_perilab_api_url, shares_local_filesystem=True)

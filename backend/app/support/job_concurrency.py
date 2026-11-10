@@ -24,5 +24,12 @@ from ..db.models import JOB_RUNNING, JobQueueEntry
 
 def count_active_local_jobs(db: Session) -> int:
     """Counts JobQueueEntry rows currently RUNNING (i.e. submitted to the
-    PeriLab API and not yet finished/failed/cancelled)."""
-    return db.scalar(select(func.count()).select_from(JobQueueEntry).where(JobQueueEntry.status == JOB_RUNNING)) or 0
+    bundled PeriLab container and not yet finished/failed/cancelled) - external runs don't use its slots."""
+    return (
+        db.scalar(
+            select(func.count())
+            .select_from(JobQueueEntry)
+            .where(JobQueueEntry.status == JOB_RUNNING, JobQueueEntry.solver == "local")
+        )
+        or 0
+    )

@@ -98,7 +98,9 @@
         placeholder="https://perilab.example.com"
         bind:value={settings.external_perilab_url}
       />
-      <p class="text-muted-foreground text-xs">Only used when SOLVER_BACKEND=external.</p>
+      <p class="text-muted-foreground text-xs">
+        When set, users can choose to run jobs here instead of on the bundled PeriLab.
+      </p>
     </div>
     <h3 class="mt-4 text-base font-semibold">Guest access</h3>
     <div class="flex items-center gap-2">

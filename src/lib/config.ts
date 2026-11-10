@@ -35,6 +35,8 @@ interface PublicConfigResponse {
   oauth_enabled: boolean;
   password_reset: boolean;
   job_notifications: boolean;
+  external_solver: boolean;
+  default_solver: 'local' | 'external';
 }
 
 /**
@@ -50,7 +52,9 @@ export const publicConfig = {
   signupOpen: true,
   oauthEnabled: false,
   passwordReset: false,
-  jobNotifications: false
+  jobNotifications: false,
+  externalSolver: false,
+  defaultSolver: 'local' as 'local' | 'external'
 };
 
 let loaded = false;
@@ -75,6 +79,8 @@ export async function loadPublicConfig(): Promise<void> {
     publicConfig.oauthEnabled = data.oauth_enabled ?? false;
     publicConfig.passwordReset = data.password_reset ?? false;
     publicConfig.jobNotifications = data.job_notifications ?? false;
+    publicConfig.externalSolver = data.external_solver ?? false;
+    publicConfig.defaultSolver = data.default_solver ?? 'local';
     loaded = true;
   } catch (error) {
     // Deliberately non-fatal: the app still boots with everything "off"

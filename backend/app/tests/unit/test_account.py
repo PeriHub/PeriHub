@@ -143,7 +143,7 @@ def test_last_admin_and_guests_cannot_delete(client):
 
 
 def test_oauth_account_confirms_with_email(client, monkeypatch):
-    monkeypatch.setattr(account, "get_solver_backend", lambda: None)  # no jobs, never called
+    monkeypatch.setattr(account, "get_solver_backend", lambda *_: None)  # no jobs, never called
     _signup(client, "admin@x.de")
     user = _signup(client, "sso@x.de")
     with base.SessionLocal() as db:
@@ -191,7 +191,7 @@ def test_job_notification_setting(client):
 
 def test_background_sync_mails_finished_run_once(client, monkeypatch, outbox):
     backend = _FakeBackend(status="completed")
-    monkeypatch.setattr(job_queue, "get_solver_backend", lambda: backend)
+    monkeypatch.setattr(job_queue, "get_solver_backend", lambda *_: backend)
     opted_in = _signup(client, "a@x.de")
     other = _signup(client, "b@x.de")
     _notify_on(client, opted_in)
@@ -207,7 +207,7 @@ def test_background_sync_mails_finished_run_once(client, monkeypatch, outbox):
 
 def test_own_cancel_sends_nothing_but_perilab_stop_does(client, monkeypatch, outbox):
     backend = _FakeBackend()
-    monkeypatch.setattr(job_queue, "get_solver_backend", lambda: backend)
+    monkeypatch.setattr(job_queue, "get_solver_backend", lambda *_: backend)
     user = _signup(client, "u@x.de")
     _notify_on(client, user)
     with base.SessionLocal() as db:

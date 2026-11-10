@@ -282,6 +282,9 @@ class JobQueueEntry(Base):
     # status/log/cancel calls use to talk to the PeriLab API - there is no
     # more pid.txt/filesystem fallback for local (non-cluster) jobs.
     perilab_job_id: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    # Which PeriLab API the run was submitted to ("local" | "external", support/solver_backend.py) - the user picks
+    # per submission, so every later status/log/cancel/result call must go back to the same server.
+    solver: Mapped[str] = mapped_column(String(16), nullable=False, default="local", server_default="local")
     # Solver options captured at submit time (support/writer/sbatch_writer.py
     # used to bake these into the runPerilab.sh script that was written to
     # disk *before* enqueueing, so a later dequeue just executed it without

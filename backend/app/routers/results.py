@@ -40,7 +40,7 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
     def not_found(detail: str):
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
 
-    if db_base.SessionLocal is None or not get_solver_backend().shares_local_filesystem:
+    if db_base.SessionLocal is None:
         raise not_found("Results are only available when PeriLab runs locally.")
     with db_base.SessionLocal() as db:
         identity = resolve_user(request, db)
@@ -53,6 +53,8 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
         else:
             entry = _latest_entry(db, identity.user.id, model_name, model_folder_name)
         job_ids = perilab_job_ids(entry) if entry else []
+        if entry is not None and not get_solver_backend(entry.solver).shares_local_filesystem:
+            raise not_found("Results are only available when PeriLab runs locally.")
     if not job_ids:
         raise not_found("No run found for this model.")
     job_folder = os.path.join(FileHandler.get_local_simulation_path(), job_ids[0])

@@ -117,6 +117,13 @@ export type ApiKeyInfo = {
     last_used_at: string | null;
 };
 
+export type AuthResponse = {
+    token: string;
+    user_id: string;
+    display_name: string;
+    role: string;
+};
+
 export type AuthorizationUrlResponse = {
     authorization_url: string;
     state: string;
@@ -155,7 +162,7 @@ export type Body_save_model_file = {
 };
 
 export type Body_upload_files = {
-    files: Array<((Blob | File))>;
+    files: Array<(string)>;
 };
 
 export type BondFilters = {
@@ -693,6 +700,10 @@ export type ValidationError = {
     loc: Array<(string | number)>;
     msg: string;
     type: string;
+    input?: unknown;
+    ctx?: {
+        [key: string]: unknown;
+    };
 };
 
 export type Valve = {
@@ -724,13 +735,6 @@ export type VersionData = {
     latest: string;
     perilab_current: string;
     perilab_latest: string;
-};
-
-export type app__routers__oauth__AuthResponse = {
-    token: string;
-    user_id: string;
-    display_name: string;
-    role: string;
 };
 
 export type GenerateModelData = {
@@ -863,6 +867,10 @@ export type RunModelData = {
     modelFolderName?: string;
     modelName?: string;
     requestBody: ModelData;
+    /**
+     * PeriLab server to run on; default: the instance's default (see GET /config/public)
+     */
+    solver?: 'local' | 'external' | null;
     verbose?: boolean;
 };
 
@@ -1011,19 +1019,19 @@ export type GetLicenseStatusResponse = LicenseStatus;
 
 export type RefreshLicenseResponse = LicenseStatus;
 
-export type CreateGuestResponse = app__routers__oauth__AuthResponse;
+export type CreateGuestResponse = AuthResponse;
 
 export type SignupData = {
     requestBody: SignupRequest;
 };
 
-export type SignupResponse = app__routers__oauth__AuthResponse;
+export type SignupResponse = AuthResponse;
 
 export type LoginData = {
     requestBody: LoginRequest;
 };
 
-export type LoginResponse = app__routers__oauth__AuthResponse;
+export type LoginResponse = AuthResponse;
 
 export type GetCurrentUserInfoResponse = MeResponse;
 
@@ -1077,7 +1085,7 @@ export type OidcCallbackData = {
     code: string;
 };
 
-export type OidcCallbackResponse = app__routers__oauth__AuthResponse;
+export type OidcCallbackResponse = AuthResponse;
 
 export type ListLibraryItemsData = {
     kind: 'model-config' | 'material';
@@ -1775,7 +1783,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: app__routers__oauth__AuthResponse;
+                200: AuthResponse;
             };
         };
     };
@@ -1786,7 +1794,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: app__routers__oauth__AuthResponse;
+                200: AuthResponse;
                 /**
                  * Validation Error
                  */
@@ -1801,7 +1809,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: app__routers__oauth__AuthResponse;
+                200: AuthResponse;
                 /**
                  * Validation Error
                  */
@@ -1947,7 +1955,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: app__routers__oauth__AuthResponse;
+                200: AuthResponse;
                 /**
                  * Validation Error
                  */

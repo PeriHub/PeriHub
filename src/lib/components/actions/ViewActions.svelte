@@ -10,6 +10,7 @@
   import { notify } from '$lib/utils/notify';
   import { downloadFile } from '$lib/utils/download';
   import { api } from '$lib/api/client';
+  import { publicConfig } from '$lib/config';
   import { missingBySection } from '$lib/perilab/missing';
   import {
     getCurrentEnergy,
@@ -65,6 +66,10 @@
     ];
   });
 
+  // Run-on-server choice, only when an external PeriLab is configured (guests always run locally).
+  const showSolver = $derived(publicConfig.externalSolver && !authStore.isGuest);
+  let solver = $state<'local' | 'external'>(publicConfig.defaultSolver);
+
   let submitLoading = $state(false);
   let resultsLoading = $state(false);
   let timer: ReturnType<typeof setInterval> | null = null;
@@ -110,6 +115,7 @@
         modelFolderName: modelData.model.modelFolderName,
         verbose: modelData.job.verbose,
         jobIds,
+        solver: showSolver ? solver : undefined,
         requestBody: modelData
       });
       lastSubmittedRunId = (response as { run_id: string }).run_id;
@@ -348,6 +354,17 @@
       <Play class="h-4 w-4" />
       Run simulation
     </Button>
+    {#if showSolver}
+      <Select
+        class="h-8 w-auto text-xs"
+        bind:value={solver}
+        aria-label="PeriLab server"
+        title="Where the job runs"
+      >
+        <option value="local">Local PeriLab</option>
+        <option value="external">External PeriLab</option>
+      </Select>
+    {/if}
   {:else}
     <Button variant="outline" size="sm" onclick={cancelJob} disabled={submitLoading}>
       <X class="h-4 w-4" />

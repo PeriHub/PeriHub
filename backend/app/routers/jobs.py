@@ -1,7 +1,7 @@
 import json
 import os
 import shutil
-from typing import Iterator, List, Optional
+from typing import Iterator, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import PlainTextResponse, StreamingResponse
@@ -40,7 +40,7 @@ from ..support.guest import GUEST_DENIED, user_folder
 from ..support.job_concurrency import count_active_local_jobs
 from ..support.job_queue import cancel_running, enforce_user_quota, perilab_job_ids, submit_job, sync_status
 from ..support.perilab_api_client import PeriLabJob
-from ..support.solver_backend import get_solver_backend
+from ..support.solver_backend import default_solver, external_available, get_solver_backend
 
 router = APIRouter(tags=["Jobs Methods"])
 
@@ -83,7 +83,7 @@ def _run_status_dict(
         result["results"] = entry.status == JOB_DONE
         return result
 
-    client = get_solver_backend().client()
+    client = get_solver_backend(entry.solver).client()
     # Result files only mean something once the job has actually started -
     # skip the API call while it's still sitting in the queue.
     if entry.status != JOB_QUEUED:
@@ -103,7 +103,7 @@ def _run_status_dict(
 def _output_missing(entry: JobQueueEntry) -> bool:
     """A finished run whose PeriLab output folder is gone (deleted, or cleaned up by PeriLab). Only knowable for
     the local solver, whose folders are on this disk; running/queued jobs may not have created theirs yet."""
-    if entry.status != JOB_DONE or not get_solver_backend().shares_local_filesystem:
+    if entry.status != JOB_DONE or not get_solver_backend(entry.solver).shares_local_filesystem:
         return False
     root = FileHandler.get_local_simulation_path()
     return not any(os.path.isdir(os.path.join(root, job_id)) for job_id in perilab_job_ids(entry))
@@ -226,6 +226,9 @@ async def run_model(
     model_folder_name: str = "Default",
     verbose: bool = False,
     job_ids: Optional[str] = "-1",
+    solver: Optional[Literal["local", "external"]] = Query(
+        None, description="PeriLab server to run on; default: the instance's default (see GET /config/public)"
+    ),
     request: Request = "",
     db: Session = Depends(get_db),
 ):
@@ -245,6 +248,13 @@ async def run_model(
         # Guests may only run a single job (no job_ids batches fanning out PeriLab jobs).
         if job_ids != "-1":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=GUEST_DENIED)
+    solver = solver or ("local" if db_user.role == "guest" else default_solver())
+    if solver == "external":
+        # Usually customer hardware - not for anonymous guests.
+        if db_user.role == "guest":
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=GUEST_DENIED)
+        if not external_available():
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No external PeriLab is configured.")
     try:
         enforce_user_quota(db, db_user)
     except ValueError as exc:
@@ -254,9 +264,10 @@ async def run_model(
     # Instance-wide back-pressure: jobs run through the PeriLab API, so cap
     # how many can be in flight at once instead of silently piling them
     # all on.
+    # External runs use the customer's hardware, not the bundled container's slots.
     active = count_active_local_jobs(db)
     max_concurrent_local_jobs = instance_setting(db, "max_concurrent_local_jobs")
-    if active >= max_concurrent_local_jobs:
+    if solver == "local" and active >= max_concurrent_local_jobs:
         log.warning("Rejecting %s: %d/%d jobs already active", model_name, active, max_concurrent_local_jobs)
         audit_log.record(username, "run_model", model_name, request, result="rejected_capacity")
         raise HTTPException(
@@ -288,7 +299,7 @@ async def run_model(
 
     # Fail fast while the PeriLab API is down, before submit_job records a
     # FAILED run for what is only an outage.
-    if not get_solver_backend().client().health():
+    if not get_solver_backend(solver).client().health():
         audit_log.record(username, "run_model", model_name, request, result="rejected_perilab_offline")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -310,6 +321,7 @@ async def run_model(
             solver_args=args,
             num_procs=1 if db_user.role == "guest" else model_data.job.tasks,
             job_ids=job_ids,
+            solver=solver,
         )
     except Exception:
         audit_log.record(username, "run_model", model_name, request, result="rejected_submit_failed")
@@ -474,7 +486,7 @@ def stream_run_log(
 
     # First job only for a batch submission, same as GET /{run_id}/log.
     try:
-        chunks = get_solver_backend().client().stream_log(job_ids[0])
+        chunks = get_solver_backend(entry.solver).client().stream_log(job_ids[0])
     except HTTPException as e:
         # 503 = PeriLab API offline; keep it distinct from "no log yet" so the
         # frontend doesn't wait for a start that can't happen.
@@ -533,7 +545,7 @@ def get_run_log(
         )
     # First job only for a batch submission, same as the log stream.
     try:
-        text = get_solver_backend().client().get_log(job_ids[0], tail)
+        text = get_solver_backend(entry.solver).client().get_log(job_ids[0], tail)
     except HTTPException as e:
         if e.status_code == status.HTTP_503_SERVICE_UNAVAILABLE:
             raise
@@ -561,7 +573,7 @@ def get_run_input(run_id: str, request: Request, db: Session = Depends(get_db)) 
             detail="No PeriLab job ID associated with this run yet. The job may still be queued.",
         )
     # First job only for a batch submission, same as the log; a batch variant's deck is "<model>_<id>.yaml".
-    client = get_solver_backend().client()
+    client = get_solver_backend(entry.solver).client()
     try:
         decks = [f for f in client.list_files(job_ids[0]) if f.endswith(".yaml")]
         if not decks:
@@ -638,7 +650,7 @@ def delete_model_runs(
 
 
 def _delete_perilab_jobs(entry: JobQueueEntry) -> None:
-    client = get_solver_backend().client()
+    client = get_solver_backend(entry.solver).client()
     for job_id in perilab_job_ids(entry):
         try:
             client.delete_job(job_id)

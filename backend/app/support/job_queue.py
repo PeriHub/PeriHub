@@ -88,6 +88,7 @@ def submit_job(
     solver_args: str = "",
     num_procs: int = 1,
     job_ids: str = "-1",
+    solver: str = "local",
 ) -> JobQueueEntry:
     """Submits a job to the PeriLab API immediately and records it.
 
@@ -111,13 +112,14 @@ def submit_job(
         solver_args=solver_args,
         num_procs=num_procs,
         job_ids=job_ids,
+        solver=solver,
     )
     db.add(entry)
     db.commit()
     db.refresh(entry)
 
     try:
-        perilab_job_id = get_solver_backend().submit(
+        perilab_job_id = get_solver_backend(solver).submit(
             _owner_username(user),
             model_name,
             model_folder_name,
@@ -155,7 +157,7 @@ def cancel_running(db: Session, entry: JobQueueEntry) -> None:
     a 502 rather than silently marking the job cancelled when it might
     still be running."""
     if entry.perilab_job_id:
-        get_solver_backend().cancel(entry.perilab_job_id)
+        get_solver_backend(entry.solver).cancel(entry.perilab_job_id)
     entry.status = JOB_CANCELLED
     entry.finished_at = datetime.now(timezone.utc)
     db.commit()
@@ -176,7 +178,7 @@ def sync_status(db: Session, entry: Optional[JobQueueEntry]) -> Optional[PeriLab
     if not job_ids:
         return None
 
-    client = get_solver_backend().client()
+    client = get_solver_backend(entry.solver).client()
     try:
         jobs = [client.get_job(job_id) for job_id in job_ids]
     except HTTPException:

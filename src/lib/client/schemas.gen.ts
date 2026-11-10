@@ -456,6 +456,30 @@ export const $ApiKeyInfo = {
     title: 'ApiKeyInfo'
 } as const;
 
+export const $AuthResponse = {
+    properties: {
+        token: {
+            type: 'string',
+            title: 'Token'
+        },
+        user_id: {
+            type: 'string',
+            title: 'User Id'
+        },
+        display_name: {
+            type: 'string',
+            title: 'Display Name'
+        },
+        role: {
+            type: 'string',
+            title: 'Role'
+        }
+    },
+    type: 'object',
+    required: ['token', 'user_id', 'display_name', 'role'],
+    title: 'AuthResponse'
+} as const;
+
 export const $AuthorizationUrlResponse = {
     properties: {
         authorization_url: {
@@ -580,7 +604,7 @@ export const $Body_upload_files = {
         files: {
             items: {
                 type: 'string',
-                format: 'binary'
+                contentMediaType: 'application/octet-stream'
             },
             type: 'array',
             title: 'Files'
@@ -2917,6 +2941,13 @@ export const $ValidationError = {
         type: {
             type: 'string',
             title: 'Error Type'
+        },
+        input: {
+            title: 'Input'
+        },
+        ctx: {
+            type: 'object',
+            title: 'Context'
         }
     },
     type: 'object',
@@ -3104,28 +3135,4 @@ export const $VersionData = {
     type: 'object',
     required: ['current', 'latest', 'perilab_current', 'perilab_latest'],
     title: 'VersionData'
-} as const;
-
-export const $app__routers__oauth__AuthResponse = {
-    properties: {
-        token: {
-            type: 'string',
-            title: 'Token'
-        },
-        user_id: {
-            type: 'string',
-            title: 'User Id'
-        },
-        display_name: {
-            type: 'string',
-            title: 'Display Name'
-        },
-        role: {
-            type: 'string',
-            title: 'Role'
-        }
-    },
-    type: 'object',
-    required: ['token', 'user_id', 'display_name', 'role'],
-    title: 'AuthResponse'
 } as const;

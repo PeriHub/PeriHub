@@ -24,8 +24,8 @@ EXODUS_FIXTURE = os.path.join(os.path.dirname(__file__), "..", "image_export", "
 @pytest.fixture
 def backend(monkeypatch):
     fake = _FakeBackend()
-    monkeypatch.setattr(job_queue, "get_solver_backend", lambda: fake)
-    monkeypatch.setattr(jobs, "get_solver_backend", lambda: fake)
+    monkeypatch.setattr(job_queue, "get_solver_backend", lambda *_: fake)
+    monkeypatch.setattr(jobs, "get_solver_backend", lambda *_: fake)
     return fake
 
 

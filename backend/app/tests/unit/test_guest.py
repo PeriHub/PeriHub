@@ -150,8 +150,8 @@ def _generate(client, headers, params):
 def isolated(monkeypatch, tmp_path):
     """Keep generate/run tests away from the real simulations folder and PeriLab API."""
     monkeypatch.setattr(FileHandler, "get_local_simulation_path", staticmethod(lambda: str(tmp_path)))
-    monkeypatch.setattr(job_queue, "get_solver_backend", lambda: _FakeBackend())
-    monkeypatch.setattr(jobs, "get_solver_backend", lambda: _FakeBackend())
+    monkeypatch.setattr(job_queue, "get_solver_backend", lambda *_: _FakeBackend())
+    monkeypatch.setattr(jobs, "get_solver_backend", lambda *_: _FakeBackend())
 
 
 def _guest_headers(guest):
@@ -181,6 +181,16 @@ def test_guest_run_rejects_batches(client, isolated):
         "/jobs?model_name=Dogbone&model_folder_name=Default&job_ids=1,2",
         json=_dogbone(),
         headers=_guest_headers(guest),
+    )
+    assert r.status_code == 403, r.text
+
+
+def test_guest_run_rejects_external_solver(client, isolated):
+    set_instance_setting("external_perilab_url", "https://perilab.example.com")
+    r = client.post(
+        "/jobs?model_name=Dogbone&model_folder_name=Default&solver=external",
+        json=_dogbone(),
+        headers=_guest_headers(_guest(client)),
     )
     assert r.status_code == 403, r.text
 
@@ -248,7 +258,7 @@ def _job(db, user_id, minutes_ago, job_id):
 
 def test_sweep_stops_overdue_guest_jobs_only(client, monkeypatch):
     backend = _FakeBackend()
-    monkeypatch.setattr(job_queue, "get_solver_backend", lambda: backend)
+    monkeypatch.setattr(job_queue, "get_solver_backend", lambda *_: backend)
     guest = _guest(client)
     member = _signup(client, "a@x.de")
     with base.SessionLocal() as db:
@@ -268,7 +278,7 @@ def test_sweep_syncs_before_stopping_overdue_job(client, monkeypatch):
     RUNNING in the DB) must be synced to its real status instead of getting
     cancelled and mislabelled "Stopped: guest time limit"."""
     backend = _FakeBackend(status="completed")
-    monkeypatch.setattr(job_queue, "get_solver_backend", lambda: backend)
+    monkeypatch.setattr(job_queue, "get_solver_backend", lambda *_: backend)
     guest = _guest(client)
     with base.SessionLocal() as db:
         overdue = _job(db, guest["user_id"], 30, "g-finished")
@@ -281,8 +291,8 @@ def test_sweep_syncs_before_stopping_overdue_job(client, monkeypatch):
 
 def test_sweep_deletes_expired_guests_with_data(client, monkeypatch, tmp_path):
     backend = _FakeBackend()
-    monkeypatch.setattr(job_queue, "get_solver_backend", lambda: backend)
-    monkeypatch.setattr(account, "get_solver_backend", lambda: backend)
+    monkeypatch.setattr(job_queue, "get_solver_backend", lambda *_: backend)
+    monkeypatch.setattr(account, "get_solver_backend", lambda *_: backend)
     monkeypatch.setattr(FileHandler, "get_local_simulation_path", staticmethod(lambda: str(tmp_path)))
     old_guest = _guest(client)
     new_guest = client.post("/auth/guest").json()

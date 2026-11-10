@@ -46,7 +46,7 @@ def delete_account(db: Session, user: User) -> None:
         # folder - delete them with the entry (same as routers/jobs.py delete_run).
         for job_id in perilab_job_ids(entry):
             try:
-                get_solver_backend().client().delete_job(job_id)
+                get_solver_backend(entry.solver).client().delete_job(job_id)
             except HTTPException as e:
                 log.warning("account: could not delete PeriLab job %s: %s", job_id, e.detail)
     db.execute(delete(JobQueueEntry).where(JobQueueEntry.user_id == user.id))

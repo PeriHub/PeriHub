@@ -24,6 +24,7 @@ from ..support.entitlements import has_feature
 from ..support.globals import deployment_mode, oauth_discovery_url
 from ..support.guest import guest_limits
 from ..support.mailer import mail_enabled, smtp_configured
+from ..support.solver_backend import default_solver, external_available
 
 router = APIRouter(prefix="/config", tags=["Config Methods"])
 
@@ -55,4 +56,7 @@ def get_public_config() -> dict:
         "password_reset": mail_enabled(),
         # The "email me when my jobs end" account setting - needs SMTP only.
         "job_notifications": smtp_configured(),
+        # Run-on-server choice next to the Run button: offered when an external PeriLab is configured.
+        "external_solver": external_available(),
+        "default_solver": default_solver(),
     }
