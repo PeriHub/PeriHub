@@ -69,7 +69,7 @@
 
   function saveData() {
     downloadFile(
-      `${modelStore.selectedModel.file}.json`,
+      `${modelStore.selectedModel.file}_${modelStore.modelData.model.modelFolderName}.json`,
       '{"modelData":' +
         JSON.stringify(modelStore.modelData) +
         ',"modelParams":' +
