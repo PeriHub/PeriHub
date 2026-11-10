@@ -99,6 +99,14 @@
   }
 
   async function _runModel(jobIds: string | null = null) {
+    // Deviations: the default deck ("-1") plus one deck per sample ("<model>_<n>.yaml"), as one batch run.
+    const deviations = modelData.deviations;
+    if (jobIds === null && deviations?.enabled && deviations.sampleSize) {
+      jobIds = [
+        '-1',
+        ...Array.from({ length: deviations.sampleSize }, (_, i) => String(i + 1))
+      ].join(',');
+    }
     const missing = Object.values(missingBySection(modelData)).flat();
     if (missing.length) {
       notify.warning(

@@ -156,13 +156,22 @@ def _state_path(job_id: str) -> str:
     return result_cache_dir(job_id) + ".json"
 
 
-def fetch_external_results(client: PeriLabApiClient, job_id: str, finished: bool) -> str:
-    """Mirrors an external PeriLab job's files into result_cache_dir, so the results endpoints can read them like a
-    local run's. Keeps traffic down: a finished run is synced once and then served from disk, a running one at most
-    every EXTERNAL_REFRESH_SECONDS, and a file whose ETag hasn't changed is never downloaded again."""
-    folder = result_cache_dir(job_id)
+def fetch_external_results(
+    client: PeriLabApiClient,
+    job_id: str,
+    finished: bool,
+    folder: str | None = None,
+    state_path: str | None = None,
+    keep=None,
+) -> str:
+    """Mirrors an external PeriLab job's files into result_cache_dir (or `folder`), so the results endpoints can read
+    them like a local run's. Keeps traffic down: a finished run is synced once and then served from disk, a running
+    one at most every EXTERNAL_REFRESH_SECONDS, and a file whose ETag hasn't changed is never downloaded again.
+    `keep(name)` filters which files are mirrored."""
+    folder = folder or result_cache_dir(job_id)
+    state_path = state_path or _state_path(job_id)
     try:
-        with open(_state_path(job_id)) as file:
+        with open(state_path) as file:
             state = json.load(file)
     except (OSError, json.JSONDecodeError):
         state = {"versions": {}, "fetched_at": 0, "complete": False}
@@ -172,6 +181,8 @@ def fetch_external_results(client: PeriLabApiClient, job_id: str, finished: bool
     root = os.path.realpath(folder)
     versions = state["versions"]
     for name in client.list_files(job_id):
+        if keep is not None and not keep(name):
+            continue
         dest = os.path.realpath(os.path.join(folder, name))
         if not dest.startswith(root + os.sep):  # the external server is not trusted with our filesystem
             log.warning("Skipping result file outside the job folder: %s", name)
@@ -181,7 +192,7 @@ def fetch_external_results(client: PeriLabApiClient, job_id: str, finished: bool
         versions[name] = client.download_file(job_id, name, dest, known_version=known)
     state.update(fetched_at=time.time(), complete=finished)
     os.makedirs(os.path.dirname(folder), exist_ok=True)
-    with open(_state_path(job_id), "w") as file:
+    with open(state_path, "w") as file:
         json.dump(state, file)
     return folder
 
@@ -190,6 +201,54 @@ def drop_result_cache(job_id: str) -> None:
     shutil.rmtree(result_cache_dir(job_id), ignore_errors=True)
     if os.path.exists(_state_path(job_id)):
         os.remove(_state_path(job_id))
+
+
+def run_result_dir(run_id: str) -> str:
+    """One folder per batch run (deviation samples), holding every job's output side by side - the layout analyses
+    expect (`<model>_<output>_<n>.csv` next to `<model>_deviations.json`)."""
+    return os.path.join(FileHandler.get_local_simulation_path(), "_runs", safe_segment(run_id))
+
+
+def collect_batch_results(backend: SolverBackend, run_id: str, job_ids: list[str], variants: list[str], finished: bool):
+    """Merges the jobs of a batch run into run_result_dir. Output names are unique per variant ("_<n>" suffix) and the
+    shared inputs (mesh, deviations JSON) are identical in every job, so the first copy of a name wins. Local jobs are
+    symlinked from the shared volume; external ones are downloaded, but only the default deck's ("-1") Exodus file:
+    one per sample would be ~20 MB each. ponytail: sample Exodus files can't be viewed then - fetch on demand if
+    needed."""
+    folder = run_result_dir(run_id)
+    os.makedirs(folder, exist_ok=True)
+    for job_id, variant in zip(job_ids, variants):
+        if backend.shares_local_filesystem:
+            source = os.path.join(FileHandler.get_local_simulation_path(), safe_segment(job_id))
+            for name in os.listdir(source) if os.path.isdir(source) else []:
+                link = os.path.join(folder, name)
+                if not os.path.lexists(link):
+                    os.symlink(os.path.relpath(os.path.join(source, name), folder), link)
+        else:
+            state_path = f"{folder}.{job_id}.json"
+            try:
+                with open(state_path) as file:
+                    owned = set(json.load(file)["versions"])
+            except (OSError, json.JSONDecodeError, KeyError):
+                owned = set()
+
+            def keep(name, owned=owned, variant=variant):
+                if variant != "-1" and name.endswith(".e"):
+                    return False
+                # A shared input another job already brought along isn't downloaded again.
+                return name in owned or not os.path.exists(os.path.join(folder, name))
+
+            fetch_external_results(backend.client(), job_id, finished, folder, state_path, keep)
+    return folder
+
+
+def drop_run_results(run_id: str) -> None:
+    folder = run_result_dir(run_id)
+    shutil.rmtree(folder, ignore_errors=True)
+    parent = os.path.dirname(folder)
+    for name in os.listdir(parent) if os.path.isdir(parent) else []:
+        if name.startswith(os.path.basename(folder) + ".") and name.endswith(".json"):
+            os.remove(os.path.join(parent, name))
 
 
 def external_available() -> bool:

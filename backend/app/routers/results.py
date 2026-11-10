@@ -23,7 +23,7 @@ from ..support.model import loader
 from ..support.model.model_api import AnalysisContext
 from ..support.model.point_cloud import valves_to_dict
 from ..support.results.summary import summarize
-from ..support.solver_backend import fetch_external_results, get_solver_backend
+from ..support.solver_backend import collect_batch_results, fetch_external_results, get_solver_backend
 from .jobs import _can_view_entry, _latest_entry
 
 matplotlib.use("Agg")  # analyses render in worker threads; never an interactive backend
@@ -56,7 +56,14 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
         if not job_ids:
             raise not_found("No run found for this model.")
         backend = get_solver_backend(entry.solver)
-        if backend.shares_local_filesystem:
+        if len(job_ids) > 1:
+            # A batch (deviation samples): every job's output merged into one folder for the analyses.
+            if not backend.shares_local_filesystem:
+                sync_status(db, entry)
+            finished = entry.status not in (JOB_QUEUED, JOB_RUNNING)
+            variants = (entry.job_ids or "-1").split(",")
+            job_folder = collect_batch_results(backend, entry.id, job_ids, variants, finished)
+        elif backend.shares_local_filesystem:
             job_folder = os.path.join(FileHandler.get_local_simulation_path(), job_ids[0])
         else:
             # ponytail: a running external job is re-downloaded on every call; add per-file size/mtime checks if

@@ -40,7 +40,13 @@ from ..support.guest import GUEST_DENIED, user_folder
 from ..support.job_concurrency import count_active_local_jobs
 from ..support.job_queue import cancel_running, enforce_user_quota, perilab_job_ids, submit_job, sync_status
 from ..support.perilab_api_client import PeriLabJob
-from ..support.solver_backend import default_solver, drop_result_cache, external_available, get_solver_backend
+from ..support.solver_backend import (
+    default_solver,
+    drop_result_cache,
+    drop_run_results,
+    external_available,
+    get_solver_backend,
+)
 
 router = APIRouter(tags=["Jobs Methods"])
 
@@ -659,6 +665,7 @@ def delete_model_runs(
 
 def _delete_perilab_jobs(entry: JobQueueEntry) -> None:
     client = get_solver_backend(entry.solver).client()
+    drop_run_results(entry.id)
     for job_id in perilab_job_ids(entry):
         drop_result_cache(job_id)
         try:

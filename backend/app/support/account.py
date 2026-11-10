@@ -29,7 +29,7 @@ from ..db.models import (
 from .file_handler import FileHandler
 from .globals import log
 from .job_queue import cancel_running, perilab_job_ids, sync_status
-from .solver_backend import drop_result_cache, get_solver_backend
+from .solver_backend import drop_result_cache, drop_run_results, get_solver_backend
 
 _ACTIVE = (JOB_QUEUED, JOB_RUNNING)
 
@@ -44,6 +44,7 @@ def delete_account(db: Session, user: User) -> None:
                 cancel_running(db, entry)
         # Results live under simulations/<perilab_job_id>/ or on the external PeriLab server, not in the user
         # folder - delete them with the entry (same as routers/jobs.py delete_run).
+        drop_run_results(entry.id)
         for job_id in perilab_job_ids(entry):
             drop_result_cache(job_id)
             try:

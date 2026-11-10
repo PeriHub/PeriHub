@@ -141,7 +141,12 @@ class ModelWriter:
                             }
 
             for parameter in deviations.parameters:
-                mean = magicattr.get(self.model_data, parameter.id[0])
+                try:
+                    mean = magicattr.get(self.model_data, parameter.id[0])
+                except (KeyError, IndexError, AttributeError) as e:
+                    raise HTTPException(
+                        status_code=422, detail=f"Deviation parameter {parameter.id[0]} not found in the model: {e}"
+                    )
                 value = np.random.normal(mean, parameter.std, deviations.sampleSize)
                 value_list.append(value)
                 for ids in parameter.id:

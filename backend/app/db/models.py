@@ -27,6 +27,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Text,
     UniqueConstraint,
     false,
 )
@@ -281,7 +282,7 @@ class JobQueueEntry(Base):
     # PeriLabSolverBackend.submit's job_ids handling). This is what
     # status/log/cancel calls use to talk to the PeriLab API - there is no
     # more pid.txt/filesystem fallback for local (non-cluster) jobs.
-    perilab_job_id: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    perilab_job_id: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Which PeriLab API the run was submitted to ("local" | "external", support/solver_backend.py) - the user picks
     # per submission, so every later status/log/cancel/result call must go back to the same server.
     solver: Mapped[str] = mapped_column(String(16), nullable=False, default="local", server_default="local")
@@ -296,7 +297,7 @@ class JobQueueEntry(Base):
     # "-1" for a single submission, or comma-separated PeriLab-side variant
     # ids for a batch of "<model>_<id>.yaml" files - see
     # PeriLabSolverBackend.submit.
-    job_ids: Mapped[str] = mapped_column(String(255), nullable=False, default="-1")
+    job_ids: Mapped[str] = mapped_column(Text, nullable=False, default="-1")
 
     submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
