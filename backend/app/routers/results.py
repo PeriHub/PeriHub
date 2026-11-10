@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse, Response
 
 from ..db import base as db_base
-from ..db.models import JobQueueEntry
+from ..db.models import JOB_QUEUED, JOB_RUNNING, JobQueueEntry
 from ..support.base_models import AnalysisRequest, RunSummary
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler, safe_segment
@@ -23,7 +23,7 @@ from ..support.model import loader
 from ..support.model.model_api import AnalysisContext
 from ..support.model.point_cloud import valves_to_dict
 from ..support.results.summary import summarize
-from ..support.solver_backend import get_solver_backend
+from ..support.solver_backend import fetch_external_results, get_solver_backend
 from .jobs import _can_view_entry, _latest_entry
 
 matplotlib.use("Agg")  # analyses render in worker threads; never an interactive backend
@@ -33,15 +33,15 @@ router = APIRouter(prefix="/results", tags=["Results Methods"])
 
 
 def _result_folder(request: Request, model_name: str, model_folder_name: str, run_id: Optional[str]) -> str:
-    """PeriLab writes a job's output to simulations/<perilab_job_id>/. That
-    folder is only readable here when the solver runs locally (shared volume);
-    `run_id` picks the run, else the folder's latest run is used."""
+    """The folder holding a run's output: simulations/<perilab_job_id>/ for the local solver (shared volume), a
+    downloaded copy for an external one (solver_backend.fetch_external_results). `run_id` picks the run, else the
+    folder's latest run is used."""
 
     def not_found(detail: str):
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
 
     if db_base.SessionLocal is None:
-        raise not_found("Results are only available when PeriLab runs locally.")
+        raise not_found("Results need a database to find the run.")
     with db_base.SessionLocal() as db:
         identity = resolve_user(request, db)
         if identity.user is None:
@@ -53,11 +53,17 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
         else:
             entry = _latest_entry(db, identity.user.id, model_name, model_folder_name)
         job_ids = perilab_job_ids(entry) if entry else []
-        if entry is not None and not get_solver_backend(entry.solver).shares_local_filesystem:
-            raise not_found("Results are only available when PeriLab runs locally.")
-    if not job_ids:
-        raise not_found("No run found for this model.")
-    job_folder = os.path.join(FileHandler.get_local_simulation_path(), job_ids[0])
+        if not job_ids:
+            raise not_found("No run found for this model.")
+        backend = get_solver_backend(entry.solver)
+        if backend.shares_local_filesystem:
+            job_folder = os.path.join(FileHandler.get_local_simulation_path(), job_ids[0])
+        else:
+            # ponytail: a running external job is re-downloaded on every call; add per-file size/mtime checks if
+            # live result views of big external runs get slow.
+            sync_status(db, entry)
+            finished = entry.status not in (JOB_QUEUED, JOB_RUNNING)
+            job_folder = fetch_external_results(backend.client(), job_ids[0], finished)
     if not os.path.isdir(job_folder):
         raise not_found("Results can not be found, maybe they are not generated yet.")
     return job_folder

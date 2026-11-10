@@ -16,13 +16,16 @@ without a database, since there is no longer a pid.txt-style filesystem
 signal to fall back on.
 """
 
+import json
 import os
+import shutil
+import time
 
 from ..db import base
 from . import gcode_mesh_cache
 from .admin_settings import instance_setting
 from .deck_guard import check_input_deck
-from .file_handler import safe_segment
+from .file_handler import FileHandler, safe_segment
 from .globals import (
     external_perilab_url,
     local_perilab_api_url,
@@ -137,6 +140,56 @@ def _external_perilab_url() -> str:
         return external_perilab_url
     with base.SessionLocal() as db:
         return instance_setting(db, "external_perilab_url")
+
+
+#: A running external job is re-synced at most this often, however often the result views poll.
+EXTERNAL_REFRESH_SECONDS = 30
+
+
+def result_cache_dir(job_id: str) -> str:
+    """Local copy of an external run's output (the local solver writes straight to simulations/<job_id>/)."""
+    return os.path.join(FileHandler.get_local_simulation_path(), "_external", safe_segment(job_id))
+
+
+def _state_path(job_id: str) -> str:
+    # Next to the folder, not in it, so it never ends up in the result zip.
+    return result_cache_dir(job_id) + ".json"
+
+
+def fetch_external_results(client: PeriLabApiClient, job_id: str, finished: bool) -> str:
+    """Mirrors an external PeriLab job's files into result_cache_dir, so the results endpoints can read them like a
+    local run's. Keeps traffic down: a finished run is synced once and then served from disk, a running one at most
+    every EXTERNAL_REFRESH_SECONDS, and a file whose ETag hasn't changed is never downloaded again."""
+    folder = result_cache_dir(job_id)
+    try:
+        with open(_state_path(job_id)) as file:
+            state = json.load(file)
+    except (OSError, json.JSONDecodeError):
+        state = {"versions": {}, "fetched_at": 0, "complete": False}
+    if state["complete"] or (not finished and time.time() - state["fetched_at"] < EXTERNAL_REFRESH_SECONDS):
+        return folder
+
+    root = os.path.realpath(folder)
+    versions = state["versions"]
+    for name in client.list_files(job_id):
+        dest = os.path.realpath(os.path.join(folder, name))
+        if not dest.startswith(root + os.sep):  # the external server is not trusted with our filesystem
+            log.warning("Skipping result file outside the job folder: %s", name)
+            continue
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        known = versions.get(name) if os.path.exists(dest) else None
+        versions[name] = client.download_file(job_id, name, dest, known_version=known)
+    state.update(fetched_at=time.time(), complete=finished)
+    os.makedirs(os.path.dirname(folder), exist_ok=True)
+    with open(_state_path(job_id), "w") as file:
+        json.dump(state, file)
+    return folder
+
+
+def drop_result_cache(job_id: str) -> None:
+    shutil.rmtree(result_cache_dir(job_id), ignore_errors=True)
+    if os.path.exists(_state_path(job_id)):
+        os.remove(_state_path(job_id))
 
 
 def external_available() -> bool:

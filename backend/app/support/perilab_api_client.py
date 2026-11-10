@@ -241,3 +241,20 @@ class PeriLabApiClient:
 
     def get_file(self, job_id: str, file_path: str) -> bytes:
         return self._request("GET", f"/jobs/{job_id}/files/{file_path}").content
+
+    def download_file(self, job_id: str, file_path: str, dest: str, known_version: str | None = None) -> str | None:
+        """Streams a result file to `dest` (Exodus output can be far too big to hold in memory) and returns its
+        version (ETag, else size + mtime). If that equals `known_version`, the connection is closed after the headers
+        and nothing is downloaded - the PeriLab API's FileResponse doesn't answer If-None-Match with a 304."""
+        with self._request("GET", f"/jobs/{job_id}/files/{file_path}", stream=True) as response:
+            headers = response.headers
+            version = headers.get("etag")
+            if not version and headers.get("content-length") and headers.get("last-modified"):
+                version = f"{headers['content-length']}-{headers['last-modified']}"
+            if version and version == known_version:
+                return version
+            with open(dest + ".part", "wb") as file:
+                for chunk in response.iter_content(chunk_size=1 << 20):
+                    file.write(chunk)
+        os.replace(dest + ".part", dest)  # readers never see a half-written file
+        return version
