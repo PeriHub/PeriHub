@@ -78,7 +78,8 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
 
 @router.post(
     "/analysis",
-    operation_id="run_analysis",
+    operation_id="render_perihub_analysis",
+    openapi_extra={"x-las-async": False},
     response_class=Response,
     responses={200: {"content": {"image/png": {}}, "description": "The analysis image"}},
     dependencies=[Depends(require_non_guest)],
@@ -191,12 +192,14 @@ def get_plot(
     return JSONResponse(content=data)
 
 
-@router.get("/summary", operation_id="get_run_summary", response_model=RunSummary)
+@router.get(
+    "/summary", operation_id="get_perihub_run_summary", response_model=RunSummary, openapi_extra={"x-las-async": False}
+)
 def get_run_summary(run_id: str, request: Request = "") -> RunSummary:
-    """Compact digest of a run's results - call this once get_run reports `results: true`. Per Exodus output: the
-    last written step, its time, min/max of every point variable (vectors also as magnitude) and the global
-    variables; per CSV output: final/min/max of every column; plus the analyses run_analysis can render. While
-    a run is still active this reflects the output written so far (see `status`). Only available when PeriLab
+    """Compact digest of a run's results - call this once get_perihub_run reports `results: true`. Per Exodus output:
+    the last written step, its time, min/max of every point variable (vectors also as magnitude) and the global
+    variables; per CSV output: final/min/max of every column; plus the analyses render_perihub_analysis can render.
+    While a run is still active this reflects the output written so far (see `status`). Only available when PeriLab
     runs locally."""
     result_dir = _result_folder(request, "", "", run_id)
     with db_base.SessionLocal() as db:

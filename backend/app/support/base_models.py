@@ -185,7 +185,7 @@ JobStatus = Literal["queued", "running", "done", "failed", "cancelled"]
 
 
 class RunSubmitted(BaseModel):
-    """A submitted run: poll GET /jobs/{run_id} (`get_run`) until its status is final."""
+    """A submitted run: poll GET /jobs/{run_id} (`get_perihub_run`) until its status is final."""
 
     run_id: str
     status: JobStatus
@@ -201,7 +201,8 @@ class RunDeleted(BaseModel):
 
 
 class GenerateResult(BaseModel):
-    """What generate_model wrote into the model folder; the folder can now be submitted with run_model."""
+    """What generate_perihub_model wrote into the model folder; the folder can now be submitted with
+    run_perihub_simulation."""
 
     model_name: str
     model_folder_name: str
@@ -235,7 +236,7 @@ class ColumnSummary(BaseModel):
 
 class RunSummary(BaseModel):
     """Compact digest of a run's results, small enough to reason about. Heavy data stays behind get_results
-    (Exodus download), get_plot (full CSV series) and run_analysis (PNG)."""
+    (Exodus download), get_plot (full CSV series) and render_perihub_analysis (PNG)."""
 
     run_id: str
     status: JobStatus
@@ -243,7 +244,9 @@ class RunSummary(BaseModel):
     csv: dict[str, dict[str, ColumnSummary]] = Field(
         description="CSV outputs by name: final/min/max of every numeric column over all steps"
     )
-    analyses: list[str] = Field(description="ids of the model's @analysis functions, usable with run_analysis")
+    analyses: list[str] = Field(
+        description="ids of the model's @analysis functions, usable with render_perihub_analysis"
+    )
 
 
 class RunStatus(BaseModel):

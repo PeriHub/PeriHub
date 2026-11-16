@@ -1,6 +1,6 @@
 <script lang="ts">
   import { RefreshCw } from 'lucide-svelte';
-  import { adminGetUsage, adminListJobs, cancelRun } from '$lib/client';
+  import { adminGetUsage, adminListJobs, cancelPerihubRun } from '$lib/client';
   import type { AdminJob, UsageSummary } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import Toggle from '$lib/components/ui/Toggle.svelte';
@@ -23,7 +23,7 @@
 
   async function cancel(job: AdminJob) {
     try {
-      await cancelRun({ runId: job.id });
+      await cancelPerihubRun({ runId: job.id });
       notify.positive(`Cancelled ${job.model_name} of ${job.owner}`);
     } catch (e) {
       notify.apiError(e);

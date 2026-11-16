@@ -84,7 +84,15 @@ def _operations(spec):
 
 def test_workflow_responses_are_typed():
     ops = _operations(app.openapi())
-    for name in ["generate_model", "get_config", "run_model", "cancel_run", "delete_run", "get_plot", "get_run"]:
+    for name in [
+        "generate_perihub_model",
+        "get_perihub_model_config",
+        "run_perihub_simulation",
+        "cancel_perihub_run",
+        "delete_run",
+        "get_plot",
+        "get_perihub_run",
+    ]:
         assert ops[name]["responses"]["200"]["content"]["application/json"]["schema"] != {}, name
     run_status = app.openapi()["components"]["schemas"]["RunStatus"]["properties"]["status"]
     assert run_status["enum"] == ["queued", "running", "done", "failed", "cancelled"]
@@ -154,7 +162,7 @@ def test_auth_schemes_are_declared():
     spec = app.openapi()
     assert set(spec["components"]["securitySchemes"]) == {"APIKeyHeader", "HTTPBearer"}
     assert spec["components"]["securitySchemes"]["APIKeyHeader"]["name"] == "X-Api-Key"
-    assert {"APIKeyHeader": []} in _operations(spec)["run_model"]["security"]
+    assert {"APIKeyHeader": []} in _operations(spec)["run_perihub_simulation"]["security"]
 
 
 def test_agent_operations_exist():
@@ -166,13 +174,29 @@ def test_agent_spec_is_the_typed_workflow_subset():
     ops = _operations(spec)
     assert set(ops) == AGENT_OPERATIONS
     assert spec["servers"] == [{"url": "."}]
-    assert "get_run_summary" in spec["info"]["description"]
+    assert "get_perihub_run_summary" in spec["info"]["description"]
     assert spec["components"]["securitySchemes"]
     for name, op in ops.items():
         assert op.get("description"), name
         for code, response in op["responses"].items():
             if code.startswith("2") and "application/json" in response.get("content", {}):
                 assert response["content"]["application/json"]["schema"] != {}, name
+    # LAS vendor extensions survive the filter: only run_perihub_simulation is a long-running job
+    run = spec["paths"]["/jobs"]["post"]
+    assert run["x-las-async"] is True and run["x-las-job-id-field"] == "run_id"
+    assert run["x-las-status-path"] == "/jobs/{jobId}"
+    assert run["x-las-result-path"] == "/results/summary?run_id={jobId}"
+    assert run["x-las-poll-interval-ms"] == 15000
+    sync = {
+        "get_perihub_run",
+        "get_perihub_run_log",
+        "list_perihub_runs",
+        "cancel_perihub_run",
+        "get_perihub_run_summary",
+        "render_perihub_analysis",
+        "list_perihub_model_analyses",
+    }
+    assert {name for name, op in ops.items() if op.get("x-las-async") is False} == sync
     # the full spec is untouched
     assert "servers" not in app.openapi()
     assert "/openapi.agent.json" not in app.openapi()["paths"]

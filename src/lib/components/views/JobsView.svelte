@@ -11,12 +11,12 @@
   import { downloadFile } from '$lib/utils/download';
   import { api } from '$lib/api/client';
   import {
-    cancelRun as cancelRunApi,
+    cancelPerihubRun as cancelRunApi,
     deleteRun as deleteRunApi,
     deleteModelRuns,
     getRunInput,
-    getValves,
-    listAllRuns
+    getPerihubModelParams,
+    listPerihubRuns
   } from '$lib/client';
   import type { ModelData, RunStatus } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
@@ -86,7 +86,7 @@
   async function fetchJobs() {
     loading = true;
     try {
-      runs = await listAllRuns();
+      runs = await listPerihubRuns();
     } catch (error) {
       notify.apiError(error);
     } finally {
@@ -98,7 +98,7 @@
   // state/toast on every refresh.
   async function refreshJobsSilently() {
     try {
-      runs = await listAllRuns();
+      runs = await listPerihubRuns();
     } catch {
       // A transient failure here shouldn't interrupt the poll or spam toasts.
     }
@@ -127,7 +127,7 @@
       };
       modelStore.modelDataFile = run.model_name;
       try {
-        modelStore.modelParams = await getValves({ modelName: run.model_name });
+        modelStore.modelParams = await getPerihubModelParams({ modelName: run.model_name });
         modelStore.modelParamsFile = run.model_name;
       } catch (error) {
         notify.apiError(error);

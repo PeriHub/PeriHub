@@ -20,7 +20,7 @@
   import { downloadFile } from '$lib/utils/download';
   import { api } from '$lib/api/client';
   import { missingBySection } from '$lib/perilab/missing';
-  import { generateModel as generateModelApi, saveConfig } from '$lib/client';
+  import { generatePerihubModel as generateModelApi, saveConfig } from '$lib/client';
   import type { ModelData, Valves } from '$lib/client';
   import Button, { buttonVariants } from '$lib/components/ui/Button.svelte';
 

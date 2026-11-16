@@ -26,7 +26,7 @@ GRID_FACTOR = 10
 
 @router.post(
     "/workspaces/{model_name}/{model_folder_name}/generate",
-    operation_id="generate_model",
+    operation_id="generate_perihub_model",
     response_model=GenerateResult,
 )
 def generate_model(

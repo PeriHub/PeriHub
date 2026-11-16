@@ -2,9 +2,9 @@
 
 PeriLab evaluates several deck strings as Julia (`Base.eval(Meta.parse(...))`): boundary condition `Value`, compute
 `Equation`, `Influence Function`, `Environmental Temperature`, node-set entries and G-code `Blocks` conditions. Decks
-come from guests (generate_model) and members (write_input_file), so without this check any account - including an
-anonymous guest - gets a shell in the solver container. Checked once at submission (support/solver_backend.py), the
-one place every deck passes, rather than per writer.
+come from guests (generate_perihub_model) and members (write_input_file), so without this check any account -
+including an anonymous guest - gets a shell in the solver container. Checked once at submission
+(support/solver_backend.py), the one place every deck passes, rather than per writer.
 
 A string passes if it is a plain file name (no call possible without parentheses) or an arithmetic/boolean expression
 over the solver's variables and a fixed set of math functions: no strings, backticks, macros, indexing, assignment or

@@ -14,9 +14,9 @@
   import { missingBySection } from '$lib/perilab/missing';
   import {
     getCurrentEnergy,
-    runModel as runModelApi,
-    cancelRun as cancelRunApi,
-    getAnalyses,
+    runPerihubSimulation as runModelApi,
+    cancelPerihubRun as cancelRunApi,
+    listPerihubModelAnalyses,
     type AnalysisInfo,
     type Valve
   } from '$lib/client';
@@ -230,7 +230,7 @@
 
   $effect(() => {
     const modelName = modelStore.selectedModel.file;
-    getAnalyses({ modelName })
+    listPerihubModelAnalyses({ modelName })
       .then((list) => {
         if (modelStore.selectedModel.file === modelName) analyses = list;
       })

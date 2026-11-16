@@ -547,7 +547,7 @@ export const $BlockFunction = {
     title: 'BlockFunction'
 } as const;
 
-export const $Body_generate_model = {
+export const $Body_generate_perihub_model = {
     properties: {
         data: {
             '$ref': '#/components/schemas/ModelData'
@@ -558,7 +558,7 @@ export const $Body_generate_model = {
     },
     type: 'object',
     required: ['data', 'valves'],
-    title: 'Body_generate_model'
+    title: 'Body_generate_perihub_model'
 } as const;
 
 export const $Body_preview_model = {
@@ -1309,7 +1309,7 @@ export const $GenerateResult = {
     type: 'object',
     required: ['model_name', 'model_folder_name', 'blocks'],
     title: 'GenerateResult',
-    description: 'What generate_model wrote into the model folder; the folder can now be submitted with run_model.'
+    description: 'What generate_perihub_model wrote into the model folder; the folder can now be submitted with run_perihub_simulation.'
 } as const;
 
 export const $HTTPValidationError = {
@@ -2585,7 +2585,7 @@ export const $RunSubmitted = {
     type: 'object',
     required: ['run_id', 'status'],
     title: 'RunSubmitted',
-    description: 'A submitted run: poll GET /jobs/{run_id} (`get_run`) until its status is final.'
+    description: 'A submitted run: poll GET /jobs/{run_id} (`get_perihub_run`) until its status is final.'
 } as const;
 
 export const $RunSummary = {
@@ -2623,14 +2623,14 @@ export const $RunSummary = {
             },
             type: 'array',
             title: 'Analyses',
-            description: "ids of the model's @analysis functions, usable with run_analysis"
+            description: "ids of the model's @analysis functions, usable with render_perihub_analysis"
         }
     },
     type: 'object',
     required: ['run_id', 'status', 'outputs', 'csv', 'analyses'],
     title: 'RunSummary',
     description: `Compact digest of a run's results, small enough to reason about. Heavy data stays behind get_results
-(Exodus download), get_plot (full CSV series) and run_analysis (PNG).`
+(Exodus download), get_plot (full CSV series) and render_perihub_analysis (PNG).`
 } as const;
 
 export const $SignupRequest = {

@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GenerateModelData, GenerateModelResponse, PreviewModelData, PreviewModelResponse, GetModelsData, GetModelsResponse, AddModelData, AddModelResponse, GetValvesData, GetValvesResponse, GetAnalysesData, GetAnalysesResponse, GetConfigData, GetConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, ViewInputFileData, ViewInputFileResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunModelData, RunModelResponse, DeleteModelRunsData, DeleteModelRunsResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListAllRunsResponse, StreamRunLogData, StreamRunLogResponse, GetRunData, GetRunResponse, DeleteRunData, DeleteRunResponse, GetRunLogData, GetRunLogResponse, GetRunInputData, GetRunInputResponse, CancelRunData, CancelRunResponse, RunAnalysisData, RunAnalysisResponse, GetPlotData, GetPlotResponse, GetRunSummaryData, GetRunSummaryResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, UpdateAccountSettingsData, UpdateAccountSettingsResponse, ChangePasswordData, ChangePasswordResponse, ForgotPasswordData, ForgotPasswordResponse, ResetPasswordData, ResetPasswordResponse, DeleteAccountData, DeleteAccountResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GeneratePerihubModelData, GeneratePerihubModelResponse, PreviewModelData, PreviewModelResponse, ListPerihubModelsData, ListPerihubModelsResponse, AddModelData, AddModelResponse, GetPerihubModelParamsData, GetPerihubModelParamsResponse, ListPerihubModelAnalysesData, ListPerihubModelAnalysesResponse, GetPerihubModelConfigData, GetPerihubModelConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, GetPerihubInputDeckData, GetPerihubInputDeckResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunPerihubSimulationData, RunPerihubSimulationResponse, DeleteModelRunsData, DeleteModelRunsResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListPerihubRunsResponse, StreamRunLogData, StreamRunLogResponse, GetPerihubRunData, GetPerihubRunResponse, DeleteRunData, DeleteRunResponse, GetPerihubRunLogData, GetPerihubRunLogResponse, GetRunInputData, GetRunInputResponse, CancelPerihubRunData, CancelPerihubRunResponse, RenderPerihubAnalysisData, RenderPerihubAnalysisResponse, GetPlotData, GetPlotResponse, GetPerihubRunSummaryData, GetPerihubRunSummaryResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, UpdateAccountSettingsData, UpdateAccountSettingsResponse, ChangePasswordData, ChangePasswordResponse, ForgotPasswordData, ForgotPasswordResponse, ResetPasswordData, ResetPasswordResponse, DeleteAccountData, DeleteAccountResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -18,7 +18,7 @@ import type { GenerateModelData, GenerateModelResponse, PreviewModelData, Previe
  * @returns GenerateResult Successful Response
  * @throws ApiError
  */
-export const generateModel = (data: GenerateModelData): CancelablePromise<GenerateModelResponse> => { return __request(OpenAPI, {
+export const generatePerihubModel = (data: GeneratePerihubModelData): CancelablePromise<GeneratePerihubModelResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/workspaces/{model_name}/{model_folder_name}/generate',
     path: {
@@ -71,7 +71,7 @@ export const previewModel = (data: PreviewModelData): CancelablePromise<PreviewM
  * @returns unknown Successful Response
  * @throws ApiError
  */
-export const getModels = (data: GetModelsData = {}): CancelablePromise<GetModelsResponse> => { return __request(OpenAPI, {
+export const listPerihubModels = (data: ListPerihubModelsData = {}): CancelablePromise<ListPerihubModelsResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/models',
     query: {
@@ -114,7 +114,7 @@ export const addModel = (data: AddModelData): CancelablePromise<AddModelResponse
  * @returns Valves Successful Response
  * @throws ApiError
  */
-export const getValves = (data: GetValvesData): CancelablePromise<GetValvesResponse> => { return __request(OpenAPI, {
+export const getPerihubModelParams = (data: GetPerihubModelParamsData): CancelablePromise<GetPerihubModelParamsResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/models/{model_name}/params',
     path: {
@@ -133,7 +133,7 @@ export const getValves = (data: GetValvesData): CancelablePromise<GetValvesRespo
  * @returns AnalysisInfo Successful Response
  * @throws ApiError
  */
-export const getAnalyses = (data: GetAnalysesData): CancelablePromise<GetAnalysesResponse> => { return __request(OpenAPI, {
+export const listPerihubModelAnalyses = (data: ListPerihubModelAnalysesData): CancelablePromise<ListPerihubModelAnalysesResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/models/{model_name}/analyses',
     path: {
@@ -147,13 +147,13 @@ export const getAnalyses = (data: GetAnalysesData): CancelablePromise<GetAnalyse
 /**
  * Get Config
  * A model's default ModelData config (`<Name>.json`); a built-in model wins over an own model of the same name.
- * Edit it and send it as `data` to generate_model and as the body of run_model.
+ * Edit it and send it as `data` to generate_perihub_model and as the body of run_perihub_simulation.
  * @param data The data for the request.
  * @param data.modelName
  * @returns ModelData Successful Response
  * @throws ApiError
  */
-export const getConfig = (data: GetConfigData): CancelablePromise<GetConfigResponse> => { return __request(OpenAPI, {
+export const getPerihubModelConfig = (data: GetPerihubModelConfigData): CancelablePromise<GetPerihubModelConfigResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/models/{model_name}/config',
     path: {
@@ -270,7 +270,7 @@ export const getWorkspaceFile = (data: GetWorkspaceFileData): CancelablePromise<
  * @returns string Successful Response
  * @throws ApiError
  */
-export const viewInputFile = (data: ViewInputFileData): CancelablePromise<ViewInputFileResponse> => { return __request(OpenAPI, {
+export const getPerihubInputDeck = (data: GetPerihubInputDeckData): CancelablePromise<GetPerihubInputDeckResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/workspaces/{model_name}/{model_folder_name}/input-deck',
     path: {
@@ -405,7 +405,7 @@ export const uploadFiles = (data: UploadFilesData): CancelablePromise<UploadFile
  * Run Model
  * Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. Requires a
  * database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
- * offline, 404 when this folder already has an active run. Poll GET /jobs/{run_id} (get_run) with the returned
+ * offline, 404 when this folder already has an active run. Poll GET /jobs/{run_id} (get_perihub_run) with the returned
  * run_id.
  * @param data The data for the request.
  * @param data.requestBody
@@ -417,7 +417,7 @@ export const uploadFiles = (data: UploadFilesData): CancelablePromise<UploadFile
  * @returns RunSubmitted Successful Response
  * @throws ApiError
  */
-export const runModel = (data: RunModelData): CancelablePromise<RunModelResponse> => { return __request(OpenAPI, {
+export const runPerihubSimulation = (data: RunPerihubSimulationData): CancelablePromise<RunPerihubSimulationResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/jobs',
     query: {
@@ -510,7 +510,7 @@ export const getStatus = (data: GetStatusData): CancelablePromise<GetStatusRespo
  * @returns RunStatus Successful Response
  * @throws ApiError
  */
-export const listAllRuns = (): CancelablePromise<ListAllRunsResponse> => { return __request(OpenAPI, {
+export const listPerihubRuns = (): CancelablePromise<ListPerihubRunsResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/jobs/runs'
 }); };
@@ -542,16 +542,16 @@ export const streamRunLog = (data: StreamRunLogData): CancelablePromise<StreamRu
 
 /**
  * Get Run
- * Live status of one run (synced with PeriLab first). Poll this with the `run_id` from `run_model` until
+ * Live status of one run (synced with PeriLab first). Poll this with the `run_id` from `run_perihub_simulation` until
  * `status` is final: `queued`/`running` are active; `done`, `failed` and `cancelled` are final. `results` is
- * true once Exodus output exists (then call `get_run_summary`); on `failed`, `error` holds the reason and
- * `get_run_log` the solver output.
+ * true once Exodus output exists (then call `get_perihub_run_summary`); on `failed`, `error` holds the reason and
+ * `get_perihub_run_log` the solver output.
  * @param data The data for the request.
  * @param data.runId
  * @returns RunStatus Successful Response
  * @throws ApiError
  */
-export const getRun = (data: GetRunData): CancelablePromise<GetRunResponse> => { return __request(OpenAPI, {
+export const getPerihubRun = (data: GetPerihubRunData): CancelablePromise<GetPerihubRunResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/jobs/{run_id}',
     path: {
@@ -595,7 +595,7 @@ export const deleteRun = (data: DeleteRunData): CancelablePromise<DeleteRunRespo
  * @returns string The end of the run's log
  * @throws ApiError
  */
-export const getRunLog = (data: GetRunLogData): CancelablePromise<GetRunLogResponse> => { return __request(OpenAPI, {
+export const getPerihubRunLog = (data: GetPerihubRunLogData): CancelablePromise<GetPerihubRunLogResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/jobs/{run_id}/log',
     path: {
@@ -640,7 +640,7 @@ export const getRunInput = (data: GetRunInputData): CancelablePromise<GetRunInpu
  * @returns RunCancelled Successful Response
  * @throws ApiError
  */
-export const cancelRun = (data: CancelRunData): CancelablePromise<CancelRunResponse> => { return __request(OpenAPI, {
+export const cancelPerihubRun = (data: CancelPerihubRunData): CancelablePromise<CancelPerihubRunResponse> => { return __request(OpenAPI, {
     method: 'PUT',
     url: '/jobs/{run_id}/cancel',
     path: {
@@ -663,7 +663,7 @@ export const cancelRun = (data: CancelRunData): CancelablePromise<CancelRunRespo
  * @returns unknown The analysis image
  * @throws ApiError
  */
-export const runAnalysis = (data: RunAnalysisData): CancelablePromise<RunAnalysisResponse> => { return __request(OpenAPI, {
+export const renderPerihubAnalysis = (data: RenderPerihubAnalysisData): CancelablePromise<RenderPerihubAnalysisResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/results/analysis',
     query: {
@@ -709,9 +709,9 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
 
 /**
  * Get Run Summary
- * Compact digest of a run's results - call this once get_run reports `results: true`. Per Exodus output: the
+ * Compact digest of a run's results - call this once get_perihub_run reports `results: true`. Per Exodus output: the
  * last written step, its time, min/max of every point variable (vectors also as magnitude) and the global
- * variables; per CSV output: final/min/max of every column; plus the analyses run_analysis can render. While
+ * variables; per CSV output: final/min/max of every column; plus the analyses render_perihub_analysis can render. While
  * a run is still active this reflects the output written so far (see `status`). Only available when PeriLab
  * runs locally.
  * @param data The data for the request.
@@ -719,7 +719,7 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
  * @returns RunSummary Successful Response
  * @throws ApiError
  */
-export const getRunSummary = (data: GetRunSummaryData): CancelablePromise<GetRunSummaryResponse> => { return __request(OpenAPI, {
+export const getPerihubRunSummary = (data: GetPerihubRunSummaryData): CancelablePromise<GetPerihubRunSummaryResponse> => { return __request(OpenAPI, {
     method: 'GET',
     url: '/results/summary',
     query: {
@@ -1439,7 +1439,7 @@ export const adminUpdateUser = (data: AdminUpdateUserData): CancelablePromise<Ad
 
 /**
  * List Jobs
- * The organization's runs across all users, newest first (max 500). Cancel via `cancel_run`.
+ * The organization's runs across all users, newest first (max 500). Cancel via `cancel_perihub_run`.
  * @param data The data for the request.
  * @param data.activeOnly
  * @returns AdminJob Successful Response

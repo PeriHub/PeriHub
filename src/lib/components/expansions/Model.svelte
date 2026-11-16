@@ -6,7 +6,7 @@
   import { bus } from '$lib/utils/bus';
   import { notify } from '$lib/utils/notify';
   import { FileUp, X } from 'lucide-svelte';
-  import { getModels, getJobFolders } from '$lib/client';
+  import { listPerihubModels, getJobFolders } from '$lib/client';
   import type { Discretization } from '$lib/client';
   import { api } from '$lib/api/client';
   import { refreshModelFromBackend } from '$lib/utils/modelSync';
@@ -140,7 +140,7 @@
   onMount(() => {
     bus.on('getJobFolders' as never, _getJobFolders);
     (async () => {
-      modelStore.availableModels = await getModels();
+      modelStore.availableModels = await listPerihubModels();
       await _getJobFolders();
     })();
     return () => bus.off('getJobFolders' as never, _getJobFolders);

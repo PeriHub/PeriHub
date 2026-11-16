@@ -143,7 +143,7 @@ export type BlockFunction = {
     function: string;
 };
 
-export type Body_generate_model = {
+export type Body_generate_perihub_model = {
     data: ModelData;
     valves: Valves;
 };
@@ -305,7 +305,7 @@ export type Gcode = {
 };
 
 /**
- * What generate_model wrote into the model folder; the folder can now be submitted with run_model.
+ * What generate_perihub_model wrote into the model folder; the folder can now be submitted with run_perihub_simulation.
  */
 export type GenerateResult = {
     model_name: string;
@@ -595,7 +595,7 @@ export type RunStatus = {
 export type status = 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
 
 /**
- * A submitted run: poll GET /jobs/{run_id} (`get_run`) until its status is final.
+ * A submitted run: poll GET /jobs/{run_id} (`get_perihub_run`) until its status is final.
  */
 export type RunSubmitted = {
     run_id: string;
@@ -605,7 +605,7 @@ export type RunSubmitted = {
 
 /**
  * Compact digest of a run's results, small enough to reason about. Heavy data stays behind get_results
- * (Exodus download), get_plot (full CSV series) and run_analysis (PNG).
+ * (Exodus download), get_plot (full CSV series) and render_perihub_analysis (PNG).
  */
 export type RunSummary = {
     run_id: string;
@@ -620,7 +620,7 @@ export type RunSummary = {
         };
     };
     /**
-     * ids of the model's @analysis functions, usable with run_analysis
+     * ids of the model's @analysis functions, usable with render_perihub_analysis
      */
     analyses: Array<(string)>;
 };
@@ -737,13 +737,13 @@ export type VersionData = {
     perilab_latest: string;
 };
 
-export type GenerateModelData = {
+export type GeneratePerihubModelData = {
     modelFolderName: string;
     modelName: string;
-    requestBody: Body_generate_model;
+    requestBody: Body_generate_perihub_model;
 };
 
-export type GenerateModelResponse = GenerateResult;
+export type GeneratePerihubModelResponse = GenerateResult;
 
 export type PreviewModelData = {
     modelName: string;
@@ -752,12 +752,12 @@ export type PreviewModelData = {
 
 export type PreviewModelResponse = PreviewResponse;
 
-export type GetModelsData = {
+export type ListPerihubModelsData = {
     ownOnly?: boolean;
     verify?: boolean;
 };
 
-export type GetModelsResponse = Array<{
+export type ListPerihubModelsResponse = Array<{
     [key: string]: unknown;
 }>;
 
@@ -769,23 +769,23 @@ export type AddModelData = {
 
 export type AddModelResponse = string;
 
-export type GetValvesData = {
+export type GetPerihubModelParamsData = {
     modelName: string;
 };
 
-export type GetValvesResponse = Valves;
+export type GetPerihubModelParamsResponse = Valves;
 
-export type GetAnalysesData = {
+export type ListPerihubModelAnalysesData = {
     modelName: string;
 };
 
-export type GetAnalysesResponse = Array<AnalysisInfo>;
+export type ListPerihubModelAnalysesResponse = Array<AnalysisInfo>;
 
-export type GetConfigData = {
+export type GetPerihubModelConfigData = {
     modelName: string;
 };
 
-export type GetConfigResponse = ModelData;
+export type GetPerihubModelConfigResponse = ModelData;
 
 export type SaveConfigData = {
     modelName: string;
@@ -818,12 +818,12 @@ export type GetWorkspaceFileData = {
 
 export type GetWorkspaceFileResponse = unknown;
 
-export type ViewInputFileData = {
+export type GetPerihubInputDeckData = {
     modelFolderName: string;
     modelName: string;
 };
 
-export type ViewInputFileResponse = string;
+export type GetPerihubInputDeckResponse = string;
 
 export type WriteInputFileData = {
     inputString: string;
@@ -862,7 +862,7 @@ export type UploadFilesData = {
 
 export type UploadFilesResponse = string;
 
-export type RunModelData = {
+export type RunPerihubSimulationData = {
     jobIds?: string | null;
     modelFolderName?: string;
     modelName?: string;
@@ -874,7 +874,7 @@ export type RunModelData = {
     verbose?: boolean;
 };
 
-export type RunModelResponse = RunSubmitted;
+export type RunPerihubSimulationResponse = RunSubmitted;
 
 export type DeleteModelRunsData = {
     /**
@@ -901,7 +901,7 @@ export type GetStatusData = {
 
 export type GetStatusResponse = Status;
 
-export type ListAllRunsResponse = Array<RunStatus>;
+export type ListPerihubRunsResponse = Array<RunStatus>;
 
 export type StreamRunLogData = {
     debug?: boolean;
@@ -910,11 +910,11 @@ export type StreamRunLogData = {
 
 export type StreamRunLogResponse = unknown;
 
-export type GetRunData = {
+export type GetPerihubRunData = {
     runId: string;
 };
 
-export type GetRunResponse = RunStatus;
+export type GetPerihubRunResponse = RunStatus;
 
 export type DeleteRunData = {
     runId: string;
@@ -922,7 +922,7 @@ export type DeleteRunData = {
 
 export type DeleteRunResponse = RunDeleted;
 
-export type GetRunLogData = {
+export type GetPerihubRunLogData = {
     debug?: boolean;
     runId: string;
     /**
@@ -931,7 +931,7 @@ export type GetRunLogData = {
     tail?: number;
 };
 
-export type GetRunLogResponse = string;
+export type GetPerihubRunLogResponse = string;
 
 export type GetRunInputData = {
     runId: string;
@@ -939,13 +939,13 @@ export type GetRunInputData = {
 
 export type GetRunInputResponse = string;
 
-export type CancelRunData = {
+export type CancelPerihubRunData = {
     runId: string;
 };
 
-export type CancelRunResponse = RunCancelled;
+export type CancelPerihubRunResponse = RunCancelled;
 
-export type RunAnalysisData = {
+export type RenderPerihubAnalysisData = {
     analysisId: string;
     modelFolderName?: string;
     modelName: string;
@@ -953,7 +953,7 @@ export type RunAnalysisData = {
     runId?: string | null;
 };
 
-export type RunAnalysisResponse = unknown;
+export type RenderPerihubAnalysisResponse = unknown;
 
 export type GetPlotData = {
     deviationsEnabled?: boolean;
@@ -967,11 +967,11 @@ export type GetPlotResponse = {
     [key: string]: Array<(number | string)>;
 };
 
-export type GetRunSummaryData = {
+export type GetPerihubRunSummaryData = {
     runId: string;
 };
 
-export type GetRunSummaryResponse = RunSummary;
+export type GetPerihubRunSummaryResponse = RunSummary;
 
 export type GetResultsData = {
     allData?: boolean;
@@ -1218,7 +1218,7 @@ export type GetVersionResponse = VersionData;
 export type $OpenApiTs = {
     '/workspaces/{model_name}/{model_folder_name}/generate': {
         post: {
-            req: GenerateModelData;
+            req: GeneratePerihubModelData;
             res: {
                 /**
                  * Successful Response
@@ -1248,7 +1248,7 @@ export type $OpenApiTs = {
     };
     '/models': {
         get: {
-            req: GetModelsData;
+            req: ListPerihubModelsData;
             res: {
                 /**
                  * Successful Response
@@ -1278,7 +1278,7 @@ export type $OpenApiTs = {
     };
     '/models/{model_name}/params': {
         get: {
-            req: GetValvesData;
+            req: GetPerihubModelParamsData;
             res: {
                 /**
                  * Successful Response
@@ -1293,7 +1293,7 @@ export type $OpenApiTs = {
     };
     '/models/{model_name}/analyses': {
         get: {
-            req: GetAnalysesData;
+            req: ListPerihubModelAnalysesData;
             res: {
                 /**
                  * Successful Response
@@ -1308,7 +1308,7 @@ export type $OpenApiTs = {
     };
     '/models/{model_name}/config': {
         get: {
-            req: GetConfigData;
+            req: GetPerihubModelConfigData;
             res: {
                 /**
                  * Successful Response
@@ -1381,7 +1381,7 @@ export type $OpenApiTs = {
     };
     '/workspaces/{model_name}/{model_folder_name}/input-deck': {
         get: {
-            req: ViewInputFileData;
+            req: GetPerihubInputDeckData;
             res: {
                 /**
                  * Successful Response
@@ -1467,7 +1467,7 @@ export type $OpenApiTs = {
     };
     '/jobs': {
         post: {
-            req: RunModelData;
+            req: RunPerihubSimulationData;
             res: {
                 /**
                  * Successful Response
@@ -1552,7 +1552,7 @@ export type $OpenApiTs = {
     };
     '/jobs/{run_id}': {
         get: {
-            req: GetRunData;
+            req: GetPerihubRunData;
             res: {
                 /**
                  * Successful Response
@@ -1580,7 +1580,7 @@ export type $OpenApiTs = {
     };
     '/jobs/{run_id}/log': {
         get: {
-            req: GetRunLogData;
+            req: GetPerihubRunLogData;
             res: {
                 /**
                  * The end of the run's log
@@ -1610,7 +1610,7 @@ export type $OpenApiTs = {
     };
     '/jobs/{run_id}/cancel': {
         put: {
-            req: CancelRunData;
+            req: CancelPerihubRunData;
             res: {
                 /**
                  * Successful Response
@@ -1625,7 +1625,7 @@ export type $OpenApiTs = {
     };
     '/results/analysis': {
         post: {
-            req: RunAnalysisData;
+            req: RenderPerihubAnalysisData;
             res: {
                 /**
                  * The analysis image
@@ -1657,7 +1657,7 @@ export type $OpenApiTs = {
     };
     '/results/summary': {
         get: {
-            req: GetRunSummaryData;
+            req: GetPerihubRunSummaryData;
             res: {
                 /**
                  * Successful Response

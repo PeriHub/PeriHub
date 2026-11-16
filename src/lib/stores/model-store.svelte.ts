@@ -1,4 +1,4 @@
-import type { ModelData, Valves, GetModelsResponse } from '$lib/client';
+import type { ModelData, Valves, ListPerihubModelsResponse } from '$lib/client';
 import { $Valves as ValvesSchema } from '$lib/client';
 import defaultModel from '../../../backend/app/assets/default_model.json';
 import { isCurrentShape } from '$lib/utils/model-shape';
@@ -10,7 +10,7 @@ function browser() {
 
 class ModelStore {
   modelData = $state<ModelData>(structuredClone(defaultModel) as ModelData);
-  availableModels = $state<GetModelsResponse>([]);
+  availableModels = $state<ListPerihubModelsResponse>([]);
   // @ts-expect-error the generated schema's `example` is typed loosely
   modelParams = $state<Valves>({ ...ValvesSchema.example });
   selectedModel = $state<{ title: string; file: string }>({

@@ -4,9 +4,9 @@
   import { authStore } from '$lib/stores/auth-store.svelte';
   import { notify } from '$lib/utils/notify';
   import {
-    getModels,
+    listPerihubModels,
     getOwnModelFile,
-    getConfig,
+    getPerihubModelConfig,
     saveConfig,
     saveModelFile,
     addModel,
@@ -64,7 +64,7 @@
   const editorClass = 'h-[calc(100vh-14rem)] max-h-[45rem] min-h-[24rem]';
 
   async function fetchModels() {
-    modelList = (await getModels({ ownOnly: true, verify: true })) as OwnModel[];
+    modelList = (await listPerihubModels({ ownOnly: true, verify: true })) as OwnModel[];
     loaded = true;
   }
 
@@ -84,7 +84,7 @@
       notify.apiError(error);
     }
     try {
-      configText = JSON.stringify(await getConfig({ modelName: model.file }), null, 2);
+      configText = JSON.stringify(await getPerihubModelConfig({ modelName: model.file }), null, 2);
     } catch {
       configText = '';
     }

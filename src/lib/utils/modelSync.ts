@@ -1,4 +1,4 @@
-import { getConfig, getValves } from '$lib/client';
+import { getPerihubModelConfig, getPerihubModelParams } from '$lib/client';
 import type { ModelData } from '$lib/client';
 import { modelStore } from '$lib/stores/model-store.svelte';
 import { notify } from './notify';
@@ -13,7 +13,7 @@ import { notify } from './notify';
  * leaving the previous model's config in place until a manual reset.
  */
 export function refreshModelFromBackend(modelFile: string) {
-  getConfig({ modelName: modelFile })
+  getPerihubModelConfig({ modelName: modelFile })
     .then((response) => {
       const data = JSON.parse(JSON.stringify(response));
       modelStore.modelData = { ...modelStore.modelData, ...data } as ModelData;
@@ -21,7 +21,7 @@ export function refreshModelFromBackend(modelFile: string) {
     })
     .catch((error) => notify.apiError(error));
 
-  getValves({ modelName: modelFile })
+  getPerihubModelParams({ modelName: modelFile })
     .then((response) => {
       modelStore.modelParams = structuredClone(response);
       modelStore.modelParamsFile = modelFile;

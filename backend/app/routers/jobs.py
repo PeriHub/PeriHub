@@ -50,6 +50,9 @@ from ..support.solver_backend import (
 
 router = APIRouter(tags=["Jobs Methods"])
 
+# Tells LAS these return right away; it guesses "async" from names containing run/job/status.
+SYNC = {"x-las-async": False}
+
 
 def _run_status_dict(
     entry: Optional[JobQueueEntry], job: Optional[PeriLabJob] = None, check_files: bool = True
@@ -225,7 +228,20 @@ def _folder_summary(db: Session, request: Request, model_name: str, model_folder
     return result
 
 
-@router.post("/jobs", operation_id="run_model", response_model=RunSubmitted)
+@router.post(
+    "/jobs",
+    operation_id="run_perihub_simulation",
+    response_model=RunSubmitted,
+    # LAS (workflow tool) vendor extensions: a long-running job, polled via get_perihub_run, result via
+    # get_perihub_run_summary.
+    openapi_extra={
+        "x-las-async": True,
+        "x-las-job-id-field": "run_id",
+        "x-las-status-path": "/jobs/{jobId}",
+        "x-las-result-path": "/results/summary?run_id={jobId}",
+        "x-las-poll-interval-ms": 15000,
+    },
+)
 async def run_model(
     model_data: ModelData,
     model_name: str = "Dogbone",
@@ -240,7 +256,7 @@ async def run_model(
 ):
     """Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. Requires a
     database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
-    offline, 404 when this folder already has an active run. Poll GET /jobs/{run_id} (get_run) with the returned
+    offline, 404 when this folder already has an active run. Poll GET /jobs/{run_id} (get_perihub_run) with the returned
     run_id."""
     # user_folder() already 401s without a login, and the `db` dependency above
     # 500s without a DATABASE_URL - so by this point the caller is always a
@@ -423,7 +439,7 @@ def _saved_model(username: str, model_name: str, model_folder_name: str) -> Opti
 
 
 # Declared before GET /{run_id} so "runs" isn't captured as a run id.
-@router.get("/jobs/runs", operation_id="list_all_runs", response_model=List[RunStatus])
+@router.get("/jobs/runs", operation_id="list_perihub_runs", response_model=List[RunStatus], openapi_extra=SYNC)
 def list_all_runs(request: Request, db: Session = Depends(get_db)):
     """Every run the logged-in user has submitted, across all models,
     ordered by model_name, model_folder_name and newest first. Each carries
@@ -524,19 +540,20 @@ def stream_run_log(
     )
 
 
-@router.get("/jobs/{run_id}", operation_id="get_run", response_model=RunStatus)
+@router.get("/jobs/{run_id}", operation_id="get_perihub_run", response_model=RunStatus, openapi_extra=SYNC)
 def get_run(run_id: str, request: Request, db: Session = Depends(get_db)) -> RunStatus:
-    """Live status of one run (synced with PeriLab first). Poll this with the `run_id` from `run_model` until
-    `status` is final: `queued`/`running` are active; `done`, `failed` and `cancelled` are final. `results` is
-    true once Exodus output exists (then call `get_run_summary`); on `failed`, `error` holds the reason and
-    `get_run_log` the solver output."""
+    """Live status of one run (synced with PeriLab first). Poll this with the `run_id` from `run_perihub_simulation`
+    until `status` is final: `queued`/`running` are active; `done`, `failed` and `cancelled` are final. `results` is
+    true once Exodus output exists (then call `get_perihub_run_summary`); on `failed`, `error` holds the reason and
+    `get_perihub_run_log` the solver output."""
     entry = _viewable_entry(db, request, run_id)
     return _to_run_status(entry, sync_status(db, entry))
 
 
 @router.get(
     "/jobs/{run_id}/log",
-    operation_id="get_run_log",
+    operation_id="get_perihub_run_log",
+    openapi_extra=SYNC,
     response_class=PlainTextResponse,
     responses={200: {"content": {"text/plain": {}}, "description": "The end of the run's log"}},
 )
@@ -676,7 +693,7 @@ def _delete_perilab_jobs(entry: JobQueueEntry) -> None:
             log.warning("Could not delete PeriLab job %s of run %s: %s", job_id, entry.id, e.detail)
 
 
-@router.put("/jobs/{run_id}/cancel", operation_id="cancel_run", response_model=RunCancelled)
+@router.put("/jobs/{run_id}/cancel", operation_id="cancel_perihub_run", response_model=RunCancelled, openapi_extra=SYNC)
 def cancel_run(run_id: str, request: Request, db: Session = Depends(get_db)):
     """Cancels a queued or running run by its id (a model folder can have several runs, so cancelling
     names the run, not the folder). 409 if the run is no longer active."""

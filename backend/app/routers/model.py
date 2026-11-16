@@ -28,7 +28,7 @@ OWN_MODELS = loader.MODEL_DIRS["own"]
 ASSETS = loader.APP_DIR / "assets"
 
 
-@router.get("/models", operation_id="get_models")
+@router.get("/models", operation_id="list_perihub_models")
 def get_models(own_only: bool = False, verify: bool = False, request: Request = "") -> list[dict]:
     """Built-in models, then own models (an own model named like a built-in one is shadowed
     by it everywhere, so it isn't listed twice).
@@ -48,7 +48,7 @@ def get_models(own_only: bool = False, verify: bool = False, request: Request = 
     return own
 
 
-@router.get("/models/{model_name}/params", operation_id="get_valves")
+@router.get("/models/{model_name}/params", operation_id="get_perihub_model_params")
 def get_valves(model_name: str) -> Valves:
     """The model's parameters as UI fields."""
     try:
@@ -58,7 +58,9 @@ def get_valves(model_name: str) -> Valves:
     return {"valves": [param.valve() for param in model_class.params()]}
 
 
-@router.get("/models/{model_name}/analyses", operation_id="get_analyses")
+@router.get(
+    "/models/{model_name}/analyses", operation_id="list_perihub_model_analyses", openapi_extra={"x-las-async": False}
+)
 def get_analyses(model_name: str) -> list[AnalysisInfo]:
     """The model's @analysis functions (result images) and their parameters; [] if none."""
     try:
@@ -76,10 +78,10 @@ def get_analyses(model_name: str) -> list[AnalysisInfo]:
     ]
 
 
-@router.get("/models/{model_name}/config", operation_id="get_config", response_model=ModelData)
+@router.get("/models/{model_name}/config", operation_id="get_perihub_model_config", response_model=ModelData)
 def get_config(model_name: str = "Dogbone") -> JSONResponse:
     """A model's default ModelData config (`<Name>.json`); a built-in model wins over an own model of the same name.
-    Edit it and send it as `data` to generate_model and as the body of run_model."""
+    Edit it and send it as `data` to generate_perihub_model and as the body of run_perihub_simulation."""
 
     safe_segment(model_name)
     config_path = os.path.join(
@@ -236,7 +238,7 @@ def get_workspace_file(model_name: str, model_folder_name: str, filename: str, r
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{filename} not found")
 
 
-@router.get("/workspaces/{model_name}/{model_folder_name}/input-deck", operation_id="view_input_file")
+@router.get("/workspaces/{model_name}/{model_folder_name}/input-deck", operation_id="get_perihub_input_deck")
 def view_input_file(
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",

@@ -10,7 +10,7 @@
   import { getAuthHeaders } from '$lib/auth/oauth';
   import {
     getStatus,
-    viewInputFile as viewInputFileApi,
+    getPerihubInputDeck as viewInputFileApi,
     writeInputFile as writeInputFileApi,
     OpenAPI
   } from '$lib/client';

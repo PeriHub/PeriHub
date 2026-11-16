@@ -130,7 +130,8 @@ app = FastAPI(
     lifespan=lifespan,
     version="4.0.0",
     dependencies=[Security(_api_key), Security(_bearer)],
-    # ModelData is both a request body and get_config's response; keep one schema instead of -Input/-Output.
+    # ModelData is both a request body and get_perihub_model_config's response; keep one schema instead of
+    # -Input/-Output.
     separate_input_output_schemas=False,
 )
 
@@ -192,30 +193,31 @@ async def healthcheck():
 # The operations a workflow agent needs; everything else (admin, teams, 3D-viewer data, ...) is left out of
 # /openapi.agent.json so the agent doesn't have to search 60+ operations. A unit test checks these ids exist.
 AGENT_OPERATIONS = {
-    "get_models",
-    "get_valves",
-    "get_config",
-    "get_analyses",
-    "generate_model",
-    "view_input_file",
-    "run_model",
-    "get_run",
-    "get_run_log",
-    "cancel_run",
-    "list_all_runs",
-    "get_run_summary",
-    "run_analysis",
+    "list_perihub_models",
+    "get_perihub_model_params",
+    "get_perihub_model_config",
+    "list_perihub_model_analyses",
+    "generate_perihub_model",
+    "get_perihub_input_deck",
+    "run_perihub_simulation",
+    "get_perihub_run",
+    "get_perihub_run_log",
+    "cancel_perihub_run",
+    "list_perihub_runs",
+    "get_perihub_run_summary",
+    "render_perihub_analysis",
 }
 
 AGENT_WORKFLOW = """Run peridynamic simulations with PeriHub. Authenticate with a personal API key (`X-Api-Key`).
 
-1. `get_models` -> pick a model; `get_valves` returns its parameters (`valves`).
-2. `get_config` -> the model's default `ModelData`; edit it.
-3. `generate_model` with `{"data": ModelData, "valves": valves}` -> writes the model folder (`GenerateResult`).
-4. `run_model` with the same ModelData as body -> `run_id`.
-5. Poll `get_run` until `status` is final (`done`, `failed`, `cancelled`). On `failed`, read
-   `get_run_log` (`tail=200`), fix the config and go back to 3.
-6. `get_run_summary` -> min/max of the results to judge the run; `run_analysis` renders a model analysis as PNG.
+1. `list_perihub_models` -> pick a model; `get_perihub_model_params` returns its parameters (`valves`).
+2. `get_perihub_model_config` -> the model's default `ModelData`; edit it.
+3. `generate_perihub_model` with `{"data": ModelData, "valves": valves}` -> writes the model folder (`GenerateResult`).
+4. `run_perihub_simulation` with the same ModelData as body -> `run_id`.
+5. Poll `get_perihub_run` until `status` is final (`done`, `failed`, `cancelled`). On `failed`, read
+   `get_perihub_run_log` (`tail=200`), fix the config and go back to 3.
+6. `get_perihub_run_summary` -> min/max of the results to judge the run; `render_perihub_analysis` renders a model
+   analysis as PNG.
 """
 
 

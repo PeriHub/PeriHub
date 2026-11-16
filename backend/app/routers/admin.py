@@ -164,7 +164,7 @@ def list_jobs(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> list[AdminJob]:
-    """The organization's runs across all users, newest first (max 500). Cancel via `cancel_run`."""
+    """The organization's runs across all users, newest first (max 500). Cancel via `cancel_perihub_run`."""
     stmt = (
         select(JobQueueEntry, User)
         .join(User, JobQueueEntry.user_id == User.id)

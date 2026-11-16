@@ -10,7 +10,7 @@
     getLicenseStatus,
     getMyUsage,
     getVersion,
-    listAllRuns
+    listPerihubRuns
   } from '$lib/client';
   import type { LicenseStatus, MeResponse, UsageSummary, VersionData } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
@@ -40,7 +40,7 @@
       getMyUsage(),
       getLicenseStatus(),
       getVersion(),
-      authStore.authenticated ? listAllRuns() : Promise.reject()
+      authStore.authenticated ? listPerihubRuns() : Promise.reject()
     ]);
     profile = me.status === 'fulfilled' ? me.value : null;
     usage = myUsage.status === 'fulfilled' ? myUsage.value : null;
