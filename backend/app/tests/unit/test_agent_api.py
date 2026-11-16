@@ -40,7 +40,7 @@ def test_get_run_returns_live_status(client, backend):
 
     r = client.get(f"/jobs/{run_id}", headers=_auth(owner))
     assert r.status_code == 200, r.text
-    assert r.json()["id"] == run_id
+    assert r.json()["id"] == r.json()["run_id"] == run_id
     assert r.json()["status"] == "running"
 
     backend.client().status = "completed"  # PeriLab finished -> synced to the DB status "done"
@@ -156,6 +156,50 @@ def test_get_run_summary(client, backend, monkeypatch, tmp_path):
     assert [o["name"] for o in body["outputs"]] == ["Output1"]
     assert body["csv"]["Output2"]["Force"] == {"final": 5.0, "min": 0.0, "max": 5.0}
     assert body["analyses"] == list(loader.load_analyses("Dogbone"))
+    assert body["files"] == ["Dogbone_Output1.e", "Dogbone_Output2.csv"]
+
+
+def test_get_result_file(client, backend, monkeypatch, tmp_path):
+    shutil.copy(EXODUS_FIXTURE, tmp_path / "Dogbone_Output1.e")
+    monkeypatch.setattr(results, "_result_folder", lambda *_: str(tmp_path))
+    owner = _signup(client, "a@x.de")
+    run_id = _run(owner)
+
+    r = client.get(f"/results/{run_id}/files/Dogbone_Output1.e", headers=_auth(owner))
+    assert r.status_code == 200, r.text
+    assert r.headers["content-type"] == "application/octet-stream"
+    assert r.content == open(EXODUS_FIXTURE, "rb").read()
+    assert client.get(f"/results/{run_id}/files/missing.e", headers=_auth(owner)).status_code == 404
+    assert client.get(f"/results/{run_id}/files/..", headers=_auth(owner)).status_code in (400, 404)
+
+
+def test_generate_and_run_without_body(client, isolated, monkeypatch):  # noqa: F811
+    submitted = []
+
+    def fake_submit(db, user, model_name, model_folder_name, remotepath, **kwargs):
+        submitted.append((model_name, model_folder_name, kwargs["num_procs"]))
+        return type("Entry", (), {"id": "r-1", "perilab_job_id": "p-1"})
+
+    monkeypatch.setattr(jobs, "submit_job", fake_submit)
+    headers = _auth(_signup(client, "a@x.de"))
+    run = "/jobs?model_name=Dogbone&model_folder_name=Default"
+    assert client.post(run, headers=headers).status_code == 404  # nothing generated yet
+
+    r = client.post("/workspaces/Dogbone/Default/generate", headers=headers)
+    assert r.status_code == 200, r.text
+    assert r.json()["nodes"] > 0
+
+    r = client.post(run, headers=headers)
+    assert r.status_code == 200, r.text
+    assert r.json()["run_id"] == "r-1"
+    assert submitted == [("Dogbone", "Default", 1)]  # job.tasks from the saved ModelData
+
+
+def test_model_list_is_typed(client):
+    models = client.get("/models").json()
+    assert {"name": "Dogbone", "file": "Dogbone"}.items() <= next(m for m in models if m["name"] == "Dogbone").items()
+    item = app.openapi()["paths"]["/models"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]
+    assert item["items"] == {"$ref": "#/components/schemas/ModelInfo"}
 
 
 def test_auth_schemes_are_declared():
@@ -195,6 +239,7 @@ def test_agent_spec_is_the_typed_workflow_subset():
         "get_perihub_run_summary",
         "render_perihub_analysis",
         "list_perihub_model_analyses",
+        "get_perihub_result_file",
     }
     assert {name for name, op in ops.items() if op.get("x-las-async") is False} == sync
     # the full spec is untouched

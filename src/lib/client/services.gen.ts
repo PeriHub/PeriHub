@@ -3,14 +3,16 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GeneratePerihubModelData, GeneratePerihubModelResponse, PreviewModelData, PreviewModelResponse, ListPerihubModelsData, ListPerihubModelsResponse, AddModelData, AddModelResponse, GetPerihubModelParamsData, GetPerihubModelParamsResponse, ListPerihubModelAnalysesData, ListPerihubModelAnalysesResponse, GetPerihubModelConfigData, GetPerihubModelConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, GetPerihubInputDeckData, GetPerihubInputDeckResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunPerihubSimulationData, RunPerihubSimulationResponse, DeleteModelRunsData, DeleteModelRunsResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListPerihubRunsResponse, StreamRunLogData, StreamRunLogResponse, GetPerihubRunData, GetPerihubRunResponse, DeleteRunData, DeleteRunResponse, GetPerihubRunLogData, GetPerihubRunLogResponse, GetRunInputData, GetRunInputResponse, CancelPerihubRunData, CancelPerihubRunResponse, RenderPerihubAnalysisData, RenderPerihubAnalysisResponse, GetPlotData, GetPlotResponse, GetPerihubRunSummaryData, GetPerihubRunSummaryResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, UpdateAccountSettingsData, UpdateAccountSettingsResponse, ChangePasswordData, ChangePasswordResponse, ForgotPasswordData, ForgotPasswordResponse, ResetPasswordData, ResetPasswordResponse, DeleteAccountData, DeleteAccountResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GeneratePerihubModelData, GeneratePerihubModelResponse, PreviewModelData, PreviewModelResponse, ListPerihubModelsData, ListPerihubModelsResponse, AddModelData, AddModelResponse, GetPerihubModelParamsData, GetPerihubModelParamsResponse, ListPerihubModelAnalysesData, ListPerihubModelAnalysesResponse, GetPerihubModelConfigData, GetPerihubModelConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, GetPerihubInputDeckData, GetPerihubInputDeckResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunPerihubSimulationData, RunPerihubSimulationResponse, DeleteModelRunsData, DeleteModelRunsResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListPerihubRunsResponse, StreamRunLogData, StreamRunLogResponse, GetPerihubRunData, GetPerihubRunResponse, DeleteRunData, DeleteRunResponse, GetPerihubRunLogData, GetPerihubRunLogResponse, GetRunInputData, GetRunInputResponse, CancelPerihubRunData, CancelPerihubRunResponse, RenderPerihubAnalysisData, RenderPerihubAnalysisResponse, GetPlotData, GetPlotResponse, GetPerihubRunSummaryData, GetPerihubRunSummaryResponse, GetPerihubResultFileData, GetPerihubResultFileResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, UpdateAccountSettingsData, UpdateAccountSettingsResponse, ChangePasswordData, ChangePasswordResponse, ForgotPasswordData, ForgotPasswordResponse, ResetPasswordData, ResetPasswordResponse, DeleteAccountData, DeleteAccountResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
  * Generate the model into its folder: save the ModelData JSON, build the point cloud with the model's generator
  * (skipped for `meshSource == "upload"`, which brings its own mesh), then write mesh, node sets and the PeriLab
- * input deck. 404 if the generator is missing or the point count exceeds the caller's node limit, 422 if an
- * uploaded mesh is expected but missing from the folder.
+ * input deck. Both `data` and `valves` are optional (the whole body may be left out): each falls back to the model's
+ * defaults, so `model_name` alone generates the default model. Next: run_perihub_simulation with the same
+ * model_name/model_folder_name. 404 if the generator is missing or the point count exceeds the caller's node
+ * limit, 422 if an uploaded mesh is expected but missing from the folder.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
@@ -68,7 +70,7 @@ export const previewModel = (data: PreviewModelData): CancelablePromise<PreviewM
  * @param data The data for the request.
  * @param data.ownOnly
  * @param data.verify
- * @returns unknown Successful Response
+ * @returns ModelInfo Successful Response
  * @throws ApiError
  */
 export const listPerihubModels = (data: ListPerihubModelsData = {}): CancelablePromise<ListPerihubModelsResponse> => { return __request(OpenAPI, {
@@ -147,7 +149,7 @@ export const listPerihubModelAnalyses = (data: ListPerihubModelAnalysesData): Ca
 /**
  * Get Config
  * A model's default ModelData config (`<Name>.json`); a built-in model wins over an own model of the same name.
- * Edit it and send it as `data` to generate_perihub_model and as the body of run_perihub_simulation.
+ * Edit it and send it as `data` to generate_perihub_model (which uses it as is when `data` is left out).
  * @param data The data for the request.
  * @param data.modelName
  * @returns ModelData Successful Response
@@ -403,21 +405,23 @@ export const uploadFiles = (data: UploadFilesData): CancelablePromise<UploadFile
 
 /**
  * Run Model
- * Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. Requires a
- * database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
+ * Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. The body is optional:
+ * without it the ModelData generate_perihub_model saved in `model_name`/`model_folder_name` is used (404 if the
+ * folder was never generated); a body overrides it (only its `job` settings, e.g. `job.tasks` MPI processes, apply
+ * here - the input deck is always the one generate wrote). Requires a database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
  * offline, 404 when this folder already has an active run. Poll GET /jobs/{run_id} (get_perihub_run) with the returned
  * run_id.
  * @param data The data for the request.
- * @param data.requestBody
  * @param data.modelName
  * @param data.modelFolderName
  * @param data.verbose
  * @param data.jobIds
  * @param data.solver PeriLab server to run on; default: the instance's default (see GET /config/public)
+ * @param data.requestBody
  * @returns RunSubmitted Successful Response
  * @throws ApiError
  */
-export const runPerihubSimulation = (data: RunPerihubSimulationData): CancelablePromise<RunPerihubSimulationResponse> => { return __request(OpenAPI, {
+export const runPerihubSimulation = (data: RunPerihubSimulationData = {}): CancelablePromise<RunPerihubSimulationResponse> => { return __request(OpenAPI, {
     method: 'POST',
     url: '/jobs',
     query: {
@@ -542,8 +546,8 @@ export const streamRunLog = (data: StreamRunLogData): CancelablePromise<StreamRu
 
 /**
  * Get Run
- * Live status of one run (synced with PeriLab first). Poll this with the `run_id` from `run_perihub_simulation` until
- * `status` is final: `queued`/`running` are active; `done`, `failed` and `cancelled` are final. `results` is
+ * Live status of one run (synced with PeriLab first). Poll this with the `run_id` from `run_perihub_simulation`
+ * until `status` is final: `queued`/`running` are active; `done`, `failed` and `cancelled` are final. `results` is
  * true once Exodus output exists (then call `get_perihub_run_summary`); on `failed`, `error` holds the reason and
  * `get_perihub_run_log` the solver output.
  * @param data The data for the request.
@@ -709,10 +713,11 @@ export const getPlot = (data: GetPlotData = {}): CancelablePromise<GetPlotRespon
 
 /**
  * Get Run Summary
- * Compact digest of a run's results - call this once get_perihub_run reports `results: true`. Per Exodus output: the
- * last written step, its time, min/max of every point variable (vectors also as magnitude) and the global
- * variables; per CSV output: final/min/max of every column; plus the analyses render_perihub_analysis can render. While
- * a run is still active this reflects the output written so far (see `status`). Only available when PeriLab
+ * Compact digest of a run's results - call this once get_perihub_run reports `results: true`. Per Exodus output:
+ * the last written step, its time, min/max of every point variable (vectors also as magnitude) and the global
+ * variables; per CSV output: final/min/max of every column; plus the analyses render_perihub_analysis can render
+ * and the result `files` get_perihub_result_file downloads.
+ * While a run is still active this reflects the output written so far (see `status`). Only available when PeriLab
  * runs locally.
  * @param data The data for the request.
  * @param data.runId
@@ -724,6 +729,28 @@ export const getPerihubRunSummary = (data: GetPerihubRunSummaryData): Cancelable
     url: '/results/summary',
     query: {
         run_id: data.runId
+    },
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Get Result File
+ * Download one result file of a run, e.g. its Exodus output `Dogbone_Output1.e`, as raw bytes. `filename` is
+ * one of get_perihub_run_summary's `files` (with its extension). 404 if the run has no such file (yet).
+ * @param data The data for the request.
+ * @param data.runId
+ * @param data.filename
+ * @returns binary The file's bytes
+ * @throws ApiError
+ */
+export const getPerihubResultFile = (data: GetPerihubResultFileData): CancelablePromise<GetPerihubResultFileResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/results/{run_id}/files/{filename}',
+    path: {
+        run_id: data.runId,
+        filename: data.filename
     },
     errors: {
         422: 'Validation Error'

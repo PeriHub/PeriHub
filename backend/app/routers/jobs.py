@@ -3,7 +3,7 @@ import os
 import shutil
 from typing import Iterator, List, Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, status
 from fastapi.responses import PlainTextResponse, StreamingResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -125,6 +125,7 @@ def _to_run_status(entry: JobQueueEntry, job: Optional[PeriLabJob] = None, check
         run["results"] = run["csvResults"] = False
     return RunStatus(
         id=entry.id,
+        run_id=entry.id,
         model_name=entry.model_name,
         model_folder_name=entry.model_folder_name,
         status=entry.status,
@@ -243,7 +244,9 @@ def _folder_summary(db: Session, request: Request, model_name: str, model_folder
     },
 )
 async def run_model(
-    model_data: ModelData,
+    model_data: Optional[ModelData] = Body(
+        None, description="Override of the ModelData generate_perihub_model saved in the folder"
+    ),
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     verbose: bool = False,
@@ -254,14 +257,25 @@ async def run_model(
     request: Request = "",
     db: Session = Depends(get_db),
 ):
-    """Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. Requires a
-    database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
-    offline, 404 when this folder already has an active run. Poll GET /jobs/{run_id} (get_perihub_run) with the returned
-    run_id."""
+    """Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. The body is optional:
+    without it the ModelData generate_perihub_model saved in `model_name`/`model_folder_name` is used (404 if the
+    folder was never generated); a body overrides it (only its `job` settings, e.g. `job.tasks` MPI processes, apply
+    here - the input deck is always the one generate wrote). Requires a database-backed account; 429 when the
+    caller's quota or the instance's job slots are used up, 503 when PeriLab is offline, 404 when this folder already
+    has an active run. Poll GET /jobs/{run_id} (get_perihub_run) with the returned run_id."""
     # user_folder() already 401s without a login, and the `db` dependency above
     # 500s without a DATABASE_URL - so by this point the caller is always a
     # logged-in, database-backed account and db_user below is never None.
     username = user_folder(request)
+
+    if model_data is None:
+        saved = _saved_model(username, model_name, model_folder_name)
+        if saved is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"{model_name}/{model_folder_name} has no generated model - call generate_perihub_model first.",
+            )
+        model_data = ModelData.model_validate(saved)
 
     # Fair-share queueing requires knowing which DB user is submitting.
     identity = resolve_user(request, db)

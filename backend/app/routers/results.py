@@ -198,7 +198,8 @@ def get_plot(
 def get_run_summary(run_id: str, request: Request = "") -> RunSummary:
     """Compact digest of a run's results - call this once get_perihub_run reports `results: true`. Per Exodus output:
     the last written step, its time, min/max of every point variable (vectors also as magnitude) and the global
-    variables; per CSV output: final/min/max of every column; plus the analyses render_perihub_analysis can render.
+    variables; per CSV output: final/min/max of every column; plus the analyses render_perihub_analysis can render
+    and the result `files` get_perihub_result_file downloads.
     While a run is still active this reflects the output written so far (see `status`). Only available when PeriLab
     runs locally."""
     result_dir = _result_folder(request, "", "", run_id)
@@ -211,7 +212,31 @@ def get_run_summary(run_id: str, request: Request = "") -> RunSummary:
         analyses = list(loader.load_analyses(model_name))
     except LookupError:
         analyses = []
-    return RunSummary(run_id=run_id, status=run_status, outputs=outputs, csv=csv_outputs, analyses=analyses)
+    files = sorted(name for name in os.listdir(result_dir) if os.path.isfile(os.path.join(result_dir, name)))
+    return RunSummary(
+        run_id=run_id, status=run_status, outputs=outputs, csv=csv_outputs, analyses=analyses, files=files
+    )
+
+
+@router.get(
+    "/{run_id}/files/{filename}",
+    operation_id="get_perihub_result_file",
+    response_class=FileResponse,
+    responses={
+        200: {
+            "content": {"application/octet-stream": {"schema": {"type": "string", "format": "binary"}}},
+            "description": "The file's bytes",
+        }
+    },
+    openapi_extra={"x-las-async": False},
+)
+def get_result_file(run_id: str, filename: str, request: Request = ""):
+    """Download one result file of a run, e.g. its Exodus output `Dogbone_Output1.e`, as raw bytes. `filename` is
+    one of get_perihub_run_summary's `files` (with its extension). 404 if the run has no such file (yet)."""
+    path = os.path.join(_result_folder(request, "", "", run_id), safe_segment(filename))
+    if not os.path.isfile(path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"The run has no result file {filename}")
+    return FileResponse(path, media_type="application/octet-stream", filename=filename)
 
 
 @router.get("/download", operation_id="get_results")

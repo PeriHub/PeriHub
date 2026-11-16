@@ -15,6 +15,7 @@ from ..support.guest import DB_LESS_USER, GUEST_DENIED, apply_guest_limits, curr
 from ..support.model import loader
 from ..support.model.point_cloud import build_point_cloud, valves_to_dict
 from ..support.writer.model_writer import ModelWriter
+from .model import default_config, get_valves
 
 router = APIRouter(tags=["Generate Methods"])
 
@@ -30,16 +31,22 @@ GRID_FACTOR = 10
     response_model=GenerateResult,
 )
 def generate_model(
-    data: ModelData,
-    valves: Valves,
+    data: Optional[ModelData] = Body(
+        None, description="The model's ModelData; default: get_perihub_model_config's default config"
+    ),
+    valves: Optional[Valves] = Body(
+        None, description="The model's parameters; default: get_perihub_model_params' default values"
+    ),
     model_name: str = "Dogbone",
     model_folder_name: str = "Default",
     request: Request = "",
 ):  # material: dict, Output: dict):
     """Generate the model into its folder: save the ModelData JSON, build the point cloud with the model's generator
     (skipped for `meshSource == "upload"`, which brings its own mesh), then write mesh, node sets and the PeriLab
-    input deck. 404 if the generator is missing or the point count exceeds the caller's node limit, 422 if an
-    uploaded mesh is expected but missing from the folder."""
+    input deck. Both `data` and `valves` are optional (the whole body may be left out): each falls back to the model's
+    defaults, so `model_name` alone generates the default model. Next: run_perihub_simulation with the same
+    model_name/model_folder_name. 404 if the generator is missing or the point count exceeds the caller's node
+    limit, 422 if an uploaded mesh is expected but missing from the folder."""
 
     # With a DB every caller must be logged in, else the guest limits could be skipped by leaving out the token.
     # Without a DB (local dev, no accounts) everything goes to the single DB_LESS_USER folder.
@@ -47,6 +54,10 @@ def generate_model(
     if base.SessionLocal is not None and user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Login required.")
     username = user.id if user is not None else DB_LESS_USER
+    if data is None:
+        data = ModelData.model_validate(default_config(model_name))
+    if valves is None:
+        valves = Valves.model_validate(get_valves(model_name))
     limits = None
     if user is not None and user.role == "guest":
         with base.SessionLocal() as db:

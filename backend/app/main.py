@@ -206,18 +206,21 @@ AGENT_OPERATIONS = {
     "list_perihub_runs",
     "get_perihub_run_summary",
     "render_perihub_analysis",
+    "get_perihub_result_file",
 }
 
 AGENT_WORKFLOW = """Run peridynamic simulations with PeriHub. Authenticate with a personal API key (`X-Api-Key`).
 
-1. `list_perihub_models` -> pick a model; `get_perihub_model_params` returns its parameters (`valves`).
-2. `get_perihub_model_config` -> the model's default `ModelData`; edit it.
-3. `generate_perihub_model` with `{"data": ModelData, "valves": valves}` -> writes the model folder (`GenerateResult`).
-4. `run_perihub_simulation` with the same ModelData as body -> `run_id`.
+1. `list_perihub_models` -> pick a model (`name`); `get_perihub_model_params` returns its parameters (`valves`).
+2. Optional: `get_perihub_model_config` -> the model's default `ModelData`; edit it.
+3. `generate_perihub_model` with `model_name` (and optionally `{"data": ModelData, "valves": valves}`; each defaults
+   to the model's defaults) -> writes the model folder (`GenerateResult`).
+4. `run_perihub_simulation` with the same `model_name`/`model_folder_name` (no body needed) -> `run_id`.
 5. Poll `get_perihub_run` until `status` is final (`done`, `failed`, `cancelled`). On `failed`, read
    `get_perihub_run_log` (`tail=200`), fix the config and go back to 3.
-6. `get_perihub_run_summary` -> min/max of the results to judge the run; `render_perihub_analysis` renders a model
-   analysis as PNG.
+6. `get_perihub_run_summary` -> min/max of the results to judge the run, and the result `files`;
+   `render_perihub_analysis` renders a model analysis as PNG.
+7. `get_perihub_result_file` with `run_id` and a name from `files` (e.g. the Exodus `.e` output) -> the file's bytes.
 """
 
 

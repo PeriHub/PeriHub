@@ -192,6 +192,7 @@ def metadata(folder: Path) -> dict:
     """What the model list shows. Never raises: a broken model is listed with `error`."""
     path, fmt = _generator_file(folder) or (_gcode_file(folder), "gcode")
     info = {
+        "name": folder.name,
         "file": folder.name,
         "title": folder.name,
         "description": "",

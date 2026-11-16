@@ -144,8 +144,14 @@ export type BlockFunction = {
 };
 
 export type Body_generate_perihub_model = {
-    data: ModelData;
-    valves: Valves;
+    /**
+     * The model's ModelData; default: get_perihub_model_config's default config
+     */
+    data?: ModelData | null;
+    /**
+     * The model's parameters; default: get_perihub_model_params' default values
+     */
+    valves?: Valves | null;
 };
 
 export type Body_preview_model = {
@@ -305,7 +311,8 @@ export type Gcode = {
 };
 
 /**
- * What generate_perihub_model wrote into the model folder; the folder can now be submitted with run_perihub_simulation.
+ * What generate_perihub_model wrote into the model folder; the folder can now be submitted with
+ * run_perihub_simulation.
  */
 export type GenerateResult = {
     model_name: string;
@@ -453,6 +460,37 @@ export type ModelData = {
     thermal?: Array<ThermalModel>;
 };
 
+/**
+ * One entry of the model list (support/model/loader.py metadata).
+ */
+export type ModelInfo = {
+    /**
+     * The model's name: pass it as `model_name` to the other calls
+     */
+    name: string;
+    /**
+     * Same as `name` (kept for the frontend)
+     */
+    file: string;
+    title: string;
+    description: string;
+    author: string;
+    version: string;
+    requirements: string;
+    /**
+     * Generator format: "yaml", "python" or "gcode"
+     */
+    format: string;
+    /**
+     * An own (uploaded) model rather than a built-in one
+     */
+    own: boolean;
+    /**
+     * Why the model can't be loaded (own models only)
+     */
+    error?: string | null;
+};
+
 export type NodeSet = {
     nodeSetId?: number | null;
     file: string;
@@ -573,6 +611,10 @@ export type RunDeleted = {
  */
 export type RunStatus = {
     id: string;
+    /**
+     * Same as `id`; the name run_perihub_simulation returns it under
+     */
+    run_id: string;
     model_name: string;
     model_folder_name: string;
     status: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
@@ -623,6 +665,10 @@ export type RunSummary = {
      * ids of the model's @analysis functions, usable with render_perihub_analysis
      */
     analyses: Array<(string)>;
+    /**
+     * Result file names (Exodus `.e`, `.csv`, ...), downloadable with get_perihub_result_file
+     */
+    files: Array<(string)>;
 };
 
 export type SignupRequest = {
@@ -740,7 +786,7 @@ export type VersionData = {
 export type GeneratePerihubModelData = {
     modelFolderName: string;
     modelName: string;
-    requestBody: Body_generate_perihub_model;
+    requestBody?: Body_generate_perihub_model;
 };
 
 export type GeneratePerihubModelResponse = GenerateResult;
@@ -757,9 +803,7 @@ export type ListPerihubModelsData = {
     verify?: boolean;
 };
 
-export type ListPerihubModelsResponse = Array<{
-    [key: string]: unknown;
-}>;
+export type ListPerihubModelsResponse = Array<ModelInfo>;
 
 export type AddModelData = {
     description: string;
@@ -866,7 +910,7 @@ export type RunPerihubSimulationData = {
     jobIds?: string | null;
     modelFolderName?: string;
     modelName?: string;
-    requestBody: ModelData;
+    requestBody?: ModelData | null;
     /**
      * PeriLab server to run on; default: the instance's default (see GET /config/public)
      */
@@ -972,6 +1016,13 @@ export type GetPerihubRunSummaryData = {
 };
 
 export type GetPerihubRunSummaryResponse = RunSummary;
+
+export type GetPerihubResultFileData = {
+    filename: string;
+    runId: string;
+};
+
+export type GetPerihubResultFileResponse = (Blob | File);
 
 export type GetResultsData = {
     allData?: boolean;
@@ -1253,9 +1304,7 @@ export type $OpenApiTs = {
                 /**
                  * Successful Response
                  */
-                200: Array<{
-                    [key: string]: unknown;
-                }>;
+                200: Array<ModelInfo>;
                 /**
                  * Validation Error
                  */
@@ -1663,6 +1712,21 @@ export type $OpenApiTs = {
                  * Successful Response
                  */
                 200: RunSummary;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+    };
+    '/results/{run_id}/files/{filename}': {
+        get: {
+            req: GetPerihubResultFileData;
+            res: {
+                /**
+                 * The file's bytes
+                 */
+                200: (Blob | File);
                 /**
                  * Validation Error
                  */

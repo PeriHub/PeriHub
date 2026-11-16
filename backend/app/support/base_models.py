@@ -234,6 +234,21 @@ class ColumnSummary(BaseModel):
     max: float
 
 
+class ModelInfo(BaseModel):
+    """One entry of the model list (support/model/loader.py metadata)."""
+
+    name: str = Field(description="The model's name: pass it as `model_name` to the other calls")
+    file: str = Field(description="Same as `name` (kept for the frontend)")
+    title: str
+    description: str
+    author: str
+    version: str
+    requirements: str
+    format: str = Field(description='Generator format: "yaml", "python" or "gcode"')
+    own: bool = Field(description="An own (uploaded) model rather than a built-in one")
+    error: Optional[str] = Field(None, description="Why the model can't be loaded (own models only)")
+
+
 class RunSummary(BaseModel):
     """Compact digest of a run's results, small enough to reason about. Heavy data stays behind get_results
     (Exodus download), get_plot (full CSV series) and render_perihub_analysis (PNG)."""
@@ -247,6 +262,9 @@ class RunSummary(BaseModel):
     analyses: list[str] = Field(
         description="ids of the model's @analysis functions, usable with render_perihub_analysis"
     )
+    files: list[str] = Field(
+        description="Result file names (Exodus `.e`, `.csv`, ...), downloadable with get_perihub_result_file"
+    )
 
 
 class RunStatus(BaseModel):
@@ -258,6 +276,7 @@ class RunStatus(BaseModel):
     `status`: queued/running are active; done, failed and cancelled are final."""
 
     id: str
+    run_id: str = Field(description="Same as `id`; the name run_perihub_simulation returns it under")
     model_name: str
     model_folder_name: str
     status: JobStatus

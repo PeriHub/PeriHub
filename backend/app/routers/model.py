@@ -12,7 +12,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 
 from ..db import base
-from ..support.base_models import AnalysisInfo, ModelData, PointData, Valves
+from ..support.base_models import AnalysisInfo, ModelData, ModelInfo, PointData, Valves
 from ..support.db_auth import resolve_user
 from ..support.file_handler import FileHandler, safe_segment
 from ..support.globals import log, max_nodes
@@ -29,7 +29,7 @@ ASSETS = loader.APP_DIR / "assets"
 
 
 @router.get("/models", operation_id="list_perihub_models")
-def get_models(own_only: bool = False, verify: bool = False, request: Request = "") -> list[dict]:
+def get_models(own_only: bool = False, verify: bool = False, request: Request = "") -> list[ModelInfo]:
     """Built-in models, then own models (an own model named like a built-in one is shadowed
     by it everywhere, so it isn't listed twice).
 
@@ -81,8 +81,12 @@ def get_analyses(model_name: str) -> list[AnalysisInfo]:
 @router.get("/models/{model_name}/config", operation_id="get_perihub_model_config", response_model=ModelData)
 def get_config(model_name: str = "Dogbone") -> JSONResponse:
     """A model's default ModelData config (`<Name>.json`); a built-in model wins over an own model of the same name.
-    Edit it and send it as `data` to generate_perihub_model and as the body of run_perihub_simulation."""
+    Edit it and send it as `data` to generate_perihub_model (which uses it as is when `data` is left out)."""
+    return JSONResponse(content=default_config(model_name))
 
+
+def default_config(model_name: str) -> dict:
+    """The model's default ModelData as a dict; 404 if it has none."""
     safe_segment(model_name)
     config_path = os.path.join(
         str(Path(__file__).parent.parent.resolve()),
@@ -96,14 +100,10 @@ def get_config(model_name: str = "Dogbone") -> JSONResponse:
         model_name,
         model_name + ".json",
     )
-    if os.path.exists(config_path):
-        with open(config_path, "r") as file:
-            data = json.load(file)
-            return JSONResponse(content=data)
-    if os.path.exists(own_config_path):
-        with open(own_config_path, "r") as file:
-            data = json.load(file)
-            return JSONResponse(content=data)
+    for path in (config_path, own_config_path):
+        if os.path.exists(path):
+            with open(path, "r") as file:
+                return json.load(file)
 
     log.error("%s files can not be found", model_name)
     raise HTTPException(

@@ -550,14 +550,29 @@ export const $BlockFunction = {
 export const $Body_generate_perihub_model = {
     properties: {
         data: {
-            '$ref': '#/components/schemas/ModelData'
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/ModelData'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            description: "The model's ModelData; default: get_perihub_model_config's default config"
         },
         valves: {
-            '$ref': '#/components/schemas/Valves'
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/Valves'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            description: "The model's parameters; default: get_perihub_model_params' default values"
         }
     },
     type: 'object',
-    required: ['data', 'valves'],
     title: 'Body_generate_perihub_model'
 } as const;
 
@@ -1309,7 +1324,8 @@ export const $GenerateResult = {
     type: 'object',
     required: ['model_name', 'model_folder_name', 'blocks'],
     title: 'GenerateResult',
-    description: 'What generate_perihub_model wrote into the model folder; the folder can now be submitted with run_perihub_simulation.'
+    description: `What generate_perihub_model wrote into the model folder; the folder can now be submitted with
+run_perihub_simulation.`
 } as const;
 
 export const $HTTPValidationError = {
@@ -2017,6 +2033,67 @@ export const $ModelData = {
     title: 'ModelData'
 } as const;
 
+export const $ModelInfo = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name',
+            description: "The model's name: pass it as `model_name` to the other calls"
+        },
+        file: {
+            type: 'string',
+            title: 'File',
+            description: 'Same as `name` (kept for the frontend)'
+        },
+        title: {
+            type: 'string',
+            title: 'Title'
+        },
+        description: {
+            type: 'string',
+            title: 'Description'
+        },
+        author: {
+            type: 'string',
+            title: 'Author'
+        },
+        version: {
+            type: 'string',
+            title: 'Version'
+        },
+        requirements: {
+            type: 'string',
+            title: 'Requirements'
+        },
+        format: {
+            type: 'string',
+            title: 'Format',
+            description: 'Generator format: "yaml", "python" or "gcode"'
+        },
+        own: {
+            type: 'boolean',
+            title: 'Own',
+            description: 'An own (uploaded) model rather than a built-in one'
+        },
+        error: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Error',
+            description: "Why the model can't be loaded (own models only)"
+        }
+    },
+    type: 'object',
+    required: ['name', 'file', 'title', 'description', 'author', 'version', 'requirements', 'format', 'own'],
+    title: 'ModelInfo',
+    description: 'One entry of the model list (support/model/loader.py metadata).'
+} as const;
+
 export const $NodeSet = {
     properties: {
         nodeSetId: {
@@ -2416,6 +2493,11 @@ export const $RunStatus = {
             type: 'string',
             title: 'Id'
         },
+        run_id: {
+            type: 'string',
+            title: 'Run Id',
+            description: 'Same as `id`; the name run_perihub_simulation returns it under'
+        },
         model_name: {
             type: 'string',
             title: 'Model Name'
@@ -2549,7 +2631,7 @@ export const $RunStatus = {
         }
     },
     type: 'object',
-    required: ['id', 'model_name', 'model_folder_name', 'status'],
+    required: ['id', 'run_id', 'model_name', 'model_folder_name', 'status'],
     title: 'RunStatus',
     description: `Full status of a single run, keyed by its own id (JobQueueEntry.id -
 stable for the life of the run, independent of how many times its
@@ -2624,10 +2706,18 @@ export const $RunSummary = {
             type: 'array',
             title: 'Analyses',
             description: "ids of the model's @analysis functions, usable with render_perihub_analysis"
+        },
+        files: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Files',
+            description: 'Result file names (Exodus `.e`, `.csv`, ...), downloadable with get_perihub_result_file'
         }
     },
     type: 'object',
-    required: ['run_id', 'status', 'outputs', 'csv', 'analyses'],
+    required: ['run_id', 'status', 'outputs', 'csv', 'analyses', 'files'],
     title: 'RunSummary',
     description: `Compact digest of a run's results, small enough to reason about. Heavy data stays behind get_results
 (Exodus download), get_plot (full CSV series) and render_perihub_analysis (PNG).`
