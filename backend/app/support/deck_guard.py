@@ -1,7 +1,8 @@
 """Refuses input decks that would make PeriLab run arbitrary code.
 
 PeriLab evaluates several deck strings as Julia (`Base.eval(Meta.parse(...))`): boundary condition `Value`, compute
-`Equation`, `Influence Function`, `Environmental Temperature`, node-set entries and G-code `Blocks` conditions. Decks
+`Equation`, `Influence Function`, `Environmental Temperature`, `Bed Temperature`, node-set entries and G-code `Blocks`
+conditions. Decks
 come from guests (generate_perihub_model) and members (write_input_file), so without this check any account -
 including an anonymous guest - gets a shell in the solver container. Checked once at submission
 (support/solver_backend.py), the one place every deck passes, rather than per writer.
@@ -17,7 +18,7 @@ import re
 import yaml
 from fastapi import HTTPException, status
 
-EXPRESSION_KEYS = {"Value", "Equation", "Influence Function", "Environmental Temperature"}
+EXPRESSION_KEYS = {"Value", "Equation", "Influence Function", "Environmental Temperature", "Bed Temperature"}
 # String values directly inside these mappings are evaluated too (node-set definitions, G-code block conditions).
 EXPRESSION_MAPPINGS = {"Node Sets", "Blocks"}
 # "File": UMAT/VUMAT/HETVAL libraries PeriLab ccall()s and the external topology it reads. PeriLab joins it onto the

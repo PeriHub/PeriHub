@@ -140,8 +140,11 @@ def generate_model(
         writer.write_mesh(model, data.model.twoDimensional)
         writer.write_node_sets(model)
 
+        block_dx = cloud.get("block_dx") or {}
         for i, block in enumerate(data.blocks):
-            if isinstance(dx_value[0], float):
+            if block.blocksId in block_dx:
+                block.params["Horizon"] = 2.5 * block_dx[block.blocksId]
+            elif isinstance(dx_value[0], float):
                 block.params["Horizon"] = 2.5 * max([dx_value[0], dx_value[1]])
             else:
                 block.params["Horizon"] = 2.5 * max([dx_value[i][0], dx_value[i][1]])

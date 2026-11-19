@@ -32,7 +32,7 @@
       "name": "Damage",
       "params": {
         "Damage Model": "Critical Energy",
-        "Only Tension": true,
+        "Compression": "none",
         "Thickness": 1,
         "Critical Value": 5.0
       },

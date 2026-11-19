@@ -141,6 +141,11 @@ class PeriHubModel:
         """A point the grid passes through; default: the geometry's lower corner."""
         return None
 
+    def block_spacing(self) -> dict:
+        """Advanced: {block_id: point distance} for blocks that points() fills at another spacing than
+        `spacing`; their horizon is set from it."""
+        return {}
+
     def points(self):
         """Advanced: return (x, y, z, volume_or_None) for a custom point cloud."""
         shape, dx = self.geometry(), self.spacing
@@ -200,6 +205,7 @@ class PeriHubModel:
 
         return {
             "dx": [dx, dx, dx],
+            "block_dx": self.block_spacing(),
             "x": x,
             "y": y,
             "z": z,

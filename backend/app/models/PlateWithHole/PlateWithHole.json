@@ -33,7 +33,7 @@
       "name": "PMMADamage",
       "params": {
         "Damage Model": "Critical Stretch",
-        "Only Tension": true,
+        "Compression": "none",
         "Critical Value": 0.015
       },
       "criticalEnergyCalc": {
