@@ -19,7 +19,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db.models import AdminSetting, User
-from .globals import external_perilab_url, guest_access, max_concurrent_jobs_per_user, max_concurrent_local_jobs
+from .globals import (
+    cluster_allowed_hosts,
+    external_perilab_url,
+    guest_access,
+    max_concurrent_jobs_per_user,
+    max_concurrent_local_jobs,
+)
 
 
 def get_setting(
@@ -70,11 +76,18 @@ INSTANCE_DEFAULTS = {
     "guest_max_job_minutes": 10,
     "guest_max_concurrent_jobs": 1,
     "guest_retention_days": 1,
+    # Hosts users may point their cluster profile at (ee/cluster.py); empty = cluster jobs off. An allow-list rather
+    # than free input: every profile host is a target PeriHub itself opens SSH connections to.
+    "cluster_allowed_hosts": cluster_allowed_hosts,
 }
 
 
 def instance_setting(db: Session, key: str) -> Any:
     return get_setting(db, key, default=INSTANCE_DEFAULTS[key])
+
+
+def allowed_cluster_hosts(db: Session) -> set[str]:
+    return {h.strip().lower() for h in (instance_setting(db, "cluster_allowed_hosts") or "").split(",") if h.strip()}
 
 
 def overridden_instance_settings(db: Session) -> list[str]:

@@ -66,9 +66,11 @@
     ];
   });
 
-  // Run-on-server choice, only when an external PeriLab is configured (guests always run locally).
-  const showSolver = $derived(publicConfig.externalSolver && !authStore.isGuest);
-  let solver = $state<'local' | 'external'>(publicConfig.defaultSolver);
+  // Run-on-server choice, only when an external PeriLab or cluster jobs are available (guests always run locally).
+  const showSolver = $derived(
+    (publicConfig.externalSolver || publicConfig.clusterSolver) && !authStore.isGuest
+  );
+  let solver = $state<'local' | 'external' | 'cluster'>(publicConfig.defaultSolver);
 
   let submitLoading = $state(false);
   let resultsLoading = $state(false);
@@ -370,7 +372,12 @@
         title="Where the job runs"
       >
         <option value="local">Local PeriLab</option>
-        <option value="external">External PeriLab</option>
+        {#if publicConfig.externalSolver}
+          <option value="external">External PeriLab</option>
+        {/if}
+        {#if publicConfig.clusterSolver}
+          <option value="cluster">Cluster (Slurm)</option>
+        {/if}
       </Select>
     {/if}
     {#if !authStore.isGuest}

@@ -82,6 +82,7 @@ class AdminSettings(BaseModel):
     guest_max_job_minutes: int = Field(ge=1)
     guest_max_concurrent_jobs: int = Field(ge=1)
     guest_retention_days: int = Field(ge=1)
+    cluster_allowed_hosts: str = Field("", description="Comma-separated SSH hosts for cluster jobs; empty = off")
 
     @field_validator("external_perilab_url")
     @classmethod

@@ -55,7 +55,7 @@ def _result_folder(request: Request, model_name: str, model_folder_name: str, ru
         job_ids = perilab_job_ids(entry) if entry else []
         if not job_ids:
             raise not_found("No run found for this model.")
-        backend = get_solver_backend(entry.solver)
+        backend = get_solver_backend(entry.solver, entry.user_id)
         if len(job_ids) > 1:
             # A batch (deviation samples): every job's output merged into one folder for the analyses.
             if not backend.shares_local_filesystem:

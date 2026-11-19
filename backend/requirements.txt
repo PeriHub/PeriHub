@@ -16,3 +16,5 @@ alembic
 psycopg[binary]
 passlib
 argon2_cffi
+paramiko
+cryptography

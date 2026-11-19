@@ -20,6 +20,9 @@ import json
 import os
 import shutil
 import time
+from typing import Callable
+
+from fastapi import HTTPException
 
 from ..db import base
 from . import gcode_mesh_cache
@@ -74,8 +77,10 @@ class PeriLabSolverBackend(SolverBackend):
     """Talks to a PeriLab API instance - either the bundled local container
     or a customer-hosted external one, depending on `base_url`."""
 
-    def __init__(self, base_url: str, shares_local_filesystem: bool):
-        self._client = PeriLabApiClient(base_url)
+    def __init__(self, base_url: str, shares_local_filesystem: bool, client=None):
+        """`client`: anything with PeriLabApiClient's methods (ee/slurm_client.SlurmClient) instead of an HTTP
+        client for `base_url` - submit() keeps the deck guard and batch fan-out either way."""
+        self._client = client or PeriLabApiClient(base_url)
         self.shares_local_filesystem = shares_local_filesystem
 
     def client(self) -> PeriLabApiClient:
@@ -260,9 +265,22 @@ def default_solver() -> str:
     return "external" if solver_backend_kind == "external" and external_available() else "local"
 
 
-def get_solver_backend(solver: str | None = None) -> SolverBackend:
+#: Solvers contributed by optional modules, e.g. "cluster" from ee/cluster.py (core must not import ee/). A factory
+#: gets the run owner's user id and raises HTTPException when it can't serve them (no profile, not licensed, ...).
+_registered: dict[str, Callable[[str | None], SolverBackend]] = {}
+
+
+def register_solver(name: str, factory: Callable[[str | None], SolverBackend]) -> None:
+    _registered[name] = factory
+
+
+def get_solver_backend(solver: str | None = None, user_id: str | None = None) -> SolverBackend:
     """The PeriLab API a run talks to. Each run stores the server it was submitted to
-    (JobQueueEntry.solver) and passes it here; None means the default (SOLVER_BACKEND)."""
+    (JobQueueEntry.solver) and passes it here with the run owner's id; None means the default (SOLVER_BACKEND)."""
+    if solver in _registered:
+        return _registered[solver](user_id)
+    if solver not in (None, "local", "external"):
+        raise HTTPException(status_code=400, detail=f"Solver '{solver}' is not available on this instance.")
     if (solver or default_solver()) == "external":
         url = _external_perilab_url()
         if url:

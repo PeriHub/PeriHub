@@ -157,3 +157,15 @@ def test_public_config_reports_whether_signup_is_open(client):
     settings.update(signup_open=False)
     client.put("/admin/settings", json=settings, headers=_auth(admin))
     assert client.get("/config/public").json()["signup_open"] is False
+
+
+def test_cluster_allowed_hosts_setting(client):
+    from backend.app.db import base
+    from backend.app.support.admin_settings import allowed_cluster_hosts
+
+    admin = _signup(client, "a@x.de")
+    settings = client.get("/admin/settings", headers=_auth(admin)).json()
+    settings["cluster_allowed_hosts"] = "CARA.dlr.de, x ,"
+    assert client.put("/admin/settings", json=settings, headers=_auth(admin)).status_code == 200
+    with base.SessionLocal() as db:
+        assert allowed_cluster_hosts(db) == {"cara.dlr.de", "x"}

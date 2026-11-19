@@ -37,6 +37,8 @@ interface PublicConfigResponse {
   job_notifications: boolean;
   external_solver: boolean;
   default_solver: 'local' | 'external';
+  cluster_solver: boolean;
+  cluster_hosts: string[];
 }
 
 /**
@@ -54,7 +56,10 @@ export const publicConfig = {
   passwordReset: false,
   jobNotifications: false,
   externalSolver: false,
-  defaultSolver: 'local' as 'local' | 'external'
+  defaultSolver: 'local' as 'local' | 'external',
+  // Slurm cluster jobs with the user's own login (enterprise); the hosts an admin allowed.
+  clusterSolver: false,
+  clusterHosts: [] as string[]
 };
 
 let loaded = false;
@@ -81,6 +86,8 @@ export async function loadPublicConfig(): Promise<void> {
     publicConfig.jobNotifications = data.job_notifications ?? false;
     publicConfig.externalSolver = data.external_solver ?? false;
     publicConfig.defaultSolver = data.default_solver ?? 'local';
+    publicConfig.clusterSolver = data.cluster_solver ?? false;
+    publicConfig.clusterHosts = data.cluster_hosts ?? [];
     loaded = true;
   } catch (error) {
     // Deliberately non-fatal: the app still boots with everything "off"

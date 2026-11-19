@@ -9,6 +9,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.security import APIKeyHeader, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 
+from .ee import cluster as cluster_router  # also registers the "cluster" solver
 from .ee import oauth as oauth_router
 from .routers import admin as admin_router
 from .routers import api_keys as api_keys_router
@@ -177,6 +178,7 @@ app.include_router(license_router.router)
 app.include_router(auth_router.router)
 app.include_router(api_keys_router.router)
 app.include_router(oauth_router.router)
+app.include_router(cluster_router.router)
 app.include_router(library.router)
 app.include_router(projects_router.router)
 app.include_router(teams_router.router)

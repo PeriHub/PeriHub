@@ -102,6 +102,18 @@
         When set, users can choose to run jobs here instead of on the bundled PeriLab.
       </p>
     </div>
+    <div class="grid gap-1.5">
+      <Label for="cluster-hosts">Cluster hosts {@render source('cluster_allowed_hosts')}</Label>
+      <Input
+        id="cluster-hosts"
+        placeholder="cara.dlr.de"
+        bind:value={settings.cluster_allowed_hosts}
+      />
+      <p class="text-muted-foreground text-xs">
+        Comma-separated SSH hosts users may submit Slurm jobs to with their own login. Empty turns
+        cluster jobs off.
+      </p>
+    </div>
     <h3 class="mt-4 text-base font-semibold">Guest access</h3>
     <div class="flex items-center gap-2">
       <Toggle

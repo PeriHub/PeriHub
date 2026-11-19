@@ -19,7 +19,7 @@ only calls PeriHub's own /oauth/oidc/login and /oauth/oidc/callback.
 from fastapi import APIRouter
 
 from ..db import base
-from ..support.admin_settings import instance_setting, signup_allowed
+from ..support.admin_settings import allowed_cluster_hosts, instance_setting, signup_allowed
 from ..support.entitlements import has_feature
 from ..support.globals import deployment_mode, oauth_discovery_url
 from ..support.guest import guest_limits
@@ -34,13 +34,14 @@ def get_public_config() -> dict:
     """Deployment settings the frontend needs before login: deployment mode, whether anonymous visitors get a guest
     account (and its limits), whether new accounts can sign up, whether password reset by email and job notification emails are available, and whether OIDC login is available (configured and
     licensed)."""
-    guest_access, limits, signup_open = False, None, False
+    guest_access, limits, signup_open, cluster_hosts = False, None, False, set()
     if base.SessionLocal is not None:  # guest accounts and signups are DB rows - no DB, neither
         with base.SessionLocal() as db:
             guest_access = bool(instance_setting(db, "guest_access"))
             if guest_access:
                 limits = guest_limits(db)
             signup_open = signup_allowed(db)
+            cluster_hosts = allowed_cluster_hosts(db)
     return {
         "deployment_mode": deployment_mode,
         "guest_access": guest_access,
@@ -59,4 +60,7 @@ def get_public_config() -> dict:
         # Run-on-server choice next to the Run button: offered when an external PeriLab is configured.
         "external_solver": external_available(),
         "default_solver": default_solver(),
+        # Slurm cluster jobs with the user's own login (ee/cluster.py): licensed and an admin allowed a host.
+        "cluster_solver": bool(cluster_hosts) and has_feature("cluster_jobs"),
+        "cluster_hosts": sorted(cluster_hosts),
     }

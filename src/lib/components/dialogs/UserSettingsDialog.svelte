@@ -15,6 +15,7 @@
   import type { LicenseStatus, MeResponse, UsageSummary, VersionData } from '$lib/client';
   import Button from '$lib/components/ui/Button.svelte';
   import ApiKeysSection from './ApiKeysSection.svelte';
+  import ClusterSection from './ClusterSection.svelte';
   import AccountSection from './AccountSection.svelte';
 
   let { open = $bindable(false) }: { open?: boolean } = $props();
@@ -205,6 +206,9 @@
 
       {#if authStore.authenticated && !authStore.isGuest}
         <ApiKeysSection />
+        {#if publicConfig.clusterSolver}
+          <ClusterSection />
+        {/if}
       {/if}
 
       {#if profile && profile.auth_provider !== 'guest'}

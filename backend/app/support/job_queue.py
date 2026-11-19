@@ -119,7 +119,7 @@ def submit_job(
     db.refresh(entry)
 
     try:
-        perilab_job_id = get_solver_backend(solver).submit(
+        perilab_job_id = get_solver_backend(solver, user.id).submit(
             _owner_username(user),
             model_name,
             model_folder_name,
@@ -157,7 +157,7 @@ def cancel_running(db: Session, entry: JobQueueEntry) -> None:
     a 502 rather than silently marking the job cancelled when it might
     still be running."""
     if entry.perilab_job_id:
-        get_solver_backend(entry.solver).cancel(entry.perilab_job_id)
+        get_solver_backend(entry.solver, entry.user_id).cancel(entry.perilab_job_id)
     entry.status = JOB_CANCELLED
     entry.finished_at = datetime.now(timezone.utc)
     db.commit()
@@ -178,8 +178,8 @@ def sync_status(db: Session, entry: Optional[JobQueueEntry]) -> Optional[PeriLab
     if not job_ids:
         return None
 
-    client = get_solver_backend(entry.solver).client()
     try:
+        client = get_solver_backend(entry.solver, entry.user_id).client()
         jobs = [client.get_job(job_id) for job_id in job_ids]
     except HTTPException:
         return None

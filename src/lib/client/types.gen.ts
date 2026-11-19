@@ -37,6 +37,10 @@ export type AdminSettings = {
     guest_max_job_minutes: number;
     guest_max_concurrent_jobs: number;
     guest_retention_days: number;
+    /**
+     * Comma-separated SSH hosts for cluster jobs; empty = off
+     */
+    cluster_allowed_hosts?: string;
 };
 
 export type default_role = 'member' | 'viewer';
@@ -56,6 +60,10 @@ export type AdminSettingsResponse = {
     guest_max_job_minutes: number;
     guest_max_concurrent_jobs: number;
     guest_retention_days: number;
+    /**
+     * Comma-separated SSH hosts for cluster jobs; empty = off
+     */
+    cluster_allowed_hosts?: string;
     /**
      * Keys saved in the DB; the rest use env/default values
      */
@@ -198,6 +206,77 @@ export type BoundaryConditions = {
 export type ChangePasswordRequest = {
     current_password: string;
     new_password: string;
+};
+
+export type ClusterKey = {
+    public_key: string;
+};
+
+export type ClusterProfileIn = {
+    host: string;
+    port?: number;
+    username: string;
+    account: string;
+    /**
+     * Julia project of your PeriLab install
+     */
+    perilab_path: string;
+    /**
+     * Remote base folder for runs
+     */
+    workdir?: string;
+    /**
+     * Empty = the cluster's default partition
+     */
+    partition?: string;
+    time_limit?: string;
+    /**
+     * sbatch script with {{placeholders}}; null = the default
+     */
+    job_template?: string | null;
+};
+
+export type ClusterProfileOut = {
+    host: string;
+    port?: number;
+    username: string;
+    account: string;
+    /**
+     * Julia project of your PeriLab install
+     */
+    perilab_path: string;
+    /**
+     * Remote base folder for runs
+     */
+    workdir?: string;
+    /**
+     * Empty = the cluster's default partition
+     */
+    partition?: string;
+    time_limit?: string;
+    /**
+     * sbatch script with {{placeholders}}; null = the default
+     */
+    job_template?: string | null;
+    /**
+     * Add this line to ~/.ssh/authorized_keys on the cluster
+     */
+    public_key?: string | null;
+    /**
+     * Pinned by the first successful connection test
+     */
+    host_key_fingerprint?: string | null;
+    /**
+     * Used while job_template is null
+     */
+    default_job_template?: string;
+};
+
+export type ClusterTestResult = {
+    ok: boolean;
+    host_key_fingerprint: string;
+    sbatch: string;
+    perilab_found: boolean;
 };
 
 export type ColumnSummary = {
@@ -912,9 +991,9 @@ export type RunPerihubSimulationData = {
     modelName?: string;
     requestBody?: ModelData | null;
     /**
-     * PeriLab server to run on; default: the instance's default (see GET /config/public)
+     * PeriLab server to run on; default: the instance's default (see GET /config/public). 'cluster' submits to the caller's own Slurm cluster profile (enterprise, see save_cluster_profile)
      */
-    solver?: 'local' | 'external' | null;
+    solver?: 'local' | 'external' | 'cluster' | null;
     verbose?: boolean;
 };
 
@@ -1137,6 +1216,20 @@ export type OidcCallbackData = {
 };
 
 export type OidcCallbackResponse = AuthResponse;
+
+export type GetClusterProfileResponse = ClusterProfileOut;
+
+export type SaveClusterProfileData = {
+    requestBody: ClusterProfileIn;
+};
+
+export type SaveClusterProfileResponse = ClusterProfileOut;
+
+export type DeleteClusterProfileResponse = void;
+
+export type GenerateClusterKeyResponse = ClusterKey;
+
+export type TestClusterConnectionResponse = ClusterTestResult;
 
 export type ListLibraryItemsData = {
     kind: 'model-config' | 'material';
@@ -2024,6 +2117,57 @@ export type $OpenApiTs = {
                  * Validation Error
                  */
                 422: HTTPValidationError;
+            };
+        };
+    };
+    '/cluster/profile': {
+        get: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: ClusterProfileOut;
+            };
+        };
+        put: {
+            req: SaveClusterProfileData;
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: ClusterProfileOut;
+                /**
+                 * Validation Error
+                 */
+                422: HTTPValidationError;
+            };
+        };
+        delete: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                204: void;
+            };
+        };
+    };
+    '/cluster/profile/key': {
+        post: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: ClusterKey;
+            };
+        };
+    };
+    '/cluster/profile/test': {
+        post: {
+            res: {
+                /**
+                 * Successful Response
+                 */
+                200: ClusterTestResult;
             };
         };
     };

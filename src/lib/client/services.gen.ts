@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { GeneratePerihubModelData, GeneratePerihubModelResponse, PreviewModelData, PreviewModelResponse, ListPerihubModelsData, ListPerihubModelsResponse, AddModelData, AddModelResponse, GetPerihubModelParamsData, GetPerihubModelParamsResponse, ListPerihubModelAnalysesData, ListPerihubModelAnalysesResponse, GetPerihubModelConfigData, GetPerihubModelConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, GetPerihubInputDeckData, GetPerihubInputDeckResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunPerihubSimulationData, RunPerihubSimulationResponse, DeleteModelRunsData, DeleteModelRunsResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListPerihubRunsResponse, StreamRunLogData, StreamRunLogResponse, GetPerihubRunData, GetPerihubRunResponse, DeleteRunData, DeleteRunResponse, GetPerihubRunLogData, GetPerihubRunLogResponse, GetRunInputData, GetRunInputResponse, CancelPerihubRunData, CancelPerihubRunResponse, RenderPerihubAnalysisData, RenderPerihubAnalysisResponse, GetPlotData, GetPlotResponse, GetPerihubRunSummaryData, GetPerihubRunSummaryResponse, GetPerihubResultFileData, GetPerihubResultFileResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, UpdateAccountSettingsData, UpdateAccountSettingsResponse, ChangePasswordData, ChangePasswordResponse, ForgotPasswordData, ForgotPasswordResponse, ResetPasswordData, ResetPasswordResponse, DeleteAccountData, DeleteAccountResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
+import type { GeneratePerihubModelData, GeneratePerihubModelResponse, PreviewModelData, PreviewModelResponse, ListPerihubModelsData, ListPerihubModelsResponse, AddModelData, AddModelResponse, GetPerihubModelParamsData, GetPerihubModelParamsResponse, ListPerihubModelAnalysesData, ListPerihubModelAnalysesResponse, GetPerihubModelConfigData, GetPerihubModelConfigResponse, SaveConfigData, SaveConfigResponse, GetModelData, GetModelResponse, GetPointDataData, GetPointDataResponse, GetWorkspaceFileData, GetWorkspaceFileResponse, GetPerihubInputDeckData, GetPerihubInputDeckResponse, WriteInputFileData, WriteInputFileResponse, GetOwnModelFileData, GetOwnModelFileResponse, SaveModelFileData, SaveModelFileResponse, DeleteModelFileData, DeleteModelFileResponse, UploadFilesData, UploadFilesResponse, RunPerihubSimulationData, RunPerihubSimulationResponse, DeleteModelRunsData, DeleteModelRunsResponse, GetJobFoldersData, GetJobFoldersResponse, GetStatusData, GetStatusResponse, ListPerihubRunsResponse, StreamRunLogData, StreamRunLogResponse, GetPerihubRunData, GetPerihubRunResponse, DeleteRunData, DeleteRunResponse, GetPerihubRunLogData, GetPerihubRunLogResponse, GetRunInputData, GetRunInputResponse, CancelPerihubRunData, CancelPerihubRunResponse, RenderPerihubAnalysisData, RenderPerihubAnalysisResponse, GetPlotData, GetPlotResponse, GetPerihubRunSummaryData, GetPerihubRunSummaryResponse, GetPerihubResultFileData, GetPerihubResultFileResponse, GetResultsData, GetResultsResponse, GetPointDataResultsData, GetPointDataResultsResponse, DeleteStaleUserDataData, DeleteStaleUserDataResponse, GetPublicationsResponse, GetPrognosisEnergyResponse, GetCurrentEnergyResponse, GetMyUsageResponse, GetLicenseStatusResponse, RefreshLicenseResponse, CreateGuestResponse, SignupData, SignupResponse, LoginData, LoginResponse, GetCurrentUserInfoResponse, UpdateAccountSettingsData, UpdateAccountSettingsResponse, ChangePasswordData, ChangePasswordResponse, ForgotPasswordData, ForgotPasswordResponse, ResetPasswordData, ResetPasswordResponse, DeleteAccountData, DeleteAccountResponse, ListApiKeysResponse, CreateApiKeyData, CreateApiKeyResponse, RevokeApiKeyData, RevokeApiKeyResponse, StartOidcLoginResponse, OidcCallbackData, OidcCallbackResponse, GetClusterProfileResponse, SaveClusterProfileData, SaveClusterProfileResponse, DeleteClusterProfileResponse, GenerateClusterKeyResponse, TestClusterConnectionResponse, ListLibraryItemsData, ListLibraryItemsResponse, CreateLibraryItemData, CreateLibraryItemResponse, UpdateLibraryItemData, UpdateLibraryItemResponse, DeleteLibraryItemData, DeleteLibraryItemResponse, ListProjectsResponse, CreateProjectData, CreateProjectResponse, ListProjectMembersData, ListProjectMembersResponse, AddProjectMemberData, AddProjectMemberResponse, RemoveProjectMemberData, RemoveProjectMemberResponse, ListTeamsResponse, CreateTeamData, CreateTeamResponse, AddTeamMemberData, AddTeamMemberResponse, RemoveTeamMemberData, RemoveTeamMemberResponse, GetPublicConfigResponse, AdminListUsersResponse, AdminUpdateUserData, AdminUpdateUserResponse, AdminListJobsData, AdminListJobsResponse, AdminGetUsageResponse, AdminGetSettingsResponse, AdminUpdateSettingsData, AdminUpdateSettingsResponse, AdminGetAuditLogData, AdminGetAuditLogResponse, HealthcheckHealthGetResponse, GetVersionResponse } from './types.gen';
 
 /**
  * Generate Model
@@ -408,15 +408,15 @@ export const uploadFiles = (data: UploadFilesData): CancelablePromise<UploadFile
  * Submit a generated model folder to the PeriLab API as a new run and return its `run_id`. The body is optional:
  * without it the ModelData generate_perihub_model saved in `model_name`/`model_folder_name` is used (404 if the
  * folder was never generated); a body overrides it (only its `job` settings, e.g. `job.tasks` MPI processes, apply
- * here - the input deck is always the one generate wrote). Requires a database-backed account; 429 when the caller's quota or the instance's job slots are used up, 503 when PeriLab is
- * offline, 404 when this folder already has an active run. Poll GET /jobs/{run_id} (get_perihub_run) with the returned
- * run_id.
+ * here - the input deck is always the one generate wrote). Requires a database-backed account; 429 when the
+ * caller's quota or the instance's job slots are used up, 503 when PeriLab is offline, 404 when this folder already
+ * has an active run. Poll GET /jobs/{run_id} (get_perihub_run) with the returned run_id.
  * @param data The data for the request.
  * @param data.modelName
  * @param data.modelFolderName
  * @param data.verbose
  * @param data.jobIds
- * @param data.solver PeriLab server to run on; default: the instance's default (see GET /config/public)
+ * @param data.solver PeriLab server to run on; default: the instance's default (see GET /config/public). 'cluster' submits to the caller's own Slurm cluster profile (enterprise, see save_cluster_profile)
  * @param data.requestBody
  * @returns RunSubmitted Successful Response
  * @throws ApiError
@@ -1160,6 +1160,72 @@ export const oidcCallback = (data: OidcCallbackData): CancelablePromise<OidcCall
     errors: {
         422: 'Validation Error'
     }
+}); };
+
+/**
+ * Get Cluster Profile
+ * The caller's cluster profile (never the private key); 404 if they have none.
+ * @returns ClusterProfileOut Successful Response
+ * @throws ApiError
+ */
+export const getClusterProfile = (): CancelablePromise<GetClusterProfileResponse> => { return __request(OpenAPI, {
+    method: 'GET',
+    url: '/cluster/profile'
+}); };
+
+/**
+ * Save Cluster Profile
+ * Create or update the caller's cluster profile. 400 if the host isn't on the admin's allow-list; 409 when the
+ * login or workdir would change while cluster runs are in progress (they'd become unreachable).
+ * @param data The data for the request.
+ * @param data.requestBody
+ * @returns ClusterProfileOut Successful Response
+ * @throws ApiError
+ */
+export const saveClusterProfile = (data: SaveClusterProfileData): CancelablePromise<SaveClusterProfileResponse> => { return __request(OpenAPI, {
+    method: 'PUT',
+    url: '/cluster/profile',
+    body: data.requestBody,
+    mediaType: 'application/json',
+    errors: {
+        422: 'Validation Error'
+    }
+}); };
+
+/**
+ * Delete Cluster Profile
+ * Delete the caller's cluster profile and key. 409 while cluster runs are in progress.
+ * @returns void Successful Response
+ * @throws ApiError
+ */
+export const deleteClusterProfile = (): CancelablePromise<DeleteClusterProfileResponse> => { return __request(OpenAPI, {
+    method: 'DELETE',
+    url: '/cluster/profile'
+}); };
+
+/**
+ * Generate Cluster Key
+ * Generate a new ed25519 keypair for the caller's profile, replacing the old one, and return the public key to
+ * add to ~/.ssh/authorized_keys on the cluster. 409 while cluster runs are in progress.
+ * @returns ClusterKey Successful Response
+ * @throws ApiError
+ */
+export const generateClusterKey = (): CancelablePromise<GenerateClusterKeyResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/cluster/profile/key'
+}); };
+
+/**
+ * Test Cluster Connection
+ * Log in to the cluster with the caller's key, pin its host key on the first success, and check that `sbatch`
+ * works and `perilab_path` exists. 503 when the cluster can't be reached or the key isn't authorized, 409 when its
+ * host key changed since it was pinned.
+ * @returns ClusterTestResult Successful Response
+ * @throws ApiError
+ */
+export const testClusterConnection = (): CancelablePromise<TestClusterConnectionResponse> => { return __request(OpenAPI, {
+    method: 'POST',
+    url: '/cluster/profile/test'
 }); };
 
 /**

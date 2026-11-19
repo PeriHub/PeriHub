@@ -70,6 +70,8 @@ max_concurrent_jobs_per_user = int(os.getenv("MAX_CONCURRENT_JOBS_PER_USER", def
 solver_backend_kind = os.getenv("SOLVER_BACKEND", default="local")
 local_perilab_api_url = os.getenv("LOCAL_PERILAB_API_URL", default="http://localhost:3000")
 external_perilab_url = os.getenv("EXTERNAL_PERILAB_URL", default="")
+# Comma-separated SSH hosts users may submit Slurm jobs to (enterprise, ee/cluster.py); empty = feature off.
+cluster_allowed_hosts = os.getenv("CLUSTER_ALLOWED_HOSTS", default="")
 # How long to wait on a single call to the PeriLab API before giving up.
 perilab_api_timeout_seconds = float(os.getenv("PERILAB_API_TIMEOUT_SECONDS", default="30"))
 

@@ -92,13 +92,12 @@ def _run_status_dict(
         result["results"] = entry.status == JOB_DONE
         return result
 
-    client = get_solver_backend(entry.solver).client()
     # Result files only mean something once the job has actually started -
     # skip the API call while it's still sitting in the queue.
     if entry.status != JOB_QUEUED:
         for job_id in job_ids:
             try:
-                for filename in client.list_files(job_id):
+                for filename in get_solver_backend(entry.solver, entry.user_id).client().list_files(job_id):
                     if filename.endswith(".e"):
                         result["results"] = True
                     if filename.endswith(".csv"):
@@ -112,7 +111,7 @@ def _run_status_dict(
 def _output_missing(entry: JobQueueEntry) -> bool:
     """A finished run whose PeriLab output folder is gone (deleted, or cleaned up by PeriLab). Only knowable for
     the local solver, whose folders are on this disk; running/queued jobs may not have created theirs yet."""
-    if entry.status != JOB_DONE or not get_solver_backend(entry.solver).shares_local_filesystem:
+    if entry.status != JOB_DONE or entry.solver != "local":
         return False
     root = FileHandler.get_local_simulation_path()
     return not any(os.path.isdir(os.path.join(root, job_id)) for job_id in perilab_job_ids(entry))
@@ -251,8 +250,10 @@ async def run_model(
     model_folder_name: str = "Default",
     verbose: bool = False,
     job_ids: Optional[str] = "-1",
-    solver: Optional[Literal["local", "external"]] = Query(
-        None, description="PeriLab server to run on; default: the instance's default (see GET /config/public)"
+    solver: Optional[Literal["local", "external", "cluster"]] = Query(
+        None,
+        description="PeriLab server to run on; default: the instance's default (see GET /config/public). "
+        "'cluster' submits to the caller's own Slurm cluster profile (enterprise, see save_cluster_profile)",
     ),
     request: Request = "",
     db: Session = Depends(get_db),
@@ -285,10 +286,10 @@ async def run_model(
         if job_ids != "-1":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=GUEST_DENIED)
     solver = solver or ("local" if db_user.role == "guest" else default_solver())
+    if solver != "local" and db_user.role == "guest":
+        # Customer hardware or a personal cluster account - not for anonymous guests.
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=GUEST_DENIED)
     if solver == "external":
-        # Usually customer hardware - not for anonymous guests.
-        if db_user.role == "guest":
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=GUEST_DENIED)
         if not external_available():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No external PeriLab is configured.")
     try:
@@ -335,7 +336,7 @@ async def run_model(
 
     # Fail fast while the PeriLab API is down, before submit_job records a
     # FAILED run for what is only an outage.
-    client = get_solver_backend(solver).client()
+    client = get_solver_backend(solver, db_user.id).client()
     if not client.health():
         audit_log.record(username, "run_model", model_name, request, result="rejected_perilab_offline")
         raise HTTPException(
@@ -530,7 +531,7 @@ def stream_run_log(
 
     # First job only for a batch submission, same as GET /{run_id}/log.
     try:
-        chunks = get_solver_backend(entry.solver).client().stream_log(job_ids[0])
+        chunks = get_solver_backend(entry.solver, entry.user_id).client().stream_log(job_ids[0])
     except HTTPException as e:
         # 503 = PeriLab API offline; keep it distinct from "no log yet" so the
         # frontend doesn't wait for a start that can't happen.
@@ -590,7 +591,7 @@ def get_run_log(
         )
     # First job only for a batch submission, same as the log stream.
     try:
-        text = get_solver_backend(entry.solver).client().get_log(job_ids[0], tail)
+        text = get_solver_backend(entry.solver, entry.user_id).client().get_log(job_ids[0], tail)
     except HTTPException as e:
         if e.status_code == status.HTTP_503_SERVICE_UNAVAILABLE:
             raise
@@ -618,8 +619,8 @@ def get_run_input(run_id: str, request: Request, db: Session = Depends(get_db)) 
             detail="No PeriLab job ID associated with this run yet. The job may still be queued.",
         )
     # First job only for a batch submission, same as the log; a batch variant's deck is "<model>_<id>.yaml".
-    client = get_solver_backend(entry.solver).client()
     try:
+        client = get_solver_backend(entry.solver, entry.user_id).client()
         decks = [f for f in client.list_files(job_ids[0]) if f.endswith(".yaml")]
         if not decks:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="The run has no input deck")
@@ -695,12 +696,12 @@ def delete_model_runs(
 
 
 def _delete_perilab_jobs(entry: JobQueueEntry) -> None:
-    client = get_solver_backend(entry.solver).client()
     drop_run_results(entry.id)
     for job_id in perilab_job_ids(entry):
         drop_result_cache(job_id)
         try:
-            client.delete_job(job_id)
+            # Inside the try: a cluster run whose profile is gone must still be deletable here.
+            get_solver_backend(entry.solver, entry.user_id).client().delete_job(job_id)
         except HTTPException as e:
             # Already gone on the PeriLab side (or the API is down) - don't
             # leave an undeletable entry behind because of it.

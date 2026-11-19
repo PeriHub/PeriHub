@@ -41,14 +41,17 @@ def delete_account(db: Session, user: User) -> None:
         if entry.status in _ACTIVE:
             sync_status(db, entry)
             if entry.status in _ACTIVE:
-                cancel_running(db, entry)
+                try:
+                    cancel_running(db, entry)
+                except HTTPException as e:  # unreachable solver/cluster: the account still goes
+                    log.warning("account: could not cancel run %s: %s", entry.id, e.detail)
         # Results live under simulations/<perilab_job_id>/ or on the external PeriLab server, not in the user
         # folder - delete them with the entry (same as routers/jobs.py delete_run).
         drop_run_results(entry.id)
         for job_id in perilab_job_ids(entry):
             drop_result_cache(job_id)
             try:
-                get_solver_backend(entry.solver).client().delete_job(job_id)
+                get_solver_backend(entry.solver, entry.user_id).client().delete_job(job_id)
             except HTTPException as e:
                 log.warning("account: could not delete PeriLab job %s: %s", job_id, e.detail)
     db.execute(delete(JobQueueEntry).where(JobQueueEntry.user_id == user.id))

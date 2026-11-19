@@ -6,11 +6,9 @@ fully without any license server set up. Gating only kicks in once
 LICENSE_SERVER_URL is actually configured, at which point a feature must be
 present in the current LicenseStatus.features list.
 
-No router currently calls `require_feature()` - the two candidate paid
-features referenced elsewhere in this change set (cluster job priority,
-the external solver backend) don't have call sites gating them yet. This
-module exists so that wiring is a one-line addition at the relevant router
-rather than a new pattern to invent later.
+Gated features: "oauth_login" (ee/oauth.py) and "cluster_jobs" (Slurm
+submission with the user's own cluster login, ee/cluster.py). Gating a new
+feature is a one-line `require_feature()` at the relevant router.
 """
 
 from fastapi import HTTPException, status

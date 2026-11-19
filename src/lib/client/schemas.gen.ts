@@ -141,6 +141,12 @@ export const $AdminSettings = {
             type: 'integer',
             minimum: 1,
             title: 'Guest Retention Days'
+        },
+        cluster_allowed_hosts: {
+            type: 'string',
+            title: 'Cluster Allowed Hosts',
+            description: 'Comma-separated SSH hosts for cluster jobs; empty = off',
+            default: ''
         }
     },
     type: 'object',
@@ -202,6 +208,12 @@ export const $AdminSettingsResponse = {
             type: 'integer',
             minimum: 1,
             title: 'Guest Retention Days'
+        },
+        cluster_allowed_hosts: {
+            type: 'string',
+            title: 'Cluster Allowed Hosts',
+            description: 'Comma-separated SSH hosts for cluster jobs; empty = off',
+            default: ''
         },
         overridden: {
             items: {
@@ -761,6 +773,231 @@ export const $ChangePasswordRequest = {
     type: 'object',
     required: ['current_password', 'new_password'],
     title: 'ChangePasswordRequest'
+} as const;
+
+export const $ClusterKey = {
+    properties: {
+        public_key: {
+            type: 'string',
+            title: 'Public Key'
+        }
+    },
+    type: 'object',
+    required: ['public_key'],
+    title: 'ClusterKey'
+} as const;
+
+export const $ClusterProfileIn = {
+    properties: {
+        host: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Host'
+        },
+        port: {
+            type: 'integer',
+            maximum: 65535,
+            minimum: 1,
+            title: 'Port',
+            default: 22
+        },
+        username: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Username'
+        },
+        account: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Account'
+        },
+        perilab_path: {
+            type: 'string',
+            maxLength: 1000,
+            minLength: 1,
+            title: 'Perilab Path',
+            description: 'Julia project of your PeriLab install'
+        },
+        workdir: {
+            type: 'string',
+            maxLength: 1000,
+            minLength: 1,
+            title: 'Workdir',
+            description: 'Remote base folder for runs',
+            default: '~/perihub'
+        },
+        partition: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Partition',
+            description: "Empty = the cluster's default partition",
+            default: ''
+        },
+        time_limit: {
+            type: 'string',
+            maxLength: 32,
+            minLength: 1,
+            title: 'Time Limit',
+            default: '01:00:00'
+        },
+        job_template: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Job Template',
+            description: 'sbatch script with {{placeholders}}; null = the default'
+        }
+    },
+    type: 'object',
+    required: ['host', 'username', 'account', 'perilab_path'],
+    title: 'ClusterProfileIn'
+} as const;
+
+export const $ClusterProfileOut = {
+    properties: {
+        host: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Host'
+        },
+        port: {
+            type: 'integer',
+            maximum: 65535,
+            minimum: 1,
+            title: 'Port',
+            default: 22
+        },
+        username: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Username'
+        },
+        account: {
+            type: 'string',
+            maxLength: 255,
+            minLength: 1,
+            title: 'Account'
+        },
+        perilab_path: {
+            type: 'string',
+            maxLength: 1000,
+            minLength: 1,
+            title: 'Perilab Path',
+            description: 'Julia project of your PeriLab install'
+        },
+        workdir: {
+            type: 'string',
+            maxLength: 1000,
+            minLength: 1,
+            title: 'Workdir',
+            description: 'Remote base folder for runs',
+            default: '~/perihub'
+        },
+        partition: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Partition',
+            description: "Empty = the cluster's default partition",
+            default: ''
+        },
+        time_limit: {
+            type: 'string',
+            maxLength: 32,
+            minLength: 1,
+            title: 'Time Limit',
+            default: '01:00:00'
+        },
+        job_template: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Job Template',
+            description: 'sbatch script with {{placeholders}}; null = the default'
+        },
+        public_key: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Public Key',
+            description: 'Add this line to ~/.ssh/authorized_keys on the cluster'
+        },
+        host_key_fingerprint: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Host Key Fingerprint',
+            description: 'Pinned by the first successful connection test'
+        },
+        default_job_template: {
+            type: 'string',
+            title: 'Default Job Template',
+            description: 'Used while job_template is null',
+            default: `#!/bin/bash
+#SBATCH --job-name=perihub-{{run}}
+#SBATCH --account={{account}}
+{{partition_line}}
+#SBATCH --ntasks={{num_procs}}
+#SBATCH --time={{time_limit}}
+#SBATCH --output=perilab.log
+cd {{job_dir}}
+srun julia --project={{perilab_path}} \
+  -e 'using PeriLab; delete!(ENV, "OPAL_PREFIX"); PeriLab.main(["{{deck}}", "-s"]); exit()'
+echo $? > exit_code
+`
+        }
+    },
+    type: 'object',
+    required: ['host', 'username', 'account', 'perilab_path'],
+    title: 'ClusterProfileOut'
+} as const;
+
+export const $ClusterTestResult = {
+    properties: {
+        ok: {
+            type: 'boolean',
+            title: 'Ok'
+        },
+        host_key_fingerprint: {
+            type: 'string',
+            title: 'Host Key Fingerprint'
+        },
+        sbatch: {
+            type: 'string',
+            title: 'Sbatch'
+        },
+        perilab_found: {
+            type: 'boolean',
+            title: 'Perilab Found'
+        }
+    },
+    type: 'object',
+    required: ['ok', 'host_key_fingerprint', 'sbatch', 'perilab_found'],
+    title: 'ClusterTestResult'
 } as const;
 
 export const $ColumnSummary = {
